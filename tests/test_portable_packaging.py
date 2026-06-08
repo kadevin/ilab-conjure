@@ -110,6 +110,13 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("actions/upload-artifact", text)
         self.assertIn("actions/download-artifact", text)
         self.assertIn("GH_REPO: ${{ github.repository }}", text)
+        self.assertIn("## 发布说明", text)
+        self.assertIn("此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。", text)
+        self.assertIn("## 免安装一键包", text)
+        self.assertIn('release_version="${RELEASE_TAG#v}"', text)
+        self.assertIn("ilab-gpt-conjure_windows_portable_x64_${release_version}.zip", text)
+        self.assertNotIn("<version>", text)
+        self.assertNotIn("Portable packages for iLab GPT Conjure.", text)
         self.assertIn("gh release upload", text)
 
 

@@ -185,7 +185,21 @@ jobs:
         run: |
           set -euo pipefail
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --notes "Portable packages for iLab GPT Conjure."
+            release_version="${RELEASE_TAG#v}"
+            cat > release-notes.md <<EOF
+          ## 发布说明
+
+          此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。
+
+          ## 免安装一键包
+
+          - Windows x64：`ilab-gpt-conjure_windows_portable_x64_${release_version}.zip`
+          - macOS Apple Silicon：`ilab-gpt-conjure_macos_portable_arm64_${release_version}.zip`
+          - macOS Intel：`ilab-gpt-conjure_macos_portable_x64_${release_version}.zip`
+
+          macOS 包是未签名的 portable zip。如果 macOS 拦截启动脚本，可以右键或 Control-click 启动脚本，选择 Open；也可以对解压目录移除 quarantine 标记。
+          EOF
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --notes-file release-notes.md
           fi
           mapfile -d '' assets < <(find dist-assets -type f \( -name "*.zip" -o -name "*.sha256.txt" \) -print0)
           if [[ "${#assets[@]}" -eq 0 ]]; then
