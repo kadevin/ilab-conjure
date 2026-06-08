@@ -1,26 +1,24 @@
 <h1 align="center">iLab GPT Conjure</h1>
 
 <p align="center">
-  <strong>Professional local-first AI image generation workbench for WebUI and CLI workflows.</strong>
+  <strong>Local-first AI image generation workbench for WebUI, CLI, prompt templates, and reusable reference workflows.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=release&color=0EA5E9"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=stars&color=0284C7"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=forks&color=0369A1"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/issues"><img alt="issues" src="https://img.shields.io/github/issues/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=issues&color=F59E0B"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/pulls"><img alt="pull requests" src="https://img.shields.io/github/issues-pr/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=PRs&color=7C3AED"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-gpt-conjure?style=for-the-badge&logo=github&label=last%20commit&color=10B981"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/kadevin/ilab-gpt-conjure/ci.yml?branch=main&style=for-the-badge&logo=github&label=CI"></a>
+  <a href="https://github.com/kadevin/ilab-gpt-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=release&color=0EA5E9"></a>
+  <a href="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/kadevin/ilab-gpt-conjure/ci.yml?branch=main&style=flat-square&logo=github&label=CI"></a>
+  <a href="https://github.com/kadevin/ilab-gpt-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=last%20commit&color=10B981"></a>
+  <a href="https://github.com/kadevin/ilab-gpt-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=stars&color=0284C7"></a>
+  <a href="https://github.com/kadevin/ilab-gpt-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=forks&color=0369A1"></a>
 </p>
 
 <p align="center">
-  <img alt="license AGPL-3.0-only" src="https://img.shields.io/badge/license-AGPL--3.0--only-22C55E?style=for-the-badge">
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white">
-  <img alt="FastAPI WebUI" src="https://img.shields.io/badge/WebUI-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white">
-  <img alt="CLI" src="https://img.shields.io/badge/CLI-enabled-334155?style=for-the-badge">
-  <img alt="OpenAI-Compatible API" src="https://img.shields.io/badge/OpenAI--Compatible-API-111827?style=for-the-badge">
-  <img alt="Advanced OAuth mode" src="https://img.shields.io/badge/local%20OAuth-advanced%20mode-B45309?style=for-the-badge">
+  <img alt="license AGPL-3.0-only" src="https://img.shields.io/badge/license-AGPL--3.0--only-22C55E?style=flat-square">
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img alt="FastAPI WebUI" src="https://img.shields.io/badge/WebUI-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white">
+  <img alt="CLI" src="https://img.shields.io/badge/CLI-enabled-334155?style=flat-square">
+  <img alt="OpenAI-Compatible API" src="https://img.shields.io/badge/OpenAI--Compatible-API-111827?style=flat-square">
+  <img alt="Advanced OAuth mode" src="https://img.shields.io/badge/local%20OAuth-advanced%20mode-B45309?style=flat-square">
 </p>
 
 
