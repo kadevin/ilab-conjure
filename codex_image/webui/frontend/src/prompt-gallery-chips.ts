@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { positionPromptPopoverAtAnchor } from "./prompt-popover-position";
+import { formatTranslation, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -179,7 +180,7 @@ export function createGalleryChip(item: any): HTMLElement {
   remove.className = "gallery-chip-remove";
   remove.type = "button";
   remove.setAttribute("data-remove-gallery-chip", "");
-  remove.setAttribute("aria-label", `移除 @${item.name}`);
+  remove.setAttribute("aria-label", formatTranslation("promptGallery.remove", { name: item.name }));
   remove.textContent = "×";
   chip.append(image, label, remove);
   chip.addEventListener("keydown", (event: any) => {
@@ -248,7 +249,7 @@ export function syncGalleryInputsFromPrompt(): boolean {
     if (item) return gallerySource(item);
     return gallerySource({
       id: itemId,
-      name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || "图库图片",
+      name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || translate("gallery.imageFallback"),
       category: chip.dataset.galleryCategory || "",
       category_name: chip.dataset.galleryCategoryName || "",
       category_prompt_role: chip.dataset.galleryCategoryPromptRole || "",

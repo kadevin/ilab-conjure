@@ -12,6 +12,7 @@ class PortablePackagingTests(unittest.TestCase):
         text = workflow.read_text(encoding="utf-8")
         self.assertIn("name: CI", text)
         self.assertIn("Public export guard", text)
+        self.assertIn("github.repository == 'kadevin/ilab-gpt-conjure'", text)
         self.assertNotIn("hashFiles('.public-export-manifest.json')", text)
 
     def test_windows_portable_packaging_files_define_self_contained_bundle(self) -> None:

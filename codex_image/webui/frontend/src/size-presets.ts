@@ -3,6 +3,7 @@ import { currentAuthSource } from "./auth-source";
 import { currentApiImageModel, currentApiImagesConcurrency, currentApiMode, currentApiProviderId } from "./api-provider-settings";
 import { currentMainModel } from "./main-model-combobox";
 import { currentQuantity } from "./output-controls";
+import { translate } from "./i18n";
 
 export const DEFAULT_RESOLUTION = "standard";
 export const DEFAULT_RATIO = "1:1";
@@ -138,12 +139,12 @@ export function customDimensionValue(input: any): number | null {
 }
 
 export function customSizeValidationMessage(width: any = customDimensionValue(els.customWidth), height: any = customDimensionValue(els.customHeight)): string {
-  if (width === null || height === null) return "请输入宽度和高度";
-  if (width < 16 || width > 3840 || height < 16 || height > 3840) return "宽高需在 16-3840 px 之间";
-  if (width % 16 !== 0 || height % 16 !== 0) return "宽高需为 16 的倍数";
-  if (Math.max(width, height) / Math.min(width, height) > GPT_IMAGE_2_MAX_LONG_SHORT_RATIO) return "长短边比例不能超过 3:1";
+  if (width === null || height === null) return translate("output.customSizeRequired");
+  if (width < 16 || width > 3840 || height < 16 || height > 3840) return translate("output.customSizeBounds");
+  if (width % 16 !== 0 || height % 16 !== 0) return translate("output.customSizeMultiple");
+  if (Math.max(width, height) / Math.min(width, height) > GPT_IMAGE_2_MAX_LONG_SHORT_RATIO) return translate("output.customSizeRatio");
   const totalPixels = width * height;
-  if (totalPixels < GPT_IMAGE_2_MIN_PIXELS || totalPixels > GPT_IMAGE_2_MAX_PIXELS) return "总像素需在 655,360-8,294,400 之间";
+  if (totalPixels < GPT_IMAGE_2_MIN_PIXELS || totalPixels > GPT_IMAGE_2_MAX_PIXELS) return translate("output.customSizePixels");
   return "";
 }
 

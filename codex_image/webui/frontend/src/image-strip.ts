@@ -1,5 +1,6 @@
 import { getEls } from "./dom";
 import { getLegacyBridge, getState } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 let imageStripFeatureInitialized = false;
 
@@ -99,12 +100,14 @@ function renderImageStrip() {
       image.src = previewUrl;
     }
     image.alt = legacyMethod("sourceName", source);
-    wrapper.title = source.missing ? (source.kind === "asset" ? "最近上传已删除" : "图库图片已删除") : legacyMethod("sourceName", source);
+    wrapper.title = source.missing
+      ? (source.kind === "asset" ? translate("imageInput.deletedRecent") : translate("imageInput.deletedGallery"))
+      : legacyMethod("sourceName", source);
     if (legacyMethod("isEditableImageSource", source)) {
       wrapper.classList.add("editable-thumb");
       wrapper.tabIndex = 0;
       wrapper.setAttribute("role", "button");
-      wrapper.setAttribute("aria-label", `编辑${legacyMethod("sourceName", source)}`);
+      wrapper.setAttribute("aria-label", formatTranslation("imageInput.editImage", { name: legacyMethod("sourceName", source) }));
       wrapper.addEventListener("click", (event: any) => {
         if (event.target.closest("button")) return;
         legacyMethod("openImageEditor", index);
@@ -119,7 +122,11 @@ function renderImageStrip() {
     }
     const badge = document.createElement("span");
     badge.className = "thumb-badge";
-    badge.textContent = source.kind === "gallery" ? legacyMethod("categoryLabel", source.category) : source.kind === "asset" ? "最近" : "上传";
+    badge.textContent = source.kind === "gallery"
+      ? legacyMethod("categoryLabel", source.category)
+      : source.kind === "asset"
+        ? translate("imageInput.recentBadge")
+        : translate("imageInput.uploadBadge");
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "thumb-remove";
@@ -141,9 +148,9 @@ function renderImageStrip() {
       const addToGallery = document.createElement("button");
       addToGallery.type = "button";
       addToGallery.className = "add-upload-to-gallery";
-      addToGallery.setAttribute("aria-label", "加入图库");
-      addToGallery.title = "加入图库";
-      addToGallery.append(createThumbAddIcon(), document.createTextNode("图库"));
+      addToGallery.setAttribute("aria-label", translate("imageInput.addToGallery"));
+      addToGallery.title = translate("imageInput.addToGallery");
+      addToGallery.append(createThumbAddIcon(), document.createTextNode(translate("imageInput.addToGalleryShort")));
       addToGallery.addEventListener("click", (event) => {
         event.stopPropagation();
         legacyMethod("openAddToGallery", index);
@@ -153,7 +160,7 @@ function renderImageStrip() {
     if (source.edited) {
       const editedBadge = document.createElement("span");
       editedBadge.className = "thumb-edited-badge";
-      editedBadge.textContent = "已编辑";
+      editedBadge.textContent = translate("imageInput.editedBadge");
       wrapper.append(editedBadge);
     }
     thumbList.append(wrapper);
@@ -167,6 +174,7 @@ function bindImageStripEvents() {
   els.clearImagesButton?.addEventListener("click", clearImages);
   els.imageStrip?.addEventListener("wheel", handleImageStripWheel, { passive: false });
   window.addEventListener("resize", updateImageStripDensity);
+  document.addEventListener(LOCALE_CHANGE_EVENT, renderImageStrip);
 }
 
 export function initImageStripFeature() {

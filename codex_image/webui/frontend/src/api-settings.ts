@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import {
   applyAuthSourceSelection,
   authSourceDetailText,
@@ -50,6 +51,13 @@ let apiSettingsFeatureInitialized = false;
 export function initApiSettingsFeature(): void {
   if (apiSettingsFeatureInitialized) return;
   apiSettingsFeatureInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    const bridge = getLegacyBridge();
+    renderAuthSource(bridge.state.authStatus);
+    if (!bridge.els.apiSettingsModal?.classList.contains("hidden")) {
+      setApiSettingsFeedback(translate("apiSettings.status"), "");
+    }
+  });
   Object.assign(getLegacyBridge().methods, {
     refreshHealth,
     setAuthSource,

@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -97,9 +98,20 @@ function ensureTaskContextMenu() {
   taskContextMenuEl = document.createElement("div");
   taskContextMenuEl.className = "task-context-menu hidden";
   taskContextMenuEl.setAttribute("role", "menu");
-  taskContextMenuEl.setAttribute("aria-label", "任务右键菜单");
+  taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
   document.body.appendChild(taskContextMenuEl);
   return taskContextMenuEl;
+}
+
+function rerenderTaskContextMenuForLocale() {
+  if (!taskContextMenuEl) return;
+  taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
+  if (taskContextMenuEl.classList.contains("hidden")) return;
+  const taskId = String(taskContextMenuEl.dataset.taskContextTaskId || "");
+  const task = taskById(taskId);
+  if (!task) return;
+  taskContextMenuEl.innerHTML = taskContextMenuHtml(task);
+  bindTaskContextMenuActionEvents(taskContextMenuEl);
 }
 
 function taskContextMenuHtml(task: any) {
@@ -107,17 +119,17 @@ function taskContextMenuHtml(task: any) {
   const blocked = Boolean(task.local_pending || task.status === "running" || task.status === "submitting" || task.status === "queued");
   return `
     <div class="task-context-menu-section">
-      ${taskContextButton("view", "查看任务")}
-      ${taskContextButton("restore", "恢复到表单")}
+      ${taskContextButton("view", translate("taskContext.view"))}
+      ${taskContextButton("restore", translate("taskContext.restore"))}
     </div>
     <div class="task-context-menu-section">
-      ${taskContextButton("copy-id", "复制任务 ID")}
-      ${taskContextButton("copy-prompt", "复制提示词", !taskPromptText(task))}
-      ${taskContextButton("reveal-output", "打开输出目录", !hasOutput)}
+      ${taskContextButton("copy-id", translate("taskContext.copyId"))}
+      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskPromptText(task))}
+      ${taskContextButton("reveal-output", translate("taskContext.revealOutput"), !hasOutput)}
     </div>
     <div class="task-context-menu-section">
-      ${taskContextButton("archive", "归档任务")}
-      ${taskContextButton("delete", "删除任务", blocked, true)}
+      ${taskContextButton("archive", translate("taskContext.archive"))}
+      ${taskContextButton("delete", translate("taskContext.delete"), blocked, true)}
     </div>
   `;
 }
@@ -160,20 +172,20 @@ async function handleTaskContextMenuAction(button: HTMLButtonElement) {
       await selectTask(taskId);
     } else if (action === "restore") {
       applyTaskToForm(task);
-      setStatus("已恢复任务参数", "ok");
+      setStatus(translate("taskContext.restored"), "ok");
     } else if (action === "copy-id") {
       await copyText(taskId);
-      setStatus("任务 ID 已复制", "ok");
+      setStatus(translate("taskContext.idCopied"), "ok");
     } else if (action === "copy-prompt") {
       await copyText(taskPromptText(task));
-      setStatus("提示词已复制", "ok");
+      setStatus(translate("taskContext.promptCopied"), "ok");
     } else if (action === "reveal-output") {
       await revealTaskOutputDirectory(taskId);
     } else if (action === "archive") {
       await archiveTask(taskId);
     }
   } catch (error) {
-    setStatus(errorMessage(error, "任务操作失败"), "error");
+    setStatus(errorMessage(error, translate("taskContext.actionFailed")), "error");
   }
 }
 
@@ -183,8 +195,8 @@ async function revealTaskOutputDirectory(taskId: string) {
     headers: { "X-Requested-With": "codex-image-webui" },
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.detail || "打开输出目录失败");
-  setStatus("已打开输出目录", "ok");
+  if (!response.ok) throw new Error(data.detail || translate("taskContext.revealFailed"));
+  setStatus(translate("taskContext.revealOpened"), "ok");
 }
 
 async function copyText(text: string) {
@@ -247,6 +259,7 @@ export function initTaskContextMenuFeature() {
   if (taskContextMenuInitialized) return;
   taskContextMenuInitialized = true;
   bindTaskContextMenuEvents();
+  document.addEventListener(LOCALE_CHANGE_EVENT, rerenderTaskContextMenuForLocale);
   Object.assign(getLegacyBridge().methods, {
     openTaskContextMenu,
     closeTaskContextMenu,

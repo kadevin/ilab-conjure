@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -61,7 +62,7 @@ async function refreshTaskAfterActionConflict(taskId: any): Promise<boolean> {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview(updatedTask);
-    setStatus("任务状态已更新", "ok");
+    setStatus(translate("taskActions.updated"), "ok");
     return true;
   } catch (error) {
     console.warn(error);
@@ -83,9 +84,9 @@ async function archiveTask(taskId: any) {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    setStatus("会话已归档", "ok");
+    setStatus(translate("taskActions.archived"), "ok");
   } catch (error) {
-    setStatus(errorMessage(error, "归档失败"), "error");
+    setStatus(errorMessage(error, translate("taskActions.archiveFailed")), "error");
   }
 }
 
@@ -97,9 +98,9 @@ async function deleteTask(taskId: any) {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    setStatus("任务已删除", "ok");
+    setStatus(translate("taskActions.deleted"), "ok");
   } catch (error) {
-    setStatus(errorMessage(error, "删除失败"), "error");
+    setStatus(errorMessage(error, translate("taskActions.deleteFailed")), "error");
   }
 }
 
@@ -109,7 +110,7 @@ async function deleteTaskById(taskId: any) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.detail || "删除失败");
+    throw new Error(data.detail || translate("taskActions.deleteFailed"));
   }
   state.tasks = state.tasks.filter((item: any) => String(item.task_id) !== String(taskId));
   removeBatchSelectedTaskId(taskId);
@@ -123,7 +124,7 @@ async function retryFailedTask(taskId: any) {
   const task = state.tasks.find((item: any) => String(item.task_id) === String(taskId));
   if (!task || !canRetryFailedTask(task)) {
     if (await refreshTaskAfterActionConflict(taskId)) return;
-    setStatus("这个任务没有可重试的失败图片", "error");
+    setStatus(translate("taskActions.noRetryableFailedImages"), "error");
     return;
   }
   try {
@@ -133,17 +134,17 @@ async function retryFailedTask(taskId: any) {
       body: JSON.stringify({ api_provider_id: currentApiProviderId() }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new TaskActionHttpError(data.detail || "重试失败图片失败", response.status);
+    if (!response.ok) throw new TaskActionHttpError(data.detail || translate("taskActions.retryFailedOutputsFailed"), response.status);
     const updatedTask = data.task;
     state.tasks = [updatedTask, ...state.tasks.filter((item: any) => String(item.task_id) !== String(taskId))];
     state.selectedTaskId = updatedTask.task_id;
     renderTasks();
     renderPreview(updatedTask);
     await window.refreshQueue?.();
-    setStatus("已重新入队失败图片", "ok");
+    setStatus(translate("taskActions.requeuedFailedImages"), "ok");
   } catch (error) {
     if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-    setStatus(errorMessage(error, "重试失败图片失败"), "error");
+    setStatus(errorMessage(error, translate("taskActions.retryFailedOutputsFailed")), "error");
   }
 }
 
@@ -152,7 +153,7 @@ async function acceptTaskSuccesses(taskId: any) {
   const task = state.tasks.find((item: any) => String(item.task_id) === String(taskId));
   if (!task || !canAcceptTaskSuccesses(task)) {
     if (await refreshTaskAfterActionConflict(taskId)) return;
-    setStatus("这个任务没有可接受的成功图片", "error");
+    setStatus(translate("taskActions.noAcceptableSuccessImages"), "error");
     return;
   }
   try {
@@ -161,7 +162,7 @@ async function acceptTaskSuccesses(taskId: any) {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new TaskActionHttpError(data.detail || "接受成功结果失败", response.status);
+    if (!response.ok) throw new TaskActionHttpError(data.detail || translate("taskActions.acceptSuccessesFailed"), response.status);
     const updatedTask = data.task;
     updateTaskInState(updatedTask);
     state.selectedTaskId = updatedTask.task_id;
@@ -169,10 +170,10 @@ async function acceptTaskSuccesses(taskId: any) {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview(updatedTask);
-    setStatus("已接受成功结果", "ok");
+    setStatus(translate("taskActions.acceptedSuccesses"), "ok");
   } catch (error) {
     if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-    setStatus(errorMessage(error, "接受成功结果失败"), "error");
+    setStatus(errorMessage(error, translate("taskActions.acceptSuccessesFailed")), "error");
   }
 }
 
@@ -190,7 +191,7 @@ async function markTaskViewed(taskId: any) {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "已读状态更新失败");
+    if (!response.ok) throw new Error(data.detail || translate("taskActions.viewedUpdateFailed"));
     if (data.task) updateTaskInState(data.task);
     updateTaskSelectionVisuals(taskId);
   } catch (error) {
@@ -205,16 +206,16 @@ function openTaskDeleteConfirm(deleteButton: any, taskId: any) {
   const task = state.tasks.find((item) => String(item.task_id) === String(taskId));
   if (!task) return;
   if (task.status === "running" || task.local_pending) {
-    setStatus("运行中的任务不能删除", "error");
+    setStatus(translate("taskActions.runningCannotDelete"), "error");
     return;
   }
 
   const title = task.prompt || task.mode || taskId;
   openConfirmPopover(deleteButton, {
-    title: "删除任务？",
-    message: "会同时删除本地图片文件。",
+    title: translate("taskActions.deleteTitle"),
+    message: translate("taskActions.deleteMessage"),
     detail: title,
-    confirmText: "删除",
+    confirmText: translate("action.delete"),
     onConfirm: async () => {
       await deleteTask(taskId);
     },

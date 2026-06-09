@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const THEME_STORAGE_KEY = "codex-image-theme-preference";
 const THEME_OPTIONS = new Set(["system", "light", "dark"]);
@@ -41,6 +42,19 @@ function renderImageStrip() { legacyMethod("renderImageStrip"); }
 function renderTasks() { legacyMethod("renderTasks"); }
 function renderPreview() { legacyMethod("renderPreview"); }
 function updateRequestPreview() { legacyMethod("updateRequestPreview"); }
+function i18nText(key, fallback) {
+  const value = translate(key);
+  return value === key ? fallback : value;
+}
+
+function handleShellLocaleChange() {
+  if (!els.statusText) return;
+  const current = String(els.statusText.textContent || "").trim();
+  const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
+  if (waitingLabels.includes(current)) {
+    setStatus(translate("status.waiting"), "");
+  }
+}
 
 function bindShellUiEvents() {
   if (shellUiEventsBound) return;
@@ -52,6 +66,7 @@ function bindShellUiEvents() {
   });
   state.themeSystemQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
   state.themeSystemQuery?.addEventListener?.("change", handleThemeSystemChange);
+  document.addEventListener(LOCALE_CHANGE_EVENT, handleShellLocaleChange);
   if (els.copyJsonButton) {
     els.copyJsonButton.addEventListener("click", copyJson);
   }
@@ -244,9 +259,9 @@ function updateDocumentTitle() {
   const total = waitingCount + runningCount;
   let status = "";
   if (runningCount > 0) {
-    status = `生成中 · 队列 ${total}`;
+    status = formatTranslation("document.generatingQueue", { total });
   } else if (waitingCount > 0) {
-    status = `排队中 · 等待 ${waitingCount}`;
+    status = formatTranslation("document.queuedWaiting", { count: waitingCount });
   } else {
     const selected = state.tasks.find((item) => String(item.task_id) === String(state.selectedTaskId));
     status = selected ? formatTaskStatus(selected) : "";
@@ -297,13 +312,13 @@ function resetForm() {
   renderTasks();
   renderPreview();
   updateRequestPreview();
-  setStatus("等待任务", "");
+  setStatus(translate("status.waiting"), "");
 }
 
 async function copyJson() {
   if (!els.requestJson) return;
   await navigator.clipboard.writeText(els.requestJson.textContent);
-  setStatus("JSON 已复制", "ok");
+  setStatus(translate("status.jsonCopied"), "ok");
 }
 
 export function initShellUiFeature() {

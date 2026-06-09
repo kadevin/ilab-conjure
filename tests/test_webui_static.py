@@ -15,6 +15,7 @@ _DOMAIN_MODULES = (
     "tests.test_webui_static_prompt",
     "tests.test_webui_static_tasks",
     "tests.test_webui_static_layout",
+    "tests.test_webui_static_i18n",
 )
 
 

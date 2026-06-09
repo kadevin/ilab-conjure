@@ -1,4 +1,5 @@
 import { getEls } from "./dom";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge, getState } from "./state";
 
 let inputSourcesFeatureInitialized = false;
@@ -45,7 +46,7 @@ function assetSource(item: any) {
   return {
     kind: "asset",
     id: item.id,
-    name: item.name || item.filename || "最近上传",
+    name: item.name || item.filename || "",
     filename: item.filename || "",
     mime_type: item.mime_type || "",
     image_url: item.image_url || "",
@@ -117,9 +118,9 @@ function revokeTaskUploadPreviewUrls(task: any) {
 
 function sourceName(source: any) {
   if (!source) return "";
-  if (source.kind === "upload") return source.name || source.file?.name || "上传图片";
-  if (source.kind === "asset") return source.name || source.filename || "最近上传";
-  return source.name || "图库图片";
+  if (source.kind === "upload") return source.name || source.file?.name || translate("inputSource.uploadFallback");
+  if (source.kind === "asset") return source.name || source.filename || translate("recentAssets.defaultName");
+  return source.name || translate("inputSource.galleryFallback");
 }
 
 function addGalleryInput(item: any, options: any = {}) {
@@ -203,7 +204,10 @@ function clipboardPasteShortcutLabel() {
 }
 
 function clipboardReadFallbackMessage(prefix: string) {
-  return `${prefix}，图片输入区已聚焦，请按 ${clipboardPasteShortcutLabel()} 粘贴图片`;
+  return formatTranslation("inputSource.focusPasteFallback", {
+    prefix,
+    shortcut: clipboardPasteShortcutLabel(),
+  });
 }
 
 function focusImagePasteTarget() {
@@ -216,7 +220,7 @@ function handleImagePaste(event: ClipboardEvent) {
   if (!files.length) return;
   event.preventDefault();
   addImageFiles(files, {
-    successMessage: (count: number) => `已粘贴 ${count} 张剪贴板图片`,
+    successMessage: (count: number) => formatTranslation("inputSource.pastedCount", { count }),
   });
 }
 
@@ -239,22 +243,22 @@ async function pasteClipboardImages() {
   const els = getEls();
   if (!navigator.clipboard?.read) {
     focusImagePasteTarget();
-    setStatus(clipboardReadFallbackMessage("当前浏览器不支持直接读取剪贴板"), "error");
+    setStatus(clipboardReadFallbackMessage(translate("inputSource.clipboardUnsupported")), "error");
     return;
   }
   els.pasteClipboardButton.disabled = true;
   try {
     const files = await readClipboardImageFiles();
     const added = addImageFiles(files, {
-      emptyMessage: clipboardReadFallbackMessage("没有读到剪贴板图片"),
-      successMessage: (count: number) => `已粘贴 ${count} 张剪贴板图片`,
+      emptyMessage: clipboardReadFallbackMessage(translate("inputSource.clipboardEmpty")),
+      successMessage: (count: number) => formatTranslation("inputSource.pastedCount", { count }),
     });
     if (!added) focusImagePasteTarget();
   } catch (error: any) {
     focusImagePasteTarget();
     const reason = ["NotAllowedError", "SecurityError"].includes(String(error?.name || ""))
-      ? "浏览器拒绝直接读取剪贴板"
-      : "无法读取剪贴板";
+      ? translate("inputSource.clipboardDenied")
+      : translate("inputSource.clipboardReadFailed");
     setStatus(clipboardReadFallbackMessage(reason), "error");
   } finally {
     els.pasteClipboardButton.disabled = false;
@@ -286,7 +290,7 @@ function collectReferenceOutput(url: string, options: any = {}) {
   const state = getState();
   if (!url) return;
   if (state.collectedReferences.some((item: any) => item.url === url)) {
-    setStatus("已在待加入参考图", "ok");
+    setStatus(translate("referenceCollector.alreadyStaged"), "ok");
     return;
   }
   state.collectedReferences.push({
@@ -296,7 +300,7 @@ function collectReferenceOutput(url: string, options: any = {}) {
     outputIndex: options.outputIndex || null,
   });
   renderReferenceCollector();
-  setStatus(`已暂存 ${state.collectedReferences.length} 张参考图`, "ok");
+  setStatus(formatTranslation("referenceCollector.staged", { count: state.collectedReferences.length }), "ok");
 }
 
 function renderReferenceCollector() {
@@ -312,17 +316,17 @@ function renderReferenceCollector() {
   els.referenceCollector.classList.remove("hidden");
   els.referenceCollector.innerHTML = `
     <div class="reference-collector-header">
-      <span>待加入参考图 · ${items.length} 张</span>
+      <span>${escapeHtml(formatTranslation("referenceCollector.title", { count: items.length }))}</span>
       <div class="reference-collector-actions">
-        <button class="ghost-button text-sm" type="button" data-reference-collector-add-all>全部加入参考图</button>
-        <button class="ghost-button text-sm" type="button" data-reference-collector-clear>清空</button>
+        <button class="ghost-button text-sm" type="button" data-reference-collector-add-all>${escapeHtml(translate("referenceCollector.addAll"))}</button>
+        <button class="ghost-button text-sm" type="button" data-reference-collector-clear>${escapeHtml(translate("action.clear"))}</button>
       </div>
     </div>
     <div class="reference-collector-list">
       ${items.map((item: any, index: number) => `
-        <div class="reference-collector-item" title="${escapeHtml(item.name || "待加入参考图")}">
+        <div class="reference-collector-item" title="${escapeHtml(item.name || translate("referenceCollector.itemFallback"))}">
           <img src="${escapeHtml(item.url)}" alt="">
-          <button type="button" data-reference-collector-remove="${index}" aria-label="移除待加入参考图">×</button>
+          <button type="button" data-reference-collector-remove="${index}" aria-label="${escapeHtml(formatTranslation("referenceCollector.remove"))}">×</button>
         </div>
       `).join("")}
     </div>
@@ -344,7 +348,7 @@ function removeCollectedReference(index: any) {
 function clearCollectedReferences(options: any = {}) {
   getState().collectedReferences = [];
   renderReferenceCollector();
-  if (!options.silent) setStatus("待加入参考图已清空", "ok");
+  if (!options.silent) setStatus(translate("referenceCollector.cleared"), "ok");
 }
 
 function imageExtensionFromType(type: any) {
@@ -374,7 +378,7 @@ function ensureImageFilenameExtension(filename: string, type: any) {
 async function imageFileFromUrl(url: string, fallbackName: string) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`图片读取失败：${response.status}`);
+    throw new Error(formatTranslation("referenceCollector.readFailed", { status: response.status }));
   }
   const blob = await response.blob();
   const type = blob.type || "image/png";
@@ -399,11 +403,11 @@ async function addCollectedReferencesToInput() {
       files.push(await imageFileFromUrl(item.url, collectedReferenceFilename(item, index)));
     }
     const added = addImageFiles(files, {
-      successMessage: (count: number) => `已加入 ${count} 张参考图`,
+      successMessage: (count: number) => formatTranslation("referenceCollector.added", { count }),
     });
     if (added) clearCollectedReferences({ silent: true });
   } catch (error: any) {
-    setStatus(error.message || "待加入参考图加入失败", "error");
+    setStatus(error.message || translate("referenceCollector.addFailed"), "error");
     renderReferenceCollector();
   }
 }
@@ -418,6 +422,7 @@ export function initInputSourcesFeature() {
   if (inputSourcesFeatureInitialized) return;
   inputSourcesFeatureInitialized = true;
   bindInputSourceEvents();
+  document.addEventListener(LOCALE_CHANGE_EVENT, renderReferenceCollector);
   Object.assign(getLegacyBridge().methods, {
     uploadSource,
     gallerySource,

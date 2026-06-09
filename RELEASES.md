@@ -1,18 +1,20 @@
 # 下载 / Releases
 
-当前正式版本：[v0.1.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.1.0)
+当前正式版本：[v0.2.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.2.0)
 
 ## 版本说明
 
-当前版本：`v0.1.0`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI。
+当前版本：`v0.2.0`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI。
+
+本版重点：补齐 WebUI 中英文 i18n 架构，顶栏新增语言切换，运行时弹层、图库、模板、任务、通知和预览等界面会跟随中文 / English 偏好切换。
 
 ## 免安装一键包
 
 | 平台 | 适用设备 | 下载 | SHA256 |
 | --- | --- | --- | --- |
-| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.1.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_windows_portable_x64_0.1.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_windows_portable_x64_0.1.0.zip.sha256.txt) |
-| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.1.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_macos_portable_arm64_0.1.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_macos_portable_arm64_0.1.0.zip.sha256.txt) |
-| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.1.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_macos_portable_x64_0.1.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.1.0/ilab-gpt-conjure_macos_portable_x64_0.1.0.zip.sha256.txt) |
+| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.2.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_windows_portable_x64_0.2.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_windows_portable_x64_0.2.0.zip.sha256.txt) |
+| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.2.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_macos_portable_arm64_0.2.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_macos_portable_arm64_0.2.0.zip.sha256.txt) |
+| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.2.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_macos_portable_x64_0.2.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.2.0/ilab-gpt-conjure_macos_portable_x64_0.2.0.zip.sha256.txt) |
 
 使用方式：
 

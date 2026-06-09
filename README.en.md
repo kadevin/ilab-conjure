@@ -52,6 +52,8 @@ Download portable packages from [Downloads / Releases](RELEASES.md).
   archive.
 - Shared gallery references, recent reference images, color chips, prompt
   snippet chips, and reusable prompt templates.
+- Chinese / English WebUI localization with a top-bar language switch and a
+  browser-local language preference.
 - Advanced local OAuth mode for personal Codex workflows, with clear risk
   warnings and no account-usage probing.
 - API provider profiles with configurable base URL, API key, image model, API
@@ -124,7 +126,7 @@ http://127.0.0.1:8787/
 ## Portable packages
 
 Download the current portable packages from [Downloads / Releases](RELEASES.md),
-or open [GitHub Release v0.1.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.1.0)
+or open [GitHub Release v0.2.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.2.0)
 directly.
 
 These packages are intended for users who want a ComfyUI-style unzip-and-run

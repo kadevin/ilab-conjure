@@ -1,7 +1,9 @@
 import { getLegacyBridge } from "./state";
 import { positionPromptPopoverAtAnchor } from "./prompt-popover-position";
+import { formatTranslation, translate } from "./i18n";
 
 const PROMPT_SNIPPETS_ENDPOINT = "/api/prompt-snippets";
+const DEFAULT_PROMPT_SNIPPET_CATEGORY = "\u5e38\u7528";
 const PROMPT_SNIPPET_TRIGGER_CHARS = "~～〜∼˜";
 const PROMPT_SNIPPET_BOUNDARY_CHARS = "，。,.；;：:！？!?、（）()[]【】\"'“”‘’";
 const PROMPT_SNIPPET_TRIGGER_PATTERN = /(^|[\s\n，。,.；;：:！？!?、（）()\[\]【】"'“”‘’])([~～〜∼˜]+)([^\s~～〜∼˜@#，。,.；;：:！？!?、（）()\[\]【】"'“”‘’]*)$/;
@@ -48,7 +50,7 @@ function normalizePromptSnippet(value: any) {
     tag,
     title: String(value.title || tag).trim() || tag,
     content,
-    category: String(value.category || "常用").trim() || "常用",
+    category: String(value.category || DEFAULT_PROMPT_SNIPPET_CATEGORY).trim() || DEFAULT_PROMPT_SNIPPET_CATEGORY,
     order: Number.isFinite(Number(value.order)) ? Number.parseInt(value.order, 10) : 0,
     created_at: value.created_at || "",
     updated_at: value.updated_at || "",
@@ -80,11 +82,11 @@ async function refreshPromptSnippets() {
   try {
     const response = await fetch(PROMPT_SNIPPETS_ENDPOINT);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词片段读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("snippets.loadFailed"));
     state.promptSnippets = normalizePromptSnippetList(data.snippets);
     updatePromptSnippetSuggest();
   } catch (error: any) {
-    console.warn(error.message || "提示词片段读取失败");
+    console.warn(error.message || translate("snippets.loadFailed"));
     state.promptSnippets = [];
   }
 }
@@ -93,7 +95,7 @@ function promptSnippetSuggestElement() {
   if (promptSnippetSuggestEl) return promptSnippetSuggestEl;
   promptSnippetSuggestEl = document.createElement("div");
   promptSnippetSuggestEl.className = "prompt-snippet-suggest hidden";
-  promptSnippetSuggestEl.setAttribute("aria-label", "提示词片段选择器");
+  promptSnippetSuggestEl.setAttribute("aria-label", translate("snippets.suggestLabel"));
   els.promptEditor?.closest(".prompt-editor-wrap")?.appendChild(promptSnippetSuggestEl);
   return promptSnippetSuggestEl;
 }
@@ -103,8 +105,8 @@ function promptSnippetSelectionButtonElement() {
   promptSnippetSelectionButtonEl = document.createElement("button");
   promptSnippetSelectionButtonEl.className = "prompt-snippet-save-button hidden";
   promptSnippetSelectionButtonEl.type = "button";
-  promptSnippetSelectionButtonEl.textContent = "收藏";
-  promptSnippetSelectionButtonEl.setAttribute("aria-label", "收藏选中的提示词片段");
+  promptSnippetSelectionButtonEl.textContent = translate("snippets.saveSelection");
+  promptSnippetSelectionButtonEl.setAttribute("aria-label", translate("snippets.saveSelectionLabel"));
   promptSnippetSelectionButtonEl.addEventListener("mousedown", (event: any) => event.preventDefault());
   promptSnippetSelectionButtonEl.addEventListener("click", (event: any) => {
     event.preventDefault();
@@ -120,7 +122,7 @@ function promptSnippetPopoverElement() {
   promptSnippetPopoverEl = document.createElement("div");
   promptSnippetPopoverEl.className = "prompt-snippet-popover hidden";
   promptSnippetPopoverEl.setAttribute("role", "dialog");
-  promptSnippetPopoverEl.setAttribute("aria-label", "提示词片段");
+  promptSnippetPopoverEl.setAttribute("aria-label", translate("snippets.popoverLabel"));
   els.promptEditor?.closest(".prompt-editor-wrap")?.appendChild(promptSnippetPopoverEl);
   return promptSnippetPopoverEl;
 }
@@ -256,7 +258,7 @@ function createPromptSnippetChip(snippet: any) {
     tag: "",
     title: "",
     content: "",
-    category: "常用",
+    category: DEFAULT_PROMPT_SNIPPET_CATEGORY,
   };
   const chip = document.createElement("span");
   chip.className = "prompt-snippet-chip";
@@ -280,7 +282,7 @@ function createPromptSnippetChip(snippet: any) {
   remove.className = "prompt-snippet-chip-remove";
   remove.type = "button";
   remove.setAttribute("data-remove-prompt-snippet-chip", "");
-  remove.setAttribute("aria-label", `移除 ~${normalized.tag}`);
+  remove.setAttribute("aria-label", formatTranslation("snippets.remove", { tag: normalized.tag }));
   remove.textContent = "×";
   chip.append(mark, label, remove);
   chip.addEventListener("keydown", (event: any) => {
@@ -403,7 +405,7 @@ function openPromptSnippetSavePopover() {
     tag: suggestPromptSnippetTag(state.promptSnippetSelectionText),
     title: "",
     content: state.promptSnippetSelectionText,
-    category: "常用",
+    category: DEFAULT_PROMPT_SNIPPET_CATEGORY,
   };
   renderPromptSnippetForm("save", snippet);
   positionPromptSnippetPopoverAtSelectionButton();
@@ -422,9 +424,9 @@ function openPromptSnippetChipPopover(chip: any) {
     <div class="prompt-snippet-popover-meta">${escapeHtml(snippet.title)} · ${escapeHtml(snippet.category)}</div>
     <div class="prompt-snippet-popover-preview">${escapeHtml(snippet.content)}</div>
     <div class="prompt-snippet-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>展开</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>编辑</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>关闭</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>${escapeHtml(translate("snippets.expand"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>${escapeHtml(translate("snippets.edit"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>${escapeHtml(translate("snippets.close"))}</button>
     </div>
   `;
   function handlePopoverActionClick(event: any, action: () => void) {
@@ -447,26 +449,26 @@ function renderPromptSnippetForm(mode: any, snippet: any, chip: any = null) {
   promptSnippetPopoverState.snippetId = snippet.id || null;
   popover.innerHTML = `
     <form class="prompt-snippet-form">
-      <div class="prompt-snippet-popover-title">${mode === "edit" ? "编辑片段" : "收藏片段"}</div>
+      <div class="prompt-snippet-popover-title">${escapeHtml(mode === "edit" ? translate("snippets.editTitle") : translate("snippets.saveTitle"))}</div>
       <label class="prompt-snippet-field">
-        <span>短标签</span>
+        <span>${escapeHtml(translate("snippets.shortTag"))}</span>
         <input class="prompt-snippet-input" type="text" maxlength="24" value="${escapeHtml(snippet.tag || "")}" data-prompt-snippet-tag>
       </label>
       <label class="prompt-snippet-field">
-        <span>标题</span>
-        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml(snippet.title || "")}" placeholder="默认使用短标签" data-prompt-snippet-title>
+        <span>${escapeHtml(translate("snippets.title"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml(snippet.title || "")}" placeholder="${escapeHtml(translate("snippets.titlePlaceholder"))}" data-prompt-snippet-title>
       </label>
       <label class="prompt-snippet-field">
-        <span>分类</span>
-        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml(snippet.category || "常用")}" data-prompt-snippet-category>
+        <span>${escapeHtml(translate("snippets.category"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml(snippet.category || DEFAULT_PROMPT_SNIPPET_CATEGORY)}" data-prompt-snippet-category>
       </label>
       <label class="prompt-snippet-field">
-        <span>内容</span>
+        <span>${escapeHtml(translate("snippets.content"))}</span>
         <textarea class="prompt-snippet-input prompt-snippet-textarea" maxlength="4000" data-prompt-snippet-content>${escapeHtml(snippet.content || "")}</textarea>
       </label>
       <div class="prompt-snippet-popover-actions">
-        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>取消</button>
-        <button class="ghost-button text-sm" type="submit">${mode === "edit" ? "保存" : "收藏"}</button>
+        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>${escapeHtml(translate("snippets.cancel"))}</button>
+        <button class="ghost-button text-sm" type="submit">${escapeHtml(mode === "edit" ? translate("snippets.save") : translate("snippets.saveSelection"))}</button>
       </div>
     </form>
   `;
@@ -485,7 +487,7 @@ async function savePromptSnippetFromPopover() {
   const payload = {
     tag: (popover.querySelector("[data-prompt-snippet-tag]") as any)?.value || "",
     title: (popover.querySelector("[data-prompt-snippet-title]") as any)?.value || "",
-    category: (popover.querySelector("[data-prompt-snippet-category]") as any)?.value || "常用",
+    category: (popover.querySelector("[data-prompt-snippet-category]") as any)?.value || DEFAULT_PROMPT_SNIPPET_CATEGORY,
     content: (popover.querySelector("[data-prompt-snippet-content]") as any)?.value || "",
   };
   try {
@@ -496,7 +498,7 @@ async function savePromptSnippetFromPopover() {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词片段保存失败");
+    if (!response.ok) throw new Error(data.detail || translate("snippets.saveFailed"));
     state.promptSnippets = normalizePromptSnippetList(data.snippets);
     const snippet = normalizePromptSnippet(data.snippet);
     if (isEdit && promptSnippetPopoverState.chip) {
@@ -507,9 +509,9 @@ async function savePromptSnippetFromPopover() {
     }
     closePromptSnippetPopover();
     hidePromptSnippetSelectionButton();
-    setStatus("提示词片段已保存", "ok");
+    setStatus(translate("snippets.saved"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "提示词片段保存失败", "error");
+    setStatus(error.message || translate("snippets.saveFailed"), "error");
   }
 }
 
@@ -550,7 +552,7 @@ function updatePromptSnippetChip(chip: any, snippet: any) {
   const label = chip.querySelector(".prompt-snippet-chip-label");
   if (label) label.textContent = normalized.tag;
   const remove = chip.querySelector("[data-remove-prompt-snippet-chip]");
-  if (remove) remove.setAttribute("aria-label", `移除 ~${normalized.tag}`);
+  if (remove) remove.setAttribute("aria-label", formatTranslation("snippets.remove", { tag: normalized.tag }));
 }
 
 function expandPromptSnippetChip(chip: any) {
@@ -568,7 +570,7 @@ function suggestPromptSnippetTag(text: any) {
     .replace(/[~～@#，。,.]/g, " ")
     .replace(/\s+/g, "")
     .trim();
-  return clean.slice(0, 8) || "常用片段";
+  return clean.slice(0, 8) || translate("snippets.defaultTag");
 }
 
 function positionPromptSnippetPopoverAtSelectionButton() {

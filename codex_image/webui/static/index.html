@@ -21,7 +21,22 @@
         document.documentElement.dataset.themePreference = preference;
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-238" />
+    <script>
+      (() => {
+        const LOCALE_STORAGE_KEY = "codex-image-locale-preference";
+        const valid = new Set(["zh-CN", "en"]);
+        let locale = "zh-CN";
+        try {
+          const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+          if (valid.has(stored)) locale = stored;
+        } catch {
+          locale = "zh-CN";
+        }
+        document.documentElement.lang = locale;
+        document.documentElement.dataset.locale = locale;
+      })();
+    </script>
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-251" />
   </head>
   <body>
     <div class="layout-container">
@@ -44,21 +59,21 @@
               </div>
             </div>
             <div class="brand-actions">
-              <button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话">
+              <button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话" data-i18n-attr="aria-label:app.newTaskAria">
                 <svg class="brand-new-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
                 </svg>
-                <span>新建</span>
+                <span data-i18n="app.newTask">新建</span>
               </button>
             </div>
           </div>
           <div class="sidebar-search">
-            <input id="taskSearch" type="search" placeholder="搜索对话..." />
+            <input id="taskSearch" type="search" placeholder="搜索对话..." data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
           </div>
-          <div class="sidebar-filter-panel" aria-label="任务筛选">
+          <div class="sidebar-filter-panel" aria-label="任务筛选" data-i18n-attr="aria-label:sidebar.filters">
             <div class="sidebar-filter-grid">
               <select id="taskRatioFilter" class="task-filter-select" aria-label="按比例筛选">
-                <option value="">全部比例</option>
+                <option value="" data-i18n="sidebar.allRatios">全部比例</option>
                 <option value="1:1">1:1</option>
                 <option value="4:5">4:5</option>
                 <option value="5:4">5:4</option>
@@ -72,19 +87,19 @@
                 <option value="21:9">21:9</option>
               </select>
               <select id="taskOrientationFilter" class="task-filter-select" aria-label="按方向筛选">
-                <option value="">全部方向</option>
-                <option value="square">方形</option>
-                <option value="portrait">竖图</option>
-                <option value="landscape">横图</option>
+                <option value="" data-i18n="sidebar.allOrientations">全部方向</option>
+                <option value="square" data-i18n="output.square">方形</option>
+                <option value="portrait" data-i18n="output.portrait">竖图</option>
+                <option value="landscape" data-i18n="output.landscape">横图</option>
               </select>
               <select id="taskPromptFidelityFilter" class="task-filter-select" aria-label="按提示词模式筛选">
-                <option value="">全部模式</option>
-                <option value="original">原始模式</option>
-                <option value="strict">保真模式</option>
-                <option value="off">创意模式</option>
+                <option value="" data-i18n="sidebar.allModes">全部模式</option>
+                <option value="original" data-i18n="output.modeOriginal">原始模式</option>
+                <option value="strict" data-i18n="output.modeStrict">保真模式</option>
+                <option value="off" data-i18n="output.modeCreative">创意模式</option>
               </select>
               <select id="taskResolutionFilter" class="task-filter-select" aria-label="按分辨率筛选">
-                <option value="">全部分辨率</option>
+                <option value="" data-i18n="sidebar.allResolutions">全部分辨率</option>
                 <option value="standard">1K</option>
                 <option value="2k">2K</option>
                 <option value="4k">4K</option>
@@ -98,11 +113,13 @@
             id="taskActiveList"
             class="task-active-list hidden"
             aria-label="进行中任务"
+            data-i18n-attr="aria-label:sidebar.activeTasks"
           ></div>
           <div
             id="taskHistoryTopAnchors"
             class="task-history-anchor-rail task-history-anchor-rail-top hidden"
             aria-label="顶部时间导航"
+            data-i18n-attr="aria-label:sidebar.topAnchors"
           ></div>
           <div class="sidebar-content">
             <div id="taskList" class="task-list"></div>
@@ -111,29 +128,30 @@
             id="taskHistoryBottomAnchors"
             class="task-history-anchor-rail task-history-anchor-rail-bottom hidden"
             aria-label="底部时间导航"
+            data-i18n-attr="aria-label:sidebar.bottomAnchors"
           ></div>
         </div>
 
         <div class="sidebar-footer">
           <div id="batchToolbar" class="batch-toolbar hidden" aria-live="polite">
-            <div id="batchSelectedCount" class="batch-selected-count">已选择 0 个</div>
+            <div id="batchSelectedCount" class="batch-selected-count" data-i18n="batch.selected">已选择 0 个</div>
             <div class="batch-toolbar-actions">
-              <button id="batchArchiveButton" class="ghost-button text-sm" type="button" disabled>归档</button>
-              <button id="batchDeleteButton" class="ghost-button text-sm danger-button" type="button" disabled>删除</button>
-              <button id="batchCancelButton" class="ghost-button text-sm" type="button">取消</button>
+              <button id="batchArchiveButton" class="ghost-button text-sm" type="button" disabled data-i18n="action.archive">归档</button>
+              <button id="batchDeleteButton" class="ghost-button text-sm danger-button" type="button" disabled data-i18n="action.delete">删除</button>
+              <button id="batchCancelButton" class="ghost-button text-sm" type="button" data-i18n="action.cancel">取消</button>
             </div>
           </div>
-          <div id="statusText" class="status-text" aria-live="polite">等待任务</div>
+          <div id="statusText" class="status-text" aria-live="polite" data-i18n="status.waiting">等待任务</div>
           <div class="footer-actions">
-            <button id="archiveButton" class="ghost-button icon-button" type="button">会话归档</button>
-            <button id="batchManageButton" class="ghost-button icon-button" type="button">批量管理</button>
-            <button id="settingsButton" class="ghost-button icon-button" type="button">存储设置</button>
+            <button id="archiveButton" class="ghost-button icon-button" type="button" data-i18n="footer.archive">会话归档</button>
+            <button id="batchManageButton" class="ghost-button icon-button" type="button" data-i18n="footer.batch">批量管理</button>
+            <button id="settingsButton" class="ghost-button icon-button" type="button" data-i18n="footer.storage">存储设置</button>
           </div>
           <div class="api-status-bar">
             <div id="apiStatus" class="status-dot"></div>
-            <span>API 状态: 正常</span>
+            <span data-i18n="footer.apiStatus">API 状态: 正常</span>
           </div>
-          <div class="version-info">版本 v1.0.0</div>
+          <div class="version-info" data-i18n="footer.version">版本 v1.0.0</div>
         </div>
         <div
           id="sidebarResizeHandle"
@@ -141,6 +159,7 @@
           role="separator"
           aria-orientation="vertical"
           aria-label="调整侧栏宽度"
+          data-i18n-attr="aria-label:sidebar.resize"
           tabindex="0"
         ></div>
       </aside>
@@ -150,46 +169,50 @@
         <!-- Top Navigation -->
         <header class="top-nav">
           <div class="nav-actions">
-            <button id="queueButton" class="queue-button queue-status-chip" type="button" aria-label="队列状态：暂无排队" title="跳转到进行中任务">
-              <span id="queueStatusText">暂无排队</span>
+            <button id="queueButton" class="queue-button queue-status-chip" type="button" aria-label="队列状态：暂无排队" title="跳转到进行中任务" data-i18n-attr="aria-label:queue.emptyAria;title:queue.jumpTitle">
+              <span id="queueStatusText" data-i18n="queue.empty">暂无排队</span>
             </button>
-            <button id="taskNotificationButton" class="queue-button task-notification-button" type="button" aria-controls="taskNotificationCenter" aria-expanded="false" aria-label="任务通知" title="任务通知">
+            <button id="taskNotificationButton" class="queue-button task-notification-button" type="button" aria-controls="taskNotificationCenter" aria-expanded="false" aria-label="任务通知" title="任务通知" data-i18n-attr="aria-label:notifications.title;title:notifications.title">
               <svg class="task-notification-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
               <span id="taskNotificationBadge" class="task-notification-dot hidden" aria-hidden="true"></span>
             </button>
-            <div id="themeSwitcher" class="theme-switcher" aria-label="主题模式">
-              <button class="theme-option" data-theme-option="system" type="button" aria-pressed="true">跟随</button>
-              <button class="theme-option" data-theme-option="light" type="button" aria-pressed="false">浅色</button>
-              <button class="theme-option" data-theme-option="dark" type="button" aria-pressed="false">深色</button>
+            <div id="themeSwitcher" class="theme-switcher" aria-label="主题模式" data-i18n-attr="aria-label:theme.label">
+              <button class="theme-option" data-theme-option="system" type="button" aria-pressed="true" data-i18n="theme.system">跟随</button>
+              <button class="theme-option" data-theme-option="light" type="button" aria-pressed="false" data-i18n="theme.light">浅色</button>
+              <button class="theme-option" data-theme-option="dark" type="button" aria-pressed="false" data-i18n="theme.dark">深色</button>
+            </div>
+            <div id="languageSwitcher" class="language-switcher" aria-label="语言 / Language">
+              <button class="language-option active" data-language-option="zh-CN" type="button" aria-pressed="true" data-i18n="language.zh">中</button>
+              <button class="language-option" data-language-option="en" type="button" aria-pressed="false" data-i18n="language.en">EN</button>
             </div>
             <a id="githubLink" class="queue-button github-link" href="https://github.com/kadevin/ilab-gpt-conjure" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
               <svg class="github-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.4.7-4.1-1.5-4.1-1.5-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C16.8 4.7 17.8 5 17.8 5c.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.8c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/>
               </svg>
             </a>
-            <div class="auth-source-switcher" aria-label="授权来源">
-              <div id="authSourceDetail" class="auth-source-detail">授权检查中</div>
+            <div class="auth-source-switcher" aria-label="授权来源" data-i18n-attr="aria-label:auth.label">
+              <div id="authSourceDetail" class="auth-source-detail" data-i18n="auth.checking">授权检查中</div>
               <div id="authSourceGroup" class="auth-source-group">
                 <button class="auth-source-button active" data-auth-source="codex" type="button">Codex</button>
                 <button class="auth-source-button auth-source-api-button" data-auth-source="api" type="button">API</button>
               </div>
-              <button id="apiSourceSettingsButton" class="auth-source-settings-button" type="button" aria-label="API 设置" title="API 设置">
+              <button id="apiSourceSettingsButton" class="auth-source-settings-button" type="button" aria-label="API 设置" title="API 设置" data-i18n-attr="aria-label:api.settings;title:api.settings">
                 <svg class="auth-source-settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
                   <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
                 </svg>
               </button>
-              <select id="apiProviderQuick" class="api-provider-quick hidden" aria-label="API 供应商"></select>
+              <select id="apiProviderQuick" class="api-provider-quick hidden" aria-label="API 供应商" data-i18n-attr="aria-label:api.provider"></select>
             </div>
           </div>
-          <div id="taskNotificationCenter" class="task-notification-center hidden" role="dialog" aria-hidden="true" aria-label="任务通知">
+          <div id="taskNotificationCenter" class="task-notification-center hidden" role="dialog" aria-hidden="true" aria-label="任务通知" data-i18n-attr="aria-label:notifications.title">
             <div class="task-notification-center-header">
-              <strong>任务通知</strong>
+              <strong data-i18n="notifications.title">任务通知</strong>
               <span id="taskNotificationUnreadSummary" class="task-notification-unread-summary hidden" aria-live="polite"></span>
-              <button id="taskNotificationClearButton" class="ghost-button text-sm" type="button">清空</button>
+              <button id="taskNotificationClearButton" class="ghost-button text-sm" type="button" data-i18n="action.clear">清空</button>
             </div>
             <div id="taskNotificationList" class="task-notification-list"></div>
           </div>
@@ -202,7 +225,7 @@
             <!-- Image Input -->
             <section class="panel image-panel">
               <div class="panel-heading">
-                <h2>图像输入</h2>
+                <h2 data-i18n="imageInput.title">图像输入</h2>
               </div>
 
               <div class="image-input-workspace">
@@ -211,7 +234,7 @@
                     <div class="image-uploader-grid">
                       <div id="imageStrip" class="image-strip">
                         <div id="imageThumbList" class="image-thumb-list"></div>
-                        <div id="imageUploadSource" class="image-upload-source" tabindex="0" aria-label="点击、拖入或粘贴图片">
+                        <div id="imageUploadSource" class="image-upload-source" tabindex="0" aria-label="点击、拖入或粘贴图片" data-i18n-attr="aria-label:imageInput.uploadAria">
                           <label class="upload-tile">
                             <input id="imageInput" type="file" accept="image/*" multiple />
                             <span class="icon" aria-hidden="true">
@@ -219,9 +242,9 @@
                                 <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                               </svg>
                             </span>
-                            <span class="upload-title upload-title-full">点击、拖入或粘贴图片</span>
-                            <span class="upload-title upload-title-compact">添加图片</span>
-                            <span class="upload-subtitle">支持多张参考图</span>
+                            <span class="upload-title upload-title-full" data-i18n="imageInput.uploadFull">点击、拖入或粘贴图片</span>
+                            <span class="upload-title upload-title-compact" data-i18n="imageInput.uploadCompact">添加图片</span>
+                            <span class="upload-subtitle" data-i18n="imageInput.uploadSubtitle">支持多张参考图</span>
                           </label>
                         </div>
                       </div>
@@ -234,37 +257,37 @@
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                           <path d="M3 6h18M9 6V4h6v2m-8 0 1 14h8l1-14M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>清空</span>
+                        <span data-i18n="action.clear">清空</span>
                       </button>
                       <button id="pasteClipboardButton" class="ghost-button icon-text-button text-sm" type="button">
                         <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                           <path d="M9 5h6M9 4h6a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>粘贴</span>
+                        <span data-i18n="action.paste">粘贴</span>
                       </button>
                     </div>
-                    <div id="recentAssetDock" class="recent-asset-dock hidden" aria-label="最近上传图片">
-                      <div class="recent-asset-heading">最近上传</div>
+                    <div id="recentAssetDock" class="recent-asset-dock hidden" aria-label="最近上传图片" data-i18n-attr="aria-label:imageInput.recent">
+                      <div class="recent-asset-heading" data-i18n="imageInput.recent">最近上传</div>
                       <div id="recentAssetList" class="recent-asset-list"></div>
                     </div>
                   </div>
                 </div>
 
                 <div class="image-gallery-column">
-                  <div id="quickGalleryDock" class="quick-gallery-dock" aria-label="快速选择公用图库">
+                  <div id="quickGalleryDock" class="quick-gallery-dock" aria-label="快速选择公用图库" data-i18n-attr="aria-label:gallery.quick">
                     <div id="quickGalleryPreview" class="quick-gallery-preview"></div>
                     <div class="quick-gallery-picker">
-                      <div id="quickGalleryList" class="quick-gallery-list" aria-label="当前分类图库"></div>
-                      <div id="quickGalleryRail" class="quick-gallery-rail" aria-label="图库分类">
-                        <button class="quick-gallery-category active" data-quick-gallery-category="portrait" type="button">人像</button>
-                        <button class="quick-gallery-category" data-quick-gallery-category="character" type="button">角色</button>
-                        <button class="quick-gallery-category" data-quick-gallery-category="product" type="button">产品</button>
+                      <div id="quickGalleryList" class="quick-gallery-list" aria-label="当前分类图库" data-i18n-attr="aria-label:gallery.current"></div>
+                      <div id="quickGalleryRail" class="quick-gallery-rail" aria-label="图库分类" data-i18n-attr="aria-label:gallery.categories">
+                        <button class="quick-gallery-category active" data-quick-gallery-category="portrait" type="button" data-i18n="gallery.categoryPortrait">人像</button>
+                        <button class="quick-gallery-category" data-quick-gallery-category="character" type="button" data-i18n="gallery.categoryCharacter">角色</button>
+                        <button class="quick-gallery-category" data-quick-gallery-category="product" type="button" data-i18n="gallery.categoryProduct">产品</button>
                       </div>
                     </div>
                   </div>
 
                   <div id="galleryManagePanel" class="gallery-manage-panel">
-                    <button id="galleryManageButton" class="ghost-button text-sm" type="button" aria-controls="galleryDrawer" aria-expanded="false" title="管理公用库">管理公用库</button>
+                    <button id="galleryManageButton" class="ghost-button text-sm" type="button" aria-controls="galleryDrawer" aria-expanded="false" title="管理公用库" data-i18n="gallery.manage" data-i18n-attr="title:gallery.manage">管理公用库</button>
                   </div>
                 </div>
               </div>
@@ -274,7 +297,7 @@
             <section class="panel prompt-panel">
               <div class="panel-heading prompt-heading">
                 <div class="prompt-heading-main">
-                  <h2>提示词</h2>
+                  <h2 data-i18n="prompt.title">提示词</h2>
                   <span id="charCount" class="prompt-count">0 / 4000</span>
                 </div>
               </div>
@@ -287,13 +310,15 @@
                     role="textbox"
                     aria-multiline="true"
                     data-placeholder="描述你要生成或编辑的图片，输入 @ 可调用图库参考图，输入 # 可插入颜色码，输入 ~ 或 ～ 可调用提示词片段"
+                    aria-label="提示词"
+                    data-i18n-attr="aria-label:prompt.editorLabel;data-placeholder:prompt.placeholder"
                   ></div>
                   <input id="prompt" type="hidden" maxlength="4000" value="" />
                   <div id="mentionSuggest" class="mention-suggest hidden"></div>
                   <div id="colorSuggest" class="color-suggest hidden" aria-label="颜色码选择器"></div>
                 </div>
                 <div class="prompt-run-wrap">
-                  <button id="runButton" class="run-button prompt-run-button" type="button" aria-keyshortcuts="Meta+Enter" title="开始生成（Cmd+Enter）">开始生成</button>
+                  <button id="runButton" class="run-button prompt-run-button" type="button" aria-keyshortcuts="Meta+Enter" title="开始生成（Cmd+Enter）" data-i18n="prompt.run" data-i18n-attr="title:prompt.runTitle">开始生成</button>
                 </div>
               </div>
               <div class="prompt-template-row">
@@ -303,34 +328,34 @@
                       <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M3 6h18M9 6V4h6v2m-8 0 1 14h8l1-14M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      <span>清空</span>
+                      <span data-i18n="action.clear">清空</span>
                     </button>
                     <button id="promptFindButton" class="ghost-button icon-text-button text-sm prompt-find-button" type="button" aria-controls="promptFindPanel" aria-expanded="false">
                       <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="m20 20-4.2-4.2M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      <span>查找</span>
+                      <span data-i18n="action.find">查找</span>
                     </button>
-                    <div id="promptFindPanel" class="prompt-find-panel hidden" aria-label="查找替换提示词">
-                      <input id="promptFindInput" class="control prompt-find-input" type="text" placeholder="查找" autocomplete="off" spellcheck="false" aria-label="查找文本" />
-                      <input id="promptReplaceInput" class="control prompt-find-input" type="text" placeholder="替换为" autocomplete="off" spellcheck="false" aria-label="替换为" />
-                      <div class="prompt-find-actions" role="group" aria-label="查找替换操作">
-                        <span id="promptFindCount" class="prompt-find-count">0 处</span>
-                        <button class="ghost-button text-sm prompt-find-action" type="button" data-prompt-find-action="count">查找</button>
-                        <button class="ghost-button text-sm prompt-find-action" type="button" data-prompt-find-action="replace-all">替换</button>
-                        <button id="promptFindClose" class="ghost-button text-sm prompt-find-close" type="button" aria-label="关闭查找替换" title="关闭">×</button>
+                    <div id="promptFindPanel" class="prompt-find-panel hidden" aria-label="查找替换提示词" data-i18n-attr="aria-label:prompt.findPanel">
+                      <input id="promptFindInput" class="control prompt-find-input" type="text" placeholder="查找" autocomplete="off" spellcheck="false" aria-label="查找文本" data-i18n-attr="placeholder:action.find;aria-label:prompt.findText" />
+                      <input id="promptReplaceInput" class="control prompt-find-input" type="text" placeholder="替换为" autocomplete="off" spellcheck="false" aria-label="替换为" data-i18n-attr="placeholder:prompt.replaceWith;aria-label:prompt.replaceWith" />
+                      <div class="prompt-find-actions" role="group" aria-label="查找替换操作" data-i18n-attr="aria-label:prompt.findActions">
+                        <span id="promptFindCount" class="prompt-find-count" data-i18n="prompt.countZero">0 处</span>
+                        <button class="ghost-button text-sm prompt-find-action" type="button" data-prompt-find-action="count" data-i18n="action.find">查找</button>
+                        <button class="ghost-button text-sm prompt-find-action" type="button" data-prompt-find-action="replace-all" data-i18n="action.replace">替换</button>
+                        <button id="promptFindClose" class="ghost-button text-sm prompt-find-close" type="button" aria-label="关闭查找替换" title="关闭" data-i18n-attr="aria-label:prompt.closeFind;title:action.close">×</button>
                       </div>
                       <span id="promptFindStatus" class="prompt-find-status" aria-live="polite"></span>
                     </div>
                   </div>
-                  <div id="promptTemplateRecentDock" class="prompt-template-recent-dock hidden" aria-label="最近使用模板"></div>
+                  <div id="promptTemplateRecentDock" class="prompt-template-recent-dock hidden" aria-label="最近使用模板" data-i18n-attr="aria-label:prompt.recentTemplates"></div>
                 </div>
                 <div class="prompt-template-entry">
-                  <button id="promptTemplateButton" class="ghost-button text-sm icon-text-button prompt-template-button" type="button" aria-controls="promptTemplateDrawer" aria-expanded="false" title="管理模板库">
+                  <button id="promptTemplateButton" class="ghost-button text-sm icon-text-button prompt-template-button" type="button" aria-controls="promptTemplateDrawer" aria-expanded="false" title="管理模板库" data-i18n-attr="title:prompt.manageTemplates">
                     <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                       <path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span>管理模板库</span>
+                    <span data-i18n="prompt.manageTemplates">管理模板库</span>
                   </button>
                 </div>
               </div>
@@ -338,12 +363,12 @@
 
             <!-- Output Settings -->
             <section class="panel output-panel">
-              <h2>输出设置</h2>
+              <h2 data-i18n="outputSettings.title">输出设置</h2>
               <div id="settingsGrid" class="settings-grid">
                 <div id="modeSettingsSlot" class="mode-settings-slot full-width">
                   <div id="modeSpecificSettings" class="mode-specific-settings mode-transition">
                     <label id="mainModelField" class="field">
-                      <span>主模型</span>
+                      <span data-i18n="output.mainModel">主模型</span>
                       <div
                         id="mainModelCombobox"
                         class="model-combobox"
@@ -362,7 +387,7 @@
                           aria-controls="mainModelOptions"
                           aria-expanded="false"
                         />
-                        <button id="mainModelToggle" class="model-combobox-toggle" type="button" aria-label="选择主模型" aria-controls="mainModelOptions" tabindex="-1">
+                        <button id="mainModelToggle" class="model-combobox-toggle" type="button" aria-label="选择主模型" aria-controls="mainModelOptions" tabindex="-1" data-i18n-attr="aria-label:output.selectMainModel">
                           <span class="model-combobox-caret" aria-hidden="true"></span>
                         </button>
                         <div id="mainModelOptions" class="model-combobox-options hidden" role="listbox"></div>
@@ -370,63 +395,63 @@
                     </label>
 
                     <div id="apiDirectSettingsNotice" class="field api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true">
-                      <span>API 直连</span>
+                      <span data-i18n="output.apiDirect">API 直连</span>
                       <div class="api-direct-settings-control">
                         <div class="api-direct-settings-header">
-                          <strong>使用 API 图像工具模型</strong>
-                          <span>主模型不参与本次请求</span>
+                          <strong data-i18n="output.apiToolModel">使用 API 图像工具模型</strong>
+                          <span data-i18n="output.mainModelUnused">主模型不参与本次请求</span>
                         </div>
                         <button id="apiDirectSettingsButton" class="ghost-button text-sm icon-text-button api-direct-settings-button" type="button">
                           <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                             <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
                             <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
                           </svg>
-                          <span>API 设置</span>
+                          <span data-i18n="api.settings">API 设置</span>
                         </button>
                       </div>
                     </div>
 
                     <div id="promptFidelityField" class="field">
-                      <span>提示词模式</span>
+                      <span data-i18n="output.promptMode">提示词模式</span>
                       <div class="radio-group" id="promptFidelityGroup">
-                        <button class="radio-btn" data-val="original" type="button">原始模式</button>
-                        <button class="radio-btn active" data-val="strict" type="button">保真模式</button>
-                        <button class="radio-btn" data-val="off" type="button">创意模式</button>
+                        <button class="radio-btn" data-val="original" type="button" data-i18n="output.modeOriginal">原始模式</button>
+                        <button class="radio-btn active" data-val="strict" type="button" data-i18n="output.modeStrict">保真模式</button>
+                        <button class="radio-btn" data-val="off" type="button" data-i18n="output.modeCreative">创意模式</button>
                       </div>
                       <select id="promptFidelity" class="hidden">
-                        <option value="original">原始模式</option>
-                        <option value="strict" selected>保真模式</option>
-                        <option value="off">创意模式</option>
+                        <option value="original" data-i18n="output.modeOriginal">原始模式</option>
+                        <option value="strict" selected data-i18n="output.modeStrict">保真模式</option>
+                        <option value="off" data-i18n="output.modeCreative">创意模式</option>
                       </select>
                     </div>
                   </div>
                 </div>
 
                 <div class="field-group full-width custom-size-control">
-                  <span class="field-label mb-0">尺寸模式</span>
-                  <div id="sizeModeGroup" class="radio-group size-mode-group" role="group" aria-label="尺寸模式">
-                    <button class="radio-btn active" data-custom-size-mode="preset" type="button">预设尺寸</button>
-                    <button class="radio-btn" data-custom-size-mode="custom" type="button">自定义尺寸</button>
+                  <span class="field-label mb-0" data-i18n="output.sizeMode">尺寸模式</span>
+                  <div id="sizeModeGroup" class="radio-group size-mode-group" role="group" aria-label="尺寸模式" data-i18n-attr="aria-label:output.sizeMode">
+                    <button class="radio-btn active" data-custom-size-mode="preset" type="button" data-i18n="output.sizePreset">预设尺寸</button>
+                    <button class="radio-btn" data-custom-size-mode="custom" type="button" data-i18n="output.sizeCustom">自定义尺寸</button>
                   </div>
                   <input type="checkbox" id="customSizeToggle" class="hidden" aria-hidden="true" />
                 </div>
 
                 <div class="field orientation-field">
-                  <span>方向</span>
+                  <span data-i18n="output.orientation">方向</span>
                   <div class="radio-group" id="orientationGroup">
-                    <button class="radio-btn active" data-val="square" type="button">方形</button>
-                    <button class="radio-btn" data-val="portrait" type="button">竖图</button>
-                    <button class="radio-btn" data-val="landscape" type="button">横图</button>
+                    <button class="radio-btn active" data-val="square" type="button" data-i18n="output.square">方形</button>
+                    <button class="radio-btn" data-val="portrait" type="button" data-i18n="output.portrait">竖图</button>
+                    <button class="radio-btn" data-val="landscape" type="button" data-i18n="output.landscape">横图</button>
                   </div>
                   <select id="orientation" class="hidden">
-                    <option value="square" selected>方形</option>
-                    <option value="portrait">竖图</option>
-                    <option value="landscape">横图</option>
+                    <option value="square" selected data-i18n="output.square">方形</option>
+                    <option value="portrait" data-i18n="output.portrait">竖图</option>
+                    <option value="landscape" data-i18n="output.landscape">横图</option>
                   </select>
                 </div>
 
                 <div class="field resolution-field">
-                  <span>分辨率</span>
+                  <span data-i18n="output.resolution">分辨率</span>
                   <div class="radio-group" id="resolutionGroup">
                     <button class="radio-btn active" data-val="standard" type="button">1K</button>
                     <button class="radio-btn" data-val="2k" type="button">2K</button>
@@ -442,27 +467,27 @@
                 <div id="customSize" class="custom-size hidden" aria-hidden="true">
                   <div class="custom-size-main">
                     <div class="custom-size-header">
-                      <span>像素尺寸</span>
+                      <span data-i18n="output.pixelSize">像素尺寸</span>
                     </div>
                     <div class="custom-measure-row custom-size-row">
-                      <label class="custom-measure-label" for="customWidth">宽度</label>
-                      <input id="customWidth" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="宽度" />
-                      <button id="swapCustomSizeButton" class="custom-size-icon-button custom-size-swap" type="button" aria-label="交换宽高" title="交换宽高">
+                      <label class="custom-measure-label" for="customWidth" data-i18n="output.width">宽度</label>
+                      <input id="customWidth" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="宽度" data-i18n-attr="aria-label:output.width" />
+                      <button id="swapCustomSizeButton" class="custom-size-icon-button custom-size-swap" type="button" aria-label="交换宽高" title="交换宽高" data-i18n-attr="aria-label:output.swapSize;title:output.swapSize">
                         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                           <path d="M16 3l4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <label class="custom-measure-label" for="customHeight">高度</label>
-                      <input id="customHeight" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="高度" />
+                      <label class="custom-measure-label" for="customHeight" data-i18n="output.height">高度</label>
+                      <input id="customHeight" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="高度" data-i18n-attr="aria-label:output.height" />
                     </div>
-                    <p id="customSizeHint" class="custom-size-hint">单位 px · 16-3840 · 16倍数 · ≤3:1</p>
+                    <p id="customSizeHint" class="custom-size-hint" data-i18n="output.customSizeHint">单位 px · 16-3840 · 16倍数 · ≤3:1</p>
                   </div>
                   <div class="field custom-ratio-field">
                     <div class="custom-ratio-header">
-                      <span>比例锁定（可选）</span>
+                      <span data-i18n="output.ratioLock">比例锁定（可选）</span>
                     </div>
-                    <div class="custom-measure-row custom-ratio-control" aria-label="自定义宽高比">
-                      <label class="custom-measure-label" for="customRatioWidth">宽</label>
+                    <div class="custom-measure-row custom-ratio-control" aria-label="自定义宽高比" data-i18n-attr="aria-label:output.customRatio">
+                      <label class="custom-measure-label" for="customRatioWidth" data-i18n="output.ratioWidth">宽</label>
                       <input
                         id="customRatioWidth"
                         class="control custom-ratio-digit"
@@ -472,9 +497,10 @@
                         pattern="[1-9]"
                         autocomplete="off"
                         aria-label="自定义宽高比宽度"
+                        data-i18n-attr="aria-label:output.ratioWidth"
                       />
                       <span class="custom-ratio-separator" aria-hidden="true">:</span>
-                      <label class="custom-measure-label" for="customRatioHeight">高</label>
+                      <label class="custom-measure-label" for="customRatioHeight" data-i18n="output.ratioHeight">高</label>
                       <input
                         id="customRatioHeight"
                         class="control custom-ratio-digit"
@@ -484,21 +510,22 @@
                         pattern="[1-9]"
                         autocomplete="off"
                         aria-label="自定义宽高比高度"
+                        data-i18n-attr="aria-label:output.ratioHeight"
                       />
-                      <button id="customRatioFromImageButton" class="ghost-button custom-ratio-image-button" type="button" disabled aria-label="获取第一张参考图宽高比" title="获取第一张参考图宽高比">
+                      <button id="customRatioFromImageButton" class="ghost-button custom-ratio-image-button" type="button" disabled aria-label="获取第一张参考图宽高比" title="获取第一张参考图宽高比" data-i18n-attr="aria-label:output.firstImageRatio;title:output.firstImageRatio">
                         <svg class="button-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                           <path d="M3.5 4.5h9v7h-9zM5.2 9.7l2-2 1.4 1.5 1.2-1.1 1.6 1.6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M10.8 6.4h.01" fill="none" stroke="currentColor" stroke-linecap="round"/>
                         </svg>
-                        <span>取首图</span>
+                        <span data-i18n="output.useFirstImage">取首图</span>
                       </button>
                     </div>
-                    <p id="customRatioHint" class="custom-ratio-hint">留空则自由宽高 · 填满后同步</p>
+                    <p id="customRatioHint" class="custom-ratio-hint" data-i18n="output.ratioHint">留空则自由宽高 · 填满后同步</p>
                   </div>
                 </div>
 
                 <div class="field full-width ratio-field">
-                  <span>比例</span>
+                  <span data-i18n="output.ratio">比例</span>
                   <div class="radio-group ratio-group" id="ratioGroup">
                     <button class="radio-btn active" data-val="1:1" type="button">1:1</button>
                     <button class="radio-btn" data-val="4:5" type="button">4:5</button>
@@ -529,23 +556,23 @@
 
                 <div class="field-pair full-width quantity-quality-row">
                   <div class="field quality-field">
-                    <span>质量</span>
+                    <span data-i18n="output.quality">质量</span>
                     <div class="radio-group">
-                      <button class="radio-btn active" data-val="auto" type="button">自动</button>
-                      <button class="radio-btn" data-val="low" type="button">低</button>
-                      <button class="radio-btn" data-val="medium" type="button">中</button>
-                      <button class="radio-btn" data-val="high" type="button">高</button>
+                      <button class="radio-btn active" data-val="auto" type="button" data-i18n="output.qualityAuto">自动</button>
+                      <button class="radio-btn" data-val="low" type="button" data-i18n="output.qualityLow">低</button>
+                      <button class="radio-btn" data-val="medium" type="button" data-i18n="output.qualityMedium">中</button>
+                      <button class="radio-btn" data-val="high" type="button" data-i18n="output.qualityHigh">高</button>
                     </div>
                     <select id="quality" class="hidden">
-                      <option value="auto">自动</option>
-                      <option value="low">低</option>
-                      <option value="medium">中</option>
-                      <option value="high">高</option>
+                      <option value="auto" data-i18n="output.qualityAuto">自动</option>
+                      <option value="low" data-i18n="output.qualityLow">低</option>
+                      <option value="medium" data-i18n="output.qualityMedium">中</option>
+                      <option value="high" data-i18n="output.qualityHigh">高</option>
                     </select>
                   </div>
 
                   <div class="field quantity-field">
-                    <span>数量</span>
+                    <span data-i18n="output.quantity">数量</span>
                     <div class="radio-group quantity-group" id="quantityGroup">
                       <button class="radio-btn active" data-val="1" type="button">1</button>
                       <button class="radio-btn" data-val="2" type="button">2</button>
@@ -562,13 +589,13 @@
                 </div>
 
                 <div id="pixelPreview" class="full-width" style="text-align: center; font-size: 13px; color: var(--primary); padding: 8px; background: var(--primary-light); border-radius: 6px;">
-                  输出像素: 1024 x 1024 px
+                  <span data-i18n="output.pixelPreview">输出像素: 1024 x 1024 px</span>
                 </div>
 
                 <input type="text" id="size" class="hidden" value="1024x1024" />
 
                 <div id="outputFormatField" class="field output-format-field">
-                  <span>输出格式</span>
+                  <span data-i18n="output.format">输出格式</span>
                   <div id="outputFormatGroup" class="radio-group">
                     <button class="radio-btn active" data-val="png">png</button>
                     <button class="radio-btn" data-val="jpeg">jpeg</button>
@@ -579,10 +606,10 @@
                     <option value="jpeg">jpeg</option>
                     <option value="webp">webp</option>
                   </select>
-                  <div id="compressionPopover" class="compression-popover hidden" role="dialog" aria-hidden="true" aria-label="压缩率设置">
+                  <div id="compressionPopover" class="compression-popover hidden" role="dialog" aria-hidden="true" aria-label="压缩率设置" data-i18n-attr="aria-label:output.compression">
                     <label id="compressionField" class="range-control compression-range">
                       <div class="slider-header">
-                        <span>压缩率</span>
+                        <span data-i18n="output.compression">压缩率</span>
                         <span class="range-value"><b id="compressionValue">80%</b></span>
                       </div>
                       <input id="compression" class="slider" type="range" min="0" max="100" value="80" />
@@ -591,7 +618,7 @@
                 </div>
 
                 <div class="field moderation-field">
-                  <span>审核</span>
+                  <span data-i18n="output.moderation">审核</span>
                   <div class="radio-group">
                     <button class="radio-btn active" data-val="auto">auto</button>
                     <button class="radio-btn" data-val="low">low</button>
@@ -609,19 +636,19 @@
             <!-- Preview Panel -->
             <section class="panel preview-panel">
               <div class="panel-heading preview-heading">
-                <h2>预览结果</h2>
+                <h2 data-i18n="preview.title">预览结果</h2>
                 <div class="preview-heading-actions">
                   <div class="preview-selection-actions hidden" id="previewSelectionActions" aria-live="polite">
-                    <span id="previewSelectionCount" class="preview-selection-count">已选 0</span>
-                    <a id="downloadSelectedButton" class="ghost-button text-sm hidden" href="#" download>只下载精选</a>
-                    <button id="deleteUnselectedOutputsButton" class="ghost-button text-sm danger-action hidden" type="button">删除未精选</button>
+                    <span id="previewSelectionCount" class="preview-selection-count" data-i18n="preview.selectedZero">已选 0</span>
+                    <a id="downloadSelectedButton" class="ghost-button text-sm hidden" href="#" download data-i18n="preview.downloadSelected">只下载精选</a>
+                    <button id="deleteUnselectedOutputsButton" class="ghost-button text-sm danger-action hidden" type="button" data-i18n="preview.deleteUnselected">删除未精选</button>
                   </div>
-                  <a id="downloadAllButton" class="ghost-button text-sm hidden" href="#" download>打包下载</a>
-                  <button id="refreshButton" class="ghost-button icon-button" type="button">↻ 刷新</button>
+                  <a id="downloadAllButton" class="ghost-button text-sm hidden" href="#" download data-i18n="preview.downloadAll">打包下载</a>
+                  <button id="refreshButton" class="ghost-button icon-button" type="button" data-i18n="action.refresh">↻ 刷新</button>
                 </div>
               </div>
               <div id="previewGrid" class="preview-grid">
-                <div class="empty-preview">暂无图片</div>
+                <div class="empty-preview" data-i18n="preview.empty">暂无图片</div>
               </div>
             </section>
           </div>
@@ -632,30 +659,30 @@
     <div id="promptTemplateDrawer" class="resource-sheet prompt-template-drawer" aria-hidden="true">
       <div class="resource-sheet-header prompt-template-drawer-header">
         <div>
-          <h2>提示词模板</h2>
-          <p id="promptTemplateSummary" class="prompt-template-summary">本地模板库</p>
+          <h2 data-i18n="templates.title">提示词模板</h2>
+          <p id="promptTemplateSummary" class="prompt-template-summary" data-i18n="templates.summary">本地模板库</p>
         </div>
-        <button id="promptTemplateDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭提示词模板面板" title="关闭">
+        <button id="promptTemplateDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭提示词模板面板" title="关闭" data-i18n-attr="aria-label:close.promptTemplates;title:action.close">
           <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M7 7L17 17M17 7L7 17" />
           </svg>
         </button>
       </div>
       <div class="prompt-template-toolbar">
-        <input id="promptTemplateSearch" class="control" type="text" name="prompt-template-search" inputmode="search" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="搜索模板、标签、内容" aria-label="搜索提示词模板" readonly />
-        <button id="promptTemplateCreateButton" class="ghost-button text-sm" type="button">新建</button>
-        <button id="promptTemplateImportButton" class="ghost-button text-sm" type="button">导入</button>
-        <button id="promptTemplateExportButton" class="ghost-button text-sm" type="button">导出</button>
+        <input id="promptTemplateSearch" class="control" type="text" name="prompt-template-search" inputmode="search" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="搜索模板、标签、内容" aria-label="搜索提示词模板" readonly data-i18n-attr="placeholder:templates.search;aria-label:templates.search" />
+        <button id="promptTemplateCreateButton" class="ghost-button text-sm" type="button" data-i18n="action.new">新建</button>
+        <button id="promptTemplateImportButton" class="ghost-button text-sm" type="button" data-i18n="action.import">导入</button>
+        <button id="promptTemplateExportButton" class="ghost-button text-sm" type="button" data-i18n="action.export">导出</button>
         <input id="promptTemplateImportInput" class="hidden" type="file" accept=".json,.md,.markdown,application/json,text/markdown,text/plain" />
       </div>
-      <div class="prompt-template-filter-row" role="group" aria-label="模板筛选">
-        <button class="prompt-template-filter active" data-prompt-template-filter="all" type="button">全部</button>
-        <button class="prompt-template-filter" data-prompt-template-filter="favorite" type="button">收藏</button>
-        <button class="prompt-template-filter" data-prompt-template-filter="recent" type="button">最近</button>
+      <div class="prompt-template-filter-row" role="group" aria-label="模板筛选" data-i18n-attr="aria-label:templates.filter">
+        <button class="prompt-template-filter active" data-prompt-template-filter="all" type="button" data-i18n="templates.all">全部</button>
+        <button class="prompt-template-filter" data-prompt-template-filter="favorite" type="button" data-i18n="templates.favorite">收藏</button>
+        <button class="prompt-template-filter" data-prompt-template-filter="recent" type="button" data-i18n="templates.recent">最近</button>
       </div>
       <div class="prompt-template-category-toolbar">
-        <div id="promptTemplateCategoryList" class="prompt-template-category-row" role="group" aria-label="模板分类"></div>
-        <button id="promptTemplateCategoryManageButton" class="ghost-button text-sm" type="button" aria-expanded="false">分类</button>
+        <div id="promptTemplateCategoryList" class="prompt-template-category-row" role="group" aria-label="模板分类" data-i18n-attr="aria-label:templates.category"></div>
+        <button id="promptTemplateCategoryManageButton" class="ghost-button text-sm" type="button" aria-expanded="false" data-i18n="templates.category">分类</button>
       </div>
       <div id="promptTemplateCategoryPanel" class="prompt-template-category-manage-panel hidden"></div>
       <div class="resource-sheet-body prompt-template-body">
@@ -666,14 +693,14 @@
     </div>
     <div id="promptTemplateDrawerBackdrop" class="resource-sheet-backdrop prompt-template-drawer-backdrop hidden"></div>
 
-    <div id="archiveModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="会话归档">
+    <div id="archiveModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="会话归档" data-i18n-attr="aria-label:archive.title">
       <div class="modal-panel archive-modal-panel">
         <div class="modal-heading">
           <div>
-            <h2>会话归档</h2>
-            <p id="archiveCount">暂无归档会话</p>
+            <h2 data-i18n="archive.title">会话归档</h2>
+            <p id="archiveCount" data-i18n="archive.empty">暂无归档会话</p>
           </div>
-          <button id="archiveModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭会话归档面板" title="关闭">
+          <button id="archiveModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭会话归档面板" title="关闭" data-i18n-attr="aria-label:close.archive;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
@@ -683,14 +710,14 @@
       </div>
     </div>
 
-    <div id="settingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="存储设置">
+    <div id="settingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="存储设置" data-i18n-attr="aria-label:settings.title">
       <div class="modal-panel settings-modal-panel">
         <div class="modal-heading">
           <div>
-            <h2>存储设置</h2>
-            <p id="settingsStatus">保存后重启 WebUI 生效</p>
+            <h2 data-i18n="settings.title">存储设置</h2>
+            <p id="settingsStatus" data-i18n="settings.status">保存后重启 WebUI 生效</p>
           </div>
-          <button id="settingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭存储设置面板" title="关闭">
+          <button id="settingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭存储设置面板" title="关闭" data-i18n-attr="aria-label:close.settings;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
@@ -698,50 +725,50 @@
         </div>
         <div class="settings-path-grid">
           <label class="field">
-            <span>输入目录</span>
+            <span data-i18n="settings.inputRoot">输入目录</span>
             <input id="settingsInputRoot" class="control" type="text" autocomplete="off" />
           </label>
           <label class="field">
-            <span>输出目录</span>
+            <span data-i18n="settings.outputRoot">输出目录</span>
             <input id="settingsOutputRoot" class="control" type="text" autocomplete="off" />
           </label>
           <label class="field">
-            <span>公用图库目录</span>
+            <span data-i18n="settings.galleryRoot">公用图库目录</span>
             <input id="settingsGalleryRoot" class="control" type="text" autocomplete="off" />
           </label>
           <label class="field">
-            <span>源数据目录</span>
+            <span data-i18n="settings.sourceDataRoot">源数据目录</span>
             <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
           </label>
         </div>
         <div class="notification-options-panel" aria-label="任务通知设置">
           <div class="notification-options-copy">
-            <strong>任务通知</strong>
-            <span>任务完成或失败时提醒，系统通知需手动开启。</span>
+            <strong data-i18n="notifications.title">任务通知</strong>
+            <span data-i18n="settings.notificationsCopy">任务完成或失败时提醒，系统通知需手动开启。</span>
           </div>
           <label class="notification-option-row">
-            <span>站内通知</span>
+            <span data-i18n="settings.inAppNotification">站内通知</span>
             <input id="taskNotificationInApp" type="checkbox" checked />
           </label>
           <label class="notification-option-row">
-            <span>系统通知</span>
+            <span data-i18n="settings.systemNotification">系统通知</span>
             <input id="taskNotificationSystem" type="checkbox" />
           </label>
         </div>
         <div class="settings-modal-actions">
-          <button id="saveSettingsButton" class="run-button" type="button">保存设置</button>
+          <button id="saveSettingsButton" class="run-button" type="button" data-i18n="settings.save">保存设置</button>
         </div>
       </div>
     </div>
 
-    <div id="apiSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="API 设置">
+    <div id="apiSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="API 设置" data-i18n-attr="aria-label:apiSettings.title">
       <div class="modal-panel api-settings-modal-panel">
         <div class="modal-heading">
           <div>
-            <h2>API 设置</h2>
-            <p id="apiSettingsStatus" class="api-settings-feedback">保存后立即用于 API 模式</p>
+            <h2 data-i18n="apiSettings.title">API 设置</h2>
+            <p id="apiSettingsStatus" class="api-settings-feedback" data-i18n="apiSettings.status">保存后立即用于 API 模式</p>
           </div>
-          <button id="apiSettingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭 API 设置面板" title="关闭">
+          <button id="apiSettingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭 API 设置面板" title="关闭" data-i18n-attr="aria-label:close.apiSettings;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
@@ -749,26 +776,26 @@
         </div>
         <div class="api-settings-grid">
           <label class="field full-width">
-            <span>供应商</span>
+            <span data-i18n="apiSettings.provider">供应商</span>
             <div class="api-provider-toolbar">
               <select id="apiProvider" class="control"></select>
-              <button id="addApiProviderButton" class="ghost-button text-sm" type="button">新增</button>
-              <button id="deleteApiProviderButton" class="ghost-button text-sm danger-button" type="button">删除</button>
+              <button id="addApiProviderButton" class="ghost-button text-sm" type="button" data-i18n="action.new">新增</button>
+              <button id="deleteApiProviderButton" class="ghost-button text-sm danger-button" type="button" data-i18n="action.delete">删除</button>
             </div>
           </label>
           <label class="field full-width">
-            <span>供应商名称</span>
+            <span data-i18n="apiSettings.providerName">供应商名称</span>
             <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" />
           </label>
           <div class="field full-width">
-            <span>调用方式</span>
+            <span data-i18n="apiSettings.mode">调用方式</span>
             <div class="radio-group" id="apiModeGroup">
-              <button class="radio-btn active" data-val="images" type="button">直连 Image API</button>
-              <button class="radio-btn" data-val="responses" type="button">Responses API</button>
+              <button class="radio-btn active" data-val="images" type="button" data-i18n="apiSettings.images">直连 Image API</button>
+              <button class="radio-btn" data-val="responses" type="button" data-i18n="apiSettings.responses">Responses API</button>
             </div>
             <select id="apiMode" class="hidden">
-              <option value="images" selected>直连 Image API</option>
-              <option value="responses">Responses API</option>
+              <option value="images" selected data-i18n="apiSettings.images">直连 Image API</option>
+              <option value="responses" data-i18n="apiSettings.responses">Responses API</option>
             </select>
           </div>
           <label class="field">
@@ -780,42 +807,42 @@
             <input id="apiKey" class="control" type="password" autocomplete="off" placeholder="sk-..." />
           </label>
           <label class="field">
-            <span>图像工具模型</span>
+            <span data-i18n="apiSettings.imageModel">图像工具模型</span>
             <input id="apiImageModel" class="control" type="text" autocomplete="off" value="gpt-image-2" />
           </label>
           <label class="field">
-            <span>Provider 总并发上限</span>
+            <span data-i18n="apiSettings.concurrency">Provider 总并发上限</span>
             <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
           </label>
         </div>
         <div class="settings-modal-actions">
-          <button id="saveApiSettingsButton" class="run-button" type="button">保存 API 设置</button>
+          <button id="saveApiSettingsButton" class="run-button" type="button" data-i18n="apiSettings.save">保存 API 设置</button>
         </div>
       </div>
     </div>
 
-    <div id="imageEditorModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="编辑输入图片">
+    <div id="imageEditorModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="编辑输入图片" data-i18n-attr="aria-label:imageEditor.title">
       <div class="modal-panel image-editor-panel">
         <div class="modal-heading image-editor-heading">
           <div>
-            <h2>编辑输入图片</h2>
-            <p id="imageEditorSubtitle">裁剪、涂鸦、油漆桶填充或添加箭头后保存为新的输入图</p>
+            <h2 data-i18n="imageEditor.title">编辑输入图片</h2>
+            <p id="imageEditorSubtitle" data-i18n="imageEditor.subtitle">裁剪、涂鸦、油漆桶填充或添加箭头后保存为新的输入图</p>
           </div>
-          <button id="imageEditorClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭编辑输入图片面板" title="关闭">
+          <button id="imageEditorClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭编辑输入图片面板" title="关闭" data-i18n-attr="aria-label:close.imageEditor;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
           </button>
         </div>
-        <div class="image-editor-toolbar" aria-label="图片编辑工具栏">
-          <div class="image-editor-tool-group" aria-label="工具">
+        <div class="image-editor-toolbar" aria-label="图片编辑工具栏" data-i18n-attr="aria-label:imageEditor.toolbar">
+          <div class="image-editor-tool-group" aria-label="工具" data-i18n-attr="aria-label:imageEditor.tools">
             <button id="imageEditorToolBrush" class="ghost-button text-sm image-editor-tool" type="button" data-image-editor-tool="brush">
               <span class="image-editor-tool-icon" data-tool-icon="brush" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" focusable="false" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15.8 4.6l3.6 3.6-8.9 8.9-4.2 1 1-4.2 8.5-9.3Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M14.4 6l3.6 3.6" stroke="currentColor" stroke-linecap="round"/>
                 </svg>
-              </span>画笔
+              </span><span data-i18n="imageEditor.brush">画笔</span>
             </button>
             <button id="imageEditorToolArrow" class="ghost-button text-sm image-editor-tool" type="button" data-image-editor-tool="arrow">
               <span class="image-editor-tool-icon" data-tool-icon="arrow" aria-hidden="true">
@@ -823,7 +850,7 @@
                   <path d="M6 18L18 6" stroke="currentColor" stroke-linecap="round"/>
                   <path d="M10 6h8v8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-              </span>箭头
+              </span><span data-i18n="imageEditor.arrow">箭头</span>
             </button>
             <button id="imageEditorToolCrop" class="ghost-button text-sm image-editor-tool active" type="button" data-image-editor-tool="crop">
               <span class="image-editor-tool-icon" data-tool-icon="crop" aria-hidden="true">
@@ -831,40 +858,40 @@
                   <path d="M7 3v14h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M3 7h14v14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-              </span>裁剪
+              </span><span data-i18n="imageEditor.crop">裁剪</span>
             </button>
-            <button id="imageEditorToolFill" class="ghost-button text-sm image-editor-tool" type="button" data-image-editor-tool="fill" aria-label="油漆桶填充" title="油漆桶填充">
+            <button id="imageEditorToolFill" class="ghost-button text-sm image-editor-tool" type="button" data-image-editor-tool="fill" aria-label="油漆桶填充" title="油漆桶填充" data-i18n-attr="aria-label:imageEditor.fillLabel;title:imageEditor.fillLabel">
               <span class="image-editor-tool-icon" data-tool-icon="fill" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" focusable="false" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6.5 4.5l8.8 8.8-5.7 5.7a2 2 0 0 1-2.8 0l-2.8-2.8a2 2 0 0 1 0-2.8l5.8-5.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M3.7 14.2h11.2" stroke="currentColor" stroke-linecap="round"/>
                   <path d="M17.4 17.2c0-1.1 1.6-3.1 1.6-3.1s1.6 2 1.6 3.1a1.6 1.6 0 0 1-3.2 0Z" stroke="currentColor" stroke-linejoin="round"/>
                 </svg>
-              </span>油漆桶
+              </span><span data-i18n="imageEditor.fill">油漆桶</span>
             </button>
           </div>
-          <div class="image-editor-tool-group" aria-label="颜色">
-            <button class="image-editor-swatch active" type="button" data-image-editor-color="#ff3b30" aria-label="红色"></button>
-            <button class="image-editor-swatch" type="button" data-image-editor-color="#2f6fe4" aria-label="蓝色"></button>
-            <button class="image-editor-swatch" type="button" data-image-editor-color="#457b66" aria-label="绿色"></button>
-            <button class="image-editor-swatch" type="button" data-image-editor-color="#f2b84b" aria-label="黄色"></button>
-            <button class="image-editor-swatch" type="button" data-image-editor-color="#ffffff" aria-label="白色"></button>
-            <button class="image-editor-swatch" type="button" data-image-editor-color="#111111" aria-label="黑色"></button>
-            <input id="imageEditorColor" class="image-editor-color" type="color" value="#ff3b30" aria-label="自定义颜色" />
+          <div class="image-editor-tool-group" aria-label="颜色" data-i18n-attr="aria-label:imageEditor.colors">
+            <button class="image-editor-swatch active" type="button" data-image-editor-color="#ff3b30" aria-label="红色" data-i18n-attr="aria-label:imageEditor.red"></button>
+            <button class="image-editor-swatch" type="button" data-image-editor-color="#2f6fe4" aria-label="蓝色" data-i18n-attr="aria-label:imageEditor.blue"></button>
+            <button class="image-editor-swatch" type="button" data-image-editor-color="#457b66" aria-label="绿色" data-i18n-attr="aria-label:imageEditor.green"></button>
+            <button class="image-editor-swatch" type="button" data-image-editor-color="#f2b84b" aria-label="黄色" data-i18n-attr="aria-label:imageEditor.yellow"></button>
+            <button class="image-editor-swatch" type="button" data-image-editor-color="#ffffff" aria-label="白色" data-i18n-attr="aria-label:imageEditor.white"></button>
+            <button class="image-editor-swatch" type="button" data-image-editor-color="#111111" aria-label="黑色" data-i18n-attr="aria-label:imageEditor.black"></button>
+            <input id="imageEditorColor" class="image-editor-color" type="color" value="#ff3b30" aria-label="自定义颜色" data-i18n-attr="aria-label:imageEditor.customColor" />
           </div>
           <label class="image-editor-stroke-field">
-            <span>粗细</span>
+            <span data-i18n="imageEditor.stroke">粗细</span>
             <input id="imageEditorStroke" class="slider" type="range" min="2" max="32" step="1" value="8" />
             <output id="imageEditorStrokeValue">8px</output>
           </label>
-          <div class="image-editor-tool-group" aria-label="历史">
-            <button id="imageEditorUndo" class="ghost-button text-sm" type="button" disabled>撤销</button>
-            <button id="imageEditorRedo" class="ghost-button text-sm" type="button" disabled>重做</button>
-            <button id="imageEditorReset" class="ghost-button text-sm" type="button">重置原图</button>
+          <div class="image-editor-tool-group" aria-label="历史" data-i18n-attr="aria-label:imageEditor.history">
+            <button id="imageEditorUndo" class="ghost-button text-sm" type="button" disabled data-i18n="imageEditor.undo">撤销</button>
+            <button id="imageEditorRedo" class="ghost-button text-sm" type="button" disabled data-i18n="imageEditor.redo">重做</button>
+            <button id="imageEditorReset" class="ghost-button text-sm" type="button" data-i18n="imageEditor.reset">重置原图</button>
           </div>
         </div>
         <div id="imageEditorStage" class="image-editor-stage">
-          <div id="imageEditorCanvasWrap" class="image-editor-canvas-wrap" role="img" aria-label="图片编辑画布">
+          <div id="imageEditorCanvasWrap" class="image-editor-canvas-wrap" role="img" aria-label="图片编辑画布" data-i18n-attr="aria-label:imageEditor.canvas">
             <canvas id="imageEditorCanvas" class="image-editor-canvas"></canvas>
             <div id="imageEditorCropBox" class="image-editor-crop-box hidden" aria-hidden="true"></div>
           </div>
@@ -872,20 +899,20 @@
         <div class="image-editor-footer">
           <div id="imageEditorStatus" class="image-editor-status" aria-live="polite"></div>
           <div class="image-editor-actions">
-            <button id="imageEditorCancel" class="ghost-button text-sm" type="button">取消</button>
-            <button id="imageEditorSave" class="primary-button" type="button">保存</button>
+            <button id="imageEditorCancel" class="ghost-button text-sm" type="button" data-i18n="action.cancel">取消</button>
+            <button id="imageEditorSave" class="primary-button" type="button" data-i18n="action.save">保存</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="galleryDrawer" class="resource-sheet resource-sheet-wide gallery-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="公用图库">
+    <div id="galleryDrawer" class="resource-sheet resource-sheet-wide gallery-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="公用图库" data-i18n-attr="aria-label:gallery.title">
       <div class="resource-sheet-header gallery-drawer-header">
           <div>
-            <h2>公用图库</h2>
-            <p id="galleryDrawerSubtitle">选择参考图加入当前任务</p>
+            <h2 data-i18n="gallery.title">公用图库</h2>
+            <p id="galleryDrawerSubtitle" data-i18n="gallery.subtitle">选择参考图加入当前任务</p>
           </div>
-          <button id="galleryDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭公用图库面板" title="关闭">
+          <button id="galleryDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭公用图库面板" title="关闭" data-i18n-attr="aria-label:close.gallery;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
@@ -894,18 +921,18 @@
       <div class="resource-sheet-body gallery-drawer-body">
         <div class="gallery-drawer-top">
           <div class="gallery-drawer-toolbar">
-            <div id="galleryDrawerCategoryTabs" class="gallery-drawer-category-tabs" aria-label="图库分类"></div>
-            <button id="galleryCategoryManageToggle" class="ghost-button text-sm" type="button" aria-expanded="false">管理分类</button>
+            <div id="galleryDrawerCategoryTabs" class="gallery-drawer-category-tabs" aria-label="图库分类" data-i18n-attr="aria-label:gallery.categories"></div>
+            <button id="galleryCategoryManageToggle" class="ghost-button text-sm" type="button" aria-expanded="false" data-i18n="gallery.manageCategories">管理分类</button>
           </div>
-          <div id="galleryCategoryManagePanel" class="gallery-category-manage-panel hidden" aria-label="管理图库分类">
+          <div id="galleryCategoryManagePanel" class="gallery-category-manage-panel hidden" aria-label="管理图库分类" data-i18n-attr="aria-label:gallery.categoryManager">
             <div class="gallery-category-manage-copy">
-              <strong>分类管理</strong>
-              <span>分类会保存到图库；提示词用途用于生成参考图说明</span>
+              <strong data-i18n="gallery.categoryManagement">分类管理</strong>
+              <span data-i18n="gallery.categoryCopy">分类会保存到图库；提示词用途用于生成参考图说明</span>
             </div>
             <div class="gallery-category-create-row">
-              <input id="newGalleryCategoryName" class="control" type="text" maxlength="32" placeholder="新分类名称" />
-              <input id="newGalleryCategoryPromptRole" class="control" type="text" maxlength="48" placeholder="提示词用途，例如：风格参考" />
-              <button id="addGalleryCategoryButton" class="ghost-button text-sm" type="button">新增分类</button>
+              <input id="newGalleryCategoryName" class="control" type="text" maxlength="32" placeholder="新分类名称" data-i18n-attr="placeholder:gallery.newCategoryName" />
+              <input id="newGalleryCategoryPromptRole" class="control" type="text" maxlength="48" placeholder="提示词用途，例如：风格参考" data-i18n-attr="placeholder:gallery.newCategoryRole" />
+              <button id="addGalleryCategoryButton" class="ghost-button text-sm" type="button" data-i18n="gallery.addCategory">新增分类</button>
             </div>
             <div id="galleryCategoryList" class="gallery-category-list"></div>
           </div>
@@ -917,14 +944,14 @@
     </div>
     <div id="galleryDrawerBackdrop" class="resource-sheet-backdrop gallery-drawer-backdrop hidden"></div>
 
-    <div id="addToGalleryModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="添加到图库">
+    <div id="addToGalleryModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="添加到图库" data-i18n-attr="aria-label:addGallery.title">
       <div class="modal-panel add-gallery-panel">
         <div class="modal-heading">
           <div>
-            <h2>添加到图库</h2>
-            <p>名称全局唯一，后续可用 @名称 调取</p>
+            <h2 data-i18n="addGallery.title">添加到图库</h2>
+            <p data-i18n="addGallery.copy">名称全局唯一，后续可用 @名称 调取</p>
           </div>
-          <button id="addToGalleryClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭添加到图库面板" title="关闭">
+          <button id="addToGalleryClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭添加到图库面板" title="关闭" data-i18n-attr="aria-label:close.addGallery;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 7L17 17M17 7L7 17" />
             </svg>
@@ -933,28 +960,28 @@
         <div class="add-gallery-body">
           <img id="addToGalleryPreview" class="add-gallery-preview" alt="" />
           <label class="field">
-            <span>名称</span>
-            <input id="galleryNameInput" class="control" type="text" maxlength="64" placeholder="例如：小美" />
+            <span data-i18n="addGallery.name">名称</span>
+            <input id="galleryNameInput" class="control" type="text" maxlength="64" placeholder="例如：小美" data-i18n-attr="placeholder:addGallery.namePlaceholder" />
           </label>
           <label class="field">
-            <span>分类</span>
+            <span data-i18n="addGallery.category">分类</span>
             <select id="galleryCategoryInput" class="control">
-              <option value="portrait">人像</option>
-              <option value="character">角色</option>
-              <option value="product">产品</option>
+              <option value="portrait" data-i18n="gallery.categoryPortrait">人像</option>
+              <option value="character" data-i18n="gallery.categoryCharacter">角色</option>
+              <option value="product" data-i18n="gallery.categoryProduct">产品</option>
             </select>
           </label>
           <label class="field">
-            <span>引用备注</span>
-            <textarea id="galleryPromptNoteInput" class="control" maxlength="160" placeholder="例如：只参考脸型和发型，不参考衣服和背景"></textarea>
+            <span data-i18n="addGallery.note">引用备注</span>
+            <textarea id="galleryPromptNoteInput" class="control" maxlength="160" placeholder="例如：只参考脸型和发型，不参考衣服和背景" data-i18n-attr="placeholder:addGallery.notePlaceholder"></textarea>
           </label>
-          <button id="saveToGalleryButton" class="run-button" type="button">保存到图库</button>
+          <button id="saveToGalleryButton" class="run-button" type="button" data-i18n="addGallery.save">保存到图库</button>
         </div>
       </div>
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-238"></script>
+  <script src="/static/app.js?v=runtime-251"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

@@ -49,6 +49,7 @@ Images API 或 Responses API 形态。
 - 多任务并发、本地队列状态、历史记录、缩略图和结果归档。
 - 单任务多图输出、部分失败处理和失败重试。
 - 公用图库、最近参考图、颜色 chip、提示词片段 chip 和提示词模板。
+- WebUI 支持中文 / English 语言切换，顶栏可直接切换语言，偏好保存在当前浏览器。
 - 高级本机 OAuth 工作流支持个人本地 Codex 使用，并明确提示接口风险。
 - API 供应商配置，支持 Base URL、API Key、图像模型、调用方式和并发上限。
 - CLI 支持生成、参考图、图像编辑、mask 和 dry-run。
@@ -116,7 +117,7 @@ http://127.0.0.1:8787/
 ## 免安装一键包
 
 当前可用的一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.1.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.1.0)。
+[GitHub Release v0.2.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.2.0)。
 
 这些包面向希望像 ComfyUI 一样“解压即用”的用户：
 

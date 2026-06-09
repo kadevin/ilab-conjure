@@ -69,6 +69,7 @@ jobs:
 
   public-export-guard:
     name: Public export guard
+    if: github.repository == 'kadevin/ilab-gpt-conjure'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

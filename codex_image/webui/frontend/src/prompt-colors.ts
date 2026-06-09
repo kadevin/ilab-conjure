@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { positionPromptPopoverAtAnchor } from "./prompt-popover-position";
+import { formatTranslation, translate } from "./i18n";
 
 const DEFAULT_COLOR_CODE = "#FFFFFF";
 const COLOR_PALETTE_EXPORT_CSS_ENDPOINT = "/api/color-palette/export.css";
@@ -84,33 +85,33 @@ function renderColorSuggest(match: any) {
   const selected = queryColor || state.selectedColorCode || recentColors[0] || favoriteColors[0]?.hex || DEFAULT_COLOR_CODE;
   state.selectedColorCode = selected;
   const typedValue = match.query ? `#${match.query.toUpperCase()}` : selected;
-  const actionLabel = state.activeColorChip ? "更新" : "插入";
+  const actionLabel = state.activeColorChip ? translate("colors.update") : translate("colors.insert");
   const swatchRowClass = state.colorPaletteManageMode ? "color-swatch-row is-managing" : "color-swatch-row";
   els.colorSuggest.innerHTML = `
     <div class="color-suggest-main">
-      <label class="color-picker-control" title="选择颜色">
+      <label class="color-picker-control" title="${escapeHtml(translate("colors.pick"))}">
         <input type="color" value="${escapeHtml(selected)}" data-color-picker>
-        <span>取色</span>
+        <span>${escapeHtml(translate("colors.pickShort"))}</span>
       </label>
       <input class="color-hex-input" type="text" value="${escapeHtml(typedValue)}" maxlength="7" spellcheck="false" data-color-hex-input>
       <button class="ghost-button text-sm color-insert-button" type="button" data-insert-color>${actionLabel}</button>
     </div>
     <div class="color-suggest-actions">
-      <input class="color-name-input" type="text" value="${escapeHtml(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="常用色名称" data-color-name-input>
-      <button class="ghost-button text-sm" type="button" data-save-favorite-color>保存</button>
-      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>导出 PS</a>
+      <input class="color-name-input" type="text" value="${escapeHtml(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="${escapeHtml(translate("colors.favoriteNamePlaceholder"))}" data-color-name-input>
+      <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml(translate("colors.save"))}</button>
+      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml(translate("colors.exportPs"))}</a>
       <label class="ghost-button text-sm color-import-label" data-color-palette-import>
-        导入 PS
+        ${escapeHtml(translate("colors.importPs"))}
         <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
       </label>
-      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${state.colorPaletteManageMode ? "完成" : "管理"}</button>
+      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml(state.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
     </div>
-    <div class="${swatchRowClass}" aria-label="常用颜色">
+    <div class="${swatchRowClass}" aria-label="${escapeHtml(translate("colors.favorites"))}">
       ${favoriteColors.map((item: any) => colorSwatchButton(item.hex, item.name, { removable: state.colorPaletteManageMode })).join("")}
     </div>
     ${recentColors.length ? `
-      <div class="color-recent-row" aria-label="最近颜色">
-        ${recentColors.map((color: any) => colorSwatchButton(color, "最近")).join("")}
+      <div class="color-recent-row" aria-label="${escapeHtml(translate("colors.recent"))}">
+        ${recentColors.map((color: any) => colorSwatchButton(color, translate("colors.recentLabel"))).join("")}
       </div>
     ` : ""}
   `;
@@ -130,7 +131,7 @@ function colorSwatchButton(color: any, label: any = "", { removable = false } = 
       <button class="color-swatch-button" type="button" title="${escapeHtml(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml(normalized)}" style="--swatch-color: ${escapeHtml(normalized)}">
         <span>${escapeHtml(label ? `${label} ${normalized}` : normalized)}</span>
       </button>
-      ${removable ? `<button class="color-swatch-remove" type="button" title="删除常用色 ${escapeHtml(label || normalized)}" aria-label="删除常用色 ${escapeHtml(label || normalized)}" data-remove-favorite-color="${escapeHtml(normalized)}">×</button>` : ""}
+      ${removable ? `<button class="color-swatch-remove" type="button" title="${escapeHtml(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" aria-label="${escapeHtml(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" data-remove-favorite-color="${escapeHtml(normalized)}">×</button>` : ""}
     </span>
   `;
 }
@@ -192,8 +193,8 @@ function bindColorSuggestEvents() {
     try {
       await importColorPalette(file);
     } catch (error: any) {
-      setStatus(error.message || "颜色配置导入失败", "error");
-      console.warn(error.message || "颜色配置导入失败");
+      setStatus(error.message || translate("colors.importFailed"), "error");
+      console.warn(error.message || translate("colors.importFailed"));
     } finally {
       importInput.value = "";
     }
@@ -313,8 +314,8 @@ function createColorChip(colorCode: any) {
   swatch.className = "color-chip-swatch";
   swatch.type = "button";
   swatch.setAttribute("data-edit-color-chip", "");
-  swatch.setAttribute("aria-label", `修改颜色 ${normalized}`);
-  swatch.title = "修改颜色";
+  swatch.setAttribute("aria-label", formatTranslation("colors.modifyValue", { value: normalized }));
+  swatch.title = translate("colors.modify");
   const label = document.createElement("span");
   label.className = "color-chip-label";
   label.textContent = normalized;
@@ -322,7 +323,7 @@ function createColorChip(colorCode: any) {
   remove.className = "color-chip-remove";
   remove.type = "button";
   remove.setAttribute("data-remove-color-chip", "");
-  remove.setAttribute("aria-label", `移除颜色 ${normalized}`);
+  remove.setAttribute("aria-label", formatTranslation("colors.removeValue", { value: normalized }));
   remove.textContent = "×";
   chip.append(swatch, label, remove);
   chip.addEventListener("keydown", (event: any) => {
@@ -343,11 +344,11 @@ function updateColorChip(chip: any, colorCode: any) {
   if (label) label.textContent = normalized;
   const swatch = chip.querySelector("[data-edit-color-chip]");
   if (swatch) {
-    swatch.setAttribute("aria-label", `修改颜色 ${normalized}`);
+    swatch.setAttribute("aria-label", formatTranslation("colors.modifyValue", { value: normalized }));
   }
   const remove = chip.querySelector("[data-remove-color-chip]");
   if (remove) {
-    remove.setAttribute("aria-label", `移除颜色 ${normalized}`);
+    remove.setAttribute("aria-label", formatTranslation("colors.removeValue", { value: normalized }));
   }
 }
 

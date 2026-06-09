@@ -1,9 +1,19 @@
 // @ts-nocheck
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 
 const DEFAULT_COLOR_CODE = "#FFFFFF";
 const DEFAULT_COLOR_SWATCHES = ["#FFFFFF", "#111111", "#F6E8D8", "#E6F0EC", "#457B66", "#F4B183", "#B7D7F0", "#F8D7DA"];
-const DEFAULT_COLOR_SWATCH_NAMES = ["白色", "黑色", "暖米色", "浅绿", "品牌绿", "桃橙", "浅蓝", "浅粉"];
+const DEFAULT_COLOR_SWATCH_NAME_KEYS = [
+  "colors.white",
+  "colors.black",
+  "colors.warmBeige",
+  "colors.lightGreen",
+  "colors.brandGreen",
+  "colors.peachOrange",
+  "colors.lightBlue",
+  "colors.lightPink",
+];
 const COLOR_PALETTE_ENDPOINT = "/api/color-palette";
 const COLOR_PALETTE_IMPORT_ENDPOINT = "/api/color-palette/import";
 
@@ -29,7 +39,7 @@ function defaultColorPalette() {
   return {
     version: 1,
     favorites: DEFAULT_COLOR_SWATCHES.map((hex, index) => ({
-      name: DEFAULT_COLOR_SWATCH_NAMES[index] || `Color ${index + 1}`,
+      name: translate(DEFAULT_COLOR_SWATCH_NAME_KEYS[index] || "") || `Color ${index + 1}`,
       hex,
       order: (index + 1) * 10,
     })),
@@ -81,12 +91,12 @@ async function refreshColorPalette() {
   try {
     const response = await fetch(COLOR_PALETTE_ENDPOINT);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "颜色配置读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("colors.loadFailed"));
     state.colorPalette = normalizeColorPalette(data.palette);
     state.selectedColorCode = state.colorPalette.recent_colors[0] || favoriteColorsForDisplay()[0]?.hex || DEFAULT_COLOR_CODE;
     updateColorSuggest();
   } catch (error) {
-    console.warn(error.message || "颜色配置读取失败");
+    console.warn(error.message || translate("colors.loadFailed"));
     state.colorPalette = defaultColorPalette();
   }
 }
@@ -98,7 +108,7 @@ async function persistColorPalette(payload) {
     body: JSON.stringify(payload),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.detail || "颜色配置保存失败");
+  if (!response.ok) throw new Error(data.detail || translate("colors.saveFailed"));
   state.colorPalette = normalizeColorPalette(data.palette);
   return state.colorPalette;
 }
@@ -112,12 +122,12 @@ async function importColorPalette(file) {
     body: form,
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.detail || "颜色配置导入失败");
+  if (!response.ok) throw new Error(data.detail || translate("colors.importFailed"));
   state.colorPalette = normalizeColorPalette(data.palette);
   renderColorSuggest({ query: state.selectedColorCode.slice(1), range: state.activeColorRange });
   els.colorSuggest?.classList.remove("hidden");
   els.promptEditor?.focus({ preventScroll: true });
-  setStatus(`已导入 ${data.imported || 0} 个颜色`, "ok");
+  setStatus(formatTranslation("colors.importedCount", { count: data.imported || 0 }), "ok");
 }
 
 function toggleColorPaletteManageMode() {
@@ -145,7 +155,7 @@ function rememberRecentColor(colorCode) {
   state.colorPalette = { ...state.colorPalette, recent_colors: recentColors };
   state.selectedColorCode = normalized;
   void persistColorPalette({ recent_colors: recentColors }).catch((error) => {
-    console.warn(error.message || "最近颜色保存失败");
+    console.warn(error.message || translate("colors.recentSaveFailed"));
   });
 }
 
@@ -166,7 +176,7 @@ async function saveFavoriteColor() {
     els.colorSuggest?.classList.remove("hidden");
     els.promptEditor?.focus({ preventScroll: true });
   } catch (error) {
-    console.warn(error.message || "常用颜色保存失败");
+    console.warn(error.message || translate("colors.favoriteSaveFailed"));
   }
 }
 
@@ -180,7 +190,7 @@ async function removeFavoriteColor(colorCode) {
     els.colorSuggest?.classList.remove("hidden");
     els.promptEditor?.focus({ preventScroll: true });
   } catch (error) {
-    console.warn(error.message || "常用颜色删除失败");
+    console.warn(error.message || translate("colors.favoriteDeleteFailed"));
   }
 }
 

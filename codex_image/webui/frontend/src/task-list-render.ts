@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { cssEscape } from "./webui-utils";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -75,7 +76,7 @@ function renderTasks() {
 
   if (!tasks.length) {
     expandedTaskGroupRenderToken += 1;
-    els.taskList.innerHTML = `<div class="task-meta">暂无历史任务</div>`;
+    els.taskList.innerHTML = `<div class="task-meta">${escapeHtml(translate("taskList.empty"))}</div>`;
     updateDocumentTitle();
     return;
   }
@@ -284,7 +285,7 @@ function revealActiveTaskGroup() {
   }
   scrollExpandedTaskGroupToTop("smooth");
   if (clearedControls) {
-    legacyMethod("setStatus", "已显示进行中任务", "ok");
+    legacyMethod("setStatus", translate("status.shownActiveTasks"), "ok");
   }
 }
 
@@ -298,7 +299,7 @@ function renderExpandedTaskGroupShellHtml(group: any) {
         data-task-group-toggle-key="${groupKey}"
         data-task-group-expanded="true"
         aria-expanded="false"
-        aria-label="收起 ${escapeHtml(group.label)}"
+        aria-label="${escapeHtml(formatTranslation("taskGroup.collapse", { label: group.label }))}"
       >
         <span class="task-group-label-button">
           <span class="task-group-title">
@@ -363,7 +364,7 @@ function activeTaskSectionHtml(key: "running" | "waiting", label: string, tasks:
 function activeTaskDispatchPendingHtml() {
   return `
     <div class="task-active-empty" data-active-task-section="dispatch-pending">
-      正在分配可用通道...
+      ${translate("taskGroup.dispatchPending")}
     </div>
   `;
 }
@@ -374,7 +375,7 @@ function activeTaskGroup(tasks: any[], query: any = "") {
   if (!activeTasks.length) return null;
   return {
     key: "active",
-    label: "进行中",
+    label: translate("taskGroup.active"),
     tasks: activeTasks,
     collapsible: false,
     defaultCollapsed: false,
@@ -386,8 +387,8 @@ function activeTaskGroupHtml(group: any) {
   const sections = activeTaskSections(group.tasks || []);
   const dispatchPending = Boolean(legacyMethod("isQueueDispatchPending"));
   const body = [
-    activeTaskSectionHtml("running", "运行中", sections.running),
-    activeTaskSectionHtml("waiting", "等待中", sections.waiting),
+    activeTaskSectionHtml("running", translate("taskGroup.running"), sections.running),
+    activeTaskSectionHtml("waiting", translate("taskGroup.waiting"), sections.waiting),
     !sections.running.length && !sections.waiting.length && dispatchPending ? activeTaskDispatchPendingHtml() : "",
   ].join("");
   return `
@@ -422,7 +423,7 @@ function expandedTaskGroupHtml(group: any) {
         data-task-group-toggle-key="${groupKey}"
         data-task-group-expanded="true"
         aria-expanded="true"
-        aria-label="收起 ${escapeHtml(group.label)}"
+        aria-label="${escapeHtml(formatTranslation("taskGroup.collapse", { label: group.label }))}"
       >
         <span class="task-group-label-button">
           <span class="task-group-title">
@@ -454,7 +455,7 @@ function taskGroupHtml(group: any) {
 }
 
 function taskGroupButtonLabel(group: any) {
-  return `${group.label}，${group.tasks.length} 个任务`;
+  return formatTranslation("taskGroup.buttonLabel", { label: group.label, count: group.tasks.length });
 }
 
 function taskQueueSection(task: any, queueIds = queueTaskIdsBySection()) {
@@ -474,35 +475,52 @@ function taskQueueActionStripHtml(task: any, queueSection = taskQueueSection(tas
   if (!queueSection) return "";
   const taskId = escapeHtml(task.task_id);
   if (queueSection === "running") {
+    const runningActionsLabel = escapeHtml(translate("queue.runningActions"));
+    const cancelLabel = escapeHtml(translate("queue.cancelRunning"));
+    const cancelTitle = escapeHtml(translate("queue.cancelRunningTitle"));
     return `
-      <div class="task-queue-actions task-queue-actions-running" role="group" aria-label="运行任务队列操作" data-task-queue-section="${escapeHtml(queueSection)}">
-        <button class="task-queue-action task-queue-cancel-button" type="button" data-task-queue-cancel-id="${taskId}" aria-label="取消运行任务" title="取消运行任务">取消</button>
+      <div class="task-queue-actions task-queue-actions-running" role="group" aria-label="${runningActionsLabel}" data-task-queue-section="${escapeHtml(queueSection)}">
+        <button class="task-queue-action task-queue-cancel-button" type="button" data-task-queue-cancel-id="${taskId}" aria-label="${cancelTitle}" title="${cancelTitle}">${cancelLabel}</button>
       </div>
     `;
   }
   const waitingCount = (state.queue.waiting || []).length;
   const disableMoveUp = waitingIndex <= 0;
   const disableMoveDown = waitingIndex < 0 || waitingIndex >= waitingCount - 1;
+  const waitingActionsLabel = escapeHtml(translate("queue.waitingActions"));
+  const dragWaitingLabel = escapeHtml(translate("queue.dragWaiting"));
+  const dragSortLabel = escapeHtml(translate("queue.dragSort"));
+  const moveUpLabel = escapeHtml(translate("queue.moveUp"));
+  const moveUpTitle = escapeHtml(translate("queue.moveUpTitle"));
+  const moveDownLabel = escapeHtml(translate("queue.moveDown"));
+  const moveDownTitle = escapeHtml(translate("queue.moveDownTitle"));
+  const promoteLabel = escapeHtml(translate("queue.promote"));
+  const promoteTitle = escapeHtml(translate("queue.promoteTitle"));
+  const deleteLabel = escapeHtml(translate("queue.deleteWaitingShort"));
+  const deleteTitle = escapeHtml(translate("queue.deleteWaitingTitle"));
   return `
-    <div class="task-queue-actions task-queue-actions-waiting" role="group" aria-label="等待任务队列操作" data-task-queue-section="${escapeHtml(queueSection)}">
-      <button class="task-queue-drag-handle" type="button" draggable="true" data-task-queue-drag-handle-id="${taskId}" aria-label="拖动调整等待顺序" title="拖动排序">
+    <div class="task-queue-actions task-queue-actions-waiting" role="group" aria-label="${waitingActionsLabel}" data-task-queue-section="${escapeHtml(queueSection)}">
+      <button class="task-queue-drag-handle" type="button" draggable="true" data-task-queue-drag-handle-id="${taskId}" aria-label="${dragWaitingLabel}" title="${dragSortLabel}">
         <svg class="task-queue-drag-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
           <path d="M5 3.5h.1M5 8h.1M5 12.5h.1M10.5 3.5h.1M10.5 8h.1M10.5 12.5h.1" />
         </svg>
       </button>
-      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="up" aria-label="上移等待任务" title="上移"${disableMoveUp ? " disabled" : ""}>上</button>
-      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="down" aria-label="下移等待任务" title="下移"${disableMoveDown ? " disabled" : ""}>下</button>
-      <button class="task-queue-action" type="button" data-task-queue-promote-id="${taskId}" aria-label="置顶等待任务" title="置顶">顶</button>
-      <button class="task-queue-action task-queue-delete-button" type="button" data-task-queue-delete-id="${taskId}" aria-label="删除等待任务" title="删除等待任务">删</button>
+      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="up" aria-label="${moveUpTitle}" title="${moveUpTitle}"${disableMoveUp ? " disabled" : ""}>${moveUpLabel}</button>
+      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="down" aria-label="${moveDownTitle}" title="${moveDownTitle}"${disableMoveDown ? " disabled" : ""}>${moveDownLabel}</button>
+      <button class="task-queue-action" type="button" data-task-queue-promote-id="${taskId}" aria-label="${promoteTitle}" title="${promoteTitle}">${promoteLabel}</button>
+      <button class="task-queue-action task-queue-delete-button" type="button" data-task-queue-delete-id="${taskId}" aria-label="${deleteTitle}" title="${deleteTitle}">${deleteLabel}</button>
     </div>
   `;
 }
 
 function taskCardActionsHtml(taskId: string, queueSection = "") {
   if (queueSection) return "";
+  const actionGroupLabel = escapeHtml(translate("taskActions.group"));
+  const archiveLabel = escapeHtml(translate("taskContext.archive"));
+  const deleteLabel = escapeHtml(translate("taskContext.delete"));
   return `
-      <div class="task-card-actions" role="group" aria-label="任务操作">
-        <button class="task-archive-button" type="button" data-archive-task-id="${taskId}" aria-label="归档任务" title="归档任务">
+      <div class="task-card-actions" role="group" aria-label="${actionGroupLabel}">
+        <button class="task-archive-button" type="button" data-archive-task-id="${taskId}" aria-label="${archiveLabel}" title="${archiveLabel}">
           <svg class="task-action-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
             <path d="M4 6h12v11H4z" />
             <path d="M6 3h8l2 3H4l2-3z" />
@@ -510,7 +528,7 @@ function taskCardActionsHtml(taskId: string, queueSection = "") {
             <path d="M7.5 10.5L10 13l2.5-2.5" />
           </svg>
         </button>
-        <button class="task-delete-button" type="button" data-delete-task-id="${taskId}" aria-label="删除任务" title="删除任务">
+        <button class="task-delete-button" type="button" data-delete-task-id="${taskId}" aria-label="${deleteLabel}" title="${deleteLabel}">
           <svg class="task-action-icon task-delete-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
             <path d="M5 5h10" />
             <path d="M8 5l1-2h2l1 2" />
@@ -550,11 +568,11 @@ function taskCardHtml(task: any) {
   const queueActions = taskQueueActionStripHtml(task, queueSection, waitingQueueIndex(task.task_id, queueIds));
   const taskActions = taskCardActionsHtml(taskId, queueSection);
   const batchSelect = state.batchMode ? `
-      <button class="task-select-button" type="button" data-batch-select-task-id="${taskId}" aria-pressed="${batchSelected ? "true" : "false"}" aria-label="选择会话">
+      <button class="task-select-button" type="button" data-batch-select-task-id="${taskId}" aria-pressed="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml(translate("taskList.selectSession"))}">
         <span></span>
       </button>
     ` : "";
-  const unreadDot = unread ? '<span class="task-unread-dot" aria-label="未读更新"></span>' : "";
+  const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml(translate("taskList.unreadUpdate"))}"></span>` : "";
   return `
     <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}"${queueTaskData}>
       ${batchSelect}
@@ -600,7 +618,7 @@ function taskHistoryGroups(tasks: any, query: any) {
   if (query) {
     return [{
       key: "search",
-      label: "搜索结果",
+      label: translate("taskGroup.searchResults"),
       tasks,
       collapsible: false,
       defaultCollapsed: false,
@@ -625,15 +643,15 @@ function taskHistoryGroups(tasks: any, query: any) {
 
   addGroup(
     "today",
-    "今天",
+    translate("taskGroup.today"),
     unassignedTasks().filter((task: any) => taskDateBucket(task) === "today"),
     { collapsible: true, defaultCollapsed: false },
   );
 
   [
-    ["yesterday", "昨天"],
-    ["last7", "最近 7 天"],
-    ["older", "更早"],
+    ["yesterday", translate("taskGroup.yesterday")],
+    ["last7", translate("taskGroup.last7")],
+    ["older", translate("taskGroup.older")],
   ].forEach(([key, label]: any) => {
     addGroup(
       key,
@@ -772,8 +790,9 @@ function taskThumbHtml(task: any, className: any = "task-thumb") {
   const safeClassName = escapeHtml(className);
   if (imageUrl && inputPreviewUrl) {
     const loadingSpinner = taskThumbShowsLoading(task) ? '<span class="task-thumb-stack-spinner" aria-hidden="true"></span>' : "";
+    const imageToImageLabel = escapeHtml(translate("taskCard.imageToImageThumb"));
     return `
-      <div class="${safeClassName} task-thumb-stack" aria-label="图生图任务缩略图">
+      <div class="${safeClassName} task-thumb-stack" aria-label="${imageToImageLabel}">
         <img class="task-thumb-reference" src="${escapeHtml(inputPreviewUrl)}" alt="" loading="lazy" decoding="async">
         <img class="task-thumb-output" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" decoding="async">
         ${loadingSpinner}
@@ -781,22 +800,24 @@ function taskThumbHtml(task: any, className: any = "task-thumb") {
     `;
   }
   if (imageUrl) {
+    const textToImageLabel = escapeHtml(translate("taskCard.textToImageThumb"));
+    const textBadge = escapeHtml(translate("taskCard.textBadge"));
     return `
-      <div class="${safeClassName} task-thumb-single" aria-label="文生图任务缩略图">
+      <div class="${safeClassName} task-thumb-single" aria-label="${textToImageLabel}">
         <img class="task-thumb-single-image" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" decoding="async">
-        <span class="task-thumb-mode-badge" aria-hidden="true">文</span>
+        <span class="task-thumb-mode-badge" aria-hidden="true">${textBadge}</span>
       </div>
     `;
   }
   if (task.status === "failed") {
-    return `<div class="${safeClassName} failed-thumb" aria-label="任务失败"><span>!</span></div>`;
+    return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
   }
   return `<div class="${safeClassName} running-thumb"><span></span></div>`;
 }
 
 function taskStatusLightHtml(task: any) {
   const tone = taskStatusTone(task);
-  const label = escapeHtml(formatTaskStatus(task) || "未知状态");
+  const label = escapeHtml(formatTaskStatus(task) || translate("taskStatus.unknown"));
   const taskId = escapeHtml(task?.task_id || "");
   return `
     <span class="task-status-light ${tone}" aria-hidden="true"></span>
@@ -814,7 +835,7 @@ function taskStatusTone(task: any) {
 }
 
 function taskStatusAccessibleLabel(task: any) {
-  return [formatTaskStatus(task) || "未知状态", taskImageSummaryText(task), taskMetaDetailsText(task)]
+  return [formatTaskStatus(task) || translate("taskStatus.unknown"), taskImageSummaryText(task), taskMetaDetailsText(task)]
     .filter(Boolean)
     .join(" · ");
 }
@@ -840,9 +861,15 @@ function taskImageBlocksHtml(task: any) {
 function taskImageSummaryText(task: any) {
   const states = taskImageBlockStates(task);
   const counts = taskImageStatusCounts(states);
-  const parts = [`${states.length} 张`, `成功 ${counts.completed}`, `失败 ${counts.failed}`];
-  if (counts.running) parts.push(`生成中 ${counts.running}`);
-  if (counts.queued || counts.waiting) parts.push(`等待 ${counts.queued + counts.waiting}`);
+  const parts = [
+    formatTranslation("taskCard.count", { count: states.length }),
+    formatTranslation("taskCard.successCount", { count: counts.completed }),
+    formatTranslation("taskCard.failedCount", { count: counts.failed }),
+  ];
+  if (counts.running) parts.push(formatTranslation("taskCard.runningCount", { count: counts.running }));
+  if (counts.queued || counts.waiting) {
+    parts.push(formatTranslation("taskCard.waitingCount", { count: counts.queued + counts.waiting }));
+  }
   return parts.join(" · ");
 }
 
@@ -855,6 +882,10 @@ function taskMetaText(task: any) {
 }
 
 export function initTaskListRenderFeature() {
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    state.tasksRenderKey = null;
+    renderTasks();
+  });
   Object.assign(getLegacyBridge().methods, {
     renderTasks,
     taskSearchQuery,

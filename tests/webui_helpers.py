@@ -642,7 +642,7 @@ class WebUIStaticTestCase(unittest.TestCase):
     def assertCloseButtonUsesConsistentX(self, html: str, button_id: str, aria_label: str) -> None:
         self.assertRegex(
             html,
-            rf'<button id="{re.escape(button_id)}" class="ghost-button drawer-close-button" type="button" aria-label="{re.escape(aria_label)}" title="关闭">\s*'
+            rf'<button id="{re.escape(button_id)}" class="ghost-button drawer-close-button" type="button" aria-label="{re.escape(aria_label)}" title="关闭"[^>]*>\s*'
             rf'<svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">\s*'
             rf'<path d="M7 7L17 17M17 7L7 17" />\s*</svg>\s*</button>',
         )

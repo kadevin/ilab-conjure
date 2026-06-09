@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 
 interface PromptFindMatch {
   node: Text;
@@ -89,7 +90,7 @@ function setPromptFindStatus(message: string): void {
 
 function setPromptFindCount(count = promptFindMatches.length): void {
   if (els.promptFindCount) {
-    els.promptFindCount.textContent = `${count} 处`;
+    els.promptFindCount.textContent = formatTranslation("prompt.matchCount", { count });
   }
 }
 
@@ -104,7 +105,7 @@ function updatePromptFindControls(): void {
 function countPromptFindMatches(): void {
   promptFindMatches = collectPromptFindMatches();
   setPromptFindCount();
-  setPromptFindStatus(promptFindMatches.length ? `找到 ${promptFindMatches.length} 处` : "未找到匹配文本");
+  setPromptFindStatus(promptFindMatches.length ? formatTranslation("prompt.foundCount", { count: promptFindMatches.length }) : translate("prompt.noMatch"));
   updatePromptFindControls();
 }
 
@@ -113,7 +114,7 @@ function replaceAllPromptMatches(): void {
   promptFindMatches = matches;
   if (!matches.length) {
     setPromptFindCount(0);
-    setPromptFindStatus("未找到匹配文本");
+    setPromptFindStatus(translate("prompt.noMatch"));
     updatePromptFindControls();
     return;
   }
@@ -127,7 +128,7 @@ function replaceAllPromptMatches(): void {
   syncPromptAfterFindMutation();
   promptFindMatches = collectPromptFindMatches();
   setPromptFindCount();
-  setPromptFindStatus(`已替换 ${matches.length} 处`);
+  setPromptFindStatus(formatTranslation("prompt.replacedCount", { count: matches.length }));
   updatePromptFindControls();
 }
 

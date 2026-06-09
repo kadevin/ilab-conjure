@@ -36,6 +36,7 @@ import { initShellUiFeature } from "./shell-ui";
 import { initLightboxFeature } from "./lightbox";
 import { initializeQueueFeature } from "./queue";
 import { initSegmentedIndicatorFeature } from "./segmented-indicator";
+import { initI18nFeature } from "./i18n";
 
 initInputSourcesFeature();
 initImageEditorFeature();
@@ -71,6 +72,7 @@ initTaskFeature();
 initTaskSelectionFeature();
 initOverlayPopoversFeature();
 initShellUiFeature();
+initI18nFeature();
 initLightboxFeature();
 initializeQueueFeature();
 initSegmentedIndicatorFeature();

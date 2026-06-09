@@ -14,6 +14,7 @@ import {
   sizeForPreset,
 } from "./size-presets";
 import { syncRadioButtons, updateRequestPreview } from "./output-controls";
+import { formatTranslation, LOCALE_CHANGE_EVENT } from "./i18n";
 
 const CUSTOM_SIZE_TRANSITION_MS = 220;
 const CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE = 4;
@@ -168,10 +169,10 @@ export function loadImageDimensions(url: any) {
       if (width > 0 && height > 0) {
         resolve({ width, height });
       } else {
-        reject(new Error("图片尺寸不可用"));
+        reject(new Error(formatTranslation("output.imageSizeUnavailable")));
       }
     };
-    image.onerror = () => reject(new Error("图片加载失败"));
+    image.onerror = () => reject(new Error(formatTranslation("output.imageLoadFailed")));
     image.src = String(url || "");
   });
 }
@@ -314,21 +315,25 @@ export function setSizeControlValue(select: any, value: any): boolean {
 export function updatePixelPreview(size: any): void {
   if (!els.pixelPreview) return;
   if (size === "auto") {
-    els.pixelPreview.textContent = "输出像素: auto（OpenAI 自动选择）";
+    els.pixelPreview.textContent = formatTranslation("output.pixelPreviewAuto");
     return;
   }
   if (size === "custom") {
     const message = customSizeValidationMessage();
     if (message) {
-      els.pixelPreview.textContent = `输出像素: ${message}`;
+      els.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", { value: message });
       return;
     }
-    els.pixelPreview.textContent = `输出像素: ${customDimensionValue(els.customWidth)} x ${customDimensionValue(els.customHeight)} px`;
+    els.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", {
+      value: `${customDimensionValue(els.customWidth)} x ${customDimensionValue(els.customHeight)} px`,
+    });
     return;
   }
   const [width, height] = String(size).split("x");
-  els.pixelPreview.textContent = `输出像素: ${width} x ${height} px`;
+  els.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", { value: `${width} x ${height} px` });
 }
+
+document.addEventListener(LOCALE_CHANGE_EVENT, () => updatePixelPreview(els.size?.value || ""));
 
 export function syncSizeControlsFromSize(size: any): void {
   if (!size || size === "auto") {
@@ -509,7 +514,7 @@ export function updateCustomSize(): void {
   const message = isCustom ? customSizeValidationMessage() : "";
   els.customSize?.classList.toggle("has-error", Boolean(message));
   if (els.customSizeHint) {
-    els.customSizeHint.textContent = message || "单位 px · 16-3840 · 16倍数 · ≤3:1";
+    els.customSizeHint.textContent = message || formatTranslation("output.customSizeHint");
   }
   updateCustomRatioFieldState();
 }

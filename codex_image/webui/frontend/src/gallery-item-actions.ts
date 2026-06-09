@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -38,6 +39,7 @@ function renderGalleryCategoryControls(): void { legacyMethod("renderGalleryCate
 function findGalleryItem(itemId: any): any { return legacyMethod("findGalleryItem", itemId); }
 function findGalleryCategory(categoryId: any): any { return legacyMethod("findGalleryCategory", categoryId); }
 function normalizeGalleryCategories(categories: any): any[] { return legacyMethod("normalizeGalleryCategories", categories); }
+function categoryLabel(category: any): string { return legacyMethod("categoryLabel", category); }
 
 function clampPopoverPosition(value: number, min: number, max: number): number {
   if (max < min) return min;
@@ -46,9 +48,9 @@ function clampPopoverPosition(value: number, min: number, max: number): number {
 
 async function remoteImageSourceFile(source: any): Promise<File> {
   const imageUrl = sourcePreviewUrl(source);
-  if (!imageUrl) throw new Error("无法载入这张图片");
+  if (!imageUrl) throw new Error(translate("gallery.imageLoadFailed"));
   const response = await fetch(imageUrl);
-  if (!response.ok) throw new Error("无法载入这张图片");
+  if (!response.ok) throw new Error(translate("gallery.imageLoadFailed"));
   const blob = await response.blob();
   return new File([blob], sourceName(source), {
     type: blob.type || source.mime_type || "image/png",
@@ -91,7 +93,7 @@ function canAddSourceToGallery(source: any) {
 async function galleryImageFileForSource(source: any) {
   if (source.kind === "upload") return source.file;
   if (source.kind === "asset") return remoteImageSourceFile(source);
-  throw new Error("这张图片无法加入图库");
+  throw new Error(translate("gallery.cannotAddImage"));
 }
 
 async function saveUploadToGallery() {
@@ -101,7 +103,7 @@ async function saveUploadToGallery() {
   const category = els.galleryCategoryInput.value;
   const promptNote = els.galleryPromptNoteInput?.value.trim() || "";
   if (!name) {
-    setStatus("请输入图库名称", "error");
+    setStatus(translate("gallery.nameRequired"), "error");
     return;
   }
   try {
@@ -114,7 +116,7 @@ async function saveUploadToGallery() {
     const response = await fetch("/api/gallery", { method: "POST", body: form });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.detail || "保存图库失败");
+      throw new Error(data.detail || translate("gallery.saveFailed"));
     }
     state.images[state.addToGalleryIndex] = gallerySource(data.item);
     if (source.kind === "upload") revokeUploadPreviewUrl(source);
@@ -123,9 +125,9 @@ async function saveUploadToGallery() {
     setMode("edit");
     renderImageStrip();
     updateRequestPreview();
-    setStatus("已添加到图库，并切换为图库引用", "ok");
+    setStatus(translate("gallery.savedAsReference"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "保存图库失败", "error");
+    setStatus(error.message || translate("gallery.saveFailed"), "error");
   }
 }
 
@@ -133,13 +135,13 @@ function renameGalleryItem(button: any, itemId: any) {
   const item = findGalleryItem(itemId);
   if (!item) return;
   openGalleryEditPopover(button, {
-    title: "重命名图库图片",
+    title: translate("gallery.renameImage"),
     mode: "name",
     item,
     onSave: async (popover: any) => {
       const name = popover.querySelector("[data-gallery-edit-name]")?.value.trim();
       if (!name) {
-        setStatus("请输入图库名称", "error");
+        setStatus(translate("gallery.nameRequired"), "error");
         return false;
       }
       if (name === item.name) return true;
@@ -153,13 +155,13 @@ function moveGalleryItem(button: any, itemId: any) {
   const item = findGalleryItem(itemId);
   if (!item) return;
   openGalleryEditPopover(button, {
-    title: "移动到分类",
+    title: translate("gallery.moveToCategory"),
     mode: "category",
     item,
     onSave: async (popover: any) => {
       const category = popover.querySelector("[data-gallery-edit-category]")?.value;
       if (!findGalleryCategory(category)) {
-        setStatus("请选择图库分类", "error");
+        setStatus(translate("gallery.categoryRequired"), "error");
         return false;
       }
       if (category === item.category) return true;
@@ -173,7 +175,7 @@ function editGalleryPromptNote(button: any, itemId: any) {
   const item = findGalleryItem(itemId);
   if (!item) return;
   openGalleryEditPopover(button, {
-    title: "图库引用备注",
+    title: translate("gallery.promptNoteTitle"),
     mode: "prompt_note",
     item,
     onSave: async (popover: any) => {
@@ -193,13 +195,13 @@ async function patchGalleryItem(itemId: any, payload: any) {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "更新图库失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.updateFailed"));
     await refreshGallery();
     state.images = state.images.map((source: any) => source.kind === "gallery" && source.id === itemId ? gallerySource(data.item) : source);
     renderImageStrip();
     updateRequestPreview();
   } catch (error: any) {
-    setStatus(error.message || "更新图库失败", "error");
+    setStatus(error.message || translate("gallery.updateFailed"), "error");
   }
 }
 
@@ -226,7 +228,7 @@ async function replaceGalleryItemImage(itemId: any) {
   const file = await selectGalleryReplacementFile();
   if (!file) return;
   if (file.type && !file.type.startsWith("image/")) {
-    setStatus("请选择图片文件", "error");
+    setStatus(translate("gallery.selectImageFile"), "error");
     return;
   }
   const form = new FormData();
@@ -237,7 +239,7 @@ async function replaceGalleryItemImage(itemId: any) {
       body: form,
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "替换图库图片失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.replaceImageFailed"));
     const updated = data.item;
     state.galleryItems = state.galleryItems.map((candidate: any) => (candidate.id === itemId ? updated : candidate));
     state.images = state.images.map((source: any) => (source.kind === "gallery" && source.id === itemId ? gallerySource(updated) : source));
@@ -245,9 +247,9 @@ async function replaceGalleryItemImage(itemId: any) {
     renderGalleryGrid();
     renderImageStrip();
     updateRequestPreview();
-    setStatus(`已替换「${updated.name || item.name}」的原图`, "ok");
+    setStatus(formatTranslation("gallery.replacedImage", { name: updated.name || item.name }), "ok");
   } catch (error: any) {
-    setStatus(error.message || "替换图库图片失败", "error");
+    setStatus(error.message || translate("gallery.replaceImageFailed"), "error");
   }
 }
 
@@ -255,10 +257,10 @@ function deleteGalleryItem(button: any, itemId: any) {
   const item = findGalleryItem(itemId);
   if (!item) return;
   openConfirmPopover(button, {
-    title: "删除图库图片？",
-    message: "历史任务里的引用会显示为已删除。",
+    title: translate("gallery.deleteImageTitle"),
+    message: translate("gallery.deleteImageMessage"),
     detail: item.name,
-    confirmText: "删除",
+    confirmText: translate("action.delete"),
     onConfirm: async () => {
       await performDeleteGalleryItem(itemId);
     },
@@ -269,16 +271,16 @@ async function performDeleteGalleryItem(itemId: any) {
   try {
     const response = await fetch(`/api/gallery/${encodeURIComponent(itemId)}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "删除图库失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.deleteFailed"));
     await refreshGallery();
     state.images = state.images.map((source: any) => {
       if (source.kind !== "gallery" || source.id !== itemId) return source;
-      return { ...source, missing: true, image_url: "", previewUrl: "", name: `${source.name}（已删除）` };
+      return { ...source, missing: true, image_url: "", previewUrl: "", name: `${source.name}${translate("gallery.deletedSuffix")}` };
     });
     renderImageStrip();
     updateRequestPreview();
   } catch (error: any) {
-    setStatus(error.message || "删除图库失败", "error");
+    setStatus(error.message || translate("gallery.deleteFailed"), "error");
   }
 }
 
@@ -287,7 +289,7 @@ function ensureGalleryEditPopover() {
   galleryEditPopoverEl = document.createElement("div");
   galleryEditPopoverEl.className = "gallery-edit-popover hidden";
   galleryEditPopoverEl.setAttribute("role", "dialog");
-  galleryEditPopoverEl.setAttribute("aria-label", "编辑图库图片");
+  galleryEditPopoverEl.setAttribute("aria-label", translate("gallery.editImageLabel"));
   document.body.appendChild(galleryEditPopoverEl);
   return galleryEditPopoverEl;
 }
@@ -306,11 +308,11 @@ function openGalleryEditPopover(anchor: any, options: any = {}) {
   galleryEditPopoverState.onSave = typeof options.onSave === "function" ? options.onSave : null;
   popover.innerHTML = `
     <form class="gallery-edit-form">
-      <div class="gallery-edit-title">${escapeHtml(options.title || "编辑图库图片")}</div>
+      <div class="gallery-edit-title">${escapeHtml(options.title || translate("gallery.editImageLabel"))}</div>
       ${galleryEditFieldHtml(options.mode, options.item)}
       <div class="gallery-edit-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-edit-cancel>取消</button>
-        <button class="ghost-button text-sm" type="submit" data-gallery-edit-save>保存</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-edit-cancel>${escapeHtml(translate("action.cancel"))}</button>
+        <button class="ghost-button text-sm" type="submit" data-gallery-edit-save>${escapeHtml(translate("action.save"))}</button>
       </div>
     </form>
   `;
@@ -335,11 +337,11 @@ function openGalleryEditPopover(anchor: any, options: any = {}) {
 function galleryEditFieldHtml(mode: any, item: any) {
   if (mode === "category") {
     const options = normalizeGalleryCategories(state.galleryCategories).map((category: any) => `
-      <option value="${escapeHtml(category.id)}" ${category.id === item.category ? "selected" : ""}>${escapeHtml(category.name)}</option>
+      <option value="${escapeHtml(category.id)}" ${category.id === item.category ? "selected" : ""}>${escapeHtml(categoryLabel(category.id))}</option>
     `).join("");
     return `
       <label class="gallery-edit-field">
-        <span>分类</span>
+        <span>${escapeHtml(translate("gallery.fieldCategory"))}</span>
         <select class="gallery-edit-select" data-gallery-edit-category>${options}</select>
       </label>
     `;
@@ -347,14 +349,14 @@ function galleryEditFieldHtml(mode: any, item: any) {
   if (mode === "prompt_note") {
     return `
       <label class="gallery-edit-field">
-        <span>引用备注</span>
+        <span>${escapeHtml(translate("gallery.fieldPromptNote"))}</span>
         <textarea class="gallery-edit-input gallery-edit-textarea" maxlength="160" data-gallery-edit-prompt-note>${escapeHtml(item.prompt_note || "")}</textarea>
       </label>
     `;
   }
   return `
     <label class="gallery-edit-field">
-      <span>名称</span>
+      <span>${escapeHtml(translate("gallery.fieldName"))}</span>
       <input class="gallery-edit-input" type="text" value="${escapeHtml(item.name)}" data-gallery-edit-name>
     </label>
   `;

@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { updateRequestPreview } from "./output-controls";
+import { translate } from "./i18n";
 
 export const DEFAULT_MAIN_MODEL = "gpt-5.4-mini";
 export const MAIN_MODEL_OPTIONS = ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.2"];
@@ -56,7 +57,7 @@ export function renderMainModelOptions(): void {
   const options = mainModelOptionsForQuery(query);
   state.mainModelOptionIndex = Math.min(Math.max(0, state.mainModelOptionIndex), Math.max(0, options.length - 1));
   if (!options.length) {
-    els.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">按当前输入使用自定义模型</div>`;
+    els.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">${escapeHtml(translate("output.mainModelCustomForInput"))}</div>`;
     els.mainModel.removeAttribute("aria-activedescendant");
     return;
   }

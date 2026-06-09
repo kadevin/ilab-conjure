@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { formatTranslation, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 
 const bridge = getLegacyBridge();
@@ -60,9 +61,9 @@ function renderSelectedTask(task, taskId) {
   updateTaskSelectionVisuals(taskId);
   renderPreview(task);
   if (task.status === "failed") {
-    setStatus(taskFailureMessage(task) || "任务失败", "error");
+    setStatus(taskFailureMessage(task) || translate("taskActions.failedFallback"), "error");
   } else if (task.status !== "running") {
-    setStatus(`已载入任务 ${taskId}`, "ok");
+    setStatus(formatTranslation("status.loadedTask", { taskId }), "ok");
   }
 }
 
@@ -92,7 +93,7 @@ async function fetchHistoryInputBlob(candidateUrls, sourceUrl) {
       return response.blob();
     }
   }
-  throw new Error(`无法载入历史输入图: ${candidateUrls[0] || sourceUrl}`);
+  throw new Error(formatTranslation("status.historyInputLoadFailed", { url: candidateUrls[0] || sourceUrl }));
 }
 
 async function restoreTaskInputs(task, options = {}) {
@@ -109,7 +110,7 @@ async function restoreTaskInputs(task, options = {}) {
     let uploadInputIndex = 0;
     const uploadSources = task.input_sources.filter((source) => source?.kind === "upload" && source.image_url);
     if (uploadSources.length && selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-      setStatus("正在载入历史输入图...", "");
+      setStatus(translate("status.loadingHistoryInputs"), "");
     }
     try {
       for (const [index, source] of task.input_sources.entries()) {
@@ -149,7 +150,7 @@ async function restoreTaskInputs(task, options = {}) {
   }
 
   if (selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-    setStatus("正在载入历史输入图...", "");
+    setStatus(translate("status.loadingHistoryInputs"), "");
   }
   const inputNames = Array.isArray(task.input_files) ? task.input_files : [];
   const files = [];
@@ -161,7 +162,7 @@ async function restoreTaskInputs(task, options = {}) {
       }
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`无法载入历史输入图: ${url}`);
+        throw new Error(formatTranslation("status.historyInputLoadFailed", { url }));
       }
       const blob = await response.blob();
       const fallbackName = `history-input-${index + 1}`;

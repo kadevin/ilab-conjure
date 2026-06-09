@@ -27,6 +27,10 @@ export interface TaskNotification {
   status: Extract<TaskStatus, "completed" | "failed" | "partial_failed">;
   title: string;
   message: string;
+  success_count?: number;
+  failed_count?: number;
+  prompt_snippet?: string;
+  error_message?: string;
   created_at: string;
   thumbnail_url?: string;
   unread: boolean;

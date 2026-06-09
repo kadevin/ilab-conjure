@@ -141,6 +141,7 @@
   function createWebUIElements() {
     return {
       themeSwitcher: document.querySelector("#themeSwitcher"),
+      languageSwitcher: document.querySelector("#languageSwitcher"),
       sidebar: document.querySelector("#sidebar"),
       sidebarResizeHandle: document.querySelector("#sidebarResizeHandle"),
       authSourceGroup: document.querySelector("#authSourceGroup"),
@@ -377,6 +378,1422 @@
     return getLegacyBridge().state;
   }
 
+  // codex_image/webui/frontend/src/i18n.ts
+  var LOCALE_STORAGE_KEY = "codex-image-locale-preference";
+  var LOCALE_CHANGE_EVENT = "codex-image-locale-change";
+  var DEFAULT_LOCALE = "zh-CN";
+  var LOCALES = ["zh-CN", "en"];
+  var DICTIONARIES = {
+    "zh-CN": {
+      "app.newTask": "\u65B0\u5EFA",
+      "app.newTaskAria": "\u65B0\u5EFA\u5BF9\u8BDD",
+      "sidebar.searchPlaceholder": "\u641C\u7D22\u5BF9\u8BDD...",
+      "sidebar.filters": "\u4EFB\u52A1\u7B5B\u9009",
+      "sidebar.allRatios": "\u5168\u90E8\u6BD4\u4F8B",
+      "sidebar.allOrientations": "\u5168\u90E8\u65B9\u5411",
+      "sidebar.allModes": "\u5168\u90E8\u6A21\u5F0F",
+      "sidebar.allResolutions": "\u5168\u90E8\u5206\u8FA8\u7387",
+      "sidebar.activeTasks": "\u8FDB\u884C\u4E2D\u4EFB\u52A1",
+      "sidebar.topAnchors": "\u9876\u90E8\u65F6\u95F4\u5BFC\u822A",
+      "sidebar.bottomAnchors": "\u5E95\u90E8\u65F6\u95F4\u5BFC\u822A",
+      "sidebar.resize": "\u8C03\u6574\u4FA7\u680F\u5BBD\u5EA6",
+      "batch.selected": "\u5DF2\u9009\u62E9 0 \u4E2A",
+      "batch.selectedCount": "\u5DF2\u9009\u62E9 {count} \u4E2A",
+      "batch.archivedCount": "\u5DF2\u5F52\u6863 {count} \u4E2A\u4F1A\u8BDD",
+      "batch.archiveFailed": "\u6279\u91CF\u5F52\u6863\u5931\u8D25",
+      "batch.runningCannotDeleteSelected": "\u9009\u4E2D\u7684\u4F1A\u8BDD\u6B63\u5728\u8FD0\u884C\uFF0C\u4E0D\u80FD\u5220\u9664",
+      "batch.deleteTitle": "\u5220\u9664 {count} \u4E2A\u4F1A\u8BDD\uFF1F",
+      "batch.deleteMessage": "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+      "batch.deleteSkippedDetail": "{count} \u4E2A\u8FD0\u884C\u4E2D\u4EFB\u52A1\u4F1A\u4FDD\u7559",
+      "batch.deleteSkippedSuffix": "\uFF0C{count} \u4E2A\u8FD0\u884C\u4E2D\u672A\u5220\u9664",
+      "batch.deletedCount": "\u5DF2\u5220\u9664 {count} \u4E2A\u4F1A\u8BDD{skipped}",
+      "batch.deleteFailed": "\u6279\u91CF\u5220\u9664\u5931\u8D25",
+      "action.archive": "\u5F52\u6863",
+      "action.delete": "\u5220\u9664",
+      "action.cancel": "\u53D6\u6D88",
+      "action.clear": "\u6E05\u7A7A",
+      "action.paste": "\u7C98\u8D34",
+      "action.find": "\u67E5\u627E",
+      "action.replace": "\u66FF\u6362",
+      "action.close": "\u5173\u95ED",
+      "action.confirm": "\u786E\u8BA4",
+      "action.confirmQuestion": "\u786E\u8BA4\u64CD\u4F5C\uFF1F",
+      "action.refresh": "\u21BB \u5237\u65B0",
+      "action.save": "\u4FDD\u5B58",
+      "action.add": "\u6DFB\u52A0",
+      "action.new": "\u65B0\u5EFA",
+      "action.import": "\u5BFC\u5165",
+      "action.export": "\u5BFC\u51FA",
+      "queue.empty": "\u6682\u65E0\u6392\u961F",
+      "queue.emptyAria": "\u961F\u5217\u72B6\u6001\uFF1A\u6682\u65E0\u6392\u961F",
+      "queue.jumpTitle": "\u8DF3\u8F6C\u5230\u8FDB\u884C\u4E2D\u4EFB\u52A1",
+      "queue.emptyTitle": "\u6682\u65E0\u6392\u961F\u4EFB\u52A1",
+      "queue.channel": "\u901A\u9053 {count}",
+      "queue.availableChannels": "\u53EF\u7528\u901A\u9053 {usable}/{total}",
+      "queue.dispatching": "\u8C03\u5EA6\u4E2D \xB7 \u7B49\u5F85 {waiting}",
+      "queue.runningWaiting": "\u8FD0\u884C {running} \xB7 \u7B49\u5F85 {waiting}",
+      "queue.statusLabel": "\u961F\u5217\u72B6\u6001\uFF1A{text} \xB7 {channelText}\u3002\u70B9\u51FB\u8DF3\u8F6C\u5230\u8FDB\u884C\u4E2D\u4EFB\u52A1",
+      "queue.runningActions": "\u8FD0\u884C\u4EFB\u52A1\u961F\u5217\u64CD\u4F5C",
+      "queue.waitingActions": "\u7B49\u5F85\u4EFB\u52A1\u961F\u5217\u64CD\u4F5C",
+      "queue.cancelRunning": "\u53D6\u6D88",
+      "queue.cancelRunningTitle": "\u53D6\u6D88\u8FD0\u884C\u4EFB\u52A1",
+      "queue.dragWaiting": "\u62D6\u52A8\u8C03\u6574\u7B49\u5F85\u987A\u5E8F",
+      "queue.dragSort": "\u62D6\u52A8\u6392\u5E8F",
+      "queue.moveUp": "\u4E0A",
+      "queue.moveUpTitle": "\u4E0A\u79FB\u7B49\u5F85\u4EFB\u52A1",
+      "queue.moveDown": "\u4E0B",
+      "queue.moveDownTitle": "\u4E0B\u79FB\u7B49\u5F85\u4EFB\u52A1",
+      "queue.promote": "\u9876",
+      "queue.promoteTitle": "\u7F6E\u9876\u7B49\u5F85\u4EFB\u52A1",
+      "queue.promoteFailed": "\u7F6E\u9876\u5931\u8D25",
+      "queue.deleteWaitingShort": "\u5220",
+      "queue.deleteWaitingTitle": "\u5220\u9664\u7B49\u5F85\u4EFB\u52A1",
+      "queue.deleteWaitingTitleConfirm": "\u5220\u9664\u7B49\u5F85\u4EFB\u52A1\uFF1F",
+      "queue.deleteWaitingMessage": "\u4F1A\u4ECE\u961F\u5217\u548C\u5386\u53F2\u5217\u8868\u4E2D\u79FB\u9664\u3002",
+      "queue.deleteQueuedFailed": "\u5220\u9664\u961F\u5217\u4EFB\u52A1\u5931\u8D25",
+      "queue.queuedDeleted": "\u961F\u5217\u4EFB\u52A1\u5DF2\u5220\u9664",
+      "queue.cancelRunningConfirm": "\u53D6\u6D88\u4EFB\u52A1",
+      "queue.cancelRunningTitleConfirm": "\u53D6\u6D88\u8FD0\u884C\u4EFB\u52A1\uFF1F",
+      "queue.cancelRunningMessage": "\u5F53\u524D\u4EFB\u52A1\u4F1A\u505C\u6B62\uFF0C\u5386\u53F2\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002",
+      "queue.cancelRunningFailed": "\u53D6\u6D88\u4EFB\u52A1\u5931\u8D25",
+      "queue.runningCancelled": "\u4EFB\u52A1\u5DF2\u53D6\u6D88",
+      "queue.reorderFailed": "\u961F\u5217\u6392\u5E8F\u5931\u8D25",
+      "queue.realtimeUpdateFailed": "\u5B9E\u65F6\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
+      "queue.realtimeDisconnected": "\u5B9E\u65F6\u72B6\u6001\u8FDE\u63A5\u5DF2\u65AD\u5F00\uFF0C\u5237\u65B0\u9875\u9762\u53EF\u6062\u590D",
+      "queue.readFailed": "\u961F\u5217\u8BFB\u53D6\u5931\u8D25",
+      "status.waiting": "\u7B49\u5F85\u4EFB\u52A1",
+      "status.shownActiveTasks": "\u5DF2\u663E\u793A\u8FDB\u884C\u4E2D\u4EFB\u52A1",
+      "status.jsonCopied": "JSON \u5DF2\u590D\u5236",
+      "taskStatus.submitting": "\u63D0\u4EA4\u4E2D",
+      "taskStatus.running": "\u751F\u6210\u4E2D",
+      "taskStatus.runningWithElapsed": "\u751F\u6210\u4E2D \xB7 {elapsed}",
+      "taskStatus.completed": "\u5DF2\u5B8C\u6210",
+      "taskStatus.partialFailed": "\u90E8\u5206\u5931\u8D25",
+      "taskStatus.failed": "\u5931\u8D25",
+      "taskStatus.queued": "\u6392\u961F\u4E2D",
+      "taskStatus.unknown": "\u672A\u77E5\u72B6\u6001",
+      "taskStatus.task": "\u4EFB\u52A1",
+      "taskStatus.connectionInterrupted": "\u8FDE\u63A5\u4E2D\u65AD",
+      "taskStatus.lastFailed": "\u4E0A\u6B21\u5931\u8D25",
+      "taskStatus.waitingRetry": "{reason}\uFF0C\u7B49\u5F85\u91CD\u8BD5\uFF08\u7B2C {attempt}/{max} \u6B21\u5C1D\u8BD5\uFF09",
+      "taskStatus.retrying": "{reason}\uFF0C\u91CD\u8BD5\u4E2D\uFF08\u7B2C {attempt}/{max} \u6B21\u5C1D\u8BD5\uFF09",
+      "taskStatus.nonRetryableAttempt": "\u7B2C {attempt}/{max} \u6B21\uFF0C\u4E0D\u53EF\u91CD\u8BD5",
+      "taskStatus.manualRetryAvailable": "\u5DF2\u505C\u6B62\uFF0C\u53EF\u624B\u52A8\u91CD\u8BD5\u5931\u8D25\u56FE\u7247",
+      "taskStatus.runtime": "\u8017\u65F6 {duration}",
+      "taskStatus.runtimeCompleted": "\u8017\u65F6 {duration} \xB7 \u5B8C\u6210 {time}",
+      "taskStatus.completedAt": "\u5B8C\u6210 {time}",
+      "taskCard.count": "{count} \u5F20",
+      "taskCard.successCount": "\u6210\u529F {count}",
+      "taskCard.failedCount": "\u5931\u8D25 {count}",
+      "taskCard.runningCount": "\u751F\u6210\u4E2D {count}",
+      "taskCard.waitingCount": "\u7B49\u5F85 {count}",
+      "taskCard.textToImageThumb": "\u6587\u751F\u56FE\u4EFB\u52A1\u7F29\u7565\u56FE",
+      "taskCard.imageToImageThumb": "\u56FE\u751F\u56FE\u4EFB\u52A1\u7F29\u7565\u56FE",
+      "taskCard.failedThumb": "\u4EFB\u52A1\u5931\u8D25",
+      "taskCard.textBadge": "\u6587",
+      "taskMode.edit": "\u7F16\u8F91",
+      "taskMode.generate": "\u751F\u6210",
+      "document.generatingQueue": "\u751F\u6210\u4E2D \xB7 \u961F\u5217 {total}",
+      "document.queuedWaiting": "\u6392\u961F\u4E2D \xB7 \u7B49\u5F85 {count}",
+      "runFeedback.editing": "\u7F16\u8F91\u4E2D",
+      "runFeedback.generating": "\u751F\u6210\u4E2D",
+      "runFeedback.status": "{action}\uFF0C\u8BA1\u65F6 {elapsed}",
+      "footer.archive": "\u4F1A\u8BDD\u5F52\u6863",
+      "footer.archiveCount": "\u4F1A\u8BDD\u5F52\u6863 {count}",
+      "footer.batch": "\u6279\u91CF\u7BA1\u7406",
+      "footer.storage": "\u5B58\u50A8\u8BBE\u7F6E",
+      "footer.apiStatus": "API \u72B6\u6001: \u6B63\u5E38",
+      "footer.version": "\u7248\u672C v1.0.0",
+      "notifications.title": "\u4EFB\u52A1\u901A\u77E5",
+      "notifications.unread": "\u4EFB\u52A1\u901A\u77E5\uFF0C{count} \u6761\u672A\u8BFB",
+      "notifications.unreadSummary": "{count} \u672A\u8BFB",
+      "notifications.empty": "\u6682\u65E0\u4EFB\u52A1\u901A\u77E5",
+      "notifications.taskFailed": "\u4EFB\u52A1\u5931\u8D25",
+      "notifications.taskPartial": "\u4EFB\u52A1\u90E8\u5206\u5B8C\u6210",
+      "notifications.taskCompleted": "\u4EFB\u52A1\u5DF2\u5B8C\u6210",
+      "notifications.generationFailed": "\u751F\u6210\u5931\u8D25",
+      "notifications.successCount": "{count} \u5F20\u6210\u529F",
+      "notifications.resultAvailable": "\u6709\u7ED3\u679C\u53EF\u67E5\u770B",
+      "notifications.failedCount": "{count} \u5F20\u5931\u8D25",
+      "notifications.systemUnsupported": "\u5F53\u524D\u6D4F\u89C8\u5668\u4E0D\u652F\u6301\u7CFB\u7EDF\u901A\u77E5",
+      "notifications.systemBlocked": "\u7CFB\u7EDF\u901A\u77E5\u5DF2\u88AB\u6D4F\u89C8\u5668\u963B\u6B62\uFF0C\u9700\u8981\u5728\u6D4F\u89C8\u5668\u8BBE\u7F6E\u91CC\u5F00\u542F",
+      "notifications.systemDenied": "\u7CFB\u7EDF\u901A\u77E5\u672A\u5F00\u542F",
+      "notifications.systemEnabled": "\u7CFB\u7EDF\u901A\u77E5\u5DF2\u5F00\u542F",
+      "notifications.taskMissing": "\u4EFB\u52A1\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664",
+      "theme.label": "\u4E3B\u9898\u6A21\u5F0F",
+      "theme.system": "\u8DDF\u968F",
+      "theme.light": "\u6D45\u8272",
+      "theme.dark": "\u6DF1\u8272",
+      "language.label": "\u8BED\u8A00 / Language",
+      "language.zh": "\u4E2D",
+      "language.en": "EN",
+      "auth.label": "\u6388\u6743\u6765\u6E90",
+      "auth.checking": "\u6388\u6743\u68C0\u67E5\u4E2D",
+      "auth.missingCodexSession": "\u6CA1\u6709\u68C0\u6D4B\u5230 Codex \u767B\u5F55\u6001",
+      "auth.switchFailed": "\u6388\u6743\u6765\u6E90\u5207\u6362\u5931\u8D25",
+      "auth.sourceUnavailable": "{source} \u4E0D\u53EF\u7528",
+      "auth.notActive": "\u672A\u751F\u6548",
+      "api.settings": "API \u8BBE\u7F6E",
+      "api.provider": "API \u4F9B\u5E94\u5546",
+      "imageInput.title": "\u56FE\u50CF\u8F93\u5165",
+      "imageInput.uploadAria": "\u70B9\u51FB\u3001\u62D6\u5165\u6216\u7C98\u8D34\u56FE\u7247",
+      "imageInput.uploadFull": "\u70B9\u51FB\u3001\u62D6\u5165\u6216\u7C98\u8D34\u56FE\u7247",
+      "imageInput.uploadCompact": "\u6DFB\u52A0\u56FE\u7247",
+      "imageInput.uploadSubtitle": "\u652F\u6301\u591A\u5F20\u53C2\u8003\u56FE",
+      "imageInput.recent": "\u6700\u8FD1\u4E0A\u4F20",
+      "imageInput.recentBadge": "\u6700\u8FD1",
+      "imageInput.uploadBadge": "\u4E0A\u4F20",
+      "imageInput.addToGallery": "\u52A0\u5165\u56FE\u5E93",
+      "imageInput.addToGalleryShort": "\u56FE\u5E93",
+      "imageInput.editedBadge": "\u5DF2\u7F16\u8F91",
+      "imageInput.editImage": "\u7F16\u8F91{name}",
+      "imageInput.deletedRecent": "\u6700\u8FD1\u4E0A\u4F20\u5DF2\u5220\u9664",
+      "imageInput.deletedGallery": "\u56FE\u5E93\u56FE\u7247\u5DF2\u5220\u9664",
+      "recentAssets.defaultName": "\u6700\u8FD1\u4E0A\u4F20",
+      "recentAssets.use": "\u4F7F\u7528{name}",
+      "recentAssets.delete": "\u5220\u9664{name}",
+      "recentAssets.deleteTitle": "\u5220\u9664\u6700\u8FD1\u4E0A\u4F20\uFF1F",
+      "recentAssets.deleteMessage": "\u4F1A\u4ECE\u300C\u6700\u8FD1\u4E0A\u4F20\u300D\u4E2D\u5220\u9664\u8FD9\u5F20\u56FE\u7247\u3002\u5982\u679C\u5B83\u5DF2\u88AB\u6DFB\u52A0\u5230\u5F53\u524D\u56FE\u50CF\u8F93\u5165\uFF0C\u4F1A\u4ECE\u5F53\u524D\u8F93\u5165\u4E2D\u79FB\u9664\uFF1B\u5386\u53F2\u4EFB\u52A1\u91CC\u5F15\u7528\u8FD9\u5F20\u6700\u8FD1\u4E0A\u4F20\u56FE\u7684\u8F93\u5165\u9884\u89C8\u4E5F\u4F1A\u5931\u6548\u3002\u4E0D\u4F1A\u5F71\u54CD\u516C\u7528\u56FE\u5E93\u3002",
+      "recentAssets.loadFailed": "\u6700\u8FD1\u4E0A\u4F20\u8BFB\u53D6\u5931\u8D25",
+      "recentAssets.deleteFailed": "\u6700\u8FD1\u4E0A\u4F20\u5220\u9664\u5931\u8D25",
+      "recentAssets.deleted": "\u6700\u8FD1\u4E0A\u4F20\u5DF2\u5220\u9664",
+      "inputSource.uploadFallback": "\u4E0A\u4F20\u56FE\u7247",
+      "inputSource.galleryFallback": "\u56FE\u5E93\u56FE\u7247",
+      "inputSource.focusPasteFallback": "{prefix}\uFF0C\u56FE\u7247\u8F93\u5165\u533A\u5DF2\u805A\u7126\uFF0C\u8BF7\u6309 {shortcut} \u7C98\u8D34\u56FE\u7247",
+      "inputSource.pastedCount": "\u5DF2\u7C98\u8D34 {count} \u5F20\u526A\u8D34\u677F\u56FE\u7247",
+      "inputSource.clipboardUnsupported": "\u5F53\u524D\u6D4F\u89C8\u5668\u4E0D\u652F\u6301\u76F4\u63A5\u8BFB\u53D6\u526A\u8D34\u677F",
+      "inputSource.clipboardEmpty": "\u6CA1\u6709\u8BFB\u5230\u526A\u8D34\u677F\u56FE\u7247",
+      "inputSource.clipboardDenied": "\u6D4F\u89C8\u5668\u62D2\u7EDD\u76F4\u63A5\u8BFB\u53D6\u526A\u8D34\u677F",
+      "inputSource.clipboardReadFailed": "\u65E0\u6CD5\u8BFB\u53D6\u526A\u8D34\u677F",
+      "status.missingGalleryReference": "\u6709\u56FE\u5E93\u53C2\u8003\u56FE\u5DF2\u5220\u9664\uFF0C\u8BF7\u79FB\u9664\u540E\u518D\u751F\u6210",
+      "status.missingRecentReference": "\u6709\u6700\u8FD1\u4E0A\u4F20\u53C2\u8003\u56FE\u5DF2\u5220\u9664\uFF0C\u8BF7\u79FB\u9664\u540E\u518D\u751F\u6210",
+      "status.emptyPrompt": "\u8BF7\u8F93\u5165\u63D0\u793A\u8BCD",
+      "status.editNeedsImage": "\u7F16\u8F91\u6A21\u5F0F\u81F3\u5C11\u9700\u8981 1 \u5F20\u56FE\u7247",
+      "status.loadedTask": "\u5DF2\u8F7D\u5165\u4EFB\u52A1 {taskId}",
+      "status.loadingHistoryInputs": "\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...",
+      "status.historyInputLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: {url}",
+      "referenceCollector.alreadyStaged": "\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
+      "referenceCollector.staged": "\u5DF2\u6682\u5B58 {count} \u5F20\u53C2\u8003\u56FE",
+      "referenceCollector.title": "\u5F85\u52A0\u5165\u53C2\u8003\u56FE \xB7 {count} \u5F20",
+      "referenceCollector.addAll": "\u5168\u90E8\u52A0\u5165\u53C2\u8003\u56FE",
+      "referenceCollector.itemFallback": "\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
+      "referenceCollector.remove": "\u79FB\u9664\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
+      "referenceCollector.cleared": "\u5F85\u52A0\u5165\u53C2\u8003\u56FE\u5DF2\u6E05\u7A7A",
+      "referenceCollector.added": "\u5DF2\u52A0\u5165 {count} \u5F20\u53C2\u8003\u56FE",
+      "referenceCollector.addFailed": "\u5F85\u52A0\u5165\u53C2\u8003\u56FE\u52A0\u5165\u5931\u8D25",
+      "referenceCollector.readFailed": "\u56FE\u7247\u8BFB\u53D6\u5931\u8D25\uFF1A{status}",
+      "gallery.quick": "\u5FEB\u901F\u9009\u62E9\u516C\u7528\u56FE\u5E93",
+      "gallery.current": "\u5F53\u524D\u5206\u7C7B\u56FE\u5E93",
+      "gallery.categories": "\u56FE\u5E93\u5206\u7C7B",
+      "gallery.categoryPortrait": "\u4EBA\u50CF",
+      "gallery.categoryCharacter": "\u89D2\u8272",
+      "gallery.categoryProduct": "\u4EA7\u54C1",
+      "gallery.categoryPortraitRole": "\u4EBA\u50CF\u53C2\u8003",
+      "gallery.categoryCharacterRole": "\u89D2\u8272\u53C2\u8003",
+      "gallery.categoryProductRole": "\u4EA7\u54C1\u53C2\u8003",
+      "gallery.referenceRole": "\u53C2\u8003\u56FE",
+      "gallery.manage": "\u7BA1\u7406\u516C\u7528\u5E93",
+      "gallery.loadFailed": "\u56FE\u5E93\u8BFB\u53D6\u5931\u8D25",
+      "gallery.imageOrderUpdateFailed": "\u66F4\u65B0\u56FE\u7247\u987A\u5E8F\u5931\u8D25",
+      "gallery.imageOrderUpdated": "\u56FE\u7247\u987A\u5E8F\u5DF2\u66F4\u65B0",
+      "gallery.categoryName": "\u5206\u7C7B\u540D\u79F0",
+      "gallery.categoryPromptRole": "\u63D0\u793A\u8BCD\u7528\u9014",
+      "gallery.categorySave": "\u4FDD\u5B58",
+      "gallery.categoryDelete": "\u5220\u9664",
+      "gallery.categoryLoadFailed": "\u5206\u7C7B\u8BFB\u53D6\u5931\u8D25",
+      "gallery.categoryNameRequired": "\u8BF7\u8F93\u5165\u5206\u7C7B\u540D\u79F0",
+      "gallery.categoryCreateFailed": "\u65B0\u589E\u5206\u7C7B\u5931\u8D25",
+      "gallery.categoryCreated": "\u5206\u7C7B\u5DF2\u65B0\u589E",
+      "gallery.categorySaveFailed": "\u4FDD\u5B58\u5206\u7C7B\u5931\u8D25",
+      "gallery.categorySaved": "\u5206\u7C7B\u5DF2\u4FDD\u5B58",
+      "gallery.categoryDeleteTitle": "\u5220\u9664\u56FE\u5E93\u5206\u7C7B\uFF1F",
+      "gallery.categoryDeleteMessage": "\u5206\u7C7B\u4E0B\u7684\u56FE\u7247\u4F1A\u79FB\u52A8\u5230\u5176\u4ED6\u5206\u7C7B\uFF0C\u56FE\u5E93\u56FE\u7247\u4E0D\u4F1A\u88AB\u5220\u9664\u3002",
+      "gallery.categoryDeleteConfirm": "\u5220\u9664\u5206\u7C7B",
+      "gallery.categoryDeleteFailed": "\u5220\u9664\u5206\u7C7B\u5931\u8D25",
+      "gallery.categoryDeletedMigrated": "\u5206\u7C7B\u300C{name}\u300D\u5DF2\u5220\u9664\uFF0C\u56FE\u7247\u5DF2\u8FC1\u79FB",
+      "gallery.categoryOrderUpdateFailed": "\u66F4\u65B0\u5206\u7C7B\u987A\u5E8F\u5931\u8D25",
+      "gallery.categoryOrderUpdated": "\u5206\u7C7B\u987A\u5E8F\u5DF2\u66F4\u65B0",
+      "gallery.categoryFallback": "\u56FE\u5E93\u5206\u7C7B",
+      "gallery.imageFallback": "\u56FE\u5E93\u56FE\u7247",
+      "gallery.imageLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247",
+      "gallery.editImageLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91",
+      "gallery.cannotAddImage": "\u8FD9\u5F20\u56FE\u7247\u65E0\u6CD5\u52A0\u5165\u56FE\u5E93",
+      "gallery.nameRequired": "\u8BF7\u8F93\u5165\u56FE\u5E93\u540D\u79F0",
+      "gallery.saveFailed": "\u4FDD\u5B58\u56FE\u5E93\u5931\u8D25",
+      "gallery.savedAsReference": "\u5DF2\u6DFB\u52A0\u5230\u56FE\u5E93\uFF0C\u5E76\u5207\u6362\u4E3A\u56FE\u5E93\u5F15\u7528",
+      "gallery.renameImage": "\u91CD\u547D\u540D\u56FE\u5E93\u56FE\u7247",
+      "gallery.moveToCategory": "\u79FB\u52A8\u5230\u5206\u7C7B",
+      "gallery.categoryRequired": "\u8BF7\u9009\u62E9\u56FE\u5E93\u5206\u7C7B",
+      "gallery.promptNoteTitle": "\u56FE\u5E93\u5F15\u7528\u5907\u6CE8",
+      "gallery.updateFailed": "\u66F4\u65B0\u56FE\u5E93\u5931\u8D25",
+      "gallery.selectImageFile": "\u8BF7\u9009\u62E9\u56FE\u7247\u6587\u4EF6",
+      "gallery.replaceImageFailed": "\u66FF\u6362\u56FE\u5E93\u56FE\u7247\u5931\u8D25",
+      "gallery.replacedImage": "\u5DF2\u66FF\u6362\u300C{name}\u300D\u7684\u539F\u56FE",
+      "gallery.deleteImageTitle": "\u5220\u9664\u56FE\u5E93\u56FE\u7247\uFF1F",
+      "gallery.deleteImageMessage": "\u5386\u53F2\u4EFB\u52A1\u91CC\u7684\u5F15\u7528\u4F1A\u663E\u793A\u4E3A\u5DF2\u5220\u9664\u3002",
+      "gallery.deleteFailed": "\u5220\u9664\u56FE\u5E93\u5931\u8D25",
+      "gallery.deletedSuffix": "\uFF08\u5DF2\u5220\u9664\uFF09",
+      "gallery.editImageLabel": "\u7F16\u8F91\u56FE\u5E93\u56FE\u7247",
+      "gallery.fieldCategory": "\u5206\u7C7B",
+      "gallery.fieldPromptNote": "\u5F15\u7528\u5907\u6CE8",
+      "gallery.fieldName": "\u540D\u79F0",
+      "quickGallery.empty": "\u6682\u65E0{category}\u56FE\u7247",
+      "promptGallery.remove": "\u79FB\u9664 @{name}",
+      "prompt.title": "\u63D0\u793A\u8BCD",
+      "prompt.editorLabel": "\u63D0\u793A\u8BCD",
+      "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u751F\u6210\u6216\u7F16\u8F91\u7684\u56FE\u7247\uFF0C\u8F93\u5165 @ \u53EF\u8C03\u7528\u56FE\u5E93\u53C2\u8003\u56FE\uFF0C\u8F93\u5165 # \u53EF\u63D2\u5165\u989C\u8272\u7801\uFF0C\u8F93\u5165 ~ \u6216 \uFF5E \u53EF\u8C03\u7528\u63D0\u793A\u8BCD\u7247\u6BB5",
+      "prompt.run": "\u5F00\u59CB\u751F\u6210",
+      "prompt.runEdit": "\u5F00\u59CB\u7F16\u8F91",
+      "prompt.runTitle": "\u5F00\u59CB\u751F\u6210\uFF08Cmd+Enter\uFF09",
+      "prompt.runEditTitle": "\u5F00\u59CB\u7F16\u8F91\uFF08Cmd+Enter\uFF09",
+      "prompt.findPanel": "\u67E5\u627E\u66FF\u6362\u63D0\u793A\u8BCD",
+      "prompt.findText": "\u67E5\u627E\u6587\u672C",
+      "prompt.replaceWith": "\u66FF\u6362\u4E3A",
+      "prompt.findActions": "\u67E5\u627E\u66FF\u6362\u64CD\u4F5C",
+      "prompt.countZero": "0 \u5904",
+      "prompt.matchCount": "{count} \u5904",
+      "prompt.foundCount": "\u627E\u5230 {count} \u5904",
+      "prompt.noMatch": "\u672A\u627E\u5230\u5339\u914D\u6587\u672C",
+      "prompt.replacedCount": "\u5DF2\u66FF\u6362 {count} \u5904",
+      "prompt.closeFind": "\u5173\u95ED\u67E5\u627E\u66FF\u6362",
+      "prompt.recentTemplates": "\u6700\u8FD1\u4F7F\u7528\u6A21\u677F",
+      "prompt.manageTemplates": "\u7BA1\u7406\u6A21\u677F\u5E93",
+      "promptModel.galleryHeader": "\u53C2\u8003\u56FE\u8BF4\u660E\uFF1A",
+      "promptModel.galleryInstruction": "- \u53C2\u8003\u56FE {number}\uFF1A\u56FE\u5E93\u300C{name}\u300D\uFF0C\u7528\u9014\uFF1A{role}\u3002\u63D0\u793A\u8BCD\u4E2D\u7684 @{name} \u6307\u8FD9\u5F20\u56FE\u3002{note}",
+      "outputSettings.title": "\u8F93\u51FA\u8BBE\u7F6E",
+      "output.mainModel": "\u4E3B\u6A21\u578B",
+      "output.selectMainModel": "\u9009\u62E9\u4E3B\u6A21\u578B",
+      "output.mainModelCustomForInput": "\u6309\u5F53\u524D\u8F93\u5165\u4F7F\u7528\u81EA\u5B9A\u4E49\u6A21\u578B",
+      "output.apiDirect": "API \u76F4\u8FDE",
+      "output.apiToolModel": "\u4F7F\u7528 API \u56FE\u50CF\u5DE5\u5177\u6A21\u578B",
+      "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C2\u4E0E\u672C\u6B21\u8BF7\u6C42",
+      "output.promptMode": "\u63D0\u793A\u8BCD\u6A21\u5F0F",
+      "output.modeOriginal": "\u539F\u59CB\u6A21\u5F0F",
+      "output.modeStrict": "\u4FDD\u771F\u6A21\u5F0F",
+      "output.modeCreative": "\u521B\u610F\u6A21\u5F0F",
+      "output.sizeMode": "\u5C3A\u5BF8\u6A21\u5F0F",
+      "output.sizePreset": "\u9884\u8BBE\u5C3A\u5BF8",
+      "output.sizeCustom": "\u81EA\u5B9A\u4E49\u5C3A\u5BF8",
+      "output.orientation": "\u65B9\u5411",
+      "output.square": "\u65B9\u5F62",
+      "output.portrait": "\u7AD6\u56FE",
+      "output.landscape": "\u6A2A\u56FE",
+      "output.resolution": "\u5206\u8FA8\u7387",
+      "output.pixelSize": "\u50CF\u7D20\u5C3A\u5BF8",
+      "output.width": "\u5BBD\u5EA6",
+      "output.height": "\u9AD8\u5EA6",
+      "output.swapSize": "\u4EA4\u6362\u5BBD\u9AD8",
+      "output.customSizeHint": "\u5355\u4F4D px \xB7 16-3840 \xB7 16\u500D\u6570 \xB7 \u22643:1",
+      "output.imageSizeUnavailable": "\u56FE\u7247\u5C3A\u5BF8\u4E0D\u53EF\u7528",
+      "output.imageLoadFailed": "\u56FE\u7247\u52A0\u8F7D\u5931\u8D25",
+      "output.customSizeRequired": "\u8BF7\u8F93\u5165\u5BBD\u5EA6\u548C\u9AD8\u5EA6",
+      "output.customSizeBounds": "\u5BBD\u9AD8\u9700\u5728 16-3840 px \u4E4B\u95F4",
+      "output.customSizeMultiple": "\u5BBD\u9AD8\u9700\u4E3A 16 \u7684\u500D\u6570",
+      "output.customSizeRatio": "\u957F\u77ED\u8FB9\u6BD4\u4F8B\u4E0D\u80FD\u8D85\u8FC7 3:1",
+      "output.customSizePixels": "\u603B\u50CF\u7D20\u9700\u5728 655,360-8,294,400 \u4E4B\u95F4",
+      "output.ratioLock": "\u6BD4\u4F8B\u9501\u5B9A\uFF08\u53EF\u9009\uFF09",
+      "output.customRatio": "\u81EA\u5B9A\u4E49\u5BBD\u9AD8\u6BD4",
+      "output.ratioWidth": "\u5BBD",
+      "output.ratioHeight": "\u9AD8",
+      "output.firstImageRatio": "\u83B7\u53D6\u7B2C\u4E00\u5F20\u53C2\u8003\u56FE\u5BBD\u9AD8\u6BD4",
+      "output.useFirstImage": "\u53D6\u9996\u56FE",
+      "output.ratioHint": "\u7559\u7A7A\u5219\u81EA\u7531\u5BBD\u9AD8 \xB7 \u586B\u6EE1\u540E\u540C\u6B65",
+      "output.ratio": "\u6BD4\u4F8B",
+      "output.quality": "\u8D28\u91CF",
+      "output.qualityAuto": "\u81EA\u52A8",
+      "output.qualityLow": "\u4F4E",
+      "output.qualityMedium": "\u4E2D",
+      "output.qualityHigh": "\u9AD8",
+      "output.quantity": "\u6570\u91CF",
+      "output.pixelPreview": "\u8F93\u51FA\u50CF\u7D20: 1024 x 1024 px",
+      "output.pixelPreviewValue": "\u8F93\u51FA\u50CF\u7D20: {value}",
+      "output.pixelPreviewAuto": "\u8F93\u51FA\u50CF\u7D20: auto\uFF08OpenAI \u81EA\u52A8\u9009\u62E9\uFF09",
+      "output.format": "\u8F93\u51FA\u683C\u5F0F",
+      "output.compression": "\u538B\u7F29\u7387",
+      "output.moderation": "\u5BA1\u6838",
+      "preview.title": "\u9884\u89C8\u7ED3\u679C",
+      "preview.selectedZero": "\u5DF2\u9009 0",
+      "preview.selectedCount": "\u5DF2\u9009 {selected}/{total}",
+      "preview.downloadSelected": "\u53EA\u4E0B\u8F7D\u7CBE\u9009",
+      "preview.deleteUnselected": "\u5220\u9664\u672A\u7CBE\u9009",
+      "preview.downloadAll": "\u6253\u5305\u4E0B\u8F7D",
+      "preview.empty": "\u6682\u65E0\u56FE\u7247",
+      "preview.taskFailed": "\u4EFB\u52A1\u5931\u8D25",
+      "preview.partialFailed": "\u90E8\u5206\u56FE\u7247\u751F\u6210\u5931\u8D25",
+      "preview.failedOutput": "\u7B2C {index} \u5F20\u5931\u8D25",
+      "preview.progressLine": "\u5DF2\u5B8C\u6210 {generated} / {total} \xB7 \u8BA1\u65F6 {elapsed}",
+      "preview.failureLine": "\u5DF2\u5B8C\u6210 {generated} / {total} \xB7 \u5931\u8D25 {failed}",
+      "preview.elapsedLine": "\u8BA1\u65F6 {elapsed}",
+      "preview.lastError": "\u4E0A\u6B21\u9519\u8BEF\uFF1A{error}",
+      "preview.continueGenerating": "\u7EE7\u7EED\u751F\u6210\u4E2D",
+      "preview.waitingContinue": "\u7B49\u5F85\u7EE7\u7EED\u751F\u6210",
+      "preview.retryFailed": "\u4EC5\u91CD\u8BD5\u5931\u8D25\u56FE\u7247",
+      "preview.acceptSuccesses": "\u63A5\u53D7\u5DF2\u6210\u529F\u7ED3\u679C",
+      "preview.generateMode": "\u751F\u6210",
+      "preview.editMode": "\u7F16\u8F91",
+      "preview.runningTitle": "{mode}\u4EFB\u52A1\u8FD0\u884C\u4E2D",
+      "preview.submittingTitle": "\u63D0\u4EA4\u4EFB\u52A1\u4E2D",
+      "preview.queuedTitle": "\u4EFB\u52A1\u6392\u961F\u4E2D",
+      "preview.submittingDetail": "\u6B63\u5728\u4FDD\u5B58\u8F93\u5165\u5E76\u5199\u5165\u961F\u5217\uFF0C\u5B8C\u6210\u540E\u4F1A\u81EA\u52A8\u8FDB\u5165\u751F\u6210\u6D41\u7A0B\u3002",
+      "preview.queuedDetail": "\u4EFB\u52A1\u5DF2\u8FDB\u5165\u961F\u5217\uFF0C\u7B49\u5F85\u53EF\u7528\u901A\u9053\u63A5\u624B\u3002",
+      "preview.featured": "\u7CBE\u9009",
+      "preview.addFeatured": "\u52A0\u5165\u7CBE\u9009",
+      "preview.selectedFeatured": "\u5DF2\u7CBE\u9009",
+      "preview.removeFeatured": "\u53D6\u6D88\u7CBE\u9009",
+      "preview.selectionAdded": "\u5DF2\u52A0\u5165\u7CBE\u9009",
+      "preview.selectionRemoved": "\u5DF2\u53D6\u6D88\u7CBE\u9009",
+      "preview.selectionUpdateFailed": "\u7CBE\u9009\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
+      "preview.noUnselectedOutputs": "\u6CA1\u6709\u53EF\u5220\u9664\u7684\u672A\u7CBE\u9009\u56FE\u7247",
+      "preview.deleteUnselectedTitle": "\u5220\u9664\u672A\u7CBE\u9009\u56FE\u7247\uFF1F",
+      "preview.deleteUnselectedMessage": "\u4F1A\u5220\u9664\u5F53\u524D\u4EFB\u52A1\u91CC\u672A\u7CBE\u9009\u7684\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+      "preview.deleteUnselectedDetail": "\u4FDD\u7559 {selected} \u5F20\uFF0C\u5220\u9664 {deleted} \u5F20",
+      "preview.deleteUnselectedFailed": "\u5220\u9664\u672A\u7CBE\u9009\u5931\u8D25",
+      "preview.deleteUnselectedDone": "\u672A\u7CBE\u9009\u56FE\u7247\u5DF2\u5220\u9664",
+      "preview.addReference": "\u52A0\u5165\u53C2\u8003\u56FE",
+      "preview.stage": "\u6682\u5B58",
+      "preview.stageReference": "\u6682\u5B58\u5230\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
+      "preview.prompt": "\u63D0\u793A\u8BCD",
+      "preview.download": "\u4E0B\u8F7D",
+      "preview.downloadImage": "\u4E0B\u8F7D\u8BE5\u56FE\u7247",
+      "lightbox.label": "\u56FE\u7247\u9884\u89C8",
+      "lightbox.close": "\u5173\u95ED\u9884\u89C8",
+      "lightbox.previous": "\u4E0A\u4E00\u5F20",
+      "lightbox.next": "\u4E0B\u4E00\u5F20",
+      "promptPopover.title": "\u63D0\u793A\u8BCD\u5BF9\u6BD4",
+      "promptPopover.summary": "\u539F\u59CB {original} \xB7 \u4F18\u5316 {optimized}",
+      "promptPopover.original": "\u539F\u59CB\u63D0\u793A\u8BCD",
+      "promptPopover.optimized": "\u4F18\u5316\u540E\u63D0\u793A\u8BCD",
+      "promptPopover.charCount": "{count} \u5B57",
+      "promptPopover.empty": "\u65E0",
+      "promptPopover.notReturned": "\u672A\u8FD4\u56DE",
+      "promptPopover.noOptimized": "\u672A\u8FD4\u56DE\u4F18\u5316\u63D0\u793A\u8BCD",
+      "promptPopover.submitted": "\u67E5\u770B\u5B9E\u9645\u63D0\u4EA4\u63D0\u793A\u8BCD",
+      "promptPopover.close": "\u5173\u95ED\u63D0\u793A\u8BCD",
+      "promptPopover.copyOptimized": "\u590D\u5236\u4F18\u5316\u540E\u63D0\u793A\u8BCD",
+      "promptPopover.copied": "\u5DF2\u590D\u5236",
+      "taskContext.menuLabel": "\u4EFB\u52A1\u53F3\u952E\u83DC\u5355",
+      "taskContext.view": "\u67E5\u770B\u4EFB\u52A1",
+      "taskContext.restore": "\u6062\u590D\u5230\u8868\u5355",
+      "taskContext.copyId": "\u590D\u5236\u4EFB\u52A1 ID",
+      "taskContext.copyPrompt": "\u590D\u5236\u63D0\u793A\u8BCD",
+      "taskContext.revealOutput": "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55",
+      "taskContext.archive": "\u5F52\u6863\u4EFB\u52A1",
+      "taskContext.delete": "\u5220\u9664\u4EFB\u52A1",
+      "taskContext.restored": "\u5DF2\u6062\u590D\u4EFB\u52A1\u53C2\u6570",
+      "taskContext.idCopied": "\u4EFB\u52A1 ID \u5DF2\u590D\u5236",
+      "taskContext.promptCopied": "\u63D0\u793A\u8BCD\u5DF2\u590D\u5236",
+      "taskContext.revealFailed": "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55\u5931\u8D25",
+      "taskContext.revealOpened": "\u5DF2\u6253\u5F00\u8F93\u51FA\u76EE\u5F55",
+      "taskContext.actionFailed": "\u4EFB\u52A1\u64CD\u4F5C\u5931\u8D25",
+      "taskActions.group": "\u4EFB\u52A1\u64CD\u4F5C",
+      "taskActions.deleteTitle": "\u5220\u9664\u4EFB\u52A1\uFF1F",
+      "taskActions.deleteMessage": "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+      "taskActions.runningCannotDelete": "\u8FD0\u884C\u4E2D\u7684\u4EFB\u52A1\u4E0D\u80FD\u5220\u9664",
+      "taskActions.updated": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u66F4\u65B0",
+      "taskActions.archived": "\u4F1A\u8BDD\u5DF2\u5F52\u6863",
+      "taskActions.archiveFailed": "\u5F52\u6863\u5931\u8D25",
+      "taskActions.deleted": "\u4EFB\u52A1\u5DF2\u5220\u9664",
+      "taskActions.deleteFailed": "\u5220\u9664\u5931\u8D25",
+      "taskActions.noRetryableFailedImages": "\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u91CD\u8BD5\u7684\u5931\u8D25\u56FE\u7247",
+      "taskActions.retryFailedOutputsFailed": "\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u5931\u8D25",
+      "taskActions.requeuedFailedImages": "\u5DF2\u91CD\u65B0\u5165\u961F\u5931\u8D25\u56FE\u7247",
+      "taskActions.noAcceptableSuccessImages": "\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u63A5\u53D7\u7684\u6210\u529F\u56FE\u7247",
+      "taskActions.acceptSuccessesFailed": "\u63A5\u53D7\u6210\u529F\u7ED3\u679C\u5931\u8D25",
+      "taskActions.acceptedSuccesses": "\u5DF2\u63A5\u53D7\u6210\u529F\u7ED3\u679C",
+      "taskActions.viewedUpdateFailed": "\u5DF2\u8BFB\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
+      "taskActions.failedFallback": "\u4EFB\u52A1\u5931\u8D25",
+      "taskList.empty": "\u6682\u65E0\u5386\u53F2\u4EFB\u52A1",
+      "taskList.selectSession": "\u9009\u62E9\u4F1A\u8BDD",
+      "taskList.unreadUpdate": "\u672A\u8BFB\u66F4\u65B0",
+      "taskDerived.usageLimited": "\u7528\u91CF\u53D7\u9650",
+      "taskSubmit.requestFailed": "\u8BF7\u6C42\u5931\u8D25",
+      "taskSubmit.queued": "\u4EFB\u52A1\u5DF2\u52A0\u5165\u961F\u5217",
+      "taskSubmit.timeout": "\u63D0\u4EA4\u4EFB\u52A1\u8D85\u65F6\uFF0C\u540E\u7AEF\u6CA1\u6709\u53CA\u65F6\u8FD4\u56DE\u3002\u8BF7\u5237\u65B0\u961F\u5217\u540E\u786E\u8BA4\u662F\u5426\u5DF2\u5165\u961F\uFF0C\u518D\u51B3\u5B9A\u662F\u5426\u91CD\u8BD5\u3002",
+      "taskSubmit.failed": "\u4EFB\u52A1\u63D0\u4EA4\u5931\u8D25",
+      "templates.title": "\u63D0\u793A\u8BCD\u6A21\u677F",
+      "templates.summary": "\u672C\u5730\u6A21\u677F\u5E93",
+      "templates.availableCount": "{count} \u4E2A\u53EF\u7528\u6A21\u677F",
+      "templates.noMatch": "\u6682\u65E0\u5339\u914D\u6A21\u677F",
+      "templates.empty": "\u6682\u65E0\u6A21\u677F",
+      "templates.favoriteBadge": "\u5DF2\u6536\u85CF",
+      "templates.usageCount": "{count} \u6B21",
+      "templates.back": "\u8FD4\u56DE",
+      "templates.edit": "\u7F16\u8F91",
+      "templates.copy": "\u590D\u5236",
+      "templates.insert": "\u63D2\u5165",
+      "templates.formTitle": "\u6807\u9898",
+      "templates.formShortTitle": "\u77ED\u6807\u9898",
+      "templates.formCategory": "\u5206\u7C7B",
+      "templates.formTags": "\u6807\u7B7E",
+      "templates.formThumbnail": "\u7F29\u7565\u56FE",
+      "templates.formContent": "\u5185\u5BB9",
+      "templates.formNotes": "\u5907\u6CE8",
+      "templates.formFavorite": "\u6536\u85CF",
+      "templates.thumbnailClear": "\u6E05\u9664",
+      "templates.thumbnailNone": "\u672A\u9009\u62E9",
+      "templates.thumbnailEmpty": "\u6682\u65E0\u5386\u53F2\u7F29\u7565\u56FE",
+      "templates.newCategory": "\u65B0\u5206\u7C7B",
+      "templates.search": "\u641C\u7D22\u6A21\u677F\u3001\u6807\u7B7E\u3001\u5185\u5BB9",
+      "templates.filter": "\u6A21\u677F\u7B5B\u9009",
+      "templates.all": "\u5168\u90E8",
+      "templates.categoryCommon": "\u5E38\u7528",
+      "templates.categoryPortrait": "\u4EBA\u50CF",
+      "templates.categoryProduct": "\u4EA7\u54C1",
+      "templates.categoryRepair": "\u4FEE\u590D",
+      "templates.categoryPoster": "\u6D77\u62A5",
+      "templates.categoryEcommerce": "\u7535\u5546",
+      "templates.favorite": "\u6536\u85CF",
+      "templates.recent": "\u6700\u8FD1",
+      "templates.category": "\u5206\u7C7B",
+      "templates.loadFailed": "\u63D0\u793A\u8BCD\u6A21\u677F\u8BFB\u53D6\u5931\u8D25",
+      "templates.useStateUpdateFailed": "\u63D0\u793A\u8BCD\u6A21\u677F\u4F7F\u7528\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
+      "templates.copied": "\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u590D\u5236",
+      "templates.copyFailed": "\u63D0\u793A\u8BCD\u6A21\u677F\u590D\u5236\u5931\u8D25",
+      "templates.history": "\u5386\u53F2\u8BB0\u5F55",
+      "templates.saveFailed": "\u63D0\u793A\u8BCD\u6A21\u677F\u4FDD\u5B58\u5931\u8D25",
+      "templates.saved": "\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u4FDD\u5B58",
+      "templates.deleteFailed": "\u63D0\u793A\u8BCD\u6A21\u677F\u5220\u9664\u5931\u8D25",
+      "templates.deleted": "\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u5220\u9664",
+      "templates.categoryAddFailed": "\u6A21\u677F\u5206\u7C7B\u6DFB\u52A0\u5931\u8D25",
+      "templates.categoryAdded": "\u6A21\u677F\u5206\u7C7B\u5DF2\u6DFB\u52A0",
+      "templates.categorySaveFailed": "\u6A21\u677F\u5206\u7C7B\u4FDD\u5B58\u5931\u8D25",
+      "templates.categorySaved": "\u6A21\u677F\u5206\u7C7B\u5DF2\u4FDD\u5B58",
+      "templates.categoryDeleteFailed": "\u6A21\u677F\u5206\u7C7B\u5220\u9664\u5931\u8D25",
+      "templates.categoryDeleted": "\u6A21\u677F\u5206\u7C7B\u5DF2\u5220\u9664",
+      "templates.importFailed": "\u6A21\u677F\u5305\u5BFC\u5165\u5931\u8D25",
+      "templates.importedCount": "\u5DF2\u5BFC\u5165 {count} \u4E2A\u6A21\u677F",
+      "templates.exportFailed": "\u6A21\u677F\u5305\u5BFC\u51FA\u5931\u8D25",
+      "templates.exported": "\u6A21\u677F\u5305\u5DF2\u5BFC\u51FA",
+      "snippets.suggestLabel": "\u63D0\u793A\u8BCD\u7247\u6BB5\u9009\u62E9\u5668",
+      "snippets.saveSelection": "\u6536\u85CF",
+      "snippets.saveSelectionLabel": "\u6536\u85CF\u9009\u4E2D\u7684\u63D0\u793A\u8BCD\u7247\u6BB5",
+      "snippets.popoverLabel": "\u63D0\u793A\u8BCD\u7247\u6BB5",
+      "snippets.defaultCategory": "\u5E38\u7528",
+      "snippets.loadFailed": "\u63D0\u793A\u8BCD\u7247\u6BB5\u8BFB\u53D6\u5931\u8D25",
+      "snippets.remove": "\u79FB\u9664 ~{tag}",
+      "snippets.expand": "\u5C55\u5F00",
+      "snippets.edit": "\u7F16\u8F91",
+      "snippets.close": "\u5173\u95ED",
+      "snippets.editTitle": "\u7F16\u8F91\u7247\u6BB5",
+      "snippets.saveTitle": "\u6536\u85CF\u7247\u6BB5",
+      "snippets.shortTag": "\u77ED\u6807\u7B7E",
+      "snippets.title": "\u6807\u9898",
+      "snippets.category": "\u5206\u7C7B",
+      "snippets.content": "\u5185\u5BB9",
+      "snippets.titlePlaceholder": "\u9ED8\u8BA4\u4F7F\u7528\u77ED\u6807\u7B7E",
+      "snippets.cancel": "\u53D6\u6D88",
+      "snippets.save": "\u4FDD\u5B58",
+      "snippets.saveFailed": "\u63D0\u793A\u8BCD\u7247\u6BB5\u4FDD\u5B58\u5931\u8D25",
+      "snippets.saved": "\u63D0\u793A\u8BCD\u7247\u6BB5\u5DF2\u4FDD\u5B58",
+      "snippets.defaultTag": "\u5E38\u7528\u7247\u6BB5",
+      "colors.white": "\u767D\u8272",
+      "colors.black": "\u9ED1\u8272",
+      "colors.warmBeige": "\u6696\u7C73\u8272",
+      "colors.lightGreen": "\u6D45\u7EFF",
+      "colors.brandGreen": "\u54C1\u724C\u7EFF",
+      "colors.peachOrange": "\u6843\u6A59",
+      "colors.lightBlue": "\u6D45\u84DD",
+      "colors.lightPink": "\u6D45\u7C89",
+      "colors.loadFailed": "\u989C\u8272\u914D\u7F6E\u8BFB\u53D6\u5931\u8D25",
+      "colors.saveFailed": "\u989C\u8272\u914D\u7F6E\u4FDD\u5B58\u5931\u8D25",
+      "colors.importFailed": "\u989C\u8272\u914D\u7F6E\u5BFC\u5165\u5931\u8D25",
+      "colors.importedCount": "\u5DF2\u5BFC\u5165 {count} \u4E2A\u989C\u8272",
+      "colors.recentSaveFailed": "\u6700\u8FD1\u989C\u8272\u4FDD\u5B58\u5931\u8D25",
+      "colors.favoriteSaveFailed": "\u5E38\u7528\u989C\u8272\u4FDD\u5B58\u5931\u8D25",
+      "colors.favoriteDeleteFailed": "\u5E38\u7528\u989C\u8272\u5220\u9664\u5931\u8D25",
+      "colors.update": "\u66F4\u65B0",
+      "colors.insert": "\u63D2\u5165",
+      "colors.pick": "\u9009\u62E9\u989C\u8272",
+      "colors.pickShort": "\u53D6\u8272",
+      "colors.favoriteNamePlaceholder": "\u5E38\u7528\u8272\u540D\u79F0",
+      "colors.save": "\u4FDD\u5B58",
+      "colors.exportPs": "\u5BFC\u51FA PS",
+      "colors.importPs": "\u5BFC\u5165 PS",
+      "colors.done": "\u5B8C\u6210",
+      "colors.manage": "\u7BA1\u7406",
+      "colors.favorites": "\u5E38\u7528\u989C\u8272",
+      "colors.recent": "\u6700\u8FD1\u989C\u8272",
+      "colors.recentLabel": "\u6700\u8FD1",
+      "colors.deleteFavorite": "\u5220\u9664\u5E38\u7528\u8272 {name}",
+      "colors.modify": "\u4FEE\u6539\u989C\u8272",
+      "colors.modifyValue": "\u4FEE\u6539\u989C\u8272 {value}",
+      "colors.removeValue": "\u79FB\u9664\u989C\u8272 {value}",
+      "taskGroup.today": "\u4ECA\u5929",
+      "taskGroup.yesterday": "\u6628\u5929",
+      "taskGroup.last7": "\u6700\u8FD1 7 \u5929",
+      "taskGroup.older": "\u66F4\u65E9",
+      "taskGroup.searchResults": "\u641C\u7D22\u7ED3\u679C",
+      "taskGroup.active": "\u8FDB\u884C\u4E2D",
+      "taskGroup.running": "\u8FD0\u884C\u4E2D",
+      "taskGroup.waiting": "\u7B49\u5F85\u4E2D",
+      "taskGroup.dispatchPending": "\u6B63\u5728\u5206\u914D\u53EF\u7528\u901A\u9053...",
+      "taskGroup.expand": "\u5C55\u5F00 {label}",
+      "taskGroup.collapse": "\u6536\u8D77 {label}",
+      "taskGroup.buttonLabel": "{label}\uFF0C{count} \u4E2A\u4EFB\u52A1",
+      "archive.title": "\u4F1A\u8BDD\u5F52\u6863",
+      "archive.empty": "\u6682\u65E0\u5F52\u6863\u4F1A\u8BDD",
+      "archive.count": "{count} \u4E2A\u5F52\u6863\u4F1A\u8BDD",
+      "archive.restore": "\u6062\u590D",
+      "archive.archiveFailed": "\u5F52\u6863\u5931\u8D25",
+      "archive.restoreFailed": "\u6062\u590D\u5931\u8D25",
+      "archive.restored": "\u4F1A\u8BDD\u5DF2\u6062\u590D",
+      "settings.title": "\u5B58\u50A8\u8BBE\u7F6E",
+      "settings.status": "\u4FDD\u5B58\u540E\u91CD\u542F WebUI \u751F\u6548",
+      "settings.inputRoot": "\u8F93\u5165\u76EE\u5F55",
+      "settings.outputRoot": "\u8F93\u51FA\u76EE\u5F55",
+      "settings.galleryRoot": "\u516C\u7528\u56FE\u5E93\u76EE\u5F55",
+      "settings.sourceDataRoot": "\u6E90\u6570\u636E\u76EE\u5F55",
+      "settings.notificationsCopy": "\u4EFB\u52A1\u5B8C\u6210\u6216\u5931\u8D25\u65F6\u63D0\u9192\uFF0C\u7CFB\u7EDF\u901A\u77E5\u9700\u624B\u52A8\u5F00\u542F\u3002",
+      "settings.inAppNotification": "\u7AD9\u5185\u901A\u77E5",
+      "settings.systemNotification": "\u7CFB\u7EDF\u901A\u77E5",
+      "settings.save": "\u4FDD\u5B58\u8BBE\u7F6E",
+      "settings.loadFailed": "\u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25",
+      "settings.saveFailed": "\u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25",
+      "settings.savedRestart": "\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
+      "settings.saved": "\u5DF2\u4FDD\u5B58",
+      "settings.savedRestartStatus": "\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
+      "apiSettings.title": "API \u8BBE\u7F6E",
+      "apiSettings.status": "\u4FDD\u5B58\u540E\u7ACB\u5373\u7528\u4E8E API \u6A21\u5F0F",
+      "apiSettings.provider": "\u4F9B\u5E94\u5546",
+      "apiSettings.providerName": "\u4F9B\u5E94\u5546\u540D\u79F0",
+      "apiSettings.mode": "\u8C03\u7528\u65B9\u5F0F",
+      "apiSettings.images": "\u76F4\u8FDE Image API",
+      "apiSettings.responses": "Responses API",
+      "apiSettings.modeImagesShort": "\u76F4\u8FDE",
+      "apiSettings.imageModel": "\u56FE\u50CF\u5DE5\u5177\u6A21\u578B",
+      "apiSettings.concurrency": "Provider \u603B\u5E76\u53D1\u4E0A\u9650",
+      "apiSettings.save": "\u4FDD\u5B58 API \u8BBE\u7F6E",
+      "apiSettings.loadFailed": "API \u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25",
+      "apiSettings.savedKeyPlaceholder": "\u540E\u7AEF\u5DF2\u4FDD\u5B58 API Key\uFF0C\u8F93\u5165\u65B0 key \u53EF\u8986\u76D6",
+      "apiSettings.newProvider": "\u65B0\u4F9B\u5E94\u5546",
+      "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
+      "apiSettings.savingStatus": "\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...",
+      "apiSettings.saveFailed": "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25",
+      "apiSettings.savedSummary": "\u5DF2\u4FDD\u5B58 \xB7 {provider} \xB7 {mode} \xB7 {model} \xB7 \u5E76\u53D1 {concurrency}",
+      "apiSettings.savedShort": "\u5DF2\u4FDD\u5B58",
+      "apiSettings.savedStatus": "API \u8BBE\u7F6E\u5DF2\u4FDD\u5B58",
+      "apiSettings.saveFailedShort": "\u4FDD\u5B58\u5931\u8D25",
+      "imageEditor.title": "\u7F16\u8F91\u8F93\u5165\u56FE\u7247",
+      "imageEditor.promptHint": "\u56FE\u4E2D\u7684\u624B\u7ED8\u7BAD\u5934\u548C\u6807\u8BB0\u4EC5\u7528\u4E8E\u6307\u793A\u7F16\u8F91\u8981\u6C42\uFF0C\u4E0D\u8981\u4FDD\u7559\u5728\u6700\u7EC8\u753B\u9762\u4E2D\u3002",
+      "imageEditor.inputFallback": "\u8F93\u5165\u56FE\u7247",
+      "imageEditor.openFailed": "\u65E0\u6CD5\u6253\u5F00\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91",
+      "imageEditor.loadForEditFailed": "\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91",
+      "imageEditor.canvasCreateFailed": "\u65E0\u6CD5\u521B\u5EFA\u56FE\u7247\u7F16\u8F91\u753B\u5E03",
+      "imageEditor.closedRegionRequired": "\u8BF7\u5148\u7528\u753B\u7B14\u5708\u51FA\u5C01\u95ED\u533A\u57DF",
+      "imageEditor.saveFailed": "\u56FE\u7247\u7F16\u8F91\u4FDD\u5B58\u5931\u8D25",
+      "imageEditor.saved": "\u5DF2\u4FDD\u5B58\u7F16\u8F91\u540E\u7684\u8F93\u5165\u56FE",
+      "imageEditor.uneditable": "\u8FD9\u5F20\u56FE\u7247\u65E0\u6CD5\u7F16\u8F91",
+      "imageEditor.resetDone": "\u5DF2\u91CD\u7F6E\u5230\u539F\u56FE",
+      "imageEditor.resetFailed": "\u65E0\u6CD5\u91CD\u7F6E\u539F\u56FE",
+      "imageEditor.subtitle": "\u88C1\u526A\u3001\u6D82\u9E26\u3001\u6CB9\u6F06\u6876\u586B\u5145\u6216\u6DFB\u52A0\u7BAD\u5934\u540E\u4FDD\u5B58\u4E3A\u65B0\u7684\u8F93\u5165\u56FE",
+      "imageEditor.toolbar": "\u56FE\u7247\u7F16\u8F91\u5DE5\u5177\u680F",
+      "imageEditor.tools": "\u5DE5\u5177",
+      "imageEditor.brush": "\u753B\u7B14",
+      "imageEditor.arrow": "\u7BAD\u5934",
+      "imageEditor.crop": "\u88C1\u526A",
+      "imageEditor.fill": "\u6CB9\u6F06\u6876",
+      "imageEditor.fillLabel": "\u6CB9\u6F06\u6876\u586B\u5145",
+      "imageEditor.colors": "\u989C\u8272",
+      "imageEditor.red": "\u7EA2\u8272",
+      "imageEditor.blue": "\u84DD\u8272",
+      "imageEditor.green": "\u7EFF\u8272",
+      "imageEditor.yellow": "\u9EC4\u8272",
+      "imageEditor.white": "\u767D\u8272",
+      "imageEditor.black": "\u9ED1\u8272",
+      "imageEditor.customColor": "\u81EA\u5B9A\u4E49\u989C\u8272",
+      "imageEditor.stroke": "\u7C97\u7EC6",
+      "imageEditor.history": "\u5386\u53F2",
+      "imageEditor.undo": "\u64A4\u9500",
+      "imageEditor.redo": "\u91CD\u505A",
+      "imageEditor.reset": "\u91CD\u7F6E\u539F\u56FE",
+      "imageEditor.canvas": "\u56FE\u7247\u7F16\u8F91\u753B\u5E03",
+      "gallery.title": "\u516C\u7528\u56FE\u5E93",
+      "gallery.subtitle": "\u9009\u62E9\u53C2\u8003\u56FE\u52A0\u5165\u5F53\u524D\u4EFB\u52A1",
+      "gallery.manageCategories": "\u7BA1\u7406\u5206\u7C7B",
+      "gallery.categoryManager": "\u7BA1\u7406\u56FE\u5E93\u5206\u7C7B",
+      "gallery.categoryManagement": "\u5206\u7C7B\u7BA1\u7406",
+      "gallery.categoryCopy": "\u5206\u7C7B\u4F1A\u4FDD\u5B58\u5230\u56FE\u5E93\uFF1B\u63D0\u793A\u8BCD\u7528\u9014\u7528\u4E8E\u751F\u6210\u53C2\u8003\u56FE\u8BF4\u660E",
+      "gallery.newCategoryName": "\u65B0\u5206\u7C7B\u540D\u79F0",
+      "gallery.newCategoryRole": "\u63D0\u793A\u8BCD\u7528\u9014\uFF0C\u4F8B\u5982\uFF1A\u98CE\u683C\u53C2\u8003",
+      "gallery.addCategory": "\u65B0\u589E\u5206\u7C7B",
+      "gallery.drawerSubtitle": "\u5F53\u524D\u5206\u7C7B\uFF1A{category}\uFF0C\u70B9\u51FB\u201C\u4F7F\u7528\u201D\u52A0\u5165\u56FE\u50CF\u8F93\u5165",
+      "gallery.emptyCategory": "\u8FD9\u4E2A\u5206\u7C7B\u8FD8\u6CA1\u6709\u56FE\u7247",
+      "gallery.dragSort": "\u62D6\u62FD\u6392\u5E8F",
+      "gallery.dragSortImage": "\u62D6\u62FD\u6392\u5E8F\u56FE\u7247 {name}",
+      "gallery.dragSortCategory": "\u62D6\u62FD\u6392\u5E8F\u5206\u7C7B {name}",
+      "gallery.use": "\u4F7F\u7528",
+      "gallery.replace": "\u66FF\u6362",
+      "gallery.rename": "\u91CD\u547D\u540D",
+      "gallery.moveCategory": "\u5206\u7C7B",
+      "gallery.note": "\u5907\u6CE8",
+      "gallery.delete": "\u5220\u9664",
+      "gallery.uncategorized": "\u672A\u5206\u7C7B",
+      "addGallery.title": "\u6DFB\u52A0\u5230\u56FE\u5E93",
+      "addGallery.copy": "\u540D\u79F0\u5168\u5C40\u552F\u4E00\uFF0C\u540E\u7EED\u53EF\u7528 @\u540D\u79F0 \u8C03\u53D6",
+      "addGallery.name": "\u540D\u79F0",
+      "addGallery.namePlaceholder": "\u4F8B\u5982\uFF1A\u5C0F\u7F8E",
+      "addGallery.category": "\u5206\u7C7B",
+      "addGallery.note": "\u5F15\u7528\u5907\u6CE8",
+      "addGallery.notePlaceholder": "\u4F8B\u5982\uFF1A\u53EA\u53C2\u8003\u8138\u578B\u548C\u53D1\u578B\uFF0C\u4E0D\u53C2\u8003\u8863\u670D\u548C\u80CC\u666F",
+      "addGallery.save": "\u4FDD\u5B58\u5230\u56FE\u5E93",
+      "close.promptTemplates": "\u5173\u95ED\u63D0\u793A\u8BCD\u6A21\u677F\u9762\u677F",
+      "close.archive": "\u5173\u95ED\u4F1A\u8BDD\u5F52\u6863\u9762\u677F",
+      "close.settings": "\u5173\u95ED\u5B58\u50A8\u8BBE\u7F6E\u9762\u677F",
+      "close.apiSettings": "\u5173\u95ED API \u8BBE\u7F6E\u9762\u677F",
+      "close.imageEditor": "\u5173\u95ED\u7F16\u8F91\u8F93\u5165\u56FE\u7247\u9762\u677F",
+      "close.gallery": "\u5173\u95ED\u516C\u7528\u56FE\u5E93\u9762\u677F",
+      "close.addGallery": "\u5173\u95ED\u6DFB\u52A0\u5230\u56FE\u5E93\u9762\u677F"
+    },
+    en: {
+      "app.newTask": "New",
+      "app.newTaskAria": "New chat",
+      "sidebar.searchPlaceholder": "Search chats...",
+      "sidebar.filters": "Task filters",
+      "sidebar.allRatios": "All ratios",
+      "sidebar.allOrientations": "All orientations",
+      "sidebar.allModes": "All modes",
+      "sidebar.allResolutions": "All resolutions",
+      "sidebar.activeTasks": "Active tasks",
+      "sidebar.topAnchors": "Top time navigation",
+      "sidebar.bottomAnchors": "Bottom time navigation",
+      "sidebar.resize": "Resize sidebar",
+      "batch.selected": "0 selected",
+      "batch.selectedCount": "{count} selected",
+      "batch.archivedCount": "Archived {count} chats",
+      "batch.archiveFailed": "Batch archive failed",
+      "batch.runningCannotDeleteSelected": "Selected chats are running and cannot be deleted",
+      "batch.deleteTitle": "Delete {count} chats?",
+      "batch.deleteMessage": "This will also delete local image files.",
+      "batch.deleteSkippedDetail": "{count} running tasks will be kept",
+      "batch.deleteSkippedSuffix": ", {count} running tasks not deleted",
+      "batch.deletedCount": "Deleted {count} chats{skipped}",
+      "batch.deleteFailed": "Batch delete failed",
+      "action.archive": "Archive",
+      "action.delete": "Delete",
+      "action.cancel": "Cancel",
+      "action.clear": "Clear",
+      "action.paste": "Paste",
+      "action.find": "Find",
+      "action.replace": "Replace",
+      "action.close": "Close",
+      "action.confirm": "Confirm",
+      "action.confirmQuestion": "Confirm action?",
+      "action.refresh": "Refresh",
+      "action.save": "Save",
+      "action.add": "Add",
+      "action.new": "New",
+      "action.import": "Import",
+      "action.export": "Export",
+      "queue.empty": "No queue",
+      "queue.emptyAria": "Queue status: no queued tasks",
+      "queue.jumpTitle": "Jump to active tasks",
+      "queue.emptyTitle": "No queued tasks",
+      "queue.channel": "Channels {count}",
+      "queue.availableChannels": "Available channels {usable}/{total}",
+      "queue.dispatching": "Scheduling \xB7 waiting {waiting}",
+      "queue.runningWaiting": "Running {running} \xB7 waiting {waiting}",
+      "queue.statusLabel": "Queue status: {text} \xB7 {channelText}. Click to jump to active tasks",
+      "queue.runningActions": "Running task queue actions",
+      "queue.waitingActions": "Waiting task queue actions",
+      "queue.cancelRunning": "Cancel",
+      "queue.cancelRunningTitle": "Cancel running task",
+      "queue.dragWaiting": "Drag to reorder waiting task",
+      "queue.dragSort": "Drag to sort",
+      "queue.moveUp": "Up",
+      "queue.moveUpTitle": "Move waiting task up",
+      "queue.moveDown": "Down",
+      "queue.moveDownTitle": "Move waiting task down",
+      "queue.promote": "Top",
+      "queue.promoteTitle": "Move waiting task to top",
+      "queue.promoteFailed": "Move to top failed",
+      "queue.deleteWaitingShort": "Del",
+      "queue.deleteWaitingTitle": "Delete waiting task",
+      "queue.deleteWaitingTitleConfirm": "Delete waiting task?",
+      "queue.deleteWaitingMessage": "This removes it from the queue and history list.",
+      "queue.deleteQueuedFailed": "Failed to delete queued task",
+      "queue.queuedDeleted": "Queued task deleted",
+      "queue.cancelRunningConfirm": "Cancel task",
+      "queue.cancelRunningTitleConfirm": "Cancel running task?",
+      "queue.cancelRunningMessage": "The current task will stop. History will be kept.",
+      "queue.cancelRunningFailed": "Failed to cancel task",
+      "queue.runningCancelled": "Task cancelled",
+      "queue.reorderFailed": "Failed to reorder queue",
+      "queue.realtimeUpdateFailed": "Failed to update live status",
+      "queue.realtimeDisconnected": "Live status connection was lost. Refresh the page to recover.",
+      "queue.readFailed": "Failed to load queue",
+      "status.waiting": "Waiting",
+      "status.shownActiveTasks": "Showing active tasks",
+      "status.jsonCopied": "JSON copied",
+      "taskStatus.submitting": "Submitting",
+      "taskStatus.running": "Generating",
+      "taskStatus.runningWithElapsed": "Generating \xB7 {elapsed}",
+      "taskStatus.completed": "Completed",
+      "taskStatus.partialFailed": "Partially failed",
+      "taskStatus.failed": "Failed",
+      "taskStatus.queued": "Queued",
+      "taskStatus.unknown": "Unknown status",
+      "taskStatus.task": "Task",
+      "taskStatus.connectionInterrupted": "Connection interrupted",
+      "taskStatus.lastFailed": "Last failed",
+      "taskStatus.waitingRetry": "{reason}, waiting to retry (attempt {attempt}/{max})",
+      "taskStatus.retrying": "{reason}, retrying (attempt {attempt}/{max})",
+      "taskStatus.nonRetryableAttempt": "Attempt {attempt}/{max}, not retryable",
+      "taskStatus.manualRetryAvailable": "Stopped; failed images can be retried manually",
+      "taskStatus.runtime": "Duration {duration}",
+      "taskStatus.runtimeCompleted": "Duration {duration} \xB7 completed {time}",
+      "taskStatus.completedAt": "Completed {time}",
+      "taskCard.count": "{count} images",
+      "taskCard.successCount": "succeeded {count}",
+      "taskCard.failedCount": "failed {count}",
+      "taskCard.runningCount": "generating {count}",
+      "taskCard.waitingCount": "waiting {count}",
+      "taskCard.textToImageThumb": "Text-to-image task thumbnail",
+      "taskCard.imageToImageThumb": "Image-to-image task thumbnail",
+      "taskCard.failedThumb": "Task failed",
+      "taskCard.textBadge": "T",
+      "taskMode.edit": "Edit",
+      "taskMode.generate": "Generate",
+      "document.generatingQueue": "Generating \xB7 queue {total}",
+      "document.queuedWaiting": "Queued \xB7 waiting {count}",
+      "runFeedback.editing": "Editing",
+      "runFeedback.generating": "Generating",
+      "runFeedback.status": "{action}, elapsed {elapsed}",
+      "footer.archive": "Archive",
+      "footer.archiveCount": "Archive {count}",
+      "footer.batch": "Batch",
+      "footer.storage": "Storage",
+      "footer.apiStatus": "API status: OK",
+      "footer.version": "Version v1.0.0",
+      "notifications.title": "Notifications",
+      "notifications.unread": "Notifications, {count} unread",
+      "notifications.unreadSummary": "{count} unread",
+      "notifications.empty": "No task notifications",
+      "notifications.taskFailed": "Task failed",
+      "notifications.taskPartial": "Task partially completed",
+      "notifications.taskCompleted": "Task completed",
+      "notifications.generationFailed": "Generation failed",
+      "notifications.successCount": "{count} succeeded",
+      "notifications.resultAvailable": "Results available",
+      "notifications.failedCount": "{count} failed",
+      "notifications.systemUnsupported": "This browser does not support system notifications",
+      "notifications.systemBlocked": "System notifications are blocked by the browser. Enable them in browser settings.",
+      "notifications.systemDenied": "System notifications are not enabled",
+      "notifications.systemEnabled": "System notifications enabled",
+      "notifications.taskMissing": "Task does not exist or was deleted",
+      "theme.label": "Theme",
+      "theme.system": "Auto",
+      "theme.light": "Light",
+      "theme.dark": "Dark",
+      "language.label": "Language",
+      "language.zh": "\u4E2D",
+      "language.en": "EN",
+      "auth.label": "Auth source",
+      "auth.checking": "Checking auth",
+      "auth.missingCodexSession": "No Codex session detected",
+      "auth.switchFailed": "Failed to switch auth source",
+      "auth.sourceUnavailable": "{source} unavailable",
+      "auth.notActive": "Not active",
+      "api.settings": "API Settings",
+      "api.provider": "API provider",
+      "imageInput.title": "Images",
+      "imageInput.uploadAria": "Click, drop, or paste images",
+      "imageInput.uploadFull": "Click, drop, or paste images",
+      "imageInput.uploadCompact": "Add image",
+      "imageInput.uploadSubtitle": "Multiple reference images supported",
+      "imageInput.recent": "Recent uploads",
+      "imageInput.recentBadge": "Recent",
+      "imageInput.uploadBadge": "Upload",
+      "imageInput.addToGallery": "Add to gallery",
+      "imageInput.addToGalleryShort": "Gallery",
+      "imageInput.editedBadge": "Edited",
+      "imageInput.editImage": "Edit {name}",
+      "imageInput.deletedRecent": "Recent upload deleted",
+      "imageInput.deletedGallery": "Gallery image deleted",
+      "recentAssets.defaultName": "Recent upload",
+      "recentAssets.use": "Use {name}",
+      "recentAssets.delete": "Delete {name}",
+      "recentAssets.deleteTitle": "Delete recent upload?",
+      "recentAssets.deleteMessage": "This will remove the image from Recent uploads. If it is currently selected as an image input, it will be removed from the current input. Historical tasks that reference this recent upload will lose that input preview. The public gallery is not affected.",
+      "recentAssets.loadFailed": "Failed to load recent uploads",
+      "recentAssets.deleteFailed": "Failed to delete recent upload",
+      "recentAssets.deleted": "Recent upload deleted",
+      "inputSource.uploadFallback": "Uploaded image",
+      "inputSource.galleryFallback": "Gallery image",
+      "inputSource.focusPasteFallback": "{prefix}. Image input is focused; press {shortcut} to paste images.",
+      "inputSource.pastedCount": "Pasted {count} clipboard images",
+      "inputSource.clipboardUnsupported": "This browser cannot read the clipboard directly",
+      "inputSource.clipboardEmpty": "No clipboard images found",
+      "inputSource.clipboardDenied": "The browser blocked direct clipboard access",
+      "inputSource.clipboardReadFailed": "Failed to read the clipboard",
+      "status.missingGalleryReference": "A gallery reference image has been deleted. Remove it before generating.",
+      "status.missingRecentReference": "A recent upload reference image has been deleted. Remove it before generating.",
+      "status.emptyPrompt": "Enter a prompt",
+      "status.editNeedsImage": "Edit mode requires at least one image",
+      "status.loadedTask": "Loaded task {taskId}",
+      "status.loadingHistoryInputs": "Loading historical input images...",
+      "status.historyInputLoadFailed": "Failed to load historical input image: {url}",
+      "referenceCollector.alreadyStaged": "Already staged as a reference",
+      "referenceCollector.staged": "Staged {count} reference images",
+      "referenceCollector.title": "Pending references \xB7 {count}",
+      "referenceCollector.addAll": "Add all references",
+      "referenceCollector.itemFallback": "Pending reference",
+      "referenceCollector.remove": "Remove pending reference",
+      "referenceCollector.cleared": "Pending references cleared",
+      "referenceCollector.added": "Added {count} reference images",
+      "referenceCollector.addFailed": "Failed to add pending references",
+      "referenceCollector.readFailed": "Failed to read image: {status}",
+      "gallery.quick": "Quick gallery",
+      "gallery.current": "Current category gallery",
+      "gallery.categories": "Gallery categories",
+      "gallery.categoryPortrait": "Portrait",
+      "gallery.categoryCharacter": "Character",
+      "gallery.categoryProduct": "Product",
+      "gallery.categoryPortraitRole": "Portrait reference",
+      "gallery.categoryCharacterRole": "Character reference",
+      "gallery.categoryProductRole": "Product reference",
+      "gallery.referenceRole": "Reference image",
+      "gallery.manage": "Manage gallery",
+      "gallery.loadFailed": "Failed to load gallery",
+      "gallery.imageOrderUpdateFailed": "Failed to update image order",
+      "gallery.imageOrderUpdated": "Image order updated",
+      "gallery.categoryName": "Category name",
+      "gallery.categoryPromptRole": "Prompt role",
+      "gallery.categorySave": "Save",
+      "gallery.categoryDelete": "Delete",
+      "gallery.categoryLoadFailed": "Failed to load categories",
+      "gallery.categoryNameRequired": "Enter a category name",
+      "gallery.categoryCreateFailed": "Failed to add category",
+      "gallery.categoryCreated": "Category added",
+      "gallery.categorySaveFailed": "Failed to save category",
+      "gallery.categorySaved": "Category saved",
+      "gallery.categoryDeleteTitle": "Delete gallery category?",
+      "gallery.categoryDeleteMessage": "Images in this category will move to another category. Gallery images will not be deleted.",
+      "gallery.categoryDeleteConfirm": "Delete category",
+      "gallery.categoryDeleteFailed": "Failed to delete category",
+      "gallery.categoryDeletedMigrated": 'Category "{name}" deleted and images migrated',
+      "gallery.categoryOrderUpdateFailed": "Failed to update category order",
+      "gallery.categoryOrderUpdated": "Category order updated",
+      "gallery.categoryFallback": "Gallery category",
+      "gallery.imageFallback": "Gallery image",
+      "gallery.imageLoadFailed": "Failed to load this image",
+      "gallery.editImageLoadFailed": "Failed to load this image for editing",
+      "gallery.cannotAddImage": "This image cannot be added to the gallery",
+      "gallery.nameRequired": "Enter a gallery name",
+      "gallery.saveFailed": "Failed to save gallery image",
+      "gallery.savedAsReference": "Added to gallery and switched to gallery reference",
+      "gallery.renameImage": "Rename gallery image",
+      "gallery.moveToCategory": "Move to category",
+      "gallery.categoryRequired": "Choose a gallery category",
+      "gallery.promptNoteTitle": "Gallery reference note",
+      "gallery.updateFailed": "Failed to update gallery",
+      "gallery.selectImageFile": "Choose an image file",
+      "gallery.replaceImageFailed": "Failed to replace gallery image",
+      "gallery.replacedImage": 'Replaced the source image for "{name}"',
+      "gallery.deleteImageTitle": "Delete gallery image?",
+      "gallery.deleteImageMessage": "Historical task references will show as deleted.",
+      "gallery.deleteFailed": "Failed to delete gallery image",
+      "gallery.deletedSuffix": " (deleted)",
+      "gallery.editImageLabel": "Edit gallery image",
+      "gallery.fieldCategory": "Category",
+      "gallery.fieldPromptNote": "Reference note",
+      "gallery.fieldName": "Name",
+      "quickGallery.empty": "No {category} images",
+      "promptGallery.remove": "Remove @{name}",
+      "prompt.title": "Prompt",
+      "prompt.editorLabel": "Prompt",
+      "prompt.placeholder": "Describe the image you want to generate or edit. Type @ for gallery references, # for color codes, and ~ for prompt snippets.",
+      "prompt.run": "Generate",
+      "prompt.runEdit": "Start editing",
+      "prompt.runTitle": "Generate (Cmd+Enter)",
+      "prompt.runEditTitle": "Start editing (Cmd+Enter)",
+      "prompt.findPanel": "Find and replace prompt",
+      "prompt.findText": "Find text",
+      "prompt.replaceWith": "Replace with",
+      "prompt.findActions": "Find and replace actions",
+      "prompt.countZero": "0 matches",
+      "prompt.matchCount": "{count} matches",
+      "prompt.foundCount": "Found {count} matches",
+      "prompt.noMatch": "No matching text",
+      "prompt.replacedCount": "Replaced {count} matches",
+      "prompt.closeFind": "Close find and replace",
+      "prompt.recentTemplates": "Recent templates",
+      "prompt.manageTemplates": "Manage templates",
+      "promptModel.galleryHeader": "Reference image notes:",
+      "promptModel.galleryInstruction": '- Reference image {number}: gallery "{name}", role: {role}. @{name} in the prompt refers to this image.{note}',
+      "outputSettings.title": "Output",
+      "output.mainModel": "Main model",
+      "output.selectMainModel": "Select main model",
+      "output.mainModelCustomForInput": "Use a custom model for the current input",
+      "output.apiDirect": "API Direct",
+      "output.apiToolModel": "Using API image model",
+      "output.mainModelUnused": "Main model is not used for this request",
+      "output.promptMode": "Prompt mode",
+      "output.modeOriginal": "Original",
+      "output.modeStrict": "Faithful",
+      "output.modeCreative": "Creative",
+      "output.sizeMode": "Size mode",
+      "output.sizePreset": "Preset",
+      "output.sizeCustom": "Custom",
+      "output.orientation": "Orientation",
+      "output.square": "Square",
+      "output.portrait": "Portrait",
+      "output.landscape": "Landscape",
+      "output.resolution": "Resolution",
+      "output.pixelSize": "Pixel size",
+      "output.width": "Width",
+      "output.height": "Height",
+      "output.swapSize": "Swap width and height",
+      "output.customSizeHint": "Unit px \xB7 16-3840 \xB7 multiple of 16 \xB7 \u22643:1",
+      "output.imageSizeUnavailable": "Image size unavailable",
+      "output.imageLoadFailed": "Image failed to load",
+      "output.customSizeRequired": "Enter width and height",
+      "output.customSizeBounds": "Width and height must be 16-3840 px",
+      "output.customSizeMultiple": "Width and height must be multiples of 16",
+      "output.customSizeRatio": "Long-to-short side ratio cannot exceed 3:1",
+      "output.customSizePixels": "Total pixels must be 655,360-8,294,400",
+      "output.ratioLock": "Ratio lock (optional)",
+      "output.customRatio": "Custom aspect ratio",
+      "output.ratioWidth": "W",
+      "output.ratioHeight": "H",
+      "output.firstImageRatio": "Use the first reference image aspect ratio",
+      "output.useFirstImage": "From image",
+      "output.ratioHint": "Leave blank for free size \xB7 Fill both to sync",
+      "output.ratio": "Ratio",
+      "output.quality": "Quality",
+      "output.qualityAuto": "Auto",
+      "output.qualityLow": "Low",
+      "output.qualityMedium": "Medium",
+      "output.qualityHigh": "High",
+      "output.quantity": "Count",
+      "output.pixelPreview": "Output pixels: 1024 x 1024 px",
+      "output.pixelPreviewValue": "Output pixels: {value}",
+      "output.pixelPreviewAuto": "Output pixels: auto (OpenAI chooses automatically)",
+      "output.format": "Format",
+      "output.compression": "Compression",
+      "output.moderation": "Moderation",
+      "preview.title": "Preview",
+      "preview.selectedZero": "0 selected",
+      "preview.selectedCount": "Selected {selected}/{total}",
+      "preview.downloadSelected": "Download selected",
+      "preview.deleteUnselected": "Delete unselected",
+      "preview.downloadAll": "Download ZIP",
+      "preview.empty": "No images yet",
+      "preview.taskFailed": "Task failed",
+      "preview.partialFailed": "Some images failed",
+      "preview.failedOutput": "Image {index} failed",
+      "preview.progressLine": "Completed {generated} / {total} \xB7 elapsed {elapsed}",
+      "preview.failureLine": "Completed {generated} / {total} \xB7 failed {failed}",
+      "preview.elapsedLine": "Elapsed {elapsed}",
+      "preview.lastError": "Last error: {error}",
+      "preview.continueGenerating": "Continuing generation",
+      "preview.waitingContinue": "Waiting to continue",
+      "preview.retryFailed": "Retry failed images",
+      "preview.acceptSuccesses": "Accept successful results",
+      "preview.generateMode": "Generation",
+      "preview.editMode": "Edit",
+      "preview.runningTitle": "{mode} running",
+      "preview.submittingTitle": "Submitting task",
+      "preview.queuedTitle": "Task queued",
+      "preview.submittingDetail": "Saving inputs and adding the task to the queue. Generation will start automatically.",
+      "preview.queuedDetail": "The task is in the queue and waiting for an available channel.",
+      "preview.featured": "Selected",
+      "preview.addFeatured": "Select result",
+      "preview.selectedFeatured": "Selected",
+      "preview.removeFeatured": "Deselect result",
+      "preview.selectionAdded": "Result selected",
+      "preview.selectionRemoved": "Result deselected",
+      "preview.selectionUpdateFailed": "Failed to update selection",
+      "preview.noUnselectedOutputs": "No unselected images to delete",
+      "preview.deleteUnselectedTitle": "Delete unselected images?",
+      "preview.deleteUnselectedMessage": "This will delete local image files for unselected results in this task.",
+      "preview.deleteUnselectedDetail": "Keep {selected}, delete {deleted}",
+      "preview.deleteUnselectedFailed": "Failed to delete unselected images",
+      "preview.deleteUnselectedDone": "Unselected images deleted",
+      "preview.addReference": "Add reference",
+      "preview.stage": "Stage",
+      "preview.stageReference": "Stage as pending reference",
+      "preview.prompt": "Prompt",
+      "preview.download": "Download",
+      "preview.downloadImage": "Download this image",
+      "lightbox.label": "Image preview",
+      "lightbox.close": "Close preview",
+      "lightbox.previous": "Previous image",
+      "lightbox.next": "Next image",
+      "promptPopover.title": "Prompt Comparison",
+      "promptPopover.summary": "Original {original} \xB7 optimized {optimized}",
+      "promptPopover.original": "Original prompt",
+      "promptPopover.optimized": "Optimized prompt",
+      "promptPopover.charCount": "{count} chars",
+      "promptPopover.empty": "None",
+      "promptPopover.notReturned": "Not returned",
+      "promptPopover.noOptimized": "No optimized prompt returned",
+      "promptPopover.submitted": "View submitted prompt",
+      "promptPopover.close": "Close prompt comparison",
+      "promptPopover.copyOptimized": "Copy optimized prompt",
+      "promptPopover.copied": "Copied",
+      "taskContext.menuLabel": "Task context menu",
+      "taskContext.view": "View task",
+      "taskContext.restore": "Restore to form",
+      "taskContext.copyId": "Copy task ID",
+      "taskContext.copyPrompt": "Copy prompt",
+      "taskContext.revealOutput": "Open output folder",
+      "taskContext.archive": "Archive task",
+      "taskContext.delete": "Delete task",
+      "taskContext.restored": "Task parameters restored",
+      "taskContext.idCopied": "Task ID copied",
+      "taskContext.promptCopied": "Prompt copied",
+      "taskContext.revealFailed": "Failed to open output folder",
+      "taskContext.revealOpened": "Output folder opened",
+      "taskContext.actionFailed": "Task action failed",
+      "taskActions.group": "Task actions",
+      "taskActions.deleteTitle": "Delete task?",
+      "taskActions.deleteMessage": "This will also delete local image files.",
+      "taskActions.runningCannotDelete": "Running tasks cannot be deleted",
+      "taskActions.updated": "Task status updated",
+      "taskActions.archived": "Chat archived",
+      "taskActions.archiveFailed": "Archive failed",
+      "taskActions.deleted": "Task deleted",
+      "taskActions.deleteFailed": "Delete failed",
+      "taskActions.noRetryableFailedImages": "This task has no failed images to retry",
+      "taskActions.retryFailedOutputsFailed": "Failed to retry failed images",
+      "taskActions.requeuedFailedImages": "Failed images requeued",
+      "taskActions.noAcceptableSuccessImages": "This task has no successful images to accept",
+      "taskActions.acceptSuccessesFailed": "Failed to accept successful results",
+      "taskActions.acceptedSuccesses": "Successful results accepted",
+      "taskActions.viewedUpdateFailed": "Failed to update read state",
+      "taskActions.failedFallback": "Task failed",
+      "taskList.empty": "No history yet",
+      "taskList.selectSession": "Select chat",
+      "taskList.unreadUpdate": "Unread update",
+      "taskDerived.usageLimited": "Usage limited",
+      "taskSubmit.requestFailed": "Request failed",
+      "taskSubmit.queued": "Task added to queue",
+      "taskSubmit.timeout": "Submitting the task timed out before the backend responded. Refresh the queue to confirm whether it was added, then decide whether to retry.",
+      "taskSubmit.failed": "Task submission failed",
+      "templates.title": "Prompt Templates",
+      "templates.summary": "Local template library",
+      "templates.availableCount": "{count} available templates",
+      "templates.noMatch": "No matching templates",
+      "templates.empty": "No templates",
+      "templates.favoriteBadge": "Favorite",
+      "templates.usageCount": "{count} uses",
+      "templates.back": "Back",
+      "templates.edit": "Edit",
+      "templates.copy": "Copy",
+      "templates.insert": "Insert",
+      "templates.formTitle": "Title",
+      "templates.formShortTitle": "Short title",
+      "templates.formCategory": "Category",
+      "templates.formTags": "Tags",
+      "templates.formThumbnail": "Thumbnail",
+      "templates.formContent": "Content",
+      "templates.formNotes": "Notes",
+      "templates.formFavorite": "Favorite",
+      "templates.thumbnailClear": "Clear",
+      "templates.thumbnailNone": "None selected",
+      "templates.thumbnailEmpty": "No history thumbnails",
+      "templates.newCategory": "New category",
+      "templates.search": "Search templates, tags, or content",
+      "templates.filter": "Template filters",
+      "templates.all": "All",
+      "templates.categoryCommon": "Common",
+      "templates.categoryPortrait": "Portrait",
+      "templates.categoryProduct": "Product",
+      "templates.categoryRepair": "Repair",
+      "templates.categoryPoster": "Poster",
+      "templates.categoryEcommerce": "E-commerce",
+      "templates.favorite": "Favorites",
+      "templates.recent": "Recent",
+      "templates.category": "Categories",
+      "templates.loadFailed": "Failed to load prompt templates",
+      "templates.useStateUpdateFailed": "Failed to update prompt template usage state",
+      "templates.copied": "Prompt template copied",
+      "templates.copyFailed": "Failed to copy prompt template",
+      "templates.history": "History",
+      "templates.saveFailed": "Failed to save prompt template",
+      "templates.saved": "Prompt template saved",
+      "templates.deleteFailed": "Failed to delete prompt template",
+      "templates.deleted": "Prompt template deleted",
+      "templates.categoryAddFailed": "Failed to add template category",
+      "templates.categoryAdded": "Template category added",
+      "templates.categorySaveFailed": "Failed to save template category",
+      "templates.categorySaved": "Template category saved",
+      "templates.categoryDeleteFailed": "Failed to delete template category",
+      "templates.categoryDeleted": "Template category deleted",
+      "templates.importFailed": "Failed to import template pack",
+      "templates.importedCount": "Imported {count} templates",
+      "templates.exportFailed": "Failed to export template pack",
+      "templates.exported": "Template pack exported",
+      "snippets.suggestLabel": "Prompt snippet picker",
+      "snippets.saveSelection": "Save",
+      "snippets.saveSelectionLabel": "Save selected text as a prompt snippet",
+      "snippets.popoverLabel": "Prompt snippet",
+      "snippets.defaultCategory": "Common",
+      "snippets.loadFailed": "Failed to load prompt snippets",
+      "snippets.remove": "Remove ~{tag}",
+      "snippets.expand": "Expand",
+      "snippets.edit": "Edit",
+      "snippets.close": "Close",
+      "snippets.editTitle": "Edit snippet",
+      "snippets.saveTitle": "Save snippet",
+      "snippets.shortTag": "Short tag",
+      "snippets.title": "Title",
+      "snippets.category": "Category",
+      "snippets.content": "Content",
+      "snippets.titlePlaceholder": "Uses short tag by default",
+      "snippets.cancel": "Cancel",
+      "snippets.save": "Save",
+      "snippets.saveFailed": "Failed to save prompt snippet",
+      "snippets.saved": "Prompt snippet saved",
+      "snippets.defaultTag": "Common snippet",
+      "colors.white": "White",
+      "colors.black": "Black",
+      "colors.warmBeige": "Warm beige",
+      "colors.lightGreen": "Light green",
+      "colors.brandGreen": "Brand green",
+      "colors.peachOrange": "Peach orange",
+      "colors.lightBlue": "Light blue",
+      "colors.lightPink": "Light pink",
+      "colors.loadFailed": "Failed to load color settings",
+      "colors.saveFailed": "Failed to save color settings",
+      "colors.importFailed": "Failed to import color settings",
+      "colors.importedCount": "Imported {count} colors",
+      "colors.recentSaveFailed": "Failed to save recent colors",
+      "colors.favoriteSaveFailed": "Failed to save favorite color",
+      "colors.favoriteDeleteFailed": "Failed to delete favorite color",
+      "colors.update": "Update",
+      "colors.insert": "Insert",
+      "colors.pick": "Choose color",
+      "colors.pickShort": "Pick",
+      "colors.favoriteNamePlaceholder": "Favorite color name",
+      "colors.save": "Save",
+      "colors.exportPs": "Export PS",
+      "colors.importPs": "Import PS",
+      "colors.done": "Done",
+      "colors.manage": "Manage",
+      "colors.favorites": "Favorite colors",
+      "colors.recent": "Recent colors",
+      "colors.recentLabel": "Recent",
+      "colors.deleteFavorite": "Delete favorite color {name}",
+      "colors.modify": "Edit color",
+      "colors.modifyValue": "Edit color {value}",
+      "colors.removeValue": "Remove color {value}",
+      "taskGroup.today": "Today",
+      "taskGroup.yesterday": "Yesterday",
+      "taskGroup.last7": "Last 7 days",
+      "taskGroup.older": "Older",
+      "taskGroup.searchResults": "Search results",
+      "taskGroup.active": "Active",
+      "taskGroup.running": "Running",
+      "taskGroup.waiting": "Waiting",
+      "taskGroup.dispatchPending": "Assigning an available channel...",
+      "taskGroup.expand": "Expand {label}",
+      "taskGroup.collapse": "Collapse {label}",
+      "taskGroup.buttonLabel": "{label}, {count} tasks",
+      "archive.title": "Archive",
+      "archive.empty": "No archived chats",
+      "archive.count": "{count} archived chats",
+      "archive.restore": "Restore",
+      "archive.archiveFailed": "Archive failed",
+      "archive.restoreFailed": "Restore failed",
+      "archive.restored": "Chat restored",
+      "settings.title": "Storage",
+      "settings.status": "Restart WebUI after saving",
+      "settings.inputRoot": "Input folder",
+      "settings.outputRoot": "Output folder",
+      "settings.galleryRoot": "Gallery folder",
+      "settings.sourceDataRoot": "Source data folder",
+      "settings.notificationsCopy": "Notify when tasks complete or fail. System notifications must be enabled manually.",
+      "settings.inAppNotification": "In-app notifications",
+      "settings.systemNotification": "System notifications",
+      "settings.save": "Save settings",
+      "settings.loadFailed": "Failed to load settings",
+      "settings.saveFailed": "Failed to save settings",
+      "settings.savedRestart": "Saved. Restart WebUI to apply.",
+      "settings.saved": "Saved",
+      "settings.savedRestartStatus": "Settings saved. Restart WebUI to apply.",
+      "apiSettings.title": "API Settings",
+      "apiSettings.status": "Saved settings apply immediately in API mode",
+      "apiSettings.provider": "Provider",
+      "apiSettings.providerName": "Provider name",
+      "apiSettings.mode": "Request mode",
+      "apiSettings.images": "Direct Image API",
+      "apiSettings.responses": "Responses API",
+      "apiSettings.modeImagesShort": "Direct",
+      "apiSettings.imageModel": "Image model",
+      "apiSettings.concurrency": "Provider concurrency limit",
+      "apiSettings.save": "Save API settings",
+      "apiSettings.loadFailed": "Failed to load API settings",
+      "apiSettings.savedKeyPlaceholder": "API key is saved on the backend. Enter a new key to replace it.",
+      "apiSettings.newProvider": "New provider",
+      "apiSettings.saving": "Saving...",
+      "apiSettings.savingStatus": "Saving API settings...",
+      "apiSettings.saveFailed": "Failed to save API settings",
+      "apiSettings.savedSummary": "Saved \xB7 {provider} \xB7 {mode} \xB7 {model} \xB7 concurrency {concurrency}",
+      "apiSettings.savedShort": "Saved",
+      "apiSettings.savedStatus": "API settings saved",
+      "apiSettings.saveFailedShort": "Save failed",
+      "imageEditor.title": "Edit Input Image",
+      "imageEditor.promptHint": "Hand-drawn arrows and marks in the image are only instructions. Do not keep them in the final image.",
+      "imageEditor.inputFallback": "Input image",
+      "imageEditor.openFailed": "Failed to open this image for editing",
+      "imageEditor.loadForEditFailed": "Failed to load this image for editing",
+      "imageEditor.canvasCreateFailed": "Failed to create the image editing canvas",
+      "imageEditor.closedRegionRequired": "Use the brush to draw a closed region first",
+      "imageEditor.saveFailed": "Failed to save image edit",
+      "imageEditor.saved": "Edited input image saved",
+      "imageEditor.uneditable": "This image cannot be edited",
+      "imageEditor.resetDone": "Reset to original image",
+      "imageEditor.resetFailed": "Failed to reset the original image",
+      "imageEditor.subtitle": "Crop, draw, fill, or add arrows, then save as a new input image",
+      "imageEditor.toolbar": "Image editor toolbar",
+      "imageEditor.tools": "Tools",
+      "imageEditor.brush": "Brush",
+      "imageEditor.arrow": "Arrow",
+      "imageEditor.crop": "Crop",
+      "imageEditor.fill": "Fill",
+      "imageEditor.fillLabel": "Paint bucket fill",
+      "imageEditor.colors": "Colors",
+      "imageEditor.red": "Red",
+      "imageEditor.blue": "Blue",
+      "imageEditor.green": "Green",
+      "imageEditor.yellow": "Yellow",
+      "imageEditor.white": "White",
+      "imageEditor.black": "Black",
+      "imageEditor.customColor": "Custom color",
+      "imageEditor.stroke": "Stroke",
+      "imageEditor.history": "History",
+      "imageEditor.undo": "Undo",
+      "imageEditor.redo": "Redo",
+      "imageEditor.reset": "Reset image",
+      "imageEditor.canvas": "Image editing canvas",
+      "gallery.title": "Gallery",
+      "gallery.subtitle": "Choose reference images for the current task",
+      "gallery.manageCategories": "Manage categories",
+      "gallery.categoryManager": "Manage gallery categories",
+      "gallery.categoryManagement": "Category management",
+      "gallery.categoryCopy": "Categories are saved to the gallery; prompt roles describe how references are used.",
+      "gallery.newCategoryName": "New category name",
+      "gallery.newCategoryRole": "Prompt role, e.g. style reference",
+      "gallery.addCategory": "Add category",
+      "gallery.drawerSubtitle": 'Current category: {category}. Click "Use" to add it to image input.',
+      "gallery.emptyCategory": "No images in this category yet",
+      "gallery.dragSort": "Drag to sort",
+      "gallery.dragSortImage": "Drag-sort image {name}",
+      "gallery.dragSortCategory": "Drag-sort category {name}",
+      "gallery.use": "Use",
+      "gallery.replace": "Replace",
+      "gallery.rename": "Rename",
+      "gallery.moveCategory": "Category",
+      "gallery.note": "Note",
+      "gallery.delete": "Delete",
+      "gallery.uncategorized": "Uncategorized",
+      "addGallery.title": "Add to Gallery",
+      "addGallery.copy": "Names are globally unique and can be referenced with @name later",
+      "addGallery.name": "Name",
+      "addGallery.namePlaceholder": "Example: Mia",
+      "addGallery.category": "Category",
+      "addGallery.note": "Reference note",
+      "addGallery.notePlaceholder": "Example: reference face and hair only, not clothing or background",
+      "addGallery.save": "Save to gallery",
+      "close.promptTemplates": "Close prompt templates panel",
+      "close.archive": "Close archive panel",
+      "close.settings": "Close storage settings panel",
+      "close.apiSettings": "Close API settings panel",
+      "close.imageEditor": "Close image editor panel",
+      "close.gallery": "Close gallery panel",
+      "close.addGallery": "Close add to gallery panel"
+    }
+  };
+  var currentLocale = DEFAULT_LOCALE;
+  var i18nInitialized = false;
+  function canUseLocale(value) {
+    return LOCALES.includes(value);
+  }
+  function normalizeLocale(value) {
+    return canUseLocale(value) ? value : DEFAULT_LOCALE;
+  }
+  function translate(key, locale = currentLocale) {
+    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+  }
+  function formatTranslation(key, values = {}, locale = currentLocale) {
+    return translate(key, locale).replace(/\{(\w+)\}/g, (match, name) => {
+      const value = values[name];
+      return value === void 0 ? match : String(value);
+    });
+  }
+  function translationPairs(value) {
+    const pairs = [];
+    (value || "").split(";").map((item) => item.trim()).filter(Boolean).forEach((pair) => {
+      const [attribute, key] = pair.split(":").map((item) => item.trim());
+      if (attribute && key) pairs.push([attribute, key]);
+    });
+    return pairs;
+  }
+  function updateLanguageSwitcher() {
+    const switcher = getLegacyBridge().els.languageSwitcher;
+    switcher?.querySelectorAll("[data-language-option]").forEach((button) => {
+      const active = normalizeLocale(button.dataset.languageOption) === currentLocale;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+  function applyLocaleToDocument() {
+    document.documentElement.lang = currentLocale;
+    document.documentElement.dataset.locale = currentLocale;
+    document.querySelectorAll("[data-i18n]").forEach((element2) => {
+      element2.textContent = translate(element2.dataset.i18n || "");
+    });
+    document.querySelectorAll("[data-i18n-attr]").forEach((element2) => {
+      translationPairs(element2.dataset.i18nAttr).forEach(([attribute, key]) => {
+        element2.setAttribute(attribute, translate(key));
+      });
+    });
+    updateLanguageSwitcher();
+  }
+  function setLocale(locale, options = {}) {
+    currentLocale = normalizeLocale(locale);
+    if (options.persist !== false) {
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, currentLocale);
+      } catch {
+      }
+    }
+    applyLocaleToDocument();
+    document.dispatchEvent(new CustomEvent(LOCALE_CHANGE_EVENT, { detail: { locale: currentLocale } }));
+  }
+  function restoreLocalePreference() {
+    let saved = DEFAULT_LOCALE;
+    try {
+      saved = localStorage.getItem(LOCALE_STORAGE_KEY) || DEFAULT_LOCALE;
+    } catch {
+      saved = DEFAULT_LOCALE;
+    }
+    setLocale(normalizeLocale(saved), { persist: false });
+  }
+  function bindLanguageSwitcher() {
+    const switcher = getLegacyBridge().els.languageSwitcher;
+    switcher?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest("[data-language-option]");
+      if (!button) return;
+      setLocale(normalizeLocale(button.dataset.languageOption));
+    });
+  }
+  function initI18nFeature() {
+    if (i18nInitialized) return;
+    i18nInitialized = true;
+    bindLanguageSwitcher();
+    restoreLocalePreference();
+    window.__codexImageI18n = {
+      applyLocaleToDocument,
+      locale: () => currentLocale,
+      setLocale,
+      t: translate
+    };
+  }
+
   // codex_image/webui/frontend/src/runtime-feedback.ts
   function legacyMethod(name, ...args) {
     const method = getLegacyBridge().methods[name];
@@ -403,6 +1820,7 @@
   var elapsedTimerMarkup = (...args) => legacyMethod("elapsedTimerMarkup", ...args);
   var setStatus = (...args) => legacyMethod("setStatus", ...args);
   var getPromptText = (...args) => legacyMethod("getPromptText", ...args);
+  var syncRunButtonLabel = (...args) => legacyMethod("syncRunButtonLabel", ...args);
   function updateTaskInState(task) {
     const state32 = getLegacyBridge().state;
     if (!task?.task_id) return false;
@@ -424,16 +1842,15 @@
   }
   function formatTaskStatus(task) {
     if (!task) return "";
-    if (task.status === "submitting") return "\u63D0\u4EA4\u4E2D";
+    if (task.status === "submitting") return translate("taskStatus.submitting");
     if (task.status === "running") {
       const progressStartedAt = taskProgressStartValue(task);
-      const elapsed = progressStartedAt ? ` \xB7 ${formatDuration(elapsedSecondsSince(progressStartedAt))}` : "";
-      return `\u751F\u6210\u4E2D${elapsed}`;
+      return progressStartedAt ? formatTranslation("taskStatus.runningWithElapsed", { elapsed: formatDuration(elapsedSecondsSince(progressStartedAt)) }) : translate("taskStatus.running");
     }
-    if (task.status === "completed") return "\u5DF2\u5B8C\u6210";
-    if (task.status === "partial_failed") return "\u90E8\u5206\u5931\u8D25";
-    if (task.status === "failed") return "\u5931\u8D25";
-    if (task.status === "queued") return "\u6392\u961F\u4E2D";
+    if (task.status === "completed") return translate("taskStatus.completed");
+    if (task.status === "partial_failed") return translate("taskStatus.partialFailed");
+    if (task.status === "failed") return translate("taskStatus.failed");
+    if (task.status === "queued") return translate("taskStatus.queued");
     return task.status || "";
   }
   function startUiClock() {
@@ -454,7 +1871,7 @@
     root.querySelectorAll("[data-task-status-id]").forEach((element2) => {
       const task = tasksById.get(String(element2.dataset.taskStatusId || ""));
       if (task) {
-        element2.textContent = formatTaskStatus(task) || "\u672A\u77E5\u72B6\u6001";
+        element2.textContent = formatTaskStatus(task) || translate("taskStatus.unknown");
         element2.closest(".task-status-row")?.setAttribute("aria-label", taskStatusAccessibleLabel(task));
       }
     });
@@ -560,9 +1977,9 @@
     const { state: state32, els: els42 } = getLegacyBridge();
     if (!state32.runStartedAt) return;
     const elapsed = formatDurationTenths(elapsedMillisecondsSince(state32.runStartedAt));
-    const action = state32.runFeedbackAction || (state32.mode === "edit" ? "\u7F16\u8F91\u4E2D" : "\u751F\u6210\u4E2D");
+    const action = state32.runFeedbackAction || (state32.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
     if (els42.runButton) els42.runButton.textContent = `${action} ${elapsed}`;
-    setStatus(`${action}\uFF0C\u8BA1\u65F6 ${elapsed}`, "running");
+    setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
     updateElapsedDisplays();
     if (state32.selectedTaskId === state32.pendingTaskId) {
       renderPreview();
@@ -577,7 +1994,7 @@
     state32.runStartedAt = null;
     state32.runFeedbackAction = null;
     els42.runButton?.classList.remove("running");
-    if (els42.runButton) els42.runButton.textContent = state32.mode === "edit" ? "\u5F00\u59CB\u7F16\u8F91" : "\u5F00\u59CB\u751F\u6210";
+    syncRunButtonLabel();
   }
 
   // codex_image/webui/frontend/src/state-defaults.ts
@@ -951,7 +2368,7 @@
     return {
       kind: "asset",
       id: item.id,
-      name: item.name || item.filename || "\u6700\u8FD1\u4E0A\u4F20",
+      name: item.name || item.filename || "",
       filename: item.filename || "",
       mime_type: item.mime_type || "",
       image_url: item.image_url || "",
@@ -1013,9 +2430,9 @@
   }
   function sourceName(source) {
     if (!source) return "";
-    if (source.kind === "upload") return source.name || source.file?.name || "\u4E0A\u4F20\u56FE\u7247";
-    if (source.kind === "asset") return source.name || source.filename || "\u6700\u8FD1\u4E0A\u4F20";
-    return source.name || "\u56FE\u5E93\u56FE\u7247";
+    if (source.kind === "upload") return source.name || source.file?.name || translate("inputSource.uploadFallback");
+    if (source.kind === "asset") return source.name || source.filename || translate("recentAssets.defaultName");
+    return source.name || translate("inputSource.galleryFallback");
   }
   function addGalleryInput(item, options = {}) {
     const state32 = getState();
@@ -1086,7 +2503,10 @@
     return /Mac|iPhone|iPad|iPod/.test(String(globalThis.navigator?.platform || "")) ? "Cmd+V" : "Ctrl+V";
   }
   function clipboardReadFallbackMessage(prefix) {
-    return `${prefix}\uFF0C\u56FE\u7247\u8F93\u5165\u533A\u5DF2\u805A\u7126\uFF0C\u8BF7\u6309 ${clipboardPasteShortcutLabel()} \u7C98\u8D34\u56FE\u7247`;
+    return formatTranslation("inputSource.focusPasteFallback", {
+      prefix,
+      shortcut: clipboardPasteShortcutLabel()
+    });
   }
   function focusImagePasteTarget() {
     const els42 = getEls();
@@ -1097,7 +2517,7 @@
     if (!files.length) return;
     event.preventDefault();
     addImageFiles(files, {
-      successMessage: (count) => `\u5DF2\u7C98\u8D34 ${count} \u5F20\u526A\u8D34\u677F\u56FE\u7247`
+      successMessage: (count) => formatTranslation("inputSource.pastedCount", { count })
     });
   }
   async function readClipboardImageFiles() {
@@ -1118,20 +2538,20 @@
     const els42 = getEls();
     if (!navigator.clipboard?.read) {
       focusImagePasteTarget();
-      setStatus2(clipboardReadFallbackMessage("\u5F53\u524D\u6D4F\u89C8\u5668\u4E0D\u652F\u6301\u76F4\u63A5\u8BFB\u53D6\u526A\u8D34\u677F"), "error");
+      setStatus2(clipboardReadFallbackMessage(translate("inputSource.clipboardUnsupported")), "error");
       return;
     }
     els42.pasteClipboardButton.disabled = true;
     try {
       const files = await readClipboardImageFiles();
       const added = addImageFiles(files, {
-        emptyMessage: clipboardReadFallbackMessage("\u6CA1\u6709\u8BFB\u5230\u526A\u8D34\u677F\u56FE\u7247"),
-        successMessage: (count) => `\u5DF2\u7C98\u8D34 ${count} \u5F20\u526A\u8D34\u677F\u56FE\u7247`
+        emptyMessage: clipboardReadFallbackMessage(translate("inputSource.clipboardEmpty")),
+        successMessage: (count) => formatTranslation("inputSource.pastedCount", { count })
       });
       if (!added) focusImagePasteTarget();
     } catch (error) {
       focusImagePasteTarget();
-      const reason = ["NotAllowedError", "SecurityError"].includes(String(error?.name || "")) ? "\u6D4F\u89C8\u5668\u62D2\u7EDD\u76F4\u63A5\u8BFB\u53D6\u526A\u8D34\u677F" : "\u65E0\u6CD5\u8BFB\u53D6\u526A\u8D34\u677F";
+      const reason = ["NotAllowedError", "SecurityError"].includes(String(error?.name || "")) ? translate("inputSource.clipboardDenied") : translate("inputSource.clipboardReadFailed");
       setStatus2(clipboardReadFallbackMessage(reason), "error");
     } finally {
       els42.pasteClipboardButton.disabled = false;
@@ -1159,7 +2579,7 @@
     const state32 = getState();
     if (!url) return;
     if (state32.collectedReferences.some((item) => item.url === url)) {
-      setStatus2("\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE", "ok");
+      setStatus2(translate("referenceCollector.alreadyStaged"), "ok");
       return;
     }
     state32.collectedReferences.push({
@@ -1169,7 +2589,7 @@
       outputIndex: options.outputIndex || null
     });
     renderReferenceCollector();
-    setStatus2(`\u5DF2\u6682\u5B58 ${state32.collectedReferences.length} \u5F20\u53C2\u8003\u56FE`, "ok");
+    setStatus2(formatTranslation("referenceCollector.staged", { count: state32.collectedReferences.length }), "ok");
   }
   function renderReferenceCollector() {
     const state32 = getState();
@@ -1184,17 +2604,17 @@
     els42.referenceCollector.classList.remove("hidden");
     els42.referenceCollector.innerHTML = `
     <div class="reference-collector-header">
-      <span>\u5F85\u52A0\u5165\u53C2\u8003\u56FE \xB7 ${items.length} \u5F20</span>
+      <span>${escapeHtml2(formatTranslation("referenceCollector.title", { count: items.length }))}</span>
       <div class="reference-collector-actions">
-        <button class="ghost-button text-sm" type="button" data-reference-collector-add-all>\u5168\u90E8\u52A0\u5165\u53C2\u8003\u56FE</button>
-        <button class="ghost-button text-sm" type="button" data-reference-collector-clear>\u6E05\u7A7A</button>
+        <button class="ghost-button text-sm" type="button" data-reference-collector-add-all>${escapeHtml2(translate("referenceCollector.addAll"))}</button>
+        <button class="ghost-button text-sm" type="button" data-reference-collector-clear>${escapeHtml2(translate("action.clear"))}</button>
       </div>
     </div>
     <div class="reference-collector-list">
       ${items.map((item, index) => `
-        <div class="reference-collector-item" title="${escapeHtml2(item.name || "\u5F85\u52A0\u5165\u53C2\u8003\u56FE")}">
+        <div class="reference-collector-item" title="${escapeHtml2(item.name || translate("referenceCollector.itemFallback"))}">
           <img src="${escapeHtml2(item.url)}" alt="">
-          <button type="button" data-reference-collector-remove="${index}" aria-label="\u79FB\u9664\u5F85\u52A0\u5165\u53C2\u8003\u56FE">\xD7</button>
+          <button type="button" data-reference-collector-remove="${index}" aria-label="${escapeHtml2(formatTranslation("referenceCollector.remove"))}">\xD7</button>
         </div>
       `).join("")}
     </div>
@@ -1214,7 +2634,7 @@
   function clearCollectedReferences(options = {}) {
     getState().collectedReferences = [];
     renderReferenceCollector();
-    if (!options.silent) setStatus2("\u5F85\u52A0\u5165\u53C2\u8003\u56FE\u5DF2\u6E05\u7A7A", "ok");
+    if (!options.silent) setStatus2(translate("referenceCollector.cleared"), "ok");
   }
   function imageExtensionFromType(type) {
     const normalized = String(type || "").toLowerCase();
@@ -1240,7 +2660,7 @@
   async function imageFileFromUrl(url, fallbackName) {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`\u56FE\u7247\u8BFB\u53D6\u5931\u8D25\uFF1A${response.status}`);
+      throw new Error(formatTranslation("referenceCollector.readFailed", { status: response.status }));
     }
     const blob = await response.blob();
     const type = blob.type || "image/png";
@@ -1263,11 +2683,11 @@
         files.push(await imageFileFromUrl(item.url, collectedReferenceFilename(item, index)));
       }
       const added = addImageFiles(files, {
-        successMessage: (count) => `\u5DF2\u52A0\u5165 ${count} \u5F20\u53C2\u8003\u56FE`
+        successMessage: (count) => formatTranslation("referenceCollector.added", { count })
       });
       if (added) clearCollectedReferences({ silent: true });
     } catch (error) {
-      setStatus2(error.message || "\u5F85\u52A0\u5165\u53C2\u8003\u56FE\u52A0\u5165\u5931\u8D25", "error");
+      setStatus2(error.message || translate("referenceCollector.addFailed"), "error");
       renderReferenceCollector();
     }
   }
@@ -1280,6 +2700,7 @@
     if (inputSourcesFeatureInitialized) return;
     inputSourcesFeatureInitialized = true;
     bindInputSourceEvents();
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderReferenceCollector);
     Object.assign(getLegacyBridge().methods, {
       uploadSource,
       gallerySource,
@@ -1306,7 +2727,7 @@
   }
 
   // codex_image/webui/frontend/src/image-editor.ts
-  var IMAGE_EDITOR_PROMPT_HINT = "\u56FE\u4E2D\u7684\u624B\u7ED8\u7BAD\u5934\u548C\u6807\u8BB0\u4EC5\u7528\u4E8E\u6307\u793A\u7F16\u8F91\u8981\u6C42\uFF0C\u4E0D\u8981\u4FDD\u7559\u5728\u6700\u7EC8\u753B\u9762\u4E2D\u3002";
+  var IMAGE_EDITOR_PROMPT_HINT_LEGACY = "\u56FE\u4E2D\u7684\u624B\u7ED8\u7BAD\u5934\u548C\u6807\u8BB0\u4EC5\u7528\u4E8E\u6307\u793A\u7F16\u8F91\u8981\u6C42\uFF0C\u4E0D\u8981\u4FDD\u7559\u5728\u6700\u7EC8\u753B\u9762\u4E2D\u3002";
   var IMAGE_EDITOR_MAX_EXPORT_EDGE = 4096;
   var IMAGE_EDITOR_HISTORY_LIMIT = 30;
   var imageEditorState = {
@@ -1352,9 +2773,9 @@
   }
   async function remoteImageSourceFile(source) {
     const imageUrl = legacyMethod3("sourcePreviewUrl", source);
-    if (!imageUrl) throw new Error("\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91");
+    if (!imageUrl) throw new Error(translate("imageEditor.loadForEditFailed"));
     const response = await fetch(imageUrl);
-    if (!response.ok) throw new Error("\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91");
+    if (!response.ok) throw new Error(translate("imageEditor.loadForEditFailed"));
     const blob = await response.blob();
     return new File([blob], imageEditorSourceName(source), {
       type: blob.type || source.mime_type || "image/png",
@@ -1483,10 +2904,10 @@
     brushOverlayCanvas.width = dimensions.width;
     brushOverlayCanvas.height = dimensions.height;
     const baseCtx = baseCanvas.getContext("2d");
-    if (!baseCtx) throw new Error("\u65E0\u6CD5\u521B\u5EFA\u56FE\u7247\u7F16\u8F91\u753B\u5E03");
+    if (!baseCtx) throw new Error(translate("imageEditor.canvasCreateFailed"));
     baseCtx.drawImage(image, 0, 0, dimensions.width, dimensions.height);
     const workCtx = workCanvas.getContext("2d");
-    if (!workCtx) throw new Error("\u65E0\u6CD5\u521B\u5EFA\u56FE\u7247\u7F16\u8F91\u753B\u5E03");
+    if (!workCtx) throw new Error(translate("imageEditor.canvasCreateFailed"));
     workCtx.drawImage(baseCanvas, 0, 0);
     imageEditorState.baseCanvas = baseCanvas;
     imageEditorState.workCanvas = workCanvas;
@@ -1754,7 +3175,7 @@
         pushImageEditorHistory();
         setImageEditorStatus("");
       } else {
-        setImageEditorStatus("\u8BF7\u5148\u7528\u753B\u7B14\u5708\u51FA\u5C01\u95ED\u533A\u57DF", "error");
+        setImageEditorStatus(translate("imageEditor.closedRegionRequired"), "error");
       }
       renderImageEditor();
       return;
@@ -1855,16 +3276,17 @@
         if (blob) {
           resolve(blob);
         } else {
-          reject(new Error("\u56FE\u7247\u7F16\u8F91\u4FDD\u5B58\u5931\u8D25"));
+          reject(new Error(translate("imageEditor.saveFailed")));
         }
       }, "image/png");
     });
   }
   function ensureImageEditorPromptHint() {
     const current = legacyMethod3("getPromptText");
-    if (current.includes(IMAGE_EDITOR_PROMPT_HINT)) return;
+    const hint = translate("imageEditor.promptHint");
+    if (current.includes(hint) || current.includes(IMAGE_EDITOR_PROMPT_HINT_LEGACY)) return;
     const next = current ? `${current}
-${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
+${hint}` : hint;
     legacyMethod3("setPromptText", next);
     legacyMethod3("updatePromptCount");
   }
@@ -1875,7 +3297,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const source = imageEditorState.source;
     const saveCanvas = imageEditorCanvasForSave();
     if (!source || !isEditableImageSource(source) || !saveCanvas || !state32.images.includes(source)) {
-      setImageEditorStatus("\u56FE\u7247\u7F16\u8F91\u4FDD\u5B58\u5931\u8D25", "error");
+      setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
       return;
     }
     if (els42.imageEditorSave) els42.imageEditorSave.disabled = true;
@@ -1905,9 +3327,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       legacyMethod3("renderImageStrip");
       legacyMethod3("updateRequestPreview");
       closeImageEditor();
-      legacyMethod3("setStatus", "\u5DF2\u4FDD\u5B58\u7F16\u8F91\u540E\u7684\u8F93\u5165\u56FE", "ok");
+      legacyMethod3("setStatus", translate("imageEditor.saved"), "ok");
     } catch (error) {
-      setImageEditorStatus(error.message || "\u56FE\u7247\u7F16\u8F91\u4FDD\u5B58\u5931\u8D25", "error");
+      setImageEditorStatus(error.message || translate("imageEditor.saveFailed"), "error");
     } finally {
       if (els42.imageEditorSave) els42.imageEditorSave.disabled = false;
     }
@@ -1917,7 +3339,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const els42 = getEls();
     const source = state32.images[index];
     if (!source || !isEditableImageSource(source)) {
-      legacyMethod3("setStatus", "\u8FD9\u5F20\u56FE\u7247\u65E0\u6CD5\u7F16\u8F91", "error");
+      legacyMethod3("setStatus", translate("imageEditor.uneditable"), "error");
       return;
     }
     const sessionId = nextImageEditorSession();
@@ -1931,7 +3353,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     imageEditorState.drawing = null;
     setImageEditorStatus("");
     if (els42.imageEditorSubtitle) {
-      els42.imageEditorSubtitle.textContent = legacyMethod3("sourceName", source) || "\u8F93\u5165\u56FE\u7247";
+      els42.imageEditorSubtitle.textContent = legacyMethod3("sourceName", source) || translate("imageEditor.inputFallback");
     }
     els42.imageEditorModal?.classList.remove("hidden");
     try {
@@ -1946,7 +3368,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     } catch {
       if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
       closeImageEditor();
-      legacyMethod3("setStatus", "\u65E0\u6CD5\u6253\u5F00\u8FD9\u5F20\u56FE\u7247\u8FDB\u884C\u7F16\u8F91", "error");
+      legacyMethod3("setStatus", translate("imageEditor.openFailed"), "error");
     }
   }
   function closeImageEditor() {
@@ -1986,10 +3408,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       imageEditorState.image = image;
       initializeImageEditorCanvases(image);
       renderImageEditor();
-      setImageEditorStatus("\u5DF2\u91CD\u7F6E\u5230\u539F\u56FE");
+      setImageEditorStatus(translate("imageEditor.resetDone"));
     } catch {
       if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source || imageEditorState.originalFile !== file) return;
-      setImageEditorStatus("\u65E0\u6CD5\u91CD\u7F6E\u539F\u56FE", "error");
+      setImageEditorStatus(translate("imageEditor.resetFailed"), "error");
     }
   }
   function isImageEditorModalOpen() {
@@ -2152,12 +3574,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         image.src = previewUrl;
       }
       image.alt = legacyMethod4("sourceName", source);
-      wrapper.title = source.missing ? source.kind === "asset" ? "\u6700\u8FD1\u4E0A\u4F20\u5DF2\u5220\u9664" : "\u56FE\u5E93\u56FE\u7247\u5DF2\u5220\u9664" : legacyMethod4("sourceName", source);
+      wrapper.title = source.missing ? source.kind === "asset" ? translate("imageInput.deletedRecent") : translate("imageInput.deletedGallery") : legacyMethod4("sourceName", source);
       if (legacyMethod4("isEditableImageSource", source)) {
         wrapper.classList.add("editable-thumb");
         wrapper.tabIndex = 0;
         wrapper.setAttribute("role", "button");
-        wrapper.setAttribute("aria-label", `\u7F16\u8F91${legacyMethod4("sourceName", source)}`);
+        wrapper.setAttribute("aria-label", formatTranslation("imageInput.editImage", { name: legacyMethod4("sourceName", source) }));
         wrapper.addEventListener("click", (event) => {
           if (event.target.closest("button")) return;
           legacyMethod4("openImageEditor", index);
@@ -2172,7 +3594,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       }
       const badge = document.createElement("span");
       badge.className = "thumb-badge";
-      badge.textContent = source.kind === "gallery" ? legacyMethod4("categoryLabel", source.category) : source.kind === "asset" ? "\u6700\u8FD1" : "\u4E0A\u4F20";
+      badge.textContent = source.kind === "gallery" ? legacyMethod4("categoryLabel", source.category) : source.kind === "asset" ? translate("imageInput.recentBadge") : translate("imageInput.uploadBadge");
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "thumb-remove";
@@ -2194,9 +3616,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         const addToGallery = document.createElement("button");
         addToGallery.type = "button";
         addToGallery.className = "add-upload-to-gallery";
-        addToGallery.setAttribute("aria-label", "\u52A0\u5165\u56FE\u5E93");
-        addToGallery.title = "\u52A0\u5165\u56FE\u5E93";
-        addToGallery.append(createThumbAddIcon(), document.createTextNode("\u56FE\u5E93"));
+        addToGallery.setAttribute("aria-label", translate("imageInput.addToGallery"));
+        addToGallery.title = translate("imageInput.addToGallery");
+        addToGallery.append(createThumbAddIcon(), document.createTextNode(translate("imageInput.addToGalleryShort")));
         addToGallery.addEventListener("click", (event) => {
           event.stopPropagation();
           legacyMethod4("openAddToGallery", index);
@@ -2206,7 +3628,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       if (source.edited) {
         const editedBadge = document.createElement("span");
         editedBadge.className = "thumb-edited-badge";
-        editedBadge.textContent = "\u5DF2\u7F16\u8F91";
+        editedBadge.textContent = translate("imageInput.editedBadge");
         wrapper.append(editedBadge);
       }
       thumbList.append(wrapper);
@@ -2219,6 +3641,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     els42.clearImagesButton?.addEventListener("click", clearImages);
     els42.imageStrip?.addEventListener("wheel", handleImageStripWheel, { passive: false });
     window.addEventListener("resize", updateImageStripDensity);
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderImageStrip);
   }
   function initImageStripFeature() {
     if (imageStripFeatureInitialized) return;
@@ -2306,16 +3729,27 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   }
 
   // codex_image/webui/frontend/src/gallery-categories.ts
-  var DEFAULT_GALLERY_CATEGORY_LABELS = {
+  var DEFAULT_GALLERY_CATEGORY_IDS = ["portrait", "character", "product"];
+  var DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS = {
     portrait: "\u4EBA\u50CF",
     character: "\u89D2\u8272",
     product: "\u4EA7\u54C1"
   };
-  var DEFAULT_GALLERY_CATEGORIES2 = [
-    { id: "portrait", name: "\u4EBA\u50CF", prompt_role: "\u4EBA\u50CF\u53C2\u8003", order: 10, locked: false },
-    { id: "character", name: "\u89D2\u8272", prompt_role: "\u89D2\u8272\u53C2\u8003", order: 20, locked: false },
-    { id: "product", name: "\u4EA7\u54C1", prompt_role: "\u4EA7\u54C1\u53C2\u8003", order: 30, locked: false }
-  ];
+  var DEFAULT_GALLERY_CATEGORY_LEGACY_ROLES = {
+    portrait: "\u4EBA\u50CF\u53C2\u8003",
+    character: "\u89D2\u8272\u53C2\u8003",
+    product: "\u4EA7\u54C1\u53C2\u8003"
+  };
+  var DEFAULT_GALLERY_CATEGORY_I18N_KEYS = {
+    portrait: "gallery.categoryPortrait",
+    character: "gallery.categoryCharacter",
+    product: "gallery.categoryProduct"
+  };
+  var DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS = {
+    portrait: "gallery.categoryPortraitRole",
+    character: "gallery.categoryCharacterRole",
+    product: "gallery.categoryProductRole"
+  };
   var bridge = getLegacyBridge();
   var state2 = bridge.state;
   var els2 = bridge.els;
@@ -2369,13 +3803,43 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     return text.replace(/["\\]/g, "\\$&");
   }
   function defaultGalleryCategories2() {
-    return DEFAULT_GALLERY_CATEGORIES2.map((category) => ({ ...category }));
+    return DEFAULT_GALLERY_CATEGORY_IDS.map((id, index) => ({
+      id,
+      name: defaultGalleryCategoryLabel(id) || id,
+      prompt_role: defaultGalleryCategoryPromptRole(id),
+      order: (index + 1) * 10,
+      locked: false
+    }));
+  }
+  function defaultGalleryCategoryLabel(categoryId) {
+    const key = DEFAULT_GALLERY_CATEGORY_I18N_KEYS[String(categoryId || "")];
+    return key ? translate(key) : "";
+  }
+  function defaultGalleryCategoryPromptRole(categoryId) {
+    const key = DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS[String(categoryId || "")];
+    return key ? translate(key) : "";
+  }
+  function displayGalleryCategoryName(category) {
+    const defaultLabel = defaultGalleryCategoryLabel(category.id);
+    const storedDefaultLabel = DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS[category.id];
+    if (defaultLabel && (!category.name || category.name === storedDefaultLabel)) {
+      return defaultLabel;
+    }
+    return category.name;
+  }
+  function displayGalleryCategoryPromptRole(category) {
+    const defaultRole = defaultGalleryCategoryPromptRole(category.id);
+    const storedDefaultRole = DEFAULT_GALLERY_CATEGORY_LEGACY_ROLES[category.id];
+    if (defaultRole && (!category.prompt_role || category.prompt_role === storedDefaultRole)) {
+      return defaultRole;
+    }
+    return category.prompt_role;
   }
   function normalizeGalleryCategory(category) {
     const id = String(category?.id || "").trim();
     if (!id) return null;
-    const name = String(category?.name || DEFAULT_GALLERY_CATEGORY_LABELS[id] || id).trim() || id;
-    const promptRole = String(category?.prompt_role || name).trim() || name;
+    const name = String(category?.name || defaultGalleryCategoryLabel(id) || DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS[id] || id).trim() || id;
+    const promptRole = String(category?.prompt_role || defaultGalleryCategoryPromptRole(id) || name).trim() || name;
     const order = Number.isFinite(Number(category?.order)) ? Number(category.order) : 0;
     return {
       id,
@@ -2408,13 +3872,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const categories = normalizeGalleryCategories(state2.galleryCategories);
     if (els2.quickGalleryRail) {
       els2.quickGalleryRail.innerHTML = categories.map((category) => `
-      <button class="quick-gallery-category${category.id === state2.activeGalleryCategory ? " active" : ""}" data-quick-gallery-category="${escapeHtml3(category.id)}" type="button">${escapeHtml3(category.name)}</button>
+      <button class="quick-gallery-category${category.id === state2.activeGalleryCategory ? " active" : ""}" data-quick-gallery-category="${escapeHtml3(category.id)}" type="button">${escapeHtml3(categoryLabel(category.id))}</button>
     `).join("");
     }
     if (els2.galleryCategoryInput) {
       const currentValue = els2.galleryCategoryInput.value || state2.activeGalleryCategory;
       els2.galleryCategoryInput.innerHTML = categories.map((category) => `
-      <option value="${escapeHtml3(category.id)}">${escapeHtml3(category.name)}</option>
+      <option value="${escapeHtml3(category.id)}">${escapeHtml3(categoryLabel(category.id))}</option>
     `).join("");
       els2.galleryCategoryInput.value = findGalleryCategory(currentValue) ? currentValue : state2.activeGalleryCategory;
     }
@@ -2431,7 +3895,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       data-gallery-drawer-category="${escapeHtml3(category.id)}"
       type="button"
     >
-      ${escapeHtml3(category.name)}
+      ${escapeHtml3(categoryLabel(category.id))}
     </button>
   `).join("");
   }
@@ -2451,8 +3915,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
           draggable="true"
           data-gallery-category-id="${escapeHtml3(category.id)}"
           data-gallery-category-drag-handle
-          aria-label="\u62D6\u62FD\u6392\u5E8F\u5206\u7C7B ${escapeHtml3(category.name)}"
-          title="\u62D6\u62FD\u6392\u5E8F"
+          aria-label="${escapeHtml3(formatTranslation("gallery.dragSortCategory", { name: categoryLabel(category.id) }))}"
+          title="${translate("gallery.dragSort")}"
         >
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
             <circle cx="5" cy="4" r="1.1" />
@@ -2464,11 +3928,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
           </svg>
         </button>
       </div>
-      <input class="control" type="text" maxlength="32" value="${escapeHtml3(category.name)}" data-gallery-category-name="${escapeHtml3(category.id)}" aria-label="\u5206\u7C7B\u540D\u79F0">
-      <input class="control" type="text" maxlength="48" value="${escapeHtml3(category.prompt_role)}" data-gallery-category-prompt-role="${escapeHtml3(category.id)}" aria-label="\u63D0\u793A\u8BCD\u7528\u9014">
+      <input class="control" type="text" maxlength="32" value="${escapeHtml3(categoryLabel(category.id))}" data-gallery-category-name="${escapeHtml3(category.id)}" aria-label="${escapeHtml3(translate("gallery.categoryName"))}">
+      <input class="control" type="text" maxlength="48" value="${escapeHtml3(categoryPromptRole(category.id))}" data-gallery-category-prompt-role="${escapeHtml3(category.id)}" aria-label="${escapeHtml3(translate("gallery.categoryPromptRole"))}">
       <div class="gallery-category-row-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-category-save="${escapeHtml3(category.id)}">\u4FDD\u5B58</button>
-        <button class="ghost-button text-sm danger-button" type="button" data-gallery-category-delete="${escapeHtml3(category.id)}" ${categories.length <= 1 ? "disabled" : ""}>\u5220\u9664</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-category-save="${escapeHtml3(category.id)}">${escapeHtml3(translate("gallery.categorySave"))}</button>
+        <button class="ghost-button text-sm danger-button" type="button" data-gallery-category-delete="${escapeHtml3(category.id)}" ${categories.length <= 1 ? "disabled" : ""}>${escapeHtml3(translate("gallery.categoryDelete"))}</button>
       </div>
     </div>
   `).join("");
@@ -2502,7 +3966,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch("/api/gallery/categories");
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u5206\u7C7B\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.categoryLoadFailed"));
       state2.galleryCategories = normalizeGalleryCategories(data.categories);
       ensureActiveGalleryCategory();
       renderGalleryCategoryControls();
@@ -2511,14 +3975,14 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       renderImageStrip2();
       updateRequestPreview();
     } catch (error) {
-      setStatus3(error.message || "\u5206\u7C7B\u8BFB\u53D6\u5931\u8D25", "error");
+      setStatus3(error.message || translate("gallery.categoryLoadFailed"), "error");
     }
   }
   async function createGalleryCategory() {
     const name = els2.newGalleryCategoryName?.value.trim() || "";
     const promptRole = els2.newGalleryCategoryPromptRole?.value.trim() || name;
     if (!name) {
-      setStatus3("\u8BF7\u8F93\u5165\u5206\u7C7B\u540D\u79F0", "error");
+      setStatus3(translate("gallery.categoryNameRequired"), "error");
       return;
     }
     try {
@@ -2528,14 +3992,14 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ name, prompt_role: promptRole })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u65B0\u589E\u5206\u7C7B\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.categoryCreateFailed"));
       if (els2.newGalleryCategoryName) els2.newGalleryCategoryName.value = "";
       if (els2.newGalleryCategoryPromptRole) els2.newGalleryCategoryPromptRole.value = "";
       state2.activeGalleryCategory = data.category?.id || state2.activeGalleryCategory;
       await refreshGalleryCategories();
-      setStatus3("\u5206\u7C7B\u5DF2\u65B0\u589E", "ok");
+      setStatus3(translate("gallery.categoryCreated"), "ok");
     } catch (error) {
-      setStatus3(error.message || "\u65B0\u589E\u5206\u7C7B\u5931\u8D25", "error");
+      setStatus3(error.message || translate("gallery.categoryCreateFailed"), "error");
     }
   }
   async function updateGalleryCategory(categoryId) {
@@ -2545,7 +4009,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const promptRole = row.querySelector("[data-gallery-category-prompt-role]")?.value.trim() || name;
     const category = findGalleryCategory(categoryId);
     if (!name) {
-      setStatus3("\u8BF7\u8F93\u5165\u5206\u7C7B\u540D\u79F0", "error");
+      setStatus3(translate("gallery.categoryNameRequired"), "error");
       return;
     }
     try {
@@ -2555,11 +4019,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ name, prompt_role: promptRole, order: category?.order })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u4FDD\u5B58\u5206\u7C7B\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.categorySaveFailed"));
       await refreshGalleryCategories();
-      setStatus3("\u5206\u7C7B\u5DF2\u4FDD\u5B58", "ok");
+      setStatus3(translate("gallery.categorySaved"), "ok");
     } catch (error) {
-      setStatus3(error.message || "\u4FDD\u5B58\u5206\u7C7B\u5931\u8D25", "error");
+      setStatus3(error.message || translate("gallery.categorySaveFailed"), "error");
     }
   }
   function deleteGalleryCategory(button, categoryId) {
@@ -2568,10 +4032,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const moveTo = state2.galleryCategories.find((candidate) => candidate.id !== categoryId)?.id;
     const target = findGalleryCategory(moveTo);
     openConfirmPopover(button, {
-      title: "\u5220\u9664\u56FE\u5E93\u5206\u7C7B\uFF1F",
-      message: "\u5206\u7C7B\u4E0B\u7684\u56FE\u7247\u4F1A\u79FB\u52A8\u5230\u5176\u4ED6\u5206\u7C7B\uFF0C\u56FE\u5E93\u56FE\u7247\u4E0D\u4F1A\u88AB\u5220\u9664\u3002",
-      detail: target ? `${category.name} -> ${target.name}` : category.name,
-      confirmText: "\u5220\u9664\u5206\u7C7B",
+      title: translate("gallery.categoryDeleteTitle"),
+      message: translate("gallery.categoryDeleteMessage"),
+      detail: target ? `${categoryLabel(category.id)} -> ${categoryLabel(target.id)}` : categoryLabel(category.id),
+      confirmText: translate("gallery.categoryDeleteConfirm"),
       onConfirm: async () => {
         await performDeleteGalleryCategory(categoryId, moveTo, category.name);
       }
@@ -2583,12 +4047,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         method: "DELETE"
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u5220\u9664\u5206\u7C7B\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.categoryDeleteFailed"));
       if (state2.activeGalleryCategory === categoryId) state2.activeGalleryCategory = moveTo;
       await refreshGallery();
-      setStatus3(`\u5206\u7C7B\u300C${categoryName}\u300D\u5DF2\u5220\u9664\uFF0C\u56FE\u7247\u5DF2\u8FC1\u79FB`, "ok");
+      setStatus3(formatTranslation("gallery.categoryDeletedMigrated", { name: categoryName }), "ok");
     } catch (error) {
-      setStatus3(error.message || "\u5220\u9664\u5206\u7C7B\u5931\u8D25", "error");
+      setStatus3(error.message || translate("gallery.categoryDeleteFailed"), "error");
     }
   }
   function setQuickGalleryCategory(category) {
@@ -2683,15 +4147,15 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ category_ids: categoryIds })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u66F4\u65B0\u5206\u7C7B\u987A\u5E8F\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.categoryOrderUpdateFailed"));
       state2.galleryCategories = normalizeGalleryCategories(data.categories);
       renderGalleryCategoryControls();
       renderQuickGalleryDock();
       renderGalleryGrid();
-      setStatus3("\u5206\u7C7B\u987A\u5E8F\u5DF2\u66F4\u65B0", "ok");
+      setStatus3(translate("gallery.categoryOrderUpdated"), "ok");
     } catch (error) {
       await refreshGalleryCategories();
-      setStatus3(error.message || "\u66F4\u65B0\u5206\u7C7B\u987A\u5E8F\u5931\u8D25", "error");
+      setStatus3(error.message || translate("gallery.categoryOrderUpdateFailed"), "error");
     }
   }
   function handleGalleryCategoryDragStart(event) {
@@ -2708,7 +4172,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     setGalleryDragPreview(event, {
       type: "category",
       title: category?.name || categoryId,
-      subtitle: category?.prompt_role || "\u56FE\u5E93\u5206\u7C7B",
+      subtitle: category ? categoryPromptRole(category.id) : translate("gallery.categoryFallback"),
       sourceElement: categoryRow(categoryId)
     });
     window.requestAnimationFrame(() => {
@@ -2754,11 +4218,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     clearGalleryCategoryDragState();
   }
   function categoryLabel(category) {
-    return findGalleryCategory(category)?.name || DEFAULT_GALLERY_CATEGORY_LABELS[category] || category || "\u672A\u5206\u7C7B";
+    const galleryCategory = findGalleryCategory(category);
+    if (galleryCategory) return displayGalleryCategoryName(galleryCategory);
+    return defaultGalleryCategoryLabel(category) || category || translate("gallery.uncategorized");
   }
   function categoryPromptRole(category) {
     const galleryCategory = findGalleryCategory(category);
-    return galleryCategory?.prompt_role || galleryCategory?.name || DEFAULT_GALLERY_CATEGORY_LABELS[category] || "\u53C2\u8003\u56FE";
+    return galleryCategory ? displayGalleryCategoryPromptRole(galleryCategory) : defaultGalleryCategoryPromptRole(category) || defaultGalleryCategoryLabel(category) || translate("gallery.referenceRole");
   }
   function bindGalleryCategoryEvents() {
     if (galleryCategoriesEventsBound) return;
@@ -2783,9 +4249,17 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function initGalleryCategoriesFeature() {
     if (galleryCategoriesFeatureInitialized) return;
     galleryCategoriesFeatureInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderGalleryCategoryControls();
+      renderQuickGalleryDock();
+      renderGalleryGrid();
+      renderImageStrip2();
+      updateRequestPreview();
+    });
     bindGalleryCategoryEvents();
     Object.assign(getLegacyBridge().methods, {
       defaultGalleryCategories: defaultGalleryCategories2,
+      defaultGalleryCategoryLabel,
       normalizeGalleryCategory,
       normalizeGalleryCategories,
       handleQuickGalleryCategoryEvent,
@@ -2848,13 +4322,16 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function updateRequestPreview2() {
     legacyMethod6("updateRequestPreview");
   }
+  function recentAssetName(item) {
+    return item?.filename || translate("recentAssets.defaultName");
+  }
   async function refreshRecentAssets() {
     if (!els3.recentAssetList) return;
     try {
       const response = await fetch("/api/reference-assets/recent?limit=50");
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "\u6700\u8FD1\u4E0A\u4F20\u8BFB\u53D6\u5931\u8D25");
+        throw new Error(data.detail || translate("recentAssets.loadFailed"));
       }
       state3.recentAssets = Array.isArray(data.items) ? data.items : [];
       renderRecentAssets();
@@ -2867,15 +4344,18 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (!els3.recentAssetDock || !els3.recentAssetList) return;
     const items = state3.recentAssets.filter((item) => item?.id && item?.image_url);
     els3.recentAssetDock.classList.toggle("hidden", !items.length);
-    els3.recentAssetList.innerHTML = items.map((item) => `
-    <div class="recent-asset-button" title="${escapeHtml4(item.filename || "\u6700\u8FD1\u4E0A\u4F20")}">
-      <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml4(item.id)}" aria-label="\u4F7F\u7528${escapeHtml4(item.filename || "\u6700\u8FD1\u4E0A\u4F20")}">
-        <img src="${escapeHtml4(item.image_url)}" alt="${escapeHtml4(item.filename || "\u6700\u8FD1\u4E0A\u4F20")}">
-        <span>${escapeHtml4(item.filename || "\u6700\u8FD1\u4E0A\u4F20")}</span>
+    els3.recentAssetList.innerHTML = items.map((item) => {
+      const name = recentAssetName(item);
+      return `
+    <div class="recent-asset-button" title="${escapeHtml4(name)}">
+      <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml4(item.id)}" aria-label="${escapeHtml4(formatTranslation("recentAssets.use", { name }))}">
+        <img src="${escapeHtml4(item.image_url)}" alt="${escapeHtml4(name)}">
+        <span>${escapeHtml4(name)}</span>
       </button>
-      <button class="recent-asset-delete" type="button" data-reference-asset-delete="${escapeHtml4(item.id)}" aria-label="\u5220\u9664${escapeHtml4(item.filename || "\u6700\u8FD1\u4E0A\u4F20")}">\xD7</button>
+      <button class="recent-asset-delete" type="button" data-reference-asset-delete="${escapeHtml4(item.id)}" aria-label="${escapeHtml4(formatTranslation("recentAssets.delete", { name }))}">\xD7</button>
     </div>
-  `).join("");
+  `;
+    }).join("");
     els3.recentAssetList.querySelectorAll("[data-reference-asset-id]").forEach((button) => {
       button.addEventListener("click", () => {
         const item = state3.recentAssets.find((candidate) => candidate.id === button.dataset.referenceAssetId);
@@ -2888,10 +4368,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         const item = state3.recentAssets.find((candidate) => candidate.id === button.dataset.referenceAssetDelete);
         if (!item) return;
         openConfirmPopover2(button, {
-          title: "\u5220\u9664\u6700\u8FD1\u4E0A\u4F20\uFF1F",
-          message: "\u4F1A\u4ECE\u300C\u6700\u8FD1\u4E0A\u4F20\u300D\u4E2D\u5220\u9664\u8FD9\u5F20\u56FE\u7247\u3002\u5982\u679C\u5B83\u5DF2\u88AB\u6DFB\u52A0\u5230\u5F53\u524D\u56FE\u50CF\u8F93\u5165\uFF0C\u4F1A\u4ECE\u5F53\u524D\u8F93\u5165\u4E2D\u79FB\u9664\uFF1B\u5386\u53F2\u4EFB\u52A1\u91CC\u5F15\u7528\u8FD9\u5F20\u6700\u8FD1\u4E0A\u4F20\u56FE\u7684\u8F93\u5165\u9884\u89C8\u4E5F\u4F1A\u5931\u6548\u3002\u4E0D\u4F1A\u5F71\u54CD\u516C\u7528\u56FE\u5E93\u3002",
-          detail: item.filename || "\u6700\u8FD1\u4E0A\u4F20",
-          confirmText: "\u5220\u9664",
+          title: translate("recentAssets.deleteTitle"),
+          message: translate("recentAssets.deleteMessage"),
+          detail: recentAssetName(item),
+          confirmText: translate("action.delete"),
           onConfirm: () => deleteRecentAsset(item.id)
         });
       });
@@ -2925,7 +4405,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data.detail || "\u6700\u8FD1\u4E0A\u4F20\u5220\u9664\u5931\u8D25");
+        throw new Error(data.detail || translate("recentAssets.deleteFailed"));
       }
       state3.recentAssets = state3.recentAssets.filter((item) => item.id !== assetId);
       state3.images = state3.images.filter((source) => !(source.kind === "asset" && source.id === assetId));
@@ -2935,15 +4415,16 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       renderRecentAssets();
       renderImageStrip3();
       updateRequestPreview2();
-      setStatus4("\u6700\u8FD1\u4E0A\u4F20\u5DF2\u5220\u9664", "ok");
+      setStatus4(translate("recentAssets.deleted"), "ok");
     } catch (error) {
-      setStatus4(error.message || "\u6700\u8FD1\u4E0A\u4F20\u5220\u9664\u5931\u8D25", "error");
+      setStatus4(error.message || translate("recentAssets.deleteFailed"), "error");
     }
   }
   function initRecentAssetsFeature() {
     if (recentAssetsFeatureInitialized) return;
     recentAssetsFeatureInitialized = true;
     els3.recentAssetList?.addEventListener("wheel", handleRecentAssetWheel, { passive: false });
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderRecentAssets);
     Object.assign(getLegacyBridge().methods, {
       refreshRecentAssets,
       renderRecentAssets,
@@ -2995,7 +4476,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const items = filterGalleryItems();
     if (!items.length) {
       state4.quickGalleryFocusItemId = null;
-      els4.quickGalleryList.innerHTML = `<div class="quick-gallery-empty">\u6682\u65E0${escapeHtml5(categoryLabel2(state4.activeGalleryCategory))}\u56FE\u7247</div>`;
+      els4.quickGalleryList.innerHTML = `<div class="quick-gallery-empty">${escapeHtml5(formatTranslation("quickGallery.empty", { category: categoryLabel2(state4.activeGalleryCategory) }))}</div>`;
       scheduleQuickGalleryFocusUpdate();
       return;
     }
@@ -3322,7 +4803,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     ensureActiveGalleryCategory2();
     const items = filterGalleryItems2(state5.activeGalleryCategory);
     if (els5.galleryDrawerSubtitle) {
-      els5.galleryDrawerSubtitle.textContent = `\u5F53\u524D\u5206\u7C7B\uFF1A${categoryLabel3(state5.activeGalleryCategory)}\uFF0C\u70B9\u51FB\u201C\u4F7F\u7528\u201D\u52A0\u5165\u56FE\u50CF\u8F93\u5165`;
+      els5.galleryDrawerSubtitle.textContent = formatTranslation("gallery.drawerSubtitle", {
+        category: categoryLabel3(state5.activeGalleryCategory)
+      });
     }
     return items;
   }
@@ -3336,7 +4819,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   }
   function galleryGridContentHtml(items) {
     if (!items.length) {
-      return `<div class="gallery-empty">\u8FD9\u4E2A\u5206\u7C7B\u8FD8\u6CA1\u6709\u56FE\u7247</div>`;
+      return `<div class="gallery-empty">${translate("gallery.emptyCategory")}</div>`;
     }
     return items.map((item) => `
     <article class="gallery-card" data-gallery-id="${escapeHtml6(item.id)}">
@@ -3346,8 +4829,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         draggable="true"
         data-gallery-id="${escapeHtml6(item.id)}"
         data-gallery-order-handle
-        aria-label="\u62D6\u62FD\u6392\u5E8F\u56FE\u7247 ${escapeHtml6(item.name)}"
-        title="\u62D6\u62FD\u6392\u5E8F"
+        aria-label="${escapeHtml6(formatTranslation("gallery.dragSortImage", { name: item.name }))}"
+        title="${translate("gallery.dragSort")}"
       >
         <span class="gallery-card-drag-strip-icon" aria-hidden="true">
           <svg viewBox="0 0 16 16" focusable="false">
@@ -3359,7 +4842,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
             <circle cx="11" cy="12" r="1.1" />
           </svg>
         </span>
-        <span>\u62D6\u62FD\u6392\u5E8F</span>
+        <span>${translate("gallery.dragSort")}</span>
       </button>
       <div class="gallery-card-media">
         <img src="${escapeHtml6(item.image_url)}" alt="${escapeHtml6(item.name)}" draggable="false">
@@ -3371,12 +4854,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         <span>${escapeHtml6(categoryLabel3(item.category))}</span>
       </div>
       <div class="gallery-card-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-use="${escapeHtml6(item.id)}">\u4F7F\u7528</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-replace="${escapeHtml6(item.id)}">\u66FF\u6362</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-rename="${escapeHtml6(item.id)}">\u91CD\u547D\u540D</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-move="${escapeHtml6(item.id)}">\u5206\u7C7B</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-note="${escapeHtml6(item.id)}">\u5907\u6CE8</button>
-        <button class="ghost-button text-sm danger-button" type="button" data-gallery-delete="${escapeHtml6(item.id)}">\u5220\u9664</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-use="${escapeHtml6(item.id)}">${translate("gallery.use")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-replace="${escapeHtml6(item.id)}">${translate("gallery.replace")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-rename="${escapeHtml6(item.id)}">${translate("gallery.rename")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-move="${escapeHtml6(item.id)}">${translate("gallery.moveCategory")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-note="${escapeHtml6(item.id)}">${translate("gallery.note")}</button>
+        <button class="ghost-button text-sm danger-button" type="button" data-gallery-delete="${escapeHtml6(item.id)}">${translate("gallery.delete")}</button>
       </div>
     </article>
   `).join("");
@@ -3495,7 +4978,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
     setGalleryDragPreview(event, {
       type: "item",
-      title: item?.name || "\u56FE\u5E93\u56FE\u7247",
+      title: item?.name || translate("gallery.imageFallback"),
       subtitle: categoryLabel3(item?.category || state5.activeGalleryCategory),
       imageUrl: item?.image_url,
       sourceElement: card
@@ -3562,6 +5045,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function initGalleryGridFeature() {
     if (galleryGridFeatureInitialized) return;
     galleryGridFeatureInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderGalleryGrid2();
+    });
     bindGalleryGridEvents();
     Object.assign(getLegacyBridge().methods, {
       renderGalleryGrid: renderGalleryGrid2,
@@ -3656,15 +5142,18 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function normalizeGalleryCategories2(categories) {
     return legacyMethod9("normalizeGalleryCategories", categories);
   }
+  function categoryLabel4(category) {
+    return legacyMethod9("categoryLabel", category);
+  }
   function clampPopoverPosition(value, min, max) {
     if (max < min) return min;
     return Math.min(Math.max(value, min), max);
   }
   async function remoteImageSourceFile2(source) {
     const imageUrl = sourcePreviewUrl2(source);
-    if (!imageUrl) throw new Error("\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247");
+    if (!imageUrl) throw new Error(translate("gallery.imageLoadFailed"));
     const response = await fetch(imageUrl);
-    if (!response.ok) throw new Error("\u65E0\u6CD5\u8F7D\u5165\u8FD9\u5F20\u56FE\u7247");
+    if (!response.ok) throw new Error(translate("gallery.imageLoadFailed"));
     const blob = await response.blob();
     return new File([blob], sourceName2(source), {
       type: blob.type || source.mime_type || "image/png",
@@ -3703,7 +5192,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   async function galleryImageFileForSource(source) {
     if (source.kind === "upload") return source.file;
     if (source.kind === "asset") return remoteImageSourceFile2(source);
-    throw new Error("\u8FD9\u5F20\u56FE\u7247\u65E0\u6CD5\u52A0\u5165\u56FE\u5E93");
+    throw new Error(translate("gallery.cannotAddImage"));
   }
   async function saveUploadToGallery() {
     const source = state6.images[state6.addToGalleryIndex];
@@ -3712,7 +5201,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const category = els6.galleryCategoryInput.value;
     const promptNote = els6.galleryPromptNoteInput?.value.trim() || "";
     if (!name) {
-      setStatus5("\u8BF7\u8F93\u5165\u56FE\u5E93\u540D\u79F0", "error");
+      setStatus5(translate("gallery.nameRequired"), "error");
       return;
     }
     try {
@@ -3725,7 +5214,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       const response = await fetch("/api/gallery", { method: "POST", body: form });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "\u4FDD\u5B58\u56FE\u5E93\u5931\u8D25");
+        throw new Error(data.detail || translate("gallery.saveFailed"));
       }
       state6.images[state6.addToGalleryIndex] = gallerySource2(data.item);
       if (source.kind === "upload") revokeUploadPreviewUrl2(source);
@@ -3734,22 +5223,22 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       setMode2("edit");
       renderImageStrip4();
       updateRequestPreview3();
-      setStatus5("\u5DF2\u6DFB\u52A0\u5230\u56FE\u5E93\uFF0C\u5E76\u5207\u6362\u4E3A\u56FE\u5E93\u5F15\u7528", "ok");
+      setStatus5(translate("gallery.savedAsReference"), "ok");
     } catch (error) {
-      setStatus5(error.message || "\u4FDD\u5B58\u56FE\u5E93\u5931\u8D25", "error");
+      setStatus5(error.message || translate("gallery.saveFailed"), "error");
     }
   }
   function renameGalleryItem2(button, itemId) {
     const item = findGalleryItem3(itemId);
     if (!item) return;
     openGalleryEditPopover(button, {
-      title: "\u91CD\u547D\u540D\u56FE\u5E93\u56FE\u7247",
+      title: translate("gallery.renameImage"),
       mode: "name",
       item,
       onSave: async (popover) => {
         const name = popover.querySelector("[data-gallery-edit-name]")?.value.trim();
         if (!name) {
-          setStatus5("\u8BF7\u8F93\u5165\u56FE\u5E93\u540D\u79F0", "error");
+          setStatus5(translate("gallery.nameRequired"), "error");
           return false;
         }
         if (name === item.name) return true;
@@ -3762,13 +5251,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const item = findGalleryItem3(itemId);
     if (!item) return;
     openGalleryEditPopover(button, {
-      title: "\u79FB\u52A8\u5230\u5206\u7C7B",
+      title: translate("gallery.moveToCategory"),
       mode: "category",
       item,
       onSave: async (popover) => {
         const category = popover.querySelector("[data-gallery-edit-category]")?.value;
         if (!findGalleryCategory2(category)) {
-          setStatus5("\u8BF7\u9009\u62E9\u56FE\u5E93\u5206\u7C7B", "error");
+          setStatus5(translate("gallery.categoryRequired"), "error");
           return false;
         }
         if (category === item.category) return true;
@@ -3781,7 +5270,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const item = findGalleryItem3(itemId);
     if (!item) return;
     openGalleryEditPopover(button, {
-      title: "\u56FE\u5E93\u5F15\u7528\u5907\u6CE8",
+      title: translate("gallery.promptNoteTitle"),
       mode: "prompt_note",
       item,
       onSave: async (popover) => {
@@ -3800,13 +5289,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u66F4\u65B0\u56FE\u5E93\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.updateFailed"));
       await refreshGallery2();
       state6.images = state6.images.map((source) => source.kind === "gallery" && source.id === itemId ? gallerySource2(data.item) : source);
       renderImageStrip4();
       updateRequestPreview3();
     } catch (error) {
-      setStatus5(error.message || "\u66F4\u65B0\u56FE\u5E93\u5931\u8D25", "error");
+      setStatus5(error.message || translate("gallery.updateFailed"), "error");
     }
   }
   function selectGalleryReplacementFile() {
@@ -3831,7 +5320,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const file = await selectGalleryReplacementFile();
     if (!file) return;
     if (file.type && !file.type.startsWith("image/")) {
-      setStatus5("\u8BF7\u9009\u62E9\u56FE\u7247\u6587\u4EF6", "error");
+      setStatus5(translate("gallery.selectImageFile"), "error");
       return;
     }
     const form = new FormData();
@@ -3842,7 +5331,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: form
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u66FF\u6362\u56FE\u5E93\u56FE\u7247\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.replaceImageFailed"));
       const updated = data.item;
       state6.galleryItems = state6.galleryItems.map((candidate) => candidate.id === itemId ? updated : candidate);
       state6.images = state6.images.map((source) => source.kind === "gallery" && source.id === itemId ? gallerySource2(updated) : source);
@@ -3850,19 +5339,19 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       renderGalleryGrid3();
       renderImageStrip4();
       updateRequestPreview3();
-      setStatus5(`\u5DF2\u66FF\u6362\u300C${updated.name || item.name}\u300D\u7684\u539F\u56FE`, "ok");
+      setStatus5(formatTranslation("gallery.replacedImage", { name: updated.name || item.name }), "ok");
     } catch (error) {
-      setStatus5(error.message || "\u66FF\u6362\u56FE\u5E93\u56FE\u7247\u5931\u8D25", "error");
+      setStatus5(error.message || translate("gallery.replaceImageFailed"), "error");
     }
   }
   function deleteGalleryItem2(button, itemId) {
     const item = findGalleryItem3(itemId);
     if (!item) return;
     openConfirmPopover3(button, {
-      title: "\u5220\u9664\u56FE\u5E93\u56FE\u7247\uFF1F",
-      message: "\u5386\u53F2\u4EFB\u52A1\u91CC\u7684\u5F15\u7528\u4F1A\u663E\u793A\u4E3A\u5DF2\u5220\u9664\u3002",
+      title: translate("gallery.deleteImageTitle"),
+      message: translate("gallery.deleteImageMessage"),
       detail: item.name,
-      confirmText: "\u5220\u9664",
+      confirmText: translate("action.delete"),
       onConfirm: async () => {
         await performDeleteGalleryItem(itemId);
       }
@@ -3872,16 +5361,16 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(`/api/gallery/${encodeURIComponent(itemId)}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u5220\u9664\u56FE\u5E93\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.deleteFailed"));
       await refreshGallery2();
       state6.images = state6.images.map((source) => {
         if (source.kind !== "gallery" || source.id !== itemId) return source;
-        return { ...source, missing: true, image_url: "", previewUrl: "", name: `${source.name}\uFF08\u5DF2\u5220\u9664\uFF09` };
+        return { ...source, missing: true, image_url: "", previewUrl: "", name: `${source.name}${translate("gallery.deletedSuffix")}` };
       });
       renderImageStrip4();
       updateRequestPreview3();
     } catch (error) {
-      setStatus5(error.message || "\u5220\u9664\u56FE\u5E93\u5931\u8D25", "error");
+      setStatus5(error.message || translate("gallery.deleteFailed"), "error");
     }
   }
   function ensureGalleryEditPopover() {
@@ -3889,7 +5378,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     galleryEditPopoverEl = document.createElement("div");
     galleryEditPopoverEl.className = "gallery-edit-popover hidden";
     galleryEditPopoverEl.setAttribute("role", "dialog");
-    galleryEditPopoverEl.setAttribute("aria-label", "\u7F16\u8F91\u56FE\u5E93\u56FE\u7247");
+    galleryEditPopoverEl.setAttribute("aria-label", translate("gallery.editImageLabel"));
     document.body.appendChild(galleryEditPopoverEl);
     return galleryEditPopoverEl;
   }
@@ -3906,11 +5395,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     galleryEditPopoverState.onSave = typeof options.onSave === "function" ? options.onSave : null;
     popover.innerHTML = `
     <form class="gallery-edit-form">
-      <div class="gallery-edit-title">${escapeHtml7(options.title || "\u7F16\u8F91\u56FE\u5E93\u56FE\u7247")}</div>
+      <div class="gallery-edit-title">${escapeHtml7(options.title || translate("gallery.editImageLabel"))}</div>
       ${galleryEditFieldHtml(options.mode, options.item)}
       <div class="gallery-edit-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-edit-cancel>\u53D6\u6D88</button>
-        <button class="ghost-button text-sm" type="submit" data-gallery-edit-save>\u4FDD\u5B58</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-edit-cancel>${escapeHtml7(translate("action.cancel"))}</button>
+        <button class="ghost-button text-sm" type="submit" data-gallery-edit-save>${escapeHtml7(translate("action.save"))}</button>
       </div>
     </form>
   `;
@@ -3934,11 +5423,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function galleryEditFieldHtml(mode, item) {
     if (mode === "category") {
       const options = normalizeGalleryCategories2(state6.galleryCategories).map((category) => `
-      <option value="${escapeHtml7(category.id)}" ${category.id === item.category ? "selected" : ""}>${escapeHtml7(category.name)}</option>
+      <option value="${escapeHtml7(category.id)}" ${category.id === item.category ? "selected" : ""}>${escapeHtml7(categoryLabel4(category.id))}</option>
     `).join("");
       return `
       <label class="gallery-edit-field">
-        <span>\u5206\u7C7B</span>
+        <span>${escapeHtml7(translate("gallery.fieldCategory"))}</span>
         <select class="gallery-edit-select" data-gallery-edit-category>${options}</select>
       </label>
     `;
@@ -3946,14 +5435,14 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (mode === "prompt_note") {
       return `
       <label class="gallery-edit-field">
-        <span>\u5F15\u7528\u5907\u6CE8</span>
+        <span>${escapeHtml7(translate("gallery.fieldPromptNote"))}</span>
         <textarea class="gallery-edit-input gallery-edit-textarea" maxlength="160" data-gallery-edit-prompt-note>${escapeHtml7(item.prompt_note || "")}</textarea>
       </label>
     `;
     }
     return `
     <label class="gallery-edit-field">
-      <span>\u540D\u79F0</span>
+      <span>${escapeHtml7(translate("gallery.fieldName"))}</span>
       <input class="gallery-edit-input" type="text" value="${escapeHtml7(item.name)}" data-gallery-edit-name>
     </label>
   `;
@@ -4087,7 +5576,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       const response = await fetch("/api/gallery");
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "\u56FE\u5E93\u8BFB\u53D6\u5931\u8D25");
+        throw new Error(data.detail || translate("gallery.loadFailed"));
       }
       state7.galleryItems = sortGalleryItems(data.items || []);
       state7.galleryCategories = normalizeGalleryCategories3(data.categories);
@@ -4100,7 +5589,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       state7.galleryCategories = defaultGalleryCategories3();
       renderGalleryCategoryControls4();
       renderQuickGalleryDock4();
-      setStatus6(error.message || "\u56FE\u5E93\u8BFB\u53D6\u5931\u8D25", "error");
+      setStatus6(error.message || translate("gallery.loadFailed"), "error");
     }
   }
   async function openGallery(category) {
@@ -4151,7 +5640,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ category, item_ids: itemIds })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u66F4\u65B0\u56FE\u7247\u987A\u5E8F\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("gallery.imageOrderUpdateFailed"));
       const reorderedIds = new Set(itemIds);
       const reorderedItems = Array.isArray(data.items) ? data.items : [];
       state7.galleryItems = sortGalleryItems([
@@ -4160,10 +5649,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       ]);
       renderQuickGalleryDock4();
       renderGalleryGrid4();
-      setStatus6("\u56FE\u7247\u987A\u5E8F\u5DF2\u66F4\u65B0", "ok");
+      setStatus6(translate("gallery.imageOrderUpdated"), "ok");
     } catch (error) {
       await refreshGallery3();
-      setStatus6(error.message || "\u66F4\u65B0\u56FE\u7247\u987A\u5E8F\u5931\u8D25", "error");
+      setStatus6(error.message || translate("gallery.imageOrderUpdateFailed"), "error");
     }
   }
   function handleGalleryManageButtonClick() {
@@ -4274,7 +5763,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       els9.apiStatus.className = `status-dot ${state8.authAvailable ? "ok" : "error"}`;
       els9.runButton.disabled = !state8.authAvailable;
       if (!state8.authAvailable) {
-        setStatus7("\u6CA1\u6709\u68C0\u6D4B\u5230 Codex \u767B\u5F55\u6001", "error");
+        setStatus7(translate("auth.missingCodexSession"), "error");
       }
       updateRequestPreview4();
     } catch (error) {
@@ -4296,7 +5785,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "\u6388\u6743\u6765\u6E90\u5207\u6362\u5931\u8D25");
+        throw new Error(data.detail || translate("auth.switchFailed"));
       }
       state8.pendingAuthSource = null;
       state8.authStatus = data;
@@ -4310,7 +5799,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       state8.pendingAuthSource = null;
       renderAuthSource(state8.authStatus);
       updateRequestPreview4();
-      setStatus7(error.message || "\u6388\u6743\u6765\u6E90\u5207\u6362\u5931\u8D25", "error");
+      setStatus7(error.message || translate("auth.switchFailed"), "error");
     }
   }
   function handleAuthSourceClick(event) {
@@ -4323,7 +5812,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const selected = state8.pendingAuthSource || auth?.selected_source || "codex";
     applyAuthSourceSelection(selected);
     if (els9.authSourceDetail) {
-      const text = auth ? authSourceDetailText(auth) : "\u6388\u6743\u68C0\u67E5\u4E2D";
+      const text = auth ? authSourceDetailText(auth) : translate("auth.checking");
       els9.authSourceDetail.textContent = text;
       els9.authSourceDetail.title = text;
     }
@@ -4339,14 +5828,14 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     updateModeSpecificSettings(selected);
   }
   function authSourceDetailText(auth) {
-    if (!auth) return "\u6388\u6743\u68C0\u67E5\u4E2D";
+    if (!auth) return translate("auth.checking");
     const selected = sourceLabel(auth.selected_source);
     const effectiveApi = auth.effective_source === "api";
     if (!auth.auth_available) {
       if (auth.selected_source === "api" || effectiveApi) {
-        return `${selected} \u4E0D\u53EF\u7528`;
+        return formatTranslation("auth.sourceUnavailable", { source: selected });
       }
-      return `${selected} \u4E0D\u53EF\u7528`;
+      return formatTranslation("auth.sourceUnavailable", { source: selected });
     }
     if (effectiveApi) {
       const provider = currentApiProviderLabel();
@@ -4358,7 +5847,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function sourceLabel(source) {
     if (source === "codex") return "Codex";
     if (source === "api") return "API";
-    return "\u672A\u751F\u6548";
+    return translate("auth.notActive");
   }
   function currentAuthSource2() {
     return state8.pendingAuthSource || state8.authStatus?.selected_source || "codex";
@@ -4470,13 +5959,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch("/api/api-settings");
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "API \u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("apiSettings.loadFailed"));
       state9.apiSettings = mergeApiProviderKeys(data.settings || {});
       populateApiSettingsForm();
       updateModeSpecificSettings();
       updateRequestPreview5();
     } catch (error) {
-      setApiSettingsFeedback(error.message || "API \u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25", "error");
+      setApiSettingsFeedback(error.message || translate("apiSettings.loadFailed"), "error");
     }
   }
   function populateApiSettingsForm() {
@@ -4511,7 +6000,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (els10.apiImagesConcurrency) els10.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.images_concurrency));
     if (els10.apiKey) {
       els10.apiKey.value = provider.api_key || "";
-      els10.apiKey.placeholder = provider.api_key_set && !provider.api_key ? "\u540E\u7AEF\u5DF2\u4FDD\u5B58 API Key\uFF0C\u8F93\u5165\u65B0 key \u53EF\u8986\u76D6" : "sk-...";
+      els10.apiKey.placeholder = provider.api_key_set && !provider.api_key ? translate("apiSettings.savedKeyPlaceholder") : "sk-...";
     }
     if (els10.deleteApiProviderButton) {
       els10.deleteApiProviderButton.disabled = state9.apiSettings.providers.length <= 1;
@@ -4545,7 +6034,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const id = `provider-${Date.now()}`;
     state9.apiSettings.providers.push(normalizeApiProvider({
       id,
-      name: "\u65B0\u4F9B\u5E94\u5546",
+      name: translate("apiSettings.newProvider"),
       base_url: DEFAULT_API_BASE_URL,
       image_model: DEFAULT_API_IMAGE_MODEL,
       api_mode: DEFAULT_API_MODE,
@@ -4571,7 +6060,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function openApiSettingsModal() {
     closePromptPopover2();
     populateApiSettingsForm();
-    setApiSettingsFeedback("\u4FDD\u5B58\u540E\u7ACB\u5373\u7528\u4E8E API \u6A21\u5F0F", "");
+    setApiSettingsFeedback(translate("apiSettings.status"), "");
     els10.apiSettingsModal?.classList.remove("hidden");
     els10.apiSettingsModal?.setAttribute("aria-hidden", "false");
     els10.apiBaseUrl?.focus();
@@ -4590,7 +6079,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     return normalizeApiImagesConcurrency(activeApiProvider().images_concurrency);
   }
   function apiModeLabel2(mode) {
-    return mode === "responses" ? "Responses" : "\u76F4\u8FDE";
+    return mode === "responses" ? "Responses" : translate("apiSettings.modeImagesShort");
   }
   function backendForAuthSource(authSource, apiMode = currentApiMode3()) {
     return authSource === "api" ? apiMode === "responses" ? "openai_responses" : "openai_images" : "codex_responses";
@@ -4647,8 +6136,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       })
     };
     els10.saveApiSettingsButton.disabled = true;
-    els10.saveApiSettingsButton.textContent = "\u4FDD\u5B58\u4E2D...";
-    setApiSettingsFeedback("\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...", "running");
+    els10.saveApiSettingsButton.textContent = translate("apiSettings.saving");
+    setApiSettingsFeedback(translate("apiSettings.savingStatus"), "running");
     try {
       const response = await fetch("/api/api-settings", {
         method: "PATCH",
@@ -4656,28 +6145,33 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("apiSettings.saveFailed"));
       state9.apiSettings = mergeApiProviderKeys(data.settings || {});
       persistApiSettings();
       populateApiSettingsForm();
-      setApiSettingsFeedback(`\u5DF2\u4FDD\u5B58 \xB7 ${activeApiProvider().name} \xB7 ${apiModeLabel2(currentApiMode3())} \xB7 ${currentApiImageModel()} \xB7 \u5E76\u53D1 ${currentApiImagesConcurrency()}`, "ok");
-      els10.saveApiSettingsButton.textContent = "\u5DF2\u4FDD\u5B58";
+      setApiSettingsFeedback(formatTranslation("apiSettings.savedSummary", {
+        provider: activeApiProvider().name,
+        mode: apiModeLabel2(currentApiMode3()),
+        model: currentApiImageModel(),
+        concurrency: currentApiImagesConcurrency()
+      }), "ok");
+      els10.saveApiSettingsButton.textContent = translate("apiSettings.savedShort");
       state9.apiSettingsSaveTimerId = window.setTimeout(() => {
-        els10.saveApiSettingsButton.textContent = "\u4FDD\u5B58 API \u8BBE\u7F6E";
+        els10.saveApiSettingsButton.textContent = translate("apiSettings.save");
         state9.apiSettingsSaveTimerId = null;
       }, 1600);
-      setStatus8("API \u8BBE\u7F6E\u5DF2\u4FDD\u5B58", "ok");
+      setStatus8(translate("apiSettings.savedStatus"), "ok");
       await refreshHealth();
       updateRequestPreview5();
     } catch (error) {
-      setApiSettingsFeedback(error.message || "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25", "error");
-      els10.saveApiSettingsButton.textContent = "\u4FDD\u5B58\u5931\u8D25";
-      setStatus8(error.message || "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25", "error");
+      setApiSettingsFeedback(error.message || translate("apiSettings.saveFailed"), "error");
+      els10.saveApiSettingsButton.textContent = translate("apiSettings.saveFailedShort");
+      setStatus8(error.message || translate("apiSettings.saveFailed"), "error");
     } finally {
       els10.saveApiSettingsButton.disabled = false;
-      if (!state9.apiSettingsSaveTimerId && els10.saveApiSettingsButton.textContent !== "\u4FDD\u5B58 API \u8BBE\u7F6E") {
+      if (!state9.apiSettingsSaveTimerId && els10.saveApiSettingsButton.textContent !== translate("apiSettings.save")) {
         state9.apiSettingsSaveTimerId = window.setTimeout(() => {
-          els10.saveApiSettingsButton.textContent = "\u4FDD\u5B58 API \u8BBE\u7F6E";
+          els10.saveApiSettingsButton.textContent = translate("apiSettings.save");
           state9.apiSettingsSaveTimerId = null;
         }, 1600);
       }
@@ -4689,6 +6183,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function initApiSettingsFeature() {
     if (apiSettingsFeatureInitialized) return;
     apiSettingsFeatureInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      const bridge39 = getLegacyBridge();
+      renderAuthSource(bridge39.state.authStatus);
+      if (!bridge39.els.apiSettingsModal?.classList.contains("hidden")) {
+        setApiSettingsFeedback(translate("apiSettings.status"), "");
+      }
+    });
     Object.assign(getLegacyBridge().methods, {
       refreshHealth,
       setAuthSource,
@@ -4754,10 +6255,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch("/api/settings");
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
       populateSettingsForm(data.settings || {});
     } catch (error) {
-      if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || "\u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25";
+      if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || translate("settings.loadFailed");
     }
   }
   function populateSettingsForm(settings) {
@@ -4769,7 +6270,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function openSettingsModal() {
     closePromptPopover3();
     refreshSettings();
-    if (els11.settingsStatus) els11.settingsStatus.textContent = "\u4FDD\u5B58\u540E\u91CD\u542F WebUI \u751F\u6548";
+    if (els11.settingsStatus) els11.settingsStatus.textContent = translate("settings.status");
     els11.settingsModal?.classList.remove("hidden");
     els11.settingsModal?.setAttribute("aria-hidden", "false");
   }
@@ -4792,15 +6293,15 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("settings.saveFailed"));
       populateSettingsForm(data.settings || {});
       if (els11.settingsStatus) {
-        els11.settingsStatus.textContent = data.restart_required ? "\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548" : "\u5DF2\u4FDD\u5B58";
+        els11.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
       }
-      setStatus9("\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548", "ok");
+      setStatus9(translate("settings.savedRestartStatus"), "ok");
     } catch (error) {
-      if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || "\u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25";
-      setStatus9(error.message || "\u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25", "error");
+      if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || translate("settings.saveFailed");
+      setStatus9(error.message || translate("settings.saveFailed"), "error");
     } finally {
       els11.saveSettingsButton.disabled = false;
     }
@@ -4808,6 +6309,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function initStorageSettingsFeature() {
     if (storageSettingsFeatureInitialized) return;
     storageSettingsFeatureInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      if (!els11.settingsModal?.classList.contains("hidden") && els11.settingsStatus) {
+        els11.settingsStatus.textContent = translate("settings.status");
+      }
+    });
     Object.assign(getLegacyBridge().methods, {
       refreshSettings,
       populateSettingsForm,
@@ -4820,7 +6326,16 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   // codex_image/webui/frontend/src/color-palette.ts
   var DEFAULT_COLOR_CODE = "#FFFFFF";
   var DEFAULT_COLOR_SWATCHES = ["#FFFFFF", "#111111", "#F6E8D8", "#E6F0EC", "#457B66", "#F4B183", "#B7D7F0", "#F8D7DA"];
-  var DEFAULT_COLOR_SWATCH_NAMES = ["\u767D\u8272", "\u9ED1\u8272", "\u6696\u7C73\u8272", "\u6D45\u7EFF", "\u54C1\u724C\u7EFF", "\u6843\u6A59", "\u6D45\u84DD", "\u6D45\u7C89"];
+  var DEFAULT_COLOR_SWATCH_NAME_KEYS = [
+    "colors.white",
+    "colors.black",
+    "colors.warmBeige",
+    "colors.lightGreen",
+    "colors.brandGreen",
+    "colors.peachOrange",
+    "colors.lightBlue",
+    "colors.lightPink"
+  ];
   var COLOR_PALETTE_ENDPOINT = "/api/color-palette";
   var COLOR_PALETTE_IMPORT_ENDPOINT = "/api/color-palette/import";
   var bridge11 = getLegacyBridge();
@@ -4847,7 +6362,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     return {
       version: 1,
       favorites: DEFAULT_COLOR_SWATCHES.map((hex, index) => ({
-        name: DEFAULT_COLOR_SWATCH_NAMES[index] || `Color ${index + 1}`,
+        name: translate(DEFAULT_COLOR_SWATCH_NAME_KEYS[index] || "") || `Color ${index + 1}`,
         hex,
         order: (index + 1) * 10
       })),
@@ -4889,12 +6404,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(COLOR_PALETTE_ENDPOINT);
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u989C\u8272\u914D\u7F6E\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("colors.loadFailed"));
       state10.colorPalette = normalizeColorPalette(data.palette);
       state10.selectedColorCode = state10.colorPalette.recent_colors[0] || favoriteColorsForDisplay()[0]?.hex || DEFAULT_COLOR_CODE;
       updateColorSuggest();
     } catch (error) {
-      console.warn(error.message || "\u989C\u8272\u914D\u7F6E\u8BFB\u53D6\u5931\u8D25");
+      console.warn(error.message || translate("colors.loadFailed"));
       state10.colorPalette = defaultColorPalette();
     }
   }
@@ -4905,7 +6420,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       body: JSON.stringify(payload)
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "\u989C\u8272\u914D\u7F6E\u4FDD\u5B58\u5931\u8D25");
+    if (!response.ok) throw new Error(data.detail || translate("colors.saveFailed"));
     state10.colorPalette = normalizeColorPalette(data.palette);
     return state10.colorPalette;
   }
@@ -4918,12 +6433,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       body: form
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "\u989C\u8272\u914D\u7F6E\u5BFC\u5165\u5931\u8D25");
+    if (!response.ok) throw new Error(data.detail || translate("colors.importFailed"));
     state10.colorPalette = normalizeColorPalette(data.palette);
     renderColorSuggest({ query: state10.selectedColorCode.slice(1), range: state10.activeColorRange });
     els12.colorSuggest?.classList.remove("hidden");
     els12.promptEditor?.focus({ preventScroll: true });
-    setStatus10(`\u5DF2\u5BFC\u5165 ${data.imported || 0} \u4E2A\u989C\u8272`, "ok");
+    setStatus10(formatTranslation("colors.importedCount", { count: data.imported || 0 }), "ok");
   }
   function toggleColorPaletteManageMode() {
     state10.colorPaletteManageMode = !state10.colorPaletteManageMode;
@@ -4947,7 +6462,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     state10.colorPalette = { ...state10.colorPalette, recent_colors: recentColors };
     state10.selectedColorCode = normalized;
     void persistColorPalette({ recent_colors: recentColors }).catch((error) => {
-      console.warn(error.message || "\u6700\u8FD1\u989C\u8272\u4FDD\u5B58\u5931\u8D25");
+      console.warn(error.message || translate("colors.recentSaveFailed"));
     });
   }
   async function saveFavoriteColor() {
@@ -4967,7 +6482,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       els12.colorSuggest?.classList.remove("hidden");
       els12.promptEditor?.focus({ preventScroll: true });
     } catch (error) {
-      console.warn(error.message || "\u5E38\u7528\u989C\u8272\u4FDD\u5B58\u5931\u8D25");
+      console.warn(error.message || translate("colors.favoriteSaveFailed"));
     }
   }
   async function removeFavoriteColor(colorCode) {
@@ -4980,7 +6495,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       els12.colorSuggest?.classList.remove("hidden");
       els12.promptEditor?.focus({ preventScroll: true });
     } catch (error) {
-      console.warn(error.message || "\u5E38\u7528\u989C\u8272\u5220\u9664\u5931\u8D25");
+      console.warn(error.message || translate("colors.favoriteDeleteFailed"));
     }
   }
   function normalizeHexColor(value) {
@@ -5182,33 +6697,33 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const selected = queryColor || state11.selectedColorCode || recentColors[0] || favoriteColors[0]?.hex || DEFAULT_COLOR_CODE2;
     state11.selectedColorCode = selected;
     const typedValue = match.query ? `#${match.query.toUpperCase()}` : selected;
-    const actionLabel = state11.activeColorChip ? "\u66F4\u65B0" : "\u63D2\u5165";
+    const actionLabel = state11.activeColorChip ? translate("colors.update") : translate("colors.insert");
     const swatchRowClass = state11.colorPaletteManageMode ? "color-swatch-row is-managing" : "color-swatch-row";
     els13.colorSuggest.innerHTML = `
     <div class="color-suggest-main">
-      <label class="color-picker-control" title="\u9009\u62E9\u989C\u8272">
+      <label class="color-picker-control" title="${escapeHtml8(translate("colors.pick"))}">
         <input type="color" value="${escapeHtml8(selected)}" data-color-picker>
-        <span>\u53D6\u8272</span>
+        <span>${escapeHtml8(translate("colors.pickShort"))}</span>
       </label>
       <input class="color-hex-input" type="text" value="${escapeHtml8(typedValue)}" maxlength="7" spellcheck="false" data-color-hex-input>
       <button class="ghost-button text-sm color-insert-button" type="button" data-insert-color>${actionLabel}</button>
     </div>
     <div class="color-suggest-actions">
-      <input class="color-name-input" type="text" value="${escapeHtml8(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="\u5E38\u7528\u8272\u540D\u79F0" data-color-name-input>
-      <button class="ghost-button text-sm" type="button" data-save-favorite-color>\u4FDD\u5B58</button>
-      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>\u5BFC\u51FA PS</a>
+      <input class="color-name-input" type="text" value="${escapeHtml8(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="${escapeHtml8(translate("colors.favoriteNamePlaceholder"))}" data-color-name-input>
+      <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml8(translate("colors.save"))}</button>
+      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml8(translate("colors.exportPs"))}</a>
       <label class="ghost-button text-sm color-import-label" data-color-palette-import>
-        \u5BFC\u5165 PS
+        ${escapeHtml8(translate("colors.importPs"))}
         <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
       </label>
-      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${state11.colorPaletteManageMode ? "\u5B8C\u6210" : "\u7BA1\u7406"}</button>
+      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml8(state11.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
     </div>
-    <div class="${swatchRowClass}" aria-label="\u5E38\u7528\u989C\u8272">
+    <div class="${swatchRowClass}" aria-label="${escapeHtml8(translate("colors.favorites"))}">
       ${favoriteColors.map((item) => colorSwatchButton(item.hex, item.name, { removable: state11.colorPaletteManageMode })).join("")}
     </div>
     ${recentColors.length ? `
-      <div class="color-recent-row" aria-label="\u6700\u8FD1\u989C\u8272">
-        ${recentColors.map((color) => colorSwatchButton(color, "\u6700\u8FD1")).join("")}
+      <div class="color-recent-row" aria-label="${escapeHtml8(translate("colors.recent"))}">
+        ${recentColors.map((color) => colorSwatchButton(color, translate("colors.recentLabel"))).join("")}
       </div>
     ` : ""}
   `;
@@ -5226,7 +6741,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       <button class="color-swatch-button" type="button" title="${escapeHtml8(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml8(normalized)}" style="--swatch-color: ${escapeHtml8(normalized)}">
         <span>${escapeHtml8(label ? `${label} ${normalized}` : normalized)}</span>
       </button>
-      ${removable ? `<button class="color-swatch-remove" type="button" title="\u5220\u9664\u5E38\u7528\u8272 ${escapeHtml8(label || normalized)}" aria-label="\u5220\u9664\u5E38\u7528\u8272 ${escapeHtml8(label || normalized)}" data-remove-favorite-color="${escapeHtml8(normalized)}">\xD7</button>` : ""}
+      ${removable ? `<button class="color-swatch-remove" type="button" title="${escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" aria-label="${escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" data-remove-favorite-color="${escapeHtml8(normalized)}">\xD7</button>` : ""}
     </span>
   `;
   }
@@ -5287,8 +6802,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       try {
         await importColorPalette2(file);
       } catch (error) {
-        setStatus11(error.message || "\u989C\u8272\u914D\u7F6E\u5BFC\u5165\u5931\u8D25", "error");
-        console.warn(error.message || "\u989C\u8272\u914D\u7F6E\u5BFC\u5165\u5931\u8D25");
+        setStatus11(error.message || translate("colors.importFailed"), "error");
+        console.warn(error.message || translate("colors.importFailed"));
       } finally {
         importInput.value = "";
       }
@@ -5403,8 +6918,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     swatch.className = "color-chip-swatch";
     swatch.type = "button";
     swatch.setAttribute("data-edit-color-chip", "");
-    swatch.setAttribute("aria-label", `\u4FEE\u6539\u989C\u8272 ${normalized}`);
-    swatch.title = "\u4FEE\u6539\u989C\u8272";
+    swatch.setAttribute("aria-label", formatTranslation("colors.modifyValue", { value: normalized }));
+    swatch.title = translate("colors.modify");
     const label = document.createElement("span");
     label.className = "color-chip-label";
     label.textContent = normalized;
@@ -5412,7 +6927,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     remove.className = "color-chip-remove";
     remove.type = "button";
     remove.setAttribute("data-remove-color-chip", "");
-    remove.setAttribute("aria-label", `\u79FB\u9664\u989C\u8272 ${normalized}`);
+    remove.setAttribute("aria-label", formatTranslation("colors.removeValue", { value: normalized }));
     remove.textContent = "\xD7";
     chip.append(swatch, label, remove);
     chip.addEventListener("keydown", (event) => {
@@ -5432,11 +6947,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (label) label.textContent = normalized;
     const swatch = chip.querySelector("[data-edit-color-chip]");
     if (swatch) {
-      swatch.setAttribute("aria-label", `\u4FEE\u6539\u989C\u8272 ${normalized}`);
+      swatch.setAttribute("aria-label", formatTranslation("colors.modifyValue", { value: normalized }));
     }
     const remove = chip.querySelector("[data-remove-color-chip]");
     if (remove) {
-      remove.setAttribute("aria-label", `\u79FB\u9664\u989C\u8272 ${normalized}`);
+      remove.setAttribute("aria-label", formatTranslation("colors.removeValue", { value: normalized }));
     }
   }
   function readableTextColor(colorCode) {
@@ -5508,6 +7023,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
 
   // codex_image/webui/frontend/src/prompt-snippets.ts
   var PROMPT_SNIPPETS_ENDPOINT = "/api/prompt-snippets";
+  var DEFAULT_PROMPT_SNIPPET_CATEGORY = "\u5E38\u7528";
   var PROMPT_SNIPPET_TRIGGER_CHARS = "~\uFF5E\u301C\u223C\u02DC";
   var PROMPT_SNIPPET_BOUNDARY_CHARS = `\uFF0C\u3002,.\uFF1B;\uFF1A:\uFF01\uFF1F!?\u3001\uFF08\uFF09()[]\u3010\u3011"'\u201C\u201D\u2018\u2019`;
   var PROMPT_SNIPPET_TRIGGER_PATTERN = /(^|[\s\n，。,.；;：:！？!?、（）()\[\]【】"'“”‘’])([~～〜∼˜]+)([^\s~～〜∼˜@#，。,.；;：:！？!?、（）()\[\]【】"'“”‘’]*)$/;
@@ -5569,7 +7085,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       tag,
       title: String(value.title || tag).trim() || tag,
       content,
-      category: String(value.category || "\u5E38\u7528").trim() || "\u5E38\u7528",
+      category: String(value.category || DEFAULT_PROMPT_SNIPPET_CATEGORY).trim() || DEFAULT_PROMPT_SNIPPET_CATEGORY,
       order: Number.isFinite(Number(value.order)) ? Number.parseInt(value.order, 10) : 0,
       created_at: value.created_at || "",
       updated_at: value.updated_at || ""
@@ -5591,11 +7107,11 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(PROMPT_SNIPPETS_ENDPOINT);
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u7247\u6BB5\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("snippets.loadFailed"));
       state12.promptSnippets = normalizePromptSnippetList(data.snippets);
       updatePromptSnippetSuggest();
     } catch (error) {
-      console.warn(error.message || "\u63D0\u793A\u8BCD\u7247\u6BB5\u8BFB\u53D6\u5931\u8D25");
+      console.warn(error.message || translate("snippets.loadFailed"));
       state12.promptSnippets = [];
     }
   }
@@ -5603,7 +7119,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (promptSnippetSuggestEl) return promptSnippetSuggestEl;
     promptSnippetSuggestEl = document.createElement("div");
     promptSnippetSuggestEl.className = "prompt-snippet-suggest hidden";
-    promptSnippetSuggestEl.setAttribute("aria-label", "\u63D0\u793A\u8BCD\u7247\u6BB5\u9009\u62E9\u5668");
+    promptSnippetSuggestEl.setAttribute("aria-label", translate("snippets.suggestLabel"));
     els14.promptEditor?.closest(".prompt-editor-wrap")?.appendChild(promptSnippetSuggestEl);
     return promptSnippetSuggestEl;
   }
@@ -5612,8 +7128,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     promptSnippetSelectionButtonEl = document.createElement("button");
     promptSnippetSelectionButtonEl.className = "prompt-snippet-save-button hidden";
     promptSnippetSelectionButtonEl.type = "button";
-    promptSnippetSelectionButtonEl.textContent = "\u6536\u85CF";
-    promptSnippetSelectionButtonEl.setAttribute("aria-label", "\u6536\u85CF\u9009\u4E2D\u7684\u63D0\u793A\u8BCD\u7247\u6BB5");
+    promptSnippetSelectionButtonEl.textContent = translate("snippets.saveSelection");
+    promptSnippetSelectionButtonEl.setAttribute("aria-label", translate("snippets.saveSelectionLabel"));
     promptSnippetSelectionButtonEl.addEventListener("mousedown", (event) => event.preventDefault());
     promptSnippetSelectionButtonEl.addEventListener("click", (event) => {
       event.preventDefault();
@@ -5628,7 +7144,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     promptSnippetPopoverEl = document.createElement("div");
     promptSnippetPopoverEl.className = "prompt-snippet-popover hidden";
     promptSnippetPopoverEl.setAttribute("role", "dialog");
-    promptSnippetPopoverEl.setAttribute("aria-label", "\u63D0\u793A\u8BCD\u7247\u6BB5");
+    promptSnippetPopoverEl.setAttribute("aria-label", translate("snippets.popoverLabel"));
     els14.promptEditor?.closest(".prompt-editor-wrap")?.appendChild(promptSnippetPopoverEl);
     return promptSnippetPopoverEl;
   }
@@ -5753,7 +7269,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       tag: "",
       title: "",
       content: "",
-      category: "\u5E38\u7528"
+      category: DEFAULT_PROMPT_SNIPPET_CATEGORY
     };
     const chip = document.createElement("span");
     chip.className = "prompt-snippet-chip";
@@ -5777,7 +7293,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     remove.className = "prompt-snippet-chip-remove";
     remove.type = "button";
     remove.setAttribute("data-remove-prompt-snippet-chip", "");
-    remove.setAttribute("aria-label", `\u79FB\u9664 ~${normalized.tag}`);
+    remove.setAttribute("aria-label", formatTranslation("snippets.remove", { tag: normalized.tag }));
     remove.textContent = "\xD7";
     chip.append(mark, label, remove);
     chip.addEventListener("keydown", (event) => {
@@ -5885,7 +7401,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       tag: suggestPromptSnippetTag(state12.promptSnippetSelectionText),
       title: "",
       content: state12.promptSnippetSelectionText,
-      category: "\u5E38\u7528"
+      category: DEFAULT_PROMPT_SNIPPET_CATEGORY
     };
     renderPromptSnippetForm("save", snippet);
     positionPromptSnippetPopoverAtSelectionButton();
@@ -5903,9 +7419,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     <div class="prompt-snippet-popover-meta">${escapeHtml9(snippet.title)} \xB7 ${escapeHtml9(snippet.category)}</div>
     <div class="prompt-snippet-popover-preview">${escapeHtml9(snippet.content)}</div>
     <div class="prompt-snippet-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>\u5C55\u5F00</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>\u7F16\u8F91</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>\u5173\u95ED</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>${escapeHtml9(translate("snippets.expand"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>${escapeHtml9(translate("snippets.edit"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>${escapeHtml9(translate("snippets.close"))}</button>
     </div>
   `;
     function handlePopoverActionClick(event, action) {
@@ -5927,26 +7443,26 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     promptSnippetPopoverState.snippetId = snippet.id || null;
     popover.innerHTML = `
     <form class="prompt-snippet-form">
-      <div class="prompt-snippet-popover-title">${mode === "edit" ? "\u7F16\u8F91\u7247\u6BB5" : "\u6536\u85CF\u7247\u6BB5"}</div>
+      <div class="prompt-snippet-popover-title">${escapeHtml9(mode === "edit" ? translate("snippets.editTitle") : translate("snippets.saveTitle"))}</div>
       <label class="prompt-snippet-field">
-        <span>\u77ED\u6807\u7B7E</span>
+        <span>${escapeHtml9(translate("snippets.shortTag"))}</span>
         <input class="prompt-snippet-input" type="text" maxlength="24" value="${escapeHtml9(snippet.tag || "")}" data-prompt-snippet-tag>
       </label>
       <label class="prompt-snippet-field">
-        <span>\u6807\u9898</span>
-        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml9(snippet.title || "")}" placeholder="\u9ED8\u8BA4\u4F7F\u7528\u77ED\u6807\u7B7E" data-prompt-snippet-title>
+        <span>${escapeHtml9(translate("snippets.title"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml9(snippet.title || "")}" placeholder="${escapeHtml9(translate("snippets.titlePlaceholder"))}" data-prompt-snippet-title>
       </label>
       <label class="prompt-snippet-field">
-        <span>\u5206\u7C7B</span>
-        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml9(snippet.category || "\u5E38\u7528")}" data-prompt-snippet-category>
+        <span>${escapeHtml9(translate("snippets.category"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml9(snippet.category || DEFAULT_PROMPT_SNIPPET_CATEGORY)}" data-prompt-snippet-category>
       </label>
       <label class="prompt-snippet-field">
-        <span>\u5185\u5BB9</span>
+        <span>${escapeHtml9(translate("snippets.content"))}</span>
         <textarea class="prompt-snippet-input prompt-snippet-textarea" maxlength="4000" data-prompt-snippet-content>${escapeHtml9(snippet.content || "")}</textarea>
       </label>
       <div class="prompt-snippet-popover-actions">
-        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>\u53D6\u6D88</button>
-        <button class="ghost-button text-sm" type="submit">${mode === "edit" ? "\u4FDD\u5B58" : "\u6536\u85CF"}</button>
+        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>${escapeHtml9(translate("snippets.cancel"))}</button>
+        <button class="ghost-button text-sm" type="submit">${escapeHtml9(mode === "edit" ? translate("snippets.save") : translate("snippets.saveSelection"))}</button>
       </div>
     </form>
   `;
@@ -5964,7 +7480,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const payload = {
       tag: popover.querySelector("[data-prompt-snippet-tag]")?.value || "",
       title: popover.querySelector("[data-prompt-snippet-title]")?.value || "",
-      category: popover.querySelector("[data-prompt-snippet-category]")?.value || "\u5E38\u7528",
+      category: popover.querySelector("[data-prompt-snippet-category]")?.value || DEFAULT_PROMPT_SNIPPET_CATEGORY,
       content: popover.querySelector("[data-prompt-snippet-content]")?.value || ""
     };
     try {
@@ -5975,7 +7491,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u7247\u6BB5\u4FDD\u5B58\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("snippets.saveFailed"));
       state12.promptSnippets = normalizePromptSnippetList(data.snippets);
       const snippet = normalizePromptSnippet(data.snippet);
       if (isEdit && promptSnippetPopoverState.chip) {
@@ -5986,9 +7502,9 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       }
       closePromptSnippetPopover();
       hidePromptSnippetSelectionButton();
-      setStatus12("\u63D0\u793A\u8BCD\u7247\u6BB5\u5DF2\u4FDD\u5B58", "ok");
+      setStatus12(translate("snippets.saved"), "ok");
     } catch (error) {
-      setStatus12(error.message || "\u63D0\u793A\u8BCD\u7247\u6BB5\u4FDD\u5B58\u5931\u8D25", "error");
+      setStatus12(error.message || translate("snippets.saveFailed"), "error");
     }
   }
   function replacePromptSelectionWithSnippet(snippet) {
@@ -6026,7 +7542,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const label = chip.querySelector(".prompt-snippet-chip-label");
     if (label) label.textContent = normalized.tag;
     const remove = chip.querySelector("[data-remove-prompt-snippet-chip]");
-    if (remove) remove.setAttribute("aria-label", `\u79FB\u9664 ~${normalized.tag}`);
+    if (remove) remove.setAttribute("aria-label", formatTranslation("snippets.remove", { tag: normalized.tag }));
   }
   function expandPromptSnippetChip(chip) {
     const snippet = promptSnippetFromChip(chip);
@@ -6039,7 +7555,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   }
   function suggestPromptSnippetTag(text) {
     const clean = String(text || "").replace(/[~～@#，。,.]/g, " ").replace(/\s+/g, "").trim();
-    return clean.slice(0, 8) || "\u5E38\u7528\u7247\u6BB5";
+    return clean.slice(0, 8) || translate("snippets.defaultTag");
   }
   function positionPromptSnippetPopoverAtSelectionButton() {
     const popover = promptSnippetPopoverElement();
@@ -6160,7 +7676,28 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   var PROMPT_TEMPLATE_CATEGORIES_ENDPOINT = "/api/prompt-template-categories";
   var PROMPT_TEMPLATE_IMPORT_ENDPOINT = "/api/prompt-templates/import";
   var PROMPT_TEMPLATE_EXPORT_ENDPOINT = "/api/prompt-templates/export.json";
-  var DEFAULT_PROMPT_TEMPLATE_CATEGORIES = ["\u5E38\u7528", "\u4EBA\u50CF", "\u4EA7\u54C1", "\u4FEE\u590D", "\u6D77\u62A5", "\u7535\u5546"];
+  var PROMPT_TEMPLATE_CATEGORY_COMMON = "\u5E38\u7528";
+  var PROMPT_TEMPLATE_CATEGORY_PORTRAIT = "\u4EBA\u50CF";
+  var PROMPT_TEMPLATE_CATEGORY_PRODUCT = "\u4EA7\u54C1";
+  var PROMPT_TEMPLATE_CATEGORY_REPAIR = "\u4FEE\u590D";
+  var PROMPT_TEMPLATE_CATEGORY_POSTER = "\u6D77\u62A5";
+  var PROMPT_TEMPLATE_CATEGORY_ECOMMERCE = "\u7535\u5546";
+  var DEFAULT_PROMPT_TEMPLATE_CATEGORIES = [
+    PROMPT_TEMPLATE_CATEGORY_COMMON,
+    PROMPT_TEMPLATE_CATEGORY_PORTRAIT,
+    PROMPT_TEMPLATE_CATEGORY_PRODUCT,
+    PROMPT_TEMPLATE_CATEGORY_REPAIR,
+    PROMPT_TEMPLATE_CATEGORY_POSTER,
+    PROMPT_TEMPLATE_CATEGORY_ECOMMERCE
+  ];
+  var DEFAULT_PROMPT_TEMPLATE_CATEGORY_I18N_KEYS = {
+    [PROMPT_TEMPLATE_CATEGORY_COMMON]: "templates.categoryCommon",
+    [PROMPT_TEMPLATE_CATEGORY_PORTRAIT]: "templates.categoryPortrait",
+    [PROMPT_TEMPLATE_CATEGORY_PRODUCT]: "templates.categoryProduct",
+    [PROMPT_TEMPLATE_CATEGORY_REPAIR]: "templates.categoryRepair",
+    [PROMPT_TEMPLATE_CATEGORY_POSTER]: "templates.categoryPoster",
+    [PROMPT_TEMPLATE_CATEGORY_ECOMMERCE]: "templates.categoryEcommerce"
+  };
   var bridge14 = getLegacyBridge();
   var state13 = bridge14.state;
   var els15 = bridge14.els;
@@ -6209,7 +7746,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       title,
       short_title: String(value.short_title || title).trim().slice(0, 12) || title.slice(0, 12),
       content,
-      category: String(value.category || "\u5E38\u7528").trim() || "\u5E38\u7528",
+      category: String(value.category || PROMPT_TEMPLATE_CATEGORY_COMMON).trim() || PROMPT_TEMPLATE_CATEGORY_COMMON,
       tags,
       mode: String(value.mode || "any"),
       model_hint: String(value.model_hint || "gpt-image-2"),
@@ -6245,8 +7782,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       seen.add(key);
       return true;
     }).sort((left, right) => left.order - right.order || left.name.localeCompare(right.name, "zh-Hans-CN"));
-    if (!categories.some((category) => category.id === "\u5E38\u7528")) {
-      categories.unshift({ id: "\u5E38\u7528", name: "\u5E38\u7528", order: 10 });
+    if (!categories.some((category) => category.id === PROMPT_TEMPLATE_CATEGORY_COMMON)) {
+      categories.unshift({ id: PROMPT_TEMPLATE_CATEGORY_COMMON, name: PROMPT_TEMPLATE_CATEGORY_COMMON, order: 10 });
     }
     return categories;
   }
@@ -6265,10 +7802,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(PROMPT_TEMPLATES_ENDPOINT);
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u6A21\u677F\u8BFB\u53D6\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.loadFailed"));
       applyPromptTemplateSettingsResponse(data);
     } catch (error) {
-      console.warn(error.message || "\u63D0\u793A\u8BCD\u6A21\u677F\u8BFB\u53D6\u5931\u8D25");
+      console.warn(error.message || translate("templates.loadFailed"));
       state13.promptTemplates = [];
       state13.promptTemplateCategories = normalizePromptTemplateCategoryList([]);
       renderPromptTemplateCategories();
@@ -6339,28 +7876,33 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const categories = normalizePromptTemplateCategoryList(state13.promptTemplateCategories);
     state13.promptTemplateCategories = categories;
     els15.promptTemplateCategoryList.innerHTML = [
-      `<button class="prompt-template-category ${state13.promptTemplateCategory ? "" : "active"}" data-prompt-template-category="" type="button">\u5168\u90E8</button>`,
+      `<button class="prompt-template-category ${state13.promptTemplateCategory ? "" : "active"}" data-prompt-template-category="" type="button">${translate("templates.all")}</button>`,
       ...categories.map((category) => `
       <button class="prompt-template-category ${state13.promptTemplateCategory === category.id ? "active" : ""}" data-prompt-template-category="${escapeHtml10(category.id)}" type="button">
-        ${escapeHtml10(category.name)}
+        ${escapeHtml10(promptTemplateCategoryLabel(category.name))}
       </button>
     `)
     ].join("");
+  }
+  function promptTemplateCategoryLabel(category) {
+    const name = String(category || "").trim();
+    const key = DEFAULT_PROMPT_TEMPLATE_CATEGORY_I18N_KEYS[name];
+    return key ? translate(key) : name;
   }
   function renderPromptTemplateCategoryPanel() {
     if (!els15.promptTemplateCategoryPanel) return;
     const categories = normalizePromptTemplateCategoryList(state13.promptTemplateCategories);
     els15.promptTemplateCategoryPanel.innerHTML = `
     <div class="prompt-template-category-create">
-      <input class="control" type="text" maxlength="32" placeholder="\u65B0\u5206\u7C7B" data-prompt-template-category-new>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>\u6DFB\u52A0</button>
+      <input class="control" type="text" maxlength="32" placeholder="${escapeHtml10(translate("templates.newCategory"))}" data-prompt-template-category-new>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>${escapeHtml10(translate("action.add"))}</button>
     </div>
     <div class="prompt-template-category-manage-list">
       ${categories.map((category) => `
         <div class="prompt-template-category-manage-row" data-prompt-template-category-row="${escapeHtml10(category.id)}">
           <input class="control" type="text" maxlength="32" value="${escapeHtml10(category.name)}" data-prompt-template-category-name>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>\u4FDD\u5B58</button>
-          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === "\u5E38\u7528" ? "disabled" : ""}>\u5220\u9664</button>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>${escapeHtml10(translate("action.save"))}</button>
+          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === PROMPT_TEMPLATE_CATEGORY_COMMON ? "disabled" : ""}>${escapeHtml10(translate("action.delete"))}</button>
         </div>
       `).join("")}
     </div>
@@ -6404,10 +7946,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const templates = promptTemplatesForDisplay();
     if (els15.promptTemplateSummary) {
       els15.promptTemplateSummary.className = "prompt-template-summary";
-      els15.promptTemplateSummary.textContent = templates.length ? `${templates.length} \u4E2A\u53EF\u7528\u6A21\u677F` : "\u6682\u65E0\u5339\u914D\u6A21\u677F";
+      els15.promptTemplateSummary.textContent = templates.length ? formatTranslation("templates.availableCount", { count: templates.length }) : translate("templates.noMatch");
     }
     if (!templates.length) {
-      els15.promptTemplateList.innerHTML = '<div class="prompt-template-empty">\u6682\u65E0\u6A21\u677F</div>';
+      els15.promptTemplateList.innerHTML = `<div class="prompt-template-empty">${translate("templates.empty")}</div>`;
       return;
     }
     els15.promptTemplateList.innerHTML = templates.map((template) => `
@@ -6417,8 +7959,8 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       <span class="prompt-template-card-subtitle">${escapeHtml10(template.title)}</span>
       <span class="prompt-template-card-preview">${escapeHtml10(promptTemplatePreview(template.content, 64))}</span>
       <span class="prompt-template-card-meta">
-        <span>${escapeHtml10(template.category)}</span>
-        <span>${template.favorite ? "\u5DF2\u6536\u85CF" : `${template.usage_count || 0} \u6B21`}</span>
+        <span>${escapeHtml10(promptTemplateCategoryLabel(template.category))}</span>
+        <span>${template.favorite ? translate("templates.favoriteBadge") : formatTranslation("templates.usageCount", { count: template.usage_count || 0 })}</span>
       </span>
     </button>
   `).join("");
@@ -6445,22 +7987,22 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     hidePromptTemplateForm();
     els15.promptTemplateDetail.innerHTML = `
     <div class="prompt-template-detail-header">
-      <button class="ghost-button text-sm" type="button" data-prompt-template-back>\u8FD4\u56DE</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-edit="${escapeHtml10(template.id)}">\u7F16\u8F91</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-back>${translate("templates.back")}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-edit="${escapeHtml10(template.id)}">${translate("templates.edit")}</button>
     </div>
     ${template.thumbnail_url ? `<img class="prompt-template-detail-thumb" src="${escapeHtml10(template.thumbnail_url)}" alt="">` : ""}
     <h3>${escapeHtml10(template.title)}</h3>
     <div class="prompt-template-detail-meta">
-      <span>${escapeHtml10(template.category)}</span>
+      <span>${escapeHtml10(promptTemplateCategoryLabel(template.category))}</span>
       <span>${escapeHtml10(template.model_hint)}</span>
-      ${template.favorite ? "<span>\u6536\u85CF</span>" : ""}
+      ${template.favorite ? `<span>${translate("templates.favoriteBadge")}</span>` : ""}
     </div>
     <div class="prompt-template-detail-content">${escapeHtml10(template.content)}</div>
     ${template.notes ? `<p class="prompt-template-detail-notes">${escapeHtml10(template.notes)}</p>` : ""}
     <div class="prompt-template-detail-actions">
-      <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml10(template.id)}">\u590D\u5236</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml10(template.id)}">\u63D2\u5165</button>
-      <button class="run-button" type="button" data-prompt-template-replace="${escapeHtml10(template.id)}">\u66FF\u6362</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml10(template.id)}">${translate("templates.copy")}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml10(template.id)}">${translate("templates.insert")}</button>
+      <button class="run-button" type="button" data-prompt-template-replace="${escapeHtml10(template.id)}">${translate("action.replace")}</button>
     </div>
   `;
     els15.promptTemplateList?.classList.add("hidden");
@@ -6487,19 +8029,19 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(`${PROMPT_TEMPLATES_ENDPOINT}/${encodeURIComponent(template.id)}/use`, { method: "POST" });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u6A21\u677F\u4F7F\u7528\u72B6\u6001\u66F4\u65B0\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.useStateUpdateFailed"));
       applyPromptTemplateSettingsResponse(data);
     } catch (error) {
-      console.warn(error.message || "\u63D0\u793A\u8BCD\u6A21\u677F\u4F7F\u7528\u72B6\u6001\u66F4\u65B0\u5931\u8D25");
+      console.warn(error.message || translate("templates.useStateUpdateFailed"));
     }
   }
   async function copyPromptTemplateContent(template) {
     if (!template) return;
     try {
       await navigator.clipboard.writeText(template.content);
-      setStatus13("\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u590D\u5236", "ok");
+      setStatus13(translate("templates.copied"), "ok");
     } catch {
-      setStatus13("\u63D0\u793A\u8BCD\u6A21\u677F\u590D\u5236\u5931\u8D25", "error");
+      setStatus13(translate("templates.copyFailed"), "error");
     }
   }
   function renderPromptTemplateForm(template = null) {
@@ -6509,7 +8051,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       title: "",
       short_title: "",
       content: getPromptText4(),
-      category: "\u5E38\u7528",
+      category: PROMPT_TEMPLATE_CATEGORY_COMMON,
       tags: [],
       notes: "",
       thumbnail_url: "",
@@ -6521,49 +8063,49 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     els15.promptTemplateForm.innerHTML = `
     <form class="prompt-template-form" data-prompt-template-form-id="${escapeHtml10(value.id || "")}">
       <div class="prompt-template-form-header">
-        <button class="ghost-button text-sm" type="button" data-prompt-template-back>\u8FD4\u56DE</button>
-        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml10(value.id)}">\u5220\u9664</button>` : ""}
+        <button class="ghost-button text-sm" type="button" data-prompt-template-back>${escapeHtml10(translate("templates.back"))}</button>
+        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml10(value.id)}">${escapeHtml10(translate("action.delete"))}</button>` : ""}
       </div>
       <label class="prompt-template-field">
-        <span>\u6807\u9898</span>
+        <span>${escapeHtml10(translate("templates.formTitle"))}</span>
         <input class="control" type="text" maxlength="80" value="${escapeHtml10(value.title || "")}" data-prompt-template-title>
       </label>
       <label class="prompt-template-field">
-        <span>\u77ED\u6807\u9898</span>
+        <span>${escapeHtml10(translate("templates.formShortTitle"))}</span>
         <input class="control" type="text" maxlength="12" value="${escapeHtml10(value.short_title || "")}" data-prompt-template-short-title>
       </label>
       <label class="prompt-template-field">
-        <span>\u5206\u7C7B</span>
+        <span>${escapeHtml10(translate("templates.formCategory"))}</span>
         <select class="control" data-prompt-template-category-input>
-          ${categories.map((category) => `<option value="${escapeHtml10(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml10(category.name)}</option>`).join("")}
+          ${categories.map((category) => `<option value="${escapeHtml10(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml10(promptTemplateCategoryLabel(category.name))}</option>`).join("")}
         </select>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>\u6807\u7B7E</span>
+        <span>${escapeHtml10(translate("templates.formTags"))}</span>
         <input class="control" type="text" value="${escapeHtml10((value.tags || []).join("\uFF0C"))}" data-prompt-template-tags>
       </label>
       <div class="prompt-template-field prompt-template-field-full prompt-template-thumbnail-field">
-        <span>\u7F29\u7565\u56FE</span>
+        <span>${escapeHtml10(translate("templates.formThumbnail"))}</span>
         <input type="hidden" value="${escapeHtml10(value.thumbnail_url || "")}" data-prompt-template-thumbnail-url>
         <div class="prompt-template-thumbnail-row">
           <div class="prompt-template-thumbnail-preview" data-prompt-template-thumbnail-preview></div>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>\u6E05\u9664</button>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>${escapeHtml10(translate("templates.thumbnailClear"))}</button>
         </div>
         <div class="prompt-template-thumbnail-picker" data-prompt-template-thumbnail-picker></div>
       </div>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>\u5185\u5BB9</span>
+        <span>${escapeHtml10(translate("templates.formContent"))}</span>
         <textarea class="control prompt-template-textarea" maxlength="8000" data-prompt-template-content>${escapeHtml10(value.content || "")}</textarea>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>\u5907\u6CE8</span>
+        <span>${escapeHtml10(translate("templates.formNotes"))}</span>
         <textarea class="control prompt-template-notes" maxlength="500" data-prompt-template-notes>${escapeHtml10(value.notes || "")}</textarea>
       </label>
       <label class="prompt-template-check">
         <input type="checkbox" ${value.favorite ? "checked" : ""} data-prompt-template-favorite>
-        <span>\u6536\u85CF</span>
+        <span>${escapeHtml10(translate("templates.formFavorite"))}</span>
       </label>
-      <button class="run-button prompt-template-save" type="submit">\u4FDD\u5B58</button>
+      <button class="run-button prompt-template-save" type="submit">${escapeHtml10(translate("action.save"))}</button>
     </form>
   `;
     els15.promptTemplateForm.classList.remove("hidden");
@@ -6594,7 +8136,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         seen.add(url);
         items.push({
           url,
-          label: `${promptTemplatePreview(task?.prompt || task?.prompt_for_model || task?.task_id || "\u5386\u53F2\u8BB0\u5F55", 18)} ${index + 1}`
+          label: `${promptTemplatePreview(task?.prompt || task?.prompt_for_model || task?.task_id || translate("templates.history"), 18)} ${index + 1}`
         });
       });
     });
@@ -6608,12 +8150,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const input = form.querySelector("[data-prompt-template-thumbnail-url]");
     if (input) input.value = selectedUrl;
     if (preview) {
-      preview.innerHTML = selectedUrl ? `<img src="${escapeHtml10(selectedUrl)}" alt=""><span>${escapeHtml10(promptTemplatePreview(selectedUrl, 30))}</span>` : "<span>\u672A\u9009\u62E9</span>";
+      preview.innerHTML = selectedUrl ? `<img src="${escapeHtml10(selectedUrl)}" alt=""><span>${escapeHtml10(promptTemplatePreview(selectedUrl, 30))}</span>` : `<span>${escapeHtml10(translate("templates.thumbnailNone"))}</span>`;
     }
     if (!picker) return;
     const thumbnails = historyTemplateThumbnails();
     if (!thumbnails.length) {
-      picker.innerHTML = '<div class="prompt-template-thumbnail-empty">\u6682\u65E0\u5386\u53F2\u7F29\u7565\u56FE</div>';
+      picker.innerHTML = `<div class="prompt-template-thumbnail-empty">${escapeHtml10(translate("templates.thumbnailEmpty"))}</div>`;
       return;
     }
     picker.innerHTML = thumbnails.map((item) => `
@@ -6637,7 +8179,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     const payload = {
       title: form.querySelector("[data-prompt-template-title]")?.value || "",
       short_title: form.querySelector("[data-prompt-template-short-title]")?.value || "",
-      category: form.querySelector("[data-prompt-template-category-input]")?.value || "\u5E38\u7528",
+      category: form.querySelector("[data-prompt-template-category-input]")?.value || PROMPT_TEMPLATE_CATEGORY_COMMON,
       tags: (form.querySelector("[data-prompt-template-tags]")?.value || "").split(/[，,]/).map((tag) => tag.trim()).filter(Boolean),
       content: form.querySelector("[data-prompt-template-content]")?.value || "",
       notes: form.querySelector("[data-prompt-template-notes]")?.value || "",
@@ -6652,12 +8194,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u6A21\u677F\u4FDD\u5B58\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.saveFailed"));
       applyPromptTemplateSettingsResponse(data);
       hidePromptTemplateForm();
-      setStatus13("\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u4FDD\u5B58", "ok");
+      setStatus13(translate("templates.saved"), "ok");
     } catch (error) {
-      setStatus13(error.message || "\u63D0\u793A\u8BCD\u6A21\u677F\u4FDD\u5B58\u5931\u8D25", "error");
+      setStatus13(error.message || translate("templates.saveFailed"), "error");
     }
   }
   async function deletePromptTemplate(template) {
@@ -6665,13 +8207,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(`${PROMPT_TEMPLATES_ENDPOINT}/${encodeURIComponent(template.id)}`, { method: "DELETE" });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u63D0\u793A\u8BCD\u6A21\u677F\u5220\u9664\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.deleteFailed"));
       applyPromptTemplateSettingsResponse(data);
       hidePromptTemplateForm();
       hidePromptTemplateDetail();
-      setStatus13("\u63D0\u793A\u8BCD\u6A21\u677F\u5DF2\u5220\u9664", "ok");
+      setStatus13(translate("templates.deleted"), "ok");
     } catch (error) {
-      setStatus13(error.message || "\u63D0\u793A\u8BCD\u6A21\u677F\u5220\u9664\u5931\u8D25", "error");
+      setStatus13(error.message || translate("templates.deleteFailed"), "error");
     }
   }
   async function createPromptTemplateCategory(name) {
@@ -6684,12 +8226,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ name: clean })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u6A21\u677F\u5206\u7C7B\u6DFB\u52A0\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.categoryAddFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13("\u6A21\u677F\u5206\u7C7B\u5DF2\u6DFB\u52A0", "ok");
+      setStatus13(translate("templates.categoryAdded"), "ok");
     } catch (error) {
-      setStatus13(error.message || "\u6A21\u677F\u5206\u7C7B\u6DFB\u52A0\u5931\u8D25", "error");
+      setStatus13(error.message || translate("templates.categoryAddFailed"), "error");
     }
   }
   async function updatePromptTemplateCategory(categoryId, name) {
@@ -6702,12 +8244,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         body: JSON.stringify({ name: clean })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u6A21\u677F\u5206\u7C7B\u4FDD\u5B58\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.categorySaveFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13("\u6A21\u677F\u5206\u7C7B\u5DF2\u4FDD\u5B58", "ok");
+      setStatus13(translate("templates.categorySaved"), "ok");
     } catch (error) {
-      setStatus13(error.message || "\u6A21\u677F\u5206\u7C7B\u4FDD\u5B58\u5931\u8D25", "error");
+      setStatus13(error.message || translate("templates.categorySaveFailed"), "error");
     }
   }
   async function deletePromptTemplateCategory(categoryId) {
@@ -6715,12 +8257,12 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(`${PROMPT_TEMPLATE_CATEGORIES_ENDPOINT}/${encodeURIComponent(String(categoryId))}`, { method: "DELETE" });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u6A21\u677F\u5206\u7C7B\u5220\u9664\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.categoryDeleteFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13("\u6A21\u677F\u5206\u7C7B\u5DF2\u5220\u9664", "ok");
+      setStatus13(translate("templates.categoryDeleted"), "ok");
     } catch (error) {
-      setStatus13(error.message || "\u6A21\u677F\u5206\u7C7B\u5220\u9664\u5931\u8D25", "error");
+      setStatus13(error.message || translate("templates.categoryDeleteFailed"), "error");
     }
   }
   async function importPromptTemplatePack(file) {
@@ -6730,13 +8272,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     try {
       const response = await fetch(PROMPT_TEMPLATE_IMPORT_ENDPOINT, { method: "POST", body: formData });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "\u6A21\u677F\u5305\u5BFC\u5165\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("templates.importFailed"));
       applyPromptTemplateSettingsResponse(data);
-      const message = `\u5DF2\u5BFC\u5165 ${data.imported || 0} \u4E2A\u6A21\u677F`;
+      const message = formatTranslation("templates.importedCount", { count: data.imported || 0 });
       setPromptTemplateSummary(message, "ok");
       setStatus13(message, "ok");
     } catch (error) {
-      const message = error.message || "\u6A21\u677F\u5305\u5BFC\u5165\u5931\u8D25";
+      const message = error.message || translate("templates.importFailed");
       setPromptTemplateSummary(message, "error");
       setStatus13(message, "error");
     }
@@ -6750,7 +8292,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       });
       const text = await response.text();
       if (!response.ok) {
-        let message = "\u6A21\u677F\u5305\u5BFC\u51FA\u5931\u8D25";
+        let message = translate("templates.exportFailed");
         try {
           const data = JSON.parse(text);
           message = data?.detail || message;
@@ -6770,10 +8312,10 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
         URL.revokeObjectURL(objectUrl);
         link.remove();
       }, 0);
-      setPromptTemplateSummary("\u6A21\u677F\u5305\u5DF2\u5BFC\u51FA", "ok");
-      setStatus13("\u6A21\u677F\u5305\u5DF2\u5BFC\u51FA", "ok");
+      setPromptTemplateSummary(translate("templates.exported"), "ok");
+      setStatus13(translate("templates.exported"), "ok");
     } catch (error) {
-      const message = error.message || "\u6A21\u677F\u5305\u5BFC\u51FA\u5931\u8D25";
+      const message = error.message || translate("templates.exportFailed");
       setPromptTemplateSummary(message, "error");
       setStatus13(message, "error");
     } finally {
@@ -6952,6 +8494,13 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     });
   }
   function initPromptTemplatesFeature() {
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderPromptTemplateCategories();
+      renderPromptTemplateList();
+      if (state13.selectedPromptTemplateId && !els15.promptTemplateDetail?.classList.contains("hidden")) {
+        selectPromptTemplate(state13.selectedPromptTemplateId);
+      }
+    });
     Object.assign(getLegacyBridge().methods, {
       normalizePromptTemplate,
       normalizePromptTemplateCategory,
@@ -6961,6 +8510,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       openPromptTemplateDrawer,
       closePromptTemplateDrawer,
       renderPromptTemplateCategories,
+      promptTemplateCategoryLabel,
       renderPromptTemplateCategoryPanel,
       togglePromptTemplateCategoryPanel,
       promptTemplatesForDisplay,
@@ -7208,7 +8758,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
   function escapeHtml11(value) {
     return legacyMethod20("escapeHtml", value);
   }
-  function categoryLabel4(category) {
+  function categoryLabel5(category) {
     return legacyMethod20("categoryLabel", category);
   }
   function categoryPromptRole2(category) {
@@ -7291,7 +8841,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     <button type="button" class="mention-option" data-mention-id="${escapeHtml11(item.id)}">
       <img src="${escapeHtml11(item.image_url)}" alt="">
       <span>@${escapeHtml11(item.name)}</span>
-      <small>${escapeHtml11(categoryLabel4(item.category))}</small>
+      <small>${escapeHtml11(categoryLabel5(item.category))}</small>
     </button>
   `).join("");
     els17.mentionSuggest.querySelectorAll("[data-mention-id]").forEach((button) => {
@@ -7383,7 +8933,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     chip.dataset.galleryId = item.id;
     chip.dataset.galleryName = item.name;
     chip.dataset.galleryCategory = item.category || "";
-    chip.dataset.galleryCategoryName = item.category_name || categoryLabel4(item.category);
+    chip.dataset.galleryCategoryName = item.category_name || categoryLabel5(item.category);
     chip.dataset.galleryCategoryPromptRole = item.category_prompt_role || categoryPromptRole2(item.category);
     chip.dataset.galleryPromptNote = item.prompt_note || "";
     chip.dataset.galleryImageUrl = item.image_url || "";
@@ -7396,7 +8946,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     remove.className = "gallery-chip-remove";
     remove.type = "button";
     remove.setAttribute("data-remove-gallery-chip", "");
-    remove.setAttribute("aria-label", `\u79FB\u9664 @${item.name}`);
+    remove.setAttribute("aria-label", formatTranslation("promptGallery.remove", { name: item.name }));
     remove.textContent = "\xD7";
     chip.append(image, label, remove);
     chip.addEventListener("keydown", (event) => {
@@ -7459,7 +9009,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
       if (item) return gallerySource3(item);
       return gallerySource3({
         id: itemId,
-        name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || "\u56FE\u5E93\u56FE\u7247",
+        name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || translate("gallery.imageFallback"),
         category: chip.dataset.galleryCategory || "",
         category_name: chip.dataset.galleryCategoryName || "",
         category_prompt_role: chip.dataset.galleryCategoryPromptRole || "",
@@ -8122,7 +9672,7 @@ ${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
     if (!galleries.length) return "";
     const referenceOffset = uploadInputs2().length + referenceAssetInputs2().length;
     const lines = galleries.map((source, index) => galleryReferenceInstruction(source, referenceOffset + index + 1));
-    return `\u53C2\u8003\u56FE\u8BF4\u660E\uFF1A
+    return `${translate("promptModel.galleryHeader")}
 ${lines.join("\n")}`;
   }
   function buildPromptForModel() {
@@ -8137,7 +9687,12 @@ ${galleryText}`;
   function galleryReferenceInstruction(source, number) {
     const role = source.category_prompt_role || categoryPromptRole3(source.category);
     const promptNote = String(source.prompt_note || "").trim();
-    return `- \u53C2\u8003\u56FE ${number}\uFF1A\u56FE\u5E93\u300C${source.name}\u300D\uFF0C\u7528\u9014\uFF1A${role}\u3002\u63D0\u793A\u8BCD\u4E2D\u7684 @${source.name} \u6307\u8FD9\u5F20\u56FE\u3002${promptNote ? ` ${promptNote}` : ""}`;
+    return formatTranslation("promptModel.galleryInstruction", {
+      number,
+      name: source.name,
+      role,
+      note: promptNote ? ` ${promptNote}` : ""
+    });
   }
   function currentPromptForModel() {
     return currentPromptFidelity() === "original" ? expandPromptSnippets2(getPromptText8()) : buildPromptForModel();
@@ -8265,7 +9820,7 @@ ${galleryText}`;
   }
   function setPromptFindCount(count = promptFindMatches.length) {
     if (els22.promptFindCount) {
-      els22.promptFindCount.textContent = `${count} \u5904`;
+      els22.promptFindCount.textContent = formatTranslation("prompt.matchCount", { count });
     }
   }
   function updatePromptFindControls() {
@@ -8278,7 +9833,7 @@ ${galleryText}`;
   function countPromptFindMatches() {
     promptFindMatches = collectPromptFindMatches();
     setPromptFindCount();
-    setPromptFindStatus(promptFindMatches.length ? `\u627E\u5230 ${promptFindMatches.length} \u5904` : "\u672A\u627E\u5230\u5339\u914D\u6587\u672C");
+    setPromptFindStatus(promptFindMatches.length ? formatTranslation("prompt.foundCount", { count: promptFindMatches.length }) : translate("prompt.noMatch"));
     updatePromptFindControls();
   }
   function replaceAllPromptMatches() {
@@ -8286,7 +9841,7 @@ ${galleryText}`;
     promptFindMatches = matches;
     if (!matches.length) {
       setPromptFindCount(0);
-      setPromptFindStatus("\u672A\u627E\u5230\u5339\u914D\u6587\u672C");
+      setPromptFindStatus(translate("prompt.noMatch"));
       updatePromptFindControls();
       return;
     }
@@ -8300,7 +9855,7 @@ ${galleryText}`;
     syncPromptAfterFindMutation();
     promptFindMatches = collectPromptFindMatches();
     setPromptFindCount();
-    setPromptFindStatus(`\u5DF2\u66FF\u6362 ${matches.length} \u5904`);
+    setPromptFindStatus(formatTranslation("prompt.replacedCount", { count: matches.length }));
     updatePromptFindControls();
   }
   function clearPromptFindResult() {
@@ -8496,7 +10051,7 @@ ${galleryText}`;
     const options = mainModelOptionsForQuery(query);
     state16.mainModelOptionIndex = Math.min(Math.max(0, state16.mainModelOptionIndex), Math.max(0, options.length - 1));
     if (!options.length) {
-      els24.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">\u6309\u5F53\u524D\u8F93\u5165\u4F7F\u7528\u81EA\u5B9A\u4E49\u6A21\u578B</div>`;
+      els24.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">${escapeHtml12(translate("output.mainModelCustomForInput"))}</div>`;
       els24.mainModel.removeAttribute("aria-activedescendant");
       return;
     }
@@ -8701,12 +10256,12 @@ ${galleryText}`;
     return normalizeCustomDimension(input?.value);
   }
   function customSizeValidationMessage(width = customDimensionValue(els25.customWidth), height = customDimensionValue(els25.customHeight)) {
-    if (width === null || height === null) return "\u8BF7\u8F93\u5165\u5BBD\u5EA6\u548C\u9AD8\u5EA6";
-    if (width < 16 || width > 3840 || height < 16 || height > 3840) return "\u5BBD\u9AD8\u9700\u5728 16-3840 px \u4E4B\u95F4";
-    if (width % 16 !== 0 || height % 16 !== 0) return "\u5BBD\u9AD8\u9700\u4E3A 16 \u7684\u500D\u6570";
-    if (Math.max(width, height) / Math.min(width, height) > GPT_IMAGE_2_MAX_LONG_SHORT_RATIO) return "\u957F\u77ED\u8FB9\u6BD4\u4F8B\u4E0D\u80FD\u8D85\u8FC7 3:1";
+    if (width === null || height === null) return translate("output.customSizeRequired");
+    if (width < 16 || width > 3840 || height < 16 || height > 3840) return translate("output.customSizeBounds");
+    if (width % 16 !== 0 || height % 16 !== 0) return translate("output.customSizeMultiple");
+    if (Math.max(width, height) / Math.min(width, height) > GPT_IMAGE_2_MAX_LONG_SHORT_RATIO) return translate("output.customSizeRatio");
     const totalPixels = width * height;
-    if (totalPixels < GPT_IMAGE_2_MIN_PIXELS || totalPixels > GPT_IMAGE_2_MAX_PIXELS) return "\u603B\u50CF\u7D20\u9700\u5728 655,360-8,294,400 \u4E4B\u95F4";
+    if (totalPixels < GPT_IMAGE_2_MIN_PIXELS || totalPixels > GPT_IMAGE_2_MAX_PIXELS) return translate("output.customSizePixels");
     return "";
   }
   function findPresetForSize(size) {
@@ -8877,10 +10432,10 @@ ${galleryText}`;
         if (width > 0 && height > 0) {
           resolve({ width, height });
         } else {
-          reject(new Error("\u56FE\u7247\u5C3A\u5BF8\u4E0D\u53EF\u7528"));
+          reject(new Error(formatTranslation("output.imageSizeUnavailable")));
         }
       };
-      image.onerror = () => reject(new Error("\u56FE\u7247\u52A0\u8F7D\u5931\u8D25"));
+      image.onerror = () => reject(new Error(formatTranslation("output.imageLoadFailed")));
       image.src = String(url || "");
     });
   }
@@ -9006,21 +10561,24 @@ ${galleryText}`;
   function updatePixelPreview(size) {
     if (!els26.pixelPreview) return;
     if (size === "auto") {
-      els26.pixelPreview.textContent = "\u8F93\u51FA\u50CF\u7D20: auto\uFF08OpenAI \u81EA\u52A8\u9009\u62E9\uFF09";
+      els26.pixelPreview.textContent = formatTranslation("output.pixelPreviewAuto");
       return;
     }
     if (size === "custom") {
       const message = customSizeValidationMessage();
       if (message) {
-        els26.pixelPreview.textContent = `\u8F93\u51FA\u50CF\u7D20: ${message}`;
+        els26.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", { value: message });
         return;
       }
-      els26.pixelPreview.textContent = `\u8F93\u51FA\u50CF\u7D20: ${customDimensionValue(els26.customWidth)} x ${customDimensionValue(els26.customHeight)} px`;
+      els26.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", {
+        value: `${customDimensionValue(els26.customWidth)} x ${customDimensionValue(els26.customHeight)} px`
+      });
       return;
     }
     const [width, height] = String(size).split("x");
-    els26.pixelPreview.textContent = `\u8F93\u51FA\u50CF\u7D20: ${width} x ${height} px`;
+    els26.pixelPreview.textContent = formatTranslation("output.pixelPreviewValue", { value: `${width} x ${height} px` });
   }
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => updatePixelPreview(els26.size?.value || ""));
   function syncSizeControlsFromSize(size) {
     if (!size || size === "auto") {
       if (els26.customSizeToggle) els26.customSizeToggle.checked = false;
@@ -9180,7 +10738,7 @@ ${galleryText}`;
     const message = isCustom ? customSizeValidationMessage() : "";
     els26.customSize?.classList.toggle("has-error", Boolean(message));
     if (els26.customSizeHint) {
-      els26.customSizeHint.textContent = message || "\u5355\u4F4D px \xB7 16-3840 \xB7 16\u500D\u6570 \xB7 \u22643:1";
+      els26.customSizeHint.textContent = message || formatTranslation("output.customSizeHint");
     }
     updateCustomRatioFieldState();
   }
@@ -9191,6 +10749,12 @@ ${galleryText}`;
   var els27 = bridge24.els;
   var formControlsInitialized = false;
   var formControlEventsBound = false;
+  function syncRunButtonLabel2() {
+    if (!els27.runButton || state18.runTimerId) return;
+    const mode = state18.mode === "edit" ? "edit" : "generate";
+    els27.runButton.textContent = translate(mode === "edit" ? "prompt.runEdit" : "prompt.run");
+    els27.runButton.title = translate(mode === "edit" ? "prompt.runEditTitle" : "prompt.runTitle");
+  }
   function bindFormControlEvents() {
     if (formControlEventsBound) return;
     formControlEventsBound = true;
@@ -9269,7 +10833,7 @@ ${galleryText}`;
       button.classList.toggle("active", button.dataset.mode === mode);
     });
     if (!state18.runTimerId) {
-      els27.runButton.textContent = mode === "edit" ? "\u5F00\u59CB\u7F16\u8F91" : "\u5F00\u59CB\u751F\u6210";
+      syncRunButtonLabel2();
     }
     syncRadioButtons(els27.quality, els27.outputFormat, els27.moderation);
     updateRequestPreview10();
@@ -9277,9 +10841,11 @@ ${galleryText}`;
   function initFormControlsFeature() {
     if (formControlsInitialized) return;
     formControlsInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, syncRunButtonLabel2);
     Object.assign(getLegacyBridge().methods, {
       bindFormControlEvents,
       setMode: setMode4,
+      syncRunButtonLabel: syncRunButtonLabel2,
       updateQuantity,
       updateCompression,
       openCompressionPopover,
@@ -9410,7 +10976,7 @@ ${galleryText}`;
     renderActiveTaskGroup(activeHtml);
     if (!tasks.length) {
       expandedTaskGroupRenderToken += 1;
-      els28.taskList.innerHTML = `<div class="task-meta">\u6682\u65E0\u5386\u53F2\u4EFB\u52A1</div>`;
+      els28.taskList.innerHTML = `<div class="task-meta">${escapeHtml13(translate("taskList.empty"))}</div>`;
       updateDocumentTitle();
       return;
     }
@@ -9601,7 +11167,7 @@ ${galleryText}`;
     }
     scrollExpandedTaskGroupToTop("smooth");
     if (clearedControls) {
-      legacyMethod29("setStatus", "\u5DF2\u663E\u793A\u8FDB\u884C\u4E2D\u4EFB\u52A1", "ok");
+      legacyMethod29("setStatus", translate("status.shownActiveTasks"), "ok");
     }
   }
   function renderExpandedTaskGroupShellHtml(group) {
@@ -9614,7 +11180,7 @@ ${galleryText}`;
         data-task-group-toggle-key="${groupKey}"
         data-task-group-expanded="true"
         aria-expanded="false"
-        aria-label="\u6536\u8D77 ${escapeHtml13(group.label)}"
+        aria-label="${escapeHtml13(formatTranslation("taskGroup.collapse", { label: group.label }))}"
       >
         <span class="task-group-label-button">
           <span class="task-group-title">
@@ -9672,7 +11238,7 @@ ${galleryText}`;
   function activeTaskDispatchPendingHtml() {
     return `
     <div class="task-active-empty" data-active-task-section="dispatch-pending">
-      \u6B63\u5728\u5206\u914D\u53EF\u7528\u901A\u9053...
+      ${translate("taskGroup.dispatchPending")}
     </div>
   `;
   }
@@ -9682,7 +11248,7 @@ ${galleryText}`;
     if (!activeTasks.length) return null;
     return {
       key: "active",
-      label: "\u8FDB\u884C\u4E2D",
+      label: translate("taskGroup.active"),
       tasks: activeTasks,
       collapsible: false,
       defaultCollapsed: false
@@ -9693,8 +11259,8 @@ ${galleryText}`;
     const sections = activeTaskSections(group.tasks || []);
     const dispatchPending = Boolean(legacyMethod29("isQueueDispatchPending"));
     const body = [
-      activeTaskSectionHtml("running", "\u8FD0\u884C\u4E2D", sections.running),
-      activeTaskSectionHtml("waiting", "\u7B49\u5F85\u4E2D", sections.waiting),
+      activeTaskSectionHtml("running", translate("taskGroup.running"), sections.running),
+      activeTaskSectionHtml("waiting", translate("taskGroup.waiting"), sections.waiting),
       !sections.running.length && !sections.waiting.length && dispatchPending ? activeTaskDispatchPendingHtml() : ""
     ].join("");
     return `
@@ -9728,7 +11294,7 @@ ${galleryText}`;
         data-task-group-toggle-key="${groupKey}"
         data-task-group-expanded="true"
         aria-expanded="true"
-        aria-label="\u6536\u8D77 ${escapeHtml13(group.label)}"
+        aria-label="${escapeHtml13(formatTranslation("taskGroup.collapse", { label: group.label }))}"
       >
         <span class="task-group-label-button">
           <span class="task-group-title">
@@ -9758,7 +11324,7 @@ ${galleryText}`;
     return expandedTaskGroupHtml(group);
   }
   function taskGroupButtonLabel(group) {
-    return `${group.label}\uFF0C${group.tasks.length} \u4E2A\u4EFB\u52A1`;
+    return formatTranslation("taskGroup.buttonLabel", { label: group.label, count: group.tasks.length });
   }
   function taskQueueSection(task, queueIds = queueTaskIdsBySection()) {
     const taskId = String(task?.task_id || "");
@@ -9775,34 +11341,51 @@ ${galleryText}`;
     if (!queueSection) return "";
     const taskId = escapeHtml13(task.task_id);
     if (queueSection === "running") {
+      const runningActionsLabel = escapeHtml13(translate("queue.runningActions"));
+      const cancelLabel = escapeHtml13(translate("queue.cancelRunning"));
+      const cancelTitle = escapeHtml13(translate("queue.cancelRunningTitle"));
       return `
-      <div class="task-queue-actions task-queue-actions-running" role="group" aria-label="\u8FD0\u884C\u4EFB\u52A1\u961F\u5217\u64CD\u4F5C" data-task-queue-section="${escapeHtml13(queueSection)}">
-        <button class="task-queue-action task-queue-cancel-button" type="button" data-task-queue-cancel-id="${taskId}" aria-label="\u53D6\u6D88\u8FD0\u884C\u4EFB\u52A1" title="\u53D6\u6D88\u8FD0\u884C\u4EFB\u52A1">\u53D6\u6D88</button>
+      <div class="task-queue-actions task-queue-actions-running" role="group" aria-label="${runningActionsLabel}" data-task-queue-section="${escapeHtml13(queueSection)}">
+        <button class="task-queue-action task-queue-cancel-button" type="button" data-task-queue-cancel-id="${taskId}" aria-label="${cancelTitle}" title="${cancelTitle}">${cancelLabel}</button>
       </div>
     `;
     }
     const waitingCount = (state19.queue.waiting || []).length;
     const disableMoveUp = waitingIndex <= 0;
     const disableMoveDown = waitingIndex < 0 || waitingIndex >= waitingCount - 1;
+    const waitingActionsLabel = escapeHtml13(translate("queue.waitingActions"));
+    const dragWaitingLabel = escapeHtml13(translate("queue.dragWaiting"));
+    const dragSortLabel = escapeHtml13(translate("queue.dragSort"));
+    const moveUpLabel = escapeHtml13(translate("queue.moveUp"));
+    const moveUpTitle = escapeHtml13(translate("queue.moveUpTitle"));
+    const moveDownLabel = escapeHtml13(translate("queue.moveDown"));
+    const moveDownTitle = escapeHtml13(translate("queue.moveDownTitle"));
+    const promoteLabel = escapeHtml13(translate("queue.promote"));
+    const promoteTitle = escapeHtml13(translate("queue.promoteTitle"));
+    const deleteLabel = escapeHtml13(translate("queue.deleteWaitingShort"));
+    const deleteTitle = escapeHtml13(translate("queue.deleteWaitingTitle"));
     return `
-    <div class="task-queue-actions task-queue-actions-waiting" role="group" aria-label="\u7B49\u5F85\u4EFB\u52A1\u961F\u5217\u64CD\u4F5C" data-task-queue-section="${escapeHtml13(queueSection)}">
-      <button class="task-queue-drag-handle" type="button" draggable="true" data-task-queue-drag-handle-id="${taskId}" aria-label="\u62D6\u52A8\u8C03\u6574\u7B49\u5F85\u987A\u5E8F" title="\u62D6\u52A8\u6392\u5E8F">
+    <div class="task-queue-actions task-queue-actions-waiting" role="group" aria-label="${waitingActionsLabel}" data-task-queue-section="${escapeHtml13(queueSection)}">
+      <button class="task-queue-drag-handle" type="button" draggable="true" data-task-queue-drag-handle-id="${taskId}" aria-label="${dragWaitingLabel}" title="${dragSortLabel}">
         <svg class="task-queue-drag-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
           <path d="M5 3.5h.1M5 8h.1M5 12.5h.1M10.5 3.5h.1M10.5 8h.1M10.5 12.5h.1" />
         </svg>
       </button>
-      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="up" aria-label="\u4E0A\u79FB\u7B49\u5F85\u4EFB\u52A1" title="\u4E0A\u79FB"${disableMoveUp ? " disabled" : ""}>\u4E0A</button>
-      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="down" aria-label="\u4E0B\u79FB\u7B49\u5F85\u4EFB\u52A1" title="\u4E0B\u79FB"${disableMoveDown ? " disabled" : ""}>\u4E0B</button>
-      <button class="task-queue-action" type="button" data-task-queue-promote-id="${taskId}" aria-label="\u7F6E\u9876\u7B49\u5F85\u4EFB\u52A1" title="\u7F6E\u9876">\u9876</button>
-      <button class="task-queue-action task-queue-delete-button" type="button" data-task-queue-delete-id="${taskId}" aria-label="\u5220\u9664\u7B49\u5F85\u4EFB\u52A1" title="\u5220\u9664\u7B49\u5F85\u4EFB\u52A1">\u5220</button>
+      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="up" aria-label="${moveUpTitle}" title="${moveUpTitle}"${disableMoveUp ? " disabled" : ""}>${moveUpLabel}</button>
+      <button class="task-queue-action" type="button" data-task-queue-move-id="${taskId}" data-task-queue-direction="down" aria-label="${moveDownTitle}" title="${moveDownTitle}"${disableMoveDown ? " disabled" : ""}>${moveDownLabel}</button>
+      <button class="task-queue-action" type="button" data-task-queue-promote-id="${taskId}" aria-label="${promoteTitle}" title="${promoteTitle}">${promoteLabel}</button>
+      <button class="task-queue-action task-queue-delete-button" type="button" data-task-queue-delete-id="${taskId}" aria-label="${deleteTitle}" title="${deleteTitle}">${deleteLabel}</button>
     </div>
   `;
   }
   function taskCardActionsHtml(taskId, queueSection = "") {
     if (queueSection) return "";
+    const actionGroupLabel = escapeHtml13(translate("taskActions.group"));
+    const archiveLabel = escapeHtml13(translate("taskContext.archive"));
+    const deleteLabel = escapeHtml13(translate("taskContext.delete"));
     return `
-      <div class="task-card-actions" role="group" aria-label="\u4EFB\u52A1\u64CD\u4F5C">
-        <button class="task-archive-button" type="button" data-archive-task-id="${taskId}" aria-label="\u5F52\u6863\u4EFB\u52A1" title="\u5F52\u6863\u4EFB\u52A1">
+      <div class="task-card-actions" role="group" aria-label="${actionGroupLabel}">
+        <button class="task-archive-button" type="button" data-archive-task-id="${taskId}" aria-label="${archiveLabel}" title="${archiveLabel}">
           <svg class="task-action-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
             <path d="M4 6h12v11H4z" />
             <path d="M6 3h8l2 3H4l2-3z" />
@@ -9810,7 +11393,7 @@ ${galleryText}`;
             <path d="M7.5 10.5L10 13l2.5-2.5" />
           </svg>
         </button>
-        <button class="task-delete-button" type="button" data-delete-task-id="${taskId}" aria-label="\u5220\u9664\u4EFB\u52A1" title="\u5220\u9664\u4EFB\u52A1">
+        <button class="task-delete-button" type="button" data-delete-task-id="${taskId}" aria-label="${deleteLabel}" title="${deleteLabel}">
           <svg class="task-action-icon task-delete-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
             <path d="M5 5h10" />
             <path d="M8 5l1-2h2l1 2" />
@@ -9849,11 +11432,11 @@ ${galleryText}`;
     const queueActions = taskQueueActionStripHtml(task, queueSection, waitingQueueIndex(task.task_id, queueIds));
     const taskActions = taskCardActionsHtml(taskId, queueSection);
     const batchSelect = state19.batchMode ? `
-      <button class="task-select-button" type="button" data-batch-select-task-id="${taskId}" aria-pressed="${batchSelected ? "true" : "false"}" aria-label="\u9009\u62E9\u4F1A\u8BDD">
+      <button class="task-select-button" type="button" data-batch-select-task-id="${taskId}" aria-pressed="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml13(translate("taskList.selectSession"))}">
         <span></span>
       </button>
     ` : "";
-    const unreadDot = unread ? '<span class="task-unread-dot" aria-label="\u672A\u8BFB\u66F4\u65B0"></span>' : "";
+    const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml13(translate("taskList.unreadUpdate"))}"></span>` : "";
     return `
     <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}"${queueTaskData}>
       ${batchSelect}
@@ -9896,7 +11479,7 @@ ${galleryText}`;
     if (query) {
       return [{
         key: "search",
-        label: "\u641C\u7D22\u7ED3\u679C",
+        label: translate("taskGroup.searchResults"),
         tasks,
         collapsible: false,
         defaultCollapsed: false
@@ -9919,14 +11502,14 @@ ${galleryText}`;
     const unassignedTasks = () => historicalTasks.filter((task) => !assignedTaskIds.has(String(task.task_id)));
     addGroup(
       "today",
-      "\u4ECA\u5929",
+      translate("taskGroup.today"),
       unassignedTasks().filter((task) => taskDateBucket(task) === "today"),
       { collapsible: true, defaultCollapsed: false }
     );
     [
-      ["yesterday", "\u6628\u5929"],
-      ["last7", "\u6700\u8FD1 7 \u5929"],
-      ["older", "\u66F4\u65E9"]
+      ["yesterday", translate("taskGroup.yesterday")],
+      ["last7", translate("taskGroup.last7")],
+      ["older", translate("taskGroup.older")]
     ].forEach(([key, label]) => {
       addGroup(
         key,
@@ -10044,8 +11627,9 @@ ${galleryText}`;
     const safeClassName = escapeHtml13(className);
     if (imageUrl && inputPreviewUrl) {
       const loadingSpinner = taskThumbShowsLoading(task) ? '<span class="task-thumb-stack-spinner" aria-hidden="true"></span>' : "";
+      const imageToImageLabel = escapeHtml13(translate("taskCard.imageToImageThumb"));
       return `
-      <div class="${safeClassName} task-thumb-stack" aria-label="\u56FE\u751F\u56FE\u4EFB\u52A1\u7F29\u7565\u56FE">
+      <div class="${safeClassName} task-thumb-stack" aria-label="${imageToImageLabel}">
         <img class="task-thumb-reference" src="${escapeHtml13(inputPreviewUrl)}" alt="" loading="lazy" decoding="async">
         <img class="task-thumb-output" src="${escapeHtml13(imageUrl)}" alt="" loading="lazy" decoding="async">
         ${loadingSpinner}
@@ -10053,21 +11637,23 @@ ${galleryText}`;
     `;
     }
     if (imageUrl) {
+      const textToImageLabel = escapeHtml13(translate("taskCard.textToImageThumb"));
+      const textBadge = escapeHtml13(translate("taskCard.textBadge"));
       return `
-      <div class="${safeClassName} task-thumb-single" aria-label="\u6587\u751F\u56FE\u4EFB\u52A1\u7F29\u7565\u56FE">
+      <div class="${safeClassName} task-thumb-single" aria-label="${textToImageLabel}">
         <img class="task-thumb-single-image" src="${escapeHtml13(imageUrl)}" alt="" loading="lazy" decoding="async">
-        <span class="task-thumb-mode-badge" aria-hidden="true">\u6587</span>
+        <span class="task-thumb-mode-badge" aria-hidden="true">${textBadge}</span>
       </div>
     `;
     }
     if (task.status === "failed") {
-      return `<div class="${safeClassName} failed-thumb" aria-label="\u4EFB\u52A1\u5931\u8D25"><span>!</span></div>`;
+      return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml13(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
     }
     return `<div class="${safeClassName} running-thumb"><span></span></div>`;
   }
   function taskStatusLightHtml(task) {
     const tone = taskStatusTone(task);
-    const label = escapeHtml13(formatTaskStatus2(task) || "\u672A\u77E5\u72B6\u6001");
+    const label = escapeHtml13(formatTaskStatus2(task) || translate("taskStatus.unknown"));
     const taskId = escapeHtml13(task?.task_id || "");
     return `
     <span class="task-status-light ${tone}" aria-hidden="true"></span>
@@ -10083,7 +11669,7 @@ ${galleryText}`;
     return "unknown";
   }
   function taskStatusAccessibleLabel2(task) {
-    return [formatTaskStatus2(task) || "\u672A\u77E5\u72B6\u6001", taskImageSummaryText(task), taskMetaDetailsText(task)].filter(Boolean).join(" \xB7 ");
+    return [formatTaskStatus2(task) || translate("taskStatus.unknown"), taskImageSummaryText(task), taskMetaDetailsText(task)].filter(Boolean).join(" \xB7 ");
   }
   function taskMetaDetailsText(task) {
     const failure = taskFailureMessage(task);
@@ -10104,9 +11690,15 @@ ${galleryText}`;
   function taskImageSummaryText(task) {
     const states = taskImageBlockStates(task);
     const counts = taskImageStatusCounts(states);
-    const parts = [`${states.length} \u5F20`, `\u6210\u529F ${counts.completed}`, `\u5931\u8D25 ${counts.failed}`];
-    if (counts.running) parts.push(`\u751F\u6210\u4E2D ${counts.running}`);
-    if (counts.queued || counts.waiting) parts.push(`\u7B49\u5F85 ${counts.queued + counts.waiting}`);
+    const parts = [
+      formatTranslation("taskCard.count", { count: states.length }),
+      formatTranslation("taskCard.successCount", { count: counts.completed }),
+      formatTranslation("taskCard.failedCount", { count: counts.failed })
+    ];
+    if (counts.running) parts.push(formatTranslation("taskCard.runningCount", { count: counts.running }));
+    if (counts.queued || counts.waiting) {
+      parts.push(formatTranslation("taskCard.waitingCount", { count: counts.queued + counts.waiting }));
+    }
     return parts.join(" \xB7 ");
   }
   function taskMetaText2(task) {
@@ -10117,6 +11709,10 @@ ${galleryText}`;
     return [status, size, backend].filter(Boolean).join(" \xB7 ");
   }
   function initTaskListRenderFeature() {
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      state19.tasksRenderKey = null;
+      renderTasks2();
+    });
     Object.assign(getLegacyBridge().methods, {
       renderTasks: renderTasks2,
       taskSearchQuery,
@@ -10275,7 +11871,7 @@ ${galleryText}`;
       data-task-group-anchor-key="${key}"
       data-task-group-toggle-key="${key}"
       aria-expanded="false"
-      aria-label="\u5C55\u5F00 ${escapeHtml14(group.label)}"
+      aria-label="${escapeHtml14(formatTranslation("taskGroup.expand", { label: group.label }))}"
     >
       <span class="task-history-anchor-label">
         <span class="task-group-title">
@@ -10477,7 +12073,7 @@ ${galleryText}`;
       body: JSON.stringify({ archived })
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || (archived ? "\u5F52\u6863\u5931\u8D25" : "\u6062\u590D\u5931\u8D25"));
+    if (!response.ok) throw new Error(data.detail || (archived ? translate("archive.archiveFailed") : translate("archive.restoreFailed")));
     return data.task;
   }
   async function migrateLegacyArchivedTasks() {
@@ -10505,7 +12101,7 @@ ${galleryText}`;
   function renderArchiveButton() {
     if (!els30.archiveButton) return;
     const count = state21.tasks.filter((task) => isTaskArchived2(task.task_id)).length;
-    els30.archiveButton.textContent = count ? `\u4F1A\u8BDD\u5F52\u6863 ${count}` : "\u4F1A\u8BDD\u5F52\u6863";
+    els30.archiveButton.textContent = count ? formatTranslation("footer.archiveCount", { count }) : translate("footer.archive");
   }
   async function restoreArchivedTask(taskId) {
     try {
@@ -10514,9 +12110,9 @@ ${galleryText}`;
       renderTasks3();
       renderArchiveButton();
       renderArchiveModal();
-      setStatus14("\u4F1A\u8BDD\u5DF2\u6062\u590D", "ok");
+      setStatus14(translate("archive.restored"), "ok");
     } catch (error) {
-      setStatus14(errorMessage(error, "\u6062\u590D\u5931\u8D25"), "error");
+      setStatus14(errorMessage(error, translate("archive.restoreFailed")), "error");
     }
   }
   function openArchiveModal() {
@@ -10532,9 +12128,9 @@ ${galleryText}`;
   function renderArchiveModal() {
     if (!els30.archiveList || !els30.archiveCount) return;
     const archivedTasks = state21.tasks.filter((task) => isTaskArchived2(task.task_id));
-    els30.archiveCount.textContent = archivedTasks.length ? `${archivedTasks.length} \u4E2A\u5F52\u6863\u4F1A\u8BDD` : "\u6682\u65E0\u5F52\u6863\u4F1A\u8BDD";
+    els30.archiveCount.textContent = archivedTasks.length ? formatTranslation("archive.count", { count: archivedTasks.length }) : translate("archive.empty");
     if (!archivedTasks.length) {
-      els30.archiveList.innerHTML = `<div class="archive-empty">\u6682\u65E0\u5F52\u6863\u4F1A\u8BDD</div>`;
+      els30.archiveList.innerHTML = `<div class="archive-empty">${translate("archive.empty")}</div>`;
       return;
     }
     els30.archiveList.innerHTML = archivedTasks.map((task) => {
@@ -10551,8 +12147,8 @@ ${galleryText}`;
           <span>${status} \xB7 ${size}</span>
         </div>
         <div class="archive-card-actions">
-          <button class="ghost-button text-sm" type="button" data-restore-archive-task-id="${taskId}">\u6062\u590D</button>
-          <button class="ghost-button text-sm danger-button" type="button" data-delete-archive-task-id="${taskId}">\u5220\u9664</button>
+          <button class="ghost-button text-sm" type="button" data-restore-archive-task-id="${taskId}">${translate("archive.restore")}</button>
+          <button class="ghost-button text-sm danger-button" type="button" data-delete-archive-task-id="${taskId}">${translate("action.delete")}</button>
         </div>
       </article>
     `;
@@ -10577,6 +12173,10 @@ ${galleryText}`;
     });
   }
   function initTaskArchiveControlsFeature() {
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderArchiveButton();
+      renderArchiveModal();
+    });
     Object.assign(getLegacyBridge().methods, {
       taskArchived: taskArchived2,
       restoreLegacyArchivedTasks,
@@ -10673,7 +12273,7 @@ ${galleryText}`;
     els31.batchManageButton?.classList.toggle("active", state22.batchMode);
     const count = state22.batchSelectedTaskIds.length;
     if (els31.batchSelectedCount) {
-      els31.batchSelectedCount.textContent = `\u5DF2\u9009\u62E9 ${count} \u4E2A`;
+      els31.batchSelectedCount.textContent = formatTranslation("batch.selectedCount", { count });
     }
     [els31.batchArchiveButton, els31.batchDeleteButton].forEach((button) => {
       if (button) button.disabled = count === 0;
@@ -10698,14 +12298,14 @@ ${galleryText}`;
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(`\u5DF2\u5F52\u6863 ${ids.length} \u4E2A\u4F1A\u8BDD`, "ok");
+      setStatus15(formatTranslation("batch.archivedCount", { count: ids.length }), "ok");
     } catch (error) {
       updatedTasks.forEach(replaceTask2);
       renderTasks4();
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(errorMessage2(error, "\u6279\u91CF\u5F52\u6863\u5931\u8D25"), "error");
+      setStatus15(errorMessage2(error, formatTranslation("batch.archiveFailed")), "error");
     }
   }
   function openBatchDeleteConfirm() {
@@ -10713,14 +12313,14 @@ ${galleryText}`;
     const deletableTasks = selectedTasks.filter((task) => task.status !== "running" && !task.local_pending);
     const skippedCount = selectedTasks.length - deletableTasks.length;
     if (!deletableTasks.length) {
-      setStatus15("\u9009\u4E2D\u7684\u4F1A\u8BDD\u6B63\u5728\u8FD0\u884C\uFF0C\u4E0D\u80FD\u5220\u9664", "error");
+      setStatus15(formatTranslation("batch.runningCannotDeleteSelected"), "error");
       return;
     }
     openConfirmPopover4(els31.batchDeleteButton, {
-      title: `\u5220\u9664 ${deletableTasks.length} \u4E2A\u4F1A\u8BDD\uFF1F`,
-      message: "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
-      detail: skippedCount ? `${skippedCount} \u4E2A\u8FD0\u884C\u4E2D\u4EFB\u52A1\u4F1A\u4FDD\u7559` : "",
-      confirmText: "\u5220\u9664",
+      title: formatTranslation("batch.deleteTitle", { count: deletableTasks.length }),
+      message: formatTranslation("batch.deleteMessage"),
+      detail: skippedCount ? formatTranslation("batch.deleteSkippedDetail", { count: skippedCount }) : "",
+      confirmText: formatTranslation("action.delete"),
       onConfirm: async () => {
         await deleteSelectedTasks(deletableTasks, skippedCount);
       }
@@ -10737,14 +12337,14 @@ ${galleryText}`;
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      const skippedText = skippedCount ? `\uFF0C${skippedCount} \u4E2A\u8FD0\u884C\u4E2D\u672A\u5220\u9664` : "";
-      setStatus15(`\u5DF2\u5220\u9664 ${deletableTasks.length} \u4E2A\u4F1A\u8BDD${skippedText}`, "ok");
+      const skippedText = skippedCount ? formatTranslation("batch.deleteSkippedSuffix", { count: skippedCount }) : "";
+      setStatus15(formatTranslation("batch.deletedCount", { count: deletableTasks.length, skipped: skippedText }), "ok");
     } catch (error) {
       renderTasks4();
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(errorMessage2(error, "\u6279\u91CF\u5220\u9664\u5931\u8D25"), "error");
+      setStatus15(errorMessage2(error, formatTranslation("batch.deleteFailed")), "error");
     }
   }
   function handleTaskListPointerDown(event) {
@@ -10855,6 +12455,7 @@ ${galleryText}`;
     window.removeEventListener("pointercancel", handleTaskListPointerUp);
   }
   function initTaskBatchControlsFeature() {
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderBatchToolbar2);
     Object.assign(getLegacyBridge().methods, {
       toggleBatchMode,
       toggleBatchTaskSelection,
@@ -10961,7 +12562,7 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3(updatedTask);
-      setStatus16("\u4EFB\u52A1\u72B6\u6001\u5DF2\u66F4\u65B0", "ok");
+      setStatus16(translate("taskActions.updated"), "ok");
       return true;
     } catch (error) {
       console.warn(error);
@@ -10982,9 +12583,9 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3();
-      setStatus16("\u4F1A\u8BDD\u5DF2\u5F52\u6863", "ok");
+      setStatus16(translate("taskActions.archived"), "ok");
     } catch (error) {
-      setStatus16(errorMessage3(error, "\u5F52\u6863\u5931\u8D25"), "error");
+      setStatus16(errorMessage3(error, translate("taskActions.archiveFailed")), "error");
     }
   }
   async function deleteTask(taskId) {
@@ -10995,9 +12596,9 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3();
-      setStatus16("\u4EFB\u52A1\u5DF2\u5220\u9664", "ok");
+      setStatus16(translate("taskActions.deleted"), "ok");
     } catch (error) {
-      setStatus16(errorMessage3(error, "\u5220\u9664\u5931\u8D25"), "error");
+      setStatus16(errorMessage3(error, translate("taskActions.deleteFailed")), "error");
     }
   }
   async function deleteTaskById2(taskId) {
@@ -11006,7 +12607,7 @@ ${galleryText}`;
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.detail || "\u5220\u9664\u5931\u8D25");
+      throw new Error(data.detail || translate("taskActions.deleteFailed"));
     }
     state23.tasks = state23.tasks.filter((item) => String(item.task_id) !== String(taskId));
     removeBatchSelectedTaskId2(taskId);
@@ -11019,7 +12620,7 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task || !canRetryFailedTask(task)) {
       if (await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16("\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u91CD\u8BD5\u7684\u5931\u8D25\u56FE\u7247", "error");
+      setStatus16(translate("taskActions.noRetryableFailedImages"), "error");
       return;
     }
     try {
@@ -11029,17 +12630,17 @@ ${galleryText}`;
         body: JSON.stringify({ api_provider_id: currentApiProviderId2() })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new TaskActionHttpError(data.detail || "\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u5931\u8D25", response.status);
+      if (!response.ok) throw new TaskActionHttpError(data.detail || translate("taskActions.retryFailedOutputsFailed"), response.status);
       const updatedTask = data.task;
       state23.tasks = [updatedTask, ...state23.tasks.filter((item) => String(item.task_id) !== String(taskId))];
       state23.selectedTaskId = updatedTask.task_id;
       renderTasks5();
       renderPreview3(updatedTask);
       await window.refreshQueue?.();
-      setStatus16("\u5DF2\u91CD\u65B0\u5165\u961F\u5931\u8D25\u56FE\u7247", "ok");
+      setStatus16(translate("taskActions.requeuedFailedImages"), "ok");
     } catch (error) {
       if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(errorMessage3(error, "\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u5931\u8D25"), "error");
+      setStatus16(errorMessage3(error, translate("taskActions.retryFailedOutputsFailed")), "error");
     }
   }
   async function acceptTaskSuccesses(taskId) {
@@ -11047,7 +12648,7 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task || !canAcceptTaskSuccesses(task)) {
       if (await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16("\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u63A5\u53D7\u7684\u6210\u529F\u56FE\u7247", "error");
+      setStatus16(translate("taskActions.noAcceptableSuccessImages"), "error");
       return;
     }
     try {
@@ -11056,7 +12657,7 @@ ${galleryText}`;
         headers: { "Content-Type": "application/json" }
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new TaskActionHttpError(data.detail || "\u63A5\u53D7\u6210\u529F\u7ED3\u679C\u5931\u8D25", response.status);
+      if (!response.ok) throw new TaskActionHttpError(data.detail || translate("taskActions.acceptSuccessesFailed"), response.status);
       const updatedTask = data.task;
       updateTaskInState2(updatedTask);
       state23.selectedTaskId = updatedTask.task_id;
@@ -11064,10 +12665,10 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3(updatedTask);
-      setStatus16("\u5DF2\u63A5\u53D7\u6210\u529F\u7ED3\u679C", "ok");
+      setStatus16(translate("taskActions.acceptedSuccesses"), "ok");
     } catch (error) {
       if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(errorMessage3(error, "\u63A5\u53D7\u6210\u529F\u7ED3\u679C\u5931\u8D25"), "error");
+      setStatus16(errorMessage3(error, translate("taskActions.acceptSuccessesFailed")), "error");
     }
   }
   async function markTaskViewed(taskId) {
@@ -11084,7 +12685,7 @@ ${galleryText}`;
         headers: { "Content-Type": "application/json" }
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u5DF2\u8BFB\u72B6\u6001\u66F4\u65B0\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("taskActions.viewedUpdateFailed"));
       if (data.task) updateTaskInState2(data.task);
       updateTaskSelectionVisuals2(taskId);
     } catch (error) {
@@ -11098,15 +12699,15 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task) return;
     if (task.status === "running" || task.local_pending) {
-      setStatus16("\u8FD0\u884C\u4E2D\u7684\u4EFB\u52A1\u4E0D\u80FD\u5220\u9664", "error");
+      setStatus16(translate("taskActions.runningCannotDelete"), "error");
       return;
     }
     const title = task.prompt || task.mode || taskId;
     openConfirmPopover5(deleteButton, {
-      title: "\u5220\u9664\u4EFB\u52A1\uFF1F",
-      message: "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+      title: translate("taskActions.deleteTitle"),
+      message: translate("taskActions.deleteMessage"),
       detail: title,
-      confirmText: "\u5220\u9664",
+      confirmText: translate("action.delete"),
       onConfirm: async () => {
         await deleteTask(taskId);
       }
@@ -11414,19 +13015,19 @@ ${galleryText}`;
     const galleries = galleryInputs4();
     const assets = referenceAssetInputs3();
     if (missingGalleryInputs2().length) {
-      setStatus17("\u6709\u56FE\u5E93\u53C2\u8003\u56FE\u5DF2\u5220\u9664\uFF0C\u8BF7\u79FB\u9664\u540E\u518D\u751F\u6210", "error");
+      setStatus17(translate("status.missingGalleryReference"), "error");
       return;
     }
     if (missingReferenceAssetInputs2().length) {
-      setStatus17("\u6709\u6700\u8FD1\u4E0A\u4F20\u53C2\u8003\u56FE\u5DF2\u5220\u9664\uFF0C\u8BF7\u79FB\u9664\u540E\u518D\u751F\u6210", "error");
+      setStatus17(translate("status.missingRecentReference"), "error");
       return;
     }
     if (!prompt) {
-      setStatus17("\u8BF7\u8F93\u5165\u63D0\u793A\u8BCD", "error");
+      setStatus17(translate("status.emptyPrompt"), "error");
       return;
     }
     if (state24.mode === "edit" && !uploads.length && !assets.length && !galleries.length) {
-      setStatus17("\u7F16\u8F91\u6A21\u5F0F\u81F3\u5C11\u9700\u8981 1 \u5F20\u56FE\u7247", "error");
+      setStatus17(translate("status.editNeedsImage"), "error");
       return;
     }
     const customSizeError = els33.size?.value === "custom" ? customSizeValidationMessage2() : "";
@@ -11467,7 +13068,7 @@ ${galleryText}`;
     if (els33.requestJson) {
       els33.requestJson.textContent = JSON.stringify(pendingTask.request, null, 2);
     }
-    startRunFeedback2(pendingTask, "\u63D0\u4EA4\u4E2D");
+    startRunFeedback2(pendingTask, translate("taskStatus.submitting"));
     els33.runButton.disabled = true;
     const controller = new AbortController();
     const submitTimeoutId = window.setTimeout(() => controller.abort(), SUBMIT_TASK_TIMEOUT_MS);
@@ -11479,20 +13080,20 @@ ${galleryText}`;
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "\u8BF7\u6C42\u5931\u8D25");
+        throw new Error(data.detail || translate("taskSubmit.requestFailed"));
       }
       addQueuedTask(data.task);
       if (els33.requestJson) {
         els33.requestJson.textContent = JSON.stringify(data.request || {}, null, 2);
       }
       stopRunFeedback2();
-      setStatus17("\u4EFB\u52A1\u5DF2\u52A0\u5165\u961F\u5217", "ok");
+      setStatus17(translate("taskSubmit.queued"), "ok");
       await window.refreshQueue?.();
       await refreshRecentAssets2();
       renderPreview4(data.task);
     } catch (error) {
       stopRunFeedback2();
-      const message = error instanceof DOMException && error.name === "AbortError" ? "\u63D0\u4EA4\u4EFB\u52A1\u8D85\u65F6\uFF0C\u540E\u7AEF\u6CA1\u6709\u53CA\u65F6\u8FD4\u56DE\u3002\u8BF7\u5237\u65B0\u961F\u5217\u540E\u786E\u8BA4\u662F\u5426\u5DF2\u5165\u961F\uFF0C\u518D\u51B3\u5B9A\u662F\u5426\u91CD\u8BD5\u3002" : errorMessage4(error, "\u4EFB\u52A1\u63D0\u4EA4\u5931\u8D25");
+      const message = error instanceof DOMException && error.name === "AbortError" ? translate("taskSubmit.timeout") : errorMessage4(error, translate("taskSubmit.failed"));
       markPendingTaskFailed2(pendingTask.task_id, message);
       setStatus17(message, "error");
     } finally {
@@ -11656,6 +13257,7 @@ ${galleryText}`;
     queueFeatureInitialized = true;
     exposeQueueWindowApi();
     bindQueueControls();
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderQueue);
   }
   function exposeQueueWindowApi() {
     window.startRealtimeUpdates = startRealtimeUpdates;
@@ -11679,7 +13281,7 @@ ${galleryText}`;
     source.onmessage = (event) => {
       handleRealtimeMessage(event).catch((error) => {
         console.error(error);
-        getLegacyBridge().methods.setStatus(errorMessage5(error, "\u5B9E\u65F6\u72B6\u6001\u66F4\u65B0\u5931\u8D25"), "error");
+        getLegacyBridge().methods.setStatus(errorMessage5(error, translate("queue.realtimeUpdateFailed")), "error");
       });
     };
     source.onerror = () => {
@@ -11689,7 +13291,7 @@ ${galleryText}`;
       state32.realtimeSnapshotNeedsArchiveMigration = false;
       void refreshQueue();
       void getLegacyBridge().methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives });
-      getLegacyBridge().methods.setStatus("\u5B9E\u65F6\u72B6\u6001\u8FDE\u63A5\u5DF2\u65AD\u5F00\uFF0C\u5237\u65B0\u9875\u9762\u53EF\u6062\u590D", "error");
+      getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
     };
     return true;
   }
@@ -11735,12 +13337,12 @@ ${galleryText}`;
       const data = await response.json();
       if (requestSeq !== state32.queueRequestSeq) return;
       if (!response.ok) {
-        throw new Error(data.detail || "\u961F\u5217\u8BFB\u53D6\u5931\u8D25");
+        throw new Error(data.detail || translate("queue.readFailed"));
       }
       state32.queue = normalizeQueueState(data);
       renderQueue();
     } catch (error) {
-      bridge39.methods.setStatus(errorMessage5(error, "\u961F\u5217\u8BFB\u53D6\u5931\u8D25"), "error");
+      bridge39.methods.setStatus(errorMessage5(error, translate("queue.readFailed")), "error");
     }
   }
   function defaultQueueState() {
@@ -11806,13 +13408,13 @@ ${galleryText}`;
   }) {
     const els42 = getEls();
     const total = waitingCount + runningCount;
-    const channelText = usableChannelCount === channelCount ? `\u901A\u9053 ${channelCount}` : `\u53EF\u7528\u901A\u9053 ${usableChannelCount}/${channelCount}`;
-    const text = dispatchPending ? `\u8C03\u5EA6\u4E2D \xB7 \u7B49\u5F85 ${waitingCount}` : total ? `\u8FD0\u884C ${runningCount} \xB7 \u7B49\u5F85 ${waitingCount}` : "\u6682\u65E0\u6392\u961F";
-    const label = total ? `\u961F\u5217\u72B6\u6001\uFF1A${text} \xB7 ${channelText}\u3002\u70B9\u51FB\u8DF3\u8F6C\u5230\u8FDB\u884C\u4E2D\u4EFB\u52A1` : "\u961F\u5217\u72B6\u6001\uFF1A\u6682\u65E0\u6392\u961F";
+    const channelText = usableChannelCount === channelCount ? formatTranslation("queue.channel", { count: channelCount }) : formatTranslation("queue.availableChannels", { usable: usableChannelCount, total: channelCount });
+    const text = dispatchPending ? formatTranslation("queue.dispatching", { waiting: waitingCount }) : total ? formatTranslation("queue.runningWaiting", { running: runningCount, waiting: waitingCount }) : translate("queue.empty");
+    const label = total ? formatTranslation("queue.statusLabel", { text, channelText }) : translate("queue.emptyAria");
     if (els42.queueStatusText) els42.queueStatusText.textContent = text;
     if (els42.queueButton) {
       els42.queueButton.setAttribute("aria-label", label);
-      els42.queueButton.title = total ? "\u8DF3\u8F6C\u5230\u8FDB\u884C\u4E2D\u4EFB\u52A1" : "\u6682\u65E0\u6392\u961F\u4EFB\u52A1";
+      els42.queueButton.title = total ? translate("queue.jumpTitle") : translate("queue.emptyTitle");
       els42.queueButton.classList.toggle("has-queue", total > 0 || dispatchPending);
     }
   }
@@ -11874,15 +13476,15 @@ ${galleryText}`;
   function queueItemTitleText(task, position = null) {
     const bridge39 = getLegacyBridge();
     const queueTask = task;
-    const prefix = position ? `#${position}` : bridge39.methods.formatTaskStatus(task) || "\u4EFB\u52A1";
+    const prefix = position ? `#${position}` : bridge39.methods.formatTaskStatus(task) || translate("taskStatus.task");
     const mode = taskModeLabel(task);
-    const count = `${bridge39.methods.taskTotalCount(task)} \u5F20`;
+    const count = formatTranslation("taskCard.count", { count: bridge39.methods.taskTotalCount(task) });
     const size = queueTask.output_size || task.params?.size || "";
     return [prefix, mode, count, size].filter(Boolean).join(" \xB7 ");
   }
   function taskModeLabel(task) {
-    if (task.mode === "edit") return "\u7F16\u8F91";
-    if (task.mode === "generate") return "\u751F\u6210";
+    if (task.mode === "edit") return translate("taskMode.edit");
+    if (task.mode === "generate") return translate("taskMode.generate");
     return "";
   }
   async function promoteQueueTask(taskId) {
@@ -11892,11 +13494,11 @@ ${galleryText}`;
     try {
       const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}/promote`, { method: "POST" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u7F6E\u9876\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("queue.promoteFailed"));
       applyQueueState(data);
       await bridge39.methods.refreshTasks();
     } catch (error) {
-      bridge39.methods.setStatus(errorMessage5(error, "\u7F6E\u9876\u5931\u8D25"), "error");
+      bridge39.methods.setStatus(errorMessage5(error, translate("queue.promoteFailed")), "error");
     }
   }
   function moveQueueTask(taskId, direction) {
@@ -11919,10 +13521,10 @@ ${galleryText}`;
     const task = bridge39.state.queue.waiting.find((item) => item.task_id === taskId);
     const title = task ? queueItemTitleText(task, task.queue_position || null) : taskId;
     bridge39.methods.openConfirmPopover(button, {
-      title: "\u5220\u9664\u7B49\u5F85\u4EFB\u52A1\uFF1F",
-      message: "\u4F1A\u4ECE\u961F\u5217\u548C\u5386\u53F2\u5217\u8868\u4E2D\u79FB\u9664\u3002",
+      title: translate("queue.deleteWaitingTitleConfirm"),
+      message: translate("queue.deleteWaitingMessage"),
       detail: title,
-      confirmText: "\u5220\u9664",
+      confirmText: translate("action.delete"),
       onConfirm: async () => {
         await performDeleteQueuedTask(taskId);
       }
@@ -11935,7 +13537,7 @@ ${galleryText}`;
     try {
       const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u5220\u9664\u961F\u5217\u4EFB\u52A1\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("queue.deleteQueuedFailed"));
       state32.tasks = state32.tasks.filter((item) => item.task_id !== taskId);
       if (state32.selectedTaskId === taskId) {
         state32.selectedTaskId = state32.tasks[0]?.task_id || null;
@@ -11951,9 +13553,9 @@ ${galleryText}`;
       await refreshQueue();
       await bridge39.methods.refreshTasks();
       bridge39.methods.renderPreview();
-      bridge39.methods.setStatus("\u961F\u5217\u4EFB\u52A1\u5DF2\u5220\u9664", "ok");
+      bridge39.methods.setStatus(translate("queue.queuedDeleted"), "ok");
     } catch (error) {
-      bridge39.methods.setStatus(errorMessage5(error, "\u5220\u9664\u961F\u5217\u4EFB\u52A1\u5931\u8D25"), "error");
+      bridge39.methods.setStatus(errorMessage5(error, translate("queue.deleteQueuedFailed")), "error");
     }
   }
   function cancelRunningTask(button, taskId) {
@@ -11962,10 +13564,10 @@ ${galleryText}`;
     const task = bridge39.state.queue.running.find((item) => item.task_id === taskId);
     const title = task ? queueItemTitleText(task) : taskId;
     bridge39.methods.openConfirmPopover(button, {
-      title: "\u53D6\u6D88\u8FD0\u884C\u4EFB\u52A1\uFF1F",
-      message: "\u5F53\u524D\u4EFB\u52A1\u4F1A\u505C\u6B62\uFF0C\u5386\u53F2\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002",
+      title: translate("queue.cancelRunningTitleConfirm"),
+      message: translate("queue.cancelRunningMessage"),
       detail: title,
-      confirmText: "\u53D6\u6D88\u4EFB\u52A1",
+      confirmText: translate("queue.cancelRunningConfirm"),
       onConfirm: async () => {
         await performCancelRunningTask(taskId);
       }
@@ -11978,7 +13580,7 @@ ${galleryText}`;
     try {
       const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u53D6\u6D88\u4EFB\u52A1\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("queue.cancelRunningFailed"));
       applyQueueState({
         ...state32.queue,
         running: state32.queue.running.filter((item) => item.task_id !== taskId),
@@ -11990,9 +13592,9 @@ ${galleryText}`;
       await refreshQueue();
       await bridge39.methods.refreshTasks();
       bridge39.methods.renderPreview();
-      bridge39.methods.setStatus("\u4EFB\u52A1\u5DF2\u53D6\u6D88", "ok");
+      bridge39.methods.setStatus(translate("queue.runningCancelled"), "ok");
     } catch (error) {
-      bridge39.methods.setStatus(errorMessage5(error, "\u53D6\u6D88\u4EFB\u52A1\u5931\u8D25"), "error");
+      bridge39.methods.setStatus(errorMessage5(error, translate("queue.cancelRunningFailed")), "error");
     }
   }
   async function reorderQueue(taskIds) {
@@ -12005,11 +13607,11 @@ ${galleryText}`;
         body: JSON.stringify({ task_ids: taskIds })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u961F\u5217\u6392\u5E8F\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("queue.reorderFailed"));
       applyQueueState(data);
       await bridge39.methods.refreshTasks();
     } catch (error) {
-      bridge39.methods.setStatus(errorMessage5(error, "\u961F\u5217\u6392\u5E8F\u5931\u8D25"), "error");
+      bridge39.methods.setStatus(errorMessage5(error, translate("queue.reorderFailed")), "error");
       await refreshQueue();
     }
   }
@@ -12318,26 +13920,36 @@ ${galleryText}`;
     taskContextMenuEl = document.createElement("div");
     taskContextMenuEl.className = "task-context-menu hidden";
     taskContextMenuEl.setAttribute("role", "menu");
-    taskContextMenuEl.setAttribute("aria-label", "\u4EFB\u52A1\u53F3\u952E\u83DC\u5355");
+    taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
     document.body.appendChild(taskContextMenuEl);
     return taskContextMenuEl;
+  }
+  function rerenderTaskContextMenuForLocale() {
+    if (!taskContextMenuEl) return;
+    taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
+    if (taskContextMenuEl.classList.contains("hidden")) return;
+    const taskId = String(taskContextMenuEl.dataset.taskContextTaskId || "");
+    const task = taskById(taskId);
+    if (!task) return;
+    taskContextMenuEl.innerHTML = taskContextMenuHtml(task);
+    bindTaskContextMenuActionEvents(taskContextMenuEl);
   }
   function taskContextMenuHtml(task) {
     const hasOutput = taskHasOutput(task);
     const blocked = Boolean(task.local_pending || task.status === "running" || task.status === "submitting" || task.status === "queued");
     return `
     <div class="task-context-menu-section">
-      ${taskContextButton("view", "\u67E5\u770B\u4EFB\u52A1")}
-      ${taskContextButton("restore", "\u6062\u590D\u5230\u8868\u5355")}
+      ${taskContextButton("view", translate("taskContext.view"))}
+      ${taskContextButton("restore", translate("taskContext.restore"))}
     </div>
     <div class="task-context-menu-section">
-      ${taskContextButton("copy-id", "\u590D\u5236\u4EFB\u52A1 ID")}
-      ${taskContextButton("copy-prompt", "\u590D\u5236\u63D0\u793A\u8BCD", !taskPromptText(task))}
-      ${taskContextButton("reveal-output", "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55", !hasOutput)}
+      ${taskContextButton("copy-id", translate("taskContext.copyId"))}
+      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskPromptText(task))}
+      ${taskContextButton("reveal-output", translate("taskContext.revealOutput"), !hasOutput)}
     </div>
     <div class="task-context-menu-section">
-      ${taskContextButton("archive", "\u5F52\u6863\u4EFB\u52A1")}
-      ${taskContextButton("delete", "\u5220\u9664\u4EFB\u52A1", blocked, true)}
+      ${taskContextButton("archive", translate("taskContext.archive"))}
+      ${taskContextButton("delete", translate("taskContext.delete"), blocked, true)}
     </div>
   `;
   }
@@ -12375,20 +13987,20 @@ ${galleryText}`;
         await selectTask(taskId);
       } else if (action === "restore") {
         applyTaskToForm2(task);
-        setStatus18("\u5DF2\u6062\u590D\u4EFB\u52A1\u53C2\u6570", "ok");
+        setStatus18(translate("taskContext.restored"), "ok");
       } else if (action === "copy-id") {
         await copyText(taskId);
-        setStatus18("\u4EFB\u52A1 ID \u5DF2\u590D\u5236", "ok");
+        setStatus18(translate("taskContext.idCopied"), "ok");
       } else if (action === "copy-prompt") {
         await copyText(taskPromptText(task));
-        setStatus18("\u63D0\u793A\u8BCD\u5DF2\u590D\u5236", "ok");
+        setStatus18(translate("taskContext.promptCopied"), "ok");
       } else if (action === "reveal-output") {
         await revealTaskOutputDirectory(taskId);
       } else if (action === "archive") {
         await archiveTask3(taskId);
       }
     } catch (error) {
-      setStatus18(errorMessage6(error, "\u4EFB\u52A1\u64CD\u4F5C\u5931\u8D25"), "error");
+      setStatus18(errorMessage6(error, translate("taskContext.actionFailed")), "error");
     }
   }
   async function revealTaskOutputDirectory(taskId) {
@@ -12397,8 +14009,8 @@ ${galleryText}`;
       headers: { "X-Requested-With": "codex-image-webui" }
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55\u5931\u8D25");
-    setStatus18("\u5DF2\u6253\u5F00\u8F93\u51FA\u76EE\u5F55", "ok");
+    if (!response.ok) throw new Error(data.detail || translate("taskContext.revealFailed"));
+    setStatus18(translate("taskContext.revealOpened"), "ok");
   }
   async function copyText(text) {
     if (navigator.clipboard?.writeText) {
@@ -12452,6 +14064,7 @@ ${galleryText}`;
     if (taskContextMenuInitialized) return;
     taskContextMenuInitialized = true;
     bindTaskContextMenuEvents();
+    document.addEventListener(LOCALE_CHANGE_EVENT, rerenderTaskContextMenuForLocale);
     Object.assign(getLegacyBridge().methods, {
       openTaskContextMenu,
       closeTaskContextMenu
@@ -12471,6 +14084,7 @@ ${galleryText}`;
     restoreTaskNotificationSettings();
     restoreTaskNotificationSeenKeys();
     bindTaskNotificationEvents();
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
     renderTaskNotifications();
     Object.assign(getLegacyBridge().methods, {
       notifyTaskUpdate,
@@ -12524,7 +14138,7 @@ ${galleryText}`;
     const els42 = bridge39.els;
     const unreadCount = state32.taskNotifications.filter((notification) => notification.unread).length;
     state32.taskNotificationUnreadCount = unreadCount;
-    const unreadLabel = unreadCount > 0 ? `\u4EFB\u52A1\u901A\u77E5\uFF0C${unreadCount} \u6761\u672A\u8BFB` : "\u4EFB\u52A1\u901A\u77E5";
+    const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
     if (els42.taskNotificationBadge) {
       els42.taskNotificationBadge.textContent = "";
       els42.taskNotificationBadge.setAttribute("aria-hidden", "true");
@@ -12537,7 +14151,7 @@ ${galleryText}`;
       els42.taskNotificationButton.setAttribute("aria-expanded", state32.taskNotificationCenterOpen ? "true" : "false");
     }
     if (els42.taskNotificationUnreadSummary) {
-      els42.taskNotificationUnreadSummary.textContent = `${unreadCount} \u672A\u8BFB`;
+      els42.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
       els42.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
     }
     if (els42.taskNotificationCenter) {
@@ -12546,27 +14160,27 @@ ${galleryText}`;
     }
     if (!els42.taskNotificationList) return;
     if (!state32.taskNotifications.length) {
-      els42.taskNotificationList.innerHTML = `<div class="task-notification-empty">\u6682\u65E0\u4EFB\u52A1\u901A\u77E5</div>`;
+      els42.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
       return;
     }
     els42.taskNotificationList.innerHTML = state32.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
   }
   async function requestSystemNotificationPermission() {
     if (typeof Notification === "undefined") {
-      setStatus19("\u5F53\u524D\u6D4F\u89C8\u5668\u4E0D\u652F\u6301\u7CFB\u7EDF\u901A\u77E5", "error");
+      setStatus19(translate("notifications.systemUnsupported"), "error");
       return false;
     }
     if (Notification.permission === "granted") return true;
     if (Notification.permission === "denied") {
-      setStatus19("\u7CFB\u7EDF\u901A\u77E5\u5DF2\u88AB\u6D4F\u89C8\u5668\u963B\u6B62\uFF0C\u9700\u8981\u5728\u6D4F\u89C8\u5668\u8BBE\u7F6E\u91CC\u5F00\u542F", "error");
+      setStatus19(translate("notifications.systemBlocked"), "error");
       return false;
     }
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      setStatus19("\u7CFB\u7EDF\u901A\u77E5\u672A\u5F00\u542F", "error");
+      setStatus19(translate("notifications.systemDenied"), "error");
       return false;
     }
-    setStatus19("\u7CFB\u7EDF\u901A\u77E5\u5DF2\u5F00\u542F", "ok");
+    setStatus19(translate("notifications.systemEnabled"), "ok");
     return true;
   }
   function bindTaskNotificationEvents() {
@@ -12659,9 +14273,9 @@ ${galleryText}`;
   function sendSystemTaskNotification(notification) {
     const settings = getLegacyBridge().state.taskNotificationSettings;
     if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
-    const options = { body: notification.message };
+    const options = { body: taskNotificationDisplayMessage(notification) };
     if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
-    const systemNotification = new Notification(notification.title, options);
+    const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
     systemNotification.onclick = () => {
       window.focus();
       void openNotificationTask(notification);
@@ -12674,7 +14288,7 @@ ${galleryText}`;
     markTaskNotificationRead(notification.id);
     closeTaskNotificationCenter();
     if (!task) {
-      setStatus19("\u4EFB\u52A1\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664", "error");
+      setStatus19(translate("notifications.taskMissing"), "error");
       return;
     }
     window.focus();
@@ -12683,7 +14297,7 @@ ${galleryText}`;
       if (typeof selectTask3 !== "function") throw new Error("selectTask is unavailable");
       await selectTask3(task.task_id);
     } catch {
-      setStatus19("\u4EFB\u52A1\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664", "error");
+      setStatus19(translate("notifications.taskMissing"), "error");
     }
   }
   function markTaskNotificationRead(notificationId) {
@@ -12697,30 +14311,54 @@ ${galleryText}`;
   }
   function buildTaskNotification(task, status) {
     const thumbnailUrl = firstTaskThumbnailUrl(task);
+    const successCount = completedOutputCount(task);
+    const failedCount = positiveNumber(task.failed_count);
+    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
+    const errorMessage7 = String(task.last_error || task.error || "");
     return {
       id: taskNotificationSeenKey(task, status),
       task_id: task.task_id,
       status,
       title: taskNotificationTitle(status),
-      message: taskNotificationMessage(task, status),
+      message: taskNotificationMessageFromParts(status, {
+        successCount,
+        failedCount,
+        prompt,
+        errorMessage: errorMessage7
+      }),
+      success_count: successCount,
+      failed_count: failedCount,
+      prompt_snippet: prompt,
+      error_message: errorMessage7,
       created_at: (/* @__PURE__ */ new Date()).toISOString(),
       ...thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {},
       unread: true
     };
   }
   function taskNotificationTitle(status) {
-    if (status === "failed") return "\u4EFB\u52A1\u5931\u8D25";
-    if (status === "partial_failed") return "\u4EFB\u52A1\u90E8\u5206\u5B8C\u6210";
-    return "\u4EFB\u52A1\u5DF2\u5B8C\u6210";
+    if (status === "failed") return translate("notifications.taskFailed");
+    if (status === "partial_failed") return translate("notifications.taskPartial");
+    return translate("notifications.taskCompleted");
   }
-  function taskNotificationMessage(task, status) {
-    if (status === "failed") return String(task.last_error || task.error || "\u751F\u6210\u5931\u8D25");
-    const count = completedOutputCount(task);
-    const failedCount = positiveNumber(task.failed_count);
-    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
-    const countText = count ? `${count} \u5F20\u6210\u529F` : "\u6709\u7ED3\u679C\u53EF\u67E5\u770B";
-    const failureText = status === "partial_failed" && failedCount ? `\uFF0C${failedCount} \u5F20\u5931\u8D25` : "";
-    return [countText + failureText, prompt].filter(Boolean).join(" \xB7 ");
+  function taskNotificationMessageFromParts(status, parts) {
+    if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
+    const countText = parts.successCount ? formatTranslation("notifications.successCount", { count: parts.successCount }) : translate("notifications.resultAvailable");
+    const failureText = status === "partial_failed" && parts.failedCount ? formatTranslation("notifications.failedCount", { count: parts.failedCount }) : "";
+    return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" \xB7 ");
+  }
+  function taskNotificationDisplayTitle(notification) {
+    return taskNotificationTitle(notification.status);
+  }
+  function taskNotificationDisplayMessage(notification) {
+    if (notification.success_count !== void 0 || notification.failed_count !== void 0 || notification.prompt_snippet !== void 0 || notification.error_message !== void 0) {
+      return taskNotificationMessageFromParts(notification.status, {
+        successCount: positiveNumber(notification.success_count),
+        failedCount: positiveNumber(notification.failed_count),
+        prompt: notification.prompt_snippet || "",
+        errorMessage: notification.error_message || notification.message
+      });
+    }
+    return notification.message;
   }
   function firstTaskThumbnailUrl(task) {
     const bridge39 = getLegacyBridge();
@@ -12749,8 +14387,8 @@ ${galleryText}`;
     const thumbnail = notification.thumbnail_url ? `<img class="task-notification-thumb" src="${escapeHtml17(notification.thumbnail_url)}" alt="">` : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml17(statusGlyph(notification.status))}</span>`;
     return `${thumbnail}
     <span class="task-notification-body">
-      <span class="task-notification-title">${escapeHtml17(notification.title)}</span>
-      <span class="task-notification-message">${escapeHtml17(notification.message)}</span>
+      <span class="task-notification-title">${escapeHtml17(taskNotificationDisplayTitle(notification))}</span>
+      <span class="task-notification-message">${escapeHtml17(taskNotificationDisplayMessage(notification))}</span>
       <span class="task-notification-time">${escapeHtml17(formatNotificationTime(notification.created_at))}</span>
     </span>`;
   }
@@ -13250,12 +14888,12 @@ ${galleryText}`;
   function taskRetryReasonText(task) {
     const message = String(task?.last_error || task?.error || "").toLowerCase();
     if (message.includes("usage limit") || message.includes("quota") || message.includes("rate limit")) {
-      return "\u7528\u91CF\u53D7\u9650";
+      return translate("taskDerived.usageLimited");
     }
     if (message.includes("incompleteread") || message.includes("timeout") || message.includes("network")) {
-      return "\u8FDE\u63A5\u4E2D\u65AD";
+      return formatTranslation("taskStatus.connectionInterrupted");
     }
-    return "\u4E0A\u6B21\u5931\u8D25";
+    return formatTranslation("taskStatus.lastFailed");
   }
   function taskRetryStateText3(task) {
     if (!task) return "";
@@ -13267,18 +14905,29 @@ ${galleryText}`;
     if (!hasRetryContext || !maxAttempts) return "";
     const reason = taskRetryReasonText(task);
     if (task.status === "queued" && attempts < maxAttempts) {
-      return `${reason}\uFF0C\u7B49\u5F85\u91CD\u8BD5\uFF08\u7B2C ${attempts + 1}/${maxAttempts} \u6B21\u5C1D\u8BD5\uFF09`;
+      return formatTranslation("taskStatus.waitingRetry", {
+        reason,
+        attempt: attempts + 1,
+        max: maxAttempts
+      });
     }
     if (task.status === "running") {
       if (attempts <= 1 && !manualRetryRequested) return "";
-      return `${reason}\uFF0C\u91CD\u8BD5\u4E2D\uFF08\u7B2C ${Math.max(1, attempts)}/${maxAttempts} \u6B21\u5C1D\u8BD5\uFF09`;
+      return formatTranslation("taskStatus.retrying", {
+        reason,
+        attempt: Math.max(1, attempts),
+        max: maxAttempts
+      });
     }
     if (["failed", "partial_failed"].includes(task.status)) {
       if (taskHasNonRetryableError(task)) {
-        return `\u7B2C ${Math.max(1, attempts)}/${maxAttempts} \u6B21\uFF0C\u4E0D\u53EF\u91CD\u8BD5`;
+        return formatTranslation("taskStatus.nonRetryableAttempt", {
+          attempt: Math.max(1, attempts),
+          max: maxAttempts
+        });
       }
       if (attempts > 0) {
-        return "\u5DF2\u505C\u6B62\uFF0C\u53EF\u624B\u52A8\u91CD\u8BD5\u5931\u8D25\u56FE\u7247";
+        return formatTranslation("taskStatus.manualRetryAvailable");
       }
     }
     return "";
@@ -13302,7 +14951,8 @@ ${galleryText}`;
     if (startedAt === null || endedAt === null || endedAt < startedAt) return "";
     const seconds = Math.floor((endedAt - startedAt) / 1e3);
     const completion = taskCompletionTimestampText(task);
-    return completion ? `\u8017\u65F6 ${formatDuration2(seconds)} \xB7 \u5B8C\u6210 ${completion.shortText}` : `\u8017\u65F6 ${formatDuration2(seconds)}`;
+    const duration = formatDuration2(seconds);
+    return completion ? formatTranslation("taskStatus.runtimeCompleted", { duration, time: completion.shortText }) : formatTranslation("taskStatus.runtime", { duration });
   }
   function taskCompletionTimestampText(task) {
     const completedAt = taskCompletionTimestampMs(task);
@@ -13312,7 +14962,7 @@ ${galleryText}`;
   function taskCompletionTimestampTitle2(task) {
     const completedAt = taskCompletionTimestampMs(task);
     if (completedAt === null) return "";
-    return `\u5B8C\u6210 ${formatLocalTimestamp(completedAt, true)}`;
+    return formatTranslation("taskStatus.completedAt", { time: formatLocalTimestamp(completedAt, true) });
   }
   function taskCompletionTimestampMs(task) {
     if (!task || !["completed", "failed", "partial_failed"].includes(task.status)) return null;
@@ -13608,7 +15258,7 @@ ${galleryText}`;
       clearPreviewGridLayout();
       els37.previewGrid.innerHTML = `
       <div class="empty-preview error-preview">
-        <p>${escapeHtml19(taskFailureMessage3(selected) || "\u4EFB\u52A1\u5931\u8D25")}</p>
+        <p>${escapeHtml19(taskFailureMessage3(selected) || translate("preview.taskFailed"))}</p>
         ${retryFailureSummaryButton(selected)}
       </div>
     `;
@@ -13620,7 +15270,7 @@ ${galleryText}`;
       closePromptPopover7();
       cancelDeferredPreviewRender();
       clearPreviewGridLayout();
-      els37.previewGrid.innerHTML = `<div class="empty-preview">\u6682\u65E0\u56FE\u7247</div>`;
+      els37.previewGrid.innerHTML = `<div class="empty-preview">${escapeHtml19(translate("preview.empty"))}</div>`;
       return;
     }
     renderOutputPreview(selected);
@@ -13673,10 +15323,14 @@ ${galleryText}`;
     if (!failure) return "";
     return `
     <div class="running-failure-notice" data-preview-running-failure role="status">
-      <strong>\u7B2C ${failure.index} \u5F20\u5931\u8D25</strong>
+      <strong>${escapeHtml19(formatTranslation("preview.failedOutput", { index: failure.index }))}</strong>
       <p>${escapeHtml19(failure.error)}</p>
     </div>
   `;
+  }
+  function previewElapsedLineHtml(key, values, elapsedHtml) {
+    const marker = "__CODEX_IMAGE_ELAPSED_TIMER__";
+    return formatTranslation(key, { ...values, elapsed: marker }).split(marker).map((part) => escapeHtml19(part)).join(elapsedHtml);
   }
   function scheduleDeferredPreviewRender(task, { running, failure, waiting, outputUrls, totalCount, itemCount }) {
     const renderToken = ++pendingPreviewRenderToken;
@@ -13763,21 +15417,29 @@ ${galleryText}`;
     const card = document.createElement("div");
     card.className = "preview-card";
     card.setAttribute("data-preview-card-key", key);
+    const featuredLabel = translate("preview.featured");
+    const addFeaturedLabel = translate("preview.addFeatured");
+    const addReferenceLabel = translate("preview.addReference");
+    const stageLabel = translate("preview.stage");
+    const stageReferenceLabel = translate("preview.stageReference");
+    const promptLabel = translate("preview.prompt");
+    const downloadLabel = translate("preview.download");
+    const downloadImageLabel = translate("preview.downloadImage");
     card.innerHTML = `
     <span class="preview-index hidden"></span>
-    <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="\u52A0\u5165\u7CBE\u9009" title="\u52A0\u5165\u7CBE\u9009" hidden disabled>
+    <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="${addFeaturedLabel}" title="${addFeaturedLabel}" data-i18n-attr="aria-label:preview.addFeatured;title:preview.addFeatured" hidden disabled>
       <svg class="preview-select-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M12 3.5l2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6-4.3-4.2 6-.9L12 3.5z" />
       </svg>
-      <span class="preview-select-label" data-preview-select-label>\u7CBE\u9009</span>
+      <span class="preview-select-label" data-preview-select-label data-i18n="preview.featured">${featuredLabel}</span>
     </button>
     <img alt="" data-lightbox-url="">
     <div class="preview-overlay">
        <div class="prompt-action-row">
-         <button type="button" class="add-to-input-btn" data-add-input-url="" aria-label="\u52A0\u5165\u53C2\u8003\u56FE">\u52A0\u5165\u53C2\u8003\u56FE</button>
-         <button type="button" class="collect-input-btn" data-collect-input-url="" data-collect-output-index="" data-collect-output-name="" aria-label="\u6682\u5B58\u5230\u5F85\u52A0\u5165\u53C2\u8003\u56FE" title="\u6682\u5B58\u5230\u5F85\u52A0\u5165\u53C2\u8003\u56FE">\u6682\u5B58</button>
-         <button type="button" class="prompt-popover-button" data-prompt-popover-index="">\u63D0\u793A\u8BCD</button>
-         <a class="preview-download-link" href="#" download="" data-download-output-url="" title="\u4E0B\u8F7D\u8BE5\u56FE\u7247" aria-label="\u4E0B\u8F7D\u8BE5\u56FE\u7247">\u4E0B\u8F7D</a>
+         <button type="button" class="add-to-input-btn" data-add-input-url="" aria-label="${addReferenceLabel}" data-i18n="preview.addReference" data-i18n-attr="aria-label:preview.addReference">${addReferenceLabel}</button>
+         <button type="button" class="collect-input-btn" data-collect-input-url="" data-collect-output-index="" data-collect-output-name="" aria-label="${stageReferenceLabel}" title="${stageReferenceLabel}" data-i18n="preview.stage" data-i18n-attr="aria-label:preview.stageReference;title:preview.stageReference">${stageLabel}</button>
+         <button type="button" class="prompt-popover-button" data-prompt-popover-index="" data-i18n="preview.prompt">${promptLabel}</button>
+         <a class="preview-download-link" href="#" download="" data-download-output-url="" title="${downloadImageLabel}" aria-label="${downloadImageLabel}" data-i18n="preview.download" data-i18n-attr="aria-label:preview.downloadImage;title:preview.downloadImage">${downloadLabel}</a>
        </div>
     </div>
   `;
@@ -13819,9 +15481,9 @@ ${galleryText}`;
       selectButton.dataset.previewSelectOutputIndex = String(outputIndex);
       selectButton.dataset.previewSelectTaskId = String(task?.task_id || "");
       selectButton.setAttribute("aria-pressed", selected ? "true" : "false");
-      selectButton.setAttribute("aria-label", selected ? "\u53D6\u6D88\u7CBE\u9009" : "\u52A0\u5165\u7CBE\u9009");
-      selectButton.title = selected ? "\u53D6\u6D88\u7CBE\u9009" : "\u52A0\u5165\u7CBE\u9009";
-      selectButton.querySelector("[data-preview-select-label]").textContent = selected ? "\u5DF2\u7CBE\u9009" : "\u7CBE\u9009";
+      selectButton.setAttribute("aria-label", selected ? translate("preview.removeFeatured") : translate("preview.addFeatured"));
+      selectButton.title = selected ? translate("preview.removeFeatured") : translate("preview.addFeatured");
+      selectButton.querySelector("[data-preview-select-label]").textContent = selected ? translate("preview.selectedFeatured") : translate("preview.featured");
       card.classList.toggle("can-select-output", selectable);
       card.classList.toggle("is-selected", selected);
     }
@@ -14011,7 +15673,7 @@ ${galleryText}`;
     const hasSelection = Boolean(task?.task_id && selectedCount > 0 && totalCount > 1);
     els37.previewSelectionActions?.classList.toggle("hidden", !hasSelection);
     if (els37.previewSelectionCount) {
-      els37.previewSelectionCount.textContent = selectedCount ? `\u5DF2\u9009 ${selectedCount}/${totalCount}` : "\u5DF2\u9009 0";
+      els37.previewSelectionCount.textContent = selectedCount ? formatTranslation("preview.selectedCount", { selected: selectedCount, total: totalCount }) : translate("preview.selectedZero");
     }
     if (els37.downloadSelectedButton) {
       if (!hasSelection) {
@@ -14066,13 +15728,13 @@ ${galleryText}`;
         body: JSON.stringify({ selected })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u7CBE\u9009\u72B6\u6001\u66F4\u65B0\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("preview.selectionUpdateFailed"));
       const updatedTask = data.task;
       updateTaskInState3(updatedTask);
       renderPreview5(updatedTask);
-      setStatus20(selected ? "\u5DF2\u52A0\u5165\u7CBE\u9009" : "\u5DF2\u53D6\u6D88\u7CBE\u9009", "ok");
+      setStatus20(selected ? translate("preview.selectionAdded") : translate("preview.selectionRemoved"), "ok");
     } catch (error) {
-      setStatus20(error instanceof Error ? error.message : "\u7CBE\u9009\u72B6\u6001\u66F4\u65B0\u5931\u8D25", "error");
+      setStatus20(error instanceof Error ? error.message : translate("preview.selectionUpdateFailed"), "error");
     }
   }
   function openDeleteUnselectedOutputsConfirm(button) {
@@ -14082,14 +15744,14 @@ ${galleryText}`;
     const totalCount = taskOutputUrls3(task).length;
     const deleteCount = Math.max(0, totalCount - selectedCount);
     if (!task?.task_id || selectedCount <= 0 || deleteCount <= 0) {
-      setStatus20("\u6CA1\u6709\u53EF\u5220\u9664\u7684\u672A\u7CBE\u9009\u56FE\u7247", "error");
+      setStatus20(translate("preview.noUnselectedOutputs"), "error");
       return;
     }
     openConfirmPopover6(button, {
-      title: "\u5220\u9664\u672A\u7CBE\u9009\u56FE\u7247\uFF1F",
-      message: "\u4F1A\u5220\u9664\u5F53\u524D\u4EFB\u52A1\u91CC\u672A\u7CBE\u9009\u7684\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
-      detail: `\u4FDD\u7559 ${selectedCount} \u5F20\uFF0C\u5220\u9664 ${deleteCount} \u5F20`,
-      confirmText: "\u5220\u9664",
+      title: translate("preview.deleteUnselectedTitle"),
+      message: translate("preview.deleteUnselectedMessage"),
+      detail: formatTranslation("preview.deleteUnselectedDetail", { selected: selectedCount, deleted: deleteCount }),
+      confirmText: translate("action.delete"),
       onConfirm: async () => {
         await deleteUnselectedOutputs(task.task_id);
       }
@@ -14103,15 +15765,15 @@ ${galleryText}`;
         headers: { "Content-Type": "application/json" }
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "\u5220\u9664\u672A\u7CBE\u9009\u5931\u8D25");
+      if (!response.ok) throw new Error(data.detail || translate("preview.deleteUnselectedFailed"));
       const updatedTask = data.task;
       updateTaskInState3(updatedTask);
       state28.selectedTaskId = updatedTask.task_id;
       renderTasks7();
       renderPreview5(updatedTask);
-      setStatus20("\u672A\u7CBE\u9009\u56FE\u7247\u5DF2\u5220\u9664", "ok");
+      setStatus20(translate("preview.deleteUnselectedDone"), "ok");
     } catch (error) {
-      setStatus20(error instanceof Error ? error.message : "\u5220\u9664\u672A\u7CBE\u9009\u5931\u8D25", "error");
+      setStatus20(error instanceof Error ? error.message : translate("preview.deleteUnselectedFailed"), "error");
     }
   }
   function outputDownloadFilename(task, url, index) {
@@ -14185,8 +15847,8 @@ ${galleryText}`;
     <div class="running-progress-card">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>\u7EE7\u7EED\u751F\u6210\u4E2D</strong>
-        <p class="elapsed-line">\u5DF2\u5B8C\u6210 ${generated} / ${total} \xB7 \u8BA1\u65F6 ${elapsed}</p>
+        <strong>${escapeHtml19(translate("preview.continueGenerating"))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${failureNotice}
@@ -14201,15 +15863,15 @@ ${galleryText}`;
     const generated = taskGeneratedCount2(task, visibleOutputCount);
     const total = taskTotalCount2(task);
     const size = escapeHtml19(task.params?.size || currentSize2());
-    const retryReason = task.last_error ? `<p>\u4E0A\u6B21\u9519\u8BEF\uFF1A${escapeHtml19(task.last_error)}</p>` : "";
+    const retryReason = task.last_error ? `<p>${escapeHtml19(formatTranslation("preview.lastError", { error: task.last_error }))}</p>` : "";
     const retryState = taskRetryStateText4(task);
     const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml19(retryState)}</p>` : "";
     return `
     <div class="running-progress-card waiting-progress-card">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>\u7B49\u5F85\u7EE7\u7EED\u751F\u6210</strong>
-        <p class="elapsed-line">\u5DF2\u5B8C\u6210 ${generated} / ${total} \xB7 \u8BA1\u65F6 ${elapsed}</p>
+        <strong>${escapeHtml19(translate("preview.waitingContinue"))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${retryReason}
@@ -14223,13 +15885,13 @@ ${galleryText}`;
     const failed = Number.parseInt(task?.failed_count ?? "", 10);
     const failedCount = Number.isNaN(failed) ? Math.max(0, taskTotalCount2(task) - generated) : failed;
     const total = taskTotalCount2(task);
-    const message = escapeHtml19(taskFailureMessage3(task) || "\u90E8\u5206\u56FE\u7247\u751F\u6210\u5931\u8D25");
+    const message = escapeHtml19(taskFailureMessage3(task) || translate("preview.partialFailed"));
     const retryState = taskRetryStateText4(task);
     const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml19(retryState)}</p>` : "";
     return `
     <div class="failure-summary-card">
-      <strong>${task.status === "partial_failed" ? "\u90E8\u5206\u56FE\u7247\u751F\u6210\u5931\u8D25" : "\u4EFB\u52A1\u5931\u8D25"}</strong>
-      <p>\u5DF2\u5B8C\u6210 ${generated} / ${total} \xB7 \u5931\u8D25 ${failedCount}</p>
+      <strong>${escapeHtml19(task.status === "partial_failed" ? translate("preview.partialFailed") : translate("preview.taskFailed"))}</strong>
+      <p>${escapeHtml19(formatTranslation("preview.failureLine", { generated, total, failed: failedCount }))}</p>
       ${retryStateHtml}
       <p>${message}</p>
       ${retryFailureSummaryButton(task)}
@@ -14240,10 +15902,10 @@ ${galleryText}`;
     const taskId = escapeHtml19(task.task_id || "");
     const actions = [];
     if (canRetryFailedTask3(task)) {
-      actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">\u4EC5\u91CD\u8BD5\u5931\u8D25\u56FE\u7247</button>`);
+      actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml19(translate("preview.retryFailed"))}</button>`);
     }
     if (canAcceptTaskSuccesses3(task)) {
-      actions.push(`<button class="ghost-button text-sm" type="button" data-preview-accept-successes-task-id="${taskId}">\u63A5\u53D7\u5DF2\u6210\u529F\u7ED3\u679C</button>`);
+      actions.push(`<button class="ghost-button text-sm" type="button" data-preview-accept-successes-task-id="${taskId}">${escapeHtml19(translate("preview.acceptSuccesses"))}</button>`);
     }
     if (!actions.length) return "";
     return `
@@ -14256,7 +15918,7 @@ ${galleryText}`;
     clearPreviewGridLayout();
     const elapsed = elapsedTimerSpan2("running", taskProgressStartValue3(task));
     const size = escapeHtml19(task.params?.size || currentSize2());
-    const modeLabel = task.mode === "edit" ? "\u7F16\u8F91" : "\u751F\u6210";
+    const modeLabel = task.mode === "edit" ? translate("preview.editMode") : translate("preview.generateMode");
     const retryState = taskRetryStateText4(task);
     const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml19(retryState)}</p>` : "";
     const failureNotice = runningFailureNotice(task);
@@ -14264,8 +15926,8 @@ ${galleryText}`;
     <div class="waiting-preview">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>${modeLabel}\u4EFB\u52A1\u8FD0\u884C\u4E2D</strong>
-        <p class="elapsed-line">\u8BA1\u65F6 ${elapsed}</p>
+        <strong>${escapeHtml19(formatTranslation("preview.runningTitle", { mode: modeLabel }))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${failureNotice}
@@ -14280,20 +15942,20 @@ ${galleryText}`;
     const elapsedFrom = task.started_at || task.queued_at || task.created_at;
     const elapsed = elapsedTimerSpan2("waiting", elapsedFrom);
     const size = escapeHtml19(task.params?.size || currentSize2());
-    const title = submitting ? "\u63D0\u4EA4\u4EFB\u52A1\u4E2D" : "\u4EFB\u52A1\u6392\u961F\u4E2D";
-    const detail = submitting ? "\u6B63\u5728\u4FDD\u5B58\u8F93\u5165\u5E76\u5199\u5165\u961F\u5217\uFF0C\u5B8C\u6210\u540E\u4F1A\u81EA\u52A8\u8FDB\u5165\u751F\u6210\u6D41\u7A0B\u3002" : "\u4EFB\u52A1\u5DF2\u8FDB\u5165\u961F\u5217\uFF0C\u7B49\u5F85\u53EF\u7528\u901A\u9053\u63A5\u624B\u3002";
-    const retryReason = !submitting && task.last_error ? `<p>\u4E0A\u6B21\u9519\u8BEF\uFF1A${escapeHtml19(task.last_error)}</p>` : "";
+    const title = submitting ? translate("preview.submittingTitle") : translate("preview.queuedTitle");
+    const detail = submitting ? translate("preview.submittingDetail") : translate("preview.queuedDetail");
+    const retryReason = !submitting && task.last_error ? `<p>${escapeHtml19(formatTranslation("preview.lastError", { error: task.last_error }))}</p>` : "";
     const retryState = taskRetryStateText4(task);
     const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml19(retryState)}</p>` : "";
     els37.previewGrid.innerHTML = `
     <div class="waiting-preview">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>${title}</strong>
-        <p class="elapsed-line">\u8BA1\u65F6 ${elapsed}</p>
+        <strong>${escapeHtml19(title)}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
-        <p>${detail}</p>
+        <p>${escapeHtml19(detail)}</p>
         ${retryReason}
       </div>
       <div class="waiting-bar"><span></span></div>
@@ -14303,6 +15965,10 @@ ${galleryText}`;
   function initTaskPreviewFeature() {
     els37.deleteUnselectedOutputsButton?.addEventListener("click", () => {
       openDeleteUnselectedOutputsConfirm(els37.deleteUnselectedOutputsButton);
+    });
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      state28.previewRenderKey = null;
+      renderPreview5(state28.previewTask);
     });
     Object.assign(getLegacyBridge().methods, {
       taskRequestPreviewPayload,
@@ -14477,9 +16143,9 @@ ${galleryText}`;
     updateTaskSelectionVisuals3(taskId);
     renderPreview7(task);
     if (task.status === "failed") {
-      setStatus21(taskFailureMessage4(task) || "\u4EFB\u52A1\u5931\u8D25", "error");
+      setStatus21(taskFailureMessage4(task) || translate("taskActions.failedFallback"), "error");
     } else if (task.status !== "running") {
-      setStatus21(`\u5DF2\u8F7D\u5165\u4EFB\u52A1 ${taskId}`, "ok");
+      setStatus21(formatTranslation("status.loadedTask", { taskId }), "ok");
     }
   }
   function isLegacyOutputInputUrl2(url) {
@@ -14506,7 +16172,7 @@ ${galleryText}`;
         return response.blob();
       }
     }
-    throw new Error(`\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: ${candidateUrls[0] || sourceUrl}`);
+    throw new Error(formatTranslation("status.historyInputLoadFailed", { url: candidateUrls[0] || sourceUrl }));
   }
   async function restoreTaskInputs(task, options = {}) {
     const taskId = options.taskId ?? task?.task_id;
@@ -14521,7 +16187,7 @@ ${galleryText}`;
       let uploadInputIndex = 0;
       const uploadSources = task.input_sources.filter((source) => source?.kind === "upload" && source.image_url);
       if (uploadSources.length && selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-        setStatus21("\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...", "");
+        setStatus21(translate("status.loadingHistoryInputs"), "");
       }
       try {
         for (const [index, source] of task.input_sources.entries()) {
@@ -14557,7 +16223,7 @@ ${galleryText}`;
       return applyTaskInputRestoreSources(gallerySources, taskId, restoreSeq);
     }
     if (selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-      setStatus21("\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...", "");
+      setStatus21(translate("status.loadingHistoryInputs"), "");
     }
     const inputNames = Array.isArray(task.input_files) ? task.input_files : [];
     const files = [];
@@ -14569,7 +16235,7 @@ ${galleryText}`;
         }
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: ${url}`);
+          throw new Error(formatTranslation("status.historyInputLoadFailed", { url }));
         }
         const blob = await response.blob();
         const fallbackName = `history-input-${index + 1}`;
@@ -14624,6 +16290,8 @@ ${galleryText}`;
   };
   var promptPopoverEl = null;
   var promptPopoverState = {
+    anchor: null,
+    data: null,
     optimizedPrompt: "",
     copyTimerId: null
   };
@@ -14693,7 +16361,7 @@ ${galleryText}`;
     confirmPopoverEl = document.createElement("div");
     confirmPopoverEl.className = "confirm-popover hidden";
     confirmPopoverEl.setAttribute("role", "dialog");
-    confirmPopoverEl.setAttribute("aria-label", "\u786E\u8BA4\u64CD\u4F5C");
+    confirmPopoverEl.setAttribute("aria-label", translate("action.confirm"));
     document.body.appendChild(confirmPopoverEl);
     return confirmPopoverEl;
   }
@@ -14710,13 +16378,13 @@ ${galleryText}`;
     confirmPopoverState.onConfirm = typeof options.onConfirm === "function" ? options.onConfirm : null;
     const message = options.message ? `<p class="confirm-popover-message">${escapeHtml20(options.message)}</p>` : "";
     const detail = options.detail ? `<div class="confirm-popover-detail">${escapeHtml20(options.detail)}</div>` : "";
-    const confirmText = options.confirmText || "\u786E\u8BA4";
+    const confirmText = options.confirmText || translate("action.confirm");
     popover.innerHTML = `
-    <div class="confirm-popover-title">${escapeHtml20(options.title || "\u786E\u8BA4\u64CD\u4F5C\uFF1F")}</div>
+    <div class="confirm-popover-title">${escapeHtml20(options.title || translate("action.confirmQuestion"))}</div>
     ${message}
     ${detail}
     <div class="confirm-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>\u53D6\u6D88</button>
+      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml20(translate("action.cancel"))}</button>
       <button class="ghost-button text-sm danger-button confirm-popover-confirm" type="button" data-confirm-popover-confirm>${escapeHtml20(confirmText)}</button>
     </div>
   `;
@@ -14754,7 +16422,9 @@ ${galleryText}`;
     return String(value || "").trim();
   }
   function promptLengthLabel(value) {
-    return `${Array.from(normalizedPromptText(value)).length} \u5B57`;
+    return formatTranslation("promptPopover.charCount", {
+      count: Array.from(normalizedPromptText(value)).length
+    });
   }
   function promptPopoverSection(label, text, meta, tone = "") {
     const toneClass = tone ? ` prompt-popover-section-${tone}` : "";
@@ -14764,7 +16434,7 @@ ${galleryText}`;
         <div class="prompt-popover-label">${escapeHtml20(label)}</div>
         <span class="prompt-popover-meta">${escapeHtml20(meta || promptLengthLabel(text))}</span>
       </div>
-      <pre class="prompt-popover-text">${escapeHtml20(text || "\u65E0")}</pre>
+      <pre class="prompt-popover-text">${escapeHtml20(text || translate("promptPopover.empty"))}</pre>
     </section>
   `;
   }
@@ -14773,7 +16443,7 @@ ${galleryText}`;
     if (normalizedPromptText(originalPrompt) === normalizedPromptText(submittedPrompt)) return "";
     return `
     <details class="prompt-popover-submitted">
-      <summary>\u67E5\u770B\u5B9E\u9645\u63D0\u4EA4\u63D0\u793A\u8BCD</summary>
+      <summary>${escapeHtml20(translate("promptPopover.submitted"))}</summary>
       <pre class="prompt-popover-submitted-text">${escapeHtml20(submittedPrompt)}</pre>
     </details>
   `;
@@ -14783,7 +16453,7 @@ ${galleryText}`;
     promptPopoverEl = document.createElement("div");
     promptPopoverEl.className = "prompt-popover hidden";
     promptPopoverEl.setAttribute("role", "dialog");
-    promptPopoverEl.setAttribute("aria-label", "\u63D0\u793A\u8BCD\u5BF9\u6BD4");
+    promptPopoverEl.setAttribute("aria-label", translate("promptPopover.title"));
     document.body.appendChild(promptPopoverEl);
     return promptPopoverEl;
   }
@@ -14792,25 +16462,32 @@ ${galleryText}`;
     const originalPrompt = data.originalPrompt || data.submittedPrompt || "";
     const submittedPrompt = data.submittedPrompt || originalPrompt || "";
     const optimizedPrompt = data.optimizedPrompt || "";
+    promptPopoverState.anchor = anchor;
+    promptPopoverState.data = data;
     promptPopoverState.optimizedPrompt = optimizedPrompt;
     clearPromptPopoverCopyTimer();
+    popover.setAttribute("aria-label", translate("promptPopover.title"));
+    const optimizedLength = optimizedPrompt ? promptLengthLabel(optimizedPrompt) : translate("promptPopover.notReturned");
     popover.innerHTML = `
     <div class="prompt-popover-header">
       <div>
-        <strong>\u63D0\u793A\u8BCD\u5BF9\u6BD4</strong>
-        <span class="prompt-popover-summary">\u539F\u59CB ${escapeHtml20(promptLengthLabel(originalPrompt))} \xB7 \u4F18\u5316 ${escapeHtml20(optimizedPrompt ? promptLengthLabel(optimizedPrompt) : "\u672A\u8FD4\u56DE")}</span>
+        <strong>${escapeHtml20(translate("promptPopover.title"))}</strong>
+        <span class="prompt-popover-summary">${escapeHtml20(formatTranslation("promptPopover.summary", {
+      original: promptLengthLabel(originalPrompt),
+      optimized: optimizedLength
+    }))}</span>
       </div>
-      <button class="prompt-popover-close" type="button" aria-label="\u5173\u95ED\u63D0\u793A\u8BCD">\xD7</button>
+      <button class="prompt-popover-close" type="button" aria-label="${escapeHtml20(translate("promptPopover.close"))}">\xD7</button>
     </div>
     <div class="prompt-popover-body">
       <div class="prompt-popover-compare">
-        ${promptPopoverSection("\u539F\u59CB\u63D0\u793A\u8BCD", originalPrompt || "\u65E0", promptLengthLabel(originalPrompt), "original")}
-        ${promptPopoverSection("\u4F18\u5316\u540E\u63D0\u793A\u8BCD", optimizedPrompt || "\u672A\u8FD4\u56DE\u4F18\u5316\u63D0\u793A\u8BCD", optimizedPrompt ? promptLengthLabel(optimizedPrompt) : "\u672A\u8FD4\u56DE", optimizedPrompt ? "optimized" : "empty")}
+        ${promptPopoverSection(translate("promptPopover.original"), originalPrompt || translate("promptPopover.empty"), promptLengthLabel(originalPrompt), "original")}
+        ${promptPopoverSection(translate("promptPopover.optimized"), optimizedPrompt || translate("promptPopover.noOptimized"), optimizedLength, optimizedPrompt ? "optimized" : "empty")}
       </div>
       ${submittedPromptDetails(originalPrompt, submittedPrompt)}
     </div>
     <div class="prompt-popover-actions">
-      <button class="prompt-copy-button" type="button" data-copy-optimized-prompt ${optimizedPrompt ? "" : "disabled"}>\u590D\u5236\u4F18\u5316\u540E\u63D0\u793A\u8BCD</button>
+      <button class="prompt-copy-button" type="button" data-copy-optimized-prompt ${optimizedPrompt ? "" : "disabled"}>${escapeHtml20(translate("promptPopover.copyOptimized"))}</button>
     </div>
   `;
     popover.querySelector(".prompt-popover-close")?.addEventListener("click", closePromptPopover9);
@@ -14845,6 +16522,8 @@ ${galleryText}`;
   function closePromptPopover9() {
     if (!promptPopoverEl) return;
     promptPopoverEl.classList.add("hidden");
+    promptPopoverState.anchor = null;
+    promptPopoverState.data = null;
     promptPopoverState.optimizedPrompt = "";
     clearPromptPopoverCopyTimer();
   }
@@ -14857,12 +16536,17 @@ ${galleryText}`;
     const text = promptPopoverState.optimizedPrompt;
     if (!text) return;
     await navigator.clipboard.writeText(text);
-    button.textContent = "\u5DF2\u590D\u5236";
+    button.textContent = translate("promptPopover.copied");
     clearPromptPopoverCopyTimer();
     promptPopoverState.copyTimerId = window.setTimeout(() => {
-      button.textContent = "\u590D\u5236\u4F18\u5316\u540E\u63D0\u793A\u8BCD";
+      button.textContent = translate("promptPopover.copyOptimized");
       promptPopoverState.copyTimerId = null;
     }, 1200);
+  }
+  function rerenderPromptPopoverForLocale() {
+    if (!promptPopoverEl || promptPopoverEl.classList.contains("hidden")) return;
+    if (!promptPopoverState.anchor || !promptPopoverState.data) return;
+    openPromptPopover2(promptPopoverState.anchor, promptPopoverState.data);
   }
   function handleDocumentClick(event) {
     const target = event.target;
@@ -14908,6 +16592,7 @@ ${galleryText}`;
   function initOverlayPopoversFeature() {
     if (overlayPopoversInitialized) return;
     overlayPopoversInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, rerenderPromptPopoverForLocale);
     Object.assign(getLegacyBridge().methods, {
       bindOverlayPopoverEvents,
       ensureConfirmPopover,
@@ -15000,6 +16685,14 @@ ${galleryText}`;
   function updateRequestPreview13() {
     legacyMethod42("updateRequestPreview");
   }
+  function handleShellLocaleChange() {
+    if (!els41.statusText) return;
+    const current = String(els41.statusText.textContent || "").trim();
+    const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
+    if (waitingLabels.includes(current)) {
+      setStatus22(translate("status.waiting"), "");
+    }
+  }
   function bindShellUiEvents() {
     if (shellUiEventsBound) return;
     shellUiEventsBound = true;
@@ -15010,6 +16703,7 @@ ${galleryText}`;
     });
     state31.themeSystemQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
     state31.themeSystemQuery?.addEventListener?.("change", handleThemeSystemChange);
+    document.addEventListener(LOCALE_CHANGE_EVENT, handleShellLocaleChange);
     if (els41.copyJsonButton) {
       els41.copyJsonButton.addEventListener("click", copyJson);
     }
@@ -15181,9 +16875,9 @@ ${galleryText}`;
     const total = waitingCount + runningCount;
     let status = "";
     if (runningCount > 0) {
-      status = `\u751F\u6210\u4E2D \xB7 \u961F\u5217 ${total}`;
+      status = formatTranslation("document.generatingQueue", { total });
     } else if (waitingCount > 0) {
-      status = `\u6392\u961F\u4E2D \xB7 \u7B49\u5F85 ${waitingCount}`;
+      status = formatTranslation("document.queuedWaiting", { count: waitingCount });
     } else {
       const selected = state31.tasks.find((item) => String(item.task_id) === String(state31.selectedTaskId));
       status = selected ? formatTaskStatus4(selected) : "";
@@ -15232,12 +16926,12 @@ ${galleryText}`;
     renderTasks9();
     renderPreview8();
     updateRequestPreview13();
-    setStatus22("\u7B49\u5F85\u4EFB\u52A1", "");
+    setStatus22(translate("status.waiting"), "");
   }
   async function copyJson() {
     if (!els41.requestJson) return;
     await navigator.clipboard.writeText(els41.requestJson.textContent);
-    setStatus22("JSON \u5DF2\u590D\u5236", "ok");
+    setStatus22(translate("status.jsonCopied"), "ok");
   }
   function initShellUiFeature() {
     if (shellUiInitialized) return;
@@ -15359,12 +17053,12 @@ ${galleryText}`;
     lightboxEl.className = "lightbox";
     lightboxEl.setAttribute("role", "dialog");
     lightboxEl.setAttribute("aria-modal", "true");
-    lightboxEl.setAttribute("aria-label", "\u56FE\u7247\u9884\u89C8");
+    lightboxEl.setAttribute("aria-label", translate("lightbox.label"));
     lightboxEl.innerHTML = `
-      <button class="lightbox-close" type="button" aria-label="\u5173\u95ED\u9884\u89C8">\xD7</button>
-      <button class="lightbox-nav lightbox-prev" type="button" aria-label="\u4E0A\u4E00\u5F20">&lsaquo;</button>
+      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">\xD7</button>
+      <button class="lightbox-nav lightbox-prev" type="button" aria-label="${translate("lightbox.previous")}">&lsaquo;</button>
       <img id="lightboxImg" src="" alt="" draggable="false">
-      <button class="lightbox-nav lightbox-next" type="button" aria-label="\u4E0B\u4E00\u5F20">&rsaquo;</button>
+      <button class="lightbox-nav lightbox-next" type="button" aria-label="${translate("lightbox.next")}">&rsaquo;</button>
       <div class="lightbox-counter" aria-live="polite"></div>
     `;
     document.body.appendChild(lightboxEl);
@@ -15464,9 +17158,9 @@ ${galleryText}`;
   }
 
   // codex_image/webui/frontend/src/segmented-indicator.ts
-  var HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup"];
+  var HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher"];
   var HOST_SELECTOR = HOST_SELECTORS.join(", ");
-  var BUTTON_SELECTOR = ".radio-btn, .auth-source-button";
+  var BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option";
   var INDICATOR_CLASS = "segmented-indicator";
   var HOST_CLASS = "segmented-indicator-host";
   var initializedHosts = /* @__PURE__ */ new WeakSet();
@@ -15577,6 +17271,7 @@ ${galleryText}`;
   initTaskSelectionFeature();
   initOverlayPopoversFeature();
   initShellUiFeature();
+  initI18nFeature();
   initLightboxFeature();
   initializeQueueFeature();
   initSegmentedIndicatorFeature();

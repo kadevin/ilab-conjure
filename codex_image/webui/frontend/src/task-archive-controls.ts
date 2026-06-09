@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -79,7 +80,7 @@ async function setTaskArchiveState(taskId: any, archived: any) {
     body: JSON.stringify({ archived }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.detail || (archived ? "归档失败" : "恢复失败"));
+  if (!response.ok) throw new Error(data.detail || (archived ? translate("archive.archiveFailed") : translate("archive.restoreFailed")));
   return data.task;
 }
 
@@ -110,7 +111,9 @@ async function migrateLegacyArchivedTasks() {
 function renderArchiveButton() {
   if (!els.archiveButton) return;
   const count = state.tasks.filter((task) => isTaskArchived(task.task_id)).length;
-  els.archiveButton.textContent = count ? `会话归档 ${count}` : "会话归档";
+  els.archiveButton.textContent = count
+    ? formatTranslation("footer.archiveCount", { count })
+    : translate("footer.archive");
 }
 
 async function restoreArchivedTask(taskId: any) {
@@ -120,9 +123,9 @@ async function restoreArchivedTask(taskId: any) {
     renderTasks();
     renderArchiveButton();
     renderArchiveModal();
-    setStatus("会话已恢复", "ok");
+    setStatus(translate("archive.restored"), "ok");
   } catch (error) {
-    setStatus(errorMessage(error, "恢复失败"), "error");
+    setStatus(errorMessage(error, translate("archive.restoreFailed")), "error");
   }
 }
 
@@ -141,9 +144,11 @@ function closeArchiveModal() {
 function renderArchiveModal() {
   if (!els.archiveList || !els.archiveCount) return;
   const archivedTasks = state.tasks.filter((task) => isTaskArchived(task.task_id));
-  els.archiveCount.textContent = archivedTasks.length ? `${archivedTasks.length} 个归档会话` : "暂无归档会话";
+  els.archiveCount.textContent = archivedTasks.length
+    ? formatTranslation("archive.count", { count: archivedTasks.length })
+    : translate("archive.empty");
   if (!archivedTasks.length) {
-    els.archiveList.innerHTML = `<div class="archive-empty">暂无归档会话</div>`;
+    els.archiveList.innerHTML = `<div class="archive-empty">${translate("archive.empty")}</div>`;
     return;
   }
 
@@ -161,8 +166,8 @@ function renderArchiveModal() {
           <span>${status} · ${size}</span>
         </div>
         <div class="archive-card-actions">
-          <button class="ghost-button text-sm" type="button" data-restore-archive-task-id="${taskId}">恢复</button>
-          <button class="ghost-button text-sm danger-button" type="button" data-delete-archive-task-id="${taskId}">删除</button>
+          <button class="ghost-button text-sm" type="button" data-restore-archive-task-id="${taskId}">${translate("archive.restore")}</button>
+          <button class="ghost-button text-sm danger-button" type="button" data-delete-archive-task-id="${taskId}">${translate("action.delete")}</button>
         </div>
       </article>
     `;
@@ -189,6 +194,10 @@ function renderArchiveModal() {
 }
 
 export function initTaskArchiveControlsFeature() {
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderArchiveButton();
+    renderArchiveModal();
+  });
   Object.assign(getLegacyBridge().methods, {
     taskArchived,
     restoreLegacyArchivedTasks,

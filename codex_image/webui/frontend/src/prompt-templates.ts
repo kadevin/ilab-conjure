@@ -1,10 +1,32 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const PROMPT_TEMPLATES_ENDPOINT = "/api/prompt-templates";
 const PROMPT_TEMPLATE_CATEGORIES_ENDPOINT = "/api/prompt-template-categories";
 const PROMPT_TEMPLATE_IMPORT_ENDPOINT = "/api/prompt-templates/import";
 const PROMPT_TEMPLATE_EXPORT_ENDPOINT = "/api/prompt-templates/export.json";
-const DEFAULT_PROMPT_TEMPLATE_CATEGORIES = ["常用", "人像", "产品", "修复", "海报", "电商"];
+const PROMPT_TEMPLATE_CATEGORY_COMMON = "\u5e38\u7528";
+const PROMPT_TEMPLATE_CATEGORY_PORTRAIT = "\u4eba\u50cf";
+const PROMPT_TEMPLATE_CATEGORY_PRODUCT = "\u4ea7\u54c1";
+const PROMPT_TEMPLATE_CATEGORY_REPAIR = "\u4fee\u590d";
+const PROMPT_TEMPLATE_CATEGORY_POSTER = "\u6d77\u62a5";
+const PROMPT_TEMPLATE_CATEGORY_ECOMMERCE = "\u7535\u5546";
+const DEFAULT_PROMPT_TEMPLATE_CATEGORIES = [
+  PROMPT_TEMPLATE_CATEGORY_COMMON,
+  PROMPT_TEMPLATE_CATEGORY_PORTRAIT,
+  PROMPT_TEMPLATE_CATEGORY_PRODUCT,
+  PROMPT_TEMPLATE_CATEGORY_REPAIR,
+  PROMPT_TEMPLATE_CATEGORY_POSTER,
+  PROMPT_TEMPLATE_CATEGORY_ECOMMERCE,
+];
+const DEFAULT_PROMPT_TEMPLATE_CATEGORY_I18N_KEYS: Record<string, string> = {
+  [PROMPT_TEMPLATE_CATEGORY_COMMON]: "templates.categoryCommon",
+  [PROMPT_TEMPLATE_CATEGORY_PORTRAIT]: "templates.categoryPortrait",
+  [PROMPT_TEMPLATE_CATEGORY_PRODUCT]: "templates.categoryProduct",
+  [PROMPT_TEMPLATE_CATEGORY_REPAIR]: "templates.categoryRepair",
+  [PROMPT_TEMPLATE_CATEGORY_POSTER]: "templates.categoryPoster",
+  [PROMPT_TEMPLATE_CATEGORY_ECOMMERCE]: "templates.categoryEcommerce",
+};
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -41,7 +63,7 @@ function normalizePromptTemplate(value: any) {
     title,
     short_title: String(value.short_title || title).trim().slice(0, 12) || title.slice(0, 12),
     content,
-    category: String(value.category || "常用").trim() || "常用",
+    category: String(value.category || PROMPT_TEMPLATE_CATEGORY_COMMON).trim() || PROMPT_TEMPLATE_CATEGORY_COMMON,
     tags,
     mode: String(value.mode || "any"),
     model_hint: String(value.model_hint || "gpt-image-2"),
@@ -92,8 +114,8 @@ function normalizePromptTemplateCategoryList(items: any) {
       return true;
     })
     .sort((left: any, right: any) => left.order - right.order || left.name.localeCompare(right.name, "zh-Hans-CN"));
-  if (!categories.some((category: any) => category.id === "常用")) {
-    categories.unshift({ id: "常用", name: "常用", order: 10 });
+  if (!categories.some((category: any) => category.id === PROMPT_TEMPLATE_CATEGORY_COMMON)) {
+    categories.unshift({ id: PROMPT_TEMPLATE_CATEGORY_COMMON, name: PROMPT_TEMPLATE_CATEGORY_COMMON, order: 10 });
   }
   return categories;
 }
@@ -114,10 +136,10 @@ async function refreshPromptTemplates() {
   try {
     const response = await fetch(PROMPT_TEMPLATES_ENDPOINT);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词模板读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.loadFailed"));
     applyPromptTemplateSettingsResponse(data);
   } catch (error: any) {
-    console.warn(error.message || "提示词模板读取失败");
+    console.warn(error.message || translate("templates.loadFailed"));
     state.promptTemplates = [];
     state.promptTemplateCategories = normalizePromptTemplateCategoryList([]);
     renderPromptTemplateCategories();
@@ -194,13 +216,19 @@ function renderPromptTemplateCategories() {
   const categories = normalizePromptTemplateCategoryList(state.promptTemplateCategories);
   state.promptTemplateCategories = categories;
   els.promptTemplateCategoryList.innerHTML = [
-    `<button class="prompt-template-category ${state.promptTemplateCategory ? "" : "active"}" data-prompt-template-category="" type="button">全部</button>`,
+    `<button class="prompt-template-category ${state.promptTemplateCategory ? "" : "active"}" data-prompt-template-category="" type="button">${translate("templates.all")}</button>`,
     ...categories.map((category: any) => `
       <button class="prompt-template-category ${state.promptTemplateCategory === category.id ? "active" : ""}" data-prompt-template-category="${escapeHtml(category.id)}" type="button">
-        ${escapeHtml(category.name)}
+        ${escapeHtml(promptTemplateCategoryLabel(category.name))}
       </button>
     `),
   ].join("");
+}
+
+function promptTemplateCategoryLabel(category: any) {
+  const name = String(category || "").trim();
+  const key = DEFAULT_PROMPT_TEMPLATE_CATEGORY_I18N_KEYS[name];
+  return key ? translate(key) : name;
 }
 
 function renderPromptTemplateCategoryPanel() {
@@ -208,15 +236,15 @@ function renderPromptTemplateCategoryPanel() {
   const categories = normalizePromptTemplateCategoryList(state.promptTemplateCategories);
   els.promptTemplateCategoryPanel.innerHTML = `
     <div class="prompt-template-category-create">
-      <input class="control" type="text" maxlength="32" placeholder="新分类" data-prompt-template-category-new>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>添加</button>
+      <input class="control" type="text" maxlength="32" placeholder="${escapeHtml(translate("templates.newCategory"))}" data-prompt-template-category-new>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>${escapeHtml(translate("action.add"))}</button>
     </div>
     <div class="prompt-template-category-manage-list">
       ${categories.map((category: any) => `
         <div class="prompt-template-category-manage-row" data-prompt-template-category-row="${escapeHtml(category.id)}">
           <input class="control" type="text" maxlength="32" value="${escapeHtml(category.name)}" data-prompt-template-category-name>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>保存</button>
-          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === "常用" ? "disabled" : ""}>删除</button>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>${escapeHtml(translate("action.save"))}</button>
+          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === PROMPT_TEMPLATE_CATEGORY_COMMON ? "disabled" : ""}>${escapeHtml(translate("action.delete"))}</button>
         </div>
       `).join("")}
     </div>
@@ -264,10 +292,12 @@ function renderPromptTemplateList() {
   const templates = promptTemplatesForDisplay();
   if (els.promptTemplateSummary) {
     els.promptTemplateSummary.className = "prompt-template-summary";
-    els.promptTemplateSummary.textContent = templates.length ? `${templates.length} 个可用模板` : "暂无匹配模板";
+    els.promptTemplateSummary.textContent = templates.length
+      ? formatTranslation("templates.availableCount", { count: templates.length })
+      : translate("templates.noMatch");
   }
   if (!templates.length) {
-    els.promptTemplateList.innerHTML = '<div class="prompt-template-empty">暂无模板</div>';
+    els.promptTemplateList.innerHTML = `<div class="prompt-template-empty">${translate("templates.empty")}</div>`;
     return;
   }
   els.promptTemplateList.innerHTML = templates.map((template: any) => `
@@ -277,8 +307,8 @@ function renderPromptTemplateList() {
       <span class="prompt-template-card-subtitle">${escapeHtml(template.title)}</span>
       <span class="prompt-template-card-preview">${escapeHtml(promptTemplatePreview(template.content, 64))}</span>
       <span class="prompt-template-card-meta">
-        <span>${escapeHtml(template.category)}</span>
-        <span>${template.favorite ? "已收藏" : `${template.usage_count || 0} 次`}</span>
+        <span>${escapeHtml(promptTemplateCategoryLabel(template.category))}</span>
+        <span>${template.favorite ? translate("templates.favoriteBadge") : formatTranslation("templates.usageCount", { count: template.usage_count || 0 })}</span>
       </span>
     </button>
   `).join("");
@@ -309,22 +339,22 @@ function selectPromptTemplate(templateId: any) {
   hidePromptTemplateForm();
   els.promptTemplateDetail.innerHTML = `
     <div class="prompt-template-detail-header">
-      <button class="ghost-button text-sm" type="button" data-prompt-template-back>返回</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-edit="${escapeHtml(template.id)}">编辑</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-back>${translate("templates.back")}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-edit="${escapeHtml(template.id)}">${translate("templates.edit")}</button>
     </div>
     ${template.thumbnail_url ? `<img class="prompt-template-detail-thumb" src="${escapeHtml(template.thumbnail_url)}" alt="">` : ""}
     <h3>${escapeHtml(template.title)}</h3>
     <div class="prompt-template-detail-meta">
-      <span>${escapeHtml(template.category)}</span>
+      <span>${escapeHtml(promptTemplateCategoryLabel(template.category))}</span>
       <span>${escapeHtml(template.model_hint)}</span>
-      ${template.favorite ? "<span>收藏</span>" : ""}
+      ${template.favorite ? `<span>${translate("templates.favoriteBadge")}</span>` : ""}
     </div>
     <div class="prompt-template-detail-content">${escapeHtml(template.content)}</div>
     ${template.notes ? `<p class="prompt-template-detail-notes">${escapeHtml(template.notes)}</p>` : ""}
     <div class="prompt-template-detail-actions">
-      <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml(template.id)}">复制</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml(template.id)}">插入</button>
-      <button class="run-button" type="button" data-prompt-template-replace="${escapeHtml(template.id)}">替换</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml(template.id)}">${translate("templates.copy")}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml(template.id)}">${translate("templates.insert")}</button>
+      <button class="run-button" type="button" data-prompt-template-replace="${escapeHtml(template.id)}">${translate("action.replace")}</button>
     </div>
   `;
   els.promptTemplateList?.classList.add("hidden");
@@ -353,10 +383,10 @@ async function afterPromptTemplateApplied(template: any) {
   try {
     const response = await fetch(`${PROMPT_TEMPLATES_ENDPOINT}/${encodeURIComponent(template.id)}/use`, { method: "POST" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词模板使用状态更新失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.useStateUpdateFailed"));
     applyPromptTemplateSettingsResponse(data);
   } catch (error: any) {
-    console.warn(error.message || "提示词模板使用状态更新失败");
+    console.warn(error.message || translate("templates.useStateUpdateFailed"));
   }
 }
 
@@ -364,9 +394,9 @@ async function copyPromptTemplateContent(template: any) {
   if (!template) return;
   try {
     await navigator.clipboard.writeText(template.content);
-    setStatus("提示词模板已复制", "ok");
+    setStatus(translate("templates.copied"), "ok");
   } catch {
-    setStatus("提示词模板复制失败", "error");
+    setStatus(translate("templates.copyFailed"), "error");
   }
 }
 
@@ -377,7 +407,7 @@ function renderPromptTemplateForm(template: any = null) {
     title: "",
     short_title: "",
     content: getPromptText(),
-    category: "常用",
+    category: PROMPT_TEMPLATE_CATEGORY_COMMON,
     tags: [],
     notes: "",
     thumbnail_url: "",
@@ -389,49 +419,49 @@ function renderPromptTemplateForm(template: any = null) {
   els.promptTemplateForm.innerHTML = `
     <form class="prompt-template-form" data-prompt-template-form-id="${escapeHtml(value.id || "")}">
       <div class="prompt-template-form-header">
-        <button class="ghost-button text-sm" type="button" data-prompt-template-back>返回</button>
-        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml(value.id)}">删除</button>` : ""}
+        <button class="ghost-button text-sm" type="button" data-prompt-template-back>${escapeHtml(translate("templates.back"))}</button>
+        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml(value.id)}">${escapeHtml(translate("action.delete"))}</button>` : ""}
       </div>
       <label class="prompt-template-field">
-        <span>标题</span>
+        <span>${escapeHtml(translate("templates.formTitle"))}</span>
         <input class="control" type="text" maxlength="80" value="${escapeHtml(value.title || "")}" data-prompt-template-title>
       </label>
       <label class="prompt-template-field">
-        <span>短标题</span>
+        <span>${escapeHtml(translate("templates.formShortTitle"))}</span>
         <input class="control" type="text" maxlength="12" value="${escapeHtml(value.short_title || "")}" data-prompt-template-short-title>
       </label>
       <label class="prompt-template-field">
-        <span>分类</span>
+        <span>${escapeHtml(translate("templates.formCategory"))}</span>
         <select class="control" data-prompt-template-category-input>
-          ${categories.map((category: any) => `<option value="${escapeHtml(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml(category.name)}</option>`).join("")}
+          ${categories.map((category: any) => `<option value="${escapeHtml(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml(promptTemplateCategoryLabel(category.name))}</option>`).join("")}
         </select>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>标签</span>
+        <span>${escapeHtml(translate("templates.formTags"))}</span>
         <input class="control" type="text" value="${escapeHtml((value.tags || []).join("，"))}" data-prompt-template-tags>
       </label>
       <div class="prompt-template-field prompt-template-field-full prompt-template-thumbnail-field">
-        <span>缩略图</span>
+        <span>${escapeHtml(translate("templates.formThumbnail"))}</span>
         <input type="hidden" value="${escapeHtml(value.thumbnail_url || "")}" data-prompt-template-thumbnail-url>
         <div class="prompt-template-thumbnail-row">
           <div class="prompt-template-thumbnail-preview" data-prompt-template-thumbnail-preview></div>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>清除</button>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>${escapeHtml(translate("templates.thumbnailClear"))}</button>
         </div>
         <div class="prompt-template-thumbnail-picker" data-prompt-template-thumbnail-picker></div>
       </div>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>内容</span>
+        <span>${escapeHtml(translate("templates.formContent"))}</span>
         <textarea class="control prompt-template-textarea" maxlength="8000" data-prompt-template-content>${escapeHtml(value.content || "")}</textarea>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>备注</span>
+        <span>${escapeHtml(translate("templates.formNotes"))}</span>
         <textarea class="control prompt-template-notes" maxlength="500" data-prompt-template-notes>${escapeHtml(value.notes || "")}</textarea>
       </label>
       <label class="prompt-template-check">
         <input type="checkbox" ${value.favorite ? "checked" : ""} data-prompt-template-favorite>
-        <span>收藏</span>
+        <span>${escapeHtml(translate("templates.formFavorite"))}</span>
       </label>
-      <button class="run-button prompt-template-save" type="submit">保存</button>
+      <button class="run-button prompt-template-save" type="submit">${escapeHtml(translate("action.save"))}</button>
     </form>
   `;
   els.promptTemplateForm.classList.remove("hidden");
@@ -464,7 +494,7 @@ function historyTemplateThumbnails() {
       seen.add(url);
       items.push({
         url,
-        label: `${promptTemplatePreview(task?.prompt || task?.prompt_for_model || task?.task_id || "历史记录", 18)} ${index + 1}`,
+        label: `${promptTemplatePreview(task?.prompt || task?.prompt_for_model || task?.task_id || translate("templates.history"), 18)} ${index + 1}`,
       });
     });
   });
@@ -481,12 +511,12 @@ function renderPromptTemplateThumbnailPicker(selectedUrl = "") {
   if (preview) {
     preview.innerHTML = selectedUrl
       ? `<img src="${escapeHtml(selectedUrl)}" alt=""><span>${escapeHtml(promptTemplatePreview(selectedUrl, 30))}</span>`
-      : "<span>未选择</span>";
+      : `<span>${escapeHtml(translate("templates.thumbnailNone"))}</span>`;
   }
   if (!picker) return;
   const thumbnails = historyTemplateThumbnails();
   if (!thumbnails.length) {
-    picker.innerHTML = '<div class="prompt-template-thumbnail-empty">暂无历史缩略图</div>';
+    picker.innerHTML = `<div class="prompt-template-thumbnail-empty">${escapeHtml(translate("templates.thumbnailEmpty"))}</div>`;
     return;
   }
   picker.innerHTML = thumbnails.map((item) => `
@@ -513,7 +543,7 @@ async function savePromptTemplateFromDrawer() {
   const payload = {
     title: (form.querySelector("[data-prompt-template-title]") as HTMLInputElement | null)?.value || "",
     short_title: (form.querySelector("[data-prompt-template-short-title]") as HTMLInputElement | null)?.value || "",
-    category: (form.querySelector("[data-prompt-template-category-input]") as HTMLSelectElement | null)?.value || "常用",
+    category: (form.querySelector("[data-prompt-template-category-input]") as HTMLSelectElement | null)?.value || PROMPT_TEMPLATE_CATEGORY_COMMON,
     tags: ((form.querySelector("[data-prompt-template-tags]") as HTMLInputElement | null)?.value || "").split(/[，,]/).map((tag) => tag.trim()).filter(Boolean),
     content: (form.querySelector("[data-prompt-template-content]") as HTMLTextAreaElement | null)?.value || "",
     notes: (form.querySelector("[data-prompt-template-notes]") as HTMLTextAreaElement | null)?.value || "",
@@ -528,12 +558,12 @@ async function savePromptTemplateFromDrawer() {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词模板保存失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.saveFailed"));
     applyPromptTemplateSettingsResponse(data);
     hidePromptTemplateForm();
-    setStatus("提示词模板已保存", "ok");
+    setStatus(translate("templates.saved"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "提示词模板保存失败", "error");
+    setStatus(error.message || translate("templates.saveFailed"), "error");
   }
 }
 
@@ -542,13 +572,13 @@ async function deletePromptTemplate(template: any) {
   try {
     const response = await fetch(`${PROMPT_TEMPLATES_ENDPOINT}/${encodeURIComponent(template.id)}`, { method: "DELETE" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "提示词模板删除失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.deleteFailed"));
     applyPromptTemplateSettingsResponse(data);
     hidePromptTemplateForm();
     hidePromptTemplateDetail();
-    setStatus("提示词模板已删除", "ok");
+    setStatus(translate("templates.deleted"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "提示词模板删除失败", "error");
+    setStatus(error.message || translate("templates.deleteFailed"), "error");
   }
 }
 
@@ -562,12 +592,12 @@ async function createPromptTemplateCategory(name: any) {
       body: JSON.stringify({ name: clean }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "模板分类添加失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.categoryAddFailed"));
     applyPromptTemplateSettingsResponse(data);
     renderPromptTemplateCategoryPanel();
-    setStatus("模板分类已添加", "ok");
+    setStatus(translate("templates.categoryAdded"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "模板分类添加失败", "error");
+    setStatus(error.message || translate("templates.categoryAddFailed"), "error");
   }
 }
 
@@ -581,12 +611,12 @@ async function updatePromptTemplateCategory(categoryId: any, name: any) {
       body: JSON.stringify({ name: clean }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "模板分类保存失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.categorySaveFailed"));
     applyPromptTemplateSettingsResponse(data);
     renderPromptTemplateCategoryPanel();
-    setStatus("模板分类已保存", "ok");
+    setStatus(translate("templates.categorySaved"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "模板分类保存失败", "error");
+    setStatus(error.message || translate("templates.categorySaveFailed"), "error");
   }
 }
 
@@ -595,12 +625,12 @@ async function deletePromptTemplateCategory(categoryId: any) {
   try {
     const response = await fetch(`${PROMPT_TEMPLATE_CATEGORIES_ENDPOINT}/${encodeURIComponent(String(categoryId))}`, { method: "DELETE" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "模板分类删除失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.categoryDeleteFailed"));
     applyPromptTemplateSettingsResponse(data);
     renderPromptTemplateCategoryPanel();
-    setStatus("模板分类已删除", "ok");
+    setStatus(translate("templates.categoryDeleted"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "模板分类删除失败", "error");
+    setStatus(error.message || translate("templates.categoryDeleteFailed"), "error");
   }
 }
 
@@ -611,13 +641,13 @@ async function importPromptTemplatePack(file: File | null | undefined) {
   try {
     const response = await fetch(PROMPT_TEMPLATE_IMPORT_ENDPOINT, { method: "POST", body: formData });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "模板包导入失败");
+    if (!response.ok) throw new Error(data.detail || translate("templates.importFailed"));
     applyPromptTemplateSettingsResponse(data);
-    const message = `已导入 ${data.imported || 0} 个模板`;
+    const message = formatTranslation("templates.importedCount", { count: data.imported || 0 });
     setPromptTemplateSummary(message, "ok");
     setStatus(message, "ok");
   } catch (error: any) {
-    const message = error.message || "模板包导入失败";
+    const message = error.message || translate("templates.importFailed");
     setPromptTemplateSummary(message, "error");
     setStatus(message, "error");
   }
@@ -632,7 +662,7 @@ async function exportPromptTemplatePack() {
     });
     const text = await response.text();
     if (!response.ok) {
-      let message = "模板包导出失败";
+      let message = translate("templates.exportFailed");
       try {
         const data = JSON.parse(text);
         message = data?.detail || message;
@@ -653,10 +683,10 @@ async function exportPromptTemplatePack() {
       URL.revokeObjectURL(objectUrl);
       link.remove();
     }, 0);
-    setPromptTemplateSummary("模板包已导出", "ok");
-    setStatus("模板包已导出", "ok");
+    setPromptTemplateSummary(translate("templates.exported"), "ok");
+    setStatus(translate("templates.exported"), "ok");
   } catch (error: any) {
-    const message = error.message || "模板包导出失败";
+    const message = error.message || translate("templates.exportFailed");
     setPromptTemplateSummary(message, "error");
     setStatus(message, "error");
   } finally {
@@ -841,6 +871,13 @@ function bindPromptTemplateEvents() {
 }
 
 export function initPromptTemplatesFeature(): void {
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderPromptTemplateCategories();
+    renderPromptTemplateList();
+    if (state.selectedPromptTemplateId && !els.promptTemplateDetail?.classList.contains("hidden")) {
+      selectPromptTemplate(state.selectedPromptTemplateId);
+    }
+  });
   Object.assign(getLegacyBridge().methods, {
     normalizePromptTemplate,
     normalizePromptTemplateCategory,
@@ -850,6 +887,7 @@ export function initPromptTemplatesFeature(): void {
     openPromptTemplateDrawer,
     closePromptTemplateDrawer,
     renderPromptTemplateCategories,
+    promptTemplateCategoryLabel,
     renderPromptTemplateCategoryPanel,
     togglePromptTemplateCategoryPanel,
     promptTemplatesForDisplay,

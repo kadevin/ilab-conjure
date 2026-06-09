@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { setGalleryDragPreview } from "./gallery-drag-preview";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 interface GalleryCategory {
   id: string;
@@ -9,17 +10,29 @@ interface GalleryCategory {
   locked: boolean;
 }
 
-const DEFAULT_GALLERY_CATEGORY_LABELS: Record<string, string> = {
-  portrait: "人像",
-  character: "角色",
-  product: "产品",
+const DEFAULT_GALLERY_CATEGORY_IDS = ["portrait", "character", "product"];
+const DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS: Record<string, string> = {
+  portrait: "\u4eba\u50cf",
+  character: "\u89d2\u8272",
+  product: "\u4ea7\u54c1",
+};
+const DEFAULT_GALLERY_CATEGORY_LEGACY_ROLES: Record<string, string> = {
+  portrait: "\u4eba\u50cf\u53c2\u8003",
+  character: "\u89d2\u8272\u53c2\u8003",
+  product: "\u4ea7\u54c1\u53c2\u8003",
 };
 
-const DEFAULT_GALLERY_CATEGORIES: GalleryCategory[] = [
-  { id: "portrait", name: "人像", prompt_role: "人像参考", order: 10, locked: false },
-  { id: "character", name: "角色", prompt_role: "角色参考", order: 20, locked: false },
-  { id: "product", name: "产品", prompt_role: "产品参考", order: 30, locked: false },
-];
+const DEFAULT_GALLERY_CATEGORY_I18N_KEYS: Record<string, string> = {
+  portrait: "gallery.categoryPortrait",
+  character: "gallery.categoryCharacter",
+  product: "gallery.categoryProduct",
+};
+
+const DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS: Record<string, string> = {
+  portrait: "gallery.categoryPortraitRole",
+  character: "gallery.categoryCharacterRole",
+  product: "gallery.categoryProductRole",
+};
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -59,14 +72,48 @@ function cssEscape(value: any): string {
 }
 
 function defaultGalleryCategories(): GalleryCategory[] {
-  return DEFAULT_GALLERY_CATEGORIES.map((category) => ({ ...category }));
+  return DEFAULT_GALLERY_CATEGORY_IDS.map((id, index) => ({
+    id,
+    name: defaultGalleryCategoryLabel(id) || id,
+    prompt_role: defaultGalleryCategoryPromptRole(id),
+    order: (index + 1) * 10,
+    locked: false,
+  }));
+}
+
+function defaultGalleryCategoryLabel(categoryId: any): string {
+  const key = DEFAULT_GALLERY_CATEGORY_I18N_KEYS[String(categoryId || "")];
+  return key ? translate(key) : "";
+}
+
+function defaultGalleryCategoryPromptRole(categoryId: any): string {
+  const key = DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS[String(categoryId || "")];
+  return key ? translate(key) : "";
+}
+
+function displayGalleryCategoryName(category: GalleryCategory): string {
+  const defaultLabel = defaultGalleryCategoryLabel(category.id);
+  const storedDefaultLabel = DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS[category.id];
+  if (defaultLabel && (!category.name || category.name === storedDefaultLabel)) {
+    return defaultLabel;
+  }
+  return category.name;
+}
+
+function displayGalleryCategoryPromptRole(category: GalleryCategory): string {
+  const defaultRole = defaultGalleryCategoryPromptRole(category.id);
+  const storedDefaultRole = DEFAULT_GALLERY_CATEGORY_LEGACY_ROLES[category.id];
+  if (defaultRole && (!category.prompt_role || category.prompt_role === storedDefaultRole)) {
+    return defaultRole;
+  }
+  return category.prompt_role;
 }
 
 function normalizeGalleryCategory(category: any): GalleryCategory | null {
   const id = String(category?.id || "").trim();
   if (!id) return null;
-  const name = String(category?.name || DEFAULT_GALLERY_CATEGORY_LABELS[id] || id).trim() || id;
-  const promptRole = String(category?.prompt_role || name).trim() || name;
+  const name = String(category?.name || defaultGalleryCategoryLabel(id) || DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS[id] || id).trim() || id;
+  const promptRole = String(category?.prompt_role || defaultGalleryCategoryPromptRole(id) || name).trim() || name;
   const order = Number.isFinite(Number(category?.order)) ? Number(category.order) : 0;
   return {
     id,
@@ -106,13 +153,13 @@ function renderGalleryCategoryControls() {
   const categories = normalizeGalleryCategories(state.galleryCategories);
   if (els.quickGalleryRail) {
     els.quickGalleryRail.innerHTML = categories.map((category) => `
-      <button class="quick-gallery-category${category.id === state.activeGalleryCategory ? " active" : ""}" data-quick-gallery-category="${escapeHtml(category.id)}" type="button">${escapeHtml(category.name)}</button>
+      <button class="quick-gallery-category${category.id === state.activeGalleryCategory ? " active" : ""}" data-quick-gallery-category="${escapeHtml(category.id)}" type="button">${escapeHtml(categoryLabel(category.id))}</button>
     `).join("");
   }
   if (els.galleryCategoryInput) {
     const currentValue = els.galleryCategoryInput.value || state.activeGalleryCategory;
     els.galleryCategoryInput.innerHTML = categories.map((category) => `
-      <option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>
+      <option value="${escapeHtml(category.id)}">${escapeHtml(categoryLabel(category.id))}</option>
     `).join("");
     els.galleryCategoryInput.value = findGalleryCategory(currentValue) ? currentValue : state.activeGalleryCategory;
   }
@@ -130,7 +177,7 @@ function renderGalleryDrawerCategoryTabs() {
       data-gallery-drawer-category="${escapeHtml(category.id)}"
       type="button"
     >
-      ${escapeHtml(category.name)}
+      ${escapeHtml(categoryLabel(category.id))}
     </button>
   `).join("");
 }
@@ -151,8 +198,8 @@ function renderGalleryCategoryManager() {
           draggable="true"
           data-gallery-category-id="${escapeHtml(category.id)}"
           data-gallery-category-drag-handle
-          aria-label="拖拽排序分类 ${escapeHtml(category.name)}"
-          title="拖拽排序"
+          aria-label="${escapeHtml(formatTranslation("gallery.dragSortCategory", { name: categoryLabel(category.id) }))}"
+          title="${translate("gallery.dragSort")}"
         >
           <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
             <circle cx="5" cy="4" r="1.1" />
@@ -164,11 +211,11 @@ function renderGalleryCategoryManager() {
           </svg>
         </button>
       </div>
-      <input class="control" type="text" maxlength="32" value="${escapeHtml(category.name)}" data-gallery-category-name="${escapeHtml(category.id)}" aria-label="分类名称">
-      <input class="control" type="text" maxlength="48" value="${escapeHtml(category.prompt_role)}" data-gallery-category-prompt-role="${escapeHtml(category.id)}" aria-label="提示词用途">
+      <input class="control" type="text" maxlength="32" value="${escapeHtml(categoryLabel(category.id))}" data-gallery-category-name="${escapeHtml(category.id)}" aria-label="${escapeHtml(translate("gallery.categoryName"))}">
+      <input class="control" type="text" maxlength="48" value="${escapeHtml(categoryPromptRole(category.id))}" data-gallery-category-prompt-role="${escapeHtml(category.id)}" aria-label="${escapeHtml(translate("gallery.categoryPromptRole"))}">
       <div class="gallery-category-row-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-category-save="${escapeHtml(category.id)}">保存</button>
-        <button class="ghost-button text-sm danger-button" type="button" data-gallery-category-delete="${escapeHtml(category.id)}" ${categories.length <= 1 ? "disabled" : ""}>删除</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-category-save="${escapeHtml(category.id)}">${escapeHtml(translate("gallery.categorySave"))}</button>
+        <button class="ghost-button text-sm danger-button" type="button" data-gallery-category-delete="${escapeHtml(category.id)}" ${categories.length <= 1 ? "disabled" : ""}>${escapeHtml(translate("gallery.categoryDelete"))}</button>
       </div>
     </div>
   `).join("");
@@ -207,7 +254,7 @@ async function refreshGalleryCategories() {
   try {
     const response = await fetch("/api/gallery/categories");
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "分类读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.categoryLoadFailed"));
     state.galleryCategories = normalizeGalleryCategories(data.categories);
     ensureActiveGalleryCategory();
     renderGalleryCategoryControls();
@@ -216,7 +263,7 @@ async function refreshGalleryCategories() {
     renderImageStrip();
     updateRequestPreview();
   } catch (error: any) {
-    setStatus(error.message || "分类读取失败", "error");
+    setStatus(error.message || translate("gallery.categoryLoadFailed"), "error");
   }
 }
 
@@ -224,7 +271,7 @@ async function createGalleryCategory() {
   const name = els.newGalleryCategoryName?.value.trim() || "";
   const promptRole = els.newGalleryCategoryPromptRole?.value.trim() || name;
   if (!name) {
-    setStatus("请输入分类名称", "error");
+    setStatus(translate("gallery.categoryNameRequired"), "error");
     return;
   }
   try {
@@ -234,14 +281,14 @@ async function createGalleryCategory() {
       body: JSON.stringify({ name, prompt_role: promptRole }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "新增分类失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.categoryCreateFailed"));
     if (els.newGalleryCategoryName) els.newGalleryCategoryName.value = "";
     if (els.newGalleryCategoryPromptRole) els.newGalleryCategoryPromptRole.value = "";
     state.activeGalleryCategory = data.category?.id || state.activeGalleryCategory;
     await refreshGalleryCategories();
-    setStatus("分类已新增", "ok");
+    setStatus(translate("gallery.categoryCreated"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "新增分类失败", "error");
+    setStatus(error.message || translate("gallery.categoryCreateFailed"), "error");
   }
 }
 
@@ -252,7 +299,7 @@ async function updateGalleryCategory(categoryId: any) {
   const promptRole = row.querySelector("[data-gallery-category-prompt-role]")?.value.trim() || name;
   const category = findGalleryCategory(categoryId);
   if (!name) {
-    setStatus("请输入分类名称", "error");
+    setStatus(translate("gallery.categoryNameRequired"), "error");
     return;
   }
   try {
@@ -262,11 +309,11 @@ async function updateGalleryCategory(categoryId: any) {
       body: JSON.stringify({ name, prompt_role: promptRole, order: category?.order }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "保存分类失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.categorySaveFailed"));
     await refreshGalleryCategories();
-    setStatus("分类已保存", "ok");
+    setStatus(translate("gallery.categorySaved"), "ok");
   } catch (error: any) {
-    setStatus(error.message || "保存分类失败", "error");
+    setStatus(error.message || translate("gallery.categorySaveFailed"), "error");
   }
 }
 
@@ -276,10 +323,10 @@ function deleteGalleryCategory(button: any, categoryId: any) {
   const moveTo = state.galleryCategories.find((candidate: any) => candidate.id !== categoryId)?.id;
   const target = findGalleryCategory(moveTo);
   openConfirmPopover(button, {
-    title: "删除图库分类？",
-    message: "分类下的图片会移动到其他分类，图库图片不会被删除。",
-    detail: target ? `${category.name} -> ${target.name}` : category.name,
-    confirmText: "删除分类",
+    title: translate("gallery.categoryDeleteTitle"),
+    message: translate("gallery.categoryDeleteMessage"),
+    detail: target ? `${categoryLabel(category.id)} -> ${categoryLabel(target.id)}` : categoryLabel(category.id),
+    confirmText: translate("gallery.categoryDeleteConfirm"),
     onConfirm: async () => {
       await performDeleteGalleryCategory(categoryId, moveTo, category.name);
     },
@@ -292,12 +339,12 @@ async function performDeleteGalleryCategory(categoryId: any, moveTo: any, catego
       method: "DELETE",
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "删除分类失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.categoryDeleteFailed"));
     if (state.activeGalleryCategory === categoryId) state.activeGalleryCategory = moveTo;
     await refreshGallery();
-    setStatus(`分类「${categoryName}」已删除，图片已迁移`, "ok");
+    setStatus(formatTranslation("gallery.categoryDeletedMigrated", { name: categoryName }), "ok");
   } catch (error: any) {
-    setStatus(error.message || "删除分类失败", "error");
+    setStatus(error.message || translate("gallery.categoryDeleteFailed"), "error");
   }
 }
 
@@ -411,15 +458,15 @@ async function persistGalleryCategoryOrder(categoryIds: string[]) {
       body: JSON.stringify({ category_ids: categoryIds }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "更新分类顺序失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.categoryOrderUpdateFailed"));
     state.galleryCategories = normalizeGalleryCategories(data.categories);
     renderGalleryCategoryControls();
     renderQuickGalleryDock();
     renderGalleryGrid();
-    setStatus("分类顺序已更新", "ok");
+    setStatus(translate("gallery.categoryOrderUpdated"), "ok");
   } catch (error: any) {
     await refreshGalleryCategories();
-    setStatus(error.message || "更新分类顺序失败", "error");
+    setStatus(error.message || translate("gallery.categoryOrderUpdateFailed"), "error");
   }
 }
 
@@ -437,7 +484,7 @@ function handleGalleryCategoryDragStart(event: DragEvent) {
   setGalleryDragPreview(event, {
     type: "category",
     title: category?.name || categoryId,
-    subtitle: category?.prompt_role || "图库分类",
+    subtitle: category ? categoryPromptRole(category.id) : translate("gallery.categoryFallback"),
     sourceElement: categoryRow(categoryId) as HTMLElement | null,
   });
   window.requestAnimationFrame(() => {
@@ -489,12 +536,16 @@ function handleGalleryCategoryDragEnd() {
 }
 
 function categoryLabel(category: any) {
-  return findGalleryCategory(category)?.name || DEFAULT_GALLERY_CATEGORY_LABELS[category] || category || "未分类";
+  const galleryCategory = findGalleryCategory(category);
+  if (galleryCategory) return displayGalleryCategoryName(galleryCategory);
+  return defaultGalleryCategoryLabel(category) || category || translate("gallery.uncategorized");
 }
 
 function categoryPromptRole(category: any) {
   const galleryCategory = findGalleryCategory(category);
-  return galleryCategory?.prompt_role || galleryCategory?.name || DEFAULT_GALLERY_CATEGORY_LABELS[category] || "参考图";
+  return galleryCategory
+    ? displayGalleryCategoryPromptRole(galleryCategory)
+    : defaultGalleryCategoryPromptRole(category) || defaultGalleryCategoryLabel(category) || translate("gallery.referenceRole");
 }
 
 function bindGalleryCategoryEvents() {
@@ -521,9 +572,17 @@ function bindGalleryCategoryEvents() {
 export function initGalleryCategoriesFeature() {
   if (galleryCategoriesFeatureInitialized) return;
   galleryCategoriesFeatureInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderGalleryCategoryControls();
+    renderQuickGalleryDock();
+    renderGalleryGrid();
+    renderImageStrip();
+    updateRequestPreview();
+  });
   bindGalleryCategoryEvents();
   Object.assign(getLegacyBridge().methods, {
     defaultGalleryCategories,
+    defaultGalleryCategoryLabel,
     normalizeGalleryCategory,
     normalizeGalleryCategories,
     handleQuickGalleryCategoryEvent,

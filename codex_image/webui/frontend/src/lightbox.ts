@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { translate } from "./i18n";
 
 interface LightboxState {
   scale: number;
@@ -125,12 +126,12 @@ function ensureLightboxElement(): HTMLDivElement {
   lightboxEl.className = "lightbox";
   lightboxEl.setAttribute("role", "dialog");
   lightboxEl.setAttribute("aria-modal", "true");
-  lightboxEl.setAttribute("aria-label", "图片预览");
+  lightboxEl.setAttribute("aria-label", translate("lightbox.label"));
   lightboxEl.innerHTML = `
-      <button class="lightbox-close" type="button" aria-label="关闭预览">×</button>
-      <button class="lightbox-nav lightbox-prev" type="button" aria-label="上一张">&lsaquo;</button>
+      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">×</button>
+      <button class="lightbox-nav lightbox-prev" type="button" aria-label="${translate("lightbox.previous")}">&lsaquo;</button>
       <img id="lightboxImg" src="" alt="" draggable="false">
-      <button class="lightbox-nav lightbox-next" type="button" aria-label="下一张">&rsaquo;</button>
+      <button class="lightbox-nav lightbox-next" type="button" aria-label="${translate("lightbox.next")}">&rsaquo;</button>
       <div class="lightbox-counter" aria-live="polite"></div>
     `;
   document.body.appendChild(lightboxEl);

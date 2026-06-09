@@ -73,8 +73,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-238', html)
-        self.assertIn('/static/styles.css?v=runtime-238', html)
+        self.assertIn('/static/app.js?v=runtime-251', html)
+        self.assertIn('/static/styles.css?v=runtime-251', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertRegex(html, r'class="image-input-footer"[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'id="recentAssetDock"[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -106,13 +106,12 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("const nextScrollLeft = Math.min(maxScrollLeft, Math.max(0, list.scrollLeft + wheelDelta));", script)
         self.assertIn("openConfirmPopover(button", script)
         self.assertIn('event.stopPropagation();', script)
-        self.assertIn(
-            "如果它已被添加到当前图像输入，会从当前输入中移除；历史任务里引用这张最近上传图的输入预览也会失效。不会影响公用图库。",
-            script,
-        )
+        self.assertIn('message: translate("recentAssets.deleteMessage")', script)
+        self.assertIn('document.addEventListener(LOCALE_CHANGE_EVENT, renderRecentAssets);', script)
         self.assertNotIn("不会影响公用图库或历史任务。", script)
         self.assertNotIn("已加入图像输入的同一图片也会移除", script)
-        self.assertIn('badge.textContent = source.kind === "gallery" ? legacyMethod("categoryLabel", source.category) : source.kind === "asset" ? "最近" : "上传"', script)
+        self.assertIn('translate("imageInput.recentBadge")', script)
+        self.assertIn('translate("imageInput.uploadBadge")', script)
         self.assertIn('wrapper.className = `thumb ${source.kind === "gallery" ? "gallery-thumb" : source.kind === "asset" ? "asset-thumb" : "upload-thumb"}${source.missing ? " missing-thumb" : ""}`', script)
         self.assertIn("restoredSources.push(assetSource(source));", script)
         self.assertRegex(styles, r"\.recent-asset-list\s*\{[^}]*display:\s*flex")
@@ -212,8 +211,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('import { initGalleryCategoriesFeature } from "./gallery-categories"', main_source)
         self.assertLess(main_source.index("initGalleryCategoriesFeature()"), main_source.index("initGalleryFeature()"))
         self.assertIn("export function initGalleryCategoriesFeature", source)
-        self.assertIn("const DEFAULT_GALLERY_CATEGORY_LABELS", source)
-        self.assertIn("const DEFAULT_GALLERY_CATEGORIES", source)
+        self.assertIn("const DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS", source)
+        self.assertIn("const DEFAULT_GALLERY_CATEGORY_I18N_KEYS", source)
+        self.assertIn("const DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS", source)
         for function_name in [
             "defaultGalleryCategories",
             "normalizeGalleryCategory",
@@ -586,7 +586,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
 
         self.assertRegex(
             html,
-            r'<button id="settingsButton" class="ghost-button icon-button" type="button">存储设置</button>',
+            r'<button id="settingsButton" class="ghost-button icon-button" type="button"[^>]*>存储设置</button>',
         )
         self.assertRegex(
             html,
@@ -811,7 +811,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('id="gallerySearch"', html)
         self.assertNotIn('id="galleryButtons"', html)
         self.assertNotIn("gallery-picker-row", html)
-        self.assertRegex(html, r'<div class="panel-heading">\s*<h2>图像输入</h2>\s*</div>')
+        self.assertRegex(html, r'<div class="panel-heading">\s*<h2[^>]*>图像输入</h2>\s*</div>')
         self.assertRegex(html, r'<div class="image-input-footer">[\s\S]*<div class="image-input-actions">[\s\S]*<button id="clearImagesButton"')
         self.assertRegex(html, r'<div class="image-input-footer">[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'<div class="image-gallery-column">[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -1390,10 +1390,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("data-gallery-edit-name", script)
         self.assertIn("data-gallery-edit-category", script)
         self.assertIn("data-gallery-replace", script)
-        self.assertRegex(
-            script,
-            r'data-gallery-use="\$\{escapeHtml\(item\.id\)\}">使用</button>\s*<button class="ghost-button text-sm" type="button" data-gallery-replace="\$\{escapeHtml\(item\.id\)\}">替换</button>',
-        )
+        self.assertRegex(script, r'data-gallery-use="\$\{escapeHtml\(item\.id\)\}">\$\{translate\("gallery\.use"\)\}</button>')
+        self.assertRegex(script, r'data-gallery-replace="\$\{escapeHtml\(item\.id\)\}">\$\{translate\("gallery\.replace"\)\}</button>')
         self.assertNotIn(">替换图像</button>", script)
         self.assertIn("function replaceGalleryItemImage", script)
         self.assertIn('fetch(`/api/gallery/${encodeURIComponent(itemId)}/image`', script)
@@ -1443,6 +1441,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('aria-label="GitHub"', html)
         self.assertIn('target="_blank"', html)
         self.assertIn('rel="noreferrer"', html)
+        self.assertIn('id="languageSwitcher"', html)
+        self.assertLess(html.index('id="languageSwitcher"'), html.index('id="githubLink"'))
         self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-control-height:\s*36px")
         self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-control-radius:\s*999px")
         self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-segment-height:\s*30px")
@@ -1474,6 +1474,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.auth-source-api-button\s*\{[^}]*gap:\s*4px")
         self.assertRegex(styles, r"\.auth-source-settings-button\s*\{[^}]*width:\s*var\(--top-nav-control-height\)")
         self.assertRegex(styles, r"\.github-link\s*\{[^}]*width:\s*var\(--top-nav-control-height\)")
+        self.assertRegex(styles, r"\.language-switcher\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
+        self.assertRegex(styles, r"\.language-option\s*\{[^}]*height:\s*var\(--top-nav-segment-height\)")
         self.assertNotRegex(styles, r"\.api-provider-quick\s*\{[^}]*position:\s*absolute")
         self.assertRegex(styles, r"\.api-provider-quick\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
         self.assertRegex(styles, r"\.api-provider-quick\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
@@ -1486,7 +1488,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn("自动 →", auth_source)
         self.assertIn('return `API · ${provider} · ${mode}`;', auth_source)
         self.assertIn('return "Codex";', auth_source)
-        self.assertIn('return `${selected} 不可用`;', auth_source)
+        self.assertIn('formatTranslation("auth.sourceUnavailable", { source: selected })', auth_source)
         self.assertNotIn('return `${effective} · ${mode} · ${imageModel}`', auth_source)
         self.assertRegex(styles, r"\.auth-source-button\.active\s*\{[^}]*background:\s*var\(--primary\)")
         self.assertNotIn("文档中心", html)
@@ -1577,9 +1579,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("active_provider_id: state.apiSettings.active_provider_id", script)
         self.assertIn("providers: state.apiSettings.providers", script)
         self.assertIn("function setApiSettingsFeedback", script)
-        self.assertIn('els.saveApiSettingsButton.textContent = "保存中..."', script)
-        self.assertIn('els.saveApiSettingsButton.textContent = "已保存"', script)
-        self.assertIn('setApiSettingsFeedback(`已保存 · ${activeApiProvider().name} · ${apiModeLabel(currentApiMode())} · ${currentApiImageModel()} · 并发 ${currentApiImagesConcurrency()}`, "ok")', script)
+        self.assertIn('els.saveApiSettingsButton.textContent = translate("apiSettings.saving")', script)
+        self.assertIn('els.saveApiSettingsButton.textContent = translate("apiSettings.savedShort")', script)
+        self.assertIn('setApiSettingsFeedback(formatTranslation("apiSettings.savedSummary"', script)
         self.assertIn('fetch("/api/api-settings"', script)
         self.assertIn("openApiSettingsModal", script)
         self.assertNotIn("handleAuthSourceDoubleClick", script)
@@ -1783,12 +1785,12 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(html, r'id="customSizeToggle" class="hidden"')
         custom_ratio_markup = re.search(r'<div class="field custom-ratio-field">[\s\S]*?<p id="customRatioHint"[^>]*>[^<]*</p>\s*</div>', html)
         self.assertIsNotNone(custom_ratio_markup)
-        self.assertRegex(custom_ratio_markup.group(0), r'<span>比例锁定（可选）</span>[\s\S]*class="custom-measure-row custom-ratio-control"')
-        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioWidth">宽</label>[\s\S]*id="customRatioWidth"')
+        self.assertRegex(custom_ratio_markup.group(0), r'<span[^>]*>比例锁定（可选）</span>[\s\S]*class="custom-measure-row custom-ratio-control"')
+        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioWidth"[^>]*>宽</label>[\s\S]*id="customRatioWidth"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioWidth"[\s\S]*class="control custom-ratio-digit"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioWidth"[^>]*type="text"[^>]*inputmode="numeric"[^>]*maxlength="1"[^>]*pattern="\[1-9\]"')
         self.assertRegex(custom_ratio_markup.group(0), r'<span class="custom-ratio-separator"[^>]*>:</span>')
-        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioHeight">高</label>[\s\S]*id="customRatioHeight"')
+        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioHeight"[^>]*>高</label>[\s\S]*id="customRatioHeight"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHeight"[\s\S]*class="control custom-ratio-digit"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHeight"[^>]*type="text"[^>]*inputmode="numeric"[^>]*maxlength="1"[^>]*pattern="\[1-9\]"')
         self.assertIn('aria-label="自定义宽高比宽度"', custom_ratio_markup.group(0))
@@ -1798,10 +1800,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHint" class="custom-ratio-hint"[\s\S]*留空则自由宽高 · 填满后同步')
         custom_size_markup = re.search(r'<div id="customSize" class="custom-size hidden"[\s\S]*?</div>\s*<div class="field full-width ratio-field">', html)
         self.assertIsNotNone(custom_size_markup)
-        self.assertRegex(custom_size_markup.group(0), r'class="custom-size-main"[\s\S]*class="custom-size-header"[\s\S]*<span>像素尺寸</span>')
+        self.assertRegex(custom_size_markup.group(0), r'class="custom-size-main"[\s\S]*class="custom-size-header"[\s\S]*<span[^>]*>像素尺寸</span>')
         self.assertRegex(custom_size_markup.group(0), r'class="custom-measure-row custom-size-row"')
-        self.assertRegex(custom_size_markup.group(0), r'<label class="custom-measure-label" for="customWidth">宽度</label>[\s\S]*id="customWidth"')
-        self.assertRegex(custom_size_markup.group(0), r'id="customWidth"[\s\S]*id="swapCustomSizeButton"[\s\S]*<label class="custom-measure-label" for="customHeight">高度</label>[\s\S]*id="customHeight"[\s\S]*id="customSizeHint"')
+        self.assertRegex(custom_size_markup.group(0), r'<label class="custom-measure-label" for="customWidth"[^>]*>宽度</label>[\s\S]*id="customWidth"')
+        self.assertRegex(custom_size_markup.group(0), r'id="customWidth"[\s\S]*id="swapCustomSizeButton"[\s\S]*<label class="custom-measure-label" for="customHeight"[^>]*>高度</label>[\s\S]*id="customHeight"[\s\S]*id="customSizeHint"')
         self.assertRegex(custom_size_markup.group(0), r'class="field custom-ratio-field"[\s\S]*id="customRatioWidth"[\s\S]*id="customRatioHeight"')
         self.assertNotIn('id="lockCustomRatioButton"', custom_size_markup.group(0))
         self.assertNotIn("<span>px</span>", custom_size_markup.group(0))
@@ -1917,10 +1919,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
 
         custom_ratio_markup = re.search(r'<div class="field custom-ratio-field">[\s\S]*?<p id="customRatioHint"[^>]*>[^<]*</p>\s*</div>', html)
         self.assertIsNotNone(custom_ratio_markup)
-        self.assertRegex(custom_ratio_markup.group(0), r'class="custom-ratio-header">\s*<span>比例锁定（可选）</span>\s*</div>')
+        self.assertRegex(custom_ratio_markup.group(0), r'class="custom-ratio-header">\s*<span[^>]*>比例锁定（可选）</span>\s*</div>')
         self.assertRegex(custom_ratio_markup.group(0), r'class="custom-measure-row custom-ratio-control"[\s\S]*id="customRatioFromImageButton"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioFromImageButton"[^>]*disabled[^>]*aria-label="获取第一张参考图宽高比"')
-        self.assertIn("<span>取首图</span>", custom_ratio_markup.group(0))
+        self.assertRegex(custom_ratio_markup.group(0), r"<span[^>]*>取首图</span>")
         self.assertIn("留空则自由宽高 · 填满后同步", custom_ratio_markup.group(0))
 
         self.assertRegex(styles, r"\.field-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*1fr\)")
@@ -2224,6 +2226,14 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 const GPT_IMAGE_2_MIN_PIXELS = 655360;
                 const GPT_IMAGE_2_MAX_PIXELS = 8294400;
                 const GPT_IMAGE_2_MAX_LONG_SHORT_RATIO = 3;
+                const translations = {
+                  "output.customSizeRequired": "请输入宽度和高度",
+                  "output.customSizeBounds": "宽高需在 16-3840 px 之间",
+                  "output.customSizeMultiple": "宽高需为 16 的倍数",
+                  "output.customSizeRatio": "长短边比例不能超过 3:1",
+                  "output.customSizePixels": "总像素需在 655,360-8,294,400 之间",
+                };
+                function translate(key) { return translations[key] || key; }
                 """,
                 self._extract_javascript_function(script, "normalizeCustomDimension"),
                 self._extract_javascript_function(script, "customDimensionValue"),
@@ -2446,17 +2456,17 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
 
-        self.assertIn('/static/app.js?v=runtime-238', html)
-        self.assertIn('/static/styles.css?v=runtime-238', html)
+        self.assertIn('/static/app.js?v=runtime-251', html)
+        self.assertIn('/static/styles.css?v=runtime-251', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
             html,
-            r'<div id="statusText" class="status-text" aria-live="polite">等待任务</div>',
+            r'<div id="statusText" class="status-text" aria-live="polite" data-i18n="status\.waiting">等待任务</div>',
         )
         self.assertRegex(
             html,
-            r'<div class="image-input-actions">\s*<button id="clearImagesButton" class="ghost-button icon-text-button text-sm quiet-danger-button"[\s\S]*<svg[\s\S]*<span>清空</span>[\s\S]*?</button>\s*<button id="pasteClipboardButton" class="ghost-button icon-text-button text-sm"[\s\S]*<svg[\s\S]*<span>粘贴</span>',
+            r'<div class="image-input-actions">\s*<button id="clearImagesButton" class="ghost-button icon-text-button text-sm quiet-danger-button"[\s\S]*<svg[\s\S]*<span[^>]*>清空</span>[\s\S]*?</button>\s*<button id="pasteClipboardButton" class="ghost-button icon-text-button text-sm"[\s\S]*<svg[\s\S]*<span[^>]*>粘贴</span>',
         )
         self.assertNotIn("粘贴剪贴板", html)
         self.assertIn("点击、拖入或粘贴图片", html)
@@ -2548,8 +2558,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('wrapper.setAttribute("role", "button")', script)
         self.assertRegex(script, r"wrapper\.addEventListener\(\"click\", \(event\) => \{[\s\S]*event\.target\.closest\(\"button\"\)[\s\S]*legacyMethod\(\"openImageEditor\", index\)")
         self.assertRegex(script, r"wrapper\.addEventListener\(\"keydown\", \(event\) => \{[\s\S]*event\.key === \"Enter\"[\s\S]*legacyMethod\(\"openImageEditor\", index\)")
-        self.assertIn('addToGallery.append(createThumbAddIcon(), document.createTextNode("图库"))', script)
-        self.assertIn('document.createTextNode("图库")', script)
+        self.assertIn('addToGallery.append(createThumbAddIcon(), document.createTextNode(translate("imageInput.addToGalleryShort")))', script)
+        self.assertIn('translate("imageInput.addToGallery")', script)
         self.assertNotIn('document.createTextNode("+ 图库")', script)
         self.assertNotIn('document.createTextNode("加入图库")', script)
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*height:\s*32px")
@@ -2674,7 +2684,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn("imageEditorState.strokeWidth + 2", script)
         self.assertIn("if (!imageEditorBoundaryHasPixels(boundaryData)) return false;", script)
         self.assertIn("if (imageEditorPixelTouchesCanvasEdge(index, width, height)) return false;", script)
-        self.assertIn('setImageEditorStatus("请先用画笔圈出封闭区域", "error");', script)
+        self.assertIn('setImageEditorStatus(translate("imageEditor.closedRegionRequired"), "error");', script)
         self.assertIn("pushImageEditorHistory();", script)
         self.assertIn("event.metaKey || event.ctrlKey", script)
         self.assertIn('event.key.toLowerCase() === "z"', script)
@@ -2708,8 +2718,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-238", html)
-        self.assertIn("/static/styles.css?v=runtime-238", html)
+        self.assertIn("/static/app.js?v=runtime-251", html)
+        self.assertIn("/static/styles.css?v=runtime-251", html)
         self.assertIn('const THEME_STORAGE_KEY = "codex-image-theme-preference";', script)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

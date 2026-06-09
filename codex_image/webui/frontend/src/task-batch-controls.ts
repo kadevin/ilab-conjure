@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -63,7 +64,7 @@ function renderBatchToolbar() {
   els.batchManageButton?.classList.toggle("active", state.batchMode);
   const count = state.batchSelectedTaskIds.length;
   if (els.batchSelectedCount) {
-    els.batchSelectedCount.textContent = `已选择 ${count} 个`;
+    els.batchSelectedCount.textContent = formatTranslation("batch.selectedCount", { count });
   }
   [els.batchArchiveButton, els.batchDeleteButton].forEach((button: any) => {
     if (button) button.disabled = count === 0;
@@ -89,14 +90,14 @@ async function archiveSelectedTasks() {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    setStatus(`已归档 ${ids.length} 个会话`, "ok");
+    setStatus(formatTranslation("batch.archivedCount", { count: ids.length }), "ok");
   } catch (error) {
     updatedTasks.forEach(replaceTask);
     renderTasks();
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    setStatus(errorMessage(error, "批量归档失败"), "error");
+    setStatus(errorMessage(error, formatTranslation("batch.archiveFailed")), "error");
   }
 }
 
@@ -107,14 +108,14 @@ function openBatchDeleteConfirm() {
   const deletableTasks = selectedTasks.filter((task: any) => task.status !== "running" && !task.local_pending);
   const skippedCount = selectedTasks.length - deletableTasks.length;
   if (!deletableTasks.length) {
-    setStatus("选中的会话正在运行，不能删除", "error");
+    setStatus(formatTranslation("batch.runningCannotDeleteSelected"), "error");
     return;
   }
   openConfirmPopover(els.batchDeleteButton, {
-    title: `删除 ${deletableTasks.length} 个会话？`,
-    message: "会同时删除本地图片文件。",
-    detail: skippedCount ? `${skippedCount} 个运行中任务会保留` : "",
-    confirmText: "删除",
+    title: formatTranslation("batch.deleteTitle", { count: deletableTasks.length }),
+    message: formatTranslation("batch.deleteMessage"),
+    detail: skippedCount ? formatTranslation("batch.deleteSkippedDetail", { count: skippedCount }) : "",
+    confirmText: formatTranslation("action.delete"),
     onConfirm: async () => {
       await deleteSelectedTasks(deletableTasks, skippedCount);
     },
@@ -132,14 +133,14 @@ async function deleteSelectedTasks(deletableTasks: any, skippedCount = 0) {
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    const skippedText = skippedCount ? `，${skippedCount} 个运行中未删除` : "";
-    setStatus(`已删除 ${deletableTasks.length} 个会话${skippedText}`, "ok");
+    const skippedText = skippedCount ? formatTranslation("batch.deleteSkippedSuffix", { count: skippedCount }) : "";
+    setStatus(formatTranslation("batch.deletedCount", { count: deletableTasks.length, skipped: skippedText }), "ok");
   } catch (error) {
     renderTasks();
     renderArchiveButton();
     renderArchiveModal();
     renderPreview();
-    setStatus(errorMessage(error, "批量删除失败"), "error");
+    setStatus(errorMessage(error, formatTranslation("batch.deleteFailed")), "error");
   }
 }
 
@@ -268,6 +269,7 @@ function finishBatchMarqueeSelection() {
 }
 
 export function initTaskBatchControlsFeature() {
+  document.addEventListener(LOCALE_CHANGE_EVENT, renderBatchToolbar);
   Object.assign(getLegacyBridge().methods, {
     toggleBatchMode,
     toggleBatchTaskSelection,

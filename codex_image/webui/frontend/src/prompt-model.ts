@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
@@ -25,7 +26,7 @@ export function galleryPromptText(galleries: any[] = galleryInputs()): string {
   if (!galleries.length) return "";
   const referenceOffset = uploadInputs().length + referenceAssetInputs().length;
   const lines = galleries.map((source: any, index: any) => galleryReferenceInstruction(source, referenceOffset + index + 1));
-  return `参考图说明：\n${lines.join("\n")}`;
+  return `${translate("promptModel.galleryHeader")}\n${lines.join("\n")}`;
 }
 
 export function buildPromptForModel(): string {
@@ -39,7 +40,12 @@ export function buildPromptForModel(): string {
 export function galleryReferenceInstruction(source: any, number: any): string {
   const role = source.category_prompt_role || categoryPromptRole(source.category);
   const promptNote = String(source.prompt_note || "").trim();
-  return `- 参考图 ${number}：图库「${source.name}」，用途：${role}。提示词中的 @${source.name} 指这张图。${promptNote ? ` ${promptNote}` : ""}`;
+  return formatTranslation("promptModel.galleryInstruction", {
+    number,
+    name: source.name,
+    role,
+    note: promptNote ? ` ${promptNote}` : "",
+  });
 }
 
 export function currentPromptForModel(): string {

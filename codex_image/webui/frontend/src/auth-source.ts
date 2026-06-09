@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { updateModeSpecificSettings } from "./api-mode-settings";
+import { formatTranslation, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -29,7 +30,7 @@ export async function refreshHealth(): Promise<void> {
     els.apiStatus.className = `status-dot ${state.authAvailable ? "ok" : "error"}`;
     els.runButton.disabled = !state.authAvailable;
     if (!state.authAvailable) {
-      setStatus("没有检测到 Codex 登录态", "error");
+      setStatus(translate("auth.missingCodexSession"), "error");
     }
     updateRequestPreview();
   } catch (error: any) {
@@ -52,7 +53,7 @@ export async function setAuthSource(source: any): Promise<void> {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.detail || "授权来源切换失败");
+      throw new Error(data.detail || translate("auth.switchFailed"));
     }
     state.pendingAuthSource = null;
     state.authStatus = data;
@@ -66,7 +67,7 @@ export async function setAuthSource(source: any): Promise<void> {
     state.pendingAuthSource = null;
     renderAuthSource(state.authStatus);
     updateRequestPreview();
-    setStatus(error.message || "授权来源切换失败", "error");
+    setStatus(error.message || translate("auth.switchFailed"), "error");
   }
 }
 
@@ -81,7 +82,7 @@ export function renderAuthSource(auth: any): void {
   const selected = state.pendingAuthSource || auth?.selected_source || "codex";
   applyAuthSourceSelection(selected);
   if (els.authSourceDetail) {
-    const text = auth ? authSourceDetailText(auth) : "授权检查中";
+    const text = auth ? authSourceDetailText(auth) : translate("auth.checking");
     els.authSourceDetail.textContent = text;
     els.authSourceDetail.title = text;
   }
@@ -99,14 +100,14 @@ export function applyAuthSourceSelection(source: any): void {
 }
 
 export function authSourceDetailText(auth: any): string {
-  if (!auth) return "授权检查中";
+  if (!auth) return translate("auth.checking");
   const selected = sourceLabel(auth.selected_source);
   const effectiveApi = auth.effective_source === "api";
   if (!auth.auth_available) {
     if (auth.selected_source === "api" || effectiveApi) {
-      return `${selected} 不可用`;
+      return formatTranslation("auth.sourceUnavailable", { source: selected });
     }
-    return `${selected} 不可用`;
+    return formatTranslation("auth.sourceUnavailable", { source: selected });
   }
   if (effectiveApi) {
     const provider = currentApiProviderLabel();
@@ -119,7 +120,7 @@ export function authSourceDetailText(auth: any): string {
 export function sourceLabel(source: any): string {
   if (source === "codex") return "Codex";
   if (source === "api") return "API";
-  return "未生效";
+  return translate("auth.notActive");
 }
 
 export function currentAuthSource(): string {

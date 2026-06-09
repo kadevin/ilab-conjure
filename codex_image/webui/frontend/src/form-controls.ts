@@ -39,6 +39,7 @@ import {
   updateCustomRatioFieldState,
   updateCustomRatioReferenceButtonState,
 } from "./custom-size-controls";
+import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -46,6 +47,13 @@ const els = bridge.els;
 
 let formControlsInitialized = false;
 let formControlEventsBound = false;
+
+function syncRunButtonLabel(): void {
+  if (!els.runButton || state.runTimerId) return;
+  const mode = state.mode === "edit" ? "edit" : "generate";
+  els.runButton.textContent = translate(mode === "edit" ? "prompt.runEdit" : "prompt.run");
+  els.runButton.title = translate(mode === "edit" ? "prompt.runEditTitle" : "prompt.runTitle");
+}
 
 export function bindFormControlEvents(): void {
   if (formControlEventsBound) return;
@@ -130,7 +138,7 @@ export function setMode(mode: any): void {
     button.classList.toggle("active", button.dataset.mode === mode);
   });
   if (!state.runTimerId) {
-    els.runButton.textContent = mode === "edit" ? "开始编辑" : "开始生成";
+    syncRunButtonLabel();
   }
   syncRadioButtons(els.quality, els.outputFormat, els.moderation);
   updateRequestPreview();
@@ -139,9 +147,11 @@ export function setMode(mode: any): void {
 export function initFormControlsFeature(): void {
   if (formControlsInitialized) return;
   formControlsInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, syncRunButtonLabel);
   Object.assign(getLegacyBridge().methods, {
     bindFormControlEvents,
     setMode,
+    syncRunButtonLabel,
     updateQuantity,
     updateCompression,
     openCompressionPopover,

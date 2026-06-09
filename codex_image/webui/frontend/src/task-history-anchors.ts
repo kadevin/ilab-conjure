@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { TASK_HISTORY_EXPANDED_GROUP_STORAGE_KEY } from "./state-defaults";
+import { formatTranslation } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -135,7 +136,7 @@ function anchorRowHtml(group: any) {
       data-task-group-anchor-key="${key}"
       data-task-group-toggle-key="${key}"
       aria-expanded="false"
-      aria-label="展开 ${escapeHtml(group.label)}"
+      aria-label="${escapeHtml(formatTranslation("taskGroup.expand", { label: group.label }))}"
     >
       <span class="task-history-anchor-label">
         <span class="task-group-title">

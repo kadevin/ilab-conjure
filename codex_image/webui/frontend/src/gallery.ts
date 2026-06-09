@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -62,7 +63,7 @@ async function refreshGallery() {
     const response = await fetch("/api/gallery");
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.detail || "图库读取失败");
+      throw new Error(data.detail || translate("gallery.loadFailed"));
     }
     state.galleryItems = sortGalleryItems(data.items || []);
     state.galleryCategories = normalizeGalleryCategories(data.categories);
@@ -75,7 +76,7 @@ async function refreshGallery() {
     state.galleryCategories = defaultGalleryCategories();
     renderGalleryCategoryControls();
     renderQuickGalleryDock();
-    setStatus(error.message || "图库读取失败", "error");
+    setStatus(error.message || translate("gallery.loadFailed"), "error");
   }
 }
 
@@ -135,7 +136,7 @@ async function persistGalleryItemOrder(category: any, itemIds: string[]) {
       body: JSON.stringify({ category, item_ids: itemIds }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "更新图片顺序失败");
+    if (!response.ok) throw new Error(data.detail || translate("gallery.imageOrderUpdateFailed"));
     const reorderedIds = new Set(itemIds);
     const reorderedItems = Array.isArray(data.items) ? data.items : [];
     state.galleryItems = sortGalleryItems([
@@ -144,10 +145,10 @@ async function persistGalleryItemOrder(category: any, itemIds: string[]) {
     ]);
     renderQuickGalleryDock();
     renderGalleryGrid();
-    setStatus("图片顺序已更新", "ok");
+    setStatus(translate("gallery.imageOrderUpdated"), "ok");
   } catch (error: any) {
     await refreshGallery();
-    setStatus(error.message || "更新图片顺序失败", "error");
+    setStatus(error.message || translate("gallery.imageOrderUpdateFailed"), "error");
   }
 }
 

@@ -1,6 +1,6 @@
-const HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup"];
+const HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher"];
 const HOST_SELECTOR = HOST_SELECTORS.join(", ");
-const BUTTON_SELECTOR = ".radio-btn, .auth-source-button";
+const BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option";
 const INDICATOR_CLASS = "segmented-indicator";
 const HOST_CLASS = "segmented-indicator-host";
 

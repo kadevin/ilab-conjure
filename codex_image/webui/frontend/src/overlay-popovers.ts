@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 
 const bridge = getLegacyBridge();
@@ -14,6 +15,8 @@ const confirmPopoverState = {
 
 let promptPopoverEl = null;
 const promptPopoverState = {
+  anchor: null,
+  data: null,
   optimizedPrompt: "",
   copyTimerId: null,
 };
@@ -55,7 +58,7 @@ function ensureConfirmPopover() {
   confirmPopoverEl = document.createElement("div");
   confirmPopoverEl.className = "confirm-popover hidden";
   confirmPopoverEl.setAttribute("role", "dialog");
-  confirmPopoverEl.setAttribute("aria-label", "确认操作");
+  confirmPopoverEl.setAttribute("aria-label", translate("action.confirm"));
   document.body.appendChild(confirmPopoverEl);
   return confirmPopoverEl;
 }
@@ -74,13 +77,13 @@ function openConfirmPopover(anchor, options = {}) {
   confirmPopoverState.onConfirm = typeof options.onConfirm === "function" ? options.onConfirm : null;
   const message = options.message ? `<p class="confirm-popover-message">${escapeHtml(options.message)}</p>` : "";
   const detail = options.detail ? `<div class="confirm-popover-detail">${escapeHtml(options.detail)}</div>` : "";
-  const confirmText = options.confirmText || "确认";
+  const confirmText = options.confirmText || translate("action.confirm");
   popover.innerHTML = `
-    <div class="confirm-popover-title">${escapeHtml(options.title || "确认操作？")}</div>
+    <div class="confirm-popover-title">${escapeHtml(options.title || translate("action.confirmQuestion"))}</div>
     ${message}
     ${detail}
     <div class="confirm-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>取消</button>
+      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml(translate("action.cancel"))}</button>
       <button class="ghost-button text-sm danger-button confirm-popover-confirm" type="button" data-confirm-popover-confirm>${escapeHtml(confirmText)}</button>
     </div>
   `;
@@ -124,7 +127,9 @@ function normalizedPromptText(value) {
 }
 
 function promptLengthLabel(value) {
-  return `${Array.from(normalizedPromptText(value)).length} 字`;
+  return formatTranslation("promptPopover.charCount", {
+    count: Array.from(normalizedPromptText(value)).length,
+  });
 }
 
 function promptPopoverSection(label, text, meta, tone = "") {
@@ -135,7 +140,7 @@ function promptPopoverSection(label, text, meta, tone = "") {
         <div class="prompt-popover-label">${escapeHtml(label)}</div>
         <span class="prompt-popover-meta">${escapeHtml(meta || promptLengthLabel(text))}</span>
       </div>
-      <pre class="prompt-popover-text">${escapeHtml(text || "无")}</pre>
+      <pre class="prompt-popover-text">${escapeHtml(text || translate("promptPopover.empty"))}</pre>
     </section>
   `;
 }
@@ -145,7 +150,7 @@ function submittedPromptDetails(originalPrompt, submittedPrompt) {
   if (normalizedPromptText(originalPrompt) === normalizedPromptText(submittedPrompt)) return "";
   return `
     <details class="prompt-popover-submitted">
-      <summary>查看实际提交提示词</summary>
+      <summary>${escapeHtml(translate("promptPopover.submitted"))}</summary>
       <pre class="prompt-popover-submitted-text">${escapeHtml(submittedPrompt)}</pre>
     </details>
   `;
@@ -156,7 +161,7 @@ function ensurePromptPopover() {
   promptPopoverEl = document.createElement("div");
   promptPopoverEl.className = "prompt-popover hidden";
   promptPopoverEl.setAttribute("role", "dialog");
-  promptPopoverEl.setAttribute("aria-label", "提示词对比");
+  promptPopoverEl.setAttribute("aria-label", translate("promptPopover.title"));
   document.body.appendChild(promptPopoverEl);
   return promptPopoverEl;
 }
@@ -166,25 +171,32 @@ function openPromptPopover(anchor, data) {
   const originalPrompt = data.originalPrompt || data.submittedPrompt || "";
   const submittedPrompt = data.submittedPrompt || originalPrompt || "";
   const optimizedPrompt = data.optimizedPrompt || "";
+  promptPopoverState.anchor = anchor;
+  promptPopoverState.data = data;
   promptPopoverState.optimizedPrompt = optimizedPrompt;
   clearPromptPopoverCopyTimer();
+  popover.setAttribute("aria-label", translate("promptPopover.title"));
+  const optimizedLength = optimizedPrompt ? promptLengthLabel(optimizedPrompt) : translate("promptPopover.notReturned");
   popover.innerHTML = `
     <div class="prompt-popover-header">
       <div>
-        <strong>提示词对比</strong>
-        <span class="prompt-popover-summary">原始 ${escapeHtml(promptLengthLabel(originalPrompt))} · 优化 ${escapeHtml(optimizedPrompt ? promptLengthLabel(optimizedPrompt) : "未返回")}</span>
+        <strong>${escapeHtml(translate("promptPopover.title"))}</strong>
+        <span class="prompt-popover-summary">${escapeHtml(formatTranslation("promptPopover.summary", {
+          original: promptLengthLabel(originalPrompt),
+          optimized: optimizedLength,
+        }))}</span>
       </div>
-      <button class="prompt-popover-close" type="button" aria-label="关闭提示词">×</button>
+      <button class="prompt-popover-close" type="button" aria-label="${escapeHtml(translate("promptPopover.close"))}">×</button>
     </div>
     <div class="prompt-popover-body">
       <div class="prompt-popover-compare">
-        ${promptPopoverSection("原始提示词", originalPrompt || "无", promptLengthLabel(originalPrompt), "original")}
-        ${promptPopoverSection("优化后提示词", optimizedPrompt || "未返回优化提示词", optimizedPrompt ? promptLengthLabel(optimizedPrompt) : "未返回", optimizedPrompt ? "optimized" : "empty")}
+        ${promptPopoverSection(translate("promptPopover.original"), originalPrompt || translate("promptPopover.empty"), promptLengthLabel(originalPrompt), "original")}
+        ${promptPopoverSection(translate("promptPopover.optimized"), optimizedPrompt || translate("promptPopover.noOptimized"), optimizedLength, optimizedPrompt ? "optimized" : "empty")}
       </div>
       ${submittedPromptDetails(originalPrompt, submittedPrompt)}
     </div>
     <div class="prompt-popover-actions">
-      <button class="prompt-copy-button" type="button" data-copy-optimized-prompt ${optimizedPrompt ? "" : "disabled"}>复制优化后提示词</button>
+      <button class="prompt-copy-button" type="button" data-copy-optimized-prompt ${optimizedPrompt ? "" : "disabled"}>${escapeHtml(translate("promptPopover.copyOptimized"))}</button>
     </div>
   `;
   popover.querySelector(".prompt-popover-close")?.addEventListener("click", closePromptPopover);
@@ -224,6 +236,8 @@ function clampPopoverPosition(value, min, max) {
 function closePromptPopover() {
   if (!promptPopoverEl) return;
   promptPopoverEl.classList.add("hidden");
+  promptPopoverState.anchor = null;
+  promptPopoverState.data = null;
   promptPopoverState.optimizedPrompt = "";
   clearPromptPopoverCopyTimer();
 }
@@ -238,12 +252,18 @@ async function copyOptimizedPrompt(button) {
   const text = promptPopoverState.optimizedPrompt;
   if (!text) return;
   await navigator.clipboard.writeText(text);
-  button.textContent = "已复制";
+  button.textContent = translate("promptPopover.copied");
   clearPromptPopoverCopyTimer();
   promptPopoverState.copyTimerId = window.setTimeout(() => {
-    button.textContent = "复制优化后提示词";
+    button.textContent = translate("promptPopover.copyOptimized");
     promptPopoverState.copyTimerId = null;
   }, 1200);
+}
+
+function rerenderPromptPopoverForLocale() {
+  if (!promptPopoverEl || promptPopoverEl.classList.contains("hidden")) return;
+  if (!promptPopoverState.anchor || !promptPopoverState.data) return;
+  openPromptPopover(promptPopoverState.anchor, promptPopoverState.data);
 }
 
 function handleDocumentClick(event) {
@@ -292,6 +312,7 @@ function handleDocumentKeydown(event) {
 export function initOverlayPopoversFeature() {
   if (overlayPopoversInitialized) return;
   overlayPopoversInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, rerenderPromptPopoverForLocale);
   Object.assign(getLegacyBridge().methods, {
     bindOverlayPopoverEvents,
     ensureConfirmPopover,

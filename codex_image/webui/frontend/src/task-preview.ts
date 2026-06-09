@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -113,7 +114,7 @@ function renderPreview(task: any = null) {
     clearPreviewGridLayout();
     els.previewGrid.innerHTML = `
       <div class="empty-preview error-preview">
-        <p>${escapeHtml(taskFailureMessage(selected) || "任务失败")}</p>
+        <p>${escapeHtml(taskFailureMessage(selected) || translate("preview.taskFailed"))}</p>
         ${retryFailureSummaryButton(selected)}
       </div>
     `;
@@ -125,7 +126,7 @@ function renderPreview(task: any = null) {
     closePromptPopover();
     cancelDeferredPreviewRender();
     clearPreviewGridLayout();
-    els.previewGrid.innerHTML = `<div class="empty-preview">暂无图片</div>`;
+    els.previewGrid.innerHTML = `<div class="empty-preview">${escapeHtml(translate("preview.empty"))}</div>`;
     return;
   }
 
@@ -190,10 +191,18 @@ function runningFailureNotice(task: any) {
   if (!failure) return "";
   return `
     <div class="running-failure-notice" data-preview-running-failure role="status">
-      <strong>第 ${failure.index} 张失败</strong>
+      <strong>${escapeHtml(formatTranslation("preview.failedOutput", { index: failure.index }))}</strong>
       <p>${escapeHtml(failure.error)}</p>
     </div>
   `;
+}
+
+function previewElapsedLineHtml(key: string, values: Record<string, any>, elapsedHtml: string) {
+  const marker = "__CODEX_IMAGE_ELAPSED_TIMER__";
+  return formatTranslation(key, { ...values, elapsed: marker })
+    .split(marker)
+    .map((part) => escapeHtml(part))
+    .join(elapsedHtml);
 }
 
 function scheduleDeferredPreviewRender(task: any, { running, failure, waiting, outputUrls, totalCount, itemCount }: any) {
@@ -289,21 +298,29 @@ function ensurePreviewOutputCard(key: string) {
   const card = document.createElement("div");
   card.className = "preview-card";
   card.setAttribute("data-preview-card-key", key);
+  const featuredLabel = translate("preview.featured");
+  const addFeaturedLabel = translate("preview.addFeatured");
+  const addReferenceLabel = translate("preview.addReference");
+  const stageLabel = translate("preview.stage");
+  const stageReferenceLabel = translate("preview.stageReference");
+  const promptLabel = translate("preview.prompt");
+  const downloadLabel = translate("preview.download");
+  const downloadImageLabel = translate("preview.downloadImage");
   card.innerHTML = `
     <span class="preview-index hidden"></span>
-    <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="加入精选" title="加入精选" hidden disabled>
+    <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="${addFeaturedLabel}" title="${addFeaturedLabel}" data-i18n-attr="aria-label:preview.addFeatured;title:preview.addFeatured" hidden disabled>
       <svg class="preview-select-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M12 3.5l2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6-4.3-4.2 6-.9L12 3.5z" />
       </svg>
-      <span class="preview-select-label" data-preview-select-label>精选</span>
+      <span class="preview-select-label" data-preview-select-label data-i18n="preview.featured">${featuredLabel}</span>
     </button>
     <img alt="" data-lightbox-url="">
     <div class="preview-overlay">
        <div class="prompt-action-row">
-         <button type="button" class="add-to-input-btn" data-add-input-url="" aria-label="加入参考图">加入参考图</button>
-         <button type="button" class="collect-input-btn" data-collect-input-url="" data-collect-output-index="" data-collect-output-name="" aria-label="暂存到待加入参考图" title="暂存到待加入参考图">暂存</button>
-         <button type="button" class="prompt-popover-button" data-prompt-popover-index="">提示词</button>
-         <a class="preview-download-link" href="#" download="" data-download-output-url="" title="下载该图片" aria-label="下载该图片">下载</a>
+         <button type="button" class="add-to-input-btn" data-add-input-url="" aria-label="${addReferenceLabel}" data-i18n="preview.addReference" data-i18n-attr="aria-label:preview.addReference">${addReferenceLabel}</button>
+         <button type="button" class="collect-input-btn" data-collect-input-url="" data-collect-output-index="" data-collect-output-name="" aria-label="${stageReferenceLabel}" title="${stageReferenceLabel}" data-i18n="preview.stage" data-i18n-attr="aria-label:preview.stageReference;title:preview.stageReference">${stageLabel}</button>
+         <button type="button" class="prompt-popover-button" data-prompt-popover-index="" data-i18n="preview.prompt">${promptLabel}</button>
+         <a class="preview-download-link" href="#" download="" data-download-output-url="" title="${downloadImageLabel}" aria-label="${downloadImageLabel}" data-i18n="preview.download" data-i18n-attr="aria-label:preview.downloadImage;title:preview.downloadImage">${downloadLabel}</a>
        </div>
     </div>
   `;
@@ -346,9 +363,9 @@ function updatePreviewOutputCard(card: HTMLElement, task: any, url: any, index: 
     selectButton.dataset.previewSelectOutputIndex = String(outputIndex);
     selectButton.dataset.previewSelectTaskId = String(task?.task_id || "");
     selectButton.setAttribute("aria-pressed", selected ? "true" : "false");
-    selectButton.setAttribute("aria-label", selected ? "取消精选" : "加入精选");
-    selectButton.title = selected ? "取消精选" : "加入精选";
-    selectButton.querySelector("[data-preview-select-label]")!.textContent = selected ? "已精选" : "精选";
+    selectButton.setAttribute("aria-label", selected ? translate("preview.removeFeatured") : translate("preview.addFeatured"));
+    selectButton.title = selected ? translate("preview.removeFeatured") : translate("preview.addFeatured");
+    selectButton.querySelector("[data-preview-select-label]")!.textContent = selected ? translate("preview.selectedFeatured") : translate("preview.featured");
     card.classList.toggle("can-select-output", selectable);
     card.classList.toggle("is-selected", selected);
   }
@@ -561,7 +578,9 @@ function updatePreviewSelectionActions(task: any) {
   const hasSelection = Boolean(task?.task_id && selectedCount > 0 && totalCount > 1);
   els.previewSelectionActions?.classList.toggle("hidden", !hasSelection);
   if (els.previewSelectionCount) {
-    els.previewSelectionCount.textContent = selectedCount ? `已选 ${selectedCount}/${totalCount}` : "已选 0";
+    els.previewSelectionCount.textContent = selectedCount
+      ? formatTranslation("preview.selectedCount", { selected: selectedCount, total: totalCount })
+      : translate("preview.selectedZero");
   }
   if (els.downloadSelectedButton) {
     if (!hasSelection) {
@@ -621,13 +640,13 @@ async function updateTaskOutputSelection(taskId: any, outputIndex: any, selected
       body: JSON.stringify({ selected }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "精选状态更新失败");
+    if (!response.ok) throw new Error(data.detail || translate("preview.selectionUpdateFailed"));
     const updatedTask = data.task;
     updateTaskInState(updatedTask);
     renderPreview(updatedTask);
-    setStatus(selected ? "已加入精选" : "已取消精选", "ok");
+    setStatus(selected ? translate("preview.selectionAdded") : translate("preview.selectionRemoved"), "ok");
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "精选状态更新失败", "error");
+    setStatus(error instanceof Error ? error.message : translate("preview.selectionUpdateFailed"), "error");
   }
 }
 
@@ -638,14 +657,14 @@ function openDeleteUnselectedOutputsConfirm(button: HTMLElement) {
   const totalCount = taskOutputUrls(task).length;
   const deleteCount = Math.max(0, totalCount - selectedCount);
   if (!task?.task_id || selectedCount <= 0 || deleteCount <= 0) {
-    setStatus("没有可删除的未精选图片", "error");
+    setStatus(translate("preview.noUnselectedOutputs"), "error");
     return;
   }
   openConfirmPopover(button, {
-    title: "删除未精选图片？",
-    message: "会删除当前任务里未精选的本地图片文件。",
-    detail: `保留 ${selectedCount} 张，删除 ${deleteCount} 张`,
-    confirmText: "删除",
+    title: translate("preview.deleteUnselectedTitle"),
+    message: translate("preview.deleteUnselectedMessage"),
+    detail: formatTranslation("preview.deleteUnselectedDetail", { selected: selectedCount, deleted: deleteCount }),
+    confirmText: translate("action.delete"),
     onConfirm: async () => {
       await deleteUnselectedOutputs(task.task_id);
     },
@@ -660,15 +679,15 @@ async function deleteUnselectedOutputs(taskId: any) {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "删除未精选失败");
+    if (!response.ok) throw new Error(data.detail || translate("preview.deleteUnselectedFailed"));
     const updatedTask = data.task;
     updateTaskInState(updatedTask);
     state.selectedTaskId = updatedTask.task_id;
     renderTasks();
     renderPreview(updatedTask);
-    setStatus("未精选图片已删除", "ok");
+    setStatus(translate("preview.deleteUnselectedDone"), "ok");
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "删除未精选失败", "error");
+    setStatus(error instanceof Error ? error.message : translate("preview.deleteUnselectedFailed"), "error");
   }
 }
 
@@ -755,8 +774,8 @@ function runningProgressCard(task: any, visibleOutputCount: any) {
     <div class="running-progress-card">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>继续生成中</strong>
-        <p class="elapsed-line">已完成 ${generated} / ${total} · 计时 ${elapsed}</p>
+        <strong>${escapeHtml(translate("preview.continueGenerating"))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${failureNotice}
@@ -773,7 +792,7 @@ function waitingProgressCard(task: any, visibleOutputCount: any) {
   const total = taskTotalCount(task);
   const size = escapeHtml(task.params?.size || currentSize());
   const retryReason = task.last_error
-    ? `<p>上次错误：${escapeHtml(task.last_error)}</p>`
+    ? `<p>${escapeHtml(formatTranslation("preview.lastError", { error: task.last_error }))}</p>`
     : "";
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
@@ -781,8 +800,8 @@ function waitingProgressCard(task: any, visibleOutputCount: any) {
     <div class="running-progress-card waiting-progress-card">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>等待继续生成</strong>
-        <p class="elapsed-line">已完成 ${generated} / ${total} · 计时 ${elapsed}</p>
+        <strong>${escapeHtml(translate("preview.waitingContinue"))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${retryReason}
@@ -797,13 +816,13 @@ function failureSummaryCard(task: any, visibleOutputCount: any) {
   const failed = Number.parseInt(task?.failed_count ?? "", 10);
   const failedCount = Number.isNaN(failed) ? Math.max(0, taskTotalCount(task) - generated) : failed;
   const total = taskTotalCount(task);
-  const message = escapeHtml(taskFailureMessage(task) || "部分图片生成失败");
+  const message = escapeHtml(taskFailureMessage(task) || translate("preview.partialFailed"));
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
   return `
     <div class="failure-summary-card">
-      <strong>${task.status === "partial_failed" ? "部分图片生成失败" : "任务失败"}</strong>
-      <p>已完成 ${generated} / ${total} · 失败 ${failedCount}</p>
+      <strong>${escapeHtml(task.status === "partial_failed" ? translate("preview.partialFailed") : translate("preview.taskFailed"))}</strong>
+      <p>${escapeHtml(formatTranslation("preview.failureLine", { generated, total, failed: failedCount }))}</p>
       ${retryStateHtml}
       <p>${message}</p>
       ${retryFailureSummaryButton(task)}
@@ -815,10 +834,10 @@ function retryFailureSummaryButton(task: any) {
   const taskId = escapeHtml(task.task_id || "");
   const actions = [];
   if (canRetryFailedTask(task)) {
-    actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">仅重试失败图片</button>`);
+    actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml(translate("preview.retryFailed"))}</button>`);
   }
   if (canAcceptTaskSuccesses(task)) {
-    actions.push(`<button class="ghost-button text-sm" type="button" data-preview-accept-successes-task-id="${taskId}">接受已成功结果</button>`);
+    actions.push(`<button class="ghost-button text-sm" type="button" data-preview-accept-successes-task-id="${taskId}">${escapeHtml(translate("preview.acceptSuccesses"))}</button>`);
   }
   if (!actions.length) return "";
   return `
@@ -832,7 +851,7 @@ function renderRunningPreview(task: any) {
   clearPreviewGridLayout();
   const elapsed = elapsedTimerSpan("running", taskProgressStartValue(task));
   const size = escapeHtml(task.params?.size || currentSize());
-  const modeLabel = task.mode === "edit" ? "编辑" : "生成";
+  const modeLabel = task.mode === "edit" ? translate("preview.editMode") : translate("preview.generateMode");
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
   const failureNotice = runningFailureNotice(task);
@@ -840,8 +859,8 @@ function renderRunningPreview(task: any) {
     <div class="waiting-preview">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>${modeLabel}任务运行中</strong>
-        <p class="elapsed-line">计时 ${elapsed}</p>
+        <strong>${escapeHtml(formatTranslation("preview.runningTitle", { mode: modeLabel }))}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
         ${failureNotice}
@@ -857,12 +876,12 @@ function renderWaitingPreview(task: any) {
   const elapsedFrom = task.started_at || task.queued_at || task.created_at;
   const elapsed = elapsedTimerSpan("waiting", elapsedFrom);
   const size = escapeHtml(task.params?.size || currentSize());
-  const title = submitting ? "提交任务中" : "任务排队中";
+  const title = submitting ? translate("preview.submittingTitle") : translate("preview.queuedTitle");
   const detail = submitting
-    ? "正在保存输入并写入队列，完成后会自动进入生成流程。"
-    : "任务已进入队列，等待可用通道接手。";
+    ? translate("preview.submittingDetail")
+    : translate("preview.queuedDetail");
   const retryReason = !submitting && task.last_error
-    ? `<p>上次错误：${escapeHtml(task.last_error)}</p>`
+    ? `<p>${escapeHtml(formatTranslation("preview.lastError", { error: task.last_error }))}</p>`
     : "";
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
@@ -870,11 +889,11 @@ function renderWaitingPreview(task: any) {
     <div class="waiting-preview">
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
-        <strong>${title}</strong>
-        <p class="elapsed-line">计时 ${elapsed}</p>
+        <strong>${escapeHtml(title)}</strong>
+        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
         <p class="elapsed-meta">${size}</p>
         ${retryStateHtml}
-        <p>${detail}</p>
+        <p>${escapeHtml(detail)}</p>
         ${retryReason}
       </div>
       <div class="waiting-bar"><span></span></div>
@@ -885,6 +904,10 @@ function renderWaitingPreview(task: any) {
 export function initTaskPreviewFeature() {
   els.deleteUnselectedOutputsButton?.addEventListener("click", () => {
     openDeleteUnselectedOutputsConfirm(els.deleteUnselectedOutputsButton);
+  });
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    state.previewRenderKey = null;
+    renderPreview(state.previewTask);
   });
   Object.assign(getLegacyBridge().methods, {
     taskRequestPreviewPayload,

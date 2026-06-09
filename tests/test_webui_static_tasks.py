@@ -281,13 +281,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 
         self.assertRegex(
             html,
-            r'<div class="brand-actions">\s*<button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话">',
+            r'<div class="brand-actions">\s*<button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话"[^>]*>',
         )
-        self.assertIn('<span>新建</span>', html)
+        self.assertRegex(html, r'<span[^>]*>新建</span>')
         self.assertIn('class="brand-new-icon"', html)
         self.assertRegex(
             html,
-            r'<button id="newTaskButton" class="primary-button brand-new-button"[^>]*>\s*<svg class="brand-new-icon"[\s\S]*?</svg>\s*<span>新建</span>\s*</button>',
+            r'<button id="newTaskButton" class="primary-button brand-new-button"[^>]*>\s*<svg class="brand-new-icon"[\s\S]*?</svg>\s*<span[^>]*>新建</span>\s*</button>',
         )
         self.assertRegex(styles, r"\.brand\s*\{[^}]*justify-content:\s*space-between")
         self.assertRegex(styles, r"\.brand-new-button\s*\{[^}]*min-width:\s*84px")
@@ -307,13 +307,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("ensureExpandedTaskGroupKey(groups)", script)
         self.assertIn("renderTaskHistoryAnchors(layout)", script)
         self.assertIn("data-task-group-toggle-key", script)
-        self.assertIn("今天", script)
-        self.assertIn("昨天", script)
-        self.assertIn("最近 7 天", script)
-        self.assertIn("更早", script)
+        self.assertIn('translate("taskGroup.today")', render_source)
+        self.assertIn('translate("taskGroup.yesterday")', render_source)
+        self.assertIn('translate("taskGroup.last7")', render_source)
+        self.assertIn('translate("taskGroup.older")', render_source)
         self.assertNotIn('"recent"', render_source)
-        self.assertIn('aria-label="展开 ${escapeHtml(group.label)}"', script)
-        self.assertIn('aria-label="收起 ${escapeHtml(group.label)}"', render_source)
+        self.assertIn('formatTranslation("taskGroup.expand"', script)
+        self.assertIn('formatTranslation("taskGroup.collapse"', render_source)
         self.assertIn('class="task-group-count-separator"', script)
         self.assertRegex(script, r"const tasks = visibleTasks\.filter\(\(task(?:: any)?\) => \{[\s\S]*return text\.includes\(query\);[\s\S]*\}\);")
         self.assertRegex(styles, r"\.task-history-anchor-row\s*,[\s\S]*\.task-group-header-split\s*\{[^}]*display:\s*grid")
@@ -346,7 +346,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="taskPromptFidelityFilter"', html)
         self.assertIn('id="taskResolutionFilter"', html)
         self.assertIn('aria-label="按分辨率筛选"', html)
-        self.assertIn('<option value="">全部分辨率</option>', html)
+        self.assertRegex(html, r'<option value=""[^>]*>全部分辨率</option>')
         self.assertIn('<option value="standard">1K</option>', html)
         self.assertIn('<option value="2k">2K</option>', html)
         self.assertIn('<option value="4k">4K</option>', html)
@@ -404,7 +404,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("function taskFailureMessage", script)
         self.assertIn("task.error || task.last_error", script)
         self.assertIn('`${formatTaskStatus(task)} · ${failure}`', script)
-        self.assertIn('taskFailureMessage(selected) || "任务失败"', script)
+        self.assertIn('taskFailureMessage(selected) || translate("preview.taskFailed")', script)
     def test_failed_preview_wraps_long_error_messages(self) -> None:
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
@@ -442,15 +442,15 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("function taskThumbShowsLoading", script)
         self.assertIn('["submitting", "queued", "running"].includes(status)', script)
         self.assertIn('class="${safeClassName} task-thumb-stack"', script)
-        self.assertIn('aria-label="图生图任务缩略图"', script)
+        self.assertIn('translate("taskCard.imageToImageThumb")', script)
         self.assertIn('class="task-thumb-reference"', script)
         self.assertIn('class="task-thumb-output"', script)
         self.assertIn('class="task-thumb-stack-spinner" aria-hidden="true"', script)
         self.assertIn("${loadingSpinner}", script)
-        self.assertIn('aria-label="文生图任务缩略图"', script)
+        self.assertIn('translate("taskCard.textToImageThumb")', script)
         self.assertIn('class="${safeClassName} task-thumb-single"', script)
         self.assertIn('class="task-thumb-single-image"', script)
-        self.assertIn('class="task-thumb-mode-badge" aria-hidden="true">文</span>', script)
+        self.assertIn('translate("taskCard.textBadge")', script)
         self.assertNotIn('class="task-thumb-mode-badge" aria-hidden="true">图</span>', script)
         self.assertRegex(styles, r"\.task-thumb-stack\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.task-thumb-stack\s*\{[^}]*background:\s*transparent")
@@ -548,6 +548,16 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
                 self._extract_javascript_function(script, "taskImageStatusCounts"),
                 self._extract_javascript_function(script, "taskImageSummaryText"),
                 """
+                const i18nMessages = {
+                  "taskCard.count": "{count} 张",
+                  "taskCard.successCount": "成功 {count}",
+                  "taskCard.failedCount": "失败 {count}",
+                  "taskCard.runningCount": "生成中 {count}",
+                  "taskCard.waitingCount": "等待 {count}",
+                };
+                function formatTranslation(key, values = {}) {
+                  return String(i18nMessages[key] || key).replace(/\\{([^}]+)\\}/g, (_, name) => values[name] ?? "");
+                }
                 const summary = taskImageSummaryText({
                   status: "running",
                   total_count: 4,
@@ -650,8 +660,18 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("data-task-queue-move-id", render_source)
         self.assertIn("data-task-queue-direction", render_source)
         self.assertIn("function moveQueueTask", queue_source)
-        self.assertIn('aria-label="上移等待任务"', render_source)
-        self.assertIn('aria-label="下移等待任务"', render_source)
+        self.assertIn('translate("queue.cancelRunning")', render_source)
+        self.assertIn('translate("queue.moveUp")', render_source)
+        self.assertIn('translate("queue.moveDown")', render_source)
+        self.assertIn('translate("queue.promote")', render_source)
+        self.assertIn('translate("queue.deleteWaitingShort")', render_source)
+        self.assertNotIn('aria-label="上移等待任务"', render_source)
+        self.assertNotIn('aria-label="下移等待任务"', render_source)
+        self.assertNotIn(">取消</button>", render_source)
+        self.assertNotIn(">上</button>", render_source)
+        self.assertNotIn(">下</button>", render_source)
+        self.assertNotIn(">顶</button>", render_source)
+        self.assertNotIn(">删</button>", render_source)
         self.assertNotIn("const title = escapeHtml(task.prompt || task.mode || task.task_id || \"Untitled\")", render_source)
         self.assertRegex(styles, r"\.task-queue-drag-handle\s*\{[^}]*cursor:\s*grab")
         self.assertRegex(styles, r"\.task-queue-actions\s*\{[^}]*opacity:\s*0")
@@ -683,7 +703,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("const fallbackUrl = inputUrls[uploadInputIndex];", selection_source)
         self.assertIn("const candidateUrls = historyInputCandidateUrls(source.image_url, fallbackUrl);", selection_source)
         self.assertIn("for (const url of candidateUrls)", selection_source)
-        self.assertIn("throw new Error(`无法载入历史输入图: ${candidateUrls[0] || sourceUrl}`);", selection_source)
+        self.assertIn('formatTranslation("status.historyInputLoadFailed", { url: candidateUrls[0] || sourceUrl })', selection_source)
         self.assertIn("function taskInputPreviewUrls", derived_source)
         self.assertIn("let uploadInputIndex = 0;", derived_source)
         self.assertIn("isLegacyOutputInputUrl", derived_source)
@@ -782,8 +802,8 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("function isQueueDispatchPending", queue_source)
         self.assertIn("function scheduleQueueDispatchSync", queue_source)
         self.assertIn("function clearQueueDispatchSync", queue_source)
-        self.assertIn("调度中", queue_source)
-        self.assertIn("可用通道", queue_source)
+        self.assertIn('formatTranslation("queue.dispatching"', queue_source)
+        self.assertIn('formatTranslation("queue.availableChannels"', queue_source)
         self.assertNotIn("window.setInterval(pollQueueAndTasks", queue_source)
         self.assertNotIn("function pollQueueAndTasks", queue_source)
         self.assertNotIn("function shouldRefreshTasksDuringQueuePoll", queue_source)
@@ -947,11 +967,20 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="taskNotificationToastRegion"', html)
         self.assertIn('id="taskNotificationBadge" class="task-notification-dot hidden"', html)
         self.assertNotIn('id="taskNotificationBadge" class="queue-badge', html)
-        self.assertIn('const unreadLabel = unreadCount > 0 ? `任务通知，${unreadCount} 条未读` : "任务通知";', source)
+        self.assertIn('formatTranslation("notifications.unread"', source)
+        self.assertIn('translate("notifications.title")', source)
+        self.assertIn('translate("notifications.taskCompleted")', source)
+        self.assertIn('formatTranslation("notifications.successCount"', source)
+        self.assertIn("function taskNotificationDisplayTitle", source)
+        self.assertIn("function taskNotificationDisplayMessage", source)
+        self.assertIn("success_count", source)
+        self.assertIn("prompt_snippet", source)
+        self.assertNotIn('return "任务已完成"', source)
+        self.assertNotIn('"生成失败"', source)
         self.assertIn('els.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0)', source)
         self.assertIn('els.taskNotificationButton.setAttribute("aria-label", unreadLabel)', source)
         self.assertIn('els.taskNotificationButton.title = unreadLabel', source)
-        self.assertIn('els.taskNotificationUnreadSummary.textContent = `${unreadCount} 未读`', source)
+        self.assertIn('formatTranslation("notifications.unreadSummary"', source)
         self.assertNotIn('els.taskNotificationBadge.textContent = String(unreadCount)', source)
         self.assertIn(".task-notification-button", styles)
         self.assertIn(".task-notification-button.has-unread", styles)
@@ -1088,11 +1117,12 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('selectTask: proxy("selectTask")', legacy_source)
     def test_run_task_treats_submit_response_as_queued(self) -> None:
         script = self._frontend_script_source()
+        submit_source = self._task_submit_source()
 
-        self.assertIn("addQueuedTask", script)
+        self.assertIn("addQueuedTask", submit_source)
         self.assertIn("startRealtimeUpdates", script)
-        self.assertIn("任务已加入队列", script)
-        self.assertNotIn("任务完成", script)
+        self.assertIn('translate("taskSubmit.queued")', submit_source)
+        self.assertNotIn("任务完成", submit_source)
     def test_cmd_enter_shortcut_uses_run_task_flow(self) -> None:
         event_source = Path("codex_image/webui/frontend/src/event-bindings.ts").read_text(encoding="utf-8")
         script = self._frontend_script_source()
@@ -1119,13 +1149,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
 
         self.assertIn('status: "submitting"', script)
-        self.assertIn('if (task.status === "submitting") return "提交中";', script)
+        self.assertIn('if (task.status === "submitting") return translate("taskStatus.submitting");', script)
         self.assertIn('if (status === "submitting" || status === "queued")', source)
         self.assertIn("renderWaitingPreview(selected)", source)
-        self.assertIn('startRunFeedback(pendingTask, "提交中")', script)
+        self.assertIn('startRunFeedback(pendingTask, translate("taskStatus.submitting"))', script)
         self.assertIn("function renderWaitingPreview", script)
-        self.assertIn("提交任务中", script)
-        self.assertIn("任务排队中", script)
+        self.assertIn('translate("preview.submittingTitle")', script)
+        self.assertIn('translate("preview.queuedTitle")', script)
         self.assertNotIn('els.runButton.textContent = "提交中...";', script)
     def test_preview_uses_queue_membership_for_running_state(self) -> None:
         source = self._task_preview_source()
@@ -1235,10 +1265,12 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("deleteTask", script)
         self.assertIn("data-delete-task-id", script)
         self.assertIn('class="task-card-actions"', script)
-        self.assertIn('role="group" aria-label="任务操作"', script)
-        self.assertIn('aria-label="归档任务"', script)
-        self.assertIn('title="归档任务"', script)
-        self.assertIn('title="删除任务"', script)
+        self.assertIn('translate("taskActions.group")', script)
+        self.assertIn('translate("taskContext.archive")', script)
+        self.assertIn('translate("taskContext.delete")', script)
+        self.assertIn('translate("taskActions.deleteTitle")', script)
+        self.assertIn('translate("taskActions.deleteMessage")', script)
+        self.assertIn('translate("taskActions.runningCannotDelete")', script)
         self.assertIn("task-action-icon", script)
         self.assertIn("task-delete-icon", script)
         self.assertIn('<svg class="task-action-icon task-delete-icon"', script)
@@ -1272,7 +1304,8 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('["completed", "failed", "partial_failed"].includes(task.status)', script)
         self.assertIn("task.started_at || task.created_at", script)
         self.assertIn("task.completed_at || task.updated_at", script)
-        self.assertIn('`耗时 ${formatDuration(seconds)} · 完成 ${completion.shortText}`', script)
+        self.assertIn('formatTranslation("taskStatus.runtimeCompleted"', script)
+        self.assertIn('formatTranslation("taskStatus.runtime"', script)
         self.assertIn('class="task-runtime"', script)
         self.assertIn('data-task-completed-at-id="${taskId}"', script)
         self.assertIn('title="${escapeHtml(completionTitle)}"', script)
@@ -1288,13 +1321,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('els.taskList.addEventListener("contextmenu", handleTaskListContextMenu)', script)
         self.assertIn('event.key !== "ContextMenu"', script)
         self.assertIn('event.shiftKey && event.key === "F10"', script)
-        self.assertIn('taskContextButton("view", "查看任务")', script)
-        self.assertIn('taskContextButton("restore", "恢复到表单")', script)
-        self.assertIn('taskContextButton("copy-id", "复制任务 ID")', script)
-        self.assertIn('taskContextButton("copy-prompt", "复制提示词"', script)
-        self.assertIn('taskContextButton("reveal-output", "打开输出目录"', script)
-        self.assertIn('taskContextButton("archive", "归档任务")', script)
-        self.assertIn('taskContextButton("delete", "删除任务"', script)
+        self.assertIn('taskContextButton("view", translate("taskContext.view"))', script)
+        self.assertIn('taskContextButton("restore", translate("taskContext.restore"))', script)
+        self.assertIn('taskContextButton("copy-id", translate("taskContext.copyId"))', script)
+        self.assertIn('taskContextButton("copy-prompt", translate("taskContext.copyPrompt")', script)
+        self.assertIn('taskContextButton("reveal-output", translate("taskContext.revealOutput")', script)
+        self.assertIn('taskContextButton("archive", translate("taskContext.archive"))', script)
+        self.assertIn('taskContextButton("delete", translate("taskContext.delete")', script)
         self.assertIn('data-task-context-action="${action}"', script)
         self.assertIn('fetch(`/api/tasks/${encodeURIComponent(taskId)}/reveal-output`', script)
         self.assertIn('"X-Requested-With": "codex-image-webui"', script)
@@ -1341,15 +1374,15 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('fetch(`/api/tasks/${encodeURIComponent(taskId)}/accept-successes`', script)
         self.assertIn("updateTaskInState(updatedTask)", task_actions)
         self.assertIn("isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)", task_actions)
-        self.assertIn("接受已成功结果", script)
+        self.assertIn('translate("preview.acceptSuccesses")', script)
     def test_retry_attempt_state_is_visible_in_cards_queue_and_preview(self) -> None:
         script = self._frontend_script_source()
         render_source = self._task_list_render_source()
 
         self.assertIn("function taskRetryStateText", script)
         self.assertIn("function taskRetryReasonText", script)
-        self.assertIn("等待重试（第 ${attempts + 1}/${maxAttempts} 次尝试）", script)
-        self.assertIn("已停止，可手动重试失败图片", script)
+        self.assertIn('formatTranslation("taskStatus.waitingRetry"', script)
+        self.assertIn('formatTranslation("taskStatus.manualRetryAvailable"', script)
         self.assertIn("taskRetryStateText(task)", render_source)
         self.assertIn("retryText", render_source)
         self.assertIn("retryState", script)
@@ -1368,6 +1401,21 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
                 self._extract_javascript_function(script, "taskRetryReasonText"),
                 self._extract_javascript_function(script, "taskRetryStateText"),
                 """
+                const i18nMessages = {
+                  "taskDerived.usageLimited": "额度限制",
+                  "taskStatus.connectionInterrupted": "连接中断",
+                  "taskStatus.lastFailed": "上次失败",
+                  "taskStatus.waitingRetry": "{reason}，等待重试（第 {attempt}/{max} 次尝试）",
+                  "taskStatus.retrying": "{reason}，重试中（第 {attempt}/{max} 次尝试）",
+                  "taskStatus.nonRetryableAttempt": "第 {attempt}/{max} 次，不可重试",
+                  "taskStatus.manualRetryAvailable": "已停止，可手动重试失败图片",
+                };
+                function translate(key) {
+                  return String(i18nMessages[key] || key);
+                }
+                function formatTranslation(key, values = {}) {
+                  return String(i18nMessages[key] || key).replace(/\\{([^}]+)\\}/g, (_, name) => values[name] ?? "");
+                }
                 const firstRun = taskRetryStateText({ status: "running", attempts: 1, max_attempts: 2 });
                 const firstRunWithPartialFailure = taskRetryStateText({
                   status: "running",
@@ -1441,7 +1489,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("const selectable = Number(totalCount) > 1;", script)
         self.assertIn("selectButton.hidden = !selectable;", script)
         self.assertIn("selectButton.disabled = !selectable;", script)
-        self.assertIn('selectButton.title = selected ? "取消精选" : "加入精选";', script)
+        self.assertIn('selectButton.title = selected ? translate("preview.removeFeatured") : translate("preview.addFeatured");', script)
+        self.assertIn('translate("preview.selectedFeatured")', script)
+        self.assertIn('formatTranslation("preview.selectedCount"', script)
+        self.assertIn('translate("preview.selectionAdded")', script)
+        self.assertIn('translate("preview.selectionRemoved")', script)
+        self.assertIn('translate("preview.selectionUpdateFailed")', script)
+        self.assertIn('formatTranslation("preview.deleteUnselectedDetail"', script)
         self.assertIn('card.classList.toggle("can-select-output", selectable);', script)
         self.assertIn("data-download-output-url", script)
         self.assertIn("下载该图片", script)
@@ -1532,12 +1586,13 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertNotRegex(styles, r"\.preview-card\.is-loading-next\s+img\s*\{[^}]*opacity:\s*0\.")
     def test_running_preview_shows_partial_outputs(self) -> None:
         script = self._frontend_script_source()
+        source = self._task_preview_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
         self.assertIn("renderOutputPreview(selected, { running: true })", script)
         self.assertIn("taskGeneratedCount", script)
         self.assertIn("running-progress-card", script)
-        self.assertIn("继续生成中", script)
+        self.assertIn('translate("preview.continueGenerating")', script)
         self.assertNotIn("Codex 生成没有真实百分比进度", script)
         self.assertNotIn("请不要重复点击", script)
         self.assertRegex(styles, r"\.running-progress-card\s*\{[^}]*display:\s*flex")
@@ -1545,6 +1600,11 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('task.status === "running" && taskRetryStateText(task)', script)
         self.assertIn("task?.attempt_started_at || task?.updated_at || task?.retry_requested_at", script)
         self.assertIn("elapsedTimerSpan(\"running\", taskProgressStartValue(task))", script)
+        self.assertIn("function previewElapsedLineHtml", source)
+        self.assertIn('previewElapsedLineHtml("preview.progressLine"', source)
+        self.assertIn('previewElapsedLineHtml("preview.elapsedLine"', source)
+        self.assertNotIn('escapeHtml(formatTranslation("preview.progressLine", { generated, total, elapsed }))', source)
+        self.assertNotIn('escapeHtml(formatTranslation("preview.elapsedLine", { elapsed }))', source)
         self.assertIn("elapsedTimerMarkup(totalMilliseconds)", script)
         self.assertIn("elapsedWheelMarkup(char)", script)
         self.assertIn("elapsedPartMarkup(elapsed.clock)", script)
@@ -1589,7 +1649,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("taskRunningFailureKey(task)", source)
         self.assertIn("runningFailureNotice(task)", source)
         self.assertIn("data-preview-running-failure", script)
-        self.assertIn("第 ${failure.index} 张失败", script)
+        self.assertIn('formatTranslation("preview.failedOutput"', script)
         self.assertRegex(
             source,
             r'if \(status === "running"\) \{[\s\S]*taskRunningFailureKey\(task\)',
@@ -1602,7 +1662,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 
         self.assertIn("renderOutputPreview(selected, { waiting: true })", script)
         self.assertIn("waitingProgressCard", script)
-        self.assertIn("等待继续生成", script)
+        self.assertIn('translate("preview.waitingContinue")', script)
         self.assertIn('["waiting", taskId, status, outputUrls', script)
     def test_progress_cards_wrap_long_retry_errors(self) -> None:
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -1616,7 +1676,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 
         self.assertIn('selected?.status === "failed" || selected?.status === "partial_failed"', script)
         self.assertIn('renderOutputPreview(selected, { failure: true })', script)
-        self.assertIn('if (task.status === "partial_failed") return "部分失败"', script)
+        self.assertIn('if (task.status === "partial_failed") return translate("taskStatus.partialFailed");', script)
     def test_elapsed_labels_tick_in_tenths_without_rebuilding_preview_images(self) -> None:
         script = self._frontend_script_source()
 
@@ -1706,11 +1766,11 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('data-collect-input-url=""', script)
         self.assertIn("collectButton.dataset.collectInputUrl = outputUrl", script)
         self.assertIn("collectButton.dataset.collectOutputName = downloadName", script)
-        self.assertIn(">加入参考图</button>", script)
-        self.assertIn('aria-label="加入参考图"', script)
-        self.assertIn(">暂存</button>", script)
-        self.assertIn('aria-label="暂存到待加入参考图"', script)
-        self.assertIn('title="暂存到待加入参考图"', script)
+        self.assertIn('translate("preview.addReference")', script)
+        self.assertIn('data-i18n="preview.addReference"', script)
+        self.assertIn('translate("preview.stage")', script)
+        self.assertIn('data-i18n="preview.stage"', script)
+        self.assertIn('data-i18n-attr="aria-label:preview.stageReference;title:preview.stageReference"', script)
         self.assertIn("function collectReferenceOutput", script)
         self.assertIn("function renderReferenceCollector()", script)
         self.assertIn("function removeCollectedReference", script)
@@ -1718,15 +1778,16 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("async function addCollectedReferencesToInput()", script)
         self.assertIn("state.collectedReferences.some((item) => item.url === url)", script)
         self.assertIn("state.collectedReferences.push({", script)
-        self.assertIn('setStatus("已在待加入参考图", "ok")', script)
-        self.assertIn("已暂存 ${state.collectedReferences.length} 张参考图", script)
-        self.assertIn("待加入参考图 · ${items.length} 张", script)
-        self.assertIn(">全部加入参考图</button>", script)
-        self.assertIn('item.name || "待加入参考图"', script)
-        self.assertIn('aria-label="移除待加入参考图"', script)
-        self.assertIn('setStatus("待加入参考图已清空", "ok")', script)
-        self.assertIn("已加入 ${count} 张参考图", script)
-        self.assertIn('"待加入参考图加入失败"', script)
+        self.assertIn('setStatus(translate("referenceCollector.alreadyStaged"), "ok")', script)
+        self.assertIn('formatTranslation("referenceCollector.staged"', script)
+        self.assertIn('formatTranslation("referenceCollector.title"', script)
+        self.assertIn('translate("referenceCollector.addAll")', script)
+        self.assertIn('translate("action.clear")', script)
+        self.assertIn('translate("referenceCollector.itemFallback")', script)
+        self.assertIn('formatTranslation("referenceCollector.remove"', script)
+        self.assertIn('setStatus(translate("referenceCollector.cleared"), "ok")', script)
+        self.assertIn('formatTranslation("referenceCollector.added"', script)
+        self.assertIn('translate("referenceCollector.addFailed")', script)
         self.assertIn('const collectButton = target.closest("[data-collect-input-url]")', script)
         self.assertIn("collectReferenceOutput(collectButton.dataset.collectInputUrl, {", script)
         self.assertIn('sourceTaskId: state.previewTask?.task_id || ""', script)

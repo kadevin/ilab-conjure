@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { getLegacyBridge } from "./state";
+import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
@@ -22,10 +23,10 @@ async function refreshSettings() {
   try {
     const response = await fetch("/api/settings");
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "设置读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
     populateSettingsForm(data.settings || {});
   } catch (error: any) {
-    if (els.settingsStatus) els.settingsStatus.textContent = error.message || "设置读取失败";
+    if (els.settingsStatus) els.settingsStatus.textContent = error.message || translate("settings.loadFailed");
   }
 }
 
@@ -39,7 +40,7 @@ function populateSettingsForm(settings: any) {
 function openSettingsModal() {
   closePromptPopover();
   refreshSettings();
-  if (els.settingsStatus) els.settingsStatus.textContent = "保存后重启 WebUI 生效";
+  if (els.settingsStatus) els.settingsStatus.textContent = translate("settings.status");
   els.settingsModal?.classList.remove("hidden");
   els.settingsModal?.setAttribute("aria-hidden", "false");
 }
@@ -64,15 +65,15 @@ async function saveSettings() {
       }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "设置保存失败");
+    if (!response.ok) throw new Error(data.detail || translate("settings.saveFailed"));
     populateSettingsForm(data.settings || {});
     if (els.settingsStatus) {
-      els.settingsStatus.textContent = data.restart_required ? "已保存，重启 WebUI 后生效" : "已保存";
+      els.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
     }
-    setStatus("设置已保存，重启 WebUI 后生效", "ok");
+    setStatus(translate("settings.savedRestartStatus"), "ok");
   } catch (error: any) {
-    if (els.settingsStatus) els.settingsStatus.textContent = error.message || "设置保存失败";
-    setStatus(error.message || "设置保存失败", "error");
+    if (els.settingsStatus) els.settingsStatus.textContent = error.message || translate("settings.saveFailed");
+    setStatus(error.message || translate("settings.saveFailed"), "error");
   } finally {
     els.saveSettingsButton.disabled = false;
   }
@@ -81,6 +82,11 @@ async function saveSettings() {
 export function initStorageSettingsFeature() {
   if (storageSettingsFeatureInitialized) return;
   storageSettingsFeatureInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    if (!els.settingsModal?.classList.contains("hidden") && els.settingsStatus) {
+      els.settingsStatus.textContent = translate("settings.status");
+    }
+  });
   Object.assign(getLegacyBridge().methods, {
     refreshSettings,
     populateSettingsForm,

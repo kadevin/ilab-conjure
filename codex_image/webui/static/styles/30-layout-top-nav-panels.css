@@ -307,6 +307,55 @@
   color: var(--primary-foreground);
 }
 
+.language-switcher {
+  order: 3;
+  flex: 0 0 auto;
+  position: relative;
+  height: var(--top-nav-control-height);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: var(--top-nav-control-padding);
+  border: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
+  border-radius: var(--top-nav-control-radius);
+  background: color-mix(in srgb, var(--surface-soft) 72%, transparent);
+  font-size: var(--top-nav-control-font-size);
+  line-height: 1;
+}
+
+.language-option {
+  position: relative;
+  z-index: 1;
+  height: var(--top-nav-segment-height);
+  min-height: var(--top-nav-segment-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--top-nav-control-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--top-nav-control-font-size);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.language-option:hover,
+.language-option:focus-visible {
+  color: var(--primary-strong);
+  outline: none;
+}
+
+.language-option.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
 .github-link {
   width: var(--top-nav-control-height);
   padding: 0;

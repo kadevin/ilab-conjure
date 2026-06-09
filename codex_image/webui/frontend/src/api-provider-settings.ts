@@ -8,6 +8,7 @@ import {
 } from "./state-defaults";
 import { refreshHealth } from "./auth-source";
 import { updateModeSpecificSettings } from "./api-mode-settings";
+import { formatTranslation, translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -118,13 +119,13 @@ export async function refreshApiSettings(): Promise<void> {
   try {
     const response = await fetch("/api/api-settings");
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "API 设置读取失败");
+    if (!response.ok) throw new Error(data.detail || translate("apiSettings.loadFailed"));
     state.apiSettings = mergeApiProviderKeys(data.settings || {});
     populateApiSettingsForm();
     updateModeSpecificSettings();
     updateRequestPreview();
   } catch (error: any) {
-    setApiSettingsFeedback(error.message || "API 设置读取失败", "error");
+    setApiSettingsFeedback(error.message || translate("apiSettings.loadFailed"), "error");
   }
 }
 
@@ -161,7 +162,7 @@ export function populateApiSettingsForm(): void {
   if (els.apiKey) {
     els.apiKey.value = provider.api_key || "";
     els.apiKey.placeholder = provider.api_key_set && !provider.api_key
-      ? "后端已保存 API Key，输入新 key 可覆盖"
+      ? translate("apiSettings.savedKeyPlaceholder")
       : "sk-...";
   }
   if (els.deleteApiProviderButton) {
@@ -200,7 +201,7 @@ export function addApiProvider(): void {
   const id = `provider-${Date.now()}`;
   state.apiSettings.providers.push(normalizeApiProvider({
     id,
-    name: "新供应商",
+    name: translate("apiSettings.newProvider"),
     base_url: DEFAULT_API_BASE_URL,
     image_model: DEFAULT_API_IMAGE_MODEL,
     api_mode: DEFAULT_API_MODE,
@@ -228,7 +229,7 @@ export function deleteApiProvider(): void {
 export function openApiSettingsModal(): void {
   closePromptPopover();
   populateApiSettingsForm();
-  setApiSettingsFeedback("保存后立即用于 API 模式", "");
+  setApiSettingsFeedback(translate("apiSettings.status"), "");
   els.apiSettingsModal?.classList.remove("hidden");
   els.apiSettingsModal?.setAttribute("aria-hidden", "false");
   els.apiBaseUrl?.focus();
@@ -252,7 +253,7 @@ export function currentApiImagesConcurrency(): number {
 }
 
 export function apiModeLabel(mode: any): string {
-  return mode === "responses" ? "Responses" : "直连";
+  return mode === "responses" ? "Responses" : translate("apiSettings.modeImagesShort");
 }
 
 export function backendForAuthSource(authSource: any, apiMode: any = currentApiMode()): string {
@@ -326,8 +327,8 @@ export async function saveApiSettings(): Promise<void> {
     }),
   };
   els.saveApiSettingsButton.disabled = true;
-  els.saveApiSettingsButton.textContent = "保存中...";
-  setApiSettingsFeedback("正在保存 API 设置...", "running");
+  els.saveApiSettingsButton.textContent = translate("apiSettings.saving");
+  setApiSettingsFeedback(translate("apiSettings.savingStatus"), "running");
   try {
     const response = await fetch("/api/api-settings", {
       method: "PATCH",
@@ -335,28 +336,33 @@ export async function saveApiSettings(): Promise<void> {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "API 设置保存失败");
+    if (!response.ok) throw new Error(data.detail || translate("apiSettings.saveFailed"));
     state.apiSettings = mergeApiProviderKeys(data.settings || {});
     persistApiSettings();
     populateApiSettingsForm();
-    setApiSettingsFeedback(`已保存 · ${activeApiProvider().name} · ${apiModeLabel(currentApiMode())} · ${currentApiImageModel()} · 并发 ${currentApiImagesConcurrency()}`, "ok");
-    els.saveApiSettingsButton.textContent = "已保存";
+    setApiSettingsFeedback(formatTranslation("apiSettings.savedSummary", {
+      provider: activeApiProvider().name,
+      mode: apiModeLabel(currentApiMode()),
+      model: currentApiImageModel(),
+      concurrency: currentApiImagesConcurrency(),
+    }), "ok");
+    els.saveApiSettingsButton.textContent = translate("apiSettings.savedShort");
     state.apiSettingsSaveTimerId = window.setTimeout(() => {
-      els.saveApiSettingsButton.textContent = "保存 API 设置";
+      els.saveApiSettingsButton.textContent = translate("apiSettings.save");
       state.apiSettingsSaveTimerId = null;
     }, 1600);
-    setStatus("API 设置已保存", "ok");
+    setStatus(translate("apiSettings.savedStatus"), "ok");
     await refreshHealth();
     updateRequestPreview();
   } catch (error: any) {
-    setApiSettingsFeedback(error.message || "API 设置保存失败", "error");
-    els.saveApiSettingsButton.textContent = "保存失败";
-    setStatus(error.message || "API 设置保存失败", "error");
+    setApiSettingsFeedback(error.message || translate("apiSettings.saveFailed"), "error");
+    els.saveApiSettingsButton.textContent = translate("apiSettings.saveFailedShort");
+    setStatus(error.message || translate("apiSettings.saveFailed"), "error");
   } finally {
     els.saveApiSettingsButton.disabled = false;
-    if (!state.apiSettingsSaveTimerId && els.saveApiSettingsButton.textContent !== "保存 API 设置") {
+    if (!state.apiSettingsSaveTimerId && els.saveApiSettingsButton.textContent !== translate("apiSettings.save")) {
       state.apiSettingsSaveTimerId = window.setTimeout(() => {
-        els.saveApiSettingsButton.textContent = "保存 API 设置";
+        els.saveApiSettingsButton.textContent = translate("apiSettings.save");
         state.apiSettingsSaveTimerId = null;
       }, 1600);
     }

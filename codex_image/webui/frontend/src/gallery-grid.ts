@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { setGalleryDragPreview } from "./gallery-drag-preview";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
 const GALLERY_GRID_TRANSITION_MS = 220;
 const bridge = getLegacyBridge();
@@ -125,7 +126,9 @@ function activeGalleryGridItems() {
   ensureActiveGalleryCategory();
   const items = filterGalleryItems(state.activeGalleryCategory);
   if (els.galleryDrawerSubtitle) {
-    els.galleryDrawerSubtitle.textContent = `当前分类：${categoryLabel(state.activeGalleryCategory)}，点击“使用”加入图像输入`;
+    els.galleryDrawerSubtitle.textContent = formatTranslation("gallery.drawerSubtitle", {
+      category: categoryLabel(state.activeGalleryCategory),
+    });
   }
   return items;
 }
@@ -142,7 +145,7 @@ function galleryGridLayerHtml(items: any) {
 
 function galleryGridContentHtml(items: any) {
   if (!items.length) {
-    return `<div class="gallery-empty">这个分类还没有图片</div>`;
+    return `<div class="gallery-empty">${translate("gallery.emptyCategory")}</div>`;
   }
   return items.map((item: any) => `
     <article class="gallery-card" data-gallery-id="${escapeHtml(item.id)}">
@@ -152,8 +155,8 @@ function galleryGridContentHtml(items: any) {
         draggable="true"
         data-gallery-id="${escapeHtml(item.id)}"
         data-gallery-order-handle
-        aria-label="拖拽排序图片 ${escapeHtml(item.name)}"
-        title="拖拽排序"
+        aria-label="${escapeHtml(formatTranslation("gallery.dragSortImage", { name: item.name }))}"
+        title="${translate("gallery.dragSort")}"
       >
         <span class="gallery-card-drag-strip-icon" aria-hidden="true">
           <svg viewBox="0 0 16 16" focusable="false">
@@ -165,7 +168,7 @@ function galleryGridContentHtml(items: any) {
             <circle cx="11" cy="12" r="1.1" />
           </svg>
         </span>
-        <span>拖拽排序</span>
+        <span>${translate("gallery.dragSort")}</span>
       </button>
       <div class="gallery-card-media">
         <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.name)}" draggable="false">
@@ -177,12 +180,12 @@ function galleryGridContentHtml(items: any) {
         <span>${escapeHtml(categoryLabel(item.category))}</span>
       </div>
       <div class="gallery-card-actions">
-        <button class="ghost-button text-sm" type="button" data-gallery-use="${escapeHtml(item.id)}">使用</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-replace="${escapeHtml(item.id)}">替换</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-rename="${escapeHtml(item.id)}">重命名</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-move="${escapeHtml(item.id)}">分类</button>
-        <button class="ghost-button text-sm" type="button" data-gallery-note="${escapeHtml(item.id)}">备注</button>
-        <button class="ghost-button text-sm danger-button" type="button" data-gallery-delete="${escapeHtml(item.id)}">删除</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-use="${escapeHtml(item.id)}">${translate("gallery.use")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-replace="${escapeHtml(item.id)}">${translate("gallery.replace")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-rename="${escapeHtml(item.id)}">${translate("gallery.rename")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-move="${escapeHtml(item.id)}">${translate("gallery.moveCategory")}</button>
+        <button class="ghost-button text-sm" type="button" data-gallery-note="${escapeHtml(item.id)}">${translate("gallery.note")}</button>
+        <button class="ghost-button text-sm danger-button" type="button" data-gallery-delete="${escapeHtml(item.id)}">${translate("gallery.delete")}</button>
       </div>
     </article>
   `).join("");
@@ -316,7 +319,7 @@ function handleGalleryGridDragStart(event: DragEvent) {
   if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
   setGalleryDragPreview(event, {
     type: "item",
-    title: item?.name || "图库图片",
+    title: item?.name || translate("gallery.imageFallback"),
     subtitle: categoryLabel(item?.category || state.activeGalleryCategory),
     imageUrl: item?.image_url,
     sourceElement: card,
@@ -390,6 +393,9 @@ function bindGalleryGridEvents() {
 export function initGalleryGridFeature() {
   if (galleryGridFeatureInitialized) return;
   galleryGridFeatureInitialized = true;
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderGalleryGrid();
+  });
   bindGalleryGridEvents();
   Object.assign(getLegacyBridge().methods, {
     renderGalleryGrid,

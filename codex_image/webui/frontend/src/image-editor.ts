@@ -1,7 +1,8 @@
 import { getEls } from "./dom";
 import { getLegacyBridge, getState } from "./state";
+import { translate } from "./i18n";
 
-const IMAGE_EDITOR_PROMPT_HINT = "图中的手绘箭头和标记仅用于指示编辑要求，不要保留在最终画面中。";
+const IMAGE_EDITOR_PROMPT_HINT_LEGACY = "\u56fe\u4e2d\u7684\u624b\u7ed8\u7bad\u5934\u548c\u6807\u8bb0\u4ec5\u7528\u4e8e\u6307\u793a\u7f16\u8f91\u8981\u6c42\uff0c\u4e0d\u8981\u4fdd\u7559\u5728\u6700\u7ec8\u753b\u9762\u4e2d\u3002";
 const IMAGE_EDITOR_MAX_EXPORT_EDGE = 4096;
 const IMAGE_EDITOR_HISTORY_LIMIT = 30;
 
@@ -75,9 +76,9 @@ function imageEditorSourceName(source: any) {
 
 async function remoteImageSourceFile(source: any) {
   const imageUrl = legacyMethod("sourcePreviewUrl", source);
-  if (!imageUrl) throw new Error("无法载入这张图片进行编辑");
+  if (!imageUrl) throw new Error(translate("imageEditor.loadForEditFailed"));
   const response = await fetch(imageUrl);
-  if (!response.ok) throw new Error("无法载入这张图片进行编辑");
+  if (!response.ok) throw new Error(translate("imageEditor.loadForEditFailed"));
   const blob = await response.blob();
   return new File([blob], imageEditorSourceName(source), {
     type: blob.type || source.mime_type || "image/png",
@@ -221,11 +222,11 @@ function initializeImageEditorCanvases(image: any) {
   brushOverlayCanvas.height = dimensions.height;
 
   const baseCtx = baseCanvas.getContext("2d");
-  if (!baseCtx) throw new Error("无法创建图片编辑画布");
+  if (!baseCtx) throw new Error(translate("imageEditor.canvasCreateFailed"));
   baseCtx.drawImage(image, 0, 0, dimensions.width, dimensions.height);
 
   const workCtx = workCanvas.getContext("2d");
-  if (!workCtx) throw new Error("无法创建图片编辑画布");
+  if (!workCtx) throw new Error(translate("imageEditor.canvasCreateFailed"));
   workCtx.drawImage(baseCanvas, 0, 0);
 
   imageEditorState.baseCanvas = baseCanvas;
@@ -525,7 +526,7 @@ function handleImageEditorPointerDown(event: any) {
       pushImageEditorHistory();
       setImageEditorStatus("");
     } else {
-      setImageEditorStatus("请先用画笔圈出封闭区域", "error");
+      setImageEditorStatus(translate("imageEditor.closedRegionRequired"), "error");
     }
     renderImageEditor();
     return;
@@ -632,7 +633,7 @@ function imageEditorExportBlob(canvas: any) {
       if (blob) {
         resolve(blob);
       } else {
-        reject(new Error("图片编辑保存失败"));
+        reject(new Error(translate("imageEditor.saveFailed")));
       }
     }, "image/png");
   });
@@ -640,8 +641,9 @@ function imageEditorExportBlob(canvas: any) {
 
 function ensureImageEditorPromptHint() {
   const current = legacyMethod("getPromptText");
-  if (current.includes(IMAGE_EDITOR_PROMPT_HINT)) return;
-  const next = current ? `${current}\n${IMAGE_EDITOR_PROMPT_HINT}` : IMAGE_EDITOR_PROMPT_HINT;
+  const hint = translate("imageEditor.promptHint");
+  if (current.includes(hint) || current.includes(IMAGE_EDITOR_PROMPT_HINT_LEGACY)) return;
+  const next = current ? `${current}\n${hint}` : hint;
   legacyMethod("setPromptText", next);
   legacyMethod("updatePromptCount");
 }
@@ -653,7 +655,7 @@ async function saveImageEdit() {
   const source = imageEditorState.source;
   const saveCanvas = imageEditorCanvasForSave();
   if (!source || !isEditableImageSource(source) || !saveCanvas || !state.images.includes(source)) {
-    setImageEditorStatus("图片编辑保存失败", "error");
+    setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
     return;
   }
   if (els.imageEditorSave) els.imageEditorSave.disabled = true;
@@ -687,9 +689,9 @@ async function saveImageEdit() {
     legacyMethod("renderImageStrip");
     legacyMethod("updateRequestPreview");
     closeImageEditor();
-    legacyMethod("setStatus", "已保存编辑后的输入图", "ok");
+    legacyMethod("setStatus", translate("imageEditor.saved"), "ok");
   } catch (error: any) {
-    setImageEditorStatus(error.message || "图片编辑保存失败", "error");
+    setImageEditorStatus(error.message || translate("imageEditor.saveFailed"), "error");
   } finally {
     if (els.imageEditorSave) els.imageEditorSave.disabled = false;
   }
@@ -700,7 +702,7 @@ async function openImageEditor(index: any) {
   const els = getEls();
   const source = state.images[index];
   if (!source || !isEditableImageSource(source)) {
-    legacyMethod("setStatus", "这张图片无法编辑", "error");
+    legacyMethod("setStatus", translate("imageEditor.uneditable"), "error");
     return;
   }
 
@@ -715,7 +717,7 @@ async function openImageEditor(index: any) {
   imageEditorState.drawing = null;
   setImageEditorStatus("");
   if (els.imageEditorSubtitle) {
-    els.imageEditorSubtitle.textContent = legacyMethod("sourceName", source) || "输入图片";
+    els.imageEditorSubtitle.textContent = legacyMethod("sourceName", source) || translate("imageEditor.inputFallback");
   }
 
   els.imageEditorModal?.classList.remove("hidden");
@@ -731,7 +733,7 @@ async function openImageEditor(index: any) {
   } catch {
     if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
     closeImageEditor();
-    legacyMethod("setStatus", "无法打开这张图片进行编辑", "error");
+    legacyMethod("setStatus", translate("imageEditor.openFailed"), "error");
   }
 }
 
@@ -778,14 +780,14 @@ async function resetImageEdit() {
     imageEditorState.image = image;
     initializeImageEditorCanvases(image);
     renderImageEditor();
-    setImageEditorStatus("已重置到原图");
+    setImageEditorStatus(translate("imageEditor.resetDone"));
   } catch {
     if (
       sessionId !== imageEditorState.sessionId
       || imageEditorState.source !== source
       || imageEditorState.originalFile !== file
     ) return;
-    setImageEditorStatus("无法重置原图", "error");
+    setImageEditorStatus(translate("imageEditor.resetFailed"), "error");
   }
 }
 

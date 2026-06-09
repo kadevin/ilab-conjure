@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import type { TaskNotification, TaskNotificationSettings, TaskStatus, WebUITask } from "./types";
 
 const TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
@@ -17,6 +18,7 @@ export function initTaskNotificationsFeature(): void {
   restoreTaskNotificationSettings();
   restoreTaskNotificationSeenKeys();
   bindTaskNotificationEvents();
+  document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
   renderTaskNotifications();
   Object.assign(getLegacyBridge().methods, {
     notifyTaskUpdate,
@@ -76,7 +78,9 @@ function renderTaskNotifications(): void {
   const els = bridge.els;
   const unreadCount = state.taskNotifications.filter((notification: TaskNotification) => notification.unread).length;
   state.taskNotificationUnreadCount = unreadCount;
-  const unreadLabel = unreadCount > 0 ? `任务通知，${unreadCount} 条未读` : "任务通知";
+  const unreadLabel = unreadCount > 0
+    ? formatTranslation("notifications.unread", { count: unreadCount })
+    : translate("notifications.title");
 
   if (els.taskNotificationBadge) {
     els.taskNotificationBadge.textContent = "";
@@ -90,7 +94,7 @@ function renderTaskNotifications(): void {
     els.taskNotificationButton.setAttribute("aria-expanded", state.taskNotificationCenterOpen ? "true" : "false");
   }
   if (els.taskNotificationUnreadSummary) {
-    els.taskNotificationUnreadSummary.textContent = `${unreadCount} 未读`;
+    els.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
     els.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
   }
   if (els.taskNotificationCenter) {
@@ -99,7 +103,7 @@ function renderTaskNotifications(): void {
   }
   if (!els.taskNotificationList) return;
   if (!state.taskNotifications.length) {
-    els.taskNotificationList.innerHTML = `<div class="task-notification-empty">暂无任务通知</div>`;
+    els.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
     return;
   }
   els.taskNotificationList.innerHTML = state.taskNotifications
@@ -109,20 +113,20 @@ function renderTaskNotifications(): void {
 
 async function requestSystemNotificationPermission(): Promise<boolean> {
   if (typeof Notification === "undefined") {
-    setStatus("当前浏览器不支持系统通知", "error");
+    setStatus(translate("notifications.systemUnsupported"), "error");
     return false;
   }
   if (Notification.permission === "granted") return true;
   if (Notification.permission === "denied") {
-    setStatus("系统通知已被浏览器阻止，需要在浏览器设置里开启", "error");
+    setStatus(translate("notifications.systemBlocked"), "error");
     return false;
   }
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
-    setStatus("系统通知未开启", "error");
+    setStatus(translate("notifications.systemDenied"), "error");
     return false;
   }
-  setStatus("系统通知已开启", "ok");
+  setStatus(translate("notifications.systemEnabled"), "ok");
   return true;
 }
 
@@ -224,9 +228,9 @@ function showTaskNotificationToast(notification: TaskNotification): void {
 function sendSystemTaskNotification(notification: TaskNotification): void {
   const settings = getLegacyBridge().state.taskNotificationSettings;
   if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
-  const options: NotificationOptions = { body: notification.message };
+  const options: NotificationOptions = { body: taskNotificationDisplayMessage(notification) };
   if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
-  const systemNotification = new Notification(notification.title, options);
+  const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
   systemNotification.onclick = () => {
     window.focus();
     void openNotificationTask(notification);
@@ -240,7 +244,7 @@ async function openNotificationTask(notification: TaskNotification): Promise<voi
   markTaskNotificationRead(notification.id);
   closeTaskNotificationCenter();
   if (!task) {
-    setStatus("任务不存在或已删除", "error");
+    setStatus(translate("notifications.taskMissing"), "error");
     return;
   }
   window.focus();
@@ -249,7 +253,7 @@ async function openNotificationTask(notification: TaskNotification): Promise<voi
     if (typeof selectTask !== "function") throw new Error("selectTask is unavailable");
     await selectTask(task.task_id);
   } catch {
-    setStatus("任务不存在或已删除", "error");
+    setStatus(translate("notifications.taskMissing"), "error");
   }
 }
 
@@ -270,12 +274,25 @@ function notificationById(notificationId: string | undefined): TaskNotification 
 
 function buildTaskNotification(task: WebUITask, status: TerminalTaskStatus): TaskNotification {
   const thumbnailUrl = firstTaskThumbnailUrl(task);
+  const successCount = completedOutputCount(task);
+  const failedCount = positiveNumber(task.failed_count);
+  const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
+  const errorMessage = String(task.last_error || task.error || "");
   return {
     id: taskNotificationSeenKey(task, status),
     task_id: task.task_id,
     status,
     title: taskNotificationTitle(status),
-    message: taskNotificationMessage(task, status),
+    message: taskNotificationMessageFromParts(status, {
+      successCount,
+      failedCount,
+      prompt,
+      errorMessage,
+    }),
+    success_count: successCount,
+    failed_count: failedCount,
+    prompt_snippet: prompt,
+    error_message: errorMessage,
     created_at: new Date().toISOString(),
     ...(thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {}),
     unread: true,
@@ -283,19 +300,53 @@ function buildTaskNotification(task: WebUITask, status: TerminalTaskStatus): Tas
 }
 
 function taskNotificationTitle(status: TerminalTaskStatus): string {
-  if (status === "failed") return "任务失败";
-  if (status === "partial_failed") return "任务部分完成";
-  return "任务已完成";
+  if (status === "failed") return translate("notifications.taskFailed");
+  if (status === "partial_failed") return translate("notifications.taskPartial");
+  return translate("notifications.taskCompleted");
 }
 
 function taskNotificationMessage(task: WebUITask, status: TerminalTaskStatus): string {
-  if (status === "failed") return String(task.last_error || task.error || "生成失败");
-  const count = completedOutputCount(task);
-  const failedCount = positiveNumber(task.failed_count);
-  const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
-  const countText = count ? `${count} 张成功` : "有结果可查看";
-  const failureText = status === "partial_failed" && failedCount ? `，${failedCount} 张失败` : "";
-  return [countText + failureText, prompt].filter(Boolean).join(" · ");
+  return taskNotificationMessageFromParts(status, {
+    successCount: completedOutputCount(task),
+    failedCount: positiveNumber(task.failed_count),
+    prompt: promptSnippet(task.prompt || task.prompt_for_model || ""),
+    errorMessage: String(task.last_error || task.error || ""),
+  });
+}
+
+function taskNotificationMessageFromParts(
+  status: TerminalTaskStatus,
+  parts: { successCount?: number; failedCount?: number; prompt?: string; errorMessage?: string },
+): string {
+  if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
+  const countText = parts.successCount
+    ? formatTranslation("notifications.successCount", { count: parts.successCount })
+    : translate("notifications.resultAvailable");
+  const failureText = status === "partial_failed" && parts.failedCount
+    ? formatTranslation("notifications.failedCount", { count: parts.failedCount })
+    : "";
+  return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" · ");
+}
+
+function taskNotificationDisplayTitle(notification: TaskNotification): string {
+  return taskNotificationTitle(notification.status);
+}
+
+function taskNotificationDisplayMessage(notification: TaskNotification): string {
+  if (
+    notification.success_count !== undefined ||
+    notification.failed_count !== undefined ||
+    notification.prompt_snippet !== undefined ||
+    notification.error_message !== undefined
+  ) {
+    return taskNotificationMessageFromParts(notification.status, {
+      successCount: positiveNumber(notification.success_count),
+      failedCount: positiveNumber(notification.failed_count),
+      prompt: notification.prompt_snippet || "",
+      errorMessage: notification.error_message || notification.message,
+    });
+  }
+  return notification.message;
 }
 
 function firstTaskThumbnailUrl(task: WebUITask): string | undefined {
@@ -329,8 +380,8 @@ function taskNotificationInnerHtml(notification: TaskNotification): string {
     : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml(statusGlyph(notification.status))}</span>`;
   return `${thumbnail}
     <span class="task-notification-body">
-      <span class="task-notification-title">${escapeHtml(notification.title)}</span>
-      <span class="task-notification-message">${escapeHtml(notification.message)}</span>
+      <span class="task-notification-title">${escapeHtml(taskNotificationDisplayTitle(notification))}</span>
+      <span class="task-notification-message">${escapeHtml(taskNotificationDisplayMessage(notification))}</span>
       <span class="task-notification-time">${escapeHtml(formatNotificationTime(notification.created_at))}</span>
     </span>`;
 }

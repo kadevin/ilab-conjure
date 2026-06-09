@@ -1,4 +1,5 @@
 import { getEls } from "./dom";
+import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge, getState } from "./state";
 import type { QueueState, RealtimePayload, WebUITask } from "./types";
 
@@ -23,6 +24,7 @@ export function initializeQueueFeature(): void {
   queueFeatureInitialized = true;
   exposeQueueWindowApi();
   bindQueueControls();
+  document.addEventListener(LOCALE_CHANGE_EVENT, renderQueue);
 }
 
 function exposeQueueWindowApi(): void {
@@ -49,7 +51,7 @@ export function startRealtimeUpdates({ migrateLegacyArchives = false } = {}): bo
   source.onmessage = (event) => {
     handleRealtimeMessage(event).catch((error: unknown) => {
       console.error(error);
-      getLegacyBridge().methods.setStatus(errorMessage(error, "实时状态更新失败"), "error");
+      getLegacyBridge().methods.setStatus(errorMessage(error, translate("queue.realtimeUpdateFailed")), "error");
     });
   };
   source.onerror = () => {
@@ -59,7 +61,7 @@ export function startRealtimeUpdates({ migrateLegacyArchives = false } = {}): bo
     state.realtimeSnapshotNeedsArchiveMigration = false;
     void refreshQueue();
     void getLegacyBridge().methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives });
-    getLegacyBridge().methods.setStatus("实时状态连接已断开，刷新页面可恢复", "error");
+    getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
   };
   return true;
 }
@@ -109,12 +111,12 @@ export async function refreshQueue(): Promise<void> {
     const data = await response.json();
     if (requestSeq !== state.queueRequestSeq) return;
     if (!response.ok) {
-      throw new Error(data.detail || "队列读取失败");
+      throw new Error(data.detail || translate("queue.readFailed"));
     }
     state.queue = normalizeQueueState(data);
     renderQueue();
   } catch (error: unknown) {
-    bridge.methods.setStatus(errorMessage(error, "队列读取失败"), "error");
+    bridge.methods.setStatus(errorMessage(error, translate("queue.readFailed")), "error");
   }
 }
 
@@ -195,20 +197,20 @@ export function renderQueueStatusChip({
   const els = getEls();
   const total = waitingCount + runningCount;
   const channelText = usableChannelCount === channelCount
-    ? `通道 ${channelCount}`
-    : `可用通道 ${usableChannelCount}/${channelCount}`;
+    ? formatTranslation("queue.channel", { count: channelCount })
+    : formatTranslation("queue.availableChannels", { usable: usableChannelCount, total: channelCount });
   const text = dispatchPending
-    ? `调度中 · 等待 ${waitingCount}`
+    ? formatTranslation("queue.dispatching", { waiting: waitingCount })
     : total
-      ? `运行 ${runningCount} · 等待 ${waitingCount}`
-      : "暂无排队";
+      ? formatTranslation("queue.runningWaiting", { running: runningCount, waiting: waitingCount })
+      : translate("queue.empty");
   const label = total
-    ? `队列状态：${text} · ${channelText}。点击跳转到进行中任务`
-    : "队列状态：暂无排队";
+    ? formatTranslation("queue.statusLabel", { text, channelText })
+    : translate("queue.emptyAria");
   if (els.queueStatusText) els.queueStatusText.textContent = text;
   if (els.queueButton) {
     els.queueButton.setAttribute("aria-label", label);
-    els.queueButton.title = total ? "跳转到进行中任务" : "暂无排队任务";
+    els.queueButton.title = total ? translate("queue.jumpTitle") : translate("queue.emptyTitle");
     els.queueButton.classList.toggle("has-queue", total > 0 || dispatchPending);
   }
 }
@@ -276,16 +278,16 @@ function queueListRenderKey(): string {
 function queueItemTitleText(task: WebUITask, position: number | null = null): string {
   const bridge = getLegacyBridge();
   const queueTask = task as QueueTask;
-  const prefix = position ? `#${position}` : bridge.methods.formatTaskStatus(task) || "任务";
+  const prefix = position ? `#${position}` : bridge.methods.formatTaskStatus(task) || translate("taskStatus.task");
   const mode = taskModeLabel(task);
-  const count = `${bridge.methods.taskTotalCount(task)} 张`;
+  const count = formatTranslation("taskCard.count", { count: bridge.methods.taskTotalCount(task) });
   const size = queueTask.output_size || task.params?.size || "";
   return [prefix, mode, count, size].filter(Boolean).join(" · ");
 }
 
 function taskModeLabel(task: WebUITask): string {
-  if (task.mode === "edit") return "编辑";
-  if (task.mode === "generate") return "生成";
+  if (task.mode === "edit") return translate("taskMode.edit");
+  if (task.mode === "generate") return translate("taskMode.generate");
   return "";
 }
 
@@ -296,11 +298,11 @@ export async function promoteQueueTask(taskId: string | undefined): Promise<void
   try {
     const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}/promote`, { method: "POST" });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "置顶失败");
+    if (!response.ok) throw new Error(data.detail || translate("queue.promoteFailed"));
     applyQueueState(data);
     await bridge.methods.refreshTasks();
   } catch (error: unknown) {
-    bridge.methods.setStatus(errorMessage(error, "置顶失败"), "error");
+    bridge.methods.setStatus(errorMessage(error, translate("queue.promoteFailed")), "error");
   }
 }
 
@@ -325,10 +327,10 @@ export function deleteQueuedTask(button: Element, taskId: string | undefined): v
   const task = bridge.state.queue.waiting.find((item) => item.task_id === taskId);
   const title = task ? queueItemTitleText(task, (task as QueueTask).queue_position || null) : taskId;
   bridge.methods.openConfirmPopover(button, {
-    title: "删除等待任务？",
-    message: "会从队列和历史列表中移除。",
+    title: translate("queue.deleteWaitingTitleConfirm"),
+    message: translate("queue.deleteWaitingMessage"),
     detail: title,
-    confirmText: "删除",
+    confirmText: translate("action.delete"),
     onConfirm: async () => {
       await performDeleteQueuedTask(taskId);
     },
@@ -342,7 +344,7 @@ export async function performDeleteQueuedTask(taskId: string): Promise<void> {
   try {
     const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "删除队列任务失败");
+    if (!response.ok) throw new Error(data.detail || translate("queue.deleteQueuedFailed"));
     state.tasks = state.tasks.filter((item) => item.task_id !== taskId);
     if (state.selectedTaskId === taskId) {
       state.selectedTaskId = state.tasks[0]?.task_id || null;
@@ -358,9 +360,9 @@ export async function performDeleteQueuedTask(taskId: string): Promise<void> {
     await refreshQueue();
     await bridge.methods.refreshTasks();
     bridge.methods.renderPreview();
-    bridge.methods.setStatus("队列任务已删除", "ok");
+    bridge.methods.setStatus(translate("queue.queuedDeleted"), "ok");
   } catch (error: unknown) {
-    bridge.methods.setStatus(errorMessage(error, "删除队列任务失败"), "error");
+    bridge.methods.setStatus(errorMessage(error, translate("queue.deleteQueuedFailed")), "error");
   }
 }
 
@@ -370,10 +372,10 @@ export function cancelRunningTask(button: Element, taskId: string | undefined): 
   const task = bridge.state.queue.running.find((item) => item.task_id === taskId);
   const title = task ? queueItemTitleText(task) : taskId;
   bridge.methods.openConfirmPopover(button, {
-    title: "取消运行任务？",
-    message: "当前任务会停止，历史记录会保留。",
+    title: translate("queue.cancelRunningTitleConfirm"),
+    message: translate("queue.cancelRunningMessage"),
     detail: title,
-    confirmText: "取消任务",
+    confirmText: translate("queue.cancelRunningConfirm"),
     onConfirm: async () => {
       await performCancelRunningTask(taskId);
     },
@@ -387,7 +389,7 @@ async function performCancelRunningTask(taskId: string): Promise<void> {
   try {
     const response = await fetch(`/api/queue/${encodeURIComponent(taskId)}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "取消任务失败");
+    if (!response.ok) throw new Error(data.detail || translate("queue.cancelRunningFailed"));
     applyQueueState({
       ...state.queue,
       running: state.queue.running.filter((item) => item.task_id !== taskId),
@@ -399,9 +401,9 @@ async function performCancelRunningTask(taskId: string): Promise<void> {
     await refreshQueue();
     await bridge.methods.refreshTasks();
     bridge.methods.renderPreview();
-    bridge.methods.setStatus("任务已取消", "ok");
+    bridge.methods.setStatus(translate("queue.runningCancelled"), "ok");
   } catch (error: unknown) {
-    bridge.methods.setStatus(errorMessage(error, "取消任务失败"), "error");
+    bridge.methods.setStatus(errorMessage(error, translate("queue.cancelRunningFailed")), "error");
   }
 }
 
@@ -415,11 +417,11 @@ export async function reorderQueue(taskIds: string[]): Promise<void> {
       body: JSON.stringify({ task_ids: taskIds }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "队列排序失败");
+    if (!response.ok) throw new Error(data.detail || translate("queue.reorderFailed"));
     applyQueueState(data);
     await bridge.methods.refreshTasks();
   } catch (error: unknown) {
-    bridge.methods.setStatus(errorMessage(error, "队列排序失败"), "error");
+    bridge.methods.setStatus(errorMessage(error, translate("queue.reorderFailed")), "error");
     await refreshQueue();
   }
 }

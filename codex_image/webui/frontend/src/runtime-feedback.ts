@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 import type { WebUITask } from "./types";
 
 function legacyMethod(name: string, ...args: any[]): any {
@@ -27,6 +28,7 @@ const elapsedPartMarkup = (...args: any[]) => legacyMethod("elapsedPartMarkup", 
 const elapsedTimerMarkup = (...args: any[]) => legacyMethod("elapsedTimerMarkup", ...args);
 const setStatus = (...args: any[]) => legacyMethod("setStatus", ...args);
 const getPromptText = (...args: any[]) => legacyMethod("getPromptText", ...args);
+const syncRunButtonLabel = (...args: any[]) => legacyMethod("syncRunButtonLabel", ...args);
 
 export function updateTaskInState(task: WebUITask | null | undefined): boolean {
   const state = getLegacyBridge().state;
@@ -50,16 +52,17 @@ export function updateTaskInState(task: WebUITask | null | undefined): boolean {
 
 export function formatTaskStatus(task: WebUITask | null | undefined): string {
   if (!task) return "";
-  if (task.status === "submitting") return "提交中";
+  if (task.status === "submitting") return translate("taskStatus.submitting");
   if (task.status === "running") {
     const progressStartedAt = taskProgressStartValue(task);
-    const elapsed = progressStartedAt ? ` · ${formatDuration(elapsedSecondsSince(progressStartedAt))}` : "";
-    return `生成中${elapsed}`;
+    return progressStartedAt
+      ? formatTranslation("taskStatus.runningWithElapsed", { elapsed: formatDuration(elapsedSecondsSince(progressStartedAt)) })
+      : translate("taskStatus.running");
   }
-  if (task.status === "completed") return "已完成";
-  if (task.status === "partial_failed") return "部分失败";
-  if (task.status === "failed") return "失败";
-  if (task.status === "queued") return "排队中";
+  if (task.status === "completed") return translate("taskStatus.completed");
+  if (task.status === "partial_failed") return translate("taskStatus.partialFailed");
+  if (task.status === "failed") return translate("taskStatus.failed");
+  if (task.status === "queued") return translate("taskStatus.queued");
   return task.status || "";
 }
 
@@ -83,7 +86,7 @@ export function updateTaskElapsedDisplays(): void {
   root.querySelectorAll("[data-task-status-id]").forEach((element: any) => {
     const task = tasksById.get(String(element.dataset.taskStatusId || ""));
     if (task) {
-      element.textContent = formatTaskStatus(task) || "未知状态";
+      element.textContent = formatTaskStatus(task) || translate("taskStatus.unknown");
       element.closest(".task-status-row")?.setAttribute("aria-label", taskStatusAccessibleLabel(task));
     }
   });
@@ -201,9 +204,9 @@ export function updateRunFeedback(): void {
   const { state, els } = getLegacyBridge();
   if (!state.runStartedAt) return;
   const elapsed = formatDurationTenths(elapsedMillisecondsSince(state.runStartedAt));
-  const action = state.runFeedbackAction || (state.mode === "edit" ? "编辑中" : "生成中");
+  const action = state.runFeedbackAction || (state.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
   if (els.runButton) els.runButton.textContent = `${action} ${elapsed}`;
-  setStatus(`${action}，计时 ${elapsed}`, "running");
+  setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
   updateElapsedDisplays();
   if (state.selectedTaskId === state.pendingTaskId) {
     renderPreview();
@@ -219,5 +222,5 @@ export function stopRunFeedback(): void {
   state.runStartedAt = null;
   state.runFeedbackAction = null;
   els.runButton?.classList.remove("running");
-  if (els.runButton) els.runButton.textContent = state.mode === "edit" ? "开始编辑" : "开始生成";
+  syncRunButtonLabel();
 }

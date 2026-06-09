@@ -27,6 +27,12 @@ export type LegacyBridge = WebUIBridge;
 declare global {
   interface Window {
     __codexImageWebUI?: LegacyBridge;
+    __codexImageI18n?: {
+      applyLocaleToDocument: () => void;
+      locale: () => "zh-CN" | "en";
+      setLocale: (locale: "zh-CN" | "en", options?: { persist?: boolean }) => void;
+      t: (key: string, locale?: "zh-CN" | "en") => string;
+    };
     startRealtimeUpdates?: (options?: { migrateLegacyArchives?: boolean }) => boolean;
     closeRealtimeUpdates?: () => void;
     refreshQueue?: () => Promise<void>;

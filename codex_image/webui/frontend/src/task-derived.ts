@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation, translate } from "./i18n";
 
 const RATIO_ORIENTATION: Record<string, string> = {
   "1:1": "square",
@@ -426,12 +427,12 @@ function canAcceptTaskSuccesses(task: any) {
 function taskRetryReasonText(task: any) {
   const message = String(task?.last_error || task?.error || "").toLowerCase();
   if (message.includes("usage limit") || message.includes("quota") || message.includes("rate limit")) {
-    return "用量受限";
+    return translate("taskDerived.usageLimited");
   }
   if (message.includes("incompleteread") || message.includes("timeout") || message.includes("network")) {
-    return "连接中断";
+    return formatTranslation("taskStatus.connectionInterrupted");
   }
-  return "上次失败";
+  return formatTranslation("taskStatus.lastFailed");
 }
 
 function taskRetryStateText(task: any) {
@@ -444,18 +445,29 @@ function taskRetryStateText(task: any) {
   if (!hasRetryContext || !maxAttempts) return "";
   const reason = taskRetryReasonText(task);
   if (task.status === "queued" && attempts < maxAttempts) {
-    return `${reason}，等待重试（第 ${attempts + 1}/${maxAttempts} 次尝试）`;
+    return formatTranslation("taskStatus.waitingRetry", {
+      reason,
+      attempt: attempts + 1,
+      max: maxAttempts,
+    });
   }
   if (task.status === "running") {
     if (attempts <= 1 && !manualRetryRequested) return "";
-    return `${reason}，重试中（第 ${Math.max(1, attempts)}/${maxAttempts} 次尝试）`;
+    return formatTranslation("taskStatus.retrying", {
+      reason,
+      attempt: Math.max(1, attempts),
+      max: maxAttempts,
+    });
   }
   if (["failed", "partial_failed"].includes(task.status)) {
     if (taskHasNonRetryableError(task)) {
-      return `第 ${Math.max(1, attempts)}/${maxAttempts} 次，不可重试`;
+      return formatTranslation("taskStatus.nonRetryableAttempt", {
+        attempt: Math.max(1, attempts),
+        max: maxAttempts,
+      });
     }
     if (attempts > 0) {
-      return "已停止，可手动重试失败图片";
+      return formatTranslation("taskStatus.manualRetryAvailable");
     }
   }
   return "";
@@ -481,7 +493,10 @@ function taskRuntimeText(task: any) {
   if (startedAt === null || endedAt === null || endedAt < startedAt) return "";
   const seconds = Math.floor((endedAt - startedAt) / 1000);
   const completion = taskCompletionTimestampText(task);
-  return completion ? `耗时 ${formatDuration(seconds)} · 完成 ${completion.shortText}` : `耗时 ${formatDuration(seconds)}`;
+  const duration = formatDuration(seconds);
+  return completion
+    ? formatTranslation("taskStatus.runtimeCompleted", { duration, time: completion.shortText })
+    : formatTranslation("taskStatus.runtime", { duration });
 }
 
 function taskCompletionTimestampText(task: any) {
@@ -493,7 +508,7 @@ function taskCompletionTimestampText(task: any) {
 function taskCompletionTimestampTitle(task: any) {
   const completedAt = taskCompletionTimestampMs(task);
   if (completedAt === null) return "";
-  return `完成 ${formatLocalTimestamp(completedAt, true)}`;
+  return formatTranslation("taskStatus.completedAt", { time: formatLocalTimestamp(completedAt, true) });
 }
 
 function taskCompletionTimestampMs(task: any) {

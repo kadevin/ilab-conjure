@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { formatTranslation } from "./i18n";
 
 const QUICK_GALLERY_WHEEL_COOLDOWN_MS = 220;
 const bridge = getLegacyBridge();
@@ -35,7 +36,7 @@ function renderQuickGalleryList() {
   const items = filterGalleryItems();
   if (!items.length) {
     state.quickGalleryFocusItemId = null;
-    els.quickGalleryList.innerHTML = `<div class="quick-gallery-empty">暂无${escapeHtml(categoryLabel(state.activeGalleryCategory))}图片</div>`;
+    els.quickGalleryList.innerHTML = `<div class="quick-gallery-empty">${escapeHtml(formatTranslation("quickGallery.empty", { category: categoryLabel(state.activeGalleryCategory) }))}</div>`;
     scheduleQuickGalleryFocusUpdate();
     return;
   }

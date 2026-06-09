@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -218,19 +219,19 @@ async function runTask() {
   const galleries = galleryInputs();
   const assets = referenceAssetInputs();
   if (missingGalleryInputs().length) {
-    setStatus("有图库参考图已删除，请移除后再生成", "error");
+    setStatus(translate("status.missingGalleryReference"), "error");
     return;
   }
   if (missingReferenceAssetInputs().length) {
-    setStatus("有最近上传参考图已删除，请移除后再生成", "error");
+    setStatus(translate("status.missingRecentReference"), "error");
     return;
   }
   if (!prompt) {
-    setStatus("请输入提示词", "error");
+    setStatus(translate("status.emptyPrompt"), "error");
     return;
   }
   if (state.mode === "edit" && !uploads.length && !assets.length && !galleries.length) {
-    setStatus("编辑模式至少需要 1 张图片", "error");
+    setStatus(translate("status.editNeedsImage"), "error");
     return;
   }
   const customSizeError = els.size?.value === "custom" ? customSizeValidationMessage() : "";
@@ -274,7 +275,7 @@ async function runTask() {
   if (els.requestJson) {
     els.requestJson.textContent = JSON.stringify(pendingTask.request, null, 2);
   }
-  startRunFeedback(pendingTask, "提交中");
+  startRunFeedback(pendingTask, translate("taskStatus.submitting"));
   els.runButton.disabled = true;
 
   const controller = new AbortController();
@@ -287,22 +288,22 @@ async function runTask() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.detail || "请求失败");
+      throw new Error(data.detail || translate("taskSubmit.requestFailed"));
     }
     addQueuedTask(data.task);
     if (els.requestJson) {
       els.requestJson.textContent = JSON.stringify(data.request || {}, null, 2);
     }
     stopRunFeedback();
-    setStatus("任务已加入队列", "ok");
+    setStatus(translate("taskSubmit.queued"), "ok");
     await window.refreshQueue?.();
     await refreshRecentAssets();
     renderPreview(data.task);
   } catch (error) {
     stopRunFeedback();
     const message = error instanceof DOMException && error.name === "AbortError"
-      ? "提交任务超时，后端没有及时返回。请刷新队列后确认是否已入队，再决定是否重试。"
-      : errorMessage(error, "任务提交失败");
+      ? translate("taskSubmit.timeout")
+      : errorMessage(error, translate("taskSubmit.failed"));
     markPendingTaskFailed(pendingTask.task_id, message);
     setStatus(message, "error");
   } finally {

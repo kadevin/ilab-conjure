@@ -1,15 +1,15 @@
 import type { WebUIState } from "./state";
 
 export const DEFAULT_GALLERY_CATEGORY_LABELS = {
-  portrait: "人像",
-  character: "角色",
-  product: "产品",
+  portrait: "\u4eba\u50cf",
+  character: "\u89d2\u8272",
+  product: "\u4ea7\u54c1",
 };
 
 export const DEFAULT_GALLERY_CATEGORIES = [
-  { id: "portrait", name: "人像", prompt_role: "人像参考", order: 10 },
-  { id: "character", name: "角色", prompt_role: "角色参考", order: 20 },
-  { id: "product", name: "产品", prompt_role: "产品参考", order: 30 },
+  { id: "portrait", name: "\u4eba\u50cf", prompt_role: "\u4eba\u50cf\u53c2\u8003", order: 10 },
+  { id: "character", name: "\u89d2\u8272", prompt_role: "\u89d2\u8272\u53c2\u8003", order: 20 },
+  { id: "product", name: "\u4ea7\u54c1", prompt_role: "\u4ea7\u54c1\u53c2\u8003", order: 30 },
 ];
 
 export const PROMPT_SNIPPETS_ENDPOINT = "/api/prompt-snippets";
@@ -62,14 +62,14 @@ export function createDefaultState(): WebUIState {
   colorPalette: {
     version: 1,
     favorites: [
-      { name: "白色", hex: "#FFFFFF", order: 10 },
-      { name: "黑色", hex: "#111111", order: 20 },
-      { name: "暖米色", hex: "#F6E8D8", order: 30 },
-      { name: "浅绿", hex: "#E6F0EC", order: 40 },
-      { name: "品牌绿", hex: "#457B66", order: 50 },
-      { name: "桃橙", hex: "#F4B183", order: 60 },
-      { name: "浅蓝", hex: "#B7D7F0", order: 70 },
-      { name: "浅粉", hex: "#F8D7DA", order: 80 },
+      { name: "\u767d\u8272", hex: "#FFFFFF", order: 10 },
+      { name: "\u9ed1\u8272", hex: "#111111", order: 20 },
+      { name: "\u6696\u7c73\u8272", hex: "#F6E8D8", order: 30 },
+      { name: "\u6d45\u7eff", hex: "#E6F0EC", order: 40 },
+      { name: "\u54c1\u724c\u7eff", hex: "#457B66", order: 50 },
+      { name: "\u6843\u6a59", hex: "#F4B183", order: 60 },
+      { name: "\u6d45\u84dd", hex: "#B7D7F0", order: 70 },
+      { name: "\u6d45\u7c89", hex: "#F8D7DA", order: 80 },
     ],
     recent_colors: [],
     recent_limit: 6,
