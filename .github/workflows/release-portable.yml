@@ -171,6 +171,12 @@ jobs:
       - macos-portable
     if: ${{ needs.resolve-release.outputs.tag != '' }}
     steps:
+      - name: Check out release notes
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-release.outputs.checkout-ref }}
+          fetch-depth: 1
+
       - name: Download portable artifacts
         uses: actions/download-artifact@v4
         with:
@@ -185,10 +191,19 @@ jobs:
         run: |
           set -euo pipefail
           release_version="${RELEASE_TAG#v}"
+          release_summary="$(awk '
+            /^当前版本：/ || /^本版重点：/ {
+              print
+              print ""
+            }
+          ' RELEASES.md)"
+          if [[ -z "${release_summary//[[:space:]]/}" ]]; then
+            release_summary="此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。"
+          fi
           cat > release-notes.md <<EOF
           ## 发布说明
 
-          此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。
+          ${release_summary}
           完整版本说明见 [RELEASES.md](https://github.com/${GITHUB_REPOSITORY}/blob/${RELEASE_TAG}/RELEASES.md)。
 
           ## 免安装一键包
