@@ -1,7 +1,7 @@
 <h1 align="center">iLab GPT Conjure</h1>
 
 <p align="center">
-  <sub>GPT-image-2 WebUI 工作台 · Codex Responses / OpenAI 兼容 API · 图库、Chip、模板与并发任务</sub>
+  <sub>GPT-image-2 WebUI 工作台 · Codex Responses / OpenAI 兼容 API · 图库、模板、历史库与并发任务</sub>
 </p>
 
 <p align="center">
@@ -34,8 +34,8 @@
 
 iLab GPT Conjure 是面向 GPT-image-2 的 AI 图片生成 WebUI 工作台，同时
 提供 CLI 便于本地自动化。它支持 Codex Responses 与 OpenAI 兼容 API 两种
-接入方式，并内置公用图库、多类型 chip 快捷引用、提示词模板、多任务并发
-和本地队列管理。
+接入方式，并内置公用图库、多类型 chip 快捷引用、提示词模板、多任务并发、
+分页历史库和本地队列管理。
 
 公开版推荐优先使用 OpenAI-compatible API 模式，通过你配置的供应商使用
 Images API 或 Responses API 形态。
@@ -46,10 +46,12 @@ Images API 或 Responses API 形态。
 
 - 面向 GPT-image-2 的文生图、参考图生成和图像编辑工作流。
 - 支持 Codex Responses 和 OpenAI 兼容 API 接入；公开或共享使用优先选择 API 模式。
-- 多任务并发、本地队列状态、历史记录、缩略图和结果归档。
+- 多任务并发、本地队列状态、分页历史库、缩略图和结果归档。
+- 独立 `/history` 页面支持 SQLite 分页、搜索、筛选、网格/列表视图和懒加载详情。
 - 单任务多图输出、部分失败处理和失败重试。
 - 公用图库、最近参考图、颜色 chip、提示词片段 chip 和提示词模板。
 - WebUI 支持中文 / English 语言切换，顶栏可直接切换语言，偏好保存在当前浏览器。
+- 免安装一键包内置一键更新脚本；启动脚本可检测最新 GitHub Release，并只显示更新提醒。
 - 高级本机 OAuth 工作流支持个人本地 Codex 使用，并明确提示接口风险。
 - API 供应商配置，支持 Base URL、API Key、图像模型、调用方式和并发上限。
 - CLI 支持生成、参考图、图像编辑、mask 和 dry-run。
@@ -117,7 +119,7 @@ http://127.0.0.1:8787/
 ## 免安装一键包
 
 当前可用的一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.3.4](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.4)。
+[GitHub Release v0.3.5](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.5)。
 
 这些包面向希望像 ComfyUI 一样“解压即用”的用户：
 
@@ -169,7 +171,7 @@ CI 的 tag，也可以手动运行同一个 workflow，并填写 `ref` 与 `rele
    保真或创意提示词模式。
 4. 设置数量、尺寸、方向、质量、输出格式和压缩率。
 5. 点击开始生成后，在左侧任务列表查看运行中和排队任务，在右侧预览区查看、
-   精选、重试、下载、打包或归档结果。
+   精选、重试、下载、打包或归档结果；完整历史在 `/history` 中搜索和筛选。
 
 ## 公用图库（公共图库）
 
@@ -237,9 +239,17 @@ GitHub CI 会在 pull request 和推送到 `main` 时运行 Python 测试和 Web
 该许可证只适用于本项目代码，不授权项目名称、Logo、个人素材、API 凭据、用户
 提示词、输入图、输出图，或软件调用的模型/API 服务。
 
-## 联系作者
+## 交流与定制开发
 
 欢迎添加微信交流 AI 编程、AI 生图和本地图片生成工作流经验。
+
+也接受合适的定制开发需求：
+
+- 定制软件工具：本地工作台、内部自动化、批量处理、数据看板和 AI 生产流程。
+- 企业网站：企业官网、产品展示、活动落地页和轻量后台管理系统。
+- 智能体网站：客服问答、知识库检索、内容生成和业务流程助手类 Web 应用。
+
+扫码添加微信时，可以备注 `iLab GPT Conjure` 或 `定制开发`，方便快速对齐需求。
 
 <p align="center">
   <img src="assets/wechat-qr.jpg" alt="iLab WeChat QR Code" width="240" />

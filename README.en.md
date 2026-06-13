@@ -1,7 +1,7 @@
 <h1 align="center">iLab GPT Conjure</h1>
 
 <p align="center">
-  <sub>GPT-image-2 WebUI workbench · Codex Responses / OpenAI-compatible API · Gallery, chips, templates, and concurrent tasks.</sub>
+  <sub>GPT-image-2 WebUI workbench · Codex Responses / OpenAI-compatible API · Gallery, templates, history, and concurrent tasks.</sub>
 </p>
 
 <p align="center">
@@ -35,7 +35,8 @@
 iLab GPT Conjure is an AI image generation WebUI workbench for GPT-image-2, with
 a companion CLI for local automation. It supports both Codex Responses and
 OpenAI-compatible API access, and includes shared gallery references, multi-type
-quick chips, prompt templates, concurrent tasks, and local queue management.
+quick chips, prompt templates, concurrent tasks, a paged history library, and
+local queue management.
 
 The recommended public integration path is OpenAI-compatible API mode, using
 the Images API or Responses API shape provided by your configured provider.
@@ -48,12 +49,16 @@ Download portable packages from [Downloads / Releases](RELEASES.md).
   workflows.
 - Codex Responses and OpenAI-compatible API access, with the API path
   recommended for public or shared use.
-- Concurrent task execution, local queue state, history, thumbnails, and result
-  archive.
+- Concurrent task execution, local queue state, paged history library,
+  thumbnails, and result archive.
+- Independent `/history` page with SQLite-backed pagination, search, filters,
+  grid/list views, and lazy detail loading.
 - Shared gallery references, recent reference images, color chips, prompt
   snippet chips, and reusable prompt templates.
 - Chinese / English WebUI localization with a top-bar language switch and a
   browser-local language preference.
+- Portable packages include one-click update scripts. Startup scripts can check
+  the latest GitHub Release and only print an update reminder.
 - Advanced local OAuth mode for personal Codex workflows, with clear risk
   warnings and no account-usage probing.
 - API provider profiles with configurable base URL, API key, image model, API
@@ -126,7 +131,7 @@ http://127.0.0.1:8787/
 ## Portable packages
 
 Download the current portable packages from [Downloads / Releases](RELEASES.md),
-or open [GitHub Release v0.3.4](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.4)
+or open [GitHub Release v0.3.5](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.5)
 directly.
 
 These packages are intended for users who want a ComfyUI-style unzip-and-run
@@ -264,10 +269,22 @@ This license applies to the software code. It does not grant rights to the
 project name, logo, personal assets, API credentials, user prompts, input
 images, output images, or model/API services used with the software.
 
-## Contact
+## Contact And Custom Work
 
 Feel free to connect on WeChat to discuss AI programming, AI image generation,
 and local image generation workflows.
+
+I also take selected custom development work:
+
+- Local software tools: internal workbenches, batch automation, data dashboards,
+  and AI-assisted production workflows.
+- Business websites: company sites, product showcases, landing pages, and
+  lightweight admin systems.
+- Agent-powered websites: customer support, knowledge-base Q&A, content
+  generation, and workflow assistant web apps.
+
+Scan the QR code and mention `iLab GPT Conjure` or `custom development` so I can
+understand the context quickly.
 
 <p align="center">
   <img src="assets/wechat-qr.jpg" alt="iLab WeChat QR Code" width="240" />

@@ -128,7 +128,11 @@ function ensureLightboxElement(): HTMLDivElement {
   lightboxEl.setAttribute("aria-modal", "true");
   lightboxEl.setAttribute("aria-label", translate("lightbox.label"));
   lightboxEl.innerHTML = `
-      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">×</button>
+      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">
+        <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
       <button class="lightbox-nav lightbox-prev" type="button" aria-label="${translate("lightbox.previous")}">&lsaquo;</button>
       <img id="lightboxImg" src="" alt="" draggable="false">
       <button class="lightbox-nav lightbox-next" type="button" aria-label="${translate("lightbox.next")}">&rsaquo;</button>

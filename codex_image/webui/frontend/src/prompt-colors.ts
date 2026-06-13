@@ -84,36 +84,45 @@ function renderColorSuggest(match: any) {
   const recentColors = recentColorsForDisplay();
   const selected = queryColor || state.selectedColorCode || recentColors[0] || favoriteColors[0]?.hex || DEFAULT_COLOR_CODE;
   state.selectedColorCode = selected;
+  const editingColor = state.activeColorChip ? normalizeHexColor(state.activeColorChip.dataset.colorCode) || DEFAULT_COLOR_CODE : "";
+  const isEditingDirty = Boolean(editingColor && selected !== editingColor);
   const typedValue = match.query ? `#${match.query.toUpperCase()}` : selected;
   const actionLabel = state.activeColorChip ? translate("colors.update") : translate("colors.insert");
   const swatchRowClass = state.colorPaletteManageMode ? "color-swatch-row is-managing" : "color-swatch-row";
+  const swatchButtons = [
+    ...favoriteColors.map((item: any) => colorSwatchButton(item.hex, item.name, { removable: state.colorPaletteManageMode })),
+    ...recentColors.map((color: any) => colorSwatchButton(color, translate("colors.recentLabel"))),
+  ].join("");
   els.colorSuggest.innerHTML = `
-    <div class="color-suggest-main">
-      <label class="color-picker-control" title="${escapeHtml(translate("colors.pick"))}">
-        <input type="color" value="${escapeHtml(selected)}" data-color-picker>
-        <span>${escapeHtml(translate("colors.pickShort"))}</span>
-      </label>
-      <input class="color-hex-input" type="text" value="${escapeHtml(typedValue)}" maxlength="7" spellcheck="false" data-color-hex-input>
-      <button class="ghost-button text-sm color-insert-button" type="button" data-insert-color>${actionLabel}</button>
-    </div>
-    <div class="color-suggest-actions">
-      <input class="color-name-input" type="text" value="${escapeHtml(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="${escapeHtml(translate("colors.favoriteNamePlaceholder"))}" data-color-name-input>
-      <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml(translate("colors.save"))}</button>
-      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml(translate("colors.exportPs"))}</a>
-      <label class="ghost-button text-sm color-import-label" data-color-palette-import>
-        ${escapeHtml(translate("colors.importPs"))}
-        <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
-      </label>
-      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml(state.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
+    <div class="color-suggest-main" data-color-original="${escapeHtml(editingColor)}">
+      <div class="color-value-control${isEditingDirty ? " is-dirty" : ""}" data-color-value-control>
+        <label class="color-picker-control" title="${escapeHtml(translate("colors.pick"))}" aria-label="${escapeHtml(translate("colors.pick"))}">
+          <input class="color-picker-input" type="color" value="${escapeHtml(selected)}" data-color-picker>
+          <span class="color-picker-swatch" style="--active-color: ${escapeHtml(selected)}">
+            <svg class="color-picker-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M14.5 4.5l5 5-8.8 8.8H6.5v-4.2l8-9.6z"></path>
+              <path d="M12.7 6.4l4.9 4.9"></path>
+            </svg>
+            <span class="color-picker-label">${escapeHtml(translate("colors.pickShort"))}</span>
+          </span>
+        </label>
+        <input class="color-hex-input" type="text" value="${escapeHtml(typedValue)}" maxlength="7" spellcheck="false" aria-label="${escapeHtml(translate("colors.hexValue"))}" data-color-hex-input>
+      </div>
+      <button class="ghost-button text-sm color-insert-button${isEditingDirty ? " is-dirty" : ""}" type="button" data-insert-color${editingColor && !isEditingDirty ? " disabled" : ""}>${actionLabel}</button>
+      <div class="color-suggest-actions">
+        <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml(translate("colors.save"))}</button>
+        <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml(translate("colors.exportPs"))}</a>
+        <label class="ghost-button text-sm color-import-label" data-color-palette-import>
+          ${escapeHtml(translate("colors.importPs"))}
+          <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
+        </label>
+        <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml(state.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
+      </div>
+      <div class="color-update-hint${isEditingDirty ? "" : " hidden"}" role="status" aria-live="polite" data-color-update-hint>${escapeHtml(translate("colors.pendingUpdate"))}</div>
     </div>
     <div class="${swatchRowClass}" aria-label="${escapeHtml(translate("colors.favorites"))}">
-      ${favoriteColors.map((item: any) => colorSwatchButton(item.hex, item.name, { removable: state.colorPaletteManageMode })).join("")}
+      ${swatchButtons}
     </div>
-    ${recentColors.length ? `
-      <div class="color-recent-row" aria-label="${escapeHtml(translate("colors.recent"))}">
-        ${recentColors.map((color: any) => colorSwatchButton(color, translate("colors.recentLabel"))).join("")}
-      </div>
-    ` : ""}
   `;
   bindColorSuggestEvents();
 }
@@ -126,12 +135,17 @@ function colorNameForHex(colorCode: any) {
 
 function colorSwatchButton(color: any, label: any = "", { removable = false } = {}) {
   const normalized = normalizeHexColor(color) || DEFAULT_COLOR_CODE;
+  const deleteLabel = escapeHtml(formatTranslation("colors.deleteFavorite", { name: label || normalized }));
   return `
     <span class="color-swatch-item">
       <button class="color-swatch-button" type="button" title="${escapeHtml(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml(normalized)}" style="--swatch-color: ${escapeHtml(normalized)}">
         <span>${escapeHtml(label ? `${label} ${normalized}` : normalized)}</span>
       </button>
-      ${removable ? `<button class="color-swatch-remove" type="button" title="${escapeHtml(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" aria-label="${escapeHtml(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" data-remove-favorite-color="${escapeHtml(normalized)}">×</button>` : ""}
+      ${removable ? `<button class="color-swatch-remove" type="button" title="${deleteLabel}" aria-label="${deleteLabel}" data-remove-favorite-color="${escapeHtml(normalized)}">
+        <svg class="color-swatch-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M7 7L17 17M17 7L7 17"></path>
+        </svg>
+      </button>` : ""}
     </span>
   `;
 }
@@ -140,28 +154,43 @@ function bindColorSuggestEvents() {
   if (!els.colorSuggest) return;
   const picker = els.colorSuggest.querySelector("[data-color-picker]");
   const input = els.colorSuggest.querySelector("[data-color-hex-input]");
-  const nameInput = els.colorSuggest.querySelector("[data-color-name-input]");
   const insert = els.colorSuggest.querySelector("[data-insert-color]");
+  const swatchPreview = els.colorSuggest.querySelector(".color-picker-swatch");
+  const valueControl = els.colorSuggest.querySelector("[data-color-value-control]");
+  const hint = els.colorSuggest.querySelector("[data-color-update-hint]");
+  const originalColor = normalizeHexColor(els.colorSuggest.querySelector("[data-color-original]")?.dataset.colorOriginal);
   const keepPromptFocus = (event: any) => event.preventDefault();
+  const updateDraftState = (value: any) => {
+    const normalized = normalizeHexColor(value);
+    const isDirty = Boolean(originalColor && normalized && normalized !== originalColor);
+    valueControl?.classList.toggle("is-dirty", isDirty);
+    insert?.classList.toggle("is-dirty", isDirty);
+    if (insert && originalColor) insert.disabled = !isDirty;
+    hint?.classList.toggle("hidden", !isDirty);
+    if (swatchPreview && normalized) swatchPreview.style.setProperty("--active-color", normalized);
+  };
   const syncColor = (value: any) => {
     const normalized = normalizeHexColor(value);
     if (!normalized) return;
     state.selectedColorCode = normalized;
     if (picker) picker.value = normalized;
     if (input) input.value = normalized;
-    if (nameInput) nameInput.value = colorNameForHex(normalized) || "";
+    updateDraftState(normalized);
   };
+  updateDraftState(input?.value || state.selectedColorCode);
   picker?.addEventListener("input", () => syncColor(picker.value));
   input?.addEventListener("input", () => {
     const normalized = normalizeHexColor(input.value);
+    updateDraftState(input.value);
     if (!normalized) return;
     state.selectedColorCode = normalized;
     if (picker) picker.value = normalized;
+    if (swatchPreview) swatchPreview.style.setProperty("--active-color", normalized);
   });
   input?.addEventListener("keydown", (event: any) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      insertColorCode(input.value);
+      if (!insert?.disabled) insertColorCode(input.value);
     }
     if (event.key === "Escape") {
       event.preventDefault();
@@ -171,7 +200,10 @@ function bindColorSuggestEvents() {
   });
   insert?.addEventListener("pointerdown", keepPromptFocus);
   insert?.addEventListener("mousedown", keepPromptFocus);
-  insert?.addEventListener("click", () => insertColorCode(input?.value || state.selectedColorCode));
+  insert?.addEventListener("click", () => {
+    if (insert.disabled) return;
+    insertColorCode(input?.value || state.selectedColorCode);
+  });
   const saveFavorite = els.colorSuggest.querySelector("[data-save-favorite-color]");
   saveFavorite?.addEventListener("pointerdown", keepPromptFocus);
   saveFavorite?.addEventListener("mousedown", keepPromptFocus);
@@ -202,7 +234,14 @@ function bindColorSuggestEvents() {
   els.colorSuggest.querySelectorAll("[data-color-swatch]").forEach((button: any) => {
     button.addEventListener("pointerdown", keepPromptFocus);
     button.addEventListener("mousedown", keepPromptFocus);
-    button.addEventListener("click", () => insertColorCode(button.dataset.colorSwatch));
+    button.addEventListener("click", () => {
+      if (state.activeColorChip) {
+        syncColor(button.dataset.colorSwatch);
+        input?.focus({ preventScroll: true });
+        return;
+      }
+      insertColorCode(button.dataset.colorSwatch);
+    });
   });
   els.colorSuggest.querySelectorAll("[data-remove-favorite-color]").forEach((button: any) => {
     button.addEventListener("pointerdown", keepPromptFocus);

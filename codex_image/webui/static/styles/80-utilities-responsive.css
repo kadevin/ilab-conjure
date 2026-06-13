@@ -250,7 +250,7 @@ button:disabled {
 
   .controls-col .prompt-box {
     flex: 1 1 auto;
-    min-height: 84px;
+    min-height: 0;
     height: 100%;
     max-height: 100%;
     overflow-y: auto;
@@ -258,12 +258,13 @@ button:disabled {
   }
 
   .controls-col .prompt-compose .run-button {
-    min-height: 84px;
+    min-height: 0;
     height: 100%;
+    max-height: 100%;
   }
 
   .prompt-template-row {
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .prompt-footer .ghost-button,

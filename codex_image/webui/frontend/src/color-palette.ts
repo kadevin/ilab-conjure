@@ -161,12 +161,11 @@ function rememberRecentColor(colorCode) {
 
 async function saveFavoriteColor() {
   const input = els.colorSuggest?.querySelector("[data-color-hex-input]");
-  const nameInput = els.colorSuggest?.querySelector("[data-color-name-input]");
   const normalized = normalizeHexColor(input?.value || state.selectedColorCode);
   if (!normalized) return;
   const favorites = favoriteColorsForDisplay().filter((item) => item.hex !== normalized);
   favorites.push({
-    name: String(nameInput?.value || normalized).trim() || normalized,
+    name: normalized,
     hex: normalized,
     order: (favorites.length + 1) * 10,
   });

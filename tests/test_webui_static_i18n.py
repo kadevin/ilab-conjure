@@ -170,6 +170,8 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
             "queue.queuedDeleted",
             "queue.reorderFailed",
             "queue.runningCancelled",
+            "colors.hexValue",
+            "colors.pendingUpdate",
         ):
             self.assertIn(f'"{key}"', i18n_source)
 

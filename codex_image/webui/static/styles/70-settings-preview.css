@@ -1428,12 +1428,14 @@ body.lightbox-open {
   left: 22px;
   width: 42px;
   height: 42px;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.14);
   color: white;
-  font-size: 24px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   backdrop-filter: blur(8px);
 }

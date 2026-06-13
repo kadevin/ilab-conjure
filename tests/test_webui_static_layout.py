@@ -135,8 +135,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-290', html)
-        self.assertIn('/static/styles.css?v=runtime-290', html)
+        self.assertIn('/static/app.js?v=runtime-298', html)
+        self.assertIn('/static/styles.css?v=runtime-298', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertRegex(html, r'class="image-input-footer"[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'id="recentAssetDock"[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -1113,7 +1113,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         )
         self.assertRegex(
             styles,
-            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-box\s*\{[^}]*min-height:\s*84px",
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-box\s*\{[^}]*min-height:\s*0",
         )
         self.assertRegex(
             styles,
@@ -1129,7 +1129,15 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         )
         self.assertRegex(
             styles,
-            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-compose\s+\.run-button\s*\{[^}]*height:\s*84px",
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-compose\s+\.run-button\s*\{[^}]*min-height:\s*0",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-compose\s+\.run-button\s*\{[^}]*height:\s*100%",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.prompt-template-row\s*\{[^}]*margin-top:\s*6px",
         )
         self.assertRegex(
             styles,
@@ -2375,13 +2383,22 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.lightbox\s*\{[^}]*display:\s*none", "lightbox should be hidden when inactive")
         self.assertRegex(styles, r"\.lightbox\.active\s*\{[^}]*display:\s*flex", "active lightbox should be visible")
         self.assertRegex(styles, r"\.lightbox-close\s*\{[^}]*position:\s*absolute", "close button should stay inside the overlay")
+        self.assertRegex(styles, r"\.lightbox-close\s*\{[^}]*display:\s*inline-flex", "close icon should not rely on glyph line-height")
+        self.assertRegex(styles, r"\.lightbox-close\s*\{[^}]*align-items:\s*center", "close icon should be vertically centered")
+        self.assertRegex(styles, r"\.lightbox-close\s*\{[^}]*justify-content:\s*center", "close icon should be horizontally centered")
+
     def test_lightbox_can_close_with_button_and_escape(self) -> None:
         script = self._frontend_script_source()
+        lightbox_source = self._lightbox_source()
 
         self.assertIn("lightboxClose", script)
         self.assertIn("addEventListener(\"click\", closeLightbox)", script)
         self.assertIn("addEventListener(\"keydown\"", script)
         self.assertIn('event.key === "Escape"', script)
+        self.assertIn('class="drawer-close-icon"', lightbox_source)
+        self.assertIn('<path d="M6 6l12 12M18 6L6 18"></path>', lightbox_source)
+        self.assertNotIn('aria-label="${translate("lightbox.close")}">×</button>', lightbox_source)
+
     def test_lightbox_can_navigate_multiple_outputs(self) -> None:
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -2542,8 +2559,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-290', html)
-        self.assertIn('/static/styles.css?v=runtime-290', html)
+        self.assertIn('/static/app.js?v=runtime-298', html)
+        self.assertIn('/static/styles.css?v=runtime-298', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -2832,8 +2849,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-290", html)
-        self.assertIn("/static/styles.css?v=runtime-290", html)
+        self.assertIn("/static/app.js?v=runtime-298", html)
+        self.assertIn("/static/styles.css?v=runtime-298", html)
         self.assertIn('const THEME_STORAGE_KEY = "codex-image-theme-preference";', script)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

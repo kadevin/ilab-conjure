@@ -1007,10 +1007,11 @@
       "colors.insert": "\u63D2\u5165",
       "colors.pick": "\u9009\u62E9\u989C\u8272",
       "colors.pickShort": "\u53D6\u8272",
-      "colors.favoriteNamePlaceholder": "\u5E38\u7528\u8272\u540D\u79F0",
+      "colors.hexValue": "\u989C\u8272\u503C",
+      "colors.pendingUpdate": "\u989C\u8272\u5DF2\u4FEE\u6539\uFF0C\u70B9\u51FB\u66F4\u65B0\u751F\u6548",
       "colors.save": "\u4FDD\u5B58",
-      "colors.exportPs": "\u5BFC\u51FA PS",
-      "colors.importPs": "\u5BFC\u5165 PS",
+      "colors.exportPs": "\u5BFC\u51FA",
+      "colors.importPs": "\u5BFC\u5165",
       "colors.done": "\u5B8C\u6210",
       "colors.manage": "\u7BA1\u7406",
       "colors.favorites": "\u5E38\u7528\u989C\u8272",
@@ -1770,10 +1771,11 @@
       "colors.insert": "Insert",
       "colors.pick": "Choose color",
       "colors.pickShort": "Pick",
-      "colors.favoriteNamePlaceholder": "Favorite color name",
+      "colors.hexValue": "Color value",
+      "colors.pendingUpdate": "Color changed. Click Update to apply.",
       "colors.save": "Save",
-      "colors.exportPs": "Export PS",
-      "colors.importPs": "Import PS",
+      "colors.exportPs": "Export",
+      "colors.importPs": "Import",
       "colors.done": "Done",
       "colors.manage": "Manage",
       "colors.favorites": "Favorite colors",
@@ -6822,12 +6824,11 @@ ${hint}` : hint;
   }
   async function saveFavoriteColor() {
     const input = els12.colorSuggest?.querySelector("[data-color-hex-input]");
-    const nameInput = els12.colorSuggest?.querySelector("[data-color-name-input]");
     const normalized = normalizeHexColor(input?.value || state10.selectedColorCode);
     if (!normalized) return;
     const favorites = favoriteColorsForDisplay().filter((item) => item.hex !== normalized);
     favorites.push({
-      name: String(nameInput?.value || normalized).trim() || normalized,
+      name: normalized,
       hex: normalized,
       order: (favorites.length + 1) * 10
     });
@@ -7051,36 +7052,45 @@ ${hint}` : hint;
     const recentColors = recentColorsForDisplay2();
     const selected = queryColor || state11.selectedColorCode || recentColors[0] || favoriteColors[0]?.hex || DEFAULT_COLOR_CODE2;
     state11.selectedColorCode = selected;
+    const editingColor = state11.activeColorChip ? normalizeHexColor2(state11.activeColorChip.dataset.colorCode) || DEFAULT_COLOR_CODE2 : "";
+    const isEditingDirty = Boolean(editingColor && selected !== editingColor);
     const typedValue = match.query ? `#${match.query.toUpperCase()}` : selected;
     const actionLabel = state11.activeColorChip ? translate("colors.update") : translate("colors.insert");
     const swatchRowClass = state11.colorPaletteManageMode ? "color-swatch-row is-managing" : "color-swatch-row";
+    const swatchButtons = [
+      ...favoriteColors.map((item) => colorSwatchButton(item.hex, item.name, { removable: state11.colorPaletteManageMode })),
+      ...recentColors.map((color) => colorSwatchButton(color, translate("colors.recentLabel")))
+    ].join("");
     els13.colorSuggest.innerHTML = `
-    <div class="color-suggest-main">
-      <label class="color-picker-control" title="${escapeHtml8(translate("colors.pick"))}">
-        <input type="color" value="${escapeHtml8(selected)}" data-color-picker>
-        <span>${escapeHtml8(translate("colors.pickShort"))}</span>
-      </label>
-      <input class="color-hex-input" type="text" value="${escapeHtml8(typedValue)}" maxlength="7" spellcheck="false" data-color-hex-input>
-      <button class="ghost-button text-sm color-insert-button" type="button" data-insert-color>${actionLabel}</button>
-    </div>
-    <div class="color-suggest-actions">
-      <input class="color-name-input" type="text" value="${escapeHtml8(colorNameForHex(selected) || "")}" maxlength="48" spellcheck="false" placeholder="${escapeHtml8(translate("colors.favoriteNamePlaceholder"))}" data-color-name-input>
-      <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml8(translate("colors.save"))}</button>
-      <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml8(translate("colors.exportPs"))}</a>
-      <label class="ghost-button text-sm color-import-label" data-color-palette-import>
-        ${escapeHtml8(translate("colors.importPs"))}
-        <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
-      </label>
-      <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml8(state11.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
+    <div class="color-suggest-main" data-color-original="${escapeHtml8(editingColor)}">
+      <div class="color-value-control${isEditingDirty ? " is-dirty" : ""}" data-color-value-control>
+        <label class="color-picker-control" title="${escapeHtml8(translate("colors.pick"))}" aria-label="${escapeHtml8(translate("colors.pick"))}">
+          <input class="color-picker-input" type="color" value="${escapeHtml8(selected)}" data-color-picker>
+          <span class="color-picker-swatch" style="--active-color: ${escapeHtml8(selected)}">
+            <svg class="color-picker-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M14.5 4.5l5 5-8.8 8.8H6.5v-4.2l8-9.6z"></path>
+              <path d="M12.7 6.4l4.9 4.9"></path>
+            </svg>
+            <span class="color-picker-label">${escapeHtml8(translate("colors.pickShort"))}</span>
+          </span>
+        </label>
+        <input class="color-hex-input" type="text" value="${escapeHtml8(typedValue)}" maxlength="7" spellcheck="false" aria-label="${escapeHtml8(translate("colors.hexValue"))}" data-color-hex-input>
+      </div>
+      <button class="ghost-button text-sm color-insert-button${isEditingDirty ? " is-dirty" : ""}" type="button" data-insert-color${editingColor && !isEditingDirty ? " disabled" : ""}>${actionLabel}</button>
+      <div class="color-suggest-actions">
+        <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml8(translate("colors.save"))}</button>
+        <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml8(translate("colors.exportPs"))}</a>
+        <label class="ghost-button text-sm color-import-label" data-color-palette-import>
+          ${escapeHtml8(translate("colors.importPs"))}
+          <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
+        </label>
+        <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml8(state11.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
+      </div>
+      <div class="color-update-hint${isEditingDirty ? "" : " hidden"}" role="status" aria-live="polite" data-color-update-hint>${escapeHtml8(translate("colors.pendingUpdate"))}</div>
     </div>
     <div class="${swatchRowClass}" aria-label="${escapeHtml8(translate("colors.favorites"))}">
-      ${favoriteColors.map((item) => colorSwatchButton(item.hex, item.name, { removable: state11.colorPaletteManageMode })).join("")}
+      ${swatchButtons}
     </div>
-    ${recentColors.length ? `
-      <div class="color-recent-row" aria-label="${escapeHtml8(translate("colors.recent"))}">
-        ${recentColors.map((color) => colorSwatchButton(color, translate("colors.recentLabel"))).join("")}
-      </div>
-    ` : ""}
   `;
     bindColorSuggestEvents();
   }
@@ -7091,12 +7101,17 @@ ${hint}` : hint;
   }
   function colorSwatchButton(color, label = "", { removable = false } = {}) {
     const normalized = normalizeHexColor2(color) || DEFAULT_COLOR_CODE2;
+    const deleteLabel = escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }));
     return `
     <span class="color-swatch-item">
       <button class="color-swatch-button" type="button" title="${escapeHtml8(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml8(normalized)}" style="--swatch-color: ${escapeHtml8(normalized)}">
         <span>${escapeHtml8(label ? `${label} ${normalized}` : normalized)}</span>
       </button>
-      ${removable ? `<button class="color-swatch-remove" type="button" title="${escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" aria-label="${escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }))}" data-remove-favorite-color="${escapeHtml8(normalized)}">\xD7</button>` : ""}
+      ${removable ? `<button class="color-swatch-remove" type="button" title="${deleteLabel}" aria-label="${deleteLabel}" data-remove-favorite-color="${escapeHtml8(normalized)}">
+        <svg class="color-swatch-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M7 7L17 17M17 7L7 17"></path>
+        </svg>
+      </button>` : ""}
     </span>
   `;
   }
@@ -7104,28 +7119,43 @@ ${hint}` : hint;
     if (!els13.colorSuggest) return;
     const picker = els13.colorSuggest.querySelector("[data-color-picker]");
     const input = els13.colorSuggest.querySelector("[data-color-hex-input]");
-    const nameInput = els13.colorSuggest.querySelector("[data-color-name-input]");
     const insert = els13.colorSuggest.querySelector("[data-insert-color]");
+    const swatchPreview = els13.colorSuggest.querySelector(".color-picker-swatch");
+    const valueControl = els13.colorSuggest.querySelector("[data-color-value-control]");
+    const hint = els13.colorSuggest.querySelector("[data-color-update-hint]");
+    const originalColor = normalizeHexColor2(els13.colorSuggest.querySelector("[data-color-original]")?.dataset.colorOriginal);
     const keepPromptFocus = (event) => event.preventDefault();
+    const updateDraftState = (value) => {
+      const normalized = normalizeHexColor2(value);
+      const isDirty = Boolean(originalColor && normalized && normalized !== originalColor);
+      valueControl?.classList.toggle("is-dirty", isDirty);
+      insert?.classList.toggle("is-dirty", isDirty);
+      if (insert && originalColor) insert.disabled = !isDirty;
+      hint?.classList.toggle("hidden", !isDirty);
+      if (swatchPreview && normalized) swatchPreview.style.setProperty("--active-color", normalized);
+    };
     const syncColor = (value) => {
       const normalized = normalizeHexColor2(value);
       if (!normalized) return;
       state11.selectedColorCode = normalized;
       if (picker) picker.value = normalized;
       if (input) input.value = normalized;
-      if (nameInput) nameInput.value = colorNameForHex(normalized) || "";
+      updateDraftState(normalized);
     };
+    updateDraftState(input?.value || state11.selectedColorCode);
     picker?.addEventListener("input", () => syncColor(picker.value));
     input?.addEventListener("input", () => {
       const normalized = normalizeHexColor2(input.value);
+      updateDraftState(input.value);
       if (!normalized) return;
       state11.selectedColorCode = normalized;
       if (picker) picker.value = normalized;
+      if (swatchPreview) swatchPreview.style.setProperty("--active-color", normalized);
     });
     input?.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        insertColorCode(input.value);
+        if (!insert?.disabled) insertColorCode(input.value);
       }
       if (event.key === "Escape") {
         event.preventDefault();
@@ -7135,7 +7165,10 @@ ${hint}` : hint;
     });
     insert?.addEventListener("pointerdown", keepPromptFocus);
     insert?.addEventListener("mousedown", keepPromptFocus);
-    insert?.addEventListener("click", () => insertColorCode(input?.value || state11.selectedColorCode));
+    insert?.addEventListener("click", () => {
+      if (insert.disabled) return;
+      insertColorCode(input?.value || state11.selectedColorCode);
+    });
     const saveFavorite = els13.colorSuggest.querySelector("[data-save-favorite-color]");
     saveFavorite?.addEventListener("pointerdown", keepPromptFocus);
     saveFavorite?.addEventListener("mousedown", keepPromptFocus);
@@ -7166,7 +7199,14 @@ ${hint}` : hint;
     els13.colorSuggest.querySelectorAll("[data-color-swatch]").forEach((button) => {
       button.addEventListener("pointerdown", keepPromptFocus);
       button.addEventListener("mousedown", keepPromptFocus);
-      button.addEventListener("click", () => insertColorCode(button.dataset.colorSwatch));
+      button.addEventListener("click", () => {
+        if (state11.activeColorChip) {
+          syncColor(button.dataset.colorSwatch);
+          input?.focus({ preventScroll: true });
+          return;
+        }
+        insertColorCode(button.dataset.colorSwatch);
+      });
     });
     els13.colorSuggest.querySelectorAll("[data-remove-favorite-color]").forEach((button) => {
       button.addEventListener("pointerdown", keepPromptFocus);
@@ -17819,7 +17859,11 @@ ${galleryText}`;
     lightboxEl.setAttribute("aria-modal", "true");
     lightboxEl.setAttribute("aria-label", translate("lightbox.label"));
     lightboxEl.innerHTML = `
-      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">\xD7</button>
+      <button class="lightbox-close" type="button" aria-label="${translate("lightbox.close")}">
+        <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
       <button class="lightbox-nav lightbox-prev" type="button" aria-label="${translate("lightbox.previous")}">&lsaquo;</button>
       <img id="lightboxImg" src="" alt="" draggable="false">
       <button class="lightbox-nav lightbox-next" type="button" aria-label="${translate("lightbox.next")}">&rsaquo;</button>
