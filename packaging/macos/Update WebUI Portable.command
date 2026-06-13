@@ -7,6 +7,7 @@ REPO_SLUG="kadevin/ilab-gpt-conjure"
 LATEST_RELEASE_URL="https://api.github.com/repos/kadevin/ilab-gpt-conjure/releases/latest"
 BUNDLE_DIR="$(cd "$(dirname "$0")" && pwd)"
 DATA_DIR="${BUNDLE_DIR}/data"
+VERSION_FILE="${BUNDLE_DIR}/portable-version.txt"
 PYTHON_BIN="${BUNDLE_DIR}/python/Python.framework/Versions/3.11/bin/python3"
 HOST_ARCH="$(uname -m)"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
@@ -40,6 +41,7 @@ REPLACE_ITEMS=(
   "THIRD_PARTY_NOTICES.md"
   "LICENSE"
   "python-requirements.lock.txt"
+  "portable-version.txt"
 )
 
 step() {
@@ -80,6 +82,32 @@ fail_update() {
 
 trap cleanup EXIT
 
+current_portable_version() {
+  if [[ ! -f "$VERSION_FILE" ]]; then
+    return 0
+  fi
+  head -n 1 "$VERSION_FILE" | tr -d '[:space:]'
+}
+
+version_is_current_or_newer() {
+  "$PYTHON_BIN" - "$1" "$2" <<'PY'
+import re
+import sys
+
+
+def parse(value):
+    match = re.match(r"^[vV]?(\d+)\.(\d+)\.(\d+)", str(value or "").strip())
+    if not match:
+        return None
+    return tuple(int(part) for part in match.groups())
+
+
+current = parse(sys.argv[1])
+latest = parse(sys.argv[2])
+print("1" if current and latest and current >= latest else "0")
+PY
+}
+
 if [[ ! -x "$PYTHON_BIN" ]]; then
   echo "Portable Python was not found at ${PYTHON_BIN}." >&2
   read -r "?Press Enter to close..."
@@ -89,11 +117,8 @@ fi
 echo "iLab GPT Conjure portable updater"
 echo "Bundle: ${BUNDLE_DIR}"
 echo "Data:   ${DATA_DIR}"
-echo ""
-echo "Close the WebUI server window before updating."
-read -r "?Press Enter to continue..."
 
-mkdir -p "$DATA_DIR" "$EXTRACT_DIR" "$BACKUP_DIR"
+mkdir -p "$DATA_DIR" "$EXTRACT_DIR"
 
 step "Checking latest release"
 RELEASE_JSON="${TEMP_ROOT}/release.json"
@@ -146,6 +171,26 @@ ZIP_URL="$(printf "%s\n" "$ASSET_INFO" | sed -n '3p')"
 HASH_NAME="$(printf "%s\n" "$ASSET_INFO" | sed -n '4p')"
 HASH_URL="$(printf "%s\n" "$ASSET_INFO" | sed -n '5p')"
 
+CURRENT_VERSION="$(current_portable_version)"
+if [[ "$(version_is_current_or_newer "$CURRENT_VERSION" "$RELEASE_TAG")" == "1" ]]; then
+  echo ""
+  echo "Already up to date (${RELEASE_TAG})."
+  echo "No app files were changed."
+  read -r "?Press Enter to close..."
+  exit 0
+fi
+
+echo ""
+if [[ -n "$CURRENT_VERSION" ]]; then
+  echo "Current version: ${CURRENT_VERSION}"
+else
+  echo "Current version: unknown"
+fi
+echo "Latest version:  ${RELEASE_TAG}"
+echo ""
+echo "Close the WebUI server window before updating."
+read -r "?Press Enter to continue..."
+
 ZIP_PATH="${TEMP_ROOT}/${ZIP_NAME}"
 HASH_PATH="${TEMP_ROOT}/${HASH_NAME}"
 
@@ -174,11 +219,13 @@ if [[ ! -d "${NEW_ROOT}/app" ]]; then
   fi
 fi
 
-for required_item in "app" "python" "Start WebUI Portable.command"; do
+for required_item in "app" "python" "Start WebUI Portable.command" "portable-version.txt"; do
   if [[ ! -e "${NEW_ROOT}/${required_item}" ]]; then
     fail_update "Downloaded package is missing required item: ${required_item}"
   fi
 done
+
+mkdir -p "$BACKUP_DIR"
 
 step "Backing up current app files"
 for item in "${REPLACE_ITEMS[@]}"; do

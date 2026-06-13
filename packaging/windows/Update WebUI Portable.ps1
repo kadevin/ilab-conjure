@@ -5,6 +5,7 @@ $LatestReleaseUrl = "https://api.github.com/repos/kadevin/ilab-gpt-conjure/relea
 $AssetPattern = "^ilab-gpt-conjure_windows_portable_x64_.+\.zip$"
 $BundleDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DataDir = Join-Path $BundleDir "data"
+$VersionFile = Join-Path $BundleDir "portable-version.txt"
 $Timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $TempRoot = Join-Path ([System.IO.Path]::GetTempPath()) "ilab-gpt-conjure-update-$Timestamp"
 $ExtractDir = Join-Path $TempRoot "extract"
@@ -27,7 +28,8 @@ $ReplaceItems = @(
   "README-portable.md",
   "THIRD_PARTY_NOTICES.md",
   "LICENSE",
-  "python-requirements.lock.txt"
+  "python-requirements.lock.txt",
+  "portable-version.txt"
 )
 
 function Write-Step {
@@ -42,6 +44,50 @@ function Get-ReleaseAsset {
     [Parameter(Mandatory = $true)][string] $Pattern
   )
   return @($Release.assets | Where-Object { $_.name -match $Pattern } | Select-Object -First 1)[0]
+}
+
+function Get-CurrentPortableVersion {
+  if (-not (Test-Path $VersionFile)) {
+    return ""
+  }
+  return ((Get-Content -Path $VersionFile -TotalCount 1) -replace "\s", "")
+}
+
+function ConvertTo-VersionTuple {
+  param([string]$Value)
+  if ([string]::IsNullOrWhiteSpace($Value)) {
+    return $null
+  }
+  $Match = [regex]::Match($Value.Trim(), "^[vV]?(\d+)\.(\d+)\.(\d+)")
+  if (-not $Match.Success) {
+    return $null
+  }
+  return @(
+    [int]$Match.Groups[1].Value,
+    [int]$Match.Groups[2].Value,
+    [int]$Match.Groups[3].Value
+  )
+}
+
+function Test-VersionCurrentOrNewer {
+  param(
+    [string]$Current,
+    [string]$Latest
+  )
+  $CurrentParts = ConvertTo-VersionTuple -Value $Current
+  $LatestParts = ConvertTo-VersionTuple -Value $Latest
+  if ($null -eq $CurrentParts -or $null -eq $LatestParts) {
+    return $false
+  }
+  for ($Index = 0; $Index -lt 3; $Index++) {
+    if ($CurrentParts[$Index] -gt $LatestParts[$Index]) {
+      return $true
+    }
+    if ($CurrentParts[$Index] -lt $LatestParts[$Index]) {
+      return $false
+    }
+  }
+  return $true
 }
 
 function Restore-Backup {
@@ -70,14 +116,11 @@ try {
   Write-Host "iLab GPT Conjure portable updater"
   Write-Host "Bundle: $BundleDir"
   Write-Host "Data:   $DataDir"
-  Write-Host ""
-  Write-Host "Close the WebUI server window before updating."
-  Read-Host "Press Enter to continue"
 
   if (-not (Test-Path $DataDir)) {
     New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
   }
-  New-Item -ItemType Directory -Force -Path $TempRoot, $ExtractDir, $BackupDir | Out-Null
+  New-Item -ItemType Directory -Force -Path $TempRoot, $ExtractDir | Out-Null
 
   Write-Step "Checking latest release"
   $Release = Invoke-RestMethod -Uri $LatestReleaseUrl -Headers $Headers
@@ -89,6 +132,25 @@ try {
   if ($null -eq $HashAsset) {
     throw "Could not find SHA256 file for $($ZipAsset.name)."
   }
+
+  $CurrentVersion = Get-CurrentPortableVersion
+  if (Test-VersionCurrentOrNewer -Current $CurrentVersion -Latest $Release.tag_name) {
+    Write-Host ""
+    Write-Host "Already up to date ($($Release.tag_name))."
+    Write-Host "No app files were changed."
+    exit 0
+  }
+
+  Write-Host ""
+  if (-not [string]::IsNullOrWhiteSpace($CurrentVersion)) {
+    Write-Host "Current version: $CurrentVersion"
+  } else {
+    Write-Host "Current version: unknown"
+  }
+  Write-Host "Latest version:  $($Release.tag_name)"
+  Write-Host ""
+  Write-Host "Close the WebUI server window before updating."
+  Read-Host "Press Enter to continue"
 
   $ZipPath = Join-Path $TempRoot $ZipAsset.name
   $HashPath = Join-Path $TempRoot $HashAsset.name
@@ -115,11 +177,13 @@ try {
     $NewRoot = $Candidates[0].FullName
   }
 
-  foreach ($RequiredItem in @("app", "python", "Start WebUI Portable.bat")) {
+  foreach ($RequiredItem in @("app", "python", "Start WebUI Portable.bat", "portable-version.txt")) {
     if (-not (Test-Path (Join-Path $NewRoot $RequiredItem))) {
       throw "Downloaded package is missing required item: $RequiredItem"
     }
   }
+
+  New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
 
   Write-Step "Backing up current app files"
   foreach ($Item in $ReplaceItems) {

@@ -46,6 +46,7 @@ type HistoryFilterKey = "month" | "prompt_mode" | "quality" | "ratio" | "orienta
 type HistoryViewMode = "grid" | "list";
 type HistoryRenderPosition = "replace" | "append" | "prepend";
 type HistoryTaskPage = { tasks: HistoryTask[]; next_cursor: string | null; previous_cursor?: string | null; detail?: string };
+type HistoryContextMenuMode = "single" | "multi";
 
 const HISTORY_FILTER_KEYS: HistoryFilterKey[] = ["month", "prompt_mode", "quality", "ratio", "orientation", "backend", "provider", "archived"];
 const HISTORY_RATIO_OTHER_VALUE = "__other__";
@@ -80,16 +81,27 @@ const historyState = {
   loading: false,
   exhausted: false,
   loadedTaskIds: new Set<string>(),
+  loadedTaskSummaries: new Map<string, HistoryTask>(),
   selectedTaskIds: new Set<string>(),
   selectedTaskId: "",
   selectionAnchorTaskId: "",
   deleteConfirming: false,
+  deleteConfirmTaskId: "",
   deleteUnselectedConfirmTaskId: "",
   detailTask: null as any,
+  contextMenuDeleteConfirmKey: "",
+  contextMenu: {
+    mode: "single" as HistoryContextMenuMode,
+    taskId: "",
+    taskIds: [] as string[],
+    x: 0,
+    y: 0,
+  },
   requestId: 0,
 };
 
 let historyGridLayoutFrame = 0;
+let historyContextMenuEl: HTMLElement | null = null;
 
 const els = {
   page: document.querySelector<HTMLElement>(".history-page"),
@@ -422,9 +434,12 @@ async function loadTasks({ reset = false, direction = "next" }: { reset?: boolea
     historyState.newerExhausted = true;
     historyState.exhausted = false;
     historyState.loadedTaskIds.clear();
+    historyState.loadedTaskSummaries.clear();
     historyState.selectedTaskIds.clear();
     historyState.selectionAnchorTaskId = "";
     historyState.deleteConfirming = false;
+    historyState.deleteConfirmTaskId = "";
+    historyState.contextMenuDeleteConfirmKey = "";
     if (els.taskList) els.taskList.innerHTML = "";
     renderBulkToolbar();
   }
@@ -479,14 +494,14 @@ function renderTasks(tasks: HistoryTask[], { position }: { position: HistoryRend
   syncHistoryViewMode();
   const anchor = position === "replace" ? null : captureHistoryScrollAnchor(els.taskList);
   if (position === "replace") els.taskList.innerHTML = "";
-  const html = tasks
+  const uniqueTasks = tasks
     .filter((task) => {
       if (historyState.loadedTaskIds.has(task.task_id)) return false;
       historyState.loadedTaskIds.add(task.task_id);
+      historyState.loadedTaskSummaries.set(task.task_id, task);
       return true;
-    })
-    .map(taskCardHtml)
-    .join("");
+    });
+  const html = uniqueTasks.map(taskCardHtml).join("");
   if (html) {
     els.taskList.querySelector(".history-empty, .history-error")?.remove();
     if (position === "prepend") {
@@ -519,6 +534,7 @@ function trimMountedTaskCards(edge: HistoryWindowEdge): void {
   for (const card of removedCards) {
     const taskId = card.dataset.historyTaskCardId || "";
     historyState.loadedTaskIds.delete(taskId);
+    historyState.loadedTaskSummaries.delete(taskId);
     historyState.selectedTaskIds.delete(taskId);
     if (historyState.selectionAnchorTaskId === taskId) historyState.selectionAnchorTaskId = "";
     card.remove();
@@ -646,6 +662,7 @@ function applyHistoryTaskSelection(taskIds: string[], anchorTaskId = ""): void {
   historyState.selectedTaskIds = new Set(taskIds.filter(Boolean));
   if (anchorTaskId) historyState.selectionAnchorTaskId = anchorTaskId;
   historyState.deleteConfirming = false;
+  historyState.contextMenuDeleteConfirmKey = "";
   updateTaskSelectionVisuals();
   renderBulkToolbar();
 }
@@ -655,6 +672,7 @@ function clearHistoryTaskSelection({ updateVisuals = true } = {}): void {
   historyState.selectedTaskIds.clear();
   historyState.selectionAnchorTaskId = "";
   historyState.deleteConfirming = false;
+  historyState.contextMenuDeleteConfirmKey = "";
   if (updateVisuals) updateTaskSelectionVisuals();
   renderBulkToolbar();
 }
@@ -670,6 +688,7 @@ function toggleHistoryTaskSelection(taskId: string, anchor = true): void {
   historyState.selectedTaskIds = next;
   if (anchor) historyState.selectionAnchorTaskId = taskId;
   historyState.deleteConfirming = false;
+  historyState.contextMenuDeleteConfirmKey = "";
   updateTaskSelectionVisuals();
   renderBulkToolbar();
 }
@@ -705,19 +724,24 @@ async function loadTaskDetail(taskId: string): Promise<void> {
   if (!taskId) return;
   historyState.selectedTaskId = taskId;
   historyState.deleteConfirming = false;
+  historyState.deleteConfirmTaskId = "";
   historyState.deleteUnselectedConfirmTaskId = "";
   updateHistoryUrl();
   updateTaskSelectionVisuals(taskId);
   els.page?.classList.add("history-detail-open");
   renderDetailShell(translate("history.loadingDetail"));
   try {
-    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || translate("history.detailFailed"));
-    renderTaskDetail(data.task || {});
+    renderTaskDetail(await fetchHistoryTaskDetail(taskId));
   } catch (error) {
     renderDetailShell(errorMessage(error, translate("history.detailFailed")), "history-error");
   }
+}
+
+async function fetchHistoryTaskDetail(taskId: string): Promise<any> {
+  const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || translate("history.detailFailed"));
+  return data.task || {};
 }
 
 function renderDetailShell(message: string, className = "history-detail-empty"): void {
@@ -752,6 +776,9 @@ function renderTaskDetail(task: any): void {
   const canZip = urls.length > 1;
   const canDeleteUnselected = selectedCount > 0 && selectedCount < urls.length;
   const confirmingDeleteUnselected = historyState.deleteUnselectedConfirmTaskId === taskId;
+  const archived = historyTaskArchived(task);
+  const confirmingDeleteTask = historyState.deleteConfirmTaskId === taskId;
+  const deleteBlocked = historyTaskDeleteBlocked(task);
   const title = detailTitle(task);
   els.detail.innerHTML = `
     <div class="history-detail-header">
@@ -771,6 +798,8 @@ function renderTaskDetail(task: any): void {
     </div>
     <div class="history-detail-actions">
       <button class="ghost-button text-sm" type="button" data-history-reuse-task="${escapeHtml(taskId)}">${escapeHtml(translate("history.reuseTask"))}</button>
+      <button class="ghost-button text-sm" type="button" data-history-archive-task="${escapeHtml(taskId)}" data-history-archive-value="${archived ? "false" : "true"}">${escapeHtml(archived ? translate("archive.restore") : translate("action.archive"))}</button>
+      <button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml(confirmingDeleteTask ? translate("history.confirmDelete") : translate("action.delete"))}</button>
       ${canZip ? `<a class="ghost-button text-sm" href="${escapeHtml(zipHref)}" download>${escapeHtml(translate("history.downloadAll"))}</a>` : ""}
       ${selectedCount > 1 ? `<a class="ghost-button text-sm" href="${escapeHtml(zipHref)}?selected=1" download>${escapeHtml(translate("history.downloadSelected"))}</a>` : ""}
       ${canDeleteUnselected ? `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-unselected="${escapeHtml(taskId)}">${escapeHtml(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>` : ""}
@@ -783,6 +812,32 @@ function renderTaskDetail(task: any): void {
 
 function detailTitle(task: any): string {
   return truncateText(task.prompt_preview || task.prompt || task.mode || task.task_id || translate("history.untitled"), 120);
+}
+
+function historyTaskArchived(task: any): boolean {
+  return Boolean(task?.archived || task?.archived_at);
+}
+
+function historyTaskDeleteBlocked(task: any): boolean {
+  const status = String(task?.status || "");
+  return Boolean(task?.local_pending || status === "running" || status === "submitting" || status === "queued");
+}
+
+function historyTaskGeneratedCount(task: any): number {
+  const generated = positiveInt(task?.generated_count);
+  if (generated !== null) return generated;
+  const outputs = Array.isArray(task?.outputs) ? task.outputs.filter((output: any) => output && !output.deleted && output.status !== "failed") : [];
+  if (outputs.length) return outputs.length;
+  if (Array.isArray(task?.output_urls)) return task.output_urls.filter(Boolean).length;
+  return task?.output_url ? 1 : 0;
+}
+
+function historyTaskSummary(taskId: string): HistoryTask | null {
+  return historyState.loadedTaskSummaries.get(taskId) || null;
+}
+
+function historyTaskPromptForClipboard(task: any): string {
+  return String(task?.prompt || task?.prompt_preview || task?.prompt_for_model || "").trim();
 }
 
 function taskOutputRecords(task: any): Array<{ url: string; index: number; selected: boolean; revisedPrompt: string }> {
@@ -965,7 +1020,7 @@ function renderBulkToolbar(): void {
   els.bulkDeleteCancel?.classList.toggle("hidden", !historyState.deleteConfirming);
 }
 
-async function setTaskArchiveState(taskId: string, archived: boolean): Promise<void> {
+async function setTaskArchiveState(taskId: string, archived: boolean): Promise<any> {
   const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}/archive`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -973,16 +1028,21 @@ async function setTaskArchiveState(taskId: string, archived: boolean): Promise<v
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || (archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
+  return data.task || null;
 }
 
 async function archiveSelectedTasks(archived: boolean): Promise<void> {
-  const ids = [...historyState.selectedTaskIds];
+  await archiveHistoryTaskIds([...historyState.selectedTaskIds], archived);
+}
+
+async function archiveHistoryTaskIds(ids: string[], archived: boolean): Promise<void> {
   if (!ids.length) return;
   setText(els.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
   try {
     await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
-    historyState.selectedTaskIds.clear();
+    ids.forEach((taskId) => historyState.selectedTaskIds.delete(taskId));
     historyState.deleteConfirming = false;
+    historyState.contextMenuDeleteConfirmKey = "";
     await loadSummary();
     await loadTasks({ reset: true });
     setText(els.resultSummary, archived ? formatTranslation("batch.archivedCount", { count: ids.length }) : formatTranslation("archive.restoredCount", { count: ids.length }));
@@ -990,6 +1050,25 @@ async function archiveSelectedTasks(archived: boolean): Promise<void> {
     setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
   } finally {
     renderBulkToolbar();
+  }
+}
+
+async function archiveSingleTask(taskId: string, archived: boolean): Promise<void> {
+  if (!taskId) return;
+  setText(els.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
+  try {
+    const task = await setTaskArchiveState(taskId, archived);
+    historyState.deleteConfirmTaskId = "";
+    historyState.contextMenuDeleteConfirmKey = "";
+    if (String(historyState.detailTask?.task_id || "") === taskId && task) {
+      historyState.detailTask = task;
+      renderTaskDetail(task);
+    }
+    await loadSummary();
+    await loadTasks({ reset: true });
+    setText(els.resultSummary, archived ? translate("taskActions.archived") : translate("archive.restored"));
+  } catch (error) {
+    setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
   }
 }
 
@@ -1010,11 +1089,52 @@ async function deleteSelectedTasks(): Promise<void> {
     }
     historyState.selectedTaskIds.clear();
     historyState.deleteConfirming = false;
+    historyState.contextMenuDeleteConfirmKey = "";
     await loadSummary();
     await loadTasks({ reset: true });
     setText(els.resultSummary, formatTranslation("batch.deletedCount", { count: ids.length, skipped: "" }));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
+  } finally {
+    renderBulkToolbar();
+  }
+}
+
+async function deleteSingleHistoryTask(taskId: string, { confirmInMenu = false }: { confirmInMenu?: boolean } = {}): Promise<boolean> {
+  if (!taskId) return false;
+  const confirmKey = `task:${taskId}`;
+  const confirmed = confirmInMenu ? historyState.contextMenuDeleteConfirmKey === confirmKey : historyState.deleteConfirmTaskId === taskId;
+  if (!confirmed) {
+    historyState.deleteConfirmTaskId = taskId;
+    if (confirmInMenu) historyState.contextMenuDeleteConfirmKey = confirmKey;
+    if (String(historyState.detailTask?.task_id || "") === taskId) renderTaskDetail(historyState.detailTask);
+    if (confirmInMenu) rerenderHistoryContextMenu();
+    return false;
+  }
+  setText(els.resultSummary, translate("archive.deleting"));
+  try {
+    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { method: "DELETE" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || translate("taskActions.deleteFailed"));
+    historyState.selectedTaskIds.delete(taskId);
+    historyState.loadedTaskIds.delete(taskId);
+    historyState.loadedTaskSummaries.delete(taskId);
+    historyState.deleteConfirmTaskId = "";
+    historyState.contextMenuDeleteConfirmKey = "";
+    if (historyState.selectedTaskId === taskId) {
+      historyState.selectedTaskId = "";
+      historyState.detailTask = null;
+      els.page?.classList.remove("history-detail-open");
+      updateHistoryUrl();
+      renderDetailShell(translate("history.detailEmpty"));
+    }
+    await loadSummary();
+    await loadTasks({ reset: true });
+    setText(els.resultSummary, translate("taskActions.deleted"));
+    return true;
+  } catch (error) {
+    setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
+    return false;
   } finally {
     renderBulkToolbar();
   }
@@ -1117,7 +1237,7 @@ async function copyPromptToClipboard(kind = "original", button?: HTMLElement): P
 
 function reuseHistoryTask(taskId: string): void {
   const task = historyState.detailTask || {};
-  const actualTaskId = String(task.task_id || taskId || "");
+  const actualTaskId = String(taskId || task.task_id || "");
   if (!actualTaskId) return;
   try {
     localStorage.setItem(HISTORY_TASK_REUSE_HANDOFF_KEY, JSON.stringify({
@@ -1129,6 +1249,269 @@ function reuseHistoryTask(taskId: string): void {
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
   }
+}
+
+async function copyHistoryTaskId(taskIds: string[]): Promise<void> {
+  const ids = taskIds.filter(Boolean);
+  if (!ids.length) return;
+  try {
+    await writeClipboardText(ids.join("\n"));
+    setText(els.resultSummary, ids.length > 1 ? formatTranslation("history.taskIdsCopied", { count: ids.length }) : translate("taskContext.idCopied"));
+  } catch (error) {
+    setText(els.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+  }
+}
+
+async function copyHistoryTaskPrompts(taskIds: string[]): Promise<void> {
+  const prompts: string[] = [];
+  for (const taskId of taskIds.filter(Boolean)) {
+    try {
+      const detail = await fetchHistoryTaskDetail(taskId);
+      const prompt = historyTaskPromptForClipboard(detail);
+      if (prompt) prompts.push(prompt);
+    } catch {
+      const fallback = historyTaskPromptForClipboard(historyTaskSummary(taskId));
+      if (fallback) prompts.push(fallback);
+    }
+  }
+  if (!prompts.length) {
+    setText(els.resultSummary, translate("history.noPrompt"));
+    return;
+  }
+  try {
+    await writeClipboardText(prompts.join("\n\n---\n\n"));
+    setText(els.resultSummary, taskIds.length > 1 ? formatTranslation("history.promptsCopied", { count: prompts.length }) : translate("history.promptCopied"));
+  } catch (error) {
+    setText(els.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+  }
+}
+
+function triggerHistoryDownload(url: string, filename = ""): void {
+  if (!url) return;
+  const link = document.createElement("a");
+  link.href = url;
+  if (filename) {
+    link.download = filename;
+  } else {
+    link.setAttribute("download", "");
+  }
+  link.style.display = "none";
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
+async function downloadHistoryTask(taskId: string): Promise<boolean> {
+  const detail = await fetchHistoryTaskDetail(taskId);
+  const records = taskOutputRecords(detail);
+  if (!records.length) throw new Error(translate("history.noDownloadableOutputs"));
+  if (records.length === 1) {
+    triggerHistoryDownload(records[0]?.url || "");
+  } else {
+    triggerHistoryDownload(`/api/tasks/${encodeURIComponent(taskId)}/outputs.zip`, `${taskId}-images.zip`);
+  }
+  return true;
+}
+
+async function downloadHistoryTasks(taskIds: string[]): Promise<void> {
+  let downloaded = 0;
+  for (const taskId of taskIds.filter(Boolean)) {
+    try {
+      if (await downloadHistoryTask(taskId)) downloaded += 1;
+    } catch {
+      // Keep batch download best-effort; the status line reports the count.
+    }
+  }
+  setText(
+    els.resultSummary,
+    downloaded > 1
+      ? formatTranslation("history.batchDownloadStarted", { count: downloaded })
+      : downloaded === 1
+        ? translate("history.downloadStarted")
+        : translate("history.noDownloadableOutputs"),
+  );
+}
+
+function selectedHistoryContextTaskIds(clickedTaskId: string): string[] {
+  if (historyState.selectedTaskIds.size > 1 && historyState.selectedTaskIds.has(clickedTaskId)) {
+    return [...historyState.selectedTaskIds].filter(Boolean);
+  }
+  if (historyState.selectedTaskIds.size !== 1 || !historyState.selectedTaskIds.has(clickedTaskId)) {
+    historyState.selectedTaskIds = new Set([clickedTaskId]);
+    historyState.selectionAnchorTaskId = clickedTaskId;
+    historyState.deleteConfirming = false;
+    historyState.contextMenuDeleteConfirmKey = "";
+    updateTaskSelectionVisuals();
+    renderBulkToolbar();
+  }
+  return [clickedTaskId].filter(Boolean);
+}
+
+function openHistoryContextMenu(taskId: string, clientX: number, clientY: number): void {
+  if (!taskId) return;
+  const taskIds = selectedHistoryContextTaskIds(taskId);
+  const mode: HistoryContextMenuMode = taskIds.length > 1 ? "multi" : "single";
+  historyState.contextMenu = { mode, taskId, taskIds, x: clientX, y: clientY };
+  const menu = ensureHistoryContextMenu();
+  menu.dataset.historyContextTaskId = taskId;
+  menu.dataset.historyContextMode = mode;
+  menu.innerHTML = historyContextMenuHtml(mode, taskIds);
+  menu.classList.remove("hidden");
+  bindHistoryContextMenuActionEvents(menu);
+  positionHistoryContextMenu(menu, clientX, clientY);
+  menu.querySelector<HTMLButtonElement>(".history-context-menu-button:not(:disabled)")?.focus({ preventScroll: true });
+}
+
+function closeHistoryContextMenu(): void {
+  if (!historyContextMenuEl) return;
+  historyContextMenuEl.classList.add("hidden");
+  historyContextMenuEl.removeAttribute("data-history-context-task-id");
+  historyContextMenuEl.removeAttribute("data-history-context-mode");
+}
+
+function ensureHistoryContextMenu(): HTMLElement {
+  if (historyContextMenuEl) return historyContextMenuEl;
+  historyContextMenuEl = document.createElement("div");
+  historyContextMenuEl.className = "history-context-menu hidden";
+  historyContextMenuEl.setAttribute("role", "menu");
+  historyContextMenuEl.setAttribute("aria-label", translate("history.contextMenuLabel"));
+  document.body.append(historyContextMenuEl);
+  return historyContextMenuEl;
+}
+
+function rerenderHistoryContextMenu(): void {
+  if (!historyContextMenuEl || historyContextMenuEl.classList.contains("hidden")) return;
+  historyContextMenuEl.setAttribute("aria-label", translate("history.contextMenuLabel"));
+  historyContextMenuEl.innerHTML = historyContextMenuHtml(historyState.contextMenu.mode, historyState.contextMenu.taskIds);
+  bindHistoryContextMenuActionEvents(historyContextMenuEl);
+  positionHistoryContextMenu(historyContextMenuEl, historyState.contextMenu.x, historyState.contextMenu.y);
+}
+
+function historyContextMenuHtml(mode: HistoryContextMenuMode, taskIds: string[]): string {
+  if (mode === "multi") return historyMultiContextMenuHtml(taskIds);
+  return historySingleContextMenuHtml(taskIds[0] || "");
+}
+
+function historySingleContextMenuHtml(taskId: string): string {
+  const summary = historyTaskSummary(taskId);
+  const archived = historyTaskArchived(summary);
+  const blocked = historyTaskDeleteBlocked(summary);
+  const hasOutput = historyTaskGeneratedCount(summary) > 0;
+  const confirmingDelete = historyState.contextMenuDeleteConfirmKey === `task:${taskId}`;
+  return `
+    <div class="history-context-menu-section">
+      ${historyContextButton("reuse", translate("history.reuseTask"))}
+      ${historyContextButton("copy-prompt", translate("history.copyPrompt"))}
+      ${historyContextButton("copy-id", translate("taskContext.copyId"))}
+      ${historyContextButton("download", translate("history.downloadTask"), !hasOutput)}
+    </div>
+    <div class="history-context-menu-section">
+      ${historyContextButton("archive", archived ? translate("archive.restore") : translate("action.archive"))}
+      ${historyContextButton("delete", confirmingDelete ? translate("history.confirmDelete") : translate("action.delete"), blocked, true)}
+    </div>
+  `;
+}
+
+function historyMultiContextMenuHtml(taskIds: string[]): string {
+  const confirmKey = historySelectedDeleteConfirmKey(taskIds);
+  const confirmingDelete = historyState.contextMenuDeleteConfirmKey === confirmKey;
+  return `
+    <div class="history-context-menu-section">
+      ${historyContextButton("download-selected", translate("history.downloadSelectedTasks"))}
+      ${historyContextButton("archive-selected", translate("action.archive"))}
+      ${historyContextButton("restore-selected", translate("archive.restore"))}
+      ${historyContextButton("delete-selected", confirmingDelete ? translate("history.confirmDeleteSelected") : translate("action.delete"), false, true)}
+    </div>
+  `;
+}
+
+function historyContextButton(action: string, label: string, disabled = false, danger = false): string {
+  const disabledAttr = disabled ? " disabled" : "";
+  const dangerClass = danger ? " danger" : "";
+  return `<button class="history-context-menu-button${dangerClass}" type="button" role="menuitem" data-history-context-action="${escapeHtml(action)}"${disabledAttr}>${escapeHtml(label)}</button>`;
+}
+
+function bindHistoryContextMenuActionEvents(menu: HTMLElement): void {
+  menu.querySelectorAll<HTMLButtonElement>("[data-history-context-action]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (button.disabled) return;
+      void handleHistoryContextMenuAction(button);
+    });
+  });
+}
+
+async function handleHistoryContextMenuAction(button: HTMLButtonElement): Promise<void> {
+  const action = String(button.dataset.historyContextAction || "");
+  const taskId = historyState.contextMenu.taskId;
+  const taskIds = historyState.contextMenu.taskIds.filter(Boolean);
+  try {
+    if (action === "delete") {
+      const deleted = await deleteSingleHistoryTask(taskId, { confirmInMenu: true });
+      if (deleted) closeHistoryContextMenu();
+      return;
+    }
+    if (action === "delete-selected") {
+      await deleteHistoryContextSelectedTasks(taskIds);
+      return;
+    }
+    closeHistoryContextMenu();
+    if (action === "reuse") {
+      reuseHistoryTask(taskId);
+    } else if (action === "copy-prompt") {
+      await copyHistoryTaskPrompts([taskId]);
+    } else if (action === "copy-id") {
+      await copyHistoryTaskId([taskId]);
+    } else if (action === "download") {
+      await downloadHistoryTasks([taskId]);
+    } else if (action === "archive") {
+      const archived = historyTaskArchived(historyTaskSummary(taskId));
+      await archiveSingleTask(taskId, !archived);
+    } else if (action === "copy-prompts") {
+      await copyHistoryTaskPrompts(taskIds);
+    } else if (action === "copy-ids") {
+      await copyHistoryTaskId(taskIds);
+    } else if (action === "download-selected") {
+      await downloadHistoryTasks(taskIds);
+    } else if (action === "archive-selected") {
+      await archiveHistoryTaskIds(taskIds, true);
+    } else if (action === "restore-selected") {
+      await archiveHistoryTaskIds(taskIds, false);
+    }
+  } catch (error) {
+    setText(els.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+  }
+}
+
+async function deleteHistoryContextSelectedTasks(taskIds: string[]): Promise<void> {
+  const confirmKey = historySelectedDeleteConfirmKey(taskIds);
+  if (historyState.contextMenuDeleteConfirmKey !== confirmKey) {
+    historyState.contextMenuDeleteConfirmKey = confirmKey;
+    historyState.deleteConfirming = true;
+    renderBulkToolbar();
+    rerenderHistoryContextMenu();
+    return;
+  }
+  historyState.selectedTaskIds = new Set(taskIds);
+  await deleteSelectedTasks();
+  if (!historyState.deleteConfirming) closeHistoryContextMenu();
+}
+
+function historySelectedDeleteConfirmKey(taskIds: string[]): string {
+  return `selected:${taskIds.slice().sort().join("|")}`;
+}
+
+function positionHistoryContextMenu(menu: HTMLElement, clientX: number, clientY: number): void {
+  const margin = 8;
+  menu.style.left = "0px";
+  menu.style.top = "0px";
+  const width = menu.offsetWidth;
+  const height = menu.offsetHeight;
+  const left = clampNumber(clientX, margin, Math.max(margin, window.innerWidth - width - margin));
+  const top = clampNumber(clientY, margin, Math.max(margin, window.innerHeight - height - margin));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
 }
 
 function handoffReferenceToMain(url: string): void {
@@ -1246,6 +1629,16 @@ function bindEvents(): void {
       void deleteUnselectedOutputs(deleteUnselectedButton.dataset.historyDeleteUnselected || "");
       return;
     }
+    const archiveTaskButton = target?.closest<HTMLElement>("[data-history-archive-task]");
+    if (archiveTaskButton) {
+      void archiveSingleTask(archiveTaskButton.dataset.historyArchiveTask || "", archiveTaskButton.dataset.historyArchiveValue === "true");
+      return;
+    }
+    const deleteTaskButton = target?.closest<HTMLElement>("[data-history-delete-task]");
+    if (deleteTaskButton) {
+      void deleteSingleHistoryTask(deleteTaskButton.dataset.historyDeleteTask || "");
+      return;
+    }
     const referenceHandoffButton = target?.closest<HTMLElement>("[data-history-reference-handoff-url]");
     if (referenceHandoffButton) {
       handoffReferenceToMain(referenceHandoffButton.dataset.historyReferenceHandoffUrl || "");
@@ -1293,6 +1686,29 @@ function bindEvents(): void {
       }
     }
   });
+  els.taskList?.addEventListener("contextmenu", (event) => {
+    const target = event.target as HTMLElement | null;
+    const card = target?.closest<HTMLElement>(".history-task-card[data-history-task-card-id]");
+    if (!card || !els.taskList?.contains(card)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openHistoryContextMenu(card.dataset.historyTaskCardId || "", event.clientX, event.clientY);
+  });
+  els.taskList?.addEventListener("keydown", (event) => {
+    if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+    const target = event.target as HTMLElement | null;
+    const card = target?.closest<HTMLElement>(".history-task-card[data-history-task-card-id]");
+    if (!card || !els.taskList?.contains(card)) return;
+    event.preventDefault();
+    const rect = card.getBoundingClientRect();
+    openHistoryContextMenu(card.dataset.historyTaskCardId || "", rect.left + 18, rect.top + 18);
+  });
+  document.addEventListener("click", (event) => {
+    if (!historyContextMenuEl || historyContextMenuEl.classList.contains("hidden")) return;
+    const target = event.target as HTMLElement | null;
+    if (target && historyContextMenuEl.contains(target)) return;
+    closeHistoryContextMenu();
+  }, true);
   els.bulkArchive?.addEventListener("click", () => void archiveSelectedTasks(true));
   els.bulkRestore?.addEventListener("click", () => void archiveSelectedTasks(false));
   els.bulkDelete?.addEventListener("click", () => void deleteSelectedTasks());
@@ -1308,8 +1724,14 @@ function bindEvents(): void {
     const target = event.target as HTMLElement | null;
     if (target?.closest(".history-task-thumb img")) event.preventDefault();
   });
-  els.taskList?.addEventListener("scroll", maybeLoadMoreFromScroll, { passive: true });
-  window.addEventListener("resize", scheduleHistoryGridLayout, { passive: true });
+  els.taskList?.addEventListener("scroll", () => {
+    closeHistoryContextMenu();
+    maybeLoadMoreFromScroll();
+  }, { passive: true });
+  window.addEventListener("resize", () => {
+    closeHistoryContextMenu();
+    scheduleHistoryGridLayout();
+  }, { passive: true });
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
     document.title = translate("history.documentTitle");
     syncHistoryViewMode();
@@ -1322,6 +1744,7 @@ function bindEvents(): void {
     } else if (!historyState.selectedTaskId) {
       renderDetailShell(translate("history.detailEmpty"));
     }
+    rerenderHistoryContextMenu();
     renderBulkToolbar();
     setLoadMoreState(historyState.loading
       ? translate("history.loadingMore")
@@ -1334,6 +1757,10 @@ function bindEvents(): void {
   });
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    if (historyContextMenuEl && !historyContextMenuEl.classList.contains("hidden")) {
+      closeHistoryContextMenu();
+      return;
+    }
     const lightbox = document.querySelector<HTMLElement>(".history-lightbox");
     if (lightbox && !lightbox.hidden) {
       closeHistoryLightbox();

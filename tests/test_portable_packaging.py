@@ -70,6 +70,15 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("data", updater_helper_text)
         self.assertIn("backup", updater_helper_text.lower())
         self.assertIn("Do not move data", updater_helper_text)
+        self.assertIn('$VersionFile = Join-Path $BundleDir "portable-version.txt"', updater_helper_text)
+        self.assertIn('"portable-version.txt"', updater_helper_text)
+        self.assertIn("Get-CurrentPortableVersion", updater_helper_text)
+        self.assertIn("Test-VersionCurrentOrNewer", updater_helper_text)
+        self.assertIn("Already up to date", updater_helper_text)
+        self.assertLess(
+            updater_helper_text.index('Write-Step "Checking latest release"'),
+            updater_helper_text.index('Write-Host "Close the WebUI server window before updating."'),
+        )
 
         readme_text = readme.read_text(encoding="utf-8")
         self.assertIn("Do not put API keys", readme_text)
@@ -144,6 +153,15 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("data", updater_text)
         self.assertIn("backup", updater_text.lower())
         self.assertIn("Do not move data", updater_text)
+        self.assertIn('VERSION_FILE="${BUNDLE_DIR}/portable-version.txt"', updater_text)
+        self.assertIn('"portable-version.txt"', updater_text)
+        self.assertIn("current_portable_version", updater_text)
+        self.assertIn("version_is_current_or_newer", updater_text)
+        self.assertIn("Already up to date", updater_text)
+        self.assertLess(
+            updater_text.index('step "Checking latest release"'),
+            updater_text.index('echo "Close the WebUI server window before updating."'),
+        )
         self.assertIn("xattr -dr com.apple.quarantine", updater_text)
 
         app_module_text = app_module.read_text(encoding="utf-8")

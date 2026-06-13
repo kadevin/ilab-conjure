@@ -860,11 +860,14 @@ input[type=range].slider:disabled::-moz-range-thumb {
   left: 10px;
   z-index: 1;
   padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--surface) 28%, transparent);
   border-radius: 999px;
-  background: rgba(31, 53, 47, 0.72);
-  color: #fff;
+  background: color-mix(in srgb, var(--primary-strong) 84%, transparent);
+  color: var(--primary-foreground);
   font-size: 11px;
   letter-spacing: 0.02em;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--code) 20%, transparent);
+  backdrop-filter: blur(8px);
 }
 
 .preview-select-button {
@@ -880,15 +883,16 @@ input[type=range].slider:disabled::-moz-range-thumb {
   justify-content: center;
   gap: 0;
   padding: 0;
-  border: 1px solid color-mix(in srgb, var(--surface) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 36%, var(--surface));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--code) 58%, transparent);
-  color: #fff;
+  background: color-mix(in srgb, var(--primary-light) 78%, var(--surface) 22%);
+  color: var(--primary-strong);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  opacity: 0.78;
+  opacity: 0.92;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--code) 18%, transparent);
   transition:
     background var(--motion-fast),
     border-color var(--motion-fast),
@@ -977,7 +981,13 @@ input[type=range].slider:disabled::-moz-range-thumb {
   left: 0;
   right: 0;
   padding: 12px;
-  background: linear-gradient(transparent 8%, rgba(0, 0, 0, 0.78));
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--code) 18%, transparent) 22%,
+      color-mix(in srgb, var(--code) 74%, transparent) 100%
+    );
   opacity: 0;
   transition: opacity var(--motion-base);
   display: flex;
@@ -1008,15 +1018,15 @@ input[type=range].slider:disabled::-moz-range-thumb {
   width: auto;
   min-width: 0;
   min-height: 32px;
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  background: color-mix(in srgb, var(--surface) 90%, var(--primary-light) 10%);
   backdrop-filter: blur(8px);
-  border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 68%, var(--primary-light));
   color: var(--text);
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--code) 22%, transparent);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1027,6 +1037,10 @@ input[type=range].slider:disabled::-moz-range-thumb {
 
 .add-to-input-btn {
   min-width: 92px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 34%, transparent);
 }
 
 .collect-input-btn,
@@ -1046,8 +1060,8 @@ input[type=range].slider:disabled::-moz-range-thumb {
 }
 
 .collect-input-btn {
-  color: var(--muted);
-  border-color: color-mix(in srgb, var(--line) 56%, transparent);
+  color: var(--text-secondary);
+  border-color: color-mix(in srgb, var(--line) 64%, var(--primary-light));
 }
 
 .preview-card:focus-within .preview-overlay {

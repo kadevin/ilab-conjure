@@ -97,7 +97,9 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "applyHistoryGridRowLayout",
             "--history-task-card-width",
             "--history-task-row-height",
-            'window.addEventListener("resize", scheduleHistoryGridLayout',
+            'window.addEventListener("resize", () =>',
+            "closeHistoryContextMenu();",
+            "scheduleHistoryGridLayout();",
             "data-history-view",
             "history-view-grid",
             "history-view-list",
@@ -241,6 +243,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'document.addEventListener(LOCALE_CHANGE_EVENT',
             'HISTORY_TASK_REUSE_HANDOFF_KEY',
             'data-history-reuse-task',
+            'data-history-archive-task',
+            'data-history-delete-task',
             'data-history-copy-prompt-kind',
             'data-history-copy-prompt-kind="${escapeHtml(kind)}"',
             'copyPromptToClipboard',
@@ -260,8 +264,27 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'setLoadMoreState',
             'function maybeLoadMoreFromScroll(',
             'els.taskList?.addEventListener("scroll"',
+            'function openHistoryContextMenu',
+            'historyState.selectedTaskIds.has(clickedTaskId)',
+            'historyState.selectedTaskIds = new Set([clickedTaskId])',
+            'updateTaskSelectionVisuals()',
+            'historySingleContextMenuHtml',
+            'historyMultiContextMenuHtml',
+            'data-history-context-action="${escapeHtml(action)}"',
+            'els.taskList?.addEventListener("contextmenu"',
+            'event.key !== "ContextMenu"',
+            'event.shiftKey && event.key === "F10"',
+            'historyContextButton("reuse", translate("history.reuseTask"))',
+            'historyContextButton("download-selected", translate("history.downloadSelectedTasks"))',
+            'historyContextButton("archive-selected", translate("action.archive"))',
+            'historyContextButton("restore-selected", translate("archive.restore"))',
+            'historyContextButton("delete-selected", confirmingDelete ? translate("history.confirmDeleteSelected")',
+            'deleteSingleHistoryTask(taskId, { confirmInMenu: true })',
+            'downloadHistoryTasks(taskIds)',
         ]:
             self.assertIn(marker, source)
+        self.assertNotIn('historyContextButton("copy-prompts"', source)
+        self.assertNotIn('historyContextButton("copy-ids"', source)
         self.assertNotIn('els.sentinel?.addEventListener("click"', source)
 
         for marker in [
@@ -277,6 +300,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             '"history.viewing": "Viewing"',
             '"history.reuseTask": "复用任务"',
             '"history.reuseTask": "Reuse task"',
+            '"history.downloadSelectedTasks": "批量下载"',
+            '"history.downloadSelectedTasks": "Batch download"',
+            '"history.contextMenuLabel": "历史任务右键菜单"',
+            '"history.contextMenuLabel": "History task context menu"',
+            '"history.confirmDeleteSelected": "确认删除已选"',
+            '"history.confirmDeleteSelected": "Confirm selected delete"',
             '"status.reusedTask": "已复用历史任务 {taskId}"',
             '"status.reusedTask": "Reused historical task {taskId}"',
         ]:
@@ -333,6 +362,10 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertRegex(styles, r"\.history-load-sentinel\s*\{[^}]*min-height:\s*24px")
         self.assertRegex(styles, r"\.history-load-sentinel\s*\{[^}]*pointer-events:\s*none")
         self.assertNotRegex(styles, r"\.history-load-sentinel\s*\{[^}]*cursor:\s*pointer")
+        self.assertRegex(styles, r"\.history-context-menu\s*\{[^}]*position:\s*fixed")
+        self.assertRegex(styles, r"\.history-context-menu\s*\{[^}]*z-index:\s*9300")
+        self.assertRegex(styles, r"\.history-context-menu-button\s*\{[^}]*min-height:\s*30px")
+        self.assertRegex(styles, r"\.history-context-menu-button\.danger\s*\{[^}]*color:\s*var\(--danger\)")
         self.assertNotIn(".history-window-notice", styles)
         self.assertRegex(styles, r"\.history-task-list\.history-view-grid \.history-task-meta span:not\(\[data-history-meta-kind=\"size\"\]\)\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.history-page\.history-bulk-selecting \.history-toolbar-actions\s*\{[^}]*visibility:\s*hidden")

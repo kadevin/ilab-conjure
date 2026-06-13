@@ -119,7 +119,7 @@ http://127.0.0.1:8787/
 ## 免安装一键包
 
 当前可用的一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.3.5](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.5)。
+[GitHub Release v0.3.6](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.6)。
 
 这些包面向希望像 ComfyUI 一样“解压即用”的用户：
 
