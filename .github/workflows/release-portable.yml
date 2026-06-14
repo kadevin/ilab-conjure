@@ -195,6 +195,18 @@ jobs:
             /^当前版本：/ || /^本版重点：/ {
               print
               print ""
+              next
+            }
+            /^本版详情：/ {
+              in_details = 1
+              print
+              next
+            }
+            in_details && /^## / {
+              in_details = 0
+            }
+            in_details {
+              print
             }
           ' RELEASES.md)"
           if [[ -z "${release_summary//[[:space:]]/}" ]]; then

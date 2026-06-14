@@ -229,6 +229,8 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("## 发布说明", text)
         self.assertIn('release_summary="$(awk', text)
         self.assertIn("/^当前版本：/ || /^本版重点：/", text)
+        self.assertIn("/^本版详情：/", text)
+        self.assertIn("in_details && /^## /", text)
         self.assertIn("${release_summary}", text)
         self.assertIn("此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。", text)
         self.assertIn("完整版本说明见 [RELEASES.md](https://github.com/${GITHUB_REPOSITORY}/blob/${RELEASE_TAG}/RELEASES.md)。", text)
