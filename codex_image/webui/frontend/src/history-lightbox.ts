@@ -4,6 +4,8 @@ import { escapeHtml } from "./webui-utils";
 type HistoryLightboxState = {
   urls: string[];
   index: number;
+  taskId: string;
+  onTaskNavigate: HistoryLightboxTaskNavigation | null;
   scale: number;
   pointX: number;
   pointY: number;
@@ -12,11 +14,27 @@ type HistoryLightboxState = {
   startY: number;
 };
 
+export type HistoryLightboxTaskDirection = "previous" | "next";
+export type HistoryLightboxTaskNavigationContext = {
+  taskId: string;
+  imageIndex: number;
+};
+export type HistoryLightboxTaskNavigation = (
+  direction: HistoryLightboxTaskDirection,
+  context: HistoryLightboxTaskNavigationContext,
+) => void | Promise<void>;
+type HistoryLightboxOptions = {
+  taskId?: string;
+  onTaskNavigate?: HistoryLightboxTaskNavigation;
+};
+
 let historyLightboxEl: HTMLDivElement | null = null;
 
 const historyLightboxState: HistoryLightboxState = {
   urls: [],
   index: 0,
+  taskId: "",
+  onTaskNavigate: null,
   scale: 1,
   pointX: 0,
   pointY: 0,
@@ -90,6 +108,22 @@ function showNextHistoryLightboxImage(): void {
   showHistoryLightboxImage(historyLightboxState.index + 1);
 }
 
+function navigateHistoryLightboxTask(direction: HistoryLightboxTaskDirection): void {
+  if (!isHistoryLightboxActive() || !historyLightboxState.onTaskNavigate) return;
+  void historyLightboxState.onTaskNavigate(direction, {
+    taskId: historyLightboxState.taskId,
+    imageIndex: historyLightboxState.index,
+  });
+}
+
+function showPreviousHistoryTask(): void {
+  navigateHistoryLightboxTask("previous");
+}
+
+function showNextHistoryTask(): void {
+  navigateHistoryLightboxTask("next");
+}
+
 function ensureHistoryLightbox(): HTMLDivElement {
   if (historyLightboxEl) return historyLightboxEl;
 
@@ -161,18 +195,32 @@ function ensureHistoryLightbox(): HTMLDivElement {
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
       showNextHistoryLightboxImage();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      showPreviousHistoryTask();
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      showNextHistoryTask();
+    } else if (event.key === "PageUp") {
+      event.preventDefault();
+      showPreviousHistoryTask();
+    } else if (event.key === "PageDown") {
+      event.preventDefault();
+      showNextHistoryTask();
     }
   });
 
   return historyLightboxEl;
 }
 
-export function openHistoryLightbox(urls: string[], index = 0): void {
+export function openHistoryLightbox(urls: string[], index = 0, options: HistoryLightboxOptions = {}): void {
   const nextUrls = Array.isArray(urls) ? urls.filter(Boolean) : [];
   if (!nextUrls.length) return;
   const lightbox = ensureHistoryLightbox();
   historyLightboxState.urls = nextUrls;
   historyLightboxState.index = normalizedHistoryLightboxIndex(index, nextUrls.length);
+  historyLightboxState.taskId = String(options.taskId || "");
+  historyLightboxState.onTaskNavigate = options.onTaskNavigate || null;
   showHistoryLightboxImage(historyLightboxState.index);
   lightbox.hidden = false;
   document.body.classList.add("history-lightbox-open");
@@ -187,6 +235,8 @@ export function closeHistoryLightbox(): void {
   stopHistoryLightboxPanning();
   historyLightboxState.urls = [];
   historyLightboxState.index = 0;
+  historyLightboxState.taskId = "";
+  historyLightboxState.onTaskNavigate = null;
   resetHistoryLightboxTransform();
   document.body.classList.remove("history-lightbox-open");
 }

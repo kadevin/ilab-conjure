@@ -332,6 +332,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertRegex(styles, r":root\s*\{[^}]*--workspace-side-action-width:\s*164px")
         self.assertRegex(styles, r"\.prompt-panel\s*\{[^}]*--prompt-action-column-width:\s*var\(--workspace-side-action-width\)")
         self.assertRegex(styles, r"\.prompt-panel\s*\{[^}]*--prompt-action-gap:\s*12px")
+        self.assertRegex(styles, r"\.prompt-panel\s*\{[^}]*--prompt-secondary-action-height:\s*40px")
         self.assertRegex(styles, r"\.prompt-heading\s*\{[^}]*display:\s*grid")
         self.assertRegex(styles, r"\.prompt-heading\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+var\(--prompt-action-column-width\)")
         self.assertRegex(styles, r"\.prompt-heading-main\s*\{[^}]*align-items:\s*flex-end")
@@ -344,7 +345,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertNotIn(".prompt-template-row .prompt-template-button", styles)
         template_button_styles = self._extract_css_block(styles, ".prompt-template-entry .prompt-template-button")
         self.assertIn("width: 100%", template_button_styles)
-        self.assertIn("height: 32px", template_button_styles)
+        self.assertIn("height: var(--prompt-secondary-action-height)", template_button_styles)
         self.assertIn("background: var(--primary)", template_button_styles)
         self.assertIn("color: var(--primary-foreground)", template_button_styles)
         self.assertNotIn("position: absolute", self._extract_css_block(styles, ".prompt-count"))
@@ -489,8 +490,8 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn("display: grid", find_panel_styles)
         self.assertIn("grid-template-columns: minmax(78px, 1fr) minmax(78px, 1fr) max-content", find_panel_styles)
         self.assertIn("min-width: 0", find_panel_styles)
-        self.assertRegex(styles, r"\.prompt-find-panel \.control\s*\{[^}]*height:\s*32px")
-        self.assertRegex(styles, r"\.prompt-find-panel \.ghost-button\s*\{[^}]*height:\s*32px")
+        self.assertRegex(styles, r"\.prompt-find-panel \.control\s*\{[^}]*height:\s*calc\(var\(--prompt-secondary-action-height\) - 4px\)")
+        self.assertRegex(styles, r"\.prompt-find-panel \.ghost-button\s*\{[^}]*height:\s*calc\(var\(--prompt-secondary-action-height\) - 4px\)")
         self.assertRegex(styles, r"\.prompt-template-recent-cell\.find-active \.prompt-template-recent-dock\s*\{[^}]*display:\s*none")
         self.assertRegex(
             styles,
@@ -851,11 +852,28 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
             "\n}\n\nfunction promptSnippetSelectionAnchorRect", 1
         )[0]
         self.assertRegex(script, r"document\.addEventListener\(\"selectionchange\",[\s\S]*updatePromptSnippetSelectionButton")
-        self.assertIn("promptSnippetSelectionAnchorRect(selection)", show_button_block)
+        self.assertIn("promptSnippetSelectionAnchorRect(selection, editorRect)", show_button_block)
         self.assertNotIn("mentionRangeRect(selection.range)", show_button_block)
         self.assertRegex(styles, r"\.prompt-snippet-save-button\s*\{[^}]*position:\s*fixed")
         self.assertRegex(styles, r"\.prompt-snippet-popover\s*\{[^}]*position:\s*fixed")
         self.assertRegex(styles, r"\.prompt-snippet-popover-actions\s*\{[^}]*display:\s*flex")
+
+    def test_prompt_selection_save_button_stays_inside_visible_editor_rect(self) -> None:
+        script = self._frontend_script_source()
+
+        show_button_block = script.split("function showPromptSnippetSelectionButton(selection) {", 1)[1].split(
+            "\n}\n\nfunction promptSnippetSelectionAnchorRect", 1
+        )[0]
+        anchor_block = script.split("function promptSnippetSelectionAnchorRect", 1)[1].split(
+            "\n}\n\nfunction hidePromptSnippetSelectionButton", 1
+        )[0]
+        self.assertIn("promptSnippetVisibleEditorRect()", show_button_block)
+        self.assertIn("promptSnippetSelectionAnchorRect(selection, editorRect)", show_button_block)
+        self.assertIn("promptSnippetSelectionVisibleRects(selection.range, editorRect)", anchor_block)
+        self.assertIn("clipRectToBounds", script)
+        self.assertIn("promptSnippetFallbackVisibleAnchorRect(editorRect)", anchor_block)
+        self.assertNotIn("return rects.length ? rects[rects.length - 1] : mentionRangeRect(selection.range)", anchor_block)
+
     def test_prompt_editor_copy_serializes_selected_chips(self) -> None:
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -981,7 +999,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertRegex(styles, r"\.prompt-compose\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+var\(--prompt-action-column-width\)")
         self.assertRegex(styles, r"\.prompt-compose\s+\.run-button\s*\{[^}]*height:\s*140px")
         self.assertRegex(styles, r"\.prompt-footer\s*\{[^}]*justify-content:\s*flex-start")
-        self.assertRegex(styles, r"\.prompt-footer\s+\.ghost-button\s*\{[^}]*height:\s*32px")
+        self.assertRegex(styles, r"\.prompt-footer\s+\.ghost-button\s*\{[^}]*height:\s*var\(--prompt-secondary-action-height\)")
         self.assertRegex(styles, r"\.prompt-footer\s*>\s*\.icon-text-button\s*\{[^}]*flex:\s*0 0 auto")
         self.assertRegex(styles, r"\.prompt-footer\s*>\s*\.icon-text-button\s*\{[^}]*white-space:\s*nowrap")
         self.assertRegex(styles, r"\.prompt-footer\s*>\s*\.icon-text-button\s+span\s*\{[^}]*white-space:\s*nowrap")
@@ -1061,8 +1079,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-316', html)
-        self.assertIn('/static/styles.css?v=runtime-316', html)
+        self.assertIn('/static/app.js?v=runtime-326', html)
+        self.assertIn('/static/styles.css?v=runtime-326', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)
@@ -1167,6 +1185,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="modeSettingsSlot"', html)
         self.assertIn('class="mode-settings-slot full-width"', html)
         self.assertIn('class="mode-specific-settings mode-transition"', html)
+        self.assertIn('class="model-tool-row"', html)
         self.assertIn('class="field api-direct-settings-notice mode-transition mode-collapsed hidden"', html)
         self.assertRegex(
             html,
@@ -1222,6 +1241,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertNotRegex(styles, r"\.mode-settings-slot\s*\{[^}]*transition:\s*height")
         self.assertNotRegex(styles, r"\.mode-settings-slot\s*>\s*\.mode-transition\s*\{[^}]*grid-area:\s*1\s*/\s*1")
         self.assertRegex(styles, r"\.mode-specific-settings\s*\{[^}]*display:\s*grid")
+        self.assertRegex(styles, r"\.model-tool-row\s*\{[^}]*display:\s*grid")
+        self.assertRegex(styles, r"\.model-tool-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(104px,\s*max-content\)")
         self.assertRegex(styles, r"\.mode-transition\s*\{[^}]*transition:")
         self.assertNotIn("max-height: var(--mode-transition-max-height", styles)
     def test_javascript_uses_official_gpt_image_2_size_presets(self) -> None:

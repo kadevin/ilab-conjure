@@ -40,6 +40,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         moderation: str | None = Form(None),
         output_compression: str | None = Form(None),
         n: int = Form(1, ge=1, le=4),
+        web_search: bool = Form(False),
         api_mode: str | None = Form(None),
         api_provider_id: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
@@ -73,6 +74,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         effective_api_mode = h["request_api_mode"](auth_source, api_mode, effective_api_provider_id)
         effective_api_images_concurrency = h["request_api_images_concurrency"](auth_source, effective_api_provider_id)
         requested_backend = h["backend_for_submit"](auth_source, effective_api_mode)
+        web_search_enabled = bool(web_search) and (auth_source != "api" or effective_api_mode == "responses")
         request_model_prompt = _prompt_for_transport(
             model_prompt,
             auth_source=auth_source,
@@ -102,6 +104,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         )
         if request_instructions:
             request_kwargs["instructions"] = request_instructions
+        if web_search_enabled:
+            request_kwargs["web_search"] = True
         request_payload = h["build_image_request_payload"](**request_kwargs)
         stored_request_payload = h["slim_request_payload"](
             request_payload,
@@ -125,6 +129,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         if orientation:
             params["orientation"] = orientation
         params["prompt_fidelity"] = fidelity
+        if web_search_enabled:
+            params["web_search"] = True
         if effective_api_mode is not None:
             params["api_mode"] = effective_api_mode
         if effective_api_provider_id is not None:
@@ -172,6 +178,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         moderation: str | None = Form(None),
         output_compression: str | None = Form(None),
         n: int = Form(1, ge=1, le=4),
+        web_search: bool = Form(False),
         api_mode: str | None = Form(None),
         api_provider_id: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
@@ -213,6 +220,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         effective_api_mode = h["request_api_mode"](auth_source, api_mode, effective_api_provider_id)
         effective_api_images_concurrency = h["request_api_images_concurrency"](auth_source, effective_api_provider_id)
         requested_backend = h["backend_for_submit"](auth_source, effective_api_mode)
+        web_search_enabled = bool(web_search) and (auth_source != "api" or effective_api_mode == "responses")
         request_model_prompt = _prompt_for_transport(
             model_prompt,
             auth_source=auth_source,
@@ -245,6 +253,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         )
         if request_instructions:
             request_kwargs["instructions"] = request_instructions
+        if web_search_enabled:
+            request_kwargs["web_search"] = True
         request_payload = h["build_image_request_payload"](**request_kwargs)
         image_input_names = [path.name for path in input_files]
         mask_file = mask_files[0].name if mask_files else None
@@ -273,6 +283,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         params["prompt_fidelity"] = fidelity
         if effective_input_fidelity:
             params["input_fidelity"] = effective_input_fidelity
+        if web_search_enabled:
+            params["web_search"] = True
         if effective_api_mode is not None:
             params["api_mode"] = effective_api_mode
         if effective_api_provider_id is not None:

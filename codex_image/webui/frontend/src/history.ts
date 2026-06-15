@@ -9,6 +9,7 @@ import {
   taskSelectedOutputIndexes,
 } from "./history-detail-media";
 import {
+  type HistoryScrollAnchor,
   type HistoryWindowEdge,
   type HistoryWindowDirection,
   captureHistoryScrollAnchor,
@@ -16,7 +17,14 @@ import {
   historyWindowEdgeCursor,
   restoreHistoryScrollAnchor,
 } from "./history-window";
-import { closeHistoryLightbox, isHistoryLightboxOpen, openHistoryLightbox } from "./history-lightbox";
+import {
+  closeHistoryLightbox,
+  isHistoryLightboxOpen,
+  openHistoryLightbox,
+  type HistoryLightboxTaskDirection,
+  type HistoryLightboxTaskNavigationContext,
+} from "./history-lightbox";
+import { initSegmentedIndicatorFeature } from "./segmented-indicator";
 
 type HistoryFacet = { value: string; count: number };
 type HistoryMonth = { month: string; count: number };
@@ -149,7 +157,7 @@ const els = {
   backendList: document.querySelector<HTMLElement>("#historyBackendList"),
   providerList: document.querySelector<HTMLElement>("#historyProviderList"),
   archiveList: document.querySelector<HTMLElement>("#historyArchiveList"),
-  sort: document.querySelector<HTMLSelectElement>("#historySort"),
+  sortToggle: document.querySelector<HTMLElement>("#historySortToggle"),
   viewToggle: document.querySelector<HTMLElement>("#historyViewToggle"),
   resultSummary: document.querySelector<HTMLElement>("#historyResultSummary"),
   bulkToolbar: document.querySelector<HTMLElement>("#historyBulkToolbar"),
@@ -286,7 +294,7 @@ function syncStateFromUrl(): void {
   }
   historyState.selectedTaskId = params.get("task") || "";
   if (els.search) els.search.value = historyState.q;
-  if (els.sort) els.sort.value = historyState.sort;
+  syncHistorySortMode();
   syncHistoryViewMode();
 }
 
@@ -340,6 +348,26 @@ function syncArchiveButtons(): void {
   document.querySelectorAll<HTMLElement>("[data-history-archived]").forEach((button) => {
     button.classList.toggle("active", button.getAttribute("data-history-archived") === historyState.archived);
   });
+}
+
+function syncHistorySortMode(): void {
+  const sort = historyState.sort === "oldest" ? "oldest" : "newest";
+  historyState.sort = sort;
+  els.sortToggle?.querySelectorAll<HTMLElement>("[data-history-sort]").forEach((button) => {
+    const active = button.dataset.historySort === sort;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function applyHistorySort(sort: string): void {
+  const nextSort = sort === "oldest" ? "oldest" : "newest";
+  if (historyState.sort === nextSort) return;
+  historyState.sort = nextSort;
+  historyState.selectedTaskId = "";
+  syncHistorySortMode();
+  updateHistoryUrl();
+  void loadTasks({ reset: true });
 }
 
 function queryParams(cursor?: string | null, direction: HistoryWindowDirection = "next"): string {
@@ -802,6 +830,120 @@ function renderTasks(tasks: HistoryTask[], { position }: { position: HistoryRend
   updateTaskSelectionVisuals();
 }
 
+function captureHistoryScrollAnchorSkipping(taskIds: Set<string>): HistoryScrollAnchor {
+  if (!els.taskList) return null;
+  const rootTop = els.taskList.getBoundingClientRect().top;
+  for (const card of historyTaskCards(els.taskList)) {
+    const taskId = String(card.dataset.historyTaskCardId || "");
+    if (!taskId || taskIds.has(taskId)) continue;
+    const rect = card.getBoundingClientRect();
+    if (rect.bottom < rootTop) continue;
+    return { taskId, offset: rect.top - rootTop };
+  }
+  return null;
+}
+
+function refreshHistoryWindowAfterMutation(
+  mutate: () => void,
+  options: { removedTaskIds?: string[] } = {},
+): void {
+  if (!els.taskList) {
+    mutate();
+    return;
+  }
+  const removedTaskIds = new Set(options.removedTaskIds || []);
+  const currentAnchor = captureHistoryScrollAnchor(els.taskList);
+  const anchor = currentAnchor && !removedTaskIds.has(currentAnchor.taskId)
+    ? currentAnchor
+    : captureHistoryScrollAnchorSkipping(removedTaskIds);
+  mutate();
+  if (!els.taskList.querySelector(".history-task-card")) {
+    renderTaskListMessage("history-empty", translate("history.noMatches"));
+  }
+  layoutJustifiedHistoryGrid();
+  restoreHistoryScrollAnchor(els.taskList, anchor);
+  updateTaskSelectionVisuals();
+  window.requestAnimationFrame(maybeLoadMoreFromScroll);
+}
+
+function removeHistoryTaskIdsFromWindow(taskIds: string[]): void {
+  const ids = taskIds.filter(Boolean);
+  if (!ids.length) return;
+  const idSet = new Set(ids);
+  refreshHistoryWindowAfterMutation(() => {
+    ids.forEach((taskId) => {
+      historyState.loadedTaskIds.delete(taskId);
+      historyState.loadedTaskSummaries.delete(taskId);
+      historyState.selectedTaskIds.delete(taskId);
+      if (historyState.selectionAnchorTaskId === taskId) historyState.selectionAnchorTaskId = "";
+      historyTaskCardElement(taskId)?.remove();
+    });
+    if (idSet.has(historyState.selectedTaskId)) {
+      historyState.selectedTaskId = "";
+      historyState.detailTask = null;
+      els.page?.classList.remove("history-detail-open");
+      updateHistoryUrl();
+      renderDetailShell(translate("history.detailEmpty"));
+    }
+  }, { removedTaskIds: ids });
+}
+
+function historyTaskMatchesCurrentArchiveFilter(task: any): boolean {
+  if (historyState.archived === "true") return historyTaskArchived(task);
+  if (historyState.archived === "false") return !historyTaskArchived(task);
+  return true;
+}
+
+function historyTaskSummaryFromDetail(taskId: string, task: any): HistoryTask | null {
+  const previous = historyState.loadedTaskSummaries.get(taskId);
+  const source = task || previous;
+  if (!source) return null;
+  const generatedCount = historyTaskGeneratedCount(source);
+  const totalCount = positiveInt(source.total_count) ?? previous?.total_count ?? generatedCount;
+  return {
+    ...(previous || {}),
+    ...(source || {}),
+    task_id: taskId || String(source.task_id || previous?.task_id || ""),
+    created_at: String(source.created_at || previous?.created_at || ""),
+    updated_at: String(source.updated_at || previous?.updated_at || ""),
+    completed_at: String(source.completed_at || previous?.completed_at || ""),
+    status: String(source.status || previous?.status || ""),
+    mode: String(source.mode || previous?.mode || ""),
+    size: String(source.size || source.output_size || source.params?.size || previous?.size || ""),
+    quality: String(source.quality || source.params?.quality || previous?.quality || ""),
+    prompt_mode: String(source.prompt_mode || source.params?.prompt_fidelity || previous?.prompt_mode || ""),
+    ratio: String(source.ratio || source.params?.ratio || previous?.ratio || ""),
+    orientation: String(source.orientation || source.params?.orientation || previous?.orientation || ""),
+    backend: String(source.backend || previous?.backend || ""),
+    provider: String(source.provider || source.api_provider_name || previous?.provider || ""),
+    archived: historyTaskArchived(source),
+    generated_count: generatedCount || previous?.generated_count || 0,
+    failed_count: positiveInt(source.failed_count) ?? previous?.failed_count ?? 0,
+    total_count: totalCount || 0,
+    thumbnail_url: String(source.thumbnail_url || previous?.thumbnail_url || ""),
+    prompt_preview: String(source.prompt_preview || source.prompt || previous?.prompt_preview || ""),
+  };
+}
+
+function upsertHistoryTaskSummaryCard(taskId: string, task: any): void {
+  const summary = historyTaskSummaryFromDetail(taskId, task);
+  if (!summary?.task_id) return;
+  if (!historyTaskMatchesCurrentArchiveFilter(summary)) {
+    removeHistoryTaskIdsFromWindow([summary.task_id]);
+    return;
+  }
+  refreshHistoryWindowAfterMutation(() => {
+    const card = historyTaskCardElement(summary.task_id);
+    if (!card) return;
+    historyState.loadedTaskIds.add(summary.task_id);
+    historyState.loadedTaskSummaries.set(summary.task_id, summary);
+    const template = document.createElement("template");
+    template.innerHTML = taskCardHtml(summary).trim();
+    const nextCard = template.content.firstElementChild;
+    if (nextCard) card.replaceWith(nextCard);
+  });
+}
+
 function renderTaskListMessage(className: string, message: string): void {
   if (!els.taskList) return;
   els.taskList.innerHTML = `<div class="${className}">${escapeHtml(message)}</div>`;
@@ -1129,6 +1271,7 @@ function promptCompareHtml(task: any): string {
   const originalPrompt = promptTextValue(task.prompt || "");
   const submittedPrompt = promptTextValue(task.prompt_for_model || "");
   const revisedPrompt = revisedPromptText(task);
+  const hasDistinctOutputPrompts = hasDistinctOutputRevisedPrompts(task);
   const seen = new Set<string>();
   const panels: string[] = [];
   const addPanel = (kind: string, title: string, text: string): boolean => {
@@ -1141,9 +1284,12 @@ function promptCompareHtml(task: any): string {
   };
 
   addPanel("original", translate("history.promptOriginal"), originalPrompt);
-  const hasRevisedPanel = addPanel("revised", translate("history.promptRevised"), revisedPrompt);
+  const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised", translate("history.promptRevised"), revisedPrompt);
   if (!hasRevisedPanel) {
     addPanel("submitted", translate("history.promptSubmitted"), submittedPrompt);
+  }
+  if (hasDistinctOutputPrompts) {
+    panels.push(`<p class="history-prompt-note">${escapeHtml(translate("history.outputRevisedPromptNotice"))}</p>`);
   }
   return panels.length ? `<section class="history-prompt-compare" aria-label="${escapeHtml(translate("history.promptCompare"))}">${panels.join("")}</section>` : "";
 }
@@ -1179,6 +1325,14 @@ function revisedPromptText(task: any): string {
     });
   }
   return uniquePromptTexts(values).join("\n\n");
+}
+
+function outputRevisedPromptTexts(task: any): string[] {
+  return uniquePromptTexts(taskOutputRecords(task).map((record) => record.revisedPrompt));
+}
+
+function hasDistinctOutputRevisedPrompts(task: any): boolean {
+  return outputRevisedPromptTexts(task).length > 1;
 }
 
 function promptPanelHtml(kind: string, title: string, text: string): string {
@@ -1248,12 +1402,19 @@ async function archiveHistoryTaskIds(ids: string[], archived: boolean): Promise<
   if (!ids.length) return;
   setText(els.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
   try {
-    await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
+    const tasks = await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
     ids.forEach((taskId) => historyState.selectedTaskIds.delete(taskId));
     historyState.deleteConfirming = false;
     historyState.contextMenuDeleteConfirmKey = "";
+    tasks.forEach((task, index) => {
+      const taskId = ids[index] || String(task?.task_id || "");
+      upsertHistoryTaskSummaryCard(taskId, task);
+      if (taskId && String(historyState.detailTask?.task_id || "") === taskId && task) {
+        historyState.detailTask = task;
+        renderTaskDetail(task);
+      }
+    });
     await loadSummary();
-    await loadTasks({ reset: true });
     setText(els.resultSummary, archived ? formatTranslation("batch.archivedCount", { count: ids.length }) : formatTranslation("archive.restoredCount", { count: ids.length }));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
@@ -1273,8 +1434,8 @@ async function archiveSingleTask(taskId: string, archived: boolean): Promise<voi
       historyState.detailTask = task;
       renderTaskDetail(task);
     }
+    upsertHistoryTaskSummaryCard(taskId, task);
     await loadSummary();
-    await loadTasks({ reset: true });
     setText(els.resultSummary, archived ? translate("taskActions.archived") : translate("archive.restored"));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
@@ -1299,8 +1460,8 @@ async function deleteSelectedTasks(): Promise<void> {
     historyState.selectedTaskIds.clear();
     historyState.deleteConfirming = false;
     historyState.contextMenuDeleteConfirmKey = "";
+    removeHistoryTaskIdsFromWindow(ids);
     await loadSummary();
-    await loadTasks({ reset: true });
     setText(els.resultSummary, formatTranslation("batch.deletedCount", { count: ids.length, skipped: "" }));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
@@ -1330,15 +1491,8 @@ async function deleteSingleHistoryTask(taskId: string, { confirmInMenu = false }
     historyState.loadedTaskSummaries.delete(taskId);
     historyState.deleteConfirmTaskId = "";
     historyState.contextMenuDeleteConfirmKey = "";
-    if (historyState.selectedTaskId === taskId) {
-      historyState.selectedTaskId = "";
-      historyState.detailTask = null;
-      els.page?.classList.remove("history-detail-open");
-      updateHistoryUrl();
-      renderDetailShell(translate("history.detailEmpty"));
-    }
+    removeHistoryTaskIdsFromWindow([taskId]);
     await loadSummary();
-    await loadTasks({ reset: true });
     setText(els.resultSummary, translate("taskActions.deleted"));
     return true;
   } catch (error) {
@@ -1381,7 +1535,7 @@ async function deleteUnselectedOutputs(taskId: string): Promise<void> {
     if (!response.ok) throw new Error(data.detail || translate("taskActions.deleteFailed"));
     historyState.deleteUnselectedConfirmTaskId = "";
     renderTaskDetail(data.task || {});
-    await loadTasks({ reset: true });
+    upsertHistoryTaskSummaryCard(taskId, data.task || {});
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
   }
@@ -1396,10 +1550,21 @@ function promptTextForKind(kind: string): string {
   return String(task.prompt || task.prompt_preview || "").trim();
 }
 
+function outputPromptTextForIndex(outputIndex: unknown): string {
+  const index = positiveInt(outputIndex);
+  if (index === null) return "";
+  const record = taskOutputRecords(historyState.detailTask || {}).find((output) => output.index === index);
+  return String(record?.revisedPrompt || "").trim();
+}
+
 async function writeClipboardText(text: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Some embedded browser contexts expose clipboard.writeText but reject it.
+    }
   }
   const textarea = document.createElement("textarea");
   textarea.value = text;
@@ -1426,6 +1591,26 @@ function setPromptCopyButtonFeedback(button: HTMLElement, message: string): void
 
 async function copyPromptToClipboard(kind = "original", button?: HTMLElement): Promise<void> {
   const text = promptTextForKind(kind);
+  if (!text) {
+    if (button) {
+      setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
+    } else {
+      setText(els.resultSummary, translate("history.noPrompt"));
+    }
+    return;
+  }
+  try {
+    await writeClipboardText(text);
+    if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
+    setText(els.resultSummary, translate("history.promptCopied"));
+  } catch (error) {
+    if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopyFailedShort"));
+    setText(els.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+  }
+}
+
+async function copyOutputPromptToClipboard(outputIndex: unknown, button?: HTMLElement): Promise<void> {
+  const text = outputPromptTextForIndex(outputIndex);
   if (!text) {
     if (button) {
       setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
@@ -1731,7 +1916,10 @@ function handoffReferenceToMain(url: string): void {
 
 function openHistoryDetailLightbox(index: number): void {
   const urls = historyLightboxUrlsFromTask(historyState.detailTask || {});
-  openHistoryLightbox(urls, index);
+  openHistoryLightbox(urls, index, {
+    taskId: historyState.selectedTaskId,
+    onTaskNavigate: openHistoryTaskLightboxByDirection,
+  });
 }
 
 function openHistoryInputLightbox(index: number): void {
@@ -1739,13 +1927,65 @@ function openHistoryInputLightbox(index: number): void {
   openHistoryLightbox(urls, index);
 }
 
-async function openHistoryTaskLightbox(taskId: string): Promise<void> {
+function historyAdjacentTaskId(taskId: string, direction: HistoryLightboxTaskDirection): string {
+  if (!taskId) return "";
+  const taskIds = visibleHistoryTaskIds();
+  const index = taskIds.indexOf(taskId);
+  if (index < 0) return "";
+  const nextIndex = direction === "previous" ? index - 1 : index + 1;
+  return taskIds[nextIndex] || "";
+}
+
+function shouldLoadHistoryAdjacentTask(taskId: string, direction: HistoryLightboxTaskDirection): boolean {
+  if (!taskId) return false;
+  const taskIds = visibleHistoryTaskIds();
+  const index = taskIds.indexOf(taskId);
+  if (index < 0) return false;
+  if (direction === "previous") return index === 0 && !historyState.newerExhausted;
+  return index === taskIds.length - 1 && !historyState.exhausted;
+}
+
+function syncHistoryLightboxDetail(taskId: string, detail: any): void {
+  historyState.selectedTaskId = taskId;
+  historyState.deleteConfirming = false;
+  historyState.deleteConfirmTaskId = "";
+  historyState.deleteUnselectedConfirmTaskId = "";
+  historyState.detailTask = detail;
+  els.page?.classList.add("history-detail-open");
+  updateHistoryUrl();
+  updateTaskSelectionVisuals(taskId);
+  ensureHistoryTaskCardVisible(taskId);
+  renderTaskDetail(detail);
+}
+
+async function openHistoryTaskLightboxByDirection(
+  direction: HistoryLightboxTaskDirection,
+  context: HistoryLightboxTaskNavigationContext,
+): Promise<void> {
+  const currentTaskId = context.taskId || historyState.selectedTaskId;
+  let nextTaskId = historyAdjacentTaskId(currentTaskId, direction);
+  if (!nextTaskId && shouldLoadHistoryAdjacentTask(currentTaskId, direction)) {
+    await loadTasks({ direction });
+    nextTaskId = historyAdjacentTaskId(currentTaskId, direction);
+  }
+  if (!nextTaskId) {
+    setText(els.resultSummary, translate("history.noMore"));
+    return;
+  }
+  await openHistoryTaskLightbox(nextTaskId, context.imageIndex);
+}
+
+async function openHistoryTaskLightbox(taskId: string, index = 0): Promise<void> {
   if (!taskId) return;
   try {
     const detail = historyState.detailTask?.task_id === taskId ? historyState.detailTask : await fetchHistoryTaskDetail(taskId);
     const urls = historyLightboxUrlsFromTask(detail);
     if (!urls.length) throw new Error(translate("history.noPreview"));
-    openHistoryLightbox(urls, 0);
+    syncHistoryLightboxDetail(taskId, detail);
+    openHistoryLightbox(urls, index, {
+      taskId,
+      onTaskNavigate: openHistoryTaskLightboxByDirection,
+    });
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("history.detailFailed")));
   }
@@ -1778,11 +2018,11 @@ function bindEvents(): void {
     updateHistoryUrl();
     void loadTasks({ reset: true });
   });
-  els.sort?.addEventListener("change", () => {
-    historyState.sort = els.sort?.value === "oldest" ? "oldest" : "newest";
-    historyState.selectedTaskId = "";
-    updateHistoryUrl();
-    void loadTasks({ reset: true });
+  els.sortToggle?.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const button = target?.closest<HTMLElement>("[data-history-sort]");
+    if (!button || !els.sortToggle?.contains(button)) return;
+    applyHistorySort(button.dataset.historySort || "newest");
   });
   document.addEventListener("change", (event) => {
     const target = event.target as HTMLElement | null;
@@ -1842,6 +2082,11 @@ function bindEvents(): void {
     const referenceHandoffButton = target?.closest<HTMLElement>("[data-history-reference-handoff-url]");
     if (referenceHandoffButton) {
       handoffReferenceToMain(referenceHandoffButton.dataset.historyReferenceHandoffUrl || "");
+      return;
+    }
+    const copyOutputPromptButton = target?.closest<HTMLElement>("[data-history-copy-output-prompt-index]");
+    if (copyOutputPromptButton) {
+      void copyOutputPromptToClipboard(copyOutputPromptButton.dataset.historyCopyOutputPromptIndex, copyOutputPromptButton);
       return;
     }
     const copyPromptButton = target?.closest<HTMLElement>("[data-history-copy-prompt-kind]");
@@ -1996,6 +2241,7 @@ async function bootHistoryPage(): Promise<void> {
   applyHistoryLocale();
   restoreHistoryLayoutPreference();
   syncStateFromUrl();
+  initSegmentedIndicatorFeature();
   renderDetailShell(translate("history.detailEmpty"));
   bindEvents();
   await loadSummary();

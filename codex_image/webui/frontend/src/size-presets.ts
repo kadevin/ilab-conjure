@@ -168,6 +168,14 @@ export function currentImageToolModel(): string {
   return currentAuthSource() === "api" ? currentApiImageModel() : els.model.value;
 }
 
+export function webSearchSupportedForCurrentBackend(): boolean {
+  return currentAuthSource() !== "api" || currentApiMode() === "responses";
+}
+
+export function currentWebSearchEnabled(): boolean {
+  return Boolean(els.webSearch?.checked && webSearchSupportedForCurrentBackend());
+}
+
 export function currentTaskParams(): any {
   const params: any = {
     main_model: currentMainModel(),
@@ -180,6 +188,9 @@ export function currentTaskParams(): any {
     moderation: els.moderation.value,
     output_compression: els.outputFormat.value === "png" ? null : Number(els.compression.value),
   };
+  if (currentWebSearchEnabled()) {
+    params.web_search = true;
+  }
   const presetMatch = findPresetForSize(params.size);
   if (presetMatch) {
     params.resolution = presetMatch.resolution;

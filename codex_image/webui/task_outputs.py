@@ -132,7 +132,7 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
     else:
         metadata.pop("output_url", None)
 
-    for key in ("output_sizes", "output_formats", "qualities", "backgrounds", "revised_prompts", "usages"):
+    for key in ("output_sizes", "output_formats", "qualities", "backgrounds", "revised_prompts", "usages", "tool_usages"):
         if isinstance(metadata.get(key), list):
             metadata[key] = metadata[key][:success_count]
     scalar_sources = {
@@ -142,6 +142,7 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
         "background": "backgrounds",
         "revised_prompt": "revised_prompts",
         "usage": "usages",
+        "tool_usage": "tool_usages",
     }
     for scalar_key, list_key in scalar_sources.items():
         values = metadata.get(list_key)
@@ -370,6 +371,7 @@ def _visible_completed_output_records(metadata: dict[str, Any]) -> list[dict[str
             ("background", "backgrounds"),
             ("revised_prompt", "revised_prompts"),
             ("usage", "usages"),
+            ("tool_usage", "tool_usages"),
         ):
             if record.get(record_key) is None:
                 value = _metadata_list_value(metadata, list_key, url_position)
@@ -394,6 +396,7 @@ def _visible_completed_output_records(metadata: dict[str, Any]) -> list[dict[str
             ("background", "backgrounds"),
             ("revised_prompt", "revised_prompts"),
             ("usage", "usages"),
+            ("tool_usage", "tool_usages"),
         ):
             value = _metadata_list_value(metadata, list_key, fallback_index - 1)
             if value is not None:
@@ -579,6 +582,7 @@ def _delete_unselected_task_outputs(storage: TaskStorage, task_id: str, metadata
         "backgrounds": "background",
         "revised_prompts": "revised_prompt",
         "usages": "usage",
+        "tool_usages": "tool_usage",
     }
     scalar_sources = {
         "output_size": "output_sizes",
@@ -587,6 +591,7 @@ def _delete_unselected_task_outputs(storage: TaskStorage, task_id: str, metadata
         "background": "backgrounds",
         "revised_prompt": "revised_prompts",
         "usage": "usages",
+        "tool_usage": "tool_usages",
     }
     for list_key, record_key in list_sources.items():
         values = [record[record_key] for record in accepted_outputs if record.get(record_key) is not None]
@@ -739,6 +744,7 @@ def _write_progress_metadata(
             "backgrounds": [result.background for result in results],
             "revised_prompts": [result.revised_prompt for result in results],
             "usages": [result.usage for result in results],
+            "tool_usages": [result.tool_usage for result in results],
         }
     )
     _apply_api_provider_metadata(metadata, params)
@@ -763,6 +769,7 @@ def _write_progress_metadata(
                 "background": first_result.background,
                 "revised_prompt": first_result.revised_prompt,
                 "usage": first_result.usage,
+                "tool_usage": first_result.tool_usage,
             }
         )
     else:
@@ -775,6 +782,7 @@ def _write_progress_metadata(
             "background",
             "revised_prompt",
             "usage",
+            "tool_usage",
         ):
             metadata.pop(key, None)
 
@@ -873,6 +881,8 @@ def _finalize_generated_task(
             "revised_prompts": [result.revised_prompt for result in results],
             "usage": first_result.usage,
             "usages": [result.usage for result in results],
+            "tool_usage": first_result.tool_usage,
+            "tool_usages": [result.tool_usage for result in results],
         }
     )
     _apply_api_provider_metadata(metadata, params)
@@ -911,6 +921,7 @@ def _complete_task(
     output_qualities: list[str] = []
     revised_prompts: list[str] = []
     usages: list[dict[str, Any]] = []
+    tool_usages: list[dict[str, Any]] = []
 
     multiple_outputs = isinstance(results, list)
     for index, result in enumerate(result_list, start=1):
@@ -927,6 +938,7 @@ def _complete_task(
         output_qualities.append(result.quality)
         revised_prompts.append(result.revised_prompt)
         usages.append(result.usage)
+        tool_usages.append(result.tool_usage)
 
     first_result = result_list[0]
     first_output_path = output_paths[0]
@@ -966,6 +978,8 @@ def _complete_task(
             "revised_prompts": revised_prompts,
             "usage": first_result.usage,
             "usages": usages,
+            "tool_usage": first_result.tool_usage,
+            "tool_usages": tool_usages,
         }
     )
     _apply_api_provider_metadata(metadata, params)

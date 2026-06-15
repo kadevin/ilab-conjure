@@ -70,6 +70,7 @@ export interface TaskParams {
   output_format?: string;
   output_compression?: number | null;
   n?: number;
+  web_search?: boolean;
   prompt_fidelity?: "strict" | "original" | "off";
   api_mode?: ApiMode;
   api_provider_id?: string;

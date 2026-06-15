@@ -320,7 +320,8 @@ function resetForm() {
   els.moderation.value = "auto";
   els.compression.value = "80";
   if (els.promptFidelity) els.promptFidelity.value = "strict";
-  [els.nInput, els.resolution, els.ratio, els.orientation, els.quality, els.outputFormat, els.moderation, els.promptFidelity].forEach((sel) => {
+  if (els.webSearch) els.webSearch.checked = false;
+  [els.nInput, els.resolution, els.ratio, els.orientation, els.quality, els.outputFormat, els.moderation, els.promptFidelity, els.webSearch].forEach((sel) => {
     if (sel) sel.dispatchEvent(new Event("change"));
   });
   setMode("generate");

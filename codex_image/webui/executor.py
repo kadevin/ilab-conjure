@@ -78,6 +78,9 @@ async def _execute_stored_task(
         guard_instructions = ""
     assigned_auth_source = str(metadata.get("assigned_auth_source") or "")
     effective_api_mode = str(params.get("api_mode") or DEFAULT_API_MODE)
+    web_search_enabled = bool(params.get("web_search")) and (
+        assigned_auth_source != "api" or effective_api_mode == "responses"
+    )
     transport_prompt = _prompt_for_transport(
         model_prompt,
         auth_source=assigned_auth_source,
@@ -144,6 +147,14 @@ async def _execute_stored_task(
         output_records=output_records,
     )
 
+    def image_prompt_kwargs() -> dict[str, Any]:
+        kwargs: dict[str, Any] = {}
+        if transport_instructions:
+            kwargs["instructions"] = transport_instructions
+        if web_search_enabled:
+            kwargs["web_search"] = True
+        return kwargs
+
     candidate_output_numbers = retrying_failed_slots or list(range(1, count + 1))
     remaining_output_numbers = [index for index in candidate_output_numbers if index not in completed_output_numbers]
     if _direct_images_concurrent_enabled(client, assigned_auth_source, effective_api_mode) and remaining_output_numbers:
@@ -174,9 +185,7 @@ async def _execute_stored_task(
                 async with semaphore:
                     _append_output_record_state(output_records, {"index": output_number, "status": "running"})
                     write_progress_metadata()
-                    prompt_kwargs: dict[str, Any] = {}
-                    if transport_instructions:
-                        prompt_kwargs["instructions"] = transport_instructions
+                    prompt_kwargs = image_prompt_kwargs()
                     if mode == "edit":
                         result = await _call_image_client(
                             request_context,
@@ -240,6 +249,8 @@ async def _execute_stored_task(
                         "revised_prompt": result.revised_prompt,
                         "usage": result.usage,
                     }
+                    if result.tool_usage:
+                        output_record["tool_usage"] = result.tool_usage
                     output_record.update(_output_thumbnail_fields(storage, task_id, output_number, output_path))
                     _append_output_record_state(output_records, output_record)
                     completed_output_numbers.add(output_number)
@@ -286,9 +297,7 @@ async def _execute_stored_task(
             max_output_attempts = 1
             for attempt in range(1, max_output_attempts + 1):
                 try:
-                    prompt_kwargs: dict[str, Any] = {}
-                    if transport_instructions:
-                        prompt_kwargs["instructions"] = transport_instructions
+                    prompt_kwargs = image_prompt_kwargs()
                     if mode == "edit":
                         result = await _call_image_client(
                             request_context,
@@ -387,6 +396,8 @@ async def _execute_stored_task(
                 "revised_prompt": result.revised_prompt,
                 "usage": result.usage,
             }
+            if result.tool_usage:
+                output_record["tool_usage"] = result.tool_usage
             output_record.update(_output_thumbnail_fields(storage, task_id, output_number, output_path))
             output_records.append(output_record)
             completed_output_numbers.add(output_number)

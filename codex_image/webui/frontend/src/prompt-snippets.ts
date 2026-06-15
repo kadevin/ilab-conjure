@@ -363,33 +363,83 @@ function showPromptSnippetSelectionButton(selection: any) {
   if (!button || !selection?.range) return;
   state.promptSnippetSelectionRange = selection.range.cloneRange();
   state.promptSnippetSelectionText = selection.text;
-  const rect = promptSnippetSelectionAnchorRect(selection) || els.promptEditor.getBoundingClientRect();
+  const editorRect = promptSnippetVisibleEditorRect();
+  const rect = promptSnippetSelectionAnchorRect(selection, editorRect);
+  if (!rect || !editorRect) return;
   const buttonWidth = 54;
   const buttonHeight = 30;
   const gap = 6;
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth || rect.right;
   const maxLeft = Math.max(8, viewportWidth - buttonWidth - 8);
+  const minTop = Math.max(8, editorRect.top + 4);
+  const maxTop = Math.max(minTop, editorRect.bottom - buttonHeight - 4);
   const endpointLeft = rect.right;
   const inlineLeft = endpointLeft + gap;
   const left = inlineLeft <= maxLeft
     ? Math.max(8, inlineLeft)
     : Math.min(maxLeft, Math.max(8, endpointLeft - buttonWidth));
-  const top = inlineLeft <= maxLeft
+  const preferredTop = inlineLeft <= maxLeft
     ? Math.max(8, rect.top + Math.max(0, (rect.height - buttonHeight) / 2))
     : Math.max(8, rect.bottom + gap);
+  const top = Math.min(maxTop, Math.max(minTop, preferredTop));
   button.style.setProperty("--prompt-snippet-save-left", `${left}px`);
   button.style.setProperty("--prompt-snippet-save-top", `${top}px`);
   button.classList.remove("hidden");
 }
 
-function promptSnippetSelectionAnchorRect(selection: any) {
-  if (!selection?.range) return null;
+function promptSnippetSelectionAnchorRect(selection: any, editorRect: any) {
+  if (!selection?.range || !editorRect) return null;
   const endRange = selection.range.cloneRange();
   endRange.collapse(false);
-  const endRect = mentionRangeRect(endRange);
+  const endRect = clipRectToBounds(mentionRangeRect(endRange), editorRect);
   if (endRect && (endRect.width || endRect.height)) return endRect;
-  const rects = Array.from(selection.range.getClientRects()).filter((rect: any) => rect.width || rect.height);
-  return rects.length ? rects[rects.length - 1] : mentionRangeRect(selection.range);
+  const visibleRects = promptSnippetSelectionVisibleRects(selection.range, editorRect);
+  return visibleRects.length ? visibleRects[visibleRects.length - 1] : promptSnippetFallbackVisibleAnchorRect(editorRect);
+}
+
+function promptSnippetVisibleEditorRect() {
+  if (!els.promptEditor) return null;
+  const rect = els.promptEditor.getBoundingClientRect();
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || rect.right;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || rect.bottom;
+  return clipRectToBounds(rect, {
+    left: 8,
+    top: 8,
+    right: Math.max(8, viewportWidth - 8),
+    bottom: Math.max(8, viewportHeight - 8),
+  });
+}
+
+function promptSnippetSelectionVisibleRects(range: any, editorRect: any) {
+  return Array.from(range.getClientRects())
+    .map((rect: any) => clipRectToBounds(rect, editorRect))
+    .filter((rect: any) => rect && (rect.width || rect.height));
+}
+
+function promptSnippetFallbackVisibleAnchorRect(editorRect: any) {
+  if (!editorRect) return null;
+  const width = Math.max(1, Math.min(12, editorRect.width));
+  const height = Math.max(1, Math.min(24, editorRect.height));
+  return {
+    left: Math.max(editorRect.left, editorRect.right - width),
+    right: editorRect.right,
+    top: Math.max(editorRect.top, editorRect.bottom - height),
+    bottom: editorRect.bottom,
+    width,
+    height,
+  };
+}
+
+function clipRectToBounds(rect: any, bounds: any) {
+  if (!rect || !bounds) return null;
+  const left = Math.max(rect.left, bounds.left);
+  const right = Math.min(rect.right, bounds.right);
+  const top = Math.max(rect.top, bounds.top);
+  const bottom = Math.min(rect.bottom, bounds.bottom);
+  const width = Math.max(0, right - left);
+  const height = Math.max(0, bottom - top);
+  if (!width && !height) return null;
+  return { left, right, top, bottom, width, height };
 }
 
 function hidePromptSnippetSelectionButton() {

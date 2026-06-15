@@ -407,13 +407,17 @@ class SQLiteTaskIndex:
                 where.append("(created_at < ? or (created_at = ? and task_id < ?))")
             params.extend([cursor_created_at, cursor_created_at, cursor_task_id])
         clean_query = q.strip()
+        search_param_count = 0
         if clean_query:
+            search_like = f"%{clean_query}%"
             if self.fts_enabled:
-                where.append("task_id in (select task_id from task_index_fts where task_index_fts match ?)")
-                params.append(_fts_query(clean_query))
+                where.append("(task_id like ? or task_id in (select task_id from task_index_fts where task_index_fts match ?))")
+                params.extend([search_like, _fts_query(clean_query)])
+                search_param_count = 2
             else:
-                where.append("search_text like ?")
-                params.append(f"%{clean_query}%")
+                where.append("(task_id like ? or search_text like ?)")
+                params.extend([search_like, search_like])
+                search_param_count = 2
         sql = (
             "select task_id, created_at, updated_at, completed_at, status, mode, size, quality, prompt_mode, ratio, orientation, "
             "backend, provider, archived_at, generated_count, failed_count, total_count, thumbnail_url, prompt_preview "
@@ -433,9 +437,11 @@ class SQLiteTaskIndex:
             if not clean_query or not self.fts_enabled:
                 raise
             where = [clause for clause in where if "task_index_fts" not in clause]
-            params = params[:-2] if params else []
-            where.append("search_text like ?")
-            params.append(f"%{clean_query}%")
+            params_without_limit = params[:-1] if params else []
+            params = params_without_limit[:-search_param_count] if search_param_count else params_without_limit
+            search_like = f"%{clean_query}%"
+            where.append("(task_id like ? or search_text like ?)")
+            params.extend([search_like, search_like])
             params.append(safe_limit + 1)
             fallback_sql = sql.split(" where ")[0]
             fallback_sql += " where " + " and ".join(where)
@@ -546,7 +552,7 @@ def _history_fields_for_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
         "total_count": total_count,
         "thumbnail_url": _first_thumbnail_url(task_id, metadata),
         "prompt_preview": _truncate(prompt, 240),
-        "search_text": "\n".join(value for value in [prompt, prompt_for_model] if value),
+        "search_text": "\n".join(value for value in [task_id, prompt, prompt_for_model] if value),
     }
 
 

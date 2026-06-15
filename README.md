@@ -48,6 +48,7 @@ Images API 或 Responses API 形态。
 - 支持 Codex Responses 和 OpenAI 兼容 API 接入；公开或共享使用优先选择 API 模式。
 - 多任务并发、本地队列状态、分页历史库、缩略图和结果归档。
 - 独立 `/history` 页面支持 SQLite 分页、搜索、筛选、网格/列表视图和懒加载详情。
+- Codex 和 API Responses 生图可选启用联网搜索；生成页和历史库搜索支持提示词与任务 ID，并可命中历史任务。
 - 单任务多图输出、部分失败处理和失败重试。
 - 公用图库、最近参考图、颜色 chip、提示词片段 chip 和提示词模板。
 - WebUI 支持中文 / English 语言切换，顶栏可直接切换语言，偏好保存在当前浏览器。
@@ -119,7 +120,7 @@ http://127.0.0.1:8787/
 ## 免安装一键包
 
 当前可用的一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.3.7](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.7)。
+[GitHub Release v0.4.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.4.0)。
 
 这些包面向希望像 ComfyUI 一样“解压即用”的用户：
 

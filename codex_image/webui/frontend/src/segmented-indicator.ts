@@ -1,6 +1,6 @@
-const HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher"];
+const HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher", ".history-view-toggle", ".history-sort-toggle"];
 const HOST_SELECTOR = HOST_SELECTORS.join(", ");
-const BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option";
+const BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option, .history-view-button, .history-sort-button";
 const INDICATOR_CLASS = "segmented-indicator";
 const HOST_CLASS = "segmented-indicator-host";
 
@@ -10,7 +10,7 @@ let segmentedIndicatorsInitialized = false;
 let resizeObserver: ResizeObserver | null = null;
 
 function activeSegment(host: HTMLElement): HTMLElement | null {
-  return host.querySelector<HTMLElement>(".radio-btn.active, .auth-source-button.active");
+  return host.querySelector<HTMLElement>(".radio-btn.active, .auth-source-button.active, .language-option.active, .history-view-button.active, .history-sort-button.active");
 }
 
 function ensureIndicator(host: HTMLElement): HTMLElement {

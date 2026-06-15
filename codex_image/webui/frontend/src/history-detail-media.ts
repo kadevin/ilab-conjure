@@ -144,6 +144,28 @@ export function taskInputRecords(task: any): HistoryInputRecord[] {
   return records;
 }
 
+function outputRevisedPromptHtml(taskId: string, record: HistoryOutputRecord, index: number): string {
+  const revisedPrompt = String(record.revisedPrompt || "").trim();
+  if (!revisedPrompt) return "";
+  const displayIndex = index + 1;
+  const title = formatTranslation("history.outputRevisedPromptTitle", { index: displayIndex });
+  return `
+    <div class="history-detail-output-prompt">
+      <div class="history-detail-output-prompt-header">
+        <span>${escapeHtml(title)}</span>
+        <button
+          class="ghost-button text-sm history-prompt-copy"
+          type="button"
+          data-history-copy-output-prompt-task-id="${escapeHtml(taskId)}"
+          data-history-copy-output-prompt-index="${record.index}"
+          aria-label="${escapeHtml(formatTranslation("history.copyOutputPromptPanel", { index: displayIndex }))}"
+        >${escapeHtml(translate("history.copyPromptShort"))}</button>
+      </div>
+      <div class="history-detail-output-prompt-text">${escapeHtml(revisedPrompt)}</div>
+    </div>
+  `;
+}
+
 function historyDetailImageHtml(
   taskId: string,
   record: HistoryOutputRecord,
@@ -154,6 +176,7 @@ function historyDetailImageHtml(
   const selectedClass = record.selected ? " selected" : "";
   const selectedText = record.selected ? translate("history.selected") : translate("history.select");
   const outputBadge = totalCount > 1 ? `<span class="history-detail-output-index">${index + 1} / ${totalCount}</span>` : "";
+  const revisedPrompt = outputRevisedPromptHtml(taskId, record, index);
   return `
     <article class="history-detail-image history-detail-output-card${selectedClass}">
       <button
@@ -178,6 +201,7 @@ function historyDetailImageHtml(
         <button class="history-detail-overlay-button primary" type="button" data-history-reference-handoff-url="${escapeHtml(record.url)}">${escapeHtml(translate("history.addReference"))}</button>
         ${selectedCount === 1 && record.selected ? `<a class="history-detail-overlay-button" href="${escapeHtml(record.url)}" download>${escapeHtml(translate("history.downloadSelected"))}</a>` : ""}
       </div>
+      ${revisedPrompt}
     </article>
   `;
 }

@@ -2,6 +2,8 @@
 .prompt-panel {
   --prompt-action-column-width: var(--workspace-side-action-width);
   --prompt-action-gap: 12px;
+  --prompt-secondary-action-height: 40px;
+  --prompt-secondary-chip-height: 32px;
 }
 
 .prompt-heading {
@@ -45,11 +47,13 @@
   grid-template-columns: minmax(0, 1fr) var(--prompt-action-column-width);
   gap: var(--prompt-action-gap);
   align-items: center;
+  min-height: var(--prompt-secondary-action-height);
   margin-top: 8px;
 }
 
 .prompt-template-entry {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   min-width: 0;
 }
@@ -59,6 +63,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  min-height: var(--prompt-secondary-action-height);
   min-width: 0;
 }
 
@@ -68,7 +73,8 @@
 
 .prompt-template-entry .prompt-template-button {
   width: 100%;
-  height: 32px;
+  height: var(--prompt-secondary-action-height);
+  min-height: var(--prompt-secondary-action-height);
   border-color: var(--primary);
   background: var(--primary);
   color: var(--primary-foreground);
@@ -536,16 +542,18 @@
 
 .prompt-template-recent-dock {
   display: flex;
+  align-items: center;
   flex: 1 1 auto;
   flex-wrap: nowrap;
   justify-content: flex-end;
   gap: 6px;
   max-width: 100%;
+  min-height: var(--prompt-secondary-action-height);
   overflow: hidden;
 }
 
 .prompt-template-recent-chip {
-  min-height: 28px;
+  min-height: var(--prompt-secondary-chip-height);
   max-width: 120px;
   padding: 0 10px;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--line));
@@ -1291,13 +1299,15 @@
   align-items: center;
   flex: 1 1 auto;
   gap: 6px;
+  min-height: var(--prompt-secondary-action-height);
   min-width: 0;
   font-size: 12px;
   color: var(--muted);
 }
 
 .prompt-footer .ghost-button {
-  height: 32px;
+  height: var(--prompt-secondary-action-height);
+  min-height: var(--prompt-secondary-action-height);
 }
 
 .prompt-footer > .icon-text-button {
@@ -1324,6 +1334,7 @@
   align-items: center;
   gap: 6px;
   flex: 1 1 auto;
+  min-height: var(--prompt-secondary-action-height);
   min-width: 0;
   max-width: 100%;
 }
@@ -1333,15 +1344,17 @@
 }
 
 .prompt-find-panel .control {
-  height: 32px;
+  height: calc(var(--prompt-secondary-action-height) - 4px);
+  min-height: calc(var(--prompt-secondary-action-height) - 4px);
   min-width: 0;
   padding: 0 10px;
   font-size: 12px;
 }
 
 .prompt-find-panel .ghost-button {
-  height: 32px;
-  min-width: 28px;
+  height: calc(var(--prompt-secondary-action-height) - 4px);
+  min-height: calc(var(--prompt-secondary-action-height) - 4px);
+  min-width: 32px;
   padding: 0 5px;
   white-space: nowrap;
 }

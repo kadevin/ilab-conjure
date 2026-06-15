@@ -58,6 +58,7 @@ def _restore_completed_output_progress(
         quality = str(record.get("quality") or params.get("quality") or "")
         background = str(record.get("background") or params.get("background") or "")
         usage = record.get("usage") if isinstance(record.get("usage"), dict) else {}
+        tool_usage = record.get("tool_usage") if isinstance(record.get("tool_usage"), dict) else {}
         restored_record = dict(record)
         restored_record.update(
             {
@@ -72,6 +73,8 @@ def _restore_completed_output_progress(
                 "usage": usage,
             }
         )
+        if tool_usage:
+            restored_record["tool_usage"] = tool_usage
         restored[index] = (
             ImageResult(
                 image_bytes=image_bytes,
@@ -81,6 +84,7 @@ def _restore_completed_output_progress(
                 background=background,
                 quality=quality,
                 usage=usage,
+                tool_usage=tool_usage,
             ),
             path,
             restored_record,

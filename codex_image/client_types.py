@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from .auth import AuthState
@@ -24,6 +24,7 @@ class ImageResult:
     background: str
     quality: str
     usage: dict[str, Any]
+    tool_usage: dict[str, Any] = field(default_factory=dict)
 
 
 class AuthProvider(Protocol):

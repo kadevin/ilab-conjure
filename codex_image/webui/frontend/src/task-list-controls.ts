@@ -13,6 +13,7 @@ function legacyMethod(name: string, ...args: any[]): any {
 }
 
 const renderTasks = () => legacyMethod("renderTasks");
+const syncTaskSearchHistoryResults = () => legacyMethod("syncTaskSearchHistoryResults");
 const taskSearchQuery = () => legacyMethod("taskSearchQuery");
 const filteredVisibleTasks = (...args: any[]) => legacyMethod("filteredVisibleTasks", ...args);
 const taskHistoryGroups = (...args: any[]) => legacyMethod("taskHistoryGroups", ...args);
@@ -45,13 +46,18 @@ function bindTaskListControlEvents() {
   els.batchArchiveButton?.addEventListener("click", archiveSelectedTasks);
   els.batchDeleteButton?.addEventListener("click", openBatchDeleteConfirm);
   els.batchCancelButton?.addEventListener("click", () => toggleBatchMode(false));
-  els.taskSearch.addEventListener("input", renderTasks);
+  els.taskSearch.addEventListener("input", handleTaskSearchInput);
   [els.taskRatioFilter, els.taskOrientationFilter, els.taskPromptFidelityFilter, els.taskResolutionFilter]
     .filter(Boolean)
     .forEach((element: any) => {
       element.addEventListener("change", renderTasks);
     });
   bindTaskListEvents();
+}
+
+function handleTaskSearchInput() {
+  renderTasks();
+  void syncTaskSearchHistoryResults();
 }
 
 function replacementGroupKey(currentKey: string) {

@@ -122,7 +122,7 @@ function taskContextMenuHtml(task: any) {
     </div>
     <div class="task-context-menu-section">
       ${taskContextButton("copy-id", translate("taskContext.copyId"))}
-      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskPromptText(task))}
+      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskCanCopyPrompt(task))}
       ${taskContextButton("reveal-output", translate("taskContext.revealOutput"), !hasOutput)}
     </div>
     <div class="task-context-menu-section">
@@ -172,7 +172,10 @@ async function handleTaskContextMenuAction(button: HTMLButtonElement) {
       await copyText(taskId);
       setStatus(translate("taskContext.idCopied"), "ok");
     } else if (action === "copy-prompt") {
-      await copyText(taskPromptText(task));
+      const detailedTask = await ensureTaskContextTaskDetail(taskId, task);
+      const prompt = taskPromptText(detailedTask);
+      if (!prompt) throw new Error(translate("taskContext.noPrompt"));
+      await copyText(prompt);
       setStatus(translate("taskContext.promptCopied"), "ok");
     } else if (action === "reveal-output") {
       await revealTaskOutputDirectory(taskId);
@@ -214,8 +217,32 @@ function taskById(taskId: string) {
   return state.tasks.find((item: any) => String(item.task_id) === String(taskId));
 }
 
+function taskCanCopyPrompt(task: any) {
+  return Boolean(task?.summary_only || taskPromptText(task));
+}
+
 function taskPromptText(task: any) {
   return String(task?.prompt || task?.prompt_for_model || "").trim();
+}
+
+async function ensureTaskContextTaskDetail(taskId: string, task: any) {
+  if (!task?.summary_only) return task;
+  const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || translate("notifications.taskMissing"));
+  const fullTask = data.task;
+  return replaceTaskInState(taskId, fullTask);
+}
+
+function replaceTaskInState(taskId: string, task: any) {
+  if (!task?.task_id) return task;
+  const index = state.tasks.findIndex((item: any) => String(item.task_id) === String(taskId));
+  if (index >= 0) {
+    state.tasks.splice(index, 1, task);
+  } else {
+    state.tasks.unshift(task);
+  }
+  return task;
 }
 
 function taskHasOutput(task: any) {

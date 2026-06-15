@@ -1,29 +1,30 @@
 # 下载 / Releases
 
-当前正式版本：[v0.3.7](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.7)
+当前正式版本：[v0.4.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.4.0)
 
 ## 版本说明
 
-当前版本：`v0.3.7`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI，并可在包内一键更新到后续版本。
+当前版本：`v0.4.0`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI，并可在包内一键更新到后续版本。
 
-本版重点：这一版集中完成历史库大屏浏览、任务详情预览、生成页队列交互和一键包更新提醒四组体验升级，同时修复多处前端布局、主题色、按钮溢出和任务状态细节问题。
+本版重点：这一版把搜索能力作为主线升级：Codex 与 API Responses 模式新增可选联网搜索，生成页和历史库搜索支持任务 ID 与历史任务命中；同时继续收口历史库浏览、提示词复制/展示、短屏布局和一键包发布说明。
 
 本版详情：
 
-- 历史库：三栏布局支持左右拖拽调宽；中间任务库改为更接近 Eagle 的缩略图浏览方式，支持双向窗口化加载、滚动回到顶部恢复最新任务、当前查看任务保持焦点。
-- 历史详情：结果图支持多图自适应排列、双击/点击打开大图、翻页浏览和鼠标滚轮缩放；输入参考图会在详情中弱化展示，不抢结果图焦点。
-- 历史操作：缩略图选中态、右键菜单、单选/多选动作、归档/删除/下载/复制提示词/复制任务 ID 等交互做了区分；多选菜单不再出现只适合单任务的复制项。
-- 生成页任务栏：等待任务的拖拽预览限制在侧栏内，队列动作按钮改为 SVG 图标并修复溢出；任务选中态、图生图双图缩略图、时间分组 sticky 和部分失败任务状态显示继续收口。
-- 前端细节修复：颜色 chip、上传缩略图标签、预览大图关闭按钮、预览图浮层、滚动条主题色、短屏布局、历史库筛选图标和多图排列等可见 UI 问题进行了修补。
-- 一键包更新：生成页左下角显示真实一键包版本；启动脚本检测到新 GitHub Release 时在 WebUI 内给出提醒；点击版本提示可查看最新版本、打开 Release 页面，并在一键包环境中启动更新器。更新脚本继续保留下载校验、备份和本地 data 保留流程，避免自动更新打断当前工作。
+- 搜索生成：Codex 和 API Responses 模式新增“联网搜索”选项，请求会按顺序先调用 `web_search` 再调用 `image_generation`，并把搜索到的正式名称、英文片名、人物、日期和地点等事实写入图像提示词，避免只按字面翻译生成。
+- 搜索范围：生成页搜索框支持搜索任务 ID，并能从历史任务中命中结果；历史库搜索也支持任务 ID。历史库的“复用任务”改为在生成页查看该任务，便于把提示词、输入图和输出图一起还原到当前工作台。
+- 历史库：排序控件从两项下拉改为切换按钮；右键删除、归档和恢复任务时保留当前滚动位置，不再整页刷新回顶部；批量选择、右键菜单和任务卡局部更新逻辑继续收口。
+- 历史详情：大图浏览保留左右键切换同一任务多图，并新增上下方向键在前后任务之间切换；多图任务会展示每张图各自的优化提示词，避免 Responses 多图任务只看到一套提示词。
+- 提示词工作流：修复右键复制提示词在任务卡省略文本上取值导致的截断问题；修复全选超长提示词后“收藏”浮动按钮溢出；提示词查找、片段 chip 和模板入口在短屏下保持稳定。
+- 输出设置与布局：联网搜索开关和主模型控件放在同一组；短屏桌面布局继续压缩但保持图像输入、提示词和输出设置底部对齐，避免按钮错位、面板撑穿和控件居中突兀。
+- 一键包与文档：版本提升到 0.4.0，公开 README 和 RELEASES 同步更新搜索功能说明；Release 页面继续带完整 `当前版本`、`本版重点`、`本版详情`、三平台一键包和 macOS 未签名说明。
 
 ## 免安装一键包
 
 | 平台 | 适用设备 | 下载 | SHA256 |
 | --- | --- | --- | --- |
-| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.3.7.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_windows_portable_x64_0.3.7.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_windows_portable_x64_0.3.7.zip.sha256.txt) |
-| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.3.7.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_macos_portable_arm64_0.3.7.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_macos_portable_arm64_0.3.7.zip.sha256.txt) |
-| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.3.7.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_macos_portable_x64_0.3.7.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.3.7/ilab-gpt-conjure_macos_portable_x64_0.3.7.zip.sha256.txt) |
+| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.4.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_windows_portable_x64_0.4.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_windows_portable_x64_0.4.0.zip.sha256.txt) |
+| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.4.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_macos_portable_arm64_0.4.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_macos_portable_arm64_0.4.0.zip.sha256.txt) |
+| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.4.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_macos_portable_x64_0.4.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.0/ilab-gpt-conjure_macos_portable_x64_0.4.0.zip.sha256.txt) |
 
 使用方式：
 

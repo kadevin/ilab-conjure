@@ -48,6 +48,7 @@ class OpenAIResponsesImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
         debug_sse_path: str | PathLike[str] | None = None,
     ) -> ImageResult:
         action = "edit" if reference_images else "generate"
@@ -65,6 +66,7 @@ class OpenAIResponsesImageClient:
             moderation=moderation,
             output_compression=output_compression,
             partial_images=partial_images,
+            web_search=web_search,
         )
         return self._request_and_parse(payload, debug_sse_path=debug_sse_path)
 
@@ -85,6 +87,7 @@ class OpenAIResponsesImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
         debug_sse_path: str | PathLike[str] | None = None,
     ) -> ImageResult:
         if not images:
@@ -106,6 +109,7 @@ class OpenAIResponsesImageClient:
             moderation=moderation,
             output_compression=output_compression,
             partial_images=partial_images,
+            web_search=web_search,
         )
         return self._request_and_parse(payload, debug_sse_path=debug_sse_path)
 
@@ -127,6 +131,7 @@ class OpenAIResponsesImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
     ) -> dict[str, Any]:
         image_model = str(model or self.image_model or DEFAULT_IMAGE_MODEL).strip() or DEFAULT_IMAGE_MODEL
         tool: dict[str, Any] = {
@@ -156,12 +161,18 @@ class OpenAIResponsesImageClient:
         for image_url in input_images or []:
             content.append({"type": "input_image", "image_url": image_url})
 
+        tools: list[dict[str, Any]] = [tool]
+        tool_choice: Any = {"type": "image_generation"}
+        if web_search:
+            tools.insert(0, {"type": "web_search", "search_context_size": "low"})
+            tool_choice = "required"
+
         payload: dict[str, Any] = {
             "endpoint": "/responses",
             "stream": True,
             "model": main_model or DEFAULT_MAIN_MODEL,
             "store": False,
-            "tool_choice": {"type": "image_generation"},
+            "tool_choice": tool_choice,
             "input": [
                 {
                     "type": "message",
@@ -169,10 +180,14 @@ class OpenAIResponsesImageClient:
                     "content": content,
                 }
             ],
-            "tools": [tool],
+            "tools": tools,
         }
+        if web_search:
+            payload["parallel_tool_calls"] = False
         if instructions:
-            payload["instructions"] = str(instructions)
+            payload["instructions"] = CodexImageClient._instructions_with_web_search(instructions, web_search=web_search)
+        elif web_search:
+            payload["instructions"] = CodexImageClient._instructions_with_web_search("", web_search=True)
         return payload
 
     def _request_and_parse(

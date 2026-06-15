@@ -57,6 +57,37 @@
   gap: 16px;
 }
 
+.model-tool-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(104px, max-content);
+  gap: 16px;
+  align-items: end;
+  min-width: 0;
+  grid-column: 1 / 2;
+}
+
+.main-model-field,
+#apiDirectSettingsNotice {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  min-width: 0;
+}
+
+.web-search-field {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  align-self: end;
+  min-width: 0;
+}
+
+.web-search-field > span {
+  white-space: nowrap;
+}
+
+#promptFidelityField {
+  grid-column: 1 / -1;
+}
+
 .mode-transition {
   opacity: 1;
   transform: translateY(0);
@@ -132,6 +163,89 @@
 .api-direct-settings-button {
   min-height: 28px;
   padding: 0 10px;
+}
+
+.web-search-toggle {
+  height: 36px;
+  min-width: 104px;
+  display: inline-grid;
+  grid-template-columns: 36px minmax(0, max-content);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--motion-base),
+    border-color var(--motion-base),
+    color var(--motion-base);
+}
+
+.web-search-toggle:hover,
+.web-search-toggle:focus-within {
+  border-color: color-mix(in srgb, var(--primary) 38%, var(--line));
+  color: var(--text);
+}
+
+.web-search-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.web-search-toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background var(--motion-base);
+}
+
+.web-search-toggle-track::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(29, 52, 46, 0.16);
+  transition: transform var(--motion-base);
+}
+
+.web-search-toggle input:checked + .web-search-toggle-track {
+  background: var(--primary);
+}
+
+.web-search-toggle input:checked + .web-search-toggle-track::before {
+  transform: translateX(16px);
+}
+
+.web-search-toggle:has(input:checked) {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--line));
+  background: var(--primary-light);
+  color: var(--primary-strong);
+}
+
+.web-search-toggle-text {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-search-field.is-disabled .web-search-toggle {
+  cursor: not-allowed;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-soft) 70%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

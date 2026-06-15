@@ -17,7 +17,7 @@
     "zh-CN": {
       "app.newTask": "\u65B0\u5EFA",
       "app.newTaskAria": "\u65B0\u5EFA\u5BF9\u8BDD",
-      "sidebar.searchPlaceholder": "\u641C\u7D22\u5BF9\u8BDD...",
+      "sidebar.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD\u6216\u4EFB\u52A1 ID",
       "sidebar.filters": "\u4EFB\u52A1\u7B5B\u9009",
       "sidebar.allRatios": "\u5168\u90E8\u6BD4\u4F8B",
       "sidebar.allOrientations": "\u5168\u90E8\u65B9\u5411",
@@ -138,7 +138,7 @@
       "history.loading": "\u8F7D\u5165\u4E2D",
       "history.total": "{total} \u4E2A\u4EFB\u52A1 \xB7 {archived} \u5DF2\u5F52\u6863",
       "history.search": "\u641C\u7D22",
-      "history.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD",
+      "history.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD\u6216\u4EFB\u52A1 ID",
       "history.clear": "\u6E05\u7A7A",
       "history.month": "\u6708\u4EFD",
       "history.status": "\u72B6\u6001",
@@ -210,8 +210,9 @@
       "history.copyPrompts": "\u590D\u5236\u63D0\u793A\u8BCD",
       "history.copyPromptShort": "\u590D\u5236",
       "history.copyPromptPanel": "\u590D\u5236{title}",
+      "history.copyOutputPromptPanel": "\u590D\u5236\u56FE {index} \u4F18\u5316\u63D0\u793A\u8BCD",
       "history.copyTaskIds": "\u590D\u5236\u4EFB\u52A1 ID",
-      "history.reuseTask": "\u590D\u7528\u4EFB\u52A1",
+      "history.reuseTask": "\u751F\u6210\u9875\u67E5\u770B",
       "history.downloadTask": "\u4E0B\u8F7D",
       "history.downloadSelectedTasks": "\u6279\u91CF\u4E0B\u8F7D",
       "history.contextMenuLabel": "\u5386\u53F2\u4EFB\u52A1\u53F3\u952E\u83DC\u5355",
@@ -234,6 +235,8 @@
       "history.promptOriginal": "\u539F\u59CB\u63D0\u793A\u8BCD",
       "history.promptSubmitted": "\u4F18\u5316\u63D0\u793A\u8BCD",
       "history.promptRevised": "\u4F18\u5316\u7ED3\u679C",
+      "history.outputRevisedPromptTitle": "\u56FE {index} \u4F18\u5316\u63D0\u793A\u8BCD",
+      "history.outputRevisedPromptNotice": "\u6BCF\u5F20\u56FE\u7684\u4F18\u5316\u63D0\u793A\u8BCD\u4E0D\u540C\uFF0C\u89C1\u5BF9\u5E94\u56FE\u7247\u4E0B\u65B9\u3002",
       "history.promptEmpty": "\u6682\u65E0\u5185\u5BB9",
       "history.promptMode.strict": "\u4FDD\u771F",
       "history.promptMode.original": "\u539F\u59CB",
@@ -333,7 +336,7 @@
       "status.emptyPrompt": "\u8BF7\u8F93\u5165\u63D0\u793A\u8BCD",
       "status.editNeedsImage": "\u7F16\u8F91\u6A21\u5F0F\u81F3\u5C11\u9700\u8981 1 \u5F20\u56FE\u7247",
       "status.loadedTask": "\u5DF2\u8F7D\u5165\u4EFB\u52A1 {taskId}",
-      "status.reusedTask": "\u5DF2\u590D\u7528\u5386\u53F2\u4EFB\u52A1 {taskId}",
+      "status.reusedTask": "\u5DF2\u5728\u751F\u6210\u9875\u6253\u5F00\u4EFB\u52A1 {taskId}",
       "status.loadingHistoryInputs": "\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...",
       "status.historyInputLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: {url}",
       "referenceCollector.alreadyStaged": "\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
@@ -431,6 +434,9 @@
       "output.apiDirect": "API \u76F4\u8FDE",
       "output.apiToolModel": "\u4F7F\u7528 API \u56FE\u50CF\u5DE5\u5177\u6A21\u578B",
       "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C2\u4E0E\u672C\u6B21\u8BF7\u6C42",
+      "output.webSearch": "\u8054\u7F51\u641C\u7D22",
+      "output.webSearchToggle": "\u5F00\u542F",
+      "output.webSearchTitle": "\u5148\u8054\u7F51\u641C\u7D22\uFF0C\u518D\u7528\u4E8E\u672C\u6B21\u751F\u6210\uFF1B\u4EC5 Codex \u548C API Responses \u652F\u6301",
       "output.promptMode": "\u63D0\u793A\u8BCD\u6A21\u5F0F",
       "output.modeOriginal": "\u539F\u59CB\u6A21\u5F0F",
       "output.modeStrict": "\u4FDD\u771F\u6A21\u5F0F",
@@ -544,6 +550,7 @@
       "taskContext.delete": "\u5220\u9664\u4EFB\u52A1",
       "taskContext.idCopied": "\u4EFB\u52A1 ID \u5DF2\u590D\u5236",
       "taskContext.promptCopied": "\u63D0\u793A\u8BCD\u5DF2\u590D\u5236",
+      "taskContext.noPrompt": "\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u590D\u5236\u7684\u63D0\u793A\u8BCD",
       "taskContext.revealFailed": "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55\u5931\u8D25",
       "taskContext.revealOpened": "\u5DF2\u6253\u5F00\u8F93\u51FA\u76EE\u5F55",
       "taskContext.actionFailed": "\u4EFB\u52A1\u64CD\u4F5C\u5931\u8D25",
@@ -816,7 +823,7 @@
     en: {
       "app.newTask": "New",
       "app.newTaskAria": "New chat",
-      "sidebar.searchPlaceholder": "Search chats...",
+      "sidebar.searchPlaceholder": "Search prompts or task ID",
       "sidebar.filters": "Task filters",
       "sidebar.allRatios": "All ratios",
       "sidebar.allOrientations": "All orientations",
@@ -937,7 +944,7 @@
       "history.loading": "Loading",
       "history.total": "{total} tasks \xB7 {archived} archived",
       "history.search": "Search",
-      "history.searchPlaceholder": "Search prompts",
+      "history.searchPlaceholder": "Search prompts or task ID",
       "history.clear": "Clear",
       "history.month": "Month",
       "history.status": "Status",
@@ -1009,8 +1016,9 @@
       "history.copyPrompts": "Copy prompts",
       "history.copyPromptShort": "Copy",
       "history.copyPromptPanel": "Copy {title}",
+      "history.copyOutputPromptPanel": "Copy image {index} revised prompt",
       "history.copyTaskIds": "Copy task IDs",
-      "history.reuseTask": "Reuse task",
+      "history.reuseTask": "View in generator",
       "history.downloadTask": "Download",
       "history.downloadSelectedTasks": "Batch download",
       "history.contextMenuLabel": "History task context menu",
@@ -1033,6 +1041,8 @@
       "history.promptOriginal": "Original prompt",
       "history.promptSubmitted": "Optimized prompt",
       "history.promptRevised": "Revised result",
+      "history.outputRevisedPromptTitle": "Image {index} revised prompt",
+      "history.outputRevisedPromptNotice": "Each image has its own revised prompt below the image.",
       "history.promptEmpty": "No content",
       "history.promptMode.strict": "Strict",
       "history.promptMode.original": "Original",
@@ -1132,7 +1142,7 @@
       "status.emptyPrompt": "Enter a prompt",
       "status.editNeedsImage": "Edit mode requires at least one image",
       "status.loadedTask": "Loaded task {taskId}",
-      "status.reusedTask": "Reused historical task {taskId}",
+      "status.reusedTask": "Opened task {taskId} in generator",
       "status.loadingHistoryInputs": "Loading historical input images...",
       "status.historyInputLoadFailed": "Failed to load historical input image: {url}",
       "referenceCollector.alreadyStaged": "Already staged as a reference",
@@ -1230,6 +1240,9 @@
       "output.apiDirect": "API Direct",
       "output.apiToolModel": "Using API image model",
       "output.mainModelUnused": "Main model is not used for this request",
+      "output.webSearch": "Web search",
+      "output.webSearchToggle": "On",
+      "output.webSearchTitle": "Search the web first, then use it for this generation; Codex and API Responses only",
       "output.promptMode": "Prompt mode",
       "output.modeOriginal": "Original",
       "output.modeStrict": "Faithful",
@@ -1343,6 +1356,7 @@
       "taskContext.delete": "Delete task",
       "taskContext.idCopied": "Task ID copied",
       "taskContext.promptCopied": "Prompt copied",
+      "taskContext.noPrompt": "This task has no prompt to copy",
       "taskContext.revealFailed": "Failed to open output folder",
       "taskContext.revealOpened": "Output folder opened",
       "taskContext.actionFailed": "Task action failed",
@@ -1797,10 +1811,32 @@
     }
     return records;
   }
+  function outputRevisedPromptHtml(taskId, record, index) {
+    const revisedPrompt = String(record.revisedPrompt || "").trim();
+    if (!revisedPrompt) return "";
+    const displayIndex = index + 1;
+    const title = formatTranslation("history.outputRevisedPromptTitle", { index: displayIndex });
+    return `
+    <div class="history-detail-output-prompt">
+      <div class="history-detail-output-prompt-header">
+        <span>${escapeHtml(title)}</span>
+        <button
+          class="ghost-button text-sm history-prompt-copy"
+          type="button"
+          data-history-copy-output-prompt-task-id="${escapeHtml(taskId)}"
+          data-history-copy-output-prompt-index="${record.index}"
+          aria-label="${escapeHtml(formatTranslation("history.copyOutputPromptPanel", { index: displayIndex }))}"
+        >${escapeHtml(translate("history.copyPromptShort"))}</button>
+      </div>
+      <div class="history-detail-output-prompt-text">${escapeHtml(revisedPrompt)}</div>
+    </div>
+  `;
+  }
   function historyDetailImageHtml(taskId, record, index, selectedCount, totalCount) {
     const selectedClass = record.selected ? " selected" : "";
     const selectedText = record.selected ? translate("history.selected") : translate("history.select");
     const outputBadge = totalCount > 1 ? `<span class="history-detail-output-index">${index + 1} / ${totalCount}</span>` : "";
+    const revisedPrompt = outputRevisedPromptHtml(taskId, record, index);
     return `
     <article class="history-detail-image history-detail-output-card${selectedClass}">
       <button
@@ -1825,6 +1861,7 @@
         <button class="history-detail-overlay-button primary" type="button" data-history-reference-handoff-url="${escapeHtml(record.url)}">${escapeHtml(translate("history.addReference"))}</button>
         ${selectedCount === 1 && record.selected ? `<a class="history-detail-overlay-button" href="${escapeHtml(record.url)}" download>${escapeHtml(translate("history.downloadSelected"))}</a>` : ""}
       </div>
+      ${revisedPrompt}
     </article>
   `;
   }
@@ -1908,6 +1945,8 @@
   var historyLightboxState = {
     urls: [],
     index: 0,
+    taskId: "",
+    onTaskNavigate: null,
     scale: 1,
     pointX: 0,
     pointY: 0,
@@ -1969,6 +2008,19 @@
   function showNextHistoryLightboxImage() {
     if (!isHistoryLightboxActive() || historyLightboxState.urls.length < 2) return;
     showHistoryLightboxImage(historyLightboxState.index + 1);
+  }
+  function navigateHistoryLightboxTask(direction) {
+    if (!isHistoryLightboxActive() || !historyLightboxState.onTaskNavigate) return;
+    void historyLightboxState.onTaskNavigate(direction, {
+      taskId: historyLightboxState.taskId,
+      imageIndex: historyLightboxState.index
+    });
+  }
+  function showPreviousHistoryTask() {
+    navigateHistoryLightboxTask("previous");
+  }
+  function showNextHistoryTask() {
+    navigateHistoryLightboxTask("next");
   }
   function ensureHistoryLightbox() {
     if (historyLightboxEl) return historyLightboxEl;
@@ -2035,16 +2087,30 @@
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         showNextHistoryLightboxImage();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        showPreviousHistoryTask();
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        showNextHistoryTask();
+      } else if (event.key === "PageUp") {
+        event.preventDefault();
+        showPreviousHistoryTask();
+      } else if (event.key === "PageDown") {
+        event.preventDefault();
+        showNextHistoryTask();
       }
     });
     return historyLightboxEl;
   }
-  function openHistoryLightbox(urls, index = 0) {
+  function openHistoryLightbox(urls, index = 0, options = {}) {
     const nextUrls = Array.isArray(urls) ? urls.filter(Boolean) : [];
     if (!nextUrls.length) return;
     const lightbox = ensureHistoryLightbox();
     historyLightboxState.urls = nextUrls;
     historyLightboxState.index = normalizedHistoryLightboxIndex(index, nextUrls.length);
+    historyLightboxState.taskId = String(options.taskId || "");
+    historyLightboxState.onTaskNavigate = options.onTaskNavigate || null;
     showHistoryLightboxImage(historyLightboxState.index);
     lightbox.hidden = false;
     document.body.classList.add("history-lightbox-open");
@@ -2058,11 +2124,92 @@
     stopHistoryLightboxPanning();
     historyLightboxState.urls = [];
     historyLightboxState.index = 0;
+    historyLightboxState.taskId = "";
+    historyLightboxState.onTaskNavigate = null;
     resetHistoryLightboxTransform();
     document.body.classList.remove("history-lightbox-open");
   }
   function isHistoryLightboxOpen() {
     return isHistoryLightboxActive();
+  }
+
+  // codex_image/webui/frontend/src/segmented-indicator.ts
+  var HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher", ".history-view-toggle", ".history-sort-toggle"];
+  var HOST_SELECTOR = HOST_SELECTORS.join(", ");
+  var BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option, .history-view-button, .history-sort-button";
+  var INDICATOR_CLASS = "segmented-indicator";
+  var HOST_CLASS = "segmented-indicator-host";
+  var initializedHosts = /* @__PURE__ */ new WeakSet();
+  var scheduledFrames = /* @__PURE__ */ new WeakMap();
+  var segmentedIndicatorsInitialized = false;
+  var resizeObserver = null;
+  function activeSegment(host) {
+    return host.querySelector(".radio-btn.active, .auth-source-button.active, .language-option.active, .history-view-button.active, .history-sort-button.active");
+  }
+  function ensureIndicator(host) {
+    const existing = Array.from(host.children).find((child) => child.classList.contains(INDICATOR_CLASS));
+    if (existing instanceof HTMLElement) return existing;
+    const indicator = document.createElement("span");
+    indicator.className = INDICATOR_CLASS;
+    indicator.setAttribute("aria-hidden", "true");
+    host.insertBefore(indicator, host.firstElementChild);
+    return indicator;
+  }
+  function updateIndicator(host) {
+    scheduledFrames.delete(host);
+    if (!host.isConnected) return;
+    const indicator = ensureIndicator(host);
+    const active = activeSegment(host);
+    if (!active) {
+      indicator.style.setProperty("--segmented-indicator-opacity", "0");
+      return;
+    }
+    const hostRect = host.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const hostStyle = window.getComputedStyle(host);
+    const borderLeft = Number.parseFloat(hostStyle.borderLeftWidth) || 0;
+    const borderTop = Number.parseFloat(hostStyle.borderTopWidth) || 0;
+    indicator.style.setProperty("--segmented-indicator-x", `${activeRect.left - hostRect.left - borderLeft}px`);
+    indicator.style.setProperty("--segmented-indicator-y", `${activeRect.top - hostRect.top - borderTop}px`);
+    indicator.style.setProperty("--segmented-indicator-width", `${activeRect.width}px`);
+    indicator.style.setProperty("--segmented-indicator-height", `${activeRect.height}px`);
+    indicator.style.setProperty("--segmented-indicator-opacity", "1");
+  }
+  function scheduleIndicatorUpdate(host) {
+    if (scheduledFrames.has(host)) return;
+    scheduledFrames.set(host, window.requestAnimationFrame(() => updateIndicator(host)));
+  }
+  function watchButtonClassChanges(host) {
+    const observer = new MutationObserver(() => scheduleIndicatorUpdate(host));
+    host.querySelectorAll(BUTTON_SELECTOR).forEach((button) => {
+      observer.observe(button, { attributes: true, attributeFilter: ["class"] });
+    });
+  }
+  function initHost(host) {
+    if (initializedHosts.has(host)) return;
+    initializedHosts.add(host);
+    host.classList.add(HOST_CLASS);
+    ensureIndicator(host);
+    host.addEventListener("click", () => scheduleIndicatorUpdate(host));
+    watchButtonClassChanges(host);
+    if ("ResizeObserver" in window) {
+      resizeObserver || (resizeObserver = new ResizeObserver((entries) => {
+        entries.forEach((entry) => scheduleIndicatorUpdate(entry.target));
+      }));
+      resizeObserver.observe(host);
+    }
+    scheduleIndicatorUpdate(host);
+  }
+  function updateAllIndicators() {
+    document.querySelectorAll(HOST_SELECTOR).forEach(scheduleIndicatorUpdate);
+  }
+  function initSegmentedIndicatorFeature() {
+    if (segmentedIndicatorsInitialized) return;
+    segmentedIndicatorsInitialized = true;
+    document.querySelectorAll(HOST_SELECTOR).forEach(initHost);
+    window.addEventListener("resize", updateAllIndicators, { passive: true });
+    document.fonts?.ready?.then(updateAllIndicators).catch(() => {
+    });
   }
 
   // codex_image/webui/frontend/src/history.ts
@@ -2140,7 +2287,7 @@
     backendList: document.querySelector("#historyBackendList"),
     providerList: document.querySelector("#historyProviderList"),
     archiveList: document.querySelector("#historyArchiveList"),
-    sort: document.querySelector("#historySort"),
+    sortToggle: document.querySelector("#historySortToggle"),
     viewToggle: document.querySelector("#historyViewToggle"),
     resultSummary: document.querySelector("#historyResultSummary"),
     bulkToolbar: document.querySelector("#historyBulkToolbar"),
@@ -2258,7 +2405,7 @@
     }
     historyState.selectedTaskId = params.get("task") || "";
     if (els.search) els.search.value = historyState.q;
-    if (els.sort) els.sort.value = historyState.sort;
+    syncHistorySortMode();
     syncHistoryViewMode();
   }
   function updateHistoryUrl() {
@@ -2308,6 +2455,24 @@
     document.querySelectorAll("[data-history-archived]").forEach((button) => {
       button.classList.toggle("active", button.getAttribute("data-history-archived") === historyState.archived);
     });
+  }
+  function syncHistorySortMode() {
+    const sort = historyState.sort === "oldest" ? "oldest" : "newest";
+    historyState.sort = sort;
+    els.sortToggle?.querySelectorAll("[data-history-sort]").forEach((button) => {
+      const active = button.dataset.historySort === sort;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+  function applyHistorySort(sort) {
+    const nextSort = sort === "oldest" ? "oldest" : "newest";
+    if (historyState.sort === nextSort) return;
+    historyState.sort = nextSort;
+    historyState.selectedTaskId = "";
+    syncHistorySortMode();
+    updateHistoryUrl();
+    void loadTasks({ reset: true });
   }
   function queryParams(cursor, direction = "next") {
     const params = new URLSearchParams();
@@ -2708,6 +2873,109 @@
     setText(els.resultSummary, formatTranslation("history.loadedCount", { count: historyState.loadedTaskIds.size }));
     updateTaskSelectionVisuals();
   }
+  function captureHistoryScrollAnchorSkipping(taskIds) {
+    if (!els.taskList) return null;
+    const rootTop = els.taskList.getBoundingClientRect().top;
+    for (const card of historyTaskCards(els.taskList)) {
+      const taskId = String(card.dataset.historyTaskCardId || "");
+      if (!taskId || taskIds.has(taskId)) continue;
+      const rect = card.getBoundingClientRect();
+      if (rect.bottom < rootTop) continue;
+      return { taskId, offset: rect.top - rootTop };
+    }
+    return null;
+  }
+  function refreshHistoryWindowAfterMutation(mutate, options = {}) {
+    if (!els.taskList) {
+      mutate();
+      return;
+    }
+    const removedTaskIds = new Set(options.removedTaskIds || []);
+    const currentAnchor = captureHistoryScrollAnchor(els.taskList);
+    const anchor = currentAnchor && !removedTaskIds.has(currentAnchor.taskId) ? currentAnchor : captureHistoryScrollAnchorSkipping(removedTaskIds);
+    mutate();
+    if (!els.taskList.querySelector(".history-task-card")) {
+      renderTaskListMessage("history-empty", translate("history.noMatches"));
+    }
+    layoutJustifiedHistoryGrid();
+    restoreHistoryScrollAnchor(els.taskList, anchor);
+    updateTaskSelectionVisuals();
+    window.requestAnimationFrame(maybeLoadMoreFromScroll);
+  }
+  function removeHistoryTaskIdsFromWindow(taskIds) {
+    const ids = taskIds.filter(Boolean);
+    if (!ids.length) return;
+    const idSet = new Set(ids);
+    refreshHistoryWindowAfterMutation(() => {
+      ids.forEach((taskId) => {
+        historyState.loadedTaskIds.delete(taskId);
+        historyState.loadedTaskSummaries.delete(taskId);
+        historyState.selectedTaskIds.delete(taskId);
+        if (historyState.selectionAnchorTaskId === taskId) historyState.selectionAnchorTaskId = "";
+        historyTaskCardElement(taskId)?.remove();
+      });
+      if (idSet.has(historyState.selectedTaskId)) {
+        historyState.selectedTaskId = "";
+        historyState.detailTask = null;
+        els.page?.classList.remove("history-detail-open");
+        updateHistoryUrl();
+        renderDetailShell(translate("history.detailEmpty"));
+      }
+    }, { removedTaskIds: ids });
+  }
+  function historyTaskMatchesCurrentArchiveFilter(task) {
+    if (historyState.archived === "true") return historyTaskArchived(task);
+    if (historyState.archived === "false") return !historyTaskArchived(task);
+    return true;
+  }
+  function historyTaskSummaryFromDetail(taskId, task) {
+    const previous = historyState.loadedTaskSummaries.get(taskId);
+    const source = task || previous;
+    if (!source) return null;
+    const generatedCount = historyTaskGeneratedCount(source);
+    const totalCount = positiveInt2(source.total_count) ?? previous?.total_count ?? generatedCount;
+    return {
+      ...previous || {},
+      ...source || {},
+      task_id: taskId || String(source.task_id || previous?.task_id || ""),
+      created_at: String(source.created_at || previous?.created_at || ""),
+      updated_at: String(source.updated_at || previous?.updated_at || ""),
+      completed_at: String(source.completed_at || previous?.completed_at || ""),
+      status: String(source.status || previous?.status || ""),
+      mode: String(source.mode || previous?.mode || ""),
+      size: String(source.size || source.output_size || source.params?.size || previous?.size || ""),
+      quality: String(source.quality || source.params?.quality || previous?.quality || ""),
+      prompt_mode: String(source.prompt_mode || source.params?.prompt_fidelity || previous?.prompt_mode || ""),
+      ratio: String(source.ratio || source.params?.ratio || previous?.ratio || ""),
+      orientation: String(source.orientation || source.params?.orientation || previous?.orientation || ""),
+      backend: String(source.backend || previous?.backend || ""),
+      provider: String(source.provider || source.api_provider_name || previous?.provider || ""),
+      archived: historyTaskArchived(source),
+      generated_count: generatedCount || previous?.generated_count || 0,
+      failed_count: positiveInt2(source.failed_count) ?? previous?.failed_count ?? 0,
+      total_count: totalCount || 0,
+      thumbnail_url: String(source.thumbnail_url || previous?.thumbnail_url || ""),
+      prompt_preview: String(source.prompt_preview || source.prompt || previous?.prompt_preview || "")
+    };
+  }
+  function upsertHistoryTaskSummaryCard(taskId, task) {
+    const summary = historyTaskSummaryFromDetail(taskId, task);
+    if (!summary?.task_id) return;
+    if (!historyTaskMatchesCurrentArchiveFilter(summary)) {
+      removeHistoryTaskIdsFromWindow([summary.task_id]);
+      return;
+    }
+    refreshHistoryWindowAfterMutation(() => {
+      const card = historyTaskCardElement(summary.task_id);
+      if (!card) return;
+      historyState.loadedTaskIds.add(summary.task_id);
+      historyState.loadedTaskSummaries.set(summary.task_id, summary);
+      const template = document.createElement("template");
+      template.innerHTML = taskCardHtml(summary).trim();
+      const nextCard = template.content.firstElementChild;
+      if (nextCard) card.replaceWith(nextCard);
+    });
+  }
   function renderTaskListMessage(className, message) {
     if (!els.taskList) return;
     els.taskList.innerHTML = `<div class="${className}">${escapeHtml2(message)}</div>`;
@@ -3005,6 +3273,7 @@
     const originalPrompt = promptTextValue(task.prompt || "");
     const submittedPrompt = promptTextValue(task.prompt_for_model || "");
     const revisedPrompt = revisedPromptText(task);
+    const hasDistinctOutputPrompts = hasDistinctOutputRevisedPrompts(task);
     const seen = /* @__PURE__ */ new Set();
     const panels = [];
     const addPanel = (kind, title, text) => {
@@ -3016,9 +3285,12 @@
       return true;
     };
     addPanel("original", translate("history.promptOriginal"), originalPrompt);
-    const hasRevisedPanel = addPanel("revised", translate("history.promptRevised"), revisedPrompt);
+    const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised", translate("history.promptRevised"), revisedPrompt);
     if (!hasRevisedPanel) {
       addPanel("submitted", translate("history.promptSubmitted"), submittedPrompt);
+    }
+    if (hasDistinctOutputPrompts) {
+      panels.push(`<p class="history-prompt-note">${escapeHtml2(translate("history.outputRevisedPromptNotice"))}</p>`);
     }
     return panels.length ? `<section class="history-prompt-compare" aria-label="${escapeHtml2(translate("history.promptCompare"))}">${panels.join("")}</section>` : "";
   }
@@ -3050,6 +3322,12 @@
       });
     }
     return uniquePromptTexts(values).join("\n\n");
+  }
+  function outputRevisedPromptTexts(task) {
+    return uniquePromptTexts(taskOutputRecords(task).map((record) => record.revisedPrompt));
+  }
+  function hasDistinctOutputRevisedPrompts(task) {
+    return outputRevisedPromptTexts(task).length > 1;
   }
   function promptPanelHtml(kind, title, text) {
     return `
@@ -3112,12 +3390,19 @@
     if (!ids.length) return;
     setText(els.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
     try {
-      await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
+      const tasks = await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
       ids.forEach((taskId) => historyState.selectedTaskIds.delete(taskId));
       historyState.deleteConfirming = false;
       historyState.contextMenuDeleteConfirmKey = "";
+      tasks.forEach((task, index) => {
+        const taskId = ids[index] || String(task?.task_id || "");
+        upsertHistoryTaskSummaryCard(taskId, task);
+        if (taskId && String(historyState.detailTask?.task_id || "") === taskId && task) {
+          historyState.detailTask = task;
+          renderTaskDetail(task);
+        }
+      });
       await loadSummary();
-      await loadTasks({ reset: true });
       setText(els.resultSummary, archived ? formatTranslation("batch.archivedCount", { count: ids.length }) : formatTranslation("archive.restoredCount", { count: ids.length }));
     } catch (error) {
       setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
@@ -3136,8 +3421,8 @@
         historyState.detailTask = task;
         renderTaskDetail(task);
       }
+      upsertHistoryTaskSummaryCard(taskId, task);
       await loadSummary();
-      await loadTasks({ reset: true });
       setText(els.resultSummary, archived ? translate("taskActions.archived") : translate("archive.restored"));
     } catch (error) {
       setText(els.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
@@ -3161,8 +3446,8 @@
       historyState.selectedTaskIds.clear();
       historyState.deleteConfirming = false;
       historyState.contextMenuDeleteConfirmKey = "";
+      removeHistoryTaskIdsFromWindow(ids);
       await loadSummary();
-      await loadTasks({ reset: true });
       setText(els.resultSummary, formatTranslation("batch.deletedCount", { count: ids.length, skipped: "" }));
     } catch (error) {
       setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
@@ -3191,15 +3476,8 @@
       historyState.loadedTaskSummaries.delete(taskId);
       historyState.deleteConfirmTaskId = "";
       historyState.contextMenuDeleteConfirmKey = "";
-      if (historyState.selectedTaskId === taskId) {
-        historyState.selectedTaskId = "";
-        historyState.detailTask = null;
-        els.page?.classList.remove("history-detail-open");
-        updateHistoryUrl();
-        renderDetailShell(translate("history.detailEmpty"));
-      }
+      removeHistoryTaskIdsFromWindow([taskId]);
       await loadSummary();
-      await loadTasks({ reset: true });
       setText(els.resultSummary, translate("taskActions.deleted"));
       return true;
     } catch (error) {
@@ -3240,7 +3518,7 @@
       if (!response.ok) throw new Error(data.detail || translate("taskActions.deleteFailed"));
       historyState.deleteUnselectedConfirmTaskId = "";
       renderTaskDetail(data.task || {});
-      await loadTasks({ reset: true });
+      upsertHistoryTaskSummaryCard(taskId, data.task || {});
     } catch (error) {
       setText(els.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
     }
@@ -3253,10 +3531,19 @@
     }
     return String(task.prompt || task.prompt_preview || "").trim();
   }
+  function outputPromptTextForIndex(outputIndex) {
+    const index = positiveInt2(outputIndex);
+    if (index === null) return "";
+    const record = taskOutputRecords(historyState.detailTask || {}).find((output) => output.index === index);
+    return String(record?.revisedPrompt || "").trim();
+  }
   async function writeClipboardText(text) {
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return;
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+      }
     }
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -3281,6 +3568,25 @@
   }
   async function copyPromptToClipboard(kind = "original", button) {
     const text = promptTextForKind(kind);
+    if (!text) {
+      if (button) {
+        setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
+      } else {
+        setText(els.resultSummary, translate("history.noPrompt"));
+      }
+      return;
+    }
+    try {
+      await writeClipboardText(text);
+      if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
+      setText(els.resultSummary, translate("history.promptCopied"));
+    } catch (error) {
+      if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopyFailedShort"));
+      setText(els.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+    }
+  }
+  async function copyOutputPromptToClipboard(outputIndex, button) {
+    const text = outputPromptTextForIndex(outputIndex);
     if (!text) {
       if (button) {
         setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
@@ -3559,19 +3865,67 @@
   }
   function openHistoryDetailLightbox(index) {
     const urls = historyLightboxUrlsFromTask(historyState.detailTask || {});
-    openHistoryLightbox(urls, index);
+    openHistoryLightbox(urls, index, {
+      taskId: historyState.selectedTaskId,
+      onTaskNavigate: openHistoryTaskLightboxByDirection
+    });
   }
   function openHistoryInputLightbox(index) {
     const urls = historyInputLightboxUrlsFromTask(historyState.detailTask || {});
     openHistoryLightbox(urls, index);
   }
-  async function openHistoryTaskLightbox(taskId) {
+  function historyAdjacentTaskId(taskId, direction) {
+    if (!taskId) return "";
+    const taskIds = visibleHistoryTaskIds();
+    const index = taskIds.indexOf(taskId);
+    if (index < 0) return "";
+    const nextIndex = direction === "previous" ? index - 1 : index + 1;
+    return taskIds[nextIndex] || "";
+  }
+  function shouldLoadHistoryAdjacentTask(taskId, direction) {
+    if (!taskId) return false;
+    const taskIds = visibleHistoryTaskIds();
+    const index = taskIds.indexOf(taskId);
+    if (index < 0) return false;
+    if (direction === "previous") return index === 0 && !historyState.newerExhausted;
+    return index === taskIds.length - 1 && !historyState.exhausted;
+  }
+  function syncHistoryLightboxDetail(taskId, detail) {
+    historyState.selectedTaskId = taskId;
+    historyState.deleteConfirming = false;
+    historyState.deleteConfirmTaskId = "";
+    historyState.deleteUnselectedConfirmTaskId = "";
+    historyState.detailTask = detail;
+    els.page?.classList.add("history-detail-open");
+    updateHistoryUrl();
+    updateTaskSelectionVisuals(taskId);
+    ensureHistoryTaskCardVisible(taskId);
+    renderTaskDetail(detail);
+  }
+  async function openHistoryTaskLightboxByDirection(direction, context) {
+    const currentTaskId = context.taskId || historyState.selectedTaskId;
+    let nextTaskId = historyAdjacentTaskId(currentTaskId, direction);
+    if (!nextTaskId && shouldLoadHistoryAdjacentTask(currentTaskId, direction)) {
+      await loadTasks({ direction });
+      nextTaskId = historyAdjacentTaskId(currentTaskId, direction);
+    }
+    if (!nextTaskId) {
+      setText(els.resultSummary, translate("history.noMore"));
+      return;
+    }
+    await openHistoryTaskLightbox(nextTaskId, context.imageIndex);
+  }
+  async function openHistoryTaskLightbox(taskId, index = 0) {
     if (!taskId) return;
     try {
       const detail = historyState.detailTask?.task_id === taskId ? historyState.detailTask : await fetchHistoryTaskDetail(taskId);
       const urls = historyLightboxUrlsFromTask(detail);
       if (!urls.length) throw new Error(translate("history.noPreview"));
-      openHistoryLightbox(urls, 0);
+      syncHistoryLightboxDetail(taskId, detail);
+      openHistoryLightbox(urls, index, {
+        taskId,
+        onTaskNavigate: openHistoryTaskLightboxByDirection
+      });
     } catch (error) {
       setText(els.resultSummary, errorMessage(error, translate("history.detailFailed")));
     }
@@ -3602,11 +3956,11 @@
       updateHistoryUrl();
       void loadTasks({ reset: true });
     });
-    els.sort?.addEventListener("change", () => {
-      historyState.sort = els.sort?.value === "oldest" ? "oldest" : "newest";
-      historyState.selectedTaskId = "";
-      updateHistoryUrl();
-      void loadTasks({ reset: true });
+    els.sortToggle?.addEventListener("click", (event) => {
+      const target = event.target;
+      const button = target?.closest("[data-history-sort]");
+      if (!button || !els.sortToggle?.contains(button)) return;
+      applyHistorySort(button.dataset.historySort || "newest");
     });
     document.addEventListener("change", (event) => {
       const target = event.target;
@@ -3666,6 +4020,11 @@
       const referenceHandoffButton = target?.closest("[data-history-reference-handoff-url]");
       if (referenceHandoffButton) {
         handoffReferenceToMain(referenceHandoffButton.dataset.historyReferenceHandoffUrl || "");
+        return;
+      }
+      const copyOutputPromptButton = target?.closest("[data-history-copy-output-prompt-index]");
+      if (copyOutputPromptButton) {
+        void copyOutputPromptToClipboard(copyOutputPromptButton.dataset.historyCopyOutputPromptIndex, copyOutputPromptButton);
         return;
       }
       const copyPromptButton = target?.closest("[data-history-copy-prompt-kind]");
@@ -3814,6 +4173,7 @@
     applyHistoryLocale();
     restoreHistoryLayoutPreference();
     syncStateFromUrl();
+    initSegmentedIndicatorFeature();
     renderDetailShell(translate("history.detailEmpty"));
     bindEvents();
     await loadSummary();

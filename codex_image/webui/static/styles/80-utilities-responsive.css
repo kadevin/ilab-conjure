@@ -106,7 +106,7 @@ button:disabled {
 
   .controls-col {
     min-height: calc(100dvh - var(--header-height) - 28px);
-    height: auto;
+    height: calc(100dvh - var(--header-height) - 28px);
     justify-content: flex-start;
   }
 
@@ -118,12 +118,12 @@ button:disabled {
   }
 
   .controls-col .image-panel {
-    flex: 0 0 auto;
+    flex: 1 1 194px;
     min-height: 194px;
   }
 
   .controls-col .prompt-panel {
-    flex: 0 0 auto;
+    flex: 2 1 148px;
     min-height: 148px;
     overflow: hidden;
   }
@@ -279,9 +279,15 @@ button:disabled {
     margin-top: 6px;
   }
 
+  .prompt-panel {
+    --prompt-secondary-action-height: 34px;
+    --prompt-secondary-chip-height: 30px;
+  }
+
   .prompt-footer .ghost-button,
   .prompt-template-entry .prompt-template-button {
-    height: 24px;
+    height: var(--prompt-secondary-action-height);
+    min-height: var(--prompt-secondary-action-height);
   }
 
   .prompt-find-panel {
@@ -291,8 +297,8 @@ button:disabled {
 
   .prompt-find-panel .control,
   .prompt-find-panel .ghost-button {
-    height: 24px;
-    min-height: 24px;
+    height: calc(var(--prompt-secondary-action-height) - 4px);
+    min-height: calc(var(--prompt-secondary-action-height) - 4px);
     padding: 0 5px;
   }
 
@@ -393,7 +399,55 @@ button:disabled {
   .mode-specific-settings {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: end;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .model-tool-row {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    grid-template-columns: minmax(0, 1fr) minmax(92px, 0.32fr);
+    gap: 6px;
+  }
+
+  #mainModelField,
+  #apiDirectSettingsNotice {
+    grid-column: 1 / 2;
+  }
+
+  .model-tool-row .web-search-field {
+    grid-column: 2 / 3;
+  }
+
+  #promptFidelityField {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
+  .web-search-toggle {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    grid-template-columns: 32px minmax(0, max-content);
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .web-search-toggle-track {
+    width: 32px;
+    height: 18px;
+  }
+
+  .web-search-toggle-track::before {
+    width: 12px;
+    height: 12px;
+  }
+
+  .web-search-toggle input:checked + .web-search-toggle-track::before {
+    transform: translateX(14px);
+  }
+
+  .web-search-toggle-text {
+    font-size: 11px;
   }
 
   .api-direct-settings-notice {

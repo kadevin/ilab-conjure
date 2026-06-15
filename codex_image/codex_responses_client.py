@@ -23,6 +23,16 @@ from .http import HTTPResponse, Transport, UrllibTransport
 
 CODEX_USER_AGENT = "codex-tui/0.118.0 (Mac OS 26.3.1; arm64) Codex Desktop"
 CODEX_ORIGINATOR = "codex-tui"
+WEB_SEARCH_INSTRUCTIONS = (
+    "Web search image workflow:\n"
+    "First call web_search to research the user's topic. Do not call image_generation until web_search has returned. "
+    "Then call image_generation exactly once to create the requested image. Do not answer with text only.\n"
+    "When calling image_generation, keep the user's original creative directions intact, but include a concise factual "
+    "context block from web_search in the image prompt. This is an explicit exception to original or strict "
+    "prompt-fidelity rules; prompt fidelity must not be used as a reason to omit search findings.\n"
+    "If web_search finds an official or commonly used English title, person name, date, place, or other factual label, "
+    "use that searched fact in the image prompt instead of a literal translation or guess."
+)
 
 
 class CodexImageClient:
@@ -58,6 +68,7 @@ class CodexImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
         debug_sse_path: str | PathLike[str] | None = None,
     ) -> ImageResult:
         payload = self.build_payload(
@@ -74,6 +85,7 @@ class CodexImageClient:
             moderation=moderation,
             output_compression=output_compression,
             partial_images=partial_images,
+            web_search=web_search,
         )
         response = self._responses_request_with_auth_retry(payload)
         if response.status < 200 or response.status >= 300:
@@ -97,6 +109,7 @@ class CodexImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
         debug_sse_path: str | PathLike[str] | None = None,
     ) -> ImageResult:
         if not images:
@@ -118,6 +131,7 @@ class CodexImageClient:
             moderation=moderation,
             output_compression=output_compression,
             partial_images=partial_images,
+            web_search=web_search,
         )
         response = self._responses_request_with_auth_retry(payload)
         if response.status < 200 or response.status >= 300:
@@ -142,6 +156,7 @@ class CodexImageClient:
         moderation: str | None = None,
         output_compression: int | None = None,
         partial_images: int | None = None,
+        web_search: bool = False,
     ) -> dict[str, Any]:
         tool: dict[str, Any] = {
             "type": "image_generation",
@@ -170,15 +185,23 @@ class CodexImageClient:
         for image_url in input_images or []:
             content.append({"type": "input_image", "image_url": image_url})
 
+        tools: list[dict[str, Any]] = [tool]
+        tool_choice: Any = {"type": "image_generation"}
+        parallel_tool_calls = True
+        if web_search:
+            tools.insert(0, {"type": "web_search", "search_context_size": "low"})
+            tool_choice = "required"
+            parallel_tool_calls = False
+
         return {
-            "instructions": str(instructions or ""),
+            "instructions": self._instructions_with_web_search(instructions, web_search=web_search),
             "stream": True,
             "reasoning": {"effort": "medium", "summary": "auto"},
-            "parallel_tool_calls": True,
+            "parallel_tool_calls": parallel_tool_calls,
             "include": ["reasoning.encrypted_content"],
             "model": main_model or DEFAULT_MAIN_MODEL,
             "store": False,
-            "tool_choice": {"type": "image_generation"},
+            "tool_choice": tool_choice,
             "input": [
                 {
                     "type": "message",
@@ -186,8 +209,15 @@ class CodexImageClient:
                     "content": content,
                 }
             ],
-            "tools": [tool],
+            "tools": tools,
         }
+
+    @staticmethod
+    def _instructions_with_web_search(instructions: str | None, *, web_search: bool) -> str:
+        base = str(instructions or "")
+        if not web_search:
+            return base
+        return f"{base}\n\n{WEB_SEARCH_INSTRUCTIONS}".strip()
 
     def parse_sse_response(self, body: bytes, *, debug_sse_path: str | PathLike[str] | None = None) -> ImageResult:
         output_items_by_index: dict[int, dict[str, Any]] = {}
@@ -233,7 +263,8 @@ class CodexImageClient:
             image_bytes = base64.b64decode(result["result"])
             usage: dict[str, Any] = {}
             tool_usage = response.get("tool_usage")
-            image_usage = tool_usage.get("image_gen") if isinstance(tool_usage, dict) else None
+            full_tool_usage = dict(tool_usage) if isinstance(tool_usage, dict) else {}
+            image_usage = full_tool_usage.get("image_gen")
             if isinstance(image_usage, dict) and image_usage:
                 usage = image_usage
             elif isinstance(response.get("usage"), dict):
@@ -248,6 +279,7 @@ class CodexImageClient:
                 background=str(result.get("background", "")),
                 quality=str(result.get("quality", "")),
                 usage=usage,
+                tool_usage=full_tool_usage,
             )
 
         raise RuntimeError("No response.completed event found in SSE stream")

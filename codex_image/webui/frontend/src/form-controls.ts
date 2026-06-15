@@ -25,6 +25,8 @@ import {
   currentImageToolModel,
   currentSize,
   currentTaskParams,
+  currentWebSearchEnabled,
+  webSearchSupportedForCurrentBackend,
 } from "./size-presets";
 import {
   applyFirstReferenceImageAspectRatio,
@@ -65,6 +67,7 @@ export function bindFormControlEvents(): void {
 
   [
     els.mainModel,
+    els.webSearch,
     els.model,
     els.size,
     els.customWidth,
@@ -161,6 +164,8 @@ export function initFormControlsFeature(): void {
     currentMainModel,
     currentQuantity,
     currentImageToolModel,
+    currentWebSearchEnabled,
+    webSearchSupportedForCurrentBackend,
     restoreMainModel,
     persistMainModel,
     syncSizeControlsFromSize,

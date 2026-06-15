@@ -33,6 +33,22 @@ function applyModeSettingsVisibility(isDirectApi: any): void {
   setModeSpecificElementVisibility(els.promptFidelityField, true);
 }
 
+function updateWebSearchAvailability(authSource: any = currentAuthSource()): void {
+  const supported = authSource !== "api" || currentApiMode() === "responses";
+  if (els.webSearch) {
+    const wasChecked = Boolean(els.webSearch.checked);
+    els.webSearch.disabled = !supported;
+    if (!supported) els.webSearch.checked = false;
+    if (wasChecked && !els.webSearch.checked) {
+      els.webSearch.dispatchEvent(new Event("input"));
+    }
+  }
+  if (els.webSearchField) {
+    els.webSearchField.classList.toggle("is-disabled", !supported);
+    els.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
+  }
+}
+
 export function setModeSettingsVariant(isDirectApi: any): void {
   const slot = els.modeSettingsSlot;
   if (slot) {
@@ -45,4 +61,5 @@ export function setModeSettingsVariant(isDirectApi: any): void {
 export function updateModeSpecificSettings(authSource: any = currentAuthSource()): void {
   const isDirectApi = authSource === "api" && currentApiMode() !== "responses";
   setModeSettingsVariant(isDirectApi);
+  updateWebSearchAvailability(authSource);
 }

@@ -96,6 +96,10 @@ function applyTaskToForm(task: any) {
     els.promptFidelity.value = fidelity;
     els.promptFidelity.dispatchEvent(new Event("change"));
   }
+  if (els.webSearch) {
+    els.webSearch.checked = Boolean(params.web_search);
+    els.webSearch.dispatchEvent(new Event("input"));
+  }
   if (params.model) els.model.value = params.model;
   if (params.size) syncSizeControlsFromSize(params.size);
   if (params.n && els.nInput) {
@@ -139,6 +143,7 @@ function buildPreviewRequest() {
     moderation: params.moderation,
     output_compression: params.output_compression,
     prompt_fidelity: currentPromptFidelity(),
+    web_search: Boolean(params.web_search),
     n: params.n,
     images: uploads.map((source: any) => source.name),
     gallery_image_ids: galleries.map((source: any) => source.id),
@@ -156,7 +161,7 @@ function buildPreviewRequest() {
     if (apiMode === "responses") {
       payload.endpoint = "/responses";
       payload.model = params.main_model;
-      payload.tools = [{
+      const imageTool: Record<string, any> = {
         type: "image_generation",
         action,
         model: params.model,
@@ -164,9 +169,16 @@ function buildPreviewRequest() {
         quality: params.quality,
         output_format: params.output_format,
         moderation: params.moderation,
-      }];
+      };
+      payload.tools = params.web_search
+        ? [{ type: "web_search", search_context_size: "low" }, imageTool]
+        : [imageTool];
+      if (params.web_search) {
+        payload.tool_choice = "required";
+        payload.parallel_tool_calls = false;
+      }
       if (params.output_compression !== null && params.output_compression !== undefined) {
-        payload.tools[0].output_compression = params.output_compression;
+        imageTool.output_compression = params.output_compression;
       }
     } else {
       payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
@@ -257,6 +269,7 @@ async function runTask() {
   form.append("moderation", params.moderation);
   form.append("n", String(params.n));
   form.append("prompt_fidelity", currentPromptFidelity());
+  if (params.web_search) form.append("web_search", "true");
   if (currentAuthSource() === "api") {
     form.append("api_provider_id", currentApiProviderId());
     form.append("api_mode", currentApiMode());

@@ -94,6 +94,36 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertEqual(request_tool["output_compression"], 80)
         self.assertEqual(metadata["status"], "queued")
         self.assertEqual(fake.generate_calls, [])
+
+    def test_generate_route_persists_web_search_for_codex_responses(self) -> None:
+        from codex_image.webui.app import create_app
+
+        fake = FakeImageClient()
+        with tempfile.TemporaryDirectory() as tmp:
+            app = create_app(output_root=Path(tmp), client_factory=lambda: fake, auth_checker=lambda: True)
+            response = TestClient(app).post(
+                "/api/generate",
+                data={
+                    "prompt": "search then draw",
+                    "model": "gpt-image-2",
+                    "main_model": "gpt-5.4-mini",
+                    "size": "1536x864",
+                    "quality": "low",
+                    "web_search": "true",
+                },
+            )
+
+            body = response.json()
+            metadata = json.loads(metadata_path(Path(tmp), body["task"]["task_id"]).read_text(encoding="utf-8"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(metadata["params"]["web_search"])
+        self.assertTrue(body["task"]["params"]["web_search"])
+        self.assertEqual([tool["type"] for tool in body["request"]["tools"]], ["web_search", "image_generation"])
+        self.assertEqual(body["request"]["tools"][1]["quality"], "low")
+        self.assertEqual(body["request"]["tool_choice"], "required")
+        self.assertFalse(body["request"]["parallel_tool_calls"])
+
     def test_queue_worker_generates_output_thumbnail_metadata(self) -> None:
         from codex_image.client import ImageResult
         from codex_image.webui.app import create_app
@@ -129,6 +159,56 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertRegex(output["thumbnail_url"], rf"^/outputs/thumbnails/{task_id[:4]}-{task_id[4:6]}-{task_id[6:8]}/{task_id}-image-1-thumb\.jpg$")
         self.assertEqual(metadata["outputs"][0]["thumbnail_file"], output["thumbnail_file"])
         self.assertTrue(thumbnail_file_exists)
+
+    def test_queue_worker_persists_web_search_tool_usage(self) -> None:
+        from codex_image.client import ImageResult
+        from codex_image.webui.app import create_app
+
+        class WebSearchUsageClient(FakeImageClient):
+            def generate_image(inner_self, **kwargs: Any):
+                inner_self.generate_calls.append(kwargs)
+                return ImageResult(
+                    self._png_bytes(),
+                    "revised with search facts",
+                    "png",
+                    kwargs["size"],
+                    "auto",
+                    kwargs["quality"],
+                    {"input_tokens": 4, "output_tokens": 5, "total_tokens": 9},
+                    {"image_gen": {"total_tokens": 9}, "web_search": {"num_requests": 1}},
+                )
+
+        fake = WebSearchUsageClient()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = create_app(
+                output_root=root,
+                client_factory=lambda: fake,
+                auth_checker=lambda: True,
+                auth_settings_path=root / "auth-settings.json",
+                batch_delay_seconds=0,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+            created = client.post(
+                "/api/generate",
+                data={
+                    "prompt": "search then poster",
+                    "size": "1024x1024",
+                    "quality": "low",
+                    "web_search": "true",
+                    "prompt_fidelity": "original",
+                },
+            )
+            task_id = created.json()["task"]["task_id"]
+
+            asyncio.run(app.state.queue_manager.run_available_once())
+            metadata = json.loads(metadata_path(root, task_id).read_text(encoding="utf-8"))
+
+        self.assertTrue(fake.generate_calls[0]["web_search"])
+        self.assertIn("原始提示词模式", fake.generate_calls[0]["instructions"])
+        self.assertEqual(metadata["outputs"][0]["tool_usage"]["web_search"], {"num_requests": 1})
+        self.assertEqual(metadata["tool_usages"][0]["web_search"], {"num_requests": 1})
     def test_index_and_static_assets_disable_browser_cache(self) -> None:
         from codex_image.webui.app import create_app
 

@@ -4,6 +4,22 @@ import unittest
 from pathlib import Path
 
 
+def _typescript_function_body(source: str, name: str) -> str:
+    marker = f"function {name}"
+    start = source.index(marker)
+    brace = source.index("{", start)
+    depth = 0
+    for index in range(brace, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return source[brace:index + 1]
+    raise AssertionError(f"Function body not found: {name}")
+
+
 class WebUIStaticHistoryTests(unittest.TestCase):
     def test_history_page_uses_viewport_workbench_layout(self) -> None:
         html = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
@@ -98,7 +114,9 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'id="historyPromptModeList"',
             'id="historyQualityList"',
             'id="historyRatioList"',
-            'id="historySort"',
+            'id="historySortToggle"',
+            'data-history-sort="newest"',
+            'data-history-sort="oldest"',
             'id="historyViewToggle"',
             'data-history-view="grid"',
             'data-history-view="list"',
@@ -112,6 +130,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'data-history-resizer="right"',
         ]:
             self.assertIn(marker, html)
+        self.assertNotIn('<select id="historySort"', html)
         self.assertNotIn('id="historyStatusList"', html)
         self.assertNotIn('id="historySizeList"', html)
 
@@ -123,7 +142,9 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "syncStateFromUrl()",
             "updateHistoryUrl()",
             'view: "grid"',
+            "syncHistorySortMode()",
             "syncHistoryViewMode()",
+            "applyHistorySort(",
             "layoutJustifiedHistoryGrid",
             "scheduleHistoryGridLayout",
             "historyGridLayoutSettings",
@@ -132,7 +153,10 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "HISTORY_LAYOUT_LIMITS",
             "restoreHistoryLayoutPreference()",
             "bindHistoryResizerEvents()",
-            'import { closeHistoryLightbox, isHistoryLightboxOpen, openHistoryLightbox } from "./history-lightbox"',
+            'from "./history-lightbox"',
+            'type HistoryLightboxTaskDirection',
+            'type HistoryLightboxTaskNavigationContext',
+            'import { initSegmentedIndicatorFeature } from "./segmented-indicator"',
             "historyDetailImagesLayoutClass",
             "startHistoryResize",
             "updateHistoryResize",
@@ -214,6 +238,11 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "openHistoryInputLightbox",
             "openHistoryDetailLightbox",
             "openHistoryTaskLightbox",
+            "openHistoryTaskLightboxByDirection",
+            "historyAdjacentTaskId",
+            'openHistoryLightbox(urls, index, {',
+            'taskId: historyState.selectedTaskId',
+            "onTaskNavigate: openHistoryTaskLightboxByDirection",
             'addEventListener("dblclick"',
             "try {",
             "catch (error)",
@@ -236,6 +265,11 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "export function historyInputLightboxUrlsFromTask",
             "class=\"history-detail-image history-detail-output-card",
             "class=\"history-detail-image-actions\"",
+            "function outputRevisedPromptHtml",
+            "class=\"history-detail-output-prompt\"",
+            "class=\"history-detail-output-prompt-text\"",
+            'data-history-copy-output-prompt-index="${record.index}"',
+            "record.revisedPrompt",
             "class=\"history-detail-overlay-button primary\"",
             "data-history-lightbox-index",
             "data-history-output-selected-task-id",
@@ -261,6 +295,14 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'window.addEventListener("mousemove"',
             'event.key === "ArrowLeft"',
             'event.key === "ArrowRight"',
+            'event.key === "ArrowUp"',
+            'event.key === "ArrowDown"',
+            'event.key === "PageUp"',
+            'event.key === "PageDown"',
+            "onTaskNavigate",
+            "taskId",
+            "showPreviousHistoryTask",
+            "showNextHistoryTask",
             "history-lightbox-counter",
             "data-history-lightbox-prev",
             "data-history-lightbox-next",
@@ -328,6 +370,29 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('restoreHistoryReferenceHandoff,', input_source)
         self.assertIn('call(methods, "restoreHistoryReferenceHandoff")', boot_source)
 
+    def test_history_task_mutations_preserve_scroll_window(self) -> None:
+        source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
+
+        for marker in [
+            "removeHistoryTaskIdsFromWindow",
+            "upsertHistoryTaskSummaryCard",
+            "refreshHistoryWindowAfterMutation",
+            "captureHistoryScrollAnchor(els.taskList)",
+            "restoreHistoryScrollAnchor(els.taskList, anchor)",
+        ]:
+            self.assertIn(marker, source)
+
+        for function_name in [
+            "archiveHistoryTaskIds",
+            "archiveSingleTask",
+            "deleteSelectedTasks",
+            "deleteSingleHistoryTask",
+            "deleteUnselectedOutputs",
+        ]:
+            with self.subTest(function_name=function_name):
+                body = _typescript_function_body(source, function_name)
+                self.assertNotIn("loadTasks({ reset: true })", body)
+
     def test_history_page_polish_i18n_and_detail_actions_contracts(self) -> None:
         html = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
@@ -366,12 +431,18 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'data-history-copy-prompt-kind',
             'data-history-copy-prompt-kind="${escapeHtml(kind)}"',
             'copyPromptToClipboard',
+            'copyOutputPromptToClipboard',
             'promptTextForKind',
+            'outputPromptTextForIndex',
             'revisedPromptText',
+            'outputRevisedPromptTexts',
+            'hasDistinctOutputRevisedPrompts',
             'uniquePromptTexts',
             'normalizePromptForCompare',
-            'const hasRevisedPanel = addPanel("revised"',
+            'const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised"',
+            'translate("history.outputRevisedPromptNotice")',
             'history-prompt-panel-header',
+            'data-history-copy-output-prompt-index',
             'history-task-active-badge',
             'translate("history.viewing")',
             'reuseHistoryTask',
@@ -404,20 +475,34 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn('historyContextButton("copy-prompts"', source)
         self.assertNotIn('historyContextButton("copy-ids"', source)
         self.assertNotIn('els.sentinel?.addEventListener("click"', source)
+        write_clipboard_body = _typescript_function_body(source, "writeClipboardText")
+        self.assertIn("await navigator.clipboard.writeText(text)", write_clipboard_body)
+        self.assertIn("} catch {", write_clipboard_body)
+        self.assertIn('document.execCommand("copy")', write_clipboard_body)
 
         for marker in [
             '"history.back": "返回生成页"',
             '"history.back": "Back to generator"',
+            '"history.searchPlaceholder": "搜索提示词或任务 ID"',
+            '"history.searchPlaceholder": "Search prompts or task ID"',
             '"history.copyPrompt": "复制提示词"',
             '"history.copyPrompt": "Copy prompt"',
             '"history.copyPromptShort": "复制"',
             '"history.copyPromptShort": "Copy"',
+            '"history.copyOutputPromptPanel": "复制图 {index} 优化提示词"',
+            '"history.copyOutputPromptPanel": "Copy image {index} revised prompt"',
+            '"history.outputRevisedPromptTitle": "图 {index} 优化提示词"',
+            '"history.outputRevisedPromptTitle": "Image {index} revised prompt"',
+            '"history.outputRevisedPromptNotice": "每张图的优化提示词不同，见对应图片下方。"',
+            '"history.outputRevisedPromptNotice": "Each image has its own revised prompt below the image."',
             '"history.promptSubmitted": "优化提示词"',
             '"history.promptSubmitted": "Optimized prompt"',
             '"history.viewing": "查看中"',
             '"history.viewing": "Viewing"',
-            '"history.reuseTask": "复用任务"',
-            '"history.reuseTask": "Reuse task"',
+            '"history.reuseTask": "生成页查看"',
+            '"history.reuseTask": "View in generator"',
+            '"status.reusedTask": "已在生成页打开任务 {taskId}"',
+            '"status.reusedTask": "Opened task {taskId} in generator"',
             '"history.outputActions": "结果图操作"',
             '"history.outputActions": "Result image actions"',
             '"history.inputReferences": "输入参考图"',
@@ -430,8 +515,6 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             '"history.contextMenuLabel": "History task context menu"',
             '"history.confirmDeleteSelected": "确认删除已选"',
             '"history.confirmDeleteSelected": "Confirm selected delete"',
-            '"status.reusedTask": "已复用历史任务 {taskId}"',
-            '"status.reusedTask": "Reused historical task {taskId}"',
         ]:
             self.assertIn(marker, i18n_source)
 
@@ -496,6 +579,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertRegex(styles, r"\.history-detail-image-actions\s*>\s*\*\s*\{[^}]*white-space:\s*nowrap")
         self.assertRegex(styles, r"\.history-detail-overlay-button\s*\{[^}]*border-radius:\s*999px")
         self.assertRegex(styles, r"\.history-detail-overlay-button\.primary,\s*\.history-detail-overlay-button\[aria-pressed=\"true\"\]\s*\{[^}]*background:\s*var\(--primary\)")
+        self.assertRegex(styles, r"\.history-detail-output-prompt\s*\{[^}]*border-top:\s*1px solid var\(--panel-border\)")
+        self.assertRegex(styles, r"\.history-detail-output-prompt-header\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*auto")
+        self.assertRegex(styles, r"\.history-detail-output-prompt-text\s*\{[^}]*white-space:\s*pre-wrap")
+        self.assertRegex(styles, r"\.history-detail-output-prompt-text\s*\{[^}]*max-height:")
+        self.assertRegex(styles, r"\.history-detail-output-prompt-text\s*\{[^}]*scrollbar-color:\s*var\(--scrollbar-thumb\)\s+var\(--scrollbar-track\)")
+        self.assertRegex(styles, r"\.history-prompt-note\s*\{[^}]*border:\s*1px solid var\(--panel-border\)")
         self.assertRegex(styles, r"\.history-detail-inputs\s*\{[^}]*border-top:\s*1px solid")
         self.assertRegex(styles, r"\.history-detail-inputs-list\s*\{[^}]*display:\s*flex")
         self.assertRegex(styles, r"\.history-detail-input-thumb\s*\{[^}]*width:\s*54px")
@@ -505,11 +594,11 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertRegex(styles, r"\.history-prompt-copy\.copied\s*\{[^}]*background:\s*var\(--primary-light\)")
         self.assertRegex(styles, r"\.history-results\s*\{[^}]*env\(safe-area-inset-bottom")
         self.assertRegex(styles, r"\.history-toolbar-actions\s*\{[^}]*--history-toolbar-control-height:\s*44px")
-        self.assertRegex(styles, r"\.history-view-toggle\s*\{[^}]*box-sizing:\s*border-box")
-        self.assertRegex(styles, r"\.history-view-toggle\s*\{[^}]*height:\s*var\(--history-toolbar-control-height\)")
-        self.assertRegex(styles, r"\.history-view-button\s*\{[^}]*font-size:\s*14px")
-        self.assertRegex(styles, r"\.history-sort-label\s+span\s*\{[^}]*white-space:\s*nowrap")
-        self.assertRegex(styles, r"\.history-sort-label\s+span\s*\{[^}]*clip-path:\s*inset\(50%\)")
+        self.assertRegex(styles, r"\.history-view-toggle,\s*\.history-sort-toggle\s*\{[^}]*box-sizing:\s*border-box")
+        self.assertRegex(styles, r"\.history-view-toggle,\s*\.history-sort-toggle\s*\{[^}]*height:\s*var\(--history-toolbar-control-height\)")
+        self.assertRegex(styles, r"\.history-view-button,\s*\.history-sort-button\s*\{[^}]*font-size:\s*14px")
+        self.assertRegex(styles, r"\.history-sort-toggle\.segmented-indicator-host\s+\.history-sort-button\.active\s*\{[^}]*background:\s*transparent")
+        self.assertNotIn(".history-sort-label", styles)
         self.assertRegex(styles, r"\.history-toolbar-actions \.control,\s*\.history-toolbar-actions \.ghost-button\.text-sm\s*\{[^}]*min-height:\s*var\(--history-toolbar-control-height\)")
         self.assertRegex(styles, r"\.history-toolbar-actions \.control,\s*\.history-toolbar-actions \.ghost-button\.text-sm\s*\{[^}]*font-size:\s*14px")
         self.assertRegex(styles, r"\.history-toolbar-actions \.control,\s*\.history-toolbar-actions \.ghost-button\.text-sm\s*\{[^}]*font-weight:\s*600")

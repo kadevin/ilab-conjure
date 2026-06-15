@@ -61,7 +61,16 @@ def make_sse_completed_event(
     output_format: str = "png",
     quality: str = "high",
     background: str = "opaque",
+    tool_usage: dict[str, Any] | None = None,
 ) -> bytes:
+    if tool_usage is None:
+        tool_usage = {
+            "image_gen": {
+                "input_tokens": 1,
+                "output_tokens": 2,
+                "total_tokens": 3,
+            }
+        }
     event = {
         "type": "response.completed",
         "response": {
@@ -77,13 +86,7 @@ def make_sse_completed_event(
                     "background": background,
                 }
             ],
-            "tool_usage": {
-                "image_gen": {
-                    "input_tokens": 1,
-                    "output_tokens": 2,
-                    "total_tokens": 3,
-                }
-            },
+            "tool_usage": tool_usage,
         },
     }
     return f"data: {json.dumps(event)}\n\n".encode("utf-8")

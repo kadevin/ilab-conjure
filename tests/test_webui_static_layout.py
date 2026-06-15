@@ -135,8 +135,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-316', html)
-        self.assertIn('/static/styles.css?v=runtime-316', html)
+        self.assertIn('/static/app.js?v=runtime-326', html)
+        self.assertIn('/static/styles.css?v=runtime-326', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertRegex(html, r'class="image-input-footer"[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'id="recentAssetDock"[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -760,9 +760,17 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             styles,
             r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.dashboard-col\s*\{[^}]*gap:\s*12px",
         )
-        self.assertIn(
-            ".controls-col {\n    min-height: calc(100dvh - var(--header-height) - 28px);\n    height: auto;\n    justify-content: flex-start;\n  }",
+        self.assertRegex(
             styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.controls-col\s*\{[^}]*min-height:\s*calc\(100dvh\s*-\s*var\(--header-height\)\s*-\s*28px\)",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.controls-col\s*\{[^}]*height:\s*calc\(100dvh\s*-\s*var\(--header-height\)\s*-\s*28px\)",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.controls-col\s*\{[^}]*justify-content:\s*flex-start",
         )
         self.assertNotIn(
             ".controls-col {\n    justify-content: space-between;\n  }",
@@ -773,11 +781,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             styles,
         )
         self.assertIn(
-            ".controls-col .image-panel {\n    flex: 0 0 auto;\n    min-height: 194px;",
+            ".controls-col .image-panel {\n    flex: 1 1 194px;\n    min-height: 194px;",
             styles,
         )
         self.assertIn(
-            ".controls-col .prompt-panel {\n    flex: 0 0 auto;\n    min-height: 148px;\n    overflow: hidden;",
+            ".controls-col .prompt-panel {\n    flex: 2 1 148px;\n    min-height: 148px;\n    overflow: hidden;",
             styles,
         )
         self.assertIn(
@@ -1249,6 +1257,18 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         )
         self.assertRegex(
             styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.model-tool-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(92px,\s*0\.32fr\)",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*#promptFidelityField\s*\{[^}]*grid-column:\s*2\s*/\s*3",
+        )
+        self.assertRegex(
+            styles,
+            r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.web-search-toggle\s*\{[^}]*height:\s*30px",
+        )
+        self.assertRegex(
+            styles,
             r"@media \(max-height:\s*1080px\) and \(min-width:\s*1024px\)\s*\{[\s\S]*\.api-direct-settings-notice\s*\{[^}]*min-height:\s*46px",
         )
         self.assertNotIn(".api-direct-settings-grid", styles)
@@ -1666,6 +1686,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('id="apiMode"', html)
         self.assertIn('id="apiProviderQuick"', html)
         self.assertIn('id="apiDirectSettingsButton"', html)
+        self.assertIn('class="model-tool-row"', html)
+        self.assertIn('id="webSearchField"', html)
+        self.assertIn('id="webSearch"', html)
         self.assertIn('id="apiProvider"', html)
         self.assertIn('id="apiProviderName"', html)
         self.assertIn('id="addApiProviderButton"', html)
@@ -1685,6 +1708,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("apiProvider: document.querySelector", script)
         self.assertIn("apiProviderQuick: document.querySelector", script)
         self.assertIn("apiDirectSettingsButton: document.querySelector", script)
+        self.assertIn("webSearch: document.querySelector", script)
+        self.assertIn("webSearchField: document.querySelector", script)
         self.assertIn('apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"))', script)
         self.assertIn("apiProviderName: document.querySelector", script)
         self.assertIn("function activeApiProvider", script)
@@ -1717,6 +1742,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("payload.main_model = params.main_model", script)
         self.assertIn('form.append("api_mode", currentApiMode())', script)
         self.assertIn('form.append("api_provider_id", currentApiProviderId())', script)
+        self.assertIn('form.append("web_search", "true")', script)
+        self.assertIn("params.web_search = true", script)
         self.assertIn("payload.api_provider_name = currentApiProviderLabel()", script)
         self.assertIn("webui_api_provider_name", script)
         self.assertIn("api_provider_name: request.api_provider_name", script)
@@ -1729,6 +1756,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn("api_key: currentApiKey()", script)
         self.assertNotIn("api_key: activeApiProvider", script)
         self.assertIn(".api-provider-toolbar", styles)
+        self.assertRegex(styles, r"\.model-tool-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(104px,\s*max-content\)")
+        self.assertIn(".web-search-toggle", styles)
+        self.assertIn(".web-search-field.is-disabled", styles)
         self.assertIn(".api-settings-feedback.ok", styles)
         self.assertIn(".api-settings-feedback.error", styles)
         self.assertIn(".api-settings-feedback.running", styles)
@@ -2582,8 +2612,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-316', html)
-        self.assertIn('/static/styles.css?v=runtime-316', html)
+        self.assertIn('/static/app.js?v=runtime-326', html)
+        self.assertIn('/static/styles.css?v=runtime-326', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -2872,8 +2902,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-316", html)
-        self.assertIn("/static/styles.css?v=runtime-316", html)
+        self.assertIn("/static/app.js?v=runtime-326", html)
+        self.assertIn("/static/styles.css?v=runtime-326", html)
         self.assertIn('const THEME_STORAGE_KEY = "codex-image-theme-preference";', script)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

@@ -312,6 +312,8 @@
       mainModel: document.querySelector("#mainModel"),
       mainModelToggle: document.querySelector("#mainModelToggle"),
       mainModelOptions: document.querySelector("#mainModelOptions"),
+      webSearchField: document.querySelector("#webSearchField"),
+      webSearch: document.querySelector("#webSearch"),
       promptFidelityField: document.querySelector("#promptFidelityField"),
       promptFidelity: document.querySelector("#promptFidelity"),
       apiDirectSettingsNotice: document.querySelector("#apiDirectSettingsNotice"),
@@ -401,7 +403,7 @@
     "zh-CN": {
       "app.newTask": "\u65B0\u5EFA",
       "app.newTaskAria": "\u65B0\u5EFA\u5BF9\u8BDD",
-      "sidebar.searchPlaceholder": "\u641C\u7D22\u5BF9\u8BDD...",
+      "sidebar.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD\u6216\u4EFB\u52A1 ID",
       "sidebar.filters": "\u4EFB\u52A1\u7B5B\u9009",
       "sidebar.allRatios": "\u5168\u90E8\u6BD4\u4F8B",
       "sidebar.allOrientations": "\u5168\u90E8\u65B9\u5411",
@@ -522,7 +524,7 @@
       "history.loading": "\u8F7D\u5165\u4E2D",
       "history.total": "{total} \u4E2A\u4EFB\u52A1 \xB7 {archived} \u5DF2\u5F52\u6863",
       "history.search": "\u641C\u7D22",
-      "history.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD",
+      "history.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD\u6216\u4EFB\u52A1 ID",
       "history.clear": "\u6E05\u7A7A",
       "history.month": "\u6708\u4EFD",
       "history.status": "\u72B6\u6001",
@@ -594,8 +596,9 @@
       "history.copyPrompts": "\u590D\u5236\u63D0\u793A\u8BCD",
       "history.copyPromptShort": "\u590D\u5236",
       "history.copyPromptPanel": "\u590D\u5236{title}",
+      "history.copyOutputPromptPanel": "\u590D\u5236\u56FE {index} \u4F18\u5316\u63D0\u793A\u8BCD",
       "history.copyTaskIds": "\u590D\u5236\u4EFB\u52A1 ID",
-      "history.reuseTask": "\u590D\u7528\u4EFB\u52A1",
+      "history.reuseTask": "\u751F\u6210\u9875\u67E5\u770B",
       "history.downloadTask": "\u4E0B\u8F7D",
       "history.downloadSelectedTasks": "\u6279\u91CF\u4E0B\u8F7D",
       "history.contextMenuLabel": "\u5386\u53F2\u4EFB\u52A1\u53F3\u952E\u83DC\u5355",
@@ -618,6 +621,8 @@
       "history.promptOriginal": "\u539F\u59CB\u63D0\u793A\u8BCD",
       "history.promptSubmitted": "\u4F18\u5316\u63D0\u793A\u8BCD",
       "history.promptRevised": "\u4F18\u5316\u7ED3\u679C",
+      "history.outputRevisedPromptTitle": "\u56FE {index} \u4F18\u5316\u63D0\u793A\u8BCD",
+      "history.outputRevisedPromptNotice": "\u6BCF\u5F20\u56FE\u7684\u4F18\u5316\u63D0\u793A\u8BCD\u4E0D\u540C\uFF0C\u89C1\u5BF9\u5E94\u56FE\u7247\u4E0B\u65B9\u3002",
       "history.promptEmpty": "\u6682\u65E0\u5185\u5BB9",
       "history.promptMode.strict": "\u4FDD\u771F",
       "history.promptMode.original": "\u539F\u59CB",
@@ -717,7 +722,7 @@
       "status.emptyPrompt": "\u8BF7\u8F93\u5165\u63D0\u793A\u8BCD",
       "status.editNeedsImage": "\u7F16\u8F91\u6A21\u5F0F\u81F3\u5C11\u9700\u8981 1 \u5F20\u56FE\u7247",
       "status.loadedTask": "\u5DF2\u8F7D\u5165\u4EFB\u52A1 {taskId}",
-      "status.reusedTask": "\u5DF2\u590D\u7528\u5386\u53F2\u4EFB\u52A1 {taskId}",
+      "status.reusedTask": "\u5DF2\u5728\u751F\u6210\u9875\u6253\u5F00\u4EFB\u52A1 {taskId}",
       "status.loadingHistoryInputs": "\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...",
       "status.historyInputLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: {url}",
       "referenceCollector.alreadyStaged": "\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
@@ -815,6 +820,9 @@
       "output.apiDirect": "API \u76F4\u8FDE",
       "output.apiToolModel": "\u4F7F\u7528 API \u56FE\u50CF\u5DE5\u5177\u6A21\u578B",
       "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C2\u4E0E\u672C\u6B21\u8BF7\u6C42",
+      "output.webSearch": "\u8054\u7F51\u641C\u7D22",
+      "output.webSearchToggle": "\u5F00\u542F",
+      "output.webSearchTitle": "\u5148\u8054\u7F51\u641C\u7D22\uFF0C\u518D\u7528\u4E8E\u672C\u6B21\u751F\u6210\uFF1B\u4EC5 Codex \u548C API Responses \u652F\u6301",
       "output.promptMode": "\u63D0\u793A\u8BCD\u6A21\u5F0F",
       "output.modeOriginal": "\u539F\u59CB\u6A21\u5F0F",
       "output.modeStrict": "\u4FDD\u771F\u6A21\u5F0F",
@@ -928,6 +936,7 @@
       "taskContext.delete": "\u5220\u9664\u4EFB\u52A1",
       "taskContext.idCopied": "\u4EFB\u52A1 ID \u5DF2\u590D\u5236",
       "taskContext.promptCopied": "\u63D0\u793A\u8BCD\u5DF2\u590D\u5236",
+      "taskContext.noPrompt": "\u8FD9\u4E2A\u4EFB\u52A1\u6CA1\u6709\u53EF\u590D\u5236\u7684\u63D0\u793A\u8BCD",
       "taskContext.revealFailed": "\u6253\u5F00\u8F93\u51FA\u76EE\u5F55\u5931\u8D25",
       "taskContext.revealOpened": "\u5DF2\u6253\u5F00\u8F93\u51FA\u76EE\u5F55",
       "taskContext.actionFailed": "\u4EFB\u52A1\u64CD\u4F5C\u5931\u8D25",
@@ -1200,7 +1209,7 @@
     en: {
       "app.newTask": "New",
       "app.newTaskAria": "New chat",
-      "sidebar.searchPlaceholder": "Search chats...",
+      "sidebar.searchPlaceholder": "Search prompts or task ID",
       "sidebar.filters": "Task filters",
       "sidebar.allRatios": "All ratios",
       "sidebar.allOrientations": "All orientations",
@@ -1321,7 +1330,7 @@
       "history.loading": "Loading",
       "history.total": "{total} tasks \xB7 {archived} archived",
       "history.search": "Search",
-      "history.searchPlaceholder": "Search prompts",
+      "history.searchPlaceholder": "Search prompts or task ID",
       "history.clear": "Clear",
       "history.month": "Month",
       "history.status": "Status",
@@ -1393,8 +1402,9 @@
       "history.copyPrompts": "Copy prompts",
       "history.copyPromptShort": "Copy",
       "history.copyPromptPanel": "Copy {title}",
+      "history.copyOutputPromptPanel": "Copy image {index} revised prompt",
       "history.copyTaskIds": "Copy task IDs",
-      "history.reuseTask": "Reuse task",
+      "history.reuseTask": "View in generator",
       "history.downloadTask": "Download",
       "history.downloadSelectedTasks": "Batch download",
       "history.contextMenuLabel": "History task context menu",
@@ -1417,6 +1427,8 @@
       "history.promptOriginal": "Original prompt",
       "history.promptSubmitted": "Optimized prompt",
       "history.promptRevised": "Revised result",
+      "history.outputRevisedPromptTitle": "Image {index} revised prompt",
+      "history.outputRevisedPromptNotice": "Each image has its own revised prompt below the image.",
       "history.promptEmpty": "No content",
       "history.promptMode.strict": "Strict",
       "history.promptMode.original": "Original",
@@ -1516,7 +1528,7 @@
       "status.emptyPrompt": "Enter a prompt",
       "status.editNeedsImage": "Edit mode requires at least one image",
       "status.loadedTask": "Loaded task {taskId}",
-      "status.reusedTask": "Reused historical task {taskId}",
+      "status.reusedTask": "Opened task {taskId} in generator",
       "status.loadingHistoryInputs": "Loading historical input images...",
       "status.historyInputLoadFailed": "Failed to load historical input image: {url}",
       "referenceCollector.alreadyStaged": "Already staged as a reference",
@@ -1614,6 +1626,9 @@
       "output.apiDirect": "API Direct",
       "output.apiToolModel": "Using API image model",
       "output.mainModelUnused": "Main model is not used for this request",
+      "output.webSearch": "Web search",
+      "output.webSearchToggle": "On",
+      "output.webSearchTitle": "Search the web first, then use it for this generation; Codex and API Responses only",
       "output.promptMode": "Prompt mode",
       "output.modeOriginal": "Original",
       "output.modeStrict": "Faithful",
@@ -1727,6 +1742,7 @@
       "taskContext.delete": "Delete task",
       "taskContext.idCopied": "Task ID copied",
       "taskContext.promptCopied": "Prompt copied",
+      "taskContext.noPrompt": "This task has no prompt to copy",
       "taskContext.revealFailed": "Failed to open output folder",
       "taskContext.revealOpened": "Output folder opened",
       "taskContext.actionFailed": "Task action failed",
@@ -2377,6 +2393,8 @@
       uiClockTimerId: null,
       previewRenderKey: null,
       tasksRenderKey: null,
+      taskSearchHistoryResultIds: [],
+      taskSearchHistoryRequestSeq: 0,
       pendingTaskId: null,
       galleryItems: [],
       promptSnippets: [],
@@ -6152,6 +6170,21 @@ ${hint}` : hint;
     setModeSpecificElementVisibility(els8.apiDirectSettingsNotice, isDirectApi);
     setModeSpecificElementVisibility(els8.promptFidelityField, true);
   }
+  function updateWebSearchAvailability(authSource = currentAuthSource()) {
+    const supported = authSource !== "api" || currentApiMode() === "responses";
+    if (els8.webSearch) {
+      const wasChecked = Boolean(els8.webSearch.checked);
+      els8.webSearch.disabled = !supported;
+      if (!supported) els8.webSearch.checked = false;
+      if (wasChecked && !els8.webSearch.checked) {
+        els8.webSearch.dispatchEvent(new Event("input"));
+      }
+    }
+    if (els8.webSearchField) {
+      els8.webSearchField.classList.toggle("is-disabled", !supported);
+      els8.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
+    }
+  }
   function setModeSettingsVariant(isDirectApi) {
     const slot = els8.modeSettingsSlot;
     if (slot) {
@@ -6163,6 +6196,7 @@ ${hint}` : hint;
   function updateModeSpecificSettings(authSource = currentAuthSource()) {
     const isDirectApi = authSource === "api" && currentApiMode() !== "responses";
     setModeSettingsVariant(isDirectApi);
+    updateWebSearchAvailability(authSource);
   }
 
   // codex_image/webui/frontend/src/auth-source.ts
@@ -7842,28 +7876,72 @@ ${hint}` : hint;
     if (!button || !selection?.range) return;
     state12.promptSnippetSelectionRange = selection.range.cloneRange();
     state12.promptSnippetSelectionText = selection.text;
-    const rect = promptSnippetSelectionAnchorRect(selection) || els14.promptEditor.getBoundingClientRect();
+    const editorRect = promptSnippetVisibleEditorRect();
+    const rect = promptSnippetSelectionAnchorRect(selection, editorRect);
+    if (!rect || !editorRect) return;
     const buttonWidth = 54;
     const buttonHeight = 30;
     const gap = 6;
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || rect.right;
     const maxLeft = Math.max(8, viewportWidth - buttonWidth - 8);
+    const minTop = Math.max(8, editorRect.top + 4);
+    const maxTop = Math.max(minTop, editorRect.bottom - buttonHeight - 4);
     const endpointLeft = rect.right;
     const inlineLeft = endpointLeft + gap;
     const left = inlineLeft <= maxLeft ? Math.max(8, inlineLeft) : Math.min(maxLeft, Math.max(8, endpointLeft - buttonWidth));
-    const top = inlineLeft <= maxLeft ? Math.max(8, rect.top + Math.max(0, (rect.height - buttonHeight) / 2)) : Math.max(8, rect.bottom + gap);
+    const preferredTop = inlineLeft <= maxLeft ? Math.max(8, rect.top + Math.max(0, (rect.height - buttonHeight) / 2)) : Math.max(8, rect.bottom + gap);
+    const top = Math.min(maxTop, Math.max(minTop, preferredTop));
     button.style.setProperty("--prompt-snippet-save-left", `${left}px`);
     button.style.setProperty("--prompt-snippet-save-top", `${top}px`);
     button.classList.remove("hidden");
   }
-  function promptSnippetSelectionAnchorRect(selection) {
-    if (!selection?.range) return null;
+  function promptSnippetSelectionAnchorRect(selection, editorRect) {
+    if (!selection?.range || !editorRect) return null;
     const endRange = selection.range.cloneRange();
     endRange.collapse(false);
-    const endRect = mentionRangeRect2(endRange);
+    const endRect = clipRectToBounds(mentionRangeRect2(endRange), editorRect);
     if (endRect && (endRect.width || endRect.height)) return endRect;
-    const rects = Array.from(selection.range.getClientRects()).filter((rect) => rect.width || rect.height);
-    return rects.length ? rects[rects.length - 1] : mentionRangeRect2(selection.range);
+    const visibleRects = promptSnippetSelectionVisibleRects(selection.range, editorRect);
+    return visibleRects.length ? visibleRects[visibleRects.length - 1] : promptSnippetFallbackVisibleAnchorRect(editorRect);
+  }
+  function promptSnippetVisibleEditorRect() {
+    if (!els14.promptEditor) return null;
+    const rect = els14.promptEditor.getBoundingClientRect();
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || rect.right;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || rect.bottom;
+    return clipRectToBounds(rect, {
+      left: 8,
+      top: 8,
+      right: Math.max(8, viewportWidth - 8),
+      bottom: Math.max(8, viewportHeight - 8)
+    });
+  }
+  function promptSnippetSelectionVisibleRects(range, editorRect) {
+    return Array.from(range.getClientRects()).map((rect) => clipRectToBounds(rect, editorRect)).filter((rect) => rect && (rect.width || rect.height));
+  }
+  function promptSnippetFallbackVisibleAnchorRect(editorRect) {
+    if (!editorRect) return null;
+    const width = Math.max(1, Math.min(12, editorRect.width));
+    const height = Math.max(1, Math.min(24, editorRect.height));
+    return {
+      left: Math.max(editorRect.left, editorRect.right - width),
+      right: editorRect.right,
+      top: Math.max(editorRect.top, editorRect.bottom - height),
+      bottom: editorRect.bottom,
+      width,
+      height
+    };
+  }
+  function clipRectToBounds(rect, bounds) {
+    if (!rect || !bounds) return null;
+    const left = Math.max(rect.left, bounds.left);
+    const right = Math.min(rect.right, bounds.right);
+    const top = Math.max(rect.top, bounds.top);
+    const bottom = Math.min(rect.bottom, bounds.bottom);
+    const width = Math.max(0, right - left);
+    const height = Math.max(0, bottom - top);
+    if (!width && !height) return null;
+    return { left, right, top, bottom, width, height };
   }
   function hidePromptSnippetSelectionButton() {
     const button = promptSnippetSelectionButtonElement();
@@ -10757,6 +10835,12 @@ ${galleryText}`;
   function currentImageToolModel() {
     return currentAuthSource2() === "api" ? currentApiImageModel() : els25.model.value;
   }
+  function webSearchSupportedForCurrentBackend() {
+    return currentAuthSource2() !== "api" || currentApiMode3() === "responses";
+  }
+  function currentWebSearchEnabled() {
+    return Boolean(els25.webSearch?.checked && webSearchSupportedForCurrentBackend());
+  }
   function currentTaskParams() {
     const params = {
       main_model: currentMainModel(),
@@ -10769,6 +10853,9 @@ ${galleryText}`;
       moderation: els25.moderation.value,
       output_compression: els25.outputFormat.value === "png" ? null : Number(els25.compression.value)
     };
+    if (currentWebSearchEnabled()) {
+      params.web_search = true;
+    }
     const presetMatch = findPresetForSize(params.size);
     if (presetMatch) {
       params.resolution = presetMatch.resolution;
@@ -11250,6 +11337,7 @@ ${galleryText}`;
     });
     [
       els27.mainModel,
+      els27.webSearch,
       els27.model,
       els27.size,
       els27.customWidth,
@@ -11342,6 +11430,8 @@ ${galleryText}`;
       currentMainModel,
       currentQuantity,
       currentImageToolModel,
+      currentWebSearchEnabled,
+      webSearchSupportedForCurrentBackend,
       restoreMainModel,
       persistMainModel,
       syncSizeControlsFromSize,
@@ -11704,7 +11794,7 @@ ${galleryText}`;
     };
   }
   function taskMatchesSearch(task, query) {
-    const text = `${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel2(task)}`.toLowerCase();
+    const text = `${task.task_id || ""} ${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel2(task)}`.toLowerCase();
     return text.includes(query);
   }
   function taskMatchesFilters(task, filters) {
@@ -13569,6 +13659,10 @@ ${galleryText}`;
       els33.promptFidelity.value = fidelity;
       els33.promptFidelity.dispatchEvent(new Event("change"));
     }
+    if (els33.webSearch) {
+      els33.webSearch.checked = Boolean(params.web_search);
+      els33.webSearch.dispatchEvent(new Event("input"));
+    }
     if (params.model) els33.model.value = params.model;
     if (params.size) syncSizeControlsFromSize2(params.size);
     if (params.n && els33.nInput) {
@@ -13611,6 +13705,7 @@ ${galleryText}`;
       moderation: params.moderation,
       output_compression: params.output_compression,
       prompt_fidelity: currentPromptFidelity3(),
+      web_search: Boolean(params.web_search),
       n: params.n,
       images: uploads.map((source) => source.name),
       gallery_image_ids: galleries.map((source) => source.id),
@@ -13628,7 +13723,7 @@ ${galleryText}`;
       if (apiMode === "responses") {
         payload2.endpoint = "/responses";
         payload2.model = params.main_model;
-        payload2.tools = [{
+        const imageTool = {
           type: "image_generation",
           action,
           model: params.model,
@@ -13636,9 +13731,14 @@ ${galleryText}`;
           quality: params.quality,
           output_format: params.output_format,
           moderation: params.moderation
-        }];
+        };
+        payload2.tools = params.web_search ? [{ type: "web_search", search_context_size: "low" }, imageTool] : [imageTool];
+        if (params.web_search) {
+          payload2.tool_choice = "required";
+          payload2.parallel_tool_calls = false;
+        }
         if (params.output_compression !== null && params.output_compression !== void 0) {
-          payload2.tools[0].output_compression = params.output_compression;
+          imageTool.output_compression = params.output_compression;
         }
       } else {
         payload2.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
@@ -13725,6 +13825,7 @@ ${galleryText}`;
     form.append("moderation", params.moderation);
     form.append("n", String(params.n));
     form.append("prompt_fidelity", currentPromptFidelity3());
+    if (params.web_search) form.append("web_search", "true");
     if (currentAuthSource3() === "api") {
       form.append("api_provider_id", currentApiProviderId3());
       form.append("api_mode", currentApiMode4());
@@ -13800,6 +13901,7 @@ ${galleryText}`;
     return method(...args);
   }
   var renderTasks6 = () => legacyMethod35("renderTasks");
+  var syncTaskSearchHistoryResults = () => legacyMethod35("syncTaskSearchHistoryResults");
   var setExpandedTaskGroupKey2 = (...args) => legacyMethod35("setExpandedTaskGroupKey", ...args);
   var scrollExpandedTaskGroupToTop3 = (...args) => legacyMethod35("scrollExpandedTaskGroupToTop", ...args);
   var captureTaskHistoryLayout3 = (...args) => legacyMethod35("captureTaskHistoryLayout", ...args);
@@ -13826,11 +13928,15 @@ ${galleryText}`;
     els34.batchArchiveButton?.addEventListener("click", archiveSelectedTasks2);
     els34.batchDeleteButton?.addEventListener("click", openBatchDeleteConfirm2);
     els34.batchCancelButton?.addEventListener("click", () => toggleBatchMode2(false));
-    els34.taskSearch.addEventListener("input", renderTasks6);
+    els34.taskSearch.addEventListener("input", handleTaskSearchInput);
     [els34.taskRatioFilter, els34.taskOrientationFilter, els34.taskPromptFidelityFilter, els34.taskResolutionFilter].filter(Boolean).forEach((element2) => {
       element2.addEventListener("change", renderTasks6);
     });
     bindTaskListEvents();
+  }
+  function handleTaskSearchInput() {
+    renderTasks6();
+    void syncTaskSearchHistoryResults();
   }
   function bindTaskListEvents() {
     const interactiveRoot = els34.taskHistoryShell || els34.sidebarContent || els34.taskList;
@@ -14704,7 +14810,7 @@ ${galleryText}`;
     </div>
     <div class="task-context-menu-section">
       ${taskContextButton("copy-id", translate("taskContext.copyId"))}
-      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskPromptText(task))}
+      ${taskContextButton("copy-prompt", translate("taskContext.copyPrompt"), !taskCanCopyPrompt(task))}
       ${taskContextButton("reveal-output", translate("taskContext.revealOutput"), !hasOutput)}
     </div>
     <div class="task-context-menu-section">
@@ -14749,7 +14855,10 @@ ${galleryText}`;
         await copyText(taskId);
         setStatus18(translate("taskContext.idCopied"), "ok");
       } else if (action === "copy-prompt") {
-        await copyText(taskPromptText(task));
+        const detailedTask = await ensureTaskContextTaskDetail(taskId, task);
+        const prompt = taskPromptText(detailedTask);
+        if (!prompt) throw new Error(translate("taskContext.noPrompt"));
+        await copyText(prompt);
         setStatus18(translate("taskContext.promptCopied"), "ok");
       } else if (action === "reveal-output") {
         await revealTaskOutputDirectory(taskId);
@@ -14787,8 +14896,29 @@ ${galleryText}`;
   function taskById(taskId) {
     return state27.tasks.find((item) => String(item.task_id) === String(taskId));
   }
+  function taskCanCopyPrompt(task) {
+    return Boolean(task?.summary_only || taskPromptText(task));
+  }
   function taskPromptText(task) {
     return String(task?.prompt || task?.prompt_for_model || "").trim();
+  }
+  async function ensureTaskContextTaskDetail(taskId, task) {
+    if (!task?.summary_only) return task;
+    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || translate("notifications.taskMissing"));
+    const fullTask = data.task;
+    return replaceTaskInState(taskId, fullTask);
+  }
+  function replaceTaskInState(taskId, task) {
+    if (!task?.task_id) return task;
+    const index = state27.tasks.findIndex((item) => String(item.task_id) === String(taskId));
+    if (index >= 0) {
+      state27.tasks.splice(index, 1, task);
+    } else {
+      state27.tasks.unshift(task);
+    }
+    return task;
   }
   function taskHasOutput(task) {
     if (task?.output_url) return true;
@@ -16818,6 +16948,9 @@ ${galleryText}`;
   var taskHasViewableUpdate2 = (...args) => legacyMethod39("taskHasViewableUpdate", ...args);
   var markTaskViewed2 = (...args) => legacyMethod39("markTaskViewed", ...args);
   var ensureSelectedTaskDetail = (...args) => legacyMethod39("ensureSelectedTaskDetail", ...args);
+  var TASK_SEARCH_HISTORY_LIMIT = 100;
+  var TASK_SEARCH_HISTORY_DEBOUNCE_MS = 180;
+  var taskSearchHistoryTimerId = 0;
   async function refreshTasks({ migrateLegacyArchives = false } = {}) {
     const requestSeq = ++state29.tasksRequestSeq;
     const response = await fetch("/api/tasks/recent?limit=200");
@@ -16857,6 +16990,110 @@ ${galleryText}`;
     renderArchiveModal4();
     await renderSelectedTaskPreview();
   }
+  function currentTaskSearchQuery() {
+    return String(els38.taskSearch?.value || "").trim();
+  }
+  function activeOrSelectedTask(task) {
+    const taskId = String(task?.task_id || "");
+    const status = String(task?.status || "");
+    return Boolean(taskId && (String(state29.selectedTaskId || "") === taskId || task?.local_pending || ["submitting", "queued", "running"].includes(status)));
+  }
+  function historyTaskSummaryToSidebarTask(task) {
+    const size = String(task.size || "");
+    const promptFidelity = String(task.prompt_mode || "");
+    const providerName = String(task.provider || "");
+    return {
+      task_id: String(task.task_id || ""),
+      summary_only: true,
+      created_at: String(task.created_at || ""),
+      updated_at: String(task.updated_at || ""),
+      completed_at: String(task.completed_at || ""),
+      status: String(task.status || ""),
+      mode: String(task.mode || ""),
+      prompt: String(task.prompt_preview || task.task_id || ""),
+      output_size: size,
+      params: {
+        size,
+        n: Number(task.total_count || 1) || 1,
+        prompt_fidelity: promptFidelity,
+        api_provider_name: providerName
+      },
+      backend: String(task.backend || ""),
+      requested_backend: String(task.backend || ""),
+      api_provider_name: providerName,
+      generated_count: Number(task.generated_count || 0) || 0,
+      failed_count: Number(task.failed_count || 0) || 0,
+      total_count: Number(task.total_count || 1) || 1,
+      thumbnail_urls: task.thumbnail_url ? [String(task.thumbnail_url)] : []
+    };
+  }
+  function mergeTaskSearchHistoryResults(tasks) {
+    const previousResultIds = new Set((state29.taskSearchHistoryResultIds || []).map(String));
+    const nextTasks = tasks.map(historyTaskSummaryToSidebarTask).filter((task) => task.task_id);
+    const nextById = new Map(nextTasks.map((task) => [String(task.task_id), task]));
+    const nextIds = new Set(nextById.keys());
+    const merged = [];
+    const seen = /* @__PURE__ */ new Set();
+    state29.tasks.forEach((task) => {
+      const taskId = String(task?.task_id || "");
+      if (!taskId) return;
+      if (previousResultIds.has(taskId) && !nextIds.has(taskId) && !activeOrSelectedTask(task)) {
+        return;
+      }
+      const replacement = nextById.get(taskId);
+      if (replacement) {
+        merged.push(task);
+        seen.add(taskId);
+        return;
+      }
+      merged.push(task);
+    });
+    nextTasks.forEach((task) => {
+      if (seen.has(String(task.task_id))) return;
+      merged.push(task);
+    });
+    state29.tasks = merged;
+    state29.taskSearchHistoryResultIds = Array.from(nextIds);
+    state29.tasksRenderKey = null;
+  }
+  function clearTaskSearchHistoryResults() {
+    const previousResultIds = new Set((state29.taskSearchHistoryResultIds || []).map(String));
+    if (!previousResultIds.size) return;
+    state29.tasks = state29.tasks.filter((task) => {
+      const taskId = String(task?.task_id || "");
+      return !previousResultIds.has(taskId) || activeOrSelectedTask(task);
+    });
+    state29.taskSearchHistoryResultIds = [];
+    state29.tasksRenderKey = null;
+  }
+  async function fetchTaskSearchHistoryResults(query, requestSeq) {
+    const params = new URLSearchParams();
+    params.set("q", query);
+    params.set("limit", String(TASK_SEARCH_HISTORY_LIMIT));
+    params.set("archived", "false");
+    const response = await fetch(`/api/task-history/tasks?${params.toString()}`);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || "Task history search failed");
+    if (requestSeq !== state29.taskSearchHistoryRequestSeq || currentTaskSearchQuery() !== query) return;
+    mergeTaskSearchHistoryResults(Array.isArray(data.tasks) ? data.tasks : []);
+    renderTasks8({ preserveScroll: true });
+  }
+  async function syncTaskSearchHistoryResults2() {
+    window.clearTimeout(taskSearchHistoryTimerId);
+    const query = currentTaskSearchQuery();
+    const requestSeq = ++state29.taskSearchHistoryRequestSeq;
+    if (!query) {
+      clearTaskSearchHistoryResults();
+      renderTasks8({ preserveScroll: true });
+      return;
+    }
+    taskSearchHistoryTimerId = window.setTimeout(() => {
+      void fetchTaskSearchHistoryResults(query, requestSeq).catch((error) => {
+        if (requestSeq !== state29.taskSearchHistoryRequestSeq) return;
+        console.warn(error);
+      });
+    }, TASK_SEARCH_HISTORY_DEBOUNCE_MS);
+  }
   async function renderSelectedTaskPreview(requestSeq = null) {
     const selectedTask = state29.tasks.find((item) => String(item.task_id) === String(state29.selectedTaskId));
     if (selectedTask?.summary_only) {
@@ -16878,7 +17115,8 @@ ${galleryText}`;
     Object.assign(getLegacyBridge().methods, {
       refreshTasks,
       applyTasksSnapshot,
-      applyTaskUpdate
+      applyTaskUpdate,
+      syncTaskSearchHistoryResults: syncTaskSearchHistoryResults2
     });
   }
 
@@ -17836,7 +18074,8 @@ ${galleryText}`;
     els41.moderation.value = "auto";
     els41.compression.value = "80";
     if (els41.promptFidelity) els41.promptFidelity.value = "strict";
-    [els41.nInput, els41.resolution, els41.ratio, els41.orientation, els41.quality, els41.outputFormat, els41.moderation, els41.promptFidelity].forEach((sel) => {
+    if (els41.webSearch) els41.webSearch.checked = false;
+    [els41.nInput, els41.resolution, els41.ratio, els41.orientation, els41.quality, els41.outputFormat, els41.moderation, els41.promptFidelity, els41.webSearch].forEach((sel) => {
       if (sel) sel.dispatchEvent(new Event("change"));
     });
     setMode6("generate");
@@ -18193,9 +18432,9 @@ ${galleryText}`;
   }
 
   // codex_image/webui/frontend/src/segmented-indicator.ts
-  var HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher"];
+  var HOST_SELECTORS = [".radio-group:not(.ratio-group)", "#authSourceGroup", "#languageSwitcher", ".history-view-toggle", ".history-sort-toggle"];
   var HOST_SELECTOR = HOST_SELECTORS.join(", ");
-  var BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option";
+  var BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .language-option, .history-view-button, .history-sort-button";
   var INDICATOR_CLASS = "segmented-indicator";
   var HOST_CLASS = "segmented-indicator-host";
   var initializedHosts = /* @__PURE__ */ new WeakSet();
@@ -18203,7 +18442,7 @@ ${galleryText}`;
   var segmentedIndicatorsInitialized = false;
   var resizeObserver = null;
   function activeSegment(host) {
-    return host.querySelector(".radio-btn.active, .auth-source-button.active");
+    return host.querySelector(".radio-btn.active, .auth-source-button.active, .language-option.active, .history-view-button.active, .history-sort-button.active");
   }
   function ensureIndicator(host) {
     const existing = Array.from(host.children).find((child) => child.classList.contains(INDICATOR_CLASS));

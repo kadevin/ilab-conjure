@@ -53,6 +53,8 @@ Download portable packages from [Downloads / Releases](RELEASES.md).
   thumbnails, and result archive.
 - Independent `/history` page with SQLite-backed pagination, search, filters,
   grid/list views, and lazy detail loading.
+- Optional web search for Codex and API Responses image generation, plus prompt
+  and task ID search across recent and historical tasks.
 - Shared gallery references, recent reference images, color chips, prompt
   snippet chips, and reusable prompt templates.
 - Chinese / English WebUI localization with a top-bar language switch and a
@@ -131,7 +133,7 @@ http://127.0.0.1:8787/
 ## Portable packages
 
 Download the current portable packages from [Downloads / Releases](RELEASES.md),
-or open [GitHub Release v0.3.7](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.7)
+or open [GitHub Release v0.4.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.4.0)
 directly.
 
 These packages are intended for users who want a ComfyUI-style unzip-and-run

@@ -341,7 +341,7 @@ function taskFilterValues() {
 }
 
 function taskMatchesSearch(task: any, query: any) {
-  const text = `${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel(task)}`.toLowerCase();
+  const text = `${task.task_id || ""} ${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel(task)}`.toLowerCase();
   return text.includes(query);
 }
 

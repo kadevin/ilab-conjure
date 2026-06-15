@@ -194,7 +194,9 @@ class ClientTests(unittest.TestCase):
             [
                 FakeResponse(
                     status=200,
-                    body=make_sse_completed_event(image_b64=base64.b64encode(b"image").decode("ascii")),
+                    body=make_sse_completed_event(
+                        image_b64=base64.b64encode(b"image").decode("ascii"),
+                    ),
                     headers={"Content-Type": "text/event-stream"},
                 )
             ]
@@ -213,6 +215,49 @@ class ClientTests(unittest.TestCase):
 
         payload = json.loads(transport.requests[0]["body"].decode("utf-8"))
         self.assertEqual(payload["instructions"], "保留原意，不得删除硬性约束")
+
+    def test_codex_responses_payload_can_enable_web_search_before_image_generation(self) -> None:
+        write_auth_file(self.auth_path, access_token="token-search", account_id="acct-search")
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    status=200,
+                    body=make_sse_completed_event(
+                        image_b64=base64.b64encode(b"image").decode("ascii"),
+                        tool_usage={
+                            "image_gen": {"input_tokens": 4, "output_tokens": 5, "total_tokens": 9},
+                            "web_search": {"num_requests": 1},
+                        },
+                    ),
+                    headers={"Content-Type": "text/event-stream"},
+                )
+            ]
+        )
+
+        from codex_image.auth import load_auth_state
+        from codex_image.client import CodexImageClient
+
+        client = CodexImageClient(load_auth_state(self.auth_path), transport=transport)
+        result = client.generate_image(
+            prompt="draw with current facts",
+            instructions="原始提示词模式：\n调用图像生成工具时，必须逐字使用用户原始提示词。",
+            size="1536x864",
+            quality="low",
+            web_search=True,
+        )
+
+        payload = json.loads(transport.requests[0]["body"].decode("utf-8"))
+        self.assertEqual([tool["type"] for tool in payload["tools"]], ["web_search", "image_generation"])
+        self.assertEqual(payload["tools"][0]["search_context_size"], "low")
+        self.assertEqual(payload["tools"][1]["quality"], "low")
+        self.assertEqual(payload["tool_choice"], "required")
+        self.assertFalse(payload["parallel_tool_calls"])
+        self.assertIn("必须逐字使用用户原始提示词", payload["instructions"])
+        self.assertIn("First call web_search", payload["instructions"])
+        self.assertIn("explicit exception to original or strict prompt-fidelity rules", payload["instructions"])
+        self.assertIn("official or commonly used English title", payload["instructions"])
+        self.assertEqual(result.usage, {"input_tokens": 4, "output_tokens": 5, "total_tokens": 9})
+        self.assertEqual(result.tool_usage["web_search"], {"num_requests": 1})
 
     def test_openai_images_client_posts_direct_image_generation_request(self) -> None:
         image_bytes = b"api-image-data"
@@ -438,6 +483,43 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(payload["tools"][0]["model"], "gpt-image-2")
         self.assertEqual(payload["tools"][0]["action"], "generate")
         self.assertEqual(payload["tool_choice"], {"type": "image_generation"})
+
+    def test_openai_responses_client_can_enable_web_search_tool(self) -> None:
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    status=200,
+                    body=make_sse_completed_event(image_b64=base64.b64encode(b"image").decode("ascii")),
+                    headers={"Content-Type": "text/event-stream"},
+                )
+            ]
+        )
+
+        from codex_image.client import OpenAIResponsesImageClient
+
+        client = OpenAIResponsesImageClient(
+            api_key="test-api-key-responses-secret",
+            base_url="https://api.example.com/v1",
+            image_model="gpt-image-2",
+            transport=transport,
+        )
+        client.generate_image(
+            prompt="draw with web context",
+            main_model="gpt-5.5",
+            model="gpt-image-2",
+            size="1536x864",
+            quality="low",
+            output_format="png",
+            web_search=True,
+        )
+
+        payload = json.loads(transport.requests[0]["body"].decode("utf-8"))
+        self.assertEqual([tool["type"] for tool in payload["tools"]], ["web_search", "image_generation"])
+        self.assertEqual(payload["tools"][1]["quality"], "low")
+        self.assertEqual(payload["tool_choice"], "required")
+        self.assertFalse(payload["parallel_tool_calls"])
+        self.assertIn("First call web_search", payload["instructions"])
+        self.assertIn("explicit exception to original or strict prompt-fidelity rules", payload["instructions"])
 
     def test_openai_responses_client_posts_edit_request_with_images_and_mask(self) -> None:
         image_b64 = base64.b64encode(b"responses-edited-image").decode("ascii")

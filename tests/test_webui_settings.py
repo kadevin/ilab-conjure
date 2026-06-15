@@ -1218,6 +1218,50 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(body["request"]["tools"][0]["model"], "gpt-image-2")
         self.assertEqual(body["request"]["tools"][0]["action"], "generate")
         self.assertNotIn("test-api-key-preview-secret", json.dumps(body, ensure_ascii=False))
+
+    def test_api_responses_preview_can_enable_web_search(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=root / "auth-settings.json",
+                api_settings_path=root / "api-settings.json",
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+            client.patch(
+                "/api/api-settings",
+                json={
+                    "base_url": "https://api.example.com/v1",
+                    "api_key": "test-api-key-preview-secret",
+                    "image_model": "gpt-image-2",
+                    "api_mode": "responses",
+                },
+            )
+            client.patch("/api/auth", json={"source": "api"})
+
+            response = client.post(
+                "/api/generate",
+                data={
+                    "prompt": "api responses search preview",
+                    "main_model": "gpt-5.5",
+                    "size": "1536x864",
+                    "quality": "low",
+                    "api_mode": "responses",
+                    "web_search": "true",
+                },
+            )
+            body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(body["task"]["params"]["web_search"])
+        self.assertEqual([tool["type"] for tool in body["request"]["tools"]], ["web_search", "image_generation"])
+        self.assertEqual(body["request"]["tools"][1]["quality"], "low")
+        self.assertEqual(body["request"]["tool_choice"], "required")
+        self.assertFalse(body["request"]["parallel_tool_calls"])
+
     def test_api_queue_worker_uses_saved_responses_client_for_responses_tasks(self) -> None:
         from codex_image.webui.app import create_app
 

@@ -36,7 +36,7 @@
         document.documentElement.dataset.locale = locale;
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-316" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-326" />
   </head>
   <body>
     <div class="layout-container">
@@ -377,47 +377,58 @@
               <div id="settingsGrid" class="settings-grid">
                 <div id="modeSettingsSlot" class="mode-settings-slot full-width">
                   <div id="modeSpecificSettings" class="mode-specific-settings mode-transition">
-                    <label id="mainModelField" class="field">
-                      <span data-i18n="output.mainModel">主模型</span>
-                      <div
-                        id="mainModelCombobox"
-                        class="model-combobox"
-                        role="combobox"
-                        aria-haspopup="listbox"
-                        aria-expanded="false"
-                        aria-owns="mainModelOptions"
-                      >
-                        <input
-                          id="mainModel"
-                          class="control model-combobox-input"
-                          type="text"
-                          value="gpt-5.4-mini"
-                          autocomplete="off"
-                          aria-autocomplete="list"
-                          aria-controls="mainModelOptions"
+                    <div class="model-tool-row">
+                      <label id="mainModelField" class="field main-model-field">
+                        <span data-i18n="output.mainModel">主模型</span>
+                        <div
+                          id="mainModelCombobox"
+                          class="model-combobox"
+                          role="combobox"
+                          aria-haspopup="listbox"
                           aria-expanded="false"
-                        />
-                        <button id="mainModelToggle" class="model-combobox-toggle" type="button" aria-label="选择主模型" aria-controls="mainModelOptions" tabindex="-1" data-i18n-attr="aria-label:output.selectMainModel">
-                          <span class="model-combobox-caret" aria-hidden="true"></span>
-                        </button>
-                        <div id="mainModelOptions" class="model-combobox-options hidden" role="listbox"></div>
-                      </div>
-                    </label>
-
-                    <div id="apiDirectSettingsNotice" class="field api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true">
-                      <span data-i18n="output.apiDirect">API 直连</span>
-                      <div class="api-direct-settings-control">
-                        <div class="api-direct-settings-header">
-                          <strong data-i18n="output.apiToolModel">使用 API 图像工具模型</strong>
-                          <span data-i18n="output.mainModelUnused">主模型不参与本次请求</span>
+                          aria-owns="mainModelOptions"
+                        >
+                          <input
+                            id="mainModel"
+                            class="control model-combobox-input"
+                            type="text"
+                            value="gpt-5.4-mini"
+                            autocomplete="off"
+                            aria-autocomplete="list"
+                            aria-controls="mainModelOptions"
+                            aria-expanded="false"
+                          />
+                          <button id="mainModelToggle" class="model-combobox-toggle" type="button" aria-label="选择主模型" aria-controls="mainModelOptions" tabindex="-1" data-i18n-attr="aria-label:output.selectMainModel">
+                            <span class="model-combobox-caret" aria-hidden="true"></span>
+                          </button>
+                          <div id="mainModelOptions" class="model-combobox-options hidden" role="listbox"></div>
                         </div>
-                        <button id="apiDirectSettingsButton" class="ghost-button text-sm icon-text-button api-direct-settings-button" type="button">
-                          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-                            <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
-                          </svg>
-                          <span data-i18n="api.settings">API 设置</span>
-                        </button>
+                      </label>
+
+                      <div id="apiDirectSettingsNotice" class="field api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true">
+                        <span data-i18n="output.apiDirect">API 直连</span>
+                        <div class="api-direct-settings-control">
+                          <div class="api-direct-settings-header">
+                            <strong data-i18n="output.apiToolModel">使用 API 图像工具模型</strong>
+                            <span data-i18n="output.mainModelUnused">主模型不参与本次请求</span>
+                          </div>
+                          <button id="apiDirectSettingsButton" class="ghost-button text-sm icon-text-button api-direct-settings-button" type="button">
+                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                              <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                              <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
+                            </svg>
+                            <span data-i18n="api.settings">API 设置</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="webSearchField" class="field web-search-field">
+                        <span data-i18n="output.webSearch">联网搜索</span>
+                        <label class="web-search-toggle" title="先联网搜索并用于本次生成" data-i18n-attr="title:output.webSearchTitle">
+                          <input id="webSearch" type="checkbox" />
+                          <span class="web-search-toggle-track" aria-hidden="true"></span>
+                          <span class="web-search-toggle-text" data-i18n="output.webSearchToggle">开启</span>
+                        </label>
                       </div>
                     </div>
 
@@ -1025,7 +1036,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-316"></script>
+  <script src="/static/app.js?v=runtime-326"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

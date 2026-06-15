@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>历史库 - iLab GPT CONJURE</title>
-  <link rel="stylesheet" href="/static/styles.css?v=runtime-312" />
+  <link rel="stylesheet" href="/static/styles.css?v=runtime-326" />
 </head>
 <body>
   <main class="history-page">
@@ -74,13 +74,10 @@
             <button class="history-view-button active" type="button" data-history-view="grid" aria-pressed="true" data-i18n="history.grid">网格</button>
             <button class="history-view-button" type="button" data-history-view="list" aria-pressed="false" data-i18n="history.list">列表</button>
           </div>
-          <label class="history-sort-label" for="historySort">
-            <span data-i18n="history.sort">排序</span>
-            <select id="historySort" class="control">
-              <option value="newest" data-i18n="history.newest">最新优先</option>
-              <option value="oldest" data-i18n="history.oldest">最早优先</option>
-            </select>
-          </label>
+          <div id="historySortToggle" class="history-sort-toggle" aria-label="排序" data-i18n-attr="aria-label:history.sort">
+            <button class="history-sort-button active" type="button" data-history-sort="newest" aria-pressed="true" data-i18n="history.newest">最新优先</button>
+            <button class="history-sort-button" type="button" data-history-sort="oldest" aria-pressed="false" data-i18n="history.oldest">最早优先</button>
+          </div>
           <button id="historyRefreshButton" class="ghost-button text-sm" type="button" data-i18n="history.refresh">刷新</button>
         </div>
       </header>
@@ -108,6 +105,6 @@
       <div class="history-detail-empty" data-i18n="history.detailEmpty">选择一个历史任务查看详情</div>
     </aside>
   </main>
-  <script src="/static/history.js?v=history-27"></script>
+  <script src="/static/history.js?v=history-32"></script>
 </body>
 </html>
