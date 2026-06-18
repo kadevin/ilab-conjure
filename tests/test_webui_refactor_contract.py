@@ -28,8 +28,12 @@ class WebUIRefactorContractTests(unittest.TestCase):
             auth_routing._backend_for_submit("api", "images"),
         )
         self.assertEqual(
-            auth_routing.BACKEND_CODEX_RESPONSES,
+            auth_routing.BACKEND_CODEX_IMAGES,
             auth_routing._backend_for_submit("codex", None),
+        )
+        self.assertEqual(
+            auth_routing.BACKEND_CODEX_RESPONSES,
+            auth_routing._backend_for_submit("codex", None, "responses"),
         )
 
     def test_task_output_and_enrichment_modules_are_importable(self) -> None:

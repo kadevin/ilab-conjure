@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 from codex_image.auth import load_auth_state
-from codex_image.client import CodexImageClient, OpenAIImagesImageClient, OpenAIResponsesImageClient
+from codex_image.client import CodexImageClient, CodexImagesImageClient, OpenAIImagesImageClient, OpenAIResponsesImageClient
 
 from . import executor as _executor
 from .queue import QueueChannel
@@ -16,10 +16,13 @@ from .task_metadata import _apply_api_images_concurrency_metadata
 
 API_MODES = {"images", "responses"}
 DEFAULT_API_MODE = "images"
+CODEX_MODES = {"images", "responses"}
+DEFAULT_CODEX_MODE = "images"
 DEFAULT_API_PROVIDER_ID = "default"
 DEFAULT_API_IMAGES_CONCURRENCY = 4
 MIN_API_IMAGES_CONCURRENCY = 1
 MAX_API_IMAGES_CONCURRENCY = 32
+BACKEND_CODEX_IMAGES = "codex_images"
 BACKEND_CODEX_RESPONSES = "codex_responses"
 BACKEND_OPENAI_RESPONSES = "openai_responses"
 BACKEND_OPENAI_IMAGES = "openai_images"
@@ -28,6 +31,11 @@ BACKEND_OPENAI_IMAGES = "openai_images"
 def _normalize_api_mode(value: Any) -> str:
     mode = str(value or "").strip().lower()
     return mode if mode in API_MODES else DEFAULT_API_MODE
+
+
+def _normalize_codex_mode(value: Any) -> str:
+    mode = str(value or "").strip().lower()
+    return mode if mode in CODEX_MODES else DEFAULT_CODEX_MODE
 
 
 def _normalize_api_images_concurrency(value: Any) -> int:
@@ -54,6 +62,27 @@ def _backend_for_api_mode(api_mode: Any) -> str:
     return BACKEND_OPENAI_RESPONSES if _normalize_api_mode(api_mode) == "responses" else BACKEND_OPENAI_IMAGES
 
 
+def _backend_for_codex_mode(codex_mode: Any) -> str:
+    return BACKEND_CODEX_RESPONSES if _normalize_codex_mode(codex_mode) == "responses" else BACKEND_CODEX_IMAGES
+
+
+def _codex_mode_for_task_metadata(metadata: dict[str, Any] | None, api_settings: ApiSettings | None = None) -> str:
+    params = metadata.get("params") if isinstance(metadata, dict) and isinstance(metadata.get("params"), dict) else {}
+    if params.get("codex_mode") is not None:
+        return _normalize_codex_mode(params.get("codex_mode"))
+    backend = str(
+        (metadata or {}).get("requested_backend")
+        or (metadata or {}).get("backend")
+        or ""
+    ).strip()
+    if backend == BACKEND_CODEX_RESPONSES:
+        return "responses"
+    if backend == BACKEND_CODEX_IMAGES:
+        return "images"
+    settings_mode = api_settings.read().get("codex_mode") if api_settings is not None else DEFAULT_CODEX_MODE
+    return _normalize_codex_mode(settings_mode)
+
+
 def _backend_for_queue_channel(
     channel: QueueChannel,
     metadata: dict[str, Any] | None = None,
@@ -69,11 +98,11 @@ def _backend_for_queue_channel(
         else:
             settings_mode = DEFAULT_API_MODE
         return _backend_for_api_mode(params.get("api_mode") or settings_mode)
-    return BACKEND_CODEX_RESPONSES
+    return _backend_for_codex_mode(_codex_mode_for_task_metadata(metadata, api_settings))
 
 
-def _backend_for_submit(auth_source: str, api_mode: str | None) -> str:
-    return _backend_for_api_mode(api_mode) if auth_source == "api" else BACKEND_CODEX_RESPONSES
+def _backend_for_submit(auth_source: str, api_mode: str | None, codex_mode: str | None = None) -> str:
+    return _backend_for_api_mode(api_mode) if auth_source == "api" else _backend_for_codex_mode(codex_mode)
 
 
 def _request_api_provider_id(auth_source: str, api_provider_id: str | None, api_settings: ApiSettings) -> str | None:
@@ -98,6 +127,14 @@ def _request_api_mode(auth_source: str, api_mode: str | None, api_settings: ApiS
         return _normalize_api_mode(api_mode)
     provider = api_settings.provider_settings(api_provider_id)
     return _normalize_api_mode(provider.get("api_mode"))
+
+
+def _request_codex_mode(auth_source: str, codex_mode: str | None, api_settings: ApiSettings) -> str | None:
+    if auth_source != "codex":
+        return None
+    if codex_mode is not None and str(codex_mode).strip():
+        return _normalize_codex_mode(codex_mode)
+    return _normalize_codex_mode(api_settings.read().get("codex_mode"))
 
 
 def _request_api_images_concurrency(auth_source: str, api_settings: ApiSettings, api_provider_id: str | None = None) -> int:
@@ -171,13 +208,16 @@ def _update_stored_request_api_provider(storage: TaskStorage, task_id: str, para
     storage.write_request(task_id, request_payload)
 
 
-def _client_for_auth_source(source: str, *, api_settings: ApiSettings | None = None) -> Any:
+def _client_for_auth_source(source: str, *, api_settings: ApiSettings | None = None, codex_mode: str | None = None) -> Any:
     normalized = source if source in AUTH_SOURCES else _default_auth_source()
     if normalized == "api":
         settings = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).read()
         provider = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).provider_settings(str(settings.get("active_provider_id") or ""))
         return _api_client_from_settings(provider, api_mode=str(provider.get("api_mode") or DEFAULT_API_MODE))
-    return CodexImageClient(load_auth_state())
+    settings = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).read()
+    mode = _normalize_codex_mode(codex_mode or settings.get("codex_mode"))
+    client_class = CodexImageClient if mode == "responses" else CodexImagesImageClient
+    return client_class(load_auth_state())
 
 
 def _api_queue_channel_count(api_settings: ApiSettings | None = None) -> int:
@@ -218,6 +258,7 @@ def _auth_status(source: str, *, api_settings: ApiSettings | None = None) -> dic
         "sources": {
             "codex": {
                 "available": codex_available,
+                "mode": api_public.get("codex_mode", DEFAULT_CODEX_MODE),
             },
             "api": {
                 **api_public,

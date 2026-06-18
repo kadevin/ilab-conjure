@@ -34,12 +34,7 @@ export function bootWebUI(state: WebUIState, els: WebUIElements, methods: Legacy
   call(methods, "refreshGallery");
   call(methods, "refreshRecentAssets");
   const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });
-  if (realtimeStarted) {
-    void window.refreshQueue?.();
-    Promise.resolve(call(methods, "refreshTasks", { migrateLegacyArchives: true })).finally(() => {
-      state.realtimeSnapshotNeedsArchiveMigration = false;
-    });
-  } else {
+  if (!realtimeStarted) {
     void window.refreshQueue?.();
     void call(methods, "refreshTasks", { migrateLegacyArchives: true });
   }

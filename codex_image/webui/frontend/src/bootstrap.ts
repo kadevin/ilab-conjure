@@ -59,6 +59,7 @@ const bridgeMethods: LegacyMethods = {
   currentApiProviderId: proxy("currentApiProviderId"),
   currentApiProviderLabel: proxy("currentApiProviderLabel"),
   currentAuthSource: proxy("currentAuthSource"),
+  currentCodexMode: proxy("currentCodexMode"),
   currentMainModel: proxy("currentMainModel"),
   currentPromptFidelity: proxy("currentPromptFidelity"),
   currentPromptForModel: proxy("currentPromptForModel"),

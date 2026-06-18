@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncContextManager, Callable
 
-from codex_image.client import ImageResult, OpenAIImagesImageClient
+from codex_image.client import CodexImagesImageClient, ImageResult, OpenAIImagesImageClient
 from codex_image.prompt_guard import build_guarded_prompt
 
 from .storage import TaskStorage
@@ -51,8 +51,12 @@ def _normalize_prompt_fidelity(value: Any) -> str:
     return mode if mode in PROMPT_FIDELITY_MODES else DEFAULT_PROMPT_FIDELITY
 
 
+def _direct_images_transport(auth_source: str, api_mode: str | None) -> bool:
+    return auth_source in {"api", "codex"} and _normalize_api_mode(api_mode) == "images"
+
+
 def _prompt_for_transport(prompt: str, *, auth_source: str, api_mode: str | None, prompt_fidelity: str, instructions: str) -> str:
-    if auth_source == "api" and _normalize_api_mode(api_mode) == "images" and _normalize_prompt_fidelity(prompt_fidelity) == "strict":
+    if _direct_images_transport(auth_source, api_mode) and _normalize_prompt_fidelity(prompt_fidelity) == "strict":
         return build_guarded_prompt(prompt, instructions)
     return prompt
 
@@ -60,7 +64,7 @@ def _prompt_for_transport(prompt: str, *, auth_source: str, api_mode: str | None
 def _instructions_for_transport(*, auth_source: str, api_mode: str | None, instructions: str) -> str | None:
     if not instructions:
         return None
-    if auth_source == "api" and _normalize_api_mode(api_mode) == "images":
+    if _direct_images_transport(auth_source, api_mode):
         return None
     return instructions
 
@@ -89,17 +93,20 @@ async def _call_image_client(
 
 
 def _direct_images_concurrent_enabled(client: Any, auth_source: str, api_mode: str | None) -> bool:
-    client_class = OpenAIImagesImageClient
+    client_classes: tuple[type[Any], ...] = (OpenAIImagesImageClient, CodexImagesImageClient)
     try:
         from . import executor as executor_module
 
-        client_class = getattr(executor_module, "OpenAIImagesImageClient", client_class)
+        client_classes = (
+            getattr(executor_module, "OpenAIImagesImageClient", OpenAIImagesImageClient),
+            getattr(executor_module, "CodexImagesImageClient", CodexImagesImageClient),
+        )
     except Exception:
-        client_class = OpenAIImagesImageClient
+        client_classes = (OpenAIImagesImageClient, CodexImagesImageClient)
     return (
-        auth_source == "api"
+        auth_source in {"api", "codex"}
         and _normalize_api_mode(api_mode) == "images"
-        and isinstance(client, client_class)
+        and isinstance(client, client_classes)
     )
 
 

@@ -8,12 +8,13 @@ from typing import Any, AsyncContextManager, Callable
 from fastapi import FastAPI
 
 from codex_image.auth import load_auth_state
-from codex_image.client import CodexImageClient
+from codex_image.client import CodexImageClient, CodexImagesImageClient
 
 from .auth_routing import (
     DEFAULT_API_PROVIDER_ID,
     _api_client_from_settings,
     _backend_for_queue_channel,
+    _codex_mode_for_task_metadata,
     _normalize_api_images_concurrency,
     _normalize_api_mode,
     _queue_channels_for_source,
@@ -112,7 +113,9 @@ def _client_for_queue_channel(ctx: WebUIContext, channel: QueueChannel, metadata
         provider_settings = ctx.api_settings.provider_settings(str(params.get("api_provider_id") or settings_payload.get("active_provider_id") or ""))
         api_mode = _normalize_api_mode(params.get("api_mode") or provider_settings.get("api_mode"))
         return _api_client_from_settings(provider_settings, api_mode=api_mode)
-    return CodexImageClient(load_auth_state())
+    codex_mode = _codex_mode_for_task_metadata(metadata, ctx.api_settings)
+    client_class = CodexImageClient if codex_mode == "responses" else CodexImagesImageClient
+    return client_class(load_auth_state())
 
 
 def _api_provider_request_context(ctx: WebUIContext, params: dict[str, Any]) -> AsyncContextManager[None]:

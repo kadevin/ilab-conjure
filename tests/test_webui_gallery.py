@@ -461,6 +461,7 @@ class WebUIGalleryTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "gallery_image_ids": gallery_item["id"],
+                    "codex_mode": "responses",
                 },
             )
             body = response.json()

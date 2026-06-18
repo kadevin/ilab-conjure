@@ -72,6 +72,7 @@ export interface TaskParams {
   n?: number;
   web_search?: boolean;
   prompt_fidelity?: "strict" | "original" | "off";
+  codex_mode?: ApiMode;
   api_mode?: ApiMode;
   api_provider_id?: string;
   api_provider_name?: string;

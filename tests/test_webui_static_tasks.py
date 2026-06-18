@@ -886,7 +886,19 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("bridge.methods.renderTasks?.()", queue_source)
         boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
         self.assertIn("const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });", boot_source)
+        self.assertIn("if (!realtimeStarted) {", boot_source)
         self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', boot_source)
+        realtime_fallback_block = re.search(
+            r"if \(!realtimeStarted\) \{(?P<body>[\s\S]*?)\n  \}",
+            boot_source,
+        )
+        self.assertIsNotNone(realtime_fallback_block)
+        self.assertIn('window.refreshQueue?.()', realtime_fallback_block.group("body"))
+        self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', realtime_fallback_block.group("body"))
+        self.assertNotRegex(
+            boot_source.replace(realtime_fallback_block.group(0), ""),
+            r"refreshTasks\(\s*\{ migrateLegacyArchives: true \}\)",
+        )
         self.assertIn("void getLegacyBridge().methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives });", queue_source)
         self.assertIn("applyQueueState(payload.queue)", queue_source)
         self.assertIn("function activeTasksNeedQueueReconcile(", queue_source)

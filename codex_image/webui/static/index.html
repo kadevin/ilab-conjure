@@ -36,7 +36,7 @@
         document.documentElement.dataset.locale = locale;
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-327" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-329" />
   </head>
   <body>
     <div class="layout-container">
@@ -830,6 +830,17 @@
           </button>
         </div>
         <div class="api-settings-grid">
+          <div class="field full-width">
+            <span data-i18n="apiSettings.codexMode">Codex 通道</span>
+            <div class="radio-group" id="codexModeGroup">
+              <button class="radio-btn active" data-val="images" type="button" data-i18n="apiSettings.codexImages">Image</button>
+              <button class="radio-btn" data-val="responses" type="button" data-i18n="apiSettings.codexResponses">Responses</button>
+            </div>
+            <select id="codexMode" class="hidden">
+              <option value="images" selected data-i18n="apiSettings.codexImages">Image</option>
+              <option value="responses" data-i18n="apiSettings.codexResponses">Responses</option>
+            </select>
+          </div>
           <label class="field full-width">
             <span data-i18n="apiSettings.provider">供应商</span>
             <div class="api-provider-toolbar">
@@ -1036,7 +1047,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-327"></script>
+  <script src="/static/app.js?v=runtime-329"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

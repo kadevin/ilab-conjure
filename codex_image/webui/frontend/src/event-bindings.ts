@@ -87,11 +87,12 @@ export function bindWebUIEvents(state: WebUIState, els: WebUIElements, methods: 
   });
   els.addApiProviderButton?.addEventListener("click", () => call(methods, "addApiProvider"));
   els.deleteApiProviderButton?.addEventListener("click", () => call(methods, "deleteApiProvider"));
-  [els.apiProviderName, els.apiBaseUrl, els.apiKey, els.apiMode, els.apiImageModel, els.apiImagesConcurrency].filter(Boolean).forEach((element) => {
+  [els.codexMode, els.apiProviderName, els.apiBaseUrl, els.apiKey, els.apiMode, els.apiImageModel, els.apiImagesConcurrency].filter(Boolean).forEach((element) => {
     element?.addEventListener("input", () => {
       call(methods, "readApiSettingsForm");
       call(methods, "persistApiSettings");
       call(methods, "renderAuthSource", state.authStatus);
+      call(methods, "updateModeSpecificSettings");
       call(methods, "updateRequestPreview");
     });
   });

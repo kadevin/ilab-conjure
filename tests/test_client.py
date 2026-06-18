@@ -259,6 +259,104 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(result.usage, {"input_tokens": 4, "output_tokens": 5, "total_tokens": 9})
         self.assertEqual(result.tool_usage["web_search"], {"num_requests": 1})
 
+    def test_codex_images_generations_posts_json_to_codex_images_endpoint(self) -> None:
+        image_bytes = b"codex-image"
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    status=200,
+                    body=json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "b64_json": base64.b64encode(image_bytes).decode("ascii"),
+                                    "size": "1024x1024",
+                                    "quality": "low",
+                                    "output_format": "png",
+                                }
+                            ],
+                            "usage": {"total_tokens": 7},
+                        }
+                    ).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                )
+            ]
+        )
+
+        from codex_image.client import CodexImagesImageClient
+
+        client = CodexImagesImageClient(_auth_state(access_token="token-images", account_id="acct-images"), transport=transport)
+        result = client.generate_image(
+            prompt="draw a mug",
+            size="1024x1024",
+            quality="low",
+            output_format="png",
+        )
+
+        self.assertEqual(result.image_bytes, image_bytes)
+        self.assertEqual(result.size, "1024x1024")
+        self.assertEqual(result.usage, {"total_tokens": 7})
+        request = transport.requests[0]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "https://chatgpt.com/backend-api/codex/images/generations")
+        self.assertEqual(request["headers"]["Accept"], "application/json")
+        self.assertEqual(request["headers"]["Content-Type"], "application/json")
+        self.assertEqual(request["headers"]["Authorization"], "Bearer token-images")
+        self.assertEqual(request["headers"]["Chatgpt-Account-Id"], "acct-images")
+        payload = json.loads(request["body"].decode("utf-8"))
+        self.assertEqual(payload["model"], "gpt-image-2")
+        self.assertEqual(payload["prompt"], "draw a mug")
+        self.assertEqual(payload["size"], "1024x1024")
+        self.assertEqual(payload["quality"], "low")
+        self.assertNotIn("endpoint", payload)
+        self.assertNotIn("tools", payload)
+
+    def test_codex_images_edits_posts_json_images_array_not_multipart(self) -> None:
+        image_bytes = b"codex-edited"
+        input_data_url = "data:image/png;base64," + base64.b64encode(b"input").decode("ascii")
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    status=200,
+                    body=json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "b64_json": base64.b64encode(image_bytes).decode("ascii"),
+                                    "size": "1152x2048",
+                                    "quality": "high",
+                                    "output_format": "png",
+                                }
+                            ]
+                        }
+                    ).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                )
+            ]
+        )
+
+        from codex_image.client import CodexImagesImageClient
+
+        client = CodexImagesImageClient(_auth_state(access_token="token-edit", account_id="acct-edit"), transport=transport)
+        result = client.edit_image(
+            prompt="edit the image",
+            images=[input_data_url],
+            size="1152x2048",
+            quality="high",
+            output_format="png",
+        )
+
+        self.assertEqual(result.image_bytes, image_bytes)
+        request = transport.requests[0]
+        self.assertEqual(request["url"], "https://chatgpt.com/backend-api/codex/images/edits")
+        self.assertEqual(request["headers"]["Content-Type"], "application/json")
+        self.assertNotIn("multipart/form-data", request["headers"]["Content-Type"])
+        payload = json.loads(request["body"].decode("utf-8"))
+        self.assertEqual(payload["images"], [{"image_url": input_data_url}])
+        self.assertEqual(payload["prompt"], "edit the image")
+        self.assertEqual(payload["size"], "1152x2048")
+        self.assertNotIn("endpoint", payload)
+
     def test_openai_images_client_posts_direct_image_generation_request(self) -> None:
         image_bytes = b"api-image-data"
         image_b64 = base64.b64encode(image_bytes).decode("ascii")

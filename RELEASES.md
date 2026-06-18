@@ -1,34 +1,33 @@
 # 下载 / Releases
 
-当前正式版本：[v0.4.1](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.4.1)
+当前正式版本：[v0.5.0](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.5.0)
 
 ## 版本说明
 
-当前版本：`v0.4.1`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI，并可在包内一键更新到后续版本。
+当前版本：`v0.5.0`。这个版本提供 Windows x64、macOS Apple Silicon、macOS Intel 三种免安装一键包；下载对应平台的 zip 后解压即可启动本地 WebUI，并可在包内一键更新到后续版本。
 
-本版重点：这一版针对 Codex 通道和部分 API Responses 中转站忽略尺寸控制参数的问题做兼容：生成和编辑任务会把所选比例追加到实际模型提示词末尾，例如 `将宽高比设为 16:9`，用提示词约束兜底图像比例。
+本版重点：这一版把 Codex 默认生图通道从 Responses 切到直连 Image 通道，生成走 `codex/images/generations`，编辑走 `codex/images/edits`，用于恢复 2K / 4K 和高质量输出；Responses 通道仍保留为兼容选项。
 
 本版详情：
 
-- Codex 通道变化：从6月16日开始，Codex 通道调用的图像生成模型从 GPT-image-2 变成了 GPT-image-2-codex，不再支持 2K 和 4K 分辨率的图像生成，原本能够指定的所有控制参数都变成了 Auto，图像比例也只能从提示词控制。
-- 比例提示词兜底：生成和编辑提交时，只要任务带有比例参数，就会在实际发送给模型的提示词末尾追加 `将宽高比设为 X:X`；原始用户提示词仍单独保留，历史记录和提示词对比不会混淆。
-- 自定义比例提交：自定义尺寸模式下如果填写了“比例锁定”的宽高位，也会作为 `ratio` 提交并进入比例提示词兜底，不再只有预设比例生效。
-- 队列兼容：队列执行器也会对已有 `ratio` 的旧 metadata 做幂等追加，避免已入队但未执行的任务继续丢失比例约束。
-- 搜索生成：Codex 和 API Responses 模式新增“联网搜索”选项，请求会按顺序先调用 `web_search` 再调用 `image_generation`，并把搜索到的正式名称、英文片名、人物、日期和地点等事实写入图像提示词，避免只按字面翻译生成。
-- 搜索范围：生成页搜索框支持搜索任务 ID，并能从历史任务中命中结果；历史库搜索也支持任务 ID。历史库的“复用任务”改为在生成页查看该任务，便于把提示词、输入图和输出图一起还原到当前工作台。
-- 历史库：排序控件从两项下拉改为切换按钮；右键删除、归档和恢复任务时保留当前滚动位置，不再整页刷新回顶部；批量选择、右键菜单和任务卡局部更新逻辑继续收口。
-- 历史详情：大图浏览保留左右键切换同一任务多图，并新增上下方向键在前后任务之间切换；多图任务会展示每张图各自的优化提示词，避免 Responses 多图任务只看到一套提示词。
-- 提示词工作流：修复右键复制提示词在任务卡省略文本上取值导致的截断问题；修复全选超长提示词后“收藏”浮动按钮溢出；提示词查找、片段 chip 和模板入口在短屏下保持稳定。
-- 输出设置与布局：联网搜索开关和主模型控件放在同一组；短屏桌面布局继续压缩但保持图像输入、提示词和输出设置底部对齐，避免按钮错位、面板撑穿和控件居中突兀。
-- 一键包与文档：版本提升到 0.4.1，公开 README 和 RELEASES 同步更新 Codex 通道限制与比例提示词兜底说明；Release 页面继续带完整 `当前版本`、`本版重点`、`本版详情`、三平台一键包和 macOS 未签名说明。
+- Codex Image 直连：新增 Codex 专用 Images 客户端，使用本机 Codex OAuth 登录态请求 `https://chatgpt.com/backend-api/codex/images/generations` 和 `https://chatgpt.com/backend-api/codex/images/edits`；生成和编辑请求都使用 JSON payload，支持 `gpt-image-2`、自定义尺寸、质量、输出格式和参考图。
+- Codex 通道切换：右上角 API 设置面板顶部新增“Codex 通道”切换，可在 `Image` 和 `Responses` 之间切换；默认使用 `Image`，设置会持久化，复用历史任务时也会恢复对应通道。
+- 高分辨率输出：Codex `Image` 模式用于 2K / 4K 和高质量生成、编辑任务；Codex `Responses` 模式仍保留为兼容通道，但高分辨率任务建议使用默认的 `Image` 模式。
+- 队列与历史兼容：新任务会记录 `codex_mode`、`requested_backend` 和实际 `backend`；队列 worker、重试失败槽位、任务复用和请求预览都会按任务记录选择 `codex_images` 或 `codex_responses`，避免历史任务和等待中任务跑错通道。
+- 提示词保真规则：Codex `Image` 模式和 API Images 模式使用同一套直接 Images 传输规则；严格保真提示会合并进 prompt，不再把额外 instructions 作为 Responses 字段发送。
+- 并发执行：Codex `Image` 模式纳入直接 Images 并发执行路径，多图任务可以像 API Images 一样按槽位并发请求，减少多张图等待时间；Responses 模式继续走原有单请求工具调用流程。
+- 联网搜索边界：联网搜索仍只在 Responses 通道生效；使用 Codex 默认 `Image` 模式时，生成重点放在尺寸、质量和编辑参数的稳定传递上。
+- 网络层优化：实时事件连接成功后，启动流程不再额外全量刷新 `/api/tasks/recent`；只有 `EventSource` 不可用时才走完整任务列表兜底，减少大历史库启动时的重复网络请求和列表重算。
+- 静态资源与前端合同：前端资源版本提升到 `runtime-329`；静态测试锁定 Codex 通道切换、请求预览、表单提交、队列后端选择和实时事件兜底路径，降低后续改动回归风险。
+- 一键包与文档：版本提升到 0.5.0，公开 README 和 RELEASES 将同步更新 Codex Image 默认通道、Responses 兼容说明和三平台一键包下载信息；Release 页面继续带完整 `当前版本`、`本版重点`、`本版详情`、三平台一键包和 macOS 未签名说明。
 
 ## 免安装一键包
 
 | 平台 | 适用设备 | 下载 | SHA256 |
 | --- | --- | --- | --- |
-| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.4.1.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_windows_portable_x64_0.4.1.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_windows_portable_x64_0.4.1.zip.sha256.txt) |
-| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.4.1.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_macos_portable_arm64_0.4.1.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_macos_portable_arm64_0.4.1.zip.sha256.txt) |
-| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.4.1.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_macos_portable_x64_0.4.1.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.4.1/ilab-gpt-conjure_macos_portable_x64_0.4.1.zip.sha256.txt) |
+| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.5.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_windows_portable_x64_0.5.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_windows_portable_x64_0.5.0.zip.sha256.txt) |
+| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.5.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_macos_portable_arm64_0.5.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_macos_portable_arm64_0.5.0.zip.sha256.txt) |
+| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.5.0.zip](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_macos_portable_x64_0.5.0.zip) | [sha256](https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.5.0/ilab-gpt-conjure_macos_portable_x64_0.5.0.zip.sha256.txt) |
 
 使用方式：
 

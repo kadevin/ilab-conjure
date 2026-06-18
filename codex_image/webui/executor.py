@@ -4,7 +4,7 @@ import asyncio
 import json
 from typing import Any, AsyncContextManager, Callable
 
-from codex_image.client import DEFAULT_MAIN_MODEL, ImageResult
+from codex_image.client import DEFAULT_MAIN_MODEL, CodexImagesImageClient, ImageResult, OpenAIImagesImageClient
 from codex_image.prompt_guard import build_original_prompt_instructions, build_prompt_guard_instructions
 
 from .executor_inputs import (
@@ -78,10 +78,19 @@ async def _execute_stored_task(
     else:
         guard_instructions = ""
     assigned_auth_source = str(metadata.get("assigned_auth_source") or "")
-    effective_api_mode = str(params.get("api_mode") or DEFAULT_API_MODE)
-    web_search_enabled = bool(params.get("web_search")) and (
-        assigned_auth_source != "api" or effective_api_mode == "responses"
-    )
+    metadata_backend = str(metadata.get("requested_backend") or metadata.get("backend") or "")
+    if assigned_auth_source == "codex":
+        if params.get("codex_mode") is not None:
+            effective_api_mode = _normalize_api_mode(params.get("codex_mode"))
+        elif metadata_backend == "codex_responses":
+            effective_api_mode = "responses"
+        elif metadata_backend == "codex_images":
+            effective_api_mode = "images"
+        else:
+            effective_api_mode = DEFAULT_API_MODE
+    else:
+        effective_api_mode = str(params.get("api_mode") or DEFAULT_API_MODE)
+    web_search_enabled = bool(params.get("web_search")) and effective_api_mode == "responses"
     transport_prompt = _prompt_for_transport(
         model_prompt,
         auth_source=assigned_auth_source,

@@ -42,6 +42,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         output_compression: str | None = Form(None),
         n: int = Form(1, ge=1, le=4),
         web_search: bool = Form(False),
+        codex_mode: str | None = Form(None),
         api_mode: str | None = Form(None),
         api_provider_id: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
@@ -73,25 +74,28 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         effective_api_provider_id = h["request_api_provider_id"](auth_source, api_provider_id)
         effective_api_provider_name = h["request_api_provider_name"](auth_source, effective_api_provider_id)
         effective_api_mode = h["request_api_mode"](auth_source, api_mode, effective_api_provider_id)
+        effective_codex_mode = h["request_codex_mode"](auth_source, codex_mode)
         effective_api_images_concurrency = h["request_api_images_concurrency"](auth_source, effective_api_provider_id)
-        requested_backend = h["backend_for_submit"](auth_source, effective_api_mode)
-        web_search_enabled = bool(web_search) and (auth_source != "api" or effective_api_mode == "responses")
+        requested_backend = h["backend_for_submit"](auth_source, effective_api_mode, effective_codex_mode)
+        transport_mode = effective_api_mode or effective_codex_mode
+        web_search_enabled = bool(web_search) and requested_backend.endswith("_responses")
         request_model_prompt = _prompt_for_transport(
             model_prompt,
             auth_source=auth_source,
-            api_mode=effective_api_mode,
+            api_mode=transport_mode,
             prompt_fidelity=fidelity,
             instructions=guard_instructions,
         )
         request_instructions = _instructions_for_transport(
             auth_source=auth_source,
-            api_mode=effective_api_mode,
+            api_mode=transport_mode,
             instructions=guard_instructions,
         )
 
         request_kwargs: dict[str, Any] = dict(
             auth_source=auth_source,
             api_mode=effective_api_mode,
+            codex_mode=effective_codex_mode,
             prompt=request_model_prompt,
             main_model=main_model,
             model=model,
@@ -132,6 +136,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         params["prompt_fidelity"] = fidelity
         if web_search_enabled:
             params["web_search"] = True
+        if effective_codex_mode is not None:
+            params["codex_mode"] = effective_codex_mode
         if effective_api_mode is not None:
             params["api_mode"] = effective_api_mode
         if effective_api_provider_id is not None:
@@ -180,6 +186,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         output_compression: str | None = Form(None),
         n: int = Form(1, ge=1, le=4),
         web_search: bool = Form(False),
+        codex_mode: str | None = Form(None),
         api_mode: str | None = Form(None),
         api_provider_id: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
@@ -219,25 +226,28 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         effective_api_provider_id = h["request_api_provider_id"](auth_source, api_provider_id)
         effective_api_provider_name = h["request_api_provider_name"](auth_source, effective_api_provider_id)
         effective_api_mode = h["request_api_mode"](auth_source, api_mode, effective_api_provider_id)
+        effective_codex_mode = h["request_codex_mode"](auth_source, codex_mode)
         effective_api_images_concurrency = h["request_api_images_concurrency"](auth_source, effective_api_provider_id)
-        requested_backend = h["backend_for_submit"](auth_source, effective_api_mode)
-        web_search_enabled = bool(web_search) and (auth_source != "api" or effective_api_mode == "responses")
+        requested_backend = h["backend_for_submit"](auth_source, effective_api_mode, effective_codex_mode)
+        transport_mode = effective_api_mode or effective_codex_mode
+        web_search_enabled = bool(web_search) and requested_backend.endswith("_responses")
         request_model_prompt = _prompt_for_transport(
             model_prompt,
             auth_source=auth_source,
-            api_mode=effective_api_mode,
+            api_mode=transport_mode,
             prompt_fidelity=fidelity,
             instructions=guard_instructions,
         )
         request_instructions = _instructions_for_transport(
             auth_source=auth_source,
-            api_mode=effective_api_mode,
+            api_mode=transport_mode,
             instructions=guard_instructions,
         )
 
         request_kwargs = dict(
             auth_source=auth_source,
             api_mode=effective_api_mode,
+            codex_mode=effective_codex_mode,
             prompt=request_model_prompt,
             action="edit",
             main_model=main_model,
@@ -286,6 +296,8 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             params["input_fidelity"] = effective_input_fidelity
         if web_search_enabled:
             params["web_search"] = True
+        if effective_codex_mode is not None:
+            params["codex_mode"] = effective_codex_mode
         if effective_api_mode is not None:
             params["api_mode"] = effective_api_mode
         if effective_api_provider_id is not None:

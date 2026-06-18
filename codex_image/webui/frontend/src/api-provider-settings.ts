@@ -5,6 +5,7 @@ import {
   DEFAULT_API_IMAGE_MODEL,
   DEFAULT_API_IMAGES_CONCURRENCY,
   DEFAULT_API_MODE,
+  DEFAULT_CODEX_MODE,
 } from "./state-defaults";
 import { refreshHealth } from "./auth-source";
 import { updateModeSpecificSettings } from "./api-mode-settings";
@@ -48,6 +49,10 @@ export function normalizeApiImagesConcurrency(value: any): number {
   return Math.min(32, Math.max(1, parsed));
 }
 
+function normalizeCodexMode(value: any): string {
+  return value === "responses" ? "responses" : DEFAULT_CODEX_MODE;
+}
+
 export function normalizeApiSettings(settings: any = {}): any {
   const rawProviders = Array.isArray(settings.providers) && settings.providers.length
     ? settings.providers
@@ -74,6 +79,7 @@ export function normalizeApiSettings(settings: any = {}): any {
   const requestedActive = String(settings.active_provider_id || providers[0].id).trim().toLowerCase();
   const activeProvider = providers.find((provider) => provider.id === requestedActive) || providers[0];
   return {
+    codex_mode: normalizeCodexMode(settings.codex_mode),
     active_provider_id: activeProvider.id,
     providers,
   };
@@ -97,6 +103,7 @@ export function restoreApiSettings(): void {
 export function persistApiSettings(): void {
   try {
     localStorage.setItem(API_SETTINGS_STORAGE_KEY, JSON.stringify({
+      codex_mode: state.apiSettings.codex_mode,
       active_provider_id: state.apiSettings.active_provider_id,
       providers: state.apiSettings.providers,
     }));
@@ -131,6 +138,10 @@ export async function refreshApiSettings(): Promise<void> {
 
 export function populateApiSettingsForm(): void {
   const provider = activeApiProvider();
+  if (els.codexMode) {
+    els.codexMode.value = currentCodexMode();
+    els.codexMode.dispatchEvent(new Event("change"));
+  }
   if (els.apiProviderQuick) {
     els.apiProviderQuick.innerHTML = "";
     state.apiSettings.providers.forEach((item: any) => {
@@ -173,6 +184,7 @@ export function populateApiSettingsForm(): void {
 
 export function readApiSettingsForm(): any {
   const settings = normalizeApiSettings(state.apiSettings);
+  settings.codex_mode = normalizeCodexMode(els.codexMode?.value || settings.codex_mode);
   const activeId = settings.active_provider_id;
   settings.providers = settings.providers.map((provider: any) => provider.id === activeId ? normalizeApiProvider({
     ...provider,
@@ -248,6 +260,11 @@ export function currentApiMode(): string {
   return activeApiProvider().api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
 }
 
+export function currentCodexMode(): string {
+  state.apiSettings = normalizeApiSettings(state.apiSettings);
+  return normalizeCodexMode(state.apiSettings.codex_mode);
+}
+
 export function currentApiImagesConcurrency(): number {
   return normalizeApiImagesConcurrency(activeApiProvider().images_concurrency);
 }
@@ -256,10 +273,15 @@ export function apiModeLabel(mode: any): string {
   return mode === "responses" ? "Responses" : translate("apiSettings.modeImagesShort");
 }
 
-export function backendForAuthSource(authSource: any, apiMode: any = currentApiMode()): string {
-  return authSource === "api"
-    ? (apiMode === "responses" ? "openai_responses" : "openai_images")
-    : "codex_responses";
+export function codexModeLabel(mode: any): string {
+  return mode === "responses" ? "Responses" : "Image";
+}
+
+export function backendForAuthSource(authSource: any, apiMode: any = currentApiMode(), codexMode: any = currentCodexMode()): string {
+  if (authSource === "api") {
+    return apiMode === "responses" ? "openai_responses" : "openai_images";
+  }
+  return codexMode === "responses" ? "codex_responses" : "codex_images";
 }
 
 export function taskBackendValue(task: any): string {
@@ -312,6 +334,7 @@ export async function saveApiSettings(): Promise<void> {
   const settings = readApiSettingsForm();
   persistApiSettings();
   const payload: any = {
+    codex_mode: settings.codex_mode,
     active_provider_id: settings.active_provider_id,
     providers: settings.providers.map((provider: any) => {
       const item: any = {
@@ -341,6 +364,7 @@ export async function saveApiSettings(): Promise<void> {
     persistApiSettings();
     populateApiSettingsForm();
     setApiSettingsFeedback(formatTranslation("apiSettings.savedSummary", {
+      codex: codexModeLabel(currentCodexMode()),
       provider: activeApiProvider().name,
       mode: apiModeLabel(currentApiMode()),
       model: currentApiImageModel(),

@@ -17,6 +17,7 @@ from codex_image.client import (
     DEFAULT_IMAGE_MODEL,
     DEFAULT_MAIN_MODEL,
     CodexImageClient,
+    CodexImagesImageClient,
     ImageResult,
     OpenAIImagesImageClient,
     OpenAIResponsesImageClient,
@@ -32,6 +33,7 @@ from codex_image.prompt_guard import (
 from .auth_routing import (
     API_MODES,
     AUTH_SOURCES,
+    BACKEND_CODEX_IMAGES,
     BACKEND_CODEX_RESPONSES,
     BACKEND_OPENAI_IMAGES,
     BACKEND_OPENAI_RESPONSES,
@@ -48,11 +50,13 @@ from .auth_routing import (
     _codex_auth_available,
     _default_auth_source,
     _normalize_api_mode,
+    _normalize_codex_mode,
     _queue_channels_for_source,
     _request_api_images_concurrency,
     _request_api_mode,
     _request_api_provider_id,
     _request_api_provider_name,
+    _request_codex_mode,
     _task_metadata_uses_api,
     _update_stored_request_api_provider,
 )
@@ -328,6 +332,9 @@ def create_app(
             "request_api_mode": lambda auth_source, api_mode, api_provider_id=None: _request_api_mode(
                 auth_source, api_mode, api_settings, api_provider_id
             ),
+            "request_codex_mode": lambda auth_source, codex_mode=None: _request_codex_mode(
+                auth_source, codex_mode, api_settings
+            ),
             "request_api_images_concurrency": lambda auth_source, api_provider_id=None: _request_api_images_concurrency(
                 auth_source, api_settings, api_provider_id
             ),
@@ -401,14 +408,18 @@ def _model_prompt_for_fidelity(prompt: str, prompt_for_model: str | None, prompt
 def _build_image_request_payload(**kwargs: Any) -> dict[str, Any]:
     auth_source = str(kwargs.pop("auth_source", "auto"))
     api_mode = _normalize_api_mode(kwargs.pop("api_mode", None))
+    codex_mode = _normalize_codex_mode(kwargs.pop("codex_mode", None))
     # Queued submit only needs a request preview; avoid auth/client side effects.
     if auth_source == "api":
         client_class = OpenAIResponsesImageClient if api_mode == "responses" else OpenAIImagesImageClient
         client = object.__new__(client_class)
         client.image_model = str(kwargs.get("model") or DEFAULT_IMAGE_MODEL)
         return client_class.build_payload(client, **kwargs)
-    client = object.__new__(CodexImageClient)
-    return CodexImageClient.build_payload(client, **kwargs)
+    client_class = CodexImageClient if codex_mode == "responses" else CodexImagesImageClient
+    client = object.__new__(client_class)
+    if client_class is CodexImagesImageClient:
+        client.image_model = str(kwargs.get("model") or DEFAULT_IMAGE_MODEL)
+    return client_class.build_payload(client, **kwargs)
 
 
 def _slim_request_payload(

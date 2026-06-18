@@ -1,6 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { currentAuthSource } from "./auth-source";
-import { currentApiImageModel, currentApiImagesConcurrency, currentApiMode, currentApiProviderId } from "./api-provider-settings";
+import { currentApiImageModel, currentApiImagesConcurrency, currentApiMode, currentApiProviderId, currentCodexMode } from "./api-provider-settings";
 import { currentMainModel } from "./main-model-combobox";
 import { currentQuantity } from "./output-controls";
 import { translate } from "./i18n";
@@ -178,7 +178,10 @@ export function currentImageToolModel(): string {
 }
 
 export function webSearchSupportedForCurrentBackend(): boolean {
-  return currentAuthSource() !== "api" || currentApiMode() === "responses";
+  const authSource = currentAuthSource();
+  if (authSource === "api") return currentApiMode() === "responses";
+  if (authSource === "codex") return currentCodexMode() === "responses";
+  return true;
 }
 
 export function currentWebSearchEnabled(): boolean {
@@ -219,6 +222,8 @@ export function currentTaskParams(): any {
     params.api_provider_id = currentApiProviderId();
     params.api_mode = currentApiMode();
     params.api_images_concurrency = currentApiImagesConcurrency();
+  } else if (currentAuthSource() === "codex") {
+    params.codex_mode = currentCodexMode();
   }
   return params;
 }

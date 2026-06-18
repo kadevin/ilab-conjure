@@ -41,6 +41,7 @@ function referenceAssetInputs(...args: any[]) { return legacyMethod("referenceAs
 function currentAuthSource(...args: any[]) { return legacyMethod("currentAuthSource", ...args); }
 function backendForAuthSource(...args: any[]) { return legacyMethod("backendForAuthSource", ...args); }
 function currentApiMode(...args: any[]) { return legacyMethod("currentApiMode", ...args); }
+function currentCodexMode(...args: any[]) { return legacyMethod("currentCodexMode", ...args); }
 function getPromptText(...args: any[]) { return legacyMethod("getPromptText", ...args); }
 function currentPromptForModel(...args: any[]) { return legacyMethod("currentPromptForModel", ...args); }
 function currentPromptFidelity(...args: any[]) { return legacyMethod("currentPromptFidelity", ...args); }
@@ -91,6 +92,14 @@ function applyTaskToForm(task: any) {
     persistApiSettings();
     populateApiSettingsForm();
   }
+  if (params.codex_mode) {
+    state.apiSettings = normalizeApiSettings({
+      ...state.apiSettings,
+      codex_mode: params.codex_mode,
+    });
+    persistApiSettings();
+    populateApiSettingsForm();
+  }
   if (els.promptFidelity) {
     const fidelity = ["strict", "original", "off"].includes(params.prompt_fidelity) ? params.prompt_fidelity : "strict";
     els.promptFidelity.value = fidelity;
@@ -129,7 +138,9 @@ function buildPreviewRequest() {
   const assets = referenceAssetInputs();
   const authSource = currentAuthSource();
   const isApi = authSource === "api";
-  const requestedBackend = backendForAuthSource(authSource, isApi ? currentApiMode() : null);
+  const isCodex = authSource === "codex";
+  const codexMode = isCodex ? currentCodexMode() : null;
+  const requestedBackend = backendForAuthSource(authSource, isApi ? currentApiMode() : null, codexMode);
   const payload: Record<string, any> = {
     mode: state.mode,
     auth_source: authSource,
@@ -182,6 +193,36 @@ function buildPreviewRequest() {
       }
     } else {
       payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
+    }
+  } else if (isCodex) {
+    const action = state.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
+    payload.codex_mode = codexMode;
+    if (codexMode === "responses") {
+      payload.endpoint = "/responses";
+      payload.main_model = params.main_model;
+      payload.model = params.main_model;
+      const imageTool: Record<string, any> = {
+        type: "image_generation",
+        action,
+        model: params.model,
+        size: params.size,
+        quality: params.quality,
+        output_format: params.output_format,
+        moderation: params.moderation,
+      };
+      payload.tools = params.web_search
+        ? [{ type: "web_search", search_context_size: "low" }, imageTool]
+        : [imageTool];
+      if (params.web_search) {
+        payload.tool_choice = "required";
+        payload.parallel_tool_calls = false;
+      }
+      if (params.output_compression !== null && params.output_compression !== undefined) {
+        imageTool.output_compression = params.output_compression;
+      }
+    } else {
+      payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
+      payload.main_model = params.main_model;
     }
   } else {
     payload.main_model = params.main_model;
@@ -273,6 +314,8 @@ async function runTask() {
   if (currentAuthSource() === "api") {
     form.append("api_provider_id", currentApiProviderId());
     form.append("api_mode", currentApiMode());
+  } else if (currentAuthSource() === "codex") {
+    form.append("codex_mode", currentCodexMode());
   }
   if (els.outputFormat.value !== "png") {
     form.append("output_compression", String(params.output_compression));

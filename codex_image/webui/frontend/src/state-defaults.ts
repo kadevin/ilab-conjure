@@ -16,6 +16,7 @@ export const PROMPT_SNIPPETS_ENDPOINT = "/api/prompt-snippets";
 export const DEFAULT_API_BASE_URL = "https://api.openai.com/v1";
 export const DEFAULT_API_IMAGE_MODEL = "gpt-image-2";
 export const DEFAULT_API_MODE = "images";
+export const DEFAULT_CODEX_MODE = "images";
 export const DEFAULT_API_IMAGES_CONCURRENCY = 4;
 export const API_SETTINGS_STORAGE_KEY = "codex-image-api-settings";
 export const DEFAULT_DOCUMENT_TITLE = document.title || "iLab GPT CONJURE";
@@ -122,6 +123,7 @@ export function createDefaultState(): WebUIState {
   themePreference: "system",
   themeSystemQuery: null,
   apiSettings: {
+    codex_mode: DEFAULT_CODEX_MODE,
     active_provider_id: "default",
     providers: [{
       id: "default",

@@ -6,6 +6,7 @@ from typing import Any, Protocol
 from .auth import AuthState
 
 DEFAULT_RESPONSES_URL = "https://chatgpt.com/backend-api/codex/responses"
+DEFAULT_CODEX_IMAGES_BASE_URL = "https://chatgpt.com/backend-api/codex"
 DEFAULT_OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_MAIN_MODEL = "gpt-5.4-mini"
 DEFAULT_IMAGE_MODEL = "gpt-image-2"

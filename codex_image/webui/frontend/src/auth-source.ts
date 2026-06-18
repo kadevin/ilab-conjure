@@ -17,8 +17,10 @@ function legacyMethod(name: string, ...args: any[]): any {
 function setStatus(message: any, type?: any): void { legacyMethod("setStatus", message, type); }
 function updateRequestPreview(): void { legacyMethod("updateRequestPreview"); }
 function currentApiMode(): string { return legacyMethod("currentApiMode"); }
+function currentCodexMode(): string { return legacyMethod("currentCodexMode"); }
 function currentApiProviderLabel(): string { return legacyMethod("currentApiProviderLabel"); }
 function apiModeLabel(mode: any): string { return legacyMethod("apiModeLabel", mode); }
+function codexModeLabel(mode: any): string { return legacyMethod("codexModeLabel", mode); }
 
 export async function refreshHealth(): Promise<void> {
   try {
@@ -114,7 +116,7 @@ export function authSourceDetailText(auth: any): string {
     const mode = apiModeLabel(currentApiMode());
     return `API · ${provider} · ${mode}`;
   }
-  return "Codex";
+  return `Codex · ${codexModeLabel(currentCodexMode())}`;
 }
 
 export function sourceLabel(source: any): string {
@@ -128,5 +130,6 @@ export function currentAuthSource(): string {
 }
 
 export function isDirectApiMode(authSource: any = currentAuthSource()): boolean {
-  return authSource === "api" && currentApiMode() !== "responses";
+  return (authSource === "api" && currentApiMode() !== "responses")
+    || (authSource === "codex" && currentCodexMode() !== "responses");
 }

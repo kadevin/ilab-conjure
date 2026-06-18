@@ -77,6 +77,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "output_format": "webp",
                     "moderation": "low",
                     "output_compression": "80",
+                    "codex_mode": "responses",
                 },
             )
 
@@ -110,6 +111,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "size": "1536x864",
                     "quality": "low",
                     "web_search": "true",
+                    "codex_mode": "responses",
                 },
             )
 
@@ -200,6 +202,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "web_search": "true",
                     "prompt_fidelity": "original",
+                    "codex_mode": "responses",
                 },
             )
             task_id = created.json()["task"]["task_id"]
@@ -243,6 +246,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "output_compression": "80",
+                    "codex_mode": "responses",
                 },
             )
             body = response.json()
@@ -264,7 +268,7 @@ class WebUIGenerationTests(unittest.TestCase):
             with patch("codex_image.webui.app._build_image_request_payload", patched_payload):
                 response = TestClient(app).post(
                     "/api/generate",
-                    data={"prompt": "patched builder", "model": "gpt-image-2", "size": "1024x1024", "quality": "low"},
+                    data={"prompt": "patched builder", "model": "gpt-image-2", "size": "1024x1024", "quality": "low", "codex_mode": "responses"},
                 )
             body = response.json()
 
@@ -280,7 +284,7 @@ class WebUIGenerationTests(unittest.TestCase):
             app = create_app(output_root=root, client_factory=lambda: FakeImageClient(), auth_checker=lambda: True, auto_start_queue=False)
             response = TestClient(app).post(
                 "/api/generate",
-                data={"prompt": "reference", "size": "1024x1024"},
+                data={"prompt": "reference", "size": "1024x1024", "codex_mode": "responses"},
                 files={"reference_images": ("input.png", b"input-bytes", "image/png")},
             )
             task_id = response.json()["task"]["task_id"]
@@ -301,7 +305,7 @@ class WebUIGenerationTests(unittest.TestCase):
             app = create_app(output_root=root, client_factory=lambda: FakeImageClient(), auth_checker=lambda: True, auto_start_queue=False)
             response = TestClient(app).post(
                 "/api/edit",
-                data={"prompt": "edit reference", "size": "1024x1024"},
+                data={"prompt": "edit reference", "size": "1024x1024", "codex_mode": "responses"},
                 files={
                     "images": ("input.png", b"input-bytes", "image/png"),
                     "mask": ("mask.png", b"mask-bytes", "image/png"),
@@ -344,7 +348,7 @@ class WebUIGenerationTests(unittest.TestCase):
             app = create_app(output_root=Path(tmp), client_factory=lambda: FakeImageClient(), auth_checker=lambda: True, auto_start_queue=False)
             response = TestClient(app).post(
                 "/api/generate",
-                data={"prompt": prompt, "model": "gpt-image-2", "size": "1024x1024", "quality": "low", "output_format": "png"},
+                data={"prompt": prompt, "model": "gpt-image-2", "size": "1024x1024", "quality": "low", "output_format": "png", "codex_mode": "responses"},
             )
             body = response.json()
             task = body["task"]
@@ -371,6 +375,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "prompt_fidelity": "off",
+                    "codex_mode": "responses",
                 },
             )
             body = response.json()
@@ -399,6 +404,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "prompt_fidelity": "off",
+                    "codex_mode": "responses",
                 },
             )
             body = response.json()
@@ -429,6 +435,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "prompt_fidelity": "original",
+                    "codex_mode": "responses",
                 },
             )
             body = response.json()
@@ -481,6 +488,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "prompt_fidelity": "off",
+                    "codex_mode": "responses",
                 },
                 files={"images": ("input.png", self._png_bytes(), "image/png")},
             )
@@ -647,6 +655,7 @@ class WebUIGenerationTests(unittest.TestCase):
                     "quality": "low",
                     "output_format": "png",
                     "input_fidelity": "high",
+                    "codex_mode": "responses",
                 },
                 files={
                     "images": ("input.png", b"input-bytes", "image/png"),

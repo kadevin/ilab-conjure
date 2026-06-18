@@ -262,14 +262,45 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(switched.json()["effective_source"], "api")
         self.assertTrue(health.json()["auth_available"])
         self.assertEqual(health.json()["auth"]["selected_source"], "api")
+        self.assertEqual(initial.json()["settings"]["codex_mode"], "images")
         self.assertEqual(initial.json()["settings"]["api_mode"], "images")
         self.assertEqual(reported.json()["settings"]["base_url"], "https://api.example.com/v1")
         self.assertEqual(reported.json()["settings"]["image_model"], "gpt-image-2")
+        self.assertEqual(reported.json()["settings"]["codex_mode"], "images")
         self.assertEqual(reported.json()["settings"]["api_mode"], "responses")
         self.assertTrue(reported.json()["settings"]["api_key_set"])
+        self.assertEqual(persisted["codex_mode"], "images")
         self.assertEqual(persisted["api_key"], "test-api-key-test-secret")
         self.assertEqual(persisted["api_mode"], "responses")
         self.assertNotIn("test-api-key-test-secret", response_text)
+    def test_api_settings_persist_codex_channel_mode(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            api_settings_path = root / "api-settings.json"
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=root / "auth-settings.json",
+                api_settings_path=api_settings_path,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+
+            initial = client.get("/api/api-settings")
+            saved = client.patch("/api/api-settings", json={"codex_mode": "responses"})
+            reported = client.get("/api/api-settings")
+            invalid = client.patch("/api/api-settings", json={"codex_mode": "invalid"})
+            persisted = json.loads(api_settings_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(initial.status_code, 200)
+        self.assertEqual(initial.json()["settings"]["codex_mode"], "images")
+        self.assertEqual(saved.status_code, 200)
+        self.assertEqual(saved.json()["settings"]["codex_mode"], "responses")
+        self.assertEqual(reported.json()["settings"]["codex_mode"], "responses")
+        self.assertEqual(invalid.status_code, 200)
+        self.assertEqual(invalid.json()["settings"]["codex_mode"], "images")
+        self.assertEqual(persisted["codex_mode"], "images")
     def test_api_settings_support_multiple_providers_and_legacy_shape(self) -> None:
         from codex_image.webui.app import create_app
 
@@ -489,6 +520,182 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(body["task"]["params"]["prompt_fidelity"], "original")
         self.assertNotIn("instructions", body["request"])
         self.assertEqual(body["request"]["prompt"], prompt)
+    def test_codex_generate_defaults_to_images_channel_request_preview(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            auth_settings_path = root / "auth-settings.json"
+            auth_settings_path.write_text(json.dumps({"source": "codex"}), encoding="utf-8")
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=auth_settings_path,
+                api_settings_path=root / "api-settings.json",
+                auth_checker=lambda: True,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+
+            response = client.post(
+                "/api/generate",
+                data={
+                    "prompt": "codex images default",
+                    "main_model": "gpt-5.5",
+                    "size": "1024x1024",
+                    "quality": "low",
+                    "web_search": "true",
+                },
+            )
+            body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body["task"]["requested_backend"], "codex_images")
+        self.assertEqual(body["task"]["params"]["codex_mode"], "images")
+        self.assertNotIn("web_search", body["task"]["params"])
+        self.assertEqual(body["request"]["webui_requested_backend"], "codex_images")
+        self.assertEqual(body["request"]["endpoint"], "/images/generations")
+        self.assertIn("提示词保真规则", body["request"]["prompt"])
+        self.assertIn("用户原始提示词：\ncodex images default", body["request"]["prompt"])
+        self.assertNotIn("tools", body["request"])
+        self.assertNotIn("instructions", body["request"])
+
+    def test_codex_generate_uses_responses_channel_when_selected(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            auth_settings_path = root / "auth-settings.json"
+            auth_settings_path.write_text(json.dumps({"source": "codex"}), encoding="utf-8")
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=auth_settings_path,
+                api_settings_path=root / "api-settings.json",
+                auth_checker=lambda: True,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+            saved = client.patch("/api/api-settings", json={"codex_mode": "responses"})
+            response = client.post(
+                "/api/generate",
+                data={
+                    "prompt": "codex responses selected",
+                    "main_model": "gpt-5.5",
+                    "size": "1024x1024",
+                    "quality": "low",
+                    "web_search": "true",
+                },
+            )
+            body = response.json()
+
+        self.assertEqual(saved.status_code, 200)
+        self.assertEqual(saved.json()["settings"]["codex_mode"], "responses")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body["task"]["requested_backend"], "codex_responses")
+        self.assertEqual(body["task"]["params"]["codex_mode"], "responses")
+        self.assertTrue(body["task"]["params"]["web_search"])
+        self.assertEqual(body["request"]["webui_requested_backend"], "codex_responses")
+        self.assertEqual(body["request"]["tools"][0]["type"], "web_search")
+        self.assertEqual(body["request"]["tools"][1]["type"], "image_generation")
+
+    def test_codex_edit_defaults_to_images_edits_request_preview(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            auth_settings_path = root / "auth-settings.json"
+            auth_settings_path.write_text(json.dumps({"source": "codex"}), encoding="utf-8")
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=auth_settings_path,
+                api_settings_path=root / "api-settings.json",
+                auth_checker=lambda: True,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+
+            response = client.post(
+                "/api/edit",
+                data={
+                    "prompt": "codex edit default",
+                    "size": "1152x2048",
+                    "quality": "high",
+                    "output_format": "png",
+                    "prompt_fidelity": "original",
+                },
+                files={"images": ("input.png", b"input-image", "image/png")},
+            )
+            body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body["task"]["requested_backend"], "codex_images")
+        self.assertEqual(body["task"]["params"]["codex_mode"], "images")
+        self.assertEqual(body["request"]["webui_requested_backend"], "codex_images")
+        self.assertEqual(body["request"]["endpoint"], "/images/edits")
+        self.assertEqual(body["request"]["size"], "1152x2048")
+        self.assertEqual(body["request"]["quality"], "high")
+        self.assertEqual(body["request"]["images"][0]["image_url"], "<redacted image data url, 38 chars>")
+        self.assertNotIn("tools", body["request"])
+
+    def test_codex_queue_worker_uses_images_client_by_default(self) -> None:
+        from codex_image.auth import AuthState
+        from codex_image.webui.app import create_app
+
+        class CapturingCodexImagesClient(FakeImageClient):
+            instances: list["CapturingCodexImagesClient"] = []
+
+            def __init__(self, auth_state: AuthState, **_: object) -> None:
+                super().__init__()
+                self.auth_state = auth_state
+                self.instances.append(self)
+
+        class FailingCodexResponsesClient(FakeImageClient):
+            def __init__(self, *_: object, **__: object) -> None:
+                raise AssertionError("default Codex queue channel should use codex images client")
+
+        auth_state = AuthState(
+            path=Path("/tmp/auth.json"),
+            access_token="codex-access",
+            refresh_token=None,
+            id_token=None,
+            account_id="acct-local",
+            last_refresh=None,
+            raw={},
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            auth_settings_path = root / "auth-settings.json"
+            auth_settings_path.write_text(json.dumps({"source": "codex"}), encoding="utf-8")
+            with patch("codex_image.webui.queue_runtime.load_auth_state", return_value=auth_state), patch(
+                "codex_image.webui.queue_runtime.CodexImageClient", FailingCodexResponsesClient, create=True
+            ), patch(
+                "codex_image.webui.queue_runtime.CodexImagesImageClient", CapturingCodexImagesClient, create=True
+            ):
+                app = create_app(
+                    output_root=root / "tasks",
+                    auth_settings_path=auth_settings_path,
+                    api_settings_path=root / "api-settings.json",
+                    auth_checker=lambda: True,
+                    batch_delay_seconds=0,
+                    auto_start_queue=False,
+                )
+                client = TestClient(app)
+                created = client.post(
+                    "/api/generate",
+                    data={"prompt": "codex worker", "size": "1024x1024", "quality": "low"},
+                )
+                task_id = created.json()["task"]["task_id"]
+
+                asyncio.run(app.state.queue_manager.run_available_once())
+                task = client.get(f"/api/tasks/{task_id}").json()["task"]
+
+        self.assertEqual(task["status"], "completed")
+        self.assertEqual(task["assigned_auth_source"], "codex")
+        self.assertEqual(task["requested_backend"], "codex_images")
+        self.assertEqual(task["backend"], "codex_images")
+        self.assertEqual(task["params"]["codex_mode"], "images")
+        self.assertEqual(len(CapturingCodexImagesClient.instances), 1)
+        self.assertEqual(CapturingCodexImagesClient.instances[0].auth_state.account_id, "acct-local")
     def test_api_queue_worker_uses_saved_images_client_settings(self) -> None:
         from codex_image.webui.app import create_app
 

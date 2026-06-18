@@ -72,6 +72,8 @@ export function createWebUIElements(): WebUIElements {
   apiSettingsModalClose: document.querySelector("#apiSettingsModalClose"),
   apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
   apiProviderQuick: document.querySelector("#apiProviderQuick"),
+  codexMode: document.querySelector("#codexMode"),
+  codexModeGroup: document.querySelector("#codexModeGroup"),
   apiProvider: document.querySelector("#apiProvider"),
   apiProviderName: document.querySelector("#apiProviderName"),
   addApiProviderButton: document.querySelector("#addApiProviderButton"),

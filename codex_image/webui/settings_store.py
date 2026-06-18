@@ -195,6 +195,8 @@ class AuthSettings:
 class ApiSettings:
     _PERSISTED_API_MODES = {"images", "responses"}
     _PERSISTED_API_MODE_DEFAULT = "images"
+    _PERSISTED_CODEX_MODES = {"images", "responses"}
+    _PERSISTED_CODEX_MODE_DEFAULT = "images"
     _PERSISTED_PROVIDER_ID_DEFAULT = "default"
     _PERSISTED_IMAGES_CONCURRENCY_DEFAULT = 4
     _PERSISTED_IMAGES_CONCURRENCY_MIN = 1
@@ -207,27 +209,41 @@ class ApiSettings:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
         except (FileNotFoundError, json.JSONDecodeError, OSError):
-            return self._settings_from_providers([self.default_provider()], self._PERSISTED_PROVIDER_ID_DEFAULT)
+            return self._settings_from_providers(
+                [self.default_provider()],
+                self._PERSISTED_PROVIDER_ID_DEFAULT,
+                codex_mode=self._PERSISTED_CODEX_MODE_DEFAULT,
+            )
         if not isinstance(payload, dict):
-            return self._settings_from_providers([self.default_provider()], self._PERSISTED_PROVIDER_ID_DEFAULT)
+            return self._settings_from_providers(
+                [self.default_provider()],
+                self._PERSISTED_PROVIDER_ID_DEFAULT,
+                codex_mode=self._PERSISTED_CODEX_MODE_DEFAULT,
+            )
         try:
+            codex_mode = self._normalize_persisted_codex_mode(payload.get("codex_mode"))
             if isinstance(payload.get("providers"), list):
                 providers = self._normalize_providers(payload["providers"])
                 active_provider_id = self._normalize_provider_id(payload.get("active_provider_id") or providers[0]["id"])
-                return self._settings_from_providers(providers, active_provider_id)
+                return self._settings_from_providers(providers, active_provider_id, codex_mode=codex_mode)
             provider = self._normalize_provider(payload, fallback_id=self._PERSISTED_PROVIDER_ID_DEFAULT, fallback_name="Default")
-            return self._settings_from_providers([provider], provider["id"])
+            return self._settings_from_providers([provider], provider["id"], codex_mode=codex_mode)
         except ValueError:
-            return self._settings_from_providers([self.default_provider()], self._PERSISTED_PROVIDER_ID_DEFAULT)
+            return self._settings_from_providers(
+                [self.default_provider()],
+                self._PERSISTED_PROVIDER_ID_DEFAULT,
+                codex_mode=self._PERSISTED_CODEX_MODE_DEFAULT,
+            )
 
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         current = self.read()
         if not isinstance(payload, dict):
             raise ValueError("API settings payload must be an object")
+        codex_mode = self._normalize_persisted_codex_mode(payload.get("codex_mode", current.get("codex_mode")))
         if isinstance(payload.get("providers"), list):
-            next_settings = self._write_provider_payload(payload, current)
+            next_settings = self._write_provider_payload(payload, current, codex_mode=codex_mode)
         else:
-            next_settings = self._write_active_provider_payload(payload, current)
+            next_settings = self._write_active_provider_payload(payload, current, codex_mode=codex_mode)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(next_settings, indent=2, ensure_ascii=False), encoding="utf-8")
         return self.read()
@@ -239,6 +255,7 @@ class ApiSettings:
             "active_provider_id": settings["active_provider_id"],
             "base_url": settings["base_url"],
             "image_model": settings["image_model"],
+            "codex_mode": settings["codex_mode"],
             "api_mode": settings["api_mode"],
             "images_concurrency": settings["images_concurrency"],
             "api_key_set": bool(api_key),
@@ -277,18 +294,25 @@ class ApiSettings:
         }
 
     @classmethod
-    def _settings_from_providers(cls, providers: list[dict[str, Any]], active_provider_id: str) -> dict[str, Any]:
+    def _settings_from_providers(
+        cls,
+        providers: list[dict[str, Any]],
+        active_provider_id: str,
+        *,
+        codex_mode: Any | None = None,
+    ) -> dict[str, Any]:
         if not providers:
             providers = [cls.default_provider()]
         active_id = cls._normalize_provider_id(active_provider_id)
         active = next((provider for provider in providers if provider["id"] == active_id), providers[0])
         return {
             **active,
+            "codex_mode": cls._normalize_persisted_codex_mode(codex_mode),
             "active_provider_id": active["id"],
             "providers": providers,
         }
 
-    def _write_provider_payload(self, payload: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+    def _write_provider_payload(self, payload: dict[str, Any], current: dict[str, Any], *, codex_mode: str) -> dict[str, Any]:
         current_by_id = {provider["id"]: provider for provider in current["providers"]}
         providers: list[dict[str, Any]] = []
         for index, raw_provider in enumerate(payload.get("providers") or [], start=1):
@@ -311,9 +335,9 @@ class ApiSettings:
         active_provider_id = self._normalize_provider_id(payload.get("active_provider_id") or current.get("active_provider_id") or providers[0]["id"])
         if not any(provider["id"] == active_provider_id for provider in providers):
             active_provider_id = providers[0]["id"]
-        return self._persisted_settings(providers, active_provider_id)
+        return self._persisted_settings(providers, active_provider_id, codex_mode=codex_mode)
 
-    def _write_active_provider_payload(self, payload: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+    def _write_active_provider_payload(self, payload: dict[str, Any], current: dict[str, Any], *, codex_mode: str) -> dict[str, Any]:
         providers = [dict(provider) for provider in current["providers"]]
         active_provider_id = self._normalize_provider_id(payload.get("active_provider_id") or current["active_provider_id"])
         if not any(provider["id"] == active_provider_id for provider in providers):
@@ -327,13 +351,14 @@ class ApiSettings:
                     merged[key] = payload[key]
             providers[index] = self._normalize_provider(merged, fallback_id=provider["id"], fallback_name=provider["name"], existing=provider)
             break
-        return self._persisted_settings(providers, active_provider_id)
+        return self._persisted_settings(providers, active_provider_id, codex_mode=codex_mode)
 
     @classmethod
-    def _persisted_settings(cls, providers: list[dict[str, Any]], active_provider_id: str) -> dict[str, Any]:
-        settings = cls._settings_from_providers(providers, active_provider_id)
+    def _persisted_settings(cls, providers: list[dict[str, Any]], active_provider_id: str, *, codex_mode: str) -> dict[str, Any]:
+        settings = cls._settings_from_providers(providers, active_provider_id, codex_mode=codex_mode)
         return {
             "active_provider_id": settings["active_provider_id"],
+            "codex_mode": settings["codex_mode"],
             "base_url": settings["base_url"],
             "api_key": settings["api_key"],
             "image_model": settings["image_model"],
@@ -406,6 +431,11 @@ class ApiSettings:
     def _normalize_persisted_api_mode(cls, value: Any) -> str:
         mode = str(value or "").strip().lower()
         return mode if mode in cls._PERSISTED_API_MODES else cls._PERSISTED_API_MODE_DEFAULT
+
+    @classmethod
+    def _normalize_persisted_codex_mode(cls, value: Any) -> str:
+        mode = str(value or "").strip().lower()
+        return mode if mode in cls._PERSISTED_CODEX_MODES else cls._PERSISTED_CODEX_MODE_DEFAULT
 
     @classmethod
     def _normalize_persisted_images_concurrency(cls, value: Any) -> int:

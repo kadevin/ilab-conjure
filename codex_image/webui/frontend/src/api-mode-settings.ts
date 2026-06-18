@@ -13,6 +13,7 @@ function legacyMethod(name: string, ...args: any[]): any {
 
 function currentAuthSource(): string { return legacyMethod("currentAuthSource"); }
 function currentApiMode(): string { return legacyMethod("currentApiMode"); }
+function currentCodexMode(): string { return legacyMethod("currentCodexMode"); }
 
 export function setModeSpecificElementVisibility(element: any, visible: any): void {
   if (!element) return;
@@ -34,7 +35,11 @@ function applyModeSettingsVisibility(isDirectApi: any): void {
 }
 
 function updateWebSearchAvailability(authSource: any = currentAuthSource()): void {
-  const supported = authSource !== "api" || currentApiMode() === "responses";
+  const supported = authSource === "api"
+    ? currentApiMode() === "responses"
+    : authSource === "codex"
+      ? currentCodexMode() === "responses"
+      : true;
   if (els.webSearch) {
     const wasChecked = Boolean(els.webSearch.checked);
     els.webSearch.disabled = !supported;
@@ -59,7 +64,8 @@ export function setModeSettingsVariant(isDirectApi: any): void {
 }
 
 export function updateModeSpecificSettings(authSource: any = currentAuthSource()): void {
-  const isDirectApi = authSource === "api" && currentApiMode() !== "responses";
+  const isDirectApi = (authSource === "api" && currentApiMode() !== "responses")
+    || (authSource === "codex" && currentCodexMode() !== "responses");
   setModeSettingsVariant(isDirectApi);
   updateWebSearchAvailability(authSource);
 }

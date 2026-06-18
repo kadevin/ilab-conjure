@@ -168,8 +168,9 @@ class WebUIQueueTests(unittest.TestCase):
             task = client.get(f"/api/tasks/{task_id}").json()["task"]
 
         self.assertEqual(task["status"], "completed")
-        self.assertEqual(task["requested_backend"], "codex_responses")
-        self.assertEqual(task["backend"], "codex_responses")
+        self.assertEqual(task["requested_backend"], "codex_images")
+        self.assertEqual(task["backend"], "codex_images")
+        self.assertEqual(task["params"]["codex_mode"], "images")
         self.assertEqual(len(fake.generate_calls), 1)
         self.assertEqual(fake.generate_calls[0]["main_model"], "gpt-5.4")
         self.assertEqual(task["output_urls"], [output_url(task_id)])
@@ -233,7 +234,7 @@ class WebUIQueueTests(unittest.TestCase):
                 auto_start_queue=False,
             )
             client = TestClient(app)
-            client.post("/api/generate", data={"prompt": prompt, "size": "1024x1024", "quality": "low"})
+            client.post("/api/generate", data={"prompt": prompt, "size": "1024x1024", "quality": "low", "codex_mode": "responses"})
 
             asyncio.run(app.state.queue_manager.run_available_once())
 

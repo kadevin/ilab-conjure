@@ -77,11 +77,12 @@
     });
     els43.addApiProviderButton?.addEventListener("click", () => call(methods, "addApiProvider"));
     els43.deleteApiProviderButton?.addEventListener("click", () => call(methods, "deleteApiProvider"));
-    [els43.apiProviderName, els43.apiBaseUrl, els43.apiKey, els43.apiMode, els43.apiImageModel, els43.apiImagesConcurrency].filter(Boolean).forEach((element2) => {
+    [els43.codexMode, els43.apiProviderName, els43.apiBaseUrl, els43.apiKey, els43.apiMode, els43.apiImageModel, els43.apiImagesConcurrency].filter(Boolean).forEach((element2) => {
       element2?.addEventListener("input", () => {
         call(methods, "readApiSettingsForm");
         call(methods, "persistApiSettings");
         call(methods, "renderAuthSource", state32.authStatus);
+        call(methods, "updateModeSpecificSettings");
         call(methods, "updateRequestPreview");
       });
     });
@@ -125,12 +126,7 @@
     call2(methods, "refreshGallery");
     call2(methods, "refreshRecentAssets");
     const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });
-    if (realtimeStarted) {
-      void window.refreshQueue?.();
-      Promise.resolve(call2(methods, "refreshTasks", { migrateLegacyArchives: true })).finally(() => {
-        state32.realtimeSnapshotNeedsArchiveMigration = false;
-      });
-    } else {
+    if (!realtimeStarted) {
       void window.refreshQueue?.();
       void call2(methods, "refreshTasks", { migrateLegacyArchives: true });
     }
@@ -210,6 +206,8 @@
       apiSettingsModalClose: document.querySelector("#apiSettingsModalClose"),
       apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
       apiProviderQuick: document.querySelector("#apiProviderQuick"),
+      codexMode: document.querySelector("#codexMode"),
+      codexModeGroup: document.querySelector("#codexModeGroup"),
       apiProvider: document.querySelector("#apiProvider"),
       apiProviderName: document.querySelector("#apiProviderName"),
       addApiProviderButton: document.querySelector("#addApiProviderButton"),
@@ -1114,7 +1112,10 @@
       "settings.saved": "\u5DF2\u4FDD\u5B58",
       "settings.savedRestartStatus": "\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
       "apiSettings.title": "API \u8BBE\u7F6E",
-      "apiSettings.status": "\u4FDD\u5B58\u540E\u7ACB\u5373\u7528\u4E8E API \u6A21\u5F0F",
+      "apiSettings.status": "\u4FDD\u5B58\u540E\u7ACB\u5373\u7528\u4E8E Codex \u548C API \u6A21\u5F0F",
+      "apiSettings.codexMode": "Codex \u901A\u9053",
+      "apiSettings.codexImages": "Image",
+      "apiSettings.codexResponses": "Responses",
       "apiSettings.provider": "\u4F9B\u5E94\u5546",
       "apiSettings.providerName": "\u4F9B\u5E94\u5546\u540D\u79F0",
       "apiSettings.mode": "\u8C03\u7528\u65B9\u5F0F",
@@ -1130,7 +1131,7 @@
       "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
       "apiSettings.savingStatus": "\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...",
       "apiSettings.saveFailed": "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25",
-      "apiSettings.savedSummary": "\u5DF2\u4FDD\u5B58 \xB7 {provider} \xB7 {mode} \xB7 {model} \xB7 \u5E76\u53D1 {concurrency}",
+      "apiSettings.savedSummary": "\u5DF2\u4FDD\u5B58 \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u5E76\u53D1 {concurrency}",
       "apiSettings.savedShort": "\u5DF2\u4FDD\u5B58",
       "apiSettings.savedStatus": "API \u8BBE\u7F6E\u5DF2\u4FDD\u5B58",
       "apiSettings.saveFailedShort": "\u4FDD\u5B58\u5931\u8D25",
@@ -1920,7 +1921,10 @@
       "settings.saved": "Saved",
       "settings.savedRestartStatus": "Settings saved. Restart WebUI to apply.",
       "apiSettings.title": "API Settings",
-      "apiSettings.status": "Saved settings apply immediately in API mode",
+      "apiSettings.status": "Saved settings apply immediately in Codex and API mode",
+      "apiSettings.codexMode": "Codex channel",
+      "apiSettings.codexImages": "Image",
+      "apiSettings.codexResponses": "Responses",
       "apiSettings.provider": "Provider",
       "apiSettings.providerName": "Provider name",
       "apiSettings.mode": "Request mode",
@@ -1936,7 +1940,7 @@
       "apiSettings.saving": "Saving...",
       "apiSettings.savingStatus": "Saving API settings...",
       "apiSettings.saveFailed": "Failed to save API settings",
-      "apiSettings.savedSummary": "Saved \xB7 {provider} \xB7 {mode} \xB7 {model} \xB7 concurrency {concurrency}",
+      "apiSettings.savedSummary": "Saved \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 concurrency {concurrency}",
       "apiSettings.savedShort": "Saved",
       "apiSettings.savedStatus": "API settings saved",
       "apiSettings.saveFailedShort": "Save failed",
@@ -2372,6 +2376,7 @@
   var DEFAULT_API_BASE_URL = "https://api.openai.com/v1";
   var DEFAULT_API_IMAGE_MODEL = "gpt-image-2";
   var DEFAULT_API_MODE = "images";
+  var DEFAULT_CODEX_MODE = "images";
   var DEFAULT_API_IMAGES_CONCURRENCY = 4;
   var API_SETTINGS_STORAGE_KEY = "codex-image-api-settings";
   var DEFAULT_DOCUMENT_TITLE = document.title || "iLab GPT CONJURE";
@@ -2471,6 +2476,7 @@
       themePreference: "system",
       themeSystemQuery: null,
       apiSettings: {
+        codex_mode: DEFAULT_CODEX_MODE,
         active_provider_id: "default",
         providers: [{
           id: "default",
@@ -2531,6 +2537,7 @@
     currentApiProviderId: proxy("currentApiProviderId"),
     currentApiProviderLabel: proxy("currentApiProviderLabel"),
     currentAuthSource: proxy("currentAuthSource"),
+    currentCodexMode: proxy("currentCodexMode"),
     currentMainModel: proxy("currentMainModel"),
     currentPromptFidelity: proxy("currentPromptFidelity"),
     currentPromptForModel: proxy("currentPromptForModel"),
@@ -6153,6 +6160,9 @@ ${hint}` : hint;
   function currentApiMode() {
     return legacyMethod11("currentApiMode");
   }
+  function currentCodexMode() {
+    return legacyMethod11("currentCodexMode");
+  }
   function setModeSpecificElementVisibility(element2, visible) {
     if (!element2) return;
     element2.setAttribute("aria-hidden", visible ? "false" : "true");
@@ -6171,7 +6181,7 @@ ${hint}` : hint;
     setModeSpecificElementVisibility(els8.promptFidelityField, true);
   }
   function updateWebSearchAvailability(authSource = currentAuthSource()) {
-    const supported = authSource !== "api" || currentApiMode() === "responses";
+    const supported = authSource === "api" ? currentApiMode() === "responses" : authSource === "codex" ? currentCodexMode() === "responses" : true;
     if (els8.webSearch) {
       const wasChecked = Boolean(els8.webSearch.checked);
       els8.webSearch.disabled = !supported;
@@ -6194,7 +6204,7 @@ ${hint}` : hint;
     applyModeSettingsVisibility(isDirectApi);
   }
   function updateModeSpecificSettings(authSource = currentAuthSource()) {
-    const isDirectApi = authSource === "api" && currentApiMode() !== "responses";
+    const isDirectApi = authSource === "api" && currentApiMode() !== "responses" || authSource === "codex" && currentCodexMode() !== "responses";
     setModeSettingsVariant(isDirectApi);
     updateWebSearchAvailability(authSource);
   }
@@ -6219,11 +6229,17 @@ ${hint}` : hint;
   function currentApiMode2() {
     return legacyMethod12("currentApiMode");
   }
+  function currentCodexMode2() {
+    return legacyMethod12("currentCodexMode");
+  }
   function currentApiProviderLabel() {
     return legacyMethod12("currentApiProviderLabel");
   }
   function apiModeLabel(mode) {
     return legacyMethod12("apiModeLabel", mode);
+  }
+  function codexModeLabel(mode) {
+    return legacyMethod12("codexModeLabel", mode);
   }
   async function refreshHealth() {
     try {
@@ -6314,7 +6330,7 @@ ${hint}` : hint;
       const mode = apiModeLabel(currentApiMode2());
       return `API \xB7 ${provider} \xB7 ${mode}`;
     }
-    return "Codex";
+    return `Codex \xB7 ${codexModeLabel(currentCodexMode2())}`;
   }
   function sourceLabel(source) {
     if (source === "codex") return "Codex";
@@ -6325,7 +6341,7 @@ ${hint}` : hint;
     return state8.pendingAuthSource || state8.authStatus?.selected_source || "codex";
   }
   function isDirectApiMode(authSource = currentAuthSource2()) {
-    return authSource === "api" && currentApiMode2() !== "responses";
+    return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
   }
 
   // codex_image/webui/frontend/src/api-provider-settings.ts
@@ -6368,6 +6384,9 @@ ${hint}` : hint;
     if (Number.isNaN(parsed)) return DEFAULT_API_IMAGES_CONCURRENCY;
     return Math.min(32, Math.max(1, parsed));
   }
+  function normalizeCodexMode(value) {
+    return value === "responses" ? "responses" : DEFAULT_CODEX_MODE;
+  }
   function normalizeApiSettings(settings = {}) {
     const rawProviders = Array.isArray(settings.providers) && settings.providers.length ? settings.providers : [{
       id: settings.active_provider_id || "default",
@@ -6392,6 +6411,7 @@ ${hint}` : hint;
     const requestedActive = String(settings.active_provider_id || providers[0].id).trim().toLowerCase();
     const activeProvider = providers.find((provider) => provider.id === requestedActive) || providers[0];
     return {
+      codex_mode: normalizeCodexMode(settings.codex_mode),
       active_provider_id: activeProvider.id,
       providers
     };
@@ -6412,6 +6432,7 @@ ${hint}` : hint;
   function persistApiSettings() {
     try {
       localStorage.setItem(API_SETTINGS_STORAGE_KEY, JSON.stringify({
+        codex_mode: state9.apiSettings.codex_mode,
         active_provider_id: state9.apiSettings.active_provider_id,
         providers: state9.apiSettings.providers
       }));
@@ -6442,6 +6463,10 @@ ${hint}` : hint;
   }
   function populateApiSettingsForm() {
     const provider = activeApiProvider();
+    if (els10.codexMode) {
+      els10.codexMode.value = currentCodexMode3();
+      els10.codexMode.dispatchEvent(new Event("change"));
+    }
     if (els10.apiProviderQuick) {
       els10.apiProviderQuick.innerHTML = "";
       state9.apiSettings.providers.forEach((item) => {
@@ -6481,6 +6506,7 @@ ${hint}` : hint;
   }
   function readApiSettingsForm() {
     const settings = normalizeApiSettings(state9.apiSettings);
+    settings.codex_mode = normalizeCodexMode(els10.codexMode?.value || settings.codex_mode);
     const activeId = settings.active_provider_id;
     settings.providers = settings.providers.map((provider) => provider.id === activeId ? normalizeApiProvider({
       ...provider,
@@ -6547,14 +6573,24 @@ ${hint}` : hint;
   function currentApiMode3() {
     return activeApiProvider().api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
   }
+  function currentCodexMode3() {
+    state9.apiSettings = normalizeApiSettings(state9.apiSettings);
+    return normalizeCodexMode(state9.apiSettings.codex_mode);
+  }
   function currentApiImagesConcurrency() {
     return normalizeApiImagesConcurrency(activeApiProvider().images_concurrency);
   }
   function apiModeLabel2(mode) {
     return mode === "responses" ? "Responses" : translate("apiSettings.modeImagesShort");
   }
-  function backendForAuthSource(authSource, apiMode = currentApiMode3()) {
-    return authSource === "api" ? apiMode === "responses" ? "openai_responses" : "openai_images" : "codex_responses";
+  function codexModeLabel2(mode) {
+    return mode === "responses" ? "Responses" : "Image";
+  }
+  function backendForAuthSource(authSource, apiMode = currentApiMode3(), codexMode = currentCodexMode3()) {
+    if (authSource === "api") {
+      return apiMode === "responses" ? "openai_responses" : "openai_images";
+    }
+    return codexMode === "responses" ? "codex_responses" : "codex_images";
   }
   function taskBackendValue(task) {
     return String(task?.backend || task?.requested_backend || "").trim();
@@ -6593,6 +6629,7 @@ ${hint}` : hint;
     const settings = readApiSettingsForm();
     persistApiSettings();
     const payload2 = {
+      codex_mode: settings.codex_mode,
       active_provider_id: settings.active_provider_id,
       providers: settings.providers.map((provider) => {
         const item = {
@@ -6622,6 +6659,7 @@ ${hint}` : hint;
       persistApiSettings();
       populateApiSettingsForm();
       setApiSettingsFeedback(formatTranslation("apiSettings.savedSummary", {
+        codex: codexModeLabel2(currentCodexMode3()),
         provider: activeApiProvider().name,
         mode: apiModeLabel2(currentApiMode3()),
         model: currentApiImageModel(),
@@ -6693,8 +6731,10 @@ ${hint}` : hint;
       closeApiSettingsModal,
       currentApiImageModel,
       currentApiMode: currentApiMode3,
+      currentCodexMode: currentCodexMode3,
       currentApiImagesConcurrency,
       apiModeLabel: apiModeLabel2,
+      codexModeLabel: codexModeLabel2,
       backendForAuthSource,
       taskBackendValue,
       taskApiProviderId,
@@ -10844,7 +10884,10 @@ ${galleryText}`;
     return currentAuthSource2() === "api" ? currentApiImageModel() : els25.model.value;
   }
   function webSearchSupportedForCurrentBackend() {
-    return currentAuthSource2() !== "api" || currentApiMode3() === "responses";
+    const authSource = currentAuthSource2();
+    if (authSource === "api") return currentApiMode3() === "responses";
+    if (authSource === "codex") return currentCodexMode3() === "responses";
+    return true;
   }
   function currentWebSearchEnabled() {
     return Boolean(els25.webSearch?.checked && webSearchSupportedForCurrentBackend());
@@ -10883,6 +10926,8 @@ ${galleryText}`;
       params.api_provider_id = currentApiProviderId();
       params.api_mode = currentApiMode3();
       params.api_images_concurrency = currentApiImagesConcurrency();
+    } else if (currentAuthSource2() === "codex") {
+      params.codex_mode = currentCodexMode3();
     }
     return params;
   }
@@ -13581,6 +13626,9 @@ ${galleryText}`;
   function currentApiMode4(...args) {
     return legacyMethod34("currentApiMode", ...args);
   }
+  function currentCodexMode4(...args) {
+    return legacyMethod34("currentCodexMode", ...args);
+  }
   function getPromptText9(...args) {
     return legacyMethod34("getPromptText", ...args);
   }
@@ -13666,6 +13714,14 @@ ${galleryText}`;
       persistApiSettings2();
       populateApiSettingsForm2();
     }
+    if (params.codex_mode) {
+      state24.apiSettings = normalizeApiSettings2({
+        ...state24.apiSettings,
+        codex_mode: params.codex_mode
+      });
+      persistApiSettings2();
+      populateApiSettingsForm2();
+    }
     if (els33.promptFidelity) {
       const fidelity = ["strict", "original", "off"].includes(params.prompt_fidelity) ? params.prompt_fidelity : "strict";
       els33.promptFidelity.value = fidelity;
@@ -13703,7 +13759,9 @@ ${galleryText}`;
     const assets = referenceAssetInputs3();
     const authSource = currentAuthSource3();
     const isApi = authSource === "api";
-    const requestedBackend = backendForAuthSource2(authSource, isApi ? currentApiMode4() : null);
+    const isCodex = authSource === "codex";
+    const codexMode = isCodex ? currentCodexMode4() : null;
+    const requestedBackend = backendForAuthSource2(authSource, isApi ? currentApiMode4() : null, codexMode);
     const payload2 = {
       mode: state24.mode,
       auth_source: authSource,
@@ -13754,6 +13812,34 @@ ${galleryText}`;
         }
       } else {
         payload2.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
+      }
+    } else if (isCodex) {
+      const action = state24.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
+      payload2.codex_mode = codexMode;
+      if (codexMode === "responses") {
+        payload2.endpoint = "/responses";
+        payload2.main_model = params.main_model;
+        payload2.model = params.main_model;
+        const imageTool = {
+          type: "image_generation",
+          action,
+          model: params.model,
+          size: params.size,
+          quality: params.quality,
+          output_format: params.output_format,
+          moderation: params.moderation
+        };
+        payload2.tools = params.web_search ? [{ type: "web_search", search_context_size: "low" }, imageTool] : [imageTool];
+        if (params.web_search) {
+          payload2.tool_choice = "required";
+          payload2.parallel_tool_calls = false;
+        }
+        if (params.output_compression !== null && params.output_compression !== void 0) {
+          imageTool.output_compression = params.output_compression;
+        }
+      } else {
+        payload2.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
+        payload2.main_model = params.main_model;
       }
     } else {
       payload2.main_model = params.main_model;
@@ -13841,6 +13927,8 @@ ${galleryText}`;
     if (currentAuthSource3() === "api") {
       form.append("api_provider_id", currentApiProviderId3());
       form.append("api_mode", currentApiMode4());
+    } else if (currentAuthSource3() === "codex") {
+      form.append("codex_mode", currentCodexMode4());
     }
     if (els33.outputFormat.value !== "png") {
       form.append("output_compression", String(params.output_compression));
