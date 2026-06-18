@@ -45,6 +45,12 @@ class CapturingApiImageClient(FakeImageClient):
 
 class ConcurrentApiImageClient(CapturingApiImageClient):
     instances: list["ConcurrentApiImageClient"] = []
+    release_after_active_requests: int | None = None
+
+    @classmethod
+    def reset(cls, *, release_after_active_requests: int | None = None) -> None:
+        cls.instances = []
+        cls.release_after_active_requests = release_after_active_requests
 
     def __init__(self, *, api_key: str, base_url: str, image_model: str, **kwargs: Any) -> None:
         self.generate_images_calls: list[dict[str, Any]] = []
@@ -52,12 +58,18 @@ class ConcurrentApiImageClient(CapturingApiImageClient):
         self.max_active_requests = 0
         self._active_requests = 0
         self._request_lock = threading.Lock()
+        self._release_requests = threading.Event()
         super().__init__(api_key=api_key, base_url=base_url, image_model=image_model, **kwargs)
 
     def _begin_request(self) -> int:
         with self._request_lock:
             self._active_requests += 1
             self.max_active_requests = max(self.max_active_requests, self._active_requests)
+            if (
+                type(self).release_after_active_requests is not None
+                and self._active_requests >= type(self).release_after_active_requests
+            ):
+                self._release_requests.set()
             return self._active_requests
 
     def _end_request(self) -> None:
@@ -72,7 +84,10 @@ class ConcurrentApiImageClient(CapturingApiImageClient):
             call_number = len(self.generate_calls)
         self._begin_request()
         try:
-            time.sleep(0.05)
+            if type(self).release_after_active_requests is None:
+                time.sleep(0.05)
+            else:
+                self._release_requests.wait(timeout=5)
             return ImageResult(
                 f"api-concurrent-{call_number}".encode("utf-8"),
                 f"api revised {call_number}",
@@ -93,7 +108,10 @@ class ConcurrentApiImageClient(CapturingApiImageClient):
             call_number = len(self.edit_calls)
         self._begin_request()
         try:
-            time.sleep(0.05)
+            if type(self).release_after_active_requests is None:
+                time.sleep(0.05)
+            else:
+                self._release_requests.wait(timeout=5)
             return ImageResult(
                 f"api-edit-concurrent-{call_number}".encode("utf-8"),
                 f"api edit revised {call_number}",

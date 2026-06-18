@@ -882,7 +882,7 @@ class WebUISettingsTests(unittest.TestCase):
     def test_api_images_queue_worker_generates_multiple_outputs_concurrently(self) -> None:
         from codex_image.webui.app import create_app
 
-        ConcurrentApiImageClient.instances = []
+        ConcurrentApiImageClient.reset(release_after_active_requests=4)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with patch("codex_image.webui.auth_routing.OpenAIImagesImageClient", ConcurrentApiImageClient, create=True):
@@ -1083,7 +1083,7 @@ class WebUISettingsTests(unittest.TestCase):
     def test_api_images_queue_worker_uses_provider_concurrency_limit(self) -> None:
         from codex_image.webui.app import create_app
 
-        ConcurrentApiImageClient.instances = []
+        ConcurrentApiImageClient.reset(release_after_active_requests=2)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with patch("codex_image.webui.auth_routing.OpenAIImagesImageClient", ConcurrentApiImageClient, create=True):
@@ -1272,7 +1272,7 @@ class WebUISettingsTests(unittest.TestCase):
     def test_api_images_queue_worker_uses_task_concurrency_after_provider_switch(self) -> None:
         from codex_image.webui.app import create_app
 
-        ConcurrentApiImageClient.instances = []
+        ConcurrentApiImageClient.reset(release_after_active_requests=2)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with patch("codex_image.webui.auth_routing.OpenAIImagesImageClient", ConcurrentApiImageClient, create=True):
