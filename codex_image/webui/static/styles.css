@@ -7701,7 +7701,7 @@ body.lightbox-open {
 
 .gallery-grid-layer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
   gap: 14px;
 }
 
@@ -8244,6 +8244,9 @@ body.lightbox-open {
   position: relative;
   display: grid;
   grid-template-rows: auto auto auto auto;
+  container-type: inline-size;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -8327,30 +8330,52 @@ body.lightbox-open {
 .gallery-card-body {
   display: grid;
   gap: 6px;
+  min-width: 0;
   min-height: 58px;
   padding: 10px;
 }
 
 .gallery-card-heading {
   display: block;
+  min-width: 0;
 }
 
 .gallery-card-heading strong {
+  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .gallery-card-body span {
+  min-width: 0;
+  overflow: hidden;
   color: var(--muted);
   font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .gallery-card-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+  min-width: 0;
   padding: 0 10px 10px;
+}
+
+.gallery-card-actions .ghost-button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 219px) {
+  .gallery-card-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 .danger-button {
