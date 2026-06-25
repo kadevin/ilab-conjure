@@ -3,19 +3,30 @@ from __future__ import annotations
 import asyncio
 import base64
 import mimetypes
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .storage import GalleryStorage, ReferenceAssetStorage, TaskStorage
 from .task_metadata import _dedupe_preserve_order, _gallery_ref_response, _reference_asset_response
+
+_SUPPORTED_REQUEST_IMAGE_MIME_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
+_PIL_FORMAT_MIME_TYPES = {
+    "GIF": "image/gif",
+    "JPEG": "image/jpeg",
+    "PNG": "image/png",
+    "WEBP": "image/webp",
+}
 
 
 def _file_to_data_url(path: Path, *, mime_type: str | None = None) -> str:
     data = path.read_bytes()
     resolved_mime_type = _image_mime_type(mime_type, path.name, data) or "application/octet-stream"
-    return f"data:{resolved_mime_type};base64,{base64.b64encode(data).decode('ascii')}"
+    request_data, request_mime_type = _request_image_payload(data, resolved_mime_type)
+    return f"data:{request_mime_type};base64,{base64.b64encode(request_data).decode('ascii')}"
 
 
 def _image_mime_type(declared_mime_type: str | None, filename: str, data: bytes) -> str | None:
@@ -25,9 +36,51 @@ def _image_mime_type(declared_mime_type: str | None, filename: str, data: bytes)
         _sniff_image_mime_type(data),
     ]
     for candidate in candidates:
-        if candidate.startswith("image/"):
-            return candidate
+        normalized = _normalize_mime_type(candidate)
+        if normalized.startswith("image/"):
+            return normalized
     return None
+
+
+def _normalize_mime_type(value: str | None) -> str:
+    return str(value or "").split(";", 1)[0].strip().lower()
+
+
+def _request_image_payload(data: bytes, mime_type: str) -> tuple[bytes, str]:
+    normalized_mime_type = _normalize_mime_type(mime_type)
+    detected_mime_type, is_animated, image_was_decoded = _detect_pillow_request_mime_type(data)
+    if detected_mime_type in _SUPPORTED_REQUEST_IMAGE_MIME_TYPES and not (detected_mime_type == "image/gif" and is_animated):
+        return data, detected_mime_type
+    if normalized_mime_type in _SUPPORTED_REQUEST_IMAGE_MIME_TYPES and not image_was_decoded:
+        return data, normalized_mime_type
+    if normalized_mime_type not in _SUPPORTED_REQUEST_IMAGE_MIME_TYPES or detected_mime_type is None or is_animated:
+        return _convert_image_to_png(data), "image/png"
+    return data, normalized_mime_type
+
+
+def _detect_pillow_request_mime_type(data: bytes) -> tuple[str | None, bool, bool]:
+    try:
+        with Image.open(BytesIO(data)) as image:
+            image_format = str(image.format or "").upper()
+            return _PIL_FORMAT_MIME_TYPES.get(image_format), bool(getattr(image, "is_animated", False)), True
+    except (OSError, UnidentifiedImageError):
+        return None, False, False
+
+
+def _convert_image_to_png(data: bytes) -> bytes:
+    try:
+        with Image.open(BytesIO(data)) as image:
+            image.seek(0)
+            converted = ImageOps.exif_transpose(image)
+            if converted.mode in {"P", "LA"} or "transparency" in converted.info:
+                converted = converted.convert("RGBA")
+            elif converted.mode not in {"1", "L", "RGB", "RGBA"}:
+                converted = converted.convert("RGB")
+            buffer = BytesIO()
+            converted.save(buffer, format="PNG")
+            return buffer.getvalue()
+    except (OSError, UnidentifiedImageError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="Unsupported image type: could not decode image") from exc
 
 
 def _sniff_image_mime_type(data: bytes) -> str | None:
