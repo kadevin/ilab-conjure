@@ -1088,25 +1088,22 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("function applyQueueTasks", queue_source)
         self.assertIn("applyTaskUpdate", queue_source)
         self.assertIn("updateTaskInState", queue_source)
+        self.assertIn("state.tasksRequestSeq += 1", queue_source)
         self.assertIn("function renderActiveTaskGroupForQueueChange", queue_source)
         self.assertNotIn('bridge.state.expandedTaskGroupKey || "") !== "active"', queue_source)
         self.assertIn("bridge.methods.renderTasks?.();", queue_source)
         self.assertIn("bridge.methods.renderTasks?.()", queue_source)
         boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
-        self.assertIn("const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });", boot_source)
-        self.assertIn("if (!realtimeStarted) {", boot_source)
+        self.assertIn("window.startRealtimeUpdates?.({ migrateLegacyArchives: true });", boot_source)
         self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', boot_source)
-        realtime_fallback_block = re.search(
-            r"if \(!realtimeStarted\) \{(?P<body>[\s\S]*?)\n  \}",
+        startup_refresh_block = re.search(
+            r"window\.startRealtimeUpdates\?\.\(\{ migrateLegacyArchives: true \}\);(?P<body>[\s\S]*?)\n  call\(methods, \"startUiClock\"\)",
             boot_source,
         )
-        self.assertIsNotNone(realtime_fallback_block)
-        self.assertIn('window.refreshQueue?.()', realtime_fallback_block.group("body"))
-        self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', realtime_fallback_block.group("body"))
-        self.assertNotRegex(
-            boot_source.replace(realtime_fallback_block.group(0), ""),
-            r"refreshTasks\(\s*\{ migrateLegacyArchives: true \}\)",
-        )
+        self.assertIsNotNone(startup_refresh_block)
+        self.assertIn('window.refreshQueue?.()', startup_refresh_block.group("body"))
+        self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', startup_refresh_block.group("body"))
+        self.assertNotIn("if (!realtimeStarted)", startup_refresh_block.group("body"))
         self.assertIn("void getLegacyBridge().methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives });", queue_source)
         self.assertIn("applyQueueState(payload.queue)", queue_source)
         self.assertIn("function activeTasksNeedQueueReconcile(", queue_source)
