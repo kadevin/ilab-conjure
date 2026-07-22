@@ -219,6 +219,203 @@ svg.button-icon {
   border-color: var(--primary);
 }
 
+.themed-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+select.themed-select-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.themed-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--motion-base), background-color var(--motion-base);
+}
+
+.themed-select-trigger:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--line));
+  background: color-mix(in srgb, var(--surface) 92%, var(--primary-light));
+}
+
+.themed-select-trigger:focus-visible {
+  border-color: var(--primary);
+  outline: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  outline-offset: 2px;
+}
+
+.themed-select-trigger:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.themed-select-value {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+}
+
+.themed-select-option-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.themed-select-option-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.themed-select-option-icon.image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.themed-select-caret {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  margin-left: 12px;
+  border-right: 1.8px solid currentColor;
+  border-bottom: 1.8px solid currentColor;
+  color: var(--muted);
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.themed-select-trigger[aria-expanded="true"] .themed-select-caret {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.themed-select-menu {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 5px);
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(280px, 44dvh);
+  padding: 5px;
+  overflow-y: auto;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, var(--primary));
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-popover);
+  scrollbar-color: color-mix(in srgb, var(--primary) 58%, var(--line)) color-mix(in srgb, var(--surface-soft) 82%, var(--line));
+  scrollbar-width: thin;
+}
+
+.themed-select-menu.is-portal {
+  position: fixed;
+  z-index: 8100;
+  right: auto;
+}
+
+.themed-select-menu::-webkit-scrollbar {
+  width: 10px;
+}
+
+.themed-select-menu::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface-soft) 82%, var(--line));
+  border-radius: 999px;
+}
+
+.themed-select-menu::-webkit-scrollbar-thumb {
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 58%, var(--line));
+}
+
+.themed-select-menu::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--primary) 76%, var(--line));
+}
+
+.themed-select-option {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  width: 100%;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.themed-select-option .themed-select-option-label {
+  flex: 1 1 auto;
+}
+
+.themed-select-option:hover:not(:disabled),
+.themed-select-option:focus-visible,
+.themed-select-option.active {
+  background: var(--primary-light);
+  color: var(--primary-strong);
+  outline: none;
+}
+
+.themed-select-option.selected {
+  background: color-mix(in srgb, var(--primary-light) 72%, var(--surface));
+  color: var(--primary-strong);
+  font-weight: 600;
+}
+
+.themed-select-option:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.themed-select-empty {
+  padding: 8px 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .hint {
   font-size: 12px;
   color: var(--muted);
@@ -274,9 +471,9 @@ svg.button-icon {
   flex-direction: column;
   gap: 2px;
   padding: 4px;
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, var(--primary));
   border-radius: 8px;
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 92%, var(--primary-light));
   box-shadow: var(--shadow-popover);
 }
 
@@ -302,6 +499,8 @@ svg.button-icon {
 }
 
 .model-combobox-option.selected {
+  background: color-mix(in srgb, var(--primary-light) 72%, var(--surface));
+  color: var(--primary-strong);
   font-weight: 600;
 }
 
@@ -447,6 +646,28 @@ svg.button-icon {
   transform: scale(0.985);
 }
 
+.aspect-ratio-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.aspect-ratio-label {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ratio-group .radio-btn {
+  gap: 4px;
+}
+
+.ratio-group .aspect-ratio-icon {
+  width: 15px;
+  height: 15px;
+}
+
 .radio-btn.active {
   background-color: var(--primary);
   color: var(--primary-foreground);
@@ -480,12 +701,14 @@ svg.button-icon {
   opacity: var(--segmented-indicator-opacity);
   pointer-events: none;
   transform: translate3d(var(--segmented-indicator-x), var(--segmented-indicator-y), 0);
+  transition: none;
+  z-index: 0;
+}
+
+.segmented-indicator-host.segmented-indicator-ready .segmented-indicator {
   transition:
     transform var(--motion-base),
-    width var(--motion-base),
-    height var(--motion-base),
     opacity var(--motion-fast);
-  z-index: 0;
 }
 
 .auth-source-group .segmented-indicator {
@@ -518,6 +741,8 @@ svg.button-icon {
   .run-button,
   .ghost-button,
   .control,
+  .themed-select-trigger,
+  .themed-select-caret,
   .segment,
   .slider.round,
   .slider.round:before,

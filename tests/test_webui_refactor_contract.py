@@ -13,6 +13,23 @@ from codex_image.webui.storage import QueueStorage, SQLiteQueueStorage, TaskStor
 
 
 class WebUIRefactorContractTests(unittest.TestCase):
+    def test_generation_and_provider_layers_have_dedicated_public_entries(self) -> None:
+        from codex_image.generation.catalog import get_model_manifest
+        from codex_image.generation.service import GenerationService
+        from codex_image.providers.registry import default_registry
+
+        self.assertEqual("gpt-image-2", get_model_manifest("gpt-image-2").id)
+        self.assertTrue(callable(GenerationService))
+        self.assertTrue(callable(default_registry))
+        self.assertTrue(Path("scripts/run-webui-provider-fixture.py").is_file())
+
+    def test_provider_settings_keeps_legacy_import_identity(self) -> None:
+        from codex_image.webui.provider_settings import ProviderSettings
+        from codex_image.webui.settings_store import ApiSettings, ProviderSettings as LegacyProviderSettings
+
+        self.assertIs(ApiSettings, ProviderSettings)
+        self.assertIs(LegacyProviderSettings, ProviderSettings)
+
     def test_create_app_remains_callable(self) -> None:
         self.assertTrue(callable(create_app))
 
@@ -272,6 +289,22 @@ class WebUIRefactorContractTests(unittest.TestCase):
         self.assertEqual("gpt-5.4-mini", client.DEFAULT_MAIN_MODEL)
         self.assertEqual("gpt-image-2", client.DEFAULT_IMAGE_MODEL)
 
+        probe = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import sys; import codex_image.client; "
+                    "print(any(name.startswith('codex_image.webui') for name in sys.modules))"
+                ),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual("", probe.stderr)
+        self.assertEqual("False", probe.stdout.strip())
+
     def test_executor_helper_modules_keep_legacy_import_contract(self) -> None:
         from codex_image.webui import executor, executor_inputs, executor_progress, executor_transport
 
@@ -346,6 +379,7 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/auth", "GET"),
                 ("/api/auth", "PATCH"),
                 ("/api/api-settings", "GET"),
+                ("/api/api-settings", "POST"),
                 ("/api/api-settings", "PATCH"),
                 ("/api/tasks", "GET"),
                 ("/api/tasks/recent", "GET"),
@@ -385,6 +419,7 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/reference-assets/{asset_id}", "DELETE"),
                 ("/api/reference-assets/{asset_id}/image", "GET"),
                 ("/api/reference-files/recent", "GET"),
+                ("/api/generation-catalog", "GET"),
                 ("/api/generate", "POST"),
                 ("/api/edit", "POST"),
             }

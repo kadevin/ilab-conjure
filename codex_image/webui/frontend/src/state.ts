@@ -1,4 +1,4 @@
-import type { QueueState, TaskNotification, TaskNotificationSettings, WebUITask } from "./types";
+import type { GenerationCatalog, GenerationSnapshotView, ModelFamilyId, QueueState, TaskNotification, TaskNotificationSettings, WebUITask } from "./types";
 import type { WebUIBridge } from "./legacy-bridge";
 import type { Locale } from "./i18n/types";
 
@@ -23,6 +23,19 @@ export interface WebUIState {
   taskNotificationToastTimerIds: number[];
   taskNotificationSettings: TaskNotificationSettings;
   taskNotificationSeenKeys: Set<string>;
+  generationCatalog: GenerationCatalog | null;
+  generationCatalogError: string | null;
+  selectedFamilyId: ModelFamilyId | null;
+  selectedModelId: string | null;
+  selectedProviderId: string | null;
+  selectedProviderBindingId: string | null;
+  lastModelByFamily: Record<string, string>;
+  lastProviderByModel: Record<string, string>;
+  lastProviderSelectionByModel: Record<string, string>;
+  parameterDraftsByModel: Record<string, Record<string, unknown>>;
+  parameterDraftVersionsByModel: Record<string, number>;
+  parameterValidationErrorsByModel: Record<string, Record<string, string>>;
+  inspectedGenerationSnapshot: GenerationSnapshotView | null;
 }
 
 export type LegacyBridge = WebUIBridge;

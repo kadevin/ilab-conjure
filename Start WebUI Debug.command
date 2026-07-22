@@ -58,7 +58,7 @@ wait_for_webui() {
   return 1
 }
 
-echo "Starting iLab GPT CONJURE at ${URL} with SSE debug logging enabled"
+echo "Starting iLab CONJURE at ${URL} with SSE debug logging enabled"
 echo "Debug logs will be written to output/webui/<task_id>/debug-sse.jsonl"
 mkdir -p output
 AUTH_SETTINGS_PATH="${PROJECT_DIR}/output/webui-auth-settings.json"

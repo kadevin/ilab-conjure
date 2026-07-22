@@ -1,4 +1,4 @@
-# macOS Standard App package
+# iLab CONJURE macOS Standard App package
 
 Use the DMG package for new installs. Drag iLab GPT CONJURE.app to Applications,
 then launch it from Finder or Spotlight.

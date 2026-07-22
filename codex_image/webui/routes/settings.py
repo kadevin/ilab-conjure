@@ -286,6 +286,7 @@ def register_settings_routes(app: FastAPI, ctx: WebUIContext) -> None:
     def get_api_settings() -> dict[str, Any]:
         return {"settings": ctx.api_settings.public_settings()}
 
+    @app.post("/api/api-settings")
     @app.patch("/api/api-settings")
     def update_api_settings(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
         try:

@@ -5,8 +5,8 @@ fn main() {
     {
         let mut resource = winresource::WindowsResource::new();
         resource.set_icon("assets/rabbit-logo.ico");
-        resource.set("FileDescription", "iLab GPT CONJURE");
-        resource.set("ProductName", "iLab GPT CONJURE");
+        resource.set("FileDescription", "iLab CONJURE");
+        resource.set("ProductName", "iLab CONJURE");
         resource.set("CompanyName", "iLab");
         resource.set("OriginalFilename", "iLab GPT CONJURE.exe");
         resource

@@ -1,6 +1,6 @@
-# iLab GPT CONJURE Rust Launcher
+# iLab CONJURE Rust Launcher
 
-This crate is the Rust system tray / macOS menu bar launcher for iLab GPT CONJURE.
+This crate is the Rust system tray / macOS menu bar launcher for iLab CONJURE.
 
 It starts the existing Python WebUI backend without a separate terminal window, opens the default browser at `http://127.0.0.1:8787/`, and keeps a tray/menu bar icon alive with these actions:
 
@@ -8,7 +8,7 @@ It starts the existing Python WebUI backend without a separate terminal window, 
 - Open Settings
 - History Library
 - Check for Updates
-- About iLab GPT CONJURE
+- About iLab CONJURE
 - Restart WebUI Service
 - Quit
 

@@ -5,8 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$RepoSlug = "kadevin/ilab-gpt-conjure"
-$LatestUpdateManifestUrl = "https://github.com/kadevin/ilab-gpt-conjure/releases/latest/download/latest.json"
+$RepoSlug = "kadevin/ilab-conjure"
+$LatestUpdateManifestUrl = "https://github.com/kadevin/ilab-conjure/releases/latest/download/latest.json"
 $PlatformKey = "windows-x86_64"
 $AssetPattern = "^ilab-gpt-conjure_windows_portable_x64_.+\.zip$"
 $BundleDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -136,7 +136,7 @@ function Write-PostUpdateOnboardingNotice {
       return
     }
     $NormalizedFrom = ConvertTo-VersionString -Value $FromVersion
-    $ReleaseUrl = "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v$NormalizedTo"
+    $ReleaseUrl = "https://github.com/kadevin/ilab-conjure/releases/tag/v$NormalizedTo"
     $Payload = [ordered]@{
       kind = "portable_standard_app_transition"
       to_version = $NormalizedTo
@@ -216,7 +216,7 @@ function Restore-Backup {
 }
 
 try {
-  Write-Host "iLab GPT Conjure portable updater"
+  Write-Host "iLab CONJURE portable updater"
   Write-Host "Bundle: $BundleDir"
   Write-Host "Data:   $DataDir"
 

@@ -230,7 +230,7 @@ write_macos_app_plist() {
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>${APP_LAUNCHER_NAME}</string>
+  <string>iLab CONJURE</string>
   <key>CFBundleExecutable</key>
   <string>ilab-conjure-launcher</string>
   <key>CFBundleIconFile</key>
@@ -240,7 +240,7 @@ write_macos_app_plist() {
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>iLab GPT CONJURE</string>
+  <string>iLab CONJURE</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

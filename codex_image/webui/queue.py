@@ -12,6 +12,8 @@ class QueueChannel:
     channel_id: str
     auth_source: str
     account_id: str | None = None
+    provider_id: str | None = None
+    slot_index: int = 0
 
 
 TaskExecutor = Callable[[str, QueueChannel, bool], Awaitable[None]]
@@ -31,6 +33,7 @@ class QueueManager:
     max_attempts: int = 2
     channel_available: ChannelAvailability | None = None
     claim_task: TaskClaim | None = None
+    task_channel_matches: TaskClaim | None = None
     auto_retry: bool = True
     attempts: dict[str, int] = field(default_factory=dict)
     failed_channels: dict[str, set[str]] = field(default_factory=dict)
@@ -83,7 +86,8 @@ class QueueManager:
                     continue
                 self.queue_storage.remove_waiting(task_id)
                 return task_id
-            if len(blocked) >= self._available_channel_count():
+            matching_ids = self._matching_available_channel_ids(task_id)
+            if matching_ids and matching_ids.issubset(blocked):
                 self.failed_channels[task_id] = set()
                 if not self._claim_task(task_id, channel):
                     continue
@@ -103,6 +107,17 @@ class QueueManager:
 
     def _available_channel_count(self) -> int:
         return max(1, sum(1 for channel in self.channels if self._channel_can_take_work(channel)))
+
+    def _matching_available_channel_ids(self, task_id: str) -> set[str]:
+        return {
+            channel.channel_id
+            for channel in self.channels
+            if self._channel_can_take_work(channel)
+            and (
+                self.task_channel_matches is None
+                or self.task_channel_matches(task_id, channel)
+            )
+        }
 
     async def _run_task(self, task_id: str, channel: QueueChannel) -> None:
         self.attempts[task_id] = self.attempts.get(task_id, 0) + 1

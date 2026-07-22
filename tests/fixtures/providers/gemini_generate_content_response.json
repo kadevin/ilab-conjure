@@ -1,0 +1,47 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "thought": true,
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "dGhvdWdodC1pbWFnZQ=="
+            }
+          },
+          {
+            "text": "Here is the finished image."
+          },
+          {
+            "inlineData": {
+              "mimeType": "image/png",
+              "data": "ZmluYWwtaW1hZ2U="
+            }
+          }
+        ]
+      },
+      "groundingMetadata": {
+        "searchEntryPoint": {
+          "renderedContent": "<div class=\"search-suggestion\">Rabbit references</div>"
+        },
+        "groundingChunks": [
+          {
+            "image": {
+              "uri": "https://example.com/rabbits",
+              "imageUri": "https://images.example.com/rabbit.png",
+              "title": "Rabbit reference"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 12,
+    "candidatesTokenCount": 34,
+    "totalTokenCount": 46
+  },
+  "modelVersion": "gemini-3.1-flash-image"
+}

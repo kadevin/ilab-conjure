@@ -18,6 +18,7 @@ import {
 } from "./api-mode-settings";
 import {
   activeApiProvider,
+  addProviderBinding,
   addApiProvider,
   apiModeLabel,
   backendForAuthSource,
@@ -34,10 +35,12 @@ import {
   deleteApiProvider,
   editApiProvider,
   hideApiKeyReveal,
+  handleProviderBindingEditorChange,
   mergeApiProviderKeys,
   normalizeApiImagesConcurrency,
   normalizeApiProvider,
   normalizeApiSettings,
+  openGenerationProviderSettings,
   openApiSettingsModal,
   persistApiSettings,
   populateApiSettingsForm,
@@ -60,6 +63,7 @@ import {
   taskBackendLabel,
   taskBackendValue,
   moveApiProvider,
+  removeProviderBinding,
   toggleApiProviderSortMode,
   updateApiKeyRevealButton,
   updateApiRequestEndpointPreview,
@@ -73,9 +77,7 @@ export function initApiSettingsFeature(): void {
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
     const bridge = getLegacyBridge();
     renderAuthSource(bridge.state.authStatus);
-    if (!bridge.els.systemSettingsModal?.classList.contains("hidden") && (
-      !bridge.els.systemSettingsApiPanel?.hidden || !bridge.els.systemSettingsCodexPanel?.hidden
-    )) {
+    if (!bridge.els.systemSettingsModal?.classList.contains("hidden") && !bridge.els.systemSettingsApiPanel?.hidden) {
       setApiSettingsFeedback("", "");
     }
   });
@@ -96,6 +98,7 @@ export function initApiSettingsFeature(): void {
     normalizeApiImagesConcurrency,
     normalizeApiSettings,
     activeApiProvider,
+    addProviderBinding,
     restoreApiSettings,
     persistApiSettings,
     mergeApiProviderKeys,
@@ -111,6 +114,7 @@ export function initApiSettingsFeature(): void {
     deleteApiProvider,
     editApiProvider,
     hideApiKeyReveal,
+    handleProviderBindingEditorChange,
     cancelApiProviderEdit,
     saveApiProviderEdit,
     selectApiProvider,
@@ -122,7 +126,9 @@ export function initApiSettingsFeature(): void {
     renderApiProviderList,
     syncCodexModeNotes,
     moveApiProvider,
+    removeProviderBinding,
     toggleApiProviderSortMode,
+    openGenerationProviderSettings,
     openApiSettingsModal,
     closeApiSettingsModal,
     currentApiImageModel,

@@ -59,11 +59,15 @@
     });
     els43.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
     els43.authSourceGroup?.addEventListener("click", (event) => call(methods, "handleAuthSourceClick", event));
-    els43.apiSourceSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
     els43.apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
-    els43.codexModeNotes?.forEach?.((note) => {
-      note.addEventListener("click", () => call(methods, "selectCodexMode", note.dataset.codexModeNote));
+    els43.modelFamilyOptions?.addEventListener("click", (event) => {
+      const item = event.target?.closest?.("[data-family-id]");
+      if (item?.dataset.familyId) call(methods, "selectModelFamily", item.dataset.familyId);
     });
+    els43.modelFamilyOptions?.addEventListener("keydown", (event) => call(methods, "handleModelFamilyOptionsKeydown", event));
+    els43.concreteModelSelect?.addEventListener("change", () => call(methods, "selectConcreteModel", els43.concreteModelSelect.value));
+    els43.generationProviderSelect?.addEventListener("change", () => call(methods, "selectGenerationProvider", els43.generationProviderSelect.value));
+    els43.generationProviderSettingsButton?.addEventListener("click", () => call(methods, "openGenerationProviderSettings"));
     els43.apiProviderQuick?.addEventListener("change", () => {
       call(methods, "selectApiProvider", els43.apiProviderQuick?.value || call(methods, "currentApiProviderId"));
     });
@@ -88,6 +92,12 @@
     els43.deleteApiProviderButton?.addEventListener("click", () => call(methods, "confirmDeleteApiProvider", els43.deleteApiProviderButton));
     els43.cancelApiProviderEditButton?.addEventListener("click", () => call(methods, "cancelApiProviderEdit"));
     els43.saveApiProviderEditButton?.addEventListener("click", () => call(methods, "saveApiProviderEdit"));
+    els43.addProviderBindingButton?.addEventListener("click", () => call(methods, "addProviderBinding"));
+    els43.apiProviderBindings?.addEventListener("click", (event) => {
+      const button = event.target?.closest?.("[data-remove-provider-binding]");
+      if (button?.dataset.removeProviderBinding) call(methods, "removeProviderBinding", button.dataset.removeProviderBinding);
+    });
+    els43.apiProviderBindings?.addEventListener("change", (event) => call(methods, "handleProviderBindingEditorChange", event));
     els43.apiKeyRevealButton?.addEventListener("pointerdown", (event) => call(methods, "revealApiKeyWhilePressed", event));
     els43.apiKeyRevealButton?.addEventListener("pointerup", () => call(methods, "hideApiKeyReveal"));
     els43.apiKeyRevealButton?.addEventListener("pointercancel", () => call(methods, "hideApiKeyReveal"));
@@ -99,19 +109,6 @@
     els43.apiKeyRevealButton?.addEventListener("keyup", () => call(methods, "hideApiKeyReveal"));
     els43.apiKey?.addEventListener("input", () => call(methods, "updateApiKeyRevealButton"));
     els43.apiBaseUrl?.addEventListener("input", () => call(methods, "updateApiRequestEndpointPreview"));
-    els43.apiMode?.addEventListener("change", () => call(methods, "updateApiRequestEndpointPreview"));
-    [els43.codexMode].filter(Boolean).forEach((element2) => {
-      element2?.addEventListener("input", () => {
-        call(methods, "readApiSettingsForm");
-        call(methods, "persistApiSettings");
-        call(methods, "renderAuthSource", state32.authStatus);
-        call(methods, "updateModeSpecificSettings");
-        call(methods, "updateRequestPreview");
-        call(methods, "syncCodexModeNotes");
-        call(methods, "queueApiSettingsAutosave");
-      });
-      element2?.addEventListener("change", () => call(methods, "syncCodexModeNotes"));
-    });
     call(methods, "bindOverlayPopoverEvents");
     els43.runButton.addEventListener("click", () => call(methods, "runTask"));
     document.addEventListener("keydown", (event) => handleRunTaskShortcut(event, els43, methods));
@@ -131,6 +128,7 @@
     call2(methods, "restoreSidebarWidth");
     call2(methods, "restoreMainModel");
     call2(methods, "restoreApiSettings");
+    call2(methods, "restoreModelSelection");
     call2(methods, "syncReferenceFileAvailability");
     call2(methods, "refreshColorPalette");
     call2(methods, "refreshPromptSnippets");
@@ -151,6 +149,7 @@
     call2(methods, "refreshSettings");
     call2(methods, "refreshApiSettings");
     call2(methods, "refreshHealth");
+    void call2(methods, "refreshGenerationCatalog");
     call2(methods, "refreshGallery");
     call2(methods, "refreshRecentAssets");
     const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });
@@ -173,7 +172,12 @@
       sidebarResizeShield: document.querySelector("#sidebarResizeShield"),
       authSourceGroup: document.querySelector("#authSourceGroup"),
       authSourceDetail: document.querySelector("#authSourceDetail"),
-      apiSourceSettingsButton: document.querySelector("#apiSourceSettingsButton"),
+      apiSourceSettingsButton: document.querySelector("#generationProviderSettingsButton"),
+      modelFamilyOptions: document.querySelector("#modelFamilyOptions"),
+      concreteModelSelect: document.querySelector("#concreteModelSelect"),
+      concreteModelOptions: document.querySelector("#concreteModelOptions"),
+      generationProviderSelect: document.querySelector("#generationProviderSelect"),
+      generationProviderSettingsButton: document.querySelector("#generationProviderSettingsButton"),
       githubLink: document.querySelector("#githubLink"),
       apiStatus: document.querySelector("#apiStatus"),
       versionInfo: document.querySelector("#versionInfo"),
@@ -236,11 +240,9 @@
       systemSettingsModalClose: document.querySelector("#systemSettingsModalClose"),
       systemSettingsTabs: document.querySelector("#systemSettingsTabs"),
       systemSettingsApiTab: document.querySelector("#systemSettingsApiTab"),
-      systemSettingsCodexTab: document.querySelector("#systemSettingsCodexTab"),
       systemSettingsLanguageTab: document.querySelector("#systemSettingsLanguageTab"),
       systemSettingsStorageTab: document.querySelector("#systemSettingsStorageTab"),
       systemSettingsApiPanel: document.querySelector("#systemSettingsApiPanel"),
-      systemSettingsCodexPanel: document.querySelector("#systemSettingsCodexPanel"),
       systemSettingsLanguagePanel: document.querySelector("#systemSettingsLanguagePanel"),
       systemSettingsStoragePanel: document.querySelector("#systemSettingsStoragePanel"),
       languageSettingsStatus: document.querySelector("#languageSettingsStatus"),
@@ -252,11 +254,7 @@
       saveSettingsButton: document.querySelector("#saveSettingsButton"),
       apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
       apiSettingsActions: document.querySelector("#apiSettingsActions"),
-      codexSettingsStatus: document.querySelector("#codexSettingsStatus"),
       apiProviderQuick: document.querySelector("#apiProviderQuick"),
-      codexMode: document.querySelector("#codexMode"),
-      codexModeGroup: document.querySelector("#codexModeGroup"),
-      codexModeNotes: document.querySelectorAll("[data-codex-mode-note]"),
       apiProvider: document.querySelector("#apiProvider"),
       apiProviderSection: document.querySelector("#apiProviderSection"),
       apiProviderCount: document.querySelector("#apiProviderCount"),
@@ -270,6 +268,7 @@
       apiProviderEditor: document.querySelector("#apiProviderEditor"),
       apiProviderEditorTitle: document.querySelector("#apiProviderEditorTitle"),
       apiProviderName: document.querySelector("#apiProviderName"),
+      apiProviderIconEmoji: document.querySelector("#apiProviderIconEmoji"),
       editApiProviderButton: document.querySelector("#editApiProviderButton"),
       copyApiProviderButton: document.querySelector("#copyApiProviderButton"),
       addApiProviderButton: document.querySelector("#addApiProviderButton"),
@@ -281,9 +280,9 @@
       apiRequestEndpointPreview: document.querySelector("#apiRequestEndpointPreview"),
       apiKey: document.querySelector("#apiKey"),
       apiKeyRevealButton: document.querySelector("#apiKeyRevealButton"),
-      apiMode: document.querySelector("#apiMode"),
-      apiImageModel: document.querySelector("#apiImageModel"),
       apiImagesConcurrency: document.querySelector("#apiImagesConcurrency"),
+      apiProviderBindings: document.querySelector("#apiProviderBindings"),
+      addProviderBindingButton: document.querySelector("#addProviderBindingButton"),
       newTaskButton: document.querySelector("#newTaskButton"),
       imageInput: document.querySelector("#imageInput"),
       referenceFileSelection: document.querySelector("#referenceFileSelection"),
@@ -387,6 +386,12 @@
       outputSettingsSummaryContent: document.querySelector("#outputSettingsSummaryContent"),
       outputSettingsTaskAction: document.querySelector("#outputSettingsTaskAction"),
       adoptTaskOutputSettingsButton: document.querySelector("#adoptTaskOutputSettingsButton"),
+      outputSettingsStage: document.querySelector("#outputSettingsStage"),
+      modelParameterGrid: document.querySelector("#modelParameterGrid"),
+      taskParameterInspector: document.querySelector("#taskParameterInspector"),
+      taskParameterInspectorHeader: document.querySelector("#taskParameterInspectorHeader"),
+      taskParameterInspectorGrid: document.querySelector("#taskParameterInspectorGrid"),
+      taskParameterInspectorUnknown: document.querySelector("#taskParameterInspectorUnknown"),
       modeSpecificSettings: document.querySelector("#modeSpecificSettings"),
       mainModelField: document.querySelector("#mainModelField"),
       mainModelCombobox: document.querySelector("#mainModelCombobox"),
@@ -600,7 +605,7 @@
     "footer.archiveCount": "Archive {count}",
     "footer.historyLibrary": "History",
     "historyLibrary.openFull": "Open full history library",
-    "history.documentTitle": "History - iLab GPT CONJURE",
+    "history.documentTitle": "History - iLab CONJURE",
     "history.back": "Back to generator",
     "history.title": "History",
     "history.loading": "Loading",
@@ -944,6 +949,7 @@
     "output.lock.lockedHint": "Parameters are fixed. Use the lock icon at the top right to edit.",
     "output.lock.enabled": "On",
     "output.lock.disabled": "Off",
+    "output.lock.custom": "Custom",
     "output.mainModel": "Main model",
     "output.selectMainModel": "Select main model",
     "output.mainModelCustomForInput": "Use a custom model for the current input",
@@ -967,6 +973,7 @@
     "output.promptHelp.images.original": "Adds no app-level prompt rules and submits your original text directly to the image endpoint.",
     "output.promptHelp.images.strict": "Submits fidelity rules together with the original prompt to emphasize every hard constraint.",
     "output.promptHelp.images.automatic": "Uses the image endpoint's default handling; required gallery-reference notes are still included.",
+    "output.size": "Output size",
     "output.sizeMode": "Size mode",
     "output.sizePreset": "Preset",
     "output.sizeCustom": "Custom",
@@ -1273,6 +1280,20 @@
     "apiSettings.providerCount": "{count} providers",
     "apiSettings.provider": "Provider",
     "apiSettings.providerName": "Provider name",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Optional, e.g. \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Connection preview",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "Add ratio prompt",
+    "apiSettings.defaultProviderForModel": "Default provider",
+    "apiSettings.removeBinding": "Remove binding",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Actual request",
     "apiSettings.newProviderAction": "New provider",
     "apiSettings.copyProvider": "Copy",
@@ -1453,7 +1474,41 @@
     "referenceFiles.historyPathMismatch": "These reference files use different Responses paths",
     "history.referenceFiles": "Reference files",
     "history.downloadReferenceFile": "Download file",
-    "history.readdReferenceFile": "Add again"
+    "history.readdReferenceFile": "Add again",
+    "modelSelection.family": "Model family",
+    "modelSelection.concreteModel": "Model",
+    "modelSelection.provider": "Provider",
+    "modelSelection.providerUnavailable": "No provider is available for this model",
+    "modelSelection.openSettings": "Open provider settings",
+    "modelSelection.codexUnavailable": "Codex sign-in is unavailable",
+    "modelSelection.catalogUnavailable": "Model catalog is unavailable",
+    "output.background": "Background",
+    "canvas.aspectRatio": "Aspect ratio",
+    "canvas.resolution": "Resolution",
+    "gemini.googleSearch": "Google Search",
+    "gemini.googleImageSearch": "Google Image Search",
+    "output.modalities": "Output modalities",
+    "gemini.safetySettings": "Safety settings",
+    "gemini.safety.harassment": "Harassment",
+    "gemini.safety.hateSpeech": "Hate speech",
+    "gemini.safety.sexuallyExplicit": "Sexually explicit",
+    "gemini.safety.dangerousContent": "Dangerous content",
+    "gemini.safety.threshold.unspecified": "Default",
+    "gemini.safety.threshold.off": "Filter off",
+    "gemini.safety.threshold.blockNone": "Block none",
+    "gemini.safety.threshold.blockOnlyHigh": "Block high",
+    "gemini.safety.threshold.blockMediumAndAbove": "Block medium+",
+    "gemini.safety.threshold.blockLowAndAbove": "Block all",
+    "grounding.title": "Google Search sources",
+    "grounding.searchSuggestions": "Google Search suggestions",
+    "grounding.sourceCount": "{count} sources",
+    "grounding.source": "Source {index}",
+    "modelParameters.invalidValue": "Invalid parameter value",
+    "modelParameters.objectRequired": "Enter a JSON object",
+    "modelParameters.invalidJson": "Invalid JSON",
+    "modelParameters.migrated": "Adjusted {count} legacy parameter(s) for the current model",
+    "modelParameters.historyConfiguration": "Historical configuration",
+    "modelParameters.legacyTask": "Legacy task"
   };
 
   // codex_image/webui/frontend/src/i18n/de.ts
@@ -1581,7 +1636,7 @@
     "footer.archiveCount": "Archiv {count}",
     "footer.historyLibrary": "Geschichte",
     "historyLibrary.openFull": "\xD6ffnen Sie die vollst\xE4ndige Geschichtsbibliothek",
-    "history.documentTitle": "Geschichte \u2013 iLab GPT CONJURE",
+    "history.documentTitle": "Geschichte \u2013 iLab CONJURE",
     "history.back": "Zur\xFCck zum Generator",
     "history.title": "Geschichte",
     "history.loading": "Laden",
@@ -1915,6 +1970,7 @@
     "output.lock.lockedHint": "Die Parameter sind fixiert. Zum Bearbeiten das Schloss oben rechts verwenden.",
     "output.lock.enabled": "Ein",
     "output.lock.disabled": "Aus",
+    "output.lock.custom": "Benutzerdefiniert",
     "output.mainModel": "Hauptmodell",
     "output.selectMainModel": "Hauptmodell ausw\xE4hlen",
     "output.mainModelCustomForInput": "Verwenden Sie ein benutzerdefiniertes Modell f\xFCr die aktuelle Eingabe",
@@ -1938,6 +1994,7 @@
     "output.promptHelp.images.original": "F\xFCgt keine App-Regeln hinzu und sendet den Originaltext direkt an die Bild-API.",
     "output.promptHelp.images.strict": "Sendet Treueregeln zusammen mit dem Originalprompt, um alle festen Vorgaben zu erhalten.",
     "output.promptHelp.images.automatic": "Verwendet die Standardverarbeitung der Bild-API; notwendige Galeriehinweise werden weiterhin mitgesendet.",
+    "output.size": "Ausgabegr\xF6\xDFe",
     "output.sizeMode": "Gr\xF6\xDFenmodus",
     "output.sizePreset": "Voreingestellt",
     "output.sizeCustom": "Benutzerdefiniert",
@@ -2244,6 +2301,20 @@
     "apiSettings.providerCount": "{count} Anbieter",
     "apiSettings.provider": "Anbieter",
     "apiSettings.providerName": "Anbietername",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Optional, z. B. \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Verbindungsvorschau",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "Seitenverh\xE4ltnis erg\xE4nzen",
+    "apiSettings.defaultProviderForModel": "Standardanbieter",
+    "apiSettings.removeBinding": "Bindung entfernen",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Tats\xE4chliche Anfrage",
     "apiSettings.newProviderAction": "Neuer Anbieter",
     "apiSettings.copyProvider": "Kopieren",
@@ -2424,7 +2495,41 @@
     "referenceFiles.historyPathMismatch": "Diese Dateien verwenden unterschiedliche Responses-Pfade",
     "history.referenceFiles": "Referenzdateien",
     "history.downloadReferenceFile": "Datei herunterladen",
-    "history.readdReferenceFile": "Erneut hinzuf\xFCgen"
+    "history.readdReferenceFile": "Erneut hinzuf\xFCgen",
+    "modelSelection.family": "Modellfamilie",
+    "modelSelection.concreteModel": "Modell",
+    "modelSelection.provider": "Anbieter",
+    "modelSelection.providerUnavailable": "F\xFCr dieses Modell ist kein Anbieter verf\xFCgbar",
+    "modelSelection.openSettings": "Anbietereinstellungen \xF6ffnen",
+    "modelSelection.codexUnavailable": "Die Codex-Anmeldung ist nicht verf\xFCgbar",
+    "modelSelection.catalogUnavailable": "Der Modellkatalog ist nicht verf\xFCgbar",
+    "output.background": "Hintergrund",
+    "canvas.aspectRatio": "Seitenverh\xE4ltnis",
+    "canvas.resolution": "Aufl\xF6sung",
+    "gemini.googleSearch": "Google-Suche",
+    "gemini.googleImageSearch": "Google-Bildersuche",
+    "output.modalities": "Ausgabemodalit\xE4ten",
+    "gemini.safetySettings": "Sicherheitseinstellungen",
+    "gemini.safety.harassment": "Bel\xE4stigung",
+    "gemini.safety.hateSpeech": "Hassrede",
+    "gemini.safety.sexuallyExplicit": "Sexuell explizit",
+    "gemini.safety.dangerousContent": "Gef\xE4hrliche Inhalte",
+    "gemini.safety.threshold.unspecified": "Standard",
+    "gemini.safety.threshold.off": "Filter aus",
+    "gemini.safety.threshold.blockNone": "Nichts blockieren",
+    "gemini.safety.threshold.blockOnlyHigh": "Hohes Risiko",
+    "gemini.safety.threshold.blockMediumAndAbove": "Mittleres+ Risiko",
+    "gemini.safety.threshold.blockLowAndAbove": "Alles blockieren",
+    "grounding.title": "Google-Suchquellen",
+    "grounding.searchSuggestions": "Google-Suchvorschl\xE4ge",
+    "grounding.sourceCount": "{count} Quellen",
+    "grounding.source": "Quelle {index}",
+    "modelParameters.invalidValue": "Ung\xFCltiger Parameterwert",
+    "modelParameters.objectRequired": "JSON-Objekt eingeben",
+    "modelParameters.invalidJson": "Ung\xFCltiges JSON",
+    "modelParameters.migrated": "{count} \xE4ltere Parameter wurden an das aktuelle Modell angepasst",
+    "modelParameters.historyConfiguration": "Historische Konfiguration",
+    "modelParameters.legacyTask": "Alte Aufgabe"
   };
 
   // codex_image/webui/frontend/src/i18n/es.ts
@@ -2552,7 +2657,7 @@
     "footer.archiveCount": "Archivo {count}",
     "footer.historyLibrary": "Historia",
     "historyLibrary.openFull": "Abrir biblioteca de historia completa",
-    "history.documentTitle": "Historia - iLab GPT CONJURE",
+    "history.documentTitle": "Historia - iLab CONJURE",
     "history.back": "Volver al generador",
     "history.title": "Historia",
     "history.loading": "Cargando",
@@ -2886,6 +2991,7 @@
     "output.lock.lockedHint": "Los par\xE1metros est\xE1n fijados. Usa el candado superior para editar.",
     "output.lock.enabled": "Activada",
     "output.lock.disabled": "Desactivada",
+    "output.lock.custom": "Personalizado",
     "output.mainModel": "modelo principal",
     "output.selectMainModel": "Seleccionar modelo principal",
     "output.mainModelCustomForInput": "Utilice un modelo personalizado para la entrada actual",
@@ -2909,6 +3015,7 @@
     "output.promptHelp.images.original": "No a\xF1ade reglas de la aplicaci\xF3n y env\xEDa el texto original directamente a la API de im\xE1genes.",
     "output.promptHelp.images.strict": "Env\xEDa reglas de fidelidad junto al prompt original para preservar todas las restricciones.",
     "output.promptHelp.images.automatic": "Usa el tratamiento predeterminado de la API de im\xE1genes e incluye las notas necesarias de referencias de la galer\xEDa.",
+    "output.size": "Tama\xF1o de salida",
     "output.sizeMode": "Modo de tama\xF1o",
     "output.sizePreset": "Preestablecido",
     "output.sizeCustom": "personalizado",
@@ -3215,6 +3322,20 @@
     "apiSettings.providerCount": "{count} proveedores",
     "apiSettings.provider": "Proveedor",
     "apiSettings.providerName": "Nombre del proveedor",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Opcional, p. ej. \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Vista previa de conexi\xF3n",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "A\xF1adir instrucci\xF3n de proporci\xF3n",
+    "apiSettings.defaultProviderForModel": "Proveedor predeterminado",
+    "apiSettings.removeBinding": "Eliminar v\xEDnculo",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Solicitud real",
     "apiSettings.newProviderAction": "Nuevo proveedor",
     "apiSettings.copyProvider": "Copiar",
@@ -3395,7 +3516,41 @@
     "referenceFiles.historyPathMismatch": "Estos archivos usan rutas de Responses distintas",
     "history.referenceFiles": "Archivos de referencia",
     "history.downloadReferenceFile": "Descargar archivo",
-    "history.readdReferenceFile": "A\xF1adir de nuevo"
+    "history.readdReferenceFile": "A\xF1adir de nuevo",
+    "modelSelection.family": "Familia de modelos",
+    "modelSelection.concreteModel": "Modelo",
+    "modelSelection.provider": "Proveedor",
+    "modelSelection.providerUnavailable": "No hay un proveedor disponible para este modelo",
+    "modelSelection.openSettings": "Abrir ajustes de proveedores",
+    "modelSelection.codexUnavailable": "El inicio de sesi\xF3n de Codex no est\xE1 disponible",
+    "modelSelection.catalogUnavailable": "El cat\xE1logo de modelos no est\xE1 disponible",
+    "output.background": "Fondo",
+    "canvas.aspectRatio": "Relaci\xF3n de aspecto",
+    "canvas.resolution": "Resoluci\xF3n",
+    "gemini.googleSearch": "B\xFAsqueda de Google",
+    "gemini.googleImageSearch": "B\xFAsqueda de im\xE1genes de Google",
+    "output.modalities": "Modalidades de salida",
+    "gemini.safetySettings": "Ajustes de seguridad",
+    "gemini.safety.harassment": "Acoso",
+    "gemini.safety.hateSpeech": "Discurso de odio",
+    "gemini.safety.sexuallyExplicit": "Contenido sexual expl\xEDcito",
+    "gemini.safety.dangerousContent": "Contenido peligroso",
+    "gemini.safety.threshold.unspecified": "Predeterminado",
+    "gemini.safety.threshold.off": "Filtro desactivado",
+    "gemini.safety.threshold.blockNone": "No bloquear",
+    "gemini.safety.threshold.blockOnlyHigh": "Bloquear alto",
+    "gemini.safety.threshold.blockMediumAndAbove": "Bloquear medio+",
+    "gemini.safety.threshold.blockLowAndAbove": "Bloquear todo",
+    "grounding.title": "Fuentes de Google Search",
+    "grounding.searchSuggestions": "Sugerencias de Google Search",
+    "grounding.sourceCount": "{count} fuentes",
+    "grounding.source": "Fuente {index}",
+    "modelParameters.invalidValue": "Valor de par\xE1metro no v\xE1lido",
+    "modelParameters.objectRequired": "Introduce un objeto JSON",
+    "modelParameters.invalidJson": "JSON no v\xE1lido",
+    "modelParameters.migrated": "Se ajustaron {count} par\xE1metros anteriores al modelo actual",
+    "modelParameters.historyConfiguration": "Configuraci\xF3n hist\xF3rica",
+    "modelParameters.legacyTask": "Tarea antigua"
   };
 
   // codex_image/webui/frontend/src/i18n/fr.ts
@@ -3523,7 +3678,7 @@
     "footer.archiveCount": "Archiver {count}",
     "footer.historyLibrary": "Histoire",
     "historyLibrary.openFull": "Ouvrir la biblioth\xE8que d'historique compl\xE8te",
-    "history.documentTitle": "Histoire - iLab GPT CONJURE",
+    "history.documentTitle": "Histoire - iLab CONJURE",
     "history.back": "Retour au g\xE9n\xE9rateur",
     "history.title": "Histoire",
     "history.loading": "Chargement",
@@ -3857,6 +4012,7 @@
     "output.lock.lockedHint": "Les param\xE8tres sont fix\xE9s. Utilisez le cadenas en haut \xE0 droite pour les modifier.",
     "output.lock.enabled": "Activ\xE9e",
     "output.lock.disabled": "D\xE9sactiv\xE9e",
+    "output.lock.custom": "Personnalis\xE9",
     "output.mainModel": "Mod\xE8le principal",
     "output.selectMainModel": "S\xE9lectionnez le mod\xE8le principal",
     "output.mainModelCustomForInput": "Utiliser un mod\xE8le personnalis\xE9 pour l'entr\xE9e actuelle",
@@ -3880,6 +4036,7 @@
     "output.promptHelp.images.original": "N\u2019ajoute aucune r\xE8gle applicative et envoie le texte original directement \xE0 l\u2019API d\u2019images.",
     "output.promptHelp.images.strict": "Envoie les r\xE8gles de fid\xE9lit\xE9 avec le prompt original afin de pr\xE9server toutes les contraintes.",
     "output.promptHelp.images.automatic": "Utilise le traitement par d\xE9faut de l\u2019API d\u2019images et conserve les notes n\xE9cessaires pour les r\xE9f\xE9rences de galerie.",
+    "output.size": "Taille de sortie",
     "output.sizeMode": "Mode taille",
     "output.sizePreset": "Pr\xE9r\xE9glage",
     "output.sizeCustom": "Personnalis\xE9",
@@ -4186,6 +4343,20 @@
     "apiSettings.providerCount": "Fournisseurs {count}",
     "apiSettings.provider": "Fournisseur",
     "apiSettings.providerName": "Nom du fournisseur",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Facultatif, ex. \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Aper\xE7u de la connexion",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "Ajouter l\u2019instruction de format",
+    "apiSettings.defaultProviderForModel": "Fournisseur par d\xE9faut",
+    "apiSettings.removeBinding": "Supprimer la liaison",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Requ\xEAte effective",
     "apiSettings.newProviderAction": "Nouveau fournisseur",
     "apiSettings.copyProvider": "Copier",
@@ -4366,7 +4537,41 @@
     "referenceFiles.historyPathMismatch": "Ces fichiers utilisent des chemins Responses diff\xE9rents",
     "history.referenceFiles": "Fichiers de r\xE9f\xE9rence",
     "history.downloadReferenceFile": "T\xE9l\xE9charger le fichier",
-    "history.readdReferenceFile": "Ajouter \xE0 nouveau"
+    "history.readdReferenceFile": "Ajouter \xE0 nouveau",
+    "modelSelection.family": "Famille de mod\xE8les",
+    "modelSelection.concreteModel": "Mod\xE8le",
+    "modelSelection.provider": "Fournisseur",
+    "modelSelection.providerUnavailable": "Aucun fournisseur n\u2019est disponible pour ce mod\xE8le",
+    "modelSelection.openSettings": "Ouvrir les r\xE9glages des fournisseurs",
+    "modelSelection.codexUnavailable": "La connexion Codex n\u2019est pas disponible",
+    "modelSelection.catalogUnavailable": "Le catalogue de mod\xE8les n\u2019est pas disponible",
+    "output.background": "Arri\xE8re-plan",
+    "canvas.aspectRatio": "Format d\u2019image",
+    "canvas.resolution": "R\xE9solution",
+    "gemini.googleSearch": "Recherche Google",
+    "gemini.googleImageSearch": "Recherche d\u2019images Google",
+    "output.modalities": "Modalit\xE9s de sortie",
+    "gemini.safetySettings": "Param\xE8tres de s\xE9curit\xE9",
+    "gemini.safety.harassment": "Harc\xE8lement",
+    "gemini.safety.hateSpeech": "Discours haineux",
+    "gemini.safety.sexuallyExplicit": "Contenu sexuellement explicite",
+    "gemini.safety.dangerousContent": "Contenu dangereux",
+    "gemini.safety.threshold.unspecified": "Par d\xE9faut",
+    "gemini.safety.threshold.off": "Filtre d\xE9sactiv\xE9",
+    "gemini.safety.threshold.blockNone": "Ne rien bloquer",
+    "gemini.safety.threshold.blockOnlyHigh": "Bloquer \xE9lev\xE9",
+    "gemini.safety.threshold.blockMediumAndAbove": "Bloquer moyen+",
+    "gemini.safety.threshold.blockLowAndAbove": "Tout bloquer",
+    "grounding.title": "Sources de recherche Google",
+    "grounding.searchSuggestions": "Suggestions de recherche Google",
+    "grounding.sourceCount": "{count} sources",
+    "grounding.source": "Source {index}",
+    "modelParameters.invalidValue": "Valeur de param\xE8tre invalide",
+    "modelParameters.objectRequired": "Saisissez un objet JSON",
+    "modelParameters.invalidJson": "JSON invalide",
+    "modelParameters.migrated": "{count} anciens param\xE8tres ont \xE9t\xE9 adapt\xE9s au mod\xE8le actuel",
+    "modelParameters.historyConfiguration": "Configuration historique",
+    "modelParameters.legacyTask": "Ancienne t\xE2che"
   };
 
   // codex_image/webui/frontend/src/i18n/ja.ts
@@ -4494,7 +4699,7 @@
     "footer.archiveCount": "\u30A2\u30FC\u30AB\u30A4\u30D6 {count}",
     "footer.historyLibrary": "\u5C65\u6B74",
     "historyLibrary.openFull": "\u5C65\u6B74\u30E9\u30A4\u30D6\u30E9\u30EA\u5168\u4F53\u3092\u958B\u304F",
-    "history.documentTitle": "\u5C65\u6B74 - iLab GPT CONJURE",
+    "history.documentTitle": "\u5C65\u6B74 - iLab CONJURE",
     "history.back": "\u30B8\u30A7\u30CD\u30EC\u30FC\u30BF\u30FC\u306B\u623B\u308B",
     "history.title": "\u5C65\u6B74",
     "history.loading": "\u8AAD\u307F\u8FBC\u307F\u4E2D",
@@ -4828,6 +5033,7 @@
     "output.lock.lockedHint": "\u8A2D\u5B9A\u306F\u56FA\u5B9A\u3055\u308C\u3066\u3044\u307E\u3059\u3002\u53F3\u4E0A\u306E\u9375\u30A2\u30A4\u30B3\u30F3\u3067\u7DE8\u96C6\u306B\u623B\u308C\u307E\u3059\u3002",
     "output.lock.enabled": "\u30AA\u30F3",
     "output.lock.disabled": "\u30AA\u30D5",
+    "output.lock.custom": "\u30AB\u30B9\u30BF\u30E0",
     "output.mainModel": "\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB",
     "output.selectMainModel": "\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB\u3092\u9078\u629E",
     "output.mainModelCustomForInput": "\u73FE\u5728\u306E\u5165\u529B\u306B\u30AB\u30B9\u30BF\u30E0 \u30E2\u30C7\u30EB\u3092\u4F7F\u7528\u3057\u307E\u3059",
@@ -4851,6 +5057,7 @@
     "output.promptHelp.images.original": "\u30A2\u30D7\u30EA\u5074\u306E\u30EB\u30FC\u30EB\u3092\u8FFD\u52A0\u305B\u305A\u3001\u539F\u6587\u3092\u753B\u50CF API \u306B\u76F4\u63A5\u9001\u4FE1\u3057\u307E\u3059\u3002",
     "output.promptHelp.images.strict": "\u539F\u6587\u3068\u4FDD\u771F\u30EB\u30FC\u30EB\u3092\u4E00\u7DD2\u306B\u9001\u4FE1\u3057\u3001\u3059\u3079\u3066\u306E\u5FC5\u9808\u6761\u4EF6\u306E\u4FDD\u6301\u3092\u5F37\u8ABF\u3057\u307E\u3059\u3002",
     "output.promptHelp.images.automatic": "\u753B\u50CF API \u306E\u65E2\u5B9A\u51E6\u7406\u3067\u9001\u4FE1\u3057\u3001\u30AE\u30E3\u30E9\u30EA\u30FC\u53C2\u7167\u306A\u3069\u5FC5\u8981\u306A\u8AAC\u660E\u306F\u542B\u3081\u307E\u3059\u3002",
+    "output.size": "\u51FA\u529B\u30B5\u30A4\u30BA",
     "output.sizeMode": "\u30B5\u30A4\u30BA\u30E2\u30FC\u30C9",
     "output.sizePreset": "\u30D7\u30EA\u30BB\u30C3\u30C8",
     "output.sizeCustom": "\u30AB\u30B9\u30BF\u30E0",
@@ -5157,6 +5364,20 @@
     "apiSettings.providerCount": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC {count} \u4EF6",
     "apiSettings.provider": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
     "apiSettings.providerName": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u540D",
+    "apiSettings.providerIcon": "\u7D75\u6587\u5B57\u30A2\u30A4\u30B3\u30F3",
+    "apiSettings.providerIconPlaceholder": "\u4EFB\u610F\uFF08\u4F8B: \u{1FA84}\uFF09",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "\u63A5\u7D9A\u30D7\u30EC\u30D3\u30E5\u30FC",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "\u6BD4\u7387\u306E\u6307\u793A\u3092\u8FFD\u52A0",
+    "apiSettings.defaultProviderForModel": "\u65E2\u5B9A\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
+    "apiSettings.removeBinding": "\u30D0\u30A4\u30F3\u30C9\u3092\u524A\u9664",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "\u5B9F\u969B\u306E\u30EA\u30AF\u30A8\u30B9\u30C8",
     "apiSettings.newProviderAction": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u65B0\u898F\u4F5C\u6210",
     "apiSettings.copyProvider": "\u30B3\u30D4\u30FC",
@@ -5337,7 +5558,41 @@
     "referenceFiles.historyPathMismatch": "\u53C2\u7167\u30D5\u30A1\u30A4\u30EB\u306E Responses \u30D1\u30B9\u304C\u7570\u306A\u308A\u307E\u3059",
     "history.referenceFiles": "\u53C2\u7167\u30D5\u30A1\u30A4\u30EB",
     "history.downloadReferenceFile": "\u30D5\u30A1\u30A4\u30EB\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
-    "history.readdReferenceFile": "\u518D\u8FFD\u52A0"
+    "history.readdReferenceFile": "\u518D\u8FFD\u52A0",
+    "modelSelection.family": "\u30E2\u30C7\u30EB\u7CFB\u5217",
+    "modelSelection.concreteModel": "\u30E2\u30C7\u30EB",
+    "modelSelection.provider": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
+    "modelSelection.providerUnavailable": "\u3053\u306E\u30E2\u30C7\u30EB\u3067\u5229\u7528\u3067\u304D\u308B\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u304C\u3042\u308A\u307E\u305B\u3093",
+    "modelSelection.openSettings": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u8A2D\u5B9A\u3092\u958B\u304F",
+    "modelSelection.codexUnavailable": "Codex \u30ED\u30B0\u30A4\u30F3\u3092\u5229\u7528\u3067\u304D\u307E\u305B\u3093",
+    "modelSelection.catalogUnavailable": "\u30E2\u30C7\u30EB\u30AB\u30BF\u30ED\u30B0\u3092\u5229\u7528\u3067\u304D\u307E\u305B\u3093",
+    "output.background": "\u80CC\u666F",
+    "canvas.aspectRatio": "\u30A2\u30B9\u30DA\u30AF\u30C8\u6BD4",
+    "canvas.resolution": "\u89E3\u50CF\u5EA6",
+    "gemini.googleSearch": "Google \u691C\u7D22",
+    "gemini.googleImageSearch": "Google \u753B\u50CF\u691C\u7D22",
+    "output.modalities": "\u51FA\u529B\u30E2\u30C0\u30EA\u30C6\u30A3",
+    "gemini.safetySettings": "\u5B89\u5168\u8A2D\u5B9A",
+    "gemini.safety.harassment": "\u30CF\u30E9\u30B9\u30E1\u30F3\u30C8",
+    "gemini.safety.hateSpeech": "\u30D8\u30A4\u30C8\u30B9\u30D4\u30FC\u30C1",
+    "gemini.safety.sexuallyExplicit": "\u6027\u7684\u306B\u9732\u9AA8\u306A\u5185\u5BB9",
+    "gemini.safety.dangerousContent": "\u5371\u967A\u306A\u30B3\u30F3\u30C6\u30F3\u30C4",
+    "gemini.safety.threshold.unspecified": "\u30C7\u30D5\u30A9\u30EB\u30C8",
+    "gemini.safety.threshold.off": "\u30D5\u30A3\u30EB\u30BF\u7121\u52B9",
+    "gemini.safety.threshold.blockNone": "\u30D6\u30ED\u30C3\u30AF\u3057\u306A\u3044",
+    "gemini.safety.threshold.blockOnlyHigh": "\u9AD8\u30EA\u30B9\u30AF\u3092\u30D6\u30ED\u30C3\u30AF",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u4E2D\u4EE5\u4E0A\u3092\u30D6\u30ED\u30C3\u30AF",
+    "gemini.safety.threshold.blockLowAndAbove": "\u3059\u3079\u3066\u30D6\u30ED\u30C3\u30AF",
+    "grounding.title": "Google \u691C\u7D22\u306E\u51FA\u5178",
+    "grounding.searchSuggestions": "Google \u691C\u7D22\u5019\u88DC",
+    "grounding.sourceCount": "\u51FA\u5178 {count} \u4EF6",
+    "grounding.source": "\u51FA\u5178 {index}",
+    "modelParameters.invalidValue": "\u30D1\u30E9\u30E1\u30FC\u30BF\u5024\u304C\u7121\u52B9\u3067\u3059",
+    "modelParameters.objectRequired": "JSON \u30AA\u30D6\u30B8\u30A7\u30AF\u30C8\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044",
+    "modelParameters.invalidJson": "JSON \u304C\u7121\u52B9\u3067\u3059",
+    "modelParameters.migrated": "\u73FE\u5728\u306E\u30E2\u30C7\u30EB\u306B\u5408\u308F\u305B\u3066\u65E7\u30D1\u30E9\u30E1\u30FC\u30BF\u3092 {count} \u4EF6\u8ABF\u6574\u3057\u307E\u3057\u305F",
+    "modelParameters.historyConfiguration": "\u5C65\u6B74\u8A2D\u5B9A",
+    "modelParameters.legacyTask": "\u65E7\u5F62\u5F0F\u30BF\u30B9\u30AF"
   };
 
   // codex_image/webui/frontend/src/i18n/ko.ts
@@ -5465,7 +5720,7 @@
     "footer.archiveCount": "\uBCF4\uAD00\uD568 {count}",
     "footer.historyLibrary": "\uAE30\uB85D",
     "historyLibrary.openFull": "\uC804\uCCB4 \uAE30\uB85D \uB77C\uC774\uBE0C\uB7EC\uB9AC \uC5F4\uAE30",
-    "history.documentTitle": "\uAE30\uB85D - iLab GPT CONJURE",
+    "history.documentTitle": "\uAE30\uB85D - iLab CONJURE",
     "history.back": "\uC0DD\uC131\uAE30\uB85C \uB3CC\uC544\uAC00\uAE30",
     "history.title": "\uAE30\uB85D",
     "history.loading": "\uB85C\uB4DC \uC911",
@@ -5799,6 +6054,7 @@
     "output.lock.lockedHint": "\uB9E4\uAC1C\uBCC0\uC218\uAC00 \uACE0\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC624\uB978\uCABD \uC704 \uC7A0\uAE08 \uC544\uC774\uCF58\uC73C\uB85C \uD3B8\uC9D1\uD558\uC138\uC694.",
     "output.lock.enabled": "\uCF1C\uC9D0",
     "output.lock.disabled": "\uAEBC\uC9D0",
+    "output.lock.custom": "\uC0AC\uC6A9\uC790 \uC9C0\uC815",
     "output.mainModel": "\uBA54\uC778 \uBAA8\uB378",
     "output.selectMainModel": "\uBA54\uC778 \uBAA8\uB378 \uC120\uD0DD",
     "output.mainModelCustomForInput": "\uD604\uC7AC \uC785\uB825\uC5D0 \uC0AC\uC6A9\uC790 \uC815\uC758 \uBAA8\uB378\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4.",
@@ -5822,6 +6078,7 @@
     "output.promptHelp.images.original": "\uC571 \uC218\uC900\uC758 \uADDC\uCE59\uC744 \uCD94\uAC00\uD558\uC9C0 \uC54A\uACE0 \uC6D0\uBB38\uC744 \uC774\uBBF8\uC9C0 API\uC5D0 \uC9C1\uC811 \uC81C\uCD9C\uD569\uB2C8\uB2E4.",
     "output.promptHelp.images.strict": "\uC6D0\uBB38\uACFC \uCDA9\uC2E4\uB3C4 \uADDC\uCE59\uC744 \uD568\uAED8 \uC81C\uCD9C\uD574 \uBAA8\uB4E0 \uD544\uC218 \uC870\uAC74\uC758 \uC720\uC9C0\uB97C \uAC15\uC870\uD569\uB2C8\uB2E4.",
     "output.promptHelp.images.automatic": "\uC774\uBBF8\uC9C0 API\uC758 \uAE30\uBCF8 \uBC29\uC2DD\uC73C\uB85C \uC81C\uCD9C\uD558\uBA70 \uAC24\uB7EC\uB9AC \uCC38\uC870 \uAC19\uC740 \uD544\uC218 \uC124\uBA85\uC740 \uD3EC\uD568\uD569\uB2C8\uB2E4.",
+    "output.size": "\uCD9C\uB825 \uD06C\uAE30",
     "output.sizeMode": "\uD06C\uAE30 \uBAA8\uB4DC",
     "output.sizePreset": "\uC0AC\uC804 \uC124\uC815",
     "output.sizeCustom": "\uC0AC\uC6A9\uC790 \uC815\uC758",
@@ -6128,6 +6385,20 @@
     "apiSettings.providerCount": "\uACF5\uAE09\uC790 {count}\uAC1C",
     "apiSettings.provider": "\uACF5\uAE09\uC790",
     "apiSettings.providerName": "\uACF5\uAE09\uC790 \uC774\uB984",
+    "apiSettings.providerIcon": "\uC774\uBAA8\uC9C0 \uC544\uC774\uCF58",
+    "apiSettings.providerIconPlaceholder": "\uC120\uD0DD \uC0AC\uD56D, \uC608: \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "\uC5F0\uACB0 \uBBF8\uB9AC\uBCF4\uAE30",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "\uBE44\uC728 \uC9C0\uC2DC \uCD94\uAC00",
+    "apiSettings.defaultProviderForModel": "\uAE30\uBCF8 \uACF5\uAE09\uC790",
+    "apiSettings.removeBinding": "\uBC14\uC778\uB529 \uC0AD\uC81C",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "\uC2E4\uC81C \uC694\uCCAD",
     "apiSettings.newProviderAction": "\uACF5\uAE09\uC790 \uC0C8\uB85C \uB9CC\uB4E4\uAE30",
     "apiSettings.copyProvider": "\uBCF5\uC0AC",
@@ -6308,7 +6579,41 @@
     "referenceFiles.historyPathMismatch": "\uCC38\uC870 \uD30C\uC77C\uC758 Responses \uACBD\uB85C\uAC00 \uC11C\uB85C \uB2E4\uB985\uB2C8\uB2E4",
     "history.referenceFiles": "\uCC38\uC870 \uD30C\uC77C",
     "history.downloadReferenceFile": "\uD30C\uC77C \uB2E4\uC6B4\uB85C\uB4DC",
-    "history.readdReferenceFile": "\uB2E4\uC2DC \uCD94\uAC00"
+    "history.readdReferenceFile": "\uB2E4\uC2DC \uCD94\uAC00",
+    "modelSelection.family": "\uBAA8\uB378 \uC81C\uD488\uAD70",
+    "modelSelection.concreteModel": "\uBAA8\uB378",
+    "modelSelection.provider": "\uACF5\uAE09\uC790",
+    "modelSelection.providerUnavailable": "\uC774 \uBAA8\uB378\uC5D0 \uC0AC\uC6A9 \uAC00\uB2A5\uD55C \uACF5\uAE09\uC790\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4",
+    "modelSelection.openSettings": "\uACF5\uAE09\uC790 \uC124\uC815 \uC5F4\uAE30",
+    "modelSelection.codexUnavailable": "Codex \uB85C\uADF8\uC778\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4",
+    "modelSelection.catalogUnavailable": "\uBAA8\uB378 \uCE74\uD0C8\uB85C\uADF8\uB97C \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4",
+    "output.background": "\uBC30\uACBD",
+    "canvas.aspectRatio": "\uD654\uBA74 \uBE44\uC728",
+    "canvas.resolution": "\uD574\uC0C1\uB3C4",
+    "gemini.googleSearch": "Google \uAC80\uC0C9",
+    "gemini.googleImageSearch": "Google \uC774\uBBF8\uC9C0 \uAC80\uC0C9",
+    "output.modalities": "\uCD9C\uB825 \uBAA8\uB2EC\uB9AC\uD2F0",
+    "gemini.safetySettings": "\uC548\uC804 \uC124\uC815",
+    "gemini.safety.harassment": "\uAD34\uB86D\uD798",
+    "gemini.safety.hateSpeech": "\uD610\uC624 \uBC1C\uC5B8",
+    "gemini.safety.sexuallyExplicit": "\uC131\uC801\uC73C\uB85C \uB178\uACE8\uC801\uC778 \uCF58\uD150\uCE20",
+    "gemini.safety.dangerousContent": "\uC704\uD5D8\uD55C \uCF58\uD150\uCE20",
+    "gemini.safety.threshold.unspecified": "\uAE30\uBCF8\uAC12",
+    "gemini.safety.threshold.off": "\uD544\uD130 \uB044\uAE30",
+    "gemini.safety.threshold.blockNone": "\uCC28\uB2E8 \uC548 \uD568",
+    "gemini.safety.threshold.blockOnlyHigh": "\uB192\uC74C \uCC28\uB2E8",
+    "gemini.safety.threshold.blockMediumAndAbove": "\uC911\uAC04 \uC774\uC0C1 \uCC28\uB2E8",
+    "gemini.safety.threshold.blockLowAndAbove": "\uBAA8\uB450 \uCC28\uB2E8",
+    "grounding.title": "Google \uAC80\uC0C9 \uCD9C\uCC98",
+    "grounding.searchSuggestions": "Google \uAC80\uC0C9 \uC81C\uC548",
+    "grounding.sourceCount": "\uCD9C\uCC98 {count}\uAC1C",
+    "grounding.source": "\uCD9C\uCC98 {index}",
+    "modelParameters.invalidValue": "\uB9E4\uAC1C\uBCC0\uC218 \uAC12\uC774 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4",
+    "modelParameters.objectRequired": "JSON \uAC1D\uCCB4\uB97C \uC785\uB825\uD558\uC138\uC694",
+    "modelParameters.invalidJson": "\uC798\uBABB\uB41C JSON\uC785\uB2C8\uB2E4",
+    "modelParameters.migrated": "\uD604\uC7AC \uBAA8\uB378\uC5D0 \uB9DE\uAC8C \uAE30\uC874 \uB9E4\uAC1C\uBCC0\uC218 {count}\uAC1C\uB97C \uC870\uC815\uD588\uC2B5\uB2C8\uB2E4",
+    "modelParameters.historyConfiguration": "\uAE30\uB85D \uC124\uC815",
+    "modelParameters.legacyTask": "\uB808\uAC70\uC2DC \uC791\uC5C5"
   };
 
   // codex_image/webui/frontend/src/i18n/pt.ts
@@ -6436,7 +6741,7 @@
     "footer.archiveCount": "Arquivo {count}",
     "footer.historyLibrary": "Hist\xF3ria",
     "historyLibrary.openFull": "Abra a biblioteca de hist\xF3rico completa",
-    "history.documentTitle": "Hist\xF3ria - iLab GPT CONJURE",
+    "history.documentTitle": "Hist\xF3ria - iLab CONJURE",
     "history.back": "Voltar ao gerador",
     "history.title": "Hist\xF3ria",
     "history.loading": "Carregando",
@@ -6770,6 +7075,7 @@
     "output.lock.lockedHint": "Os par\xE2metros est\xE3o fixos. Use o cadeado no canto superior para editar.",
     "output.lock.enabled": "Ativada",
     "output.lock.disabled": "Desativada",
+    "output.lock.custom": "Personalizado",
     "output.mainModel": "Modelo principal",
     "output.selectMainModel": "Selecione o modelo principal",
     "output.mainModelCustomForInput": "Use um modelo personalizado para a entrada atual",
@@ -6793,6 +7099,7 @@
     "output.promptHelp.images.original": "N\xE3o adiciona regras do aplicativo e envia o texto original diretamente \xE0 API de imagens.",
     "output.promptHelp.images.strict": "Envia regras de fidelidade junto com o prompt original para preservar todas as restri\xE7\xF5es.",
     "output.promptHelp.images.automatic": "Usa o tratamento padr\xE3o da API de imagens e inclui as notas necess\xE1rias de refer\xEAncias da galeria.",
+    "output.size": "Tamanho da sa\xEDda",
     "output.sizeMode": "Modo de tamanho",
     "output.sizePreset": "Predefinido",
     "output.sizeCustom": "Personalizado",
@@ -7099,6 +7406,20 @@
     "apiSettings.providerCount": "{count} provedores",
     "apiSettings.provider": "Provedor",
     "apiSettings.providerName": "Nome do provedor",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Opcional, ex.: \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Pr\xE9via da conex\xE3o",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "Adicionar instru\xE7\xE3o de propor\xE7\xE3o",
+    "apiSettings.defaultProviderForModel": "Provedor padr\xE3o",
+    "apiSettings.removeBinding": "Remover v\xEDnculo",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Solicita\xE7\xE3o efetiva",
     "apiSettings.newProviderAction": "Novo provedor",
     "apiSettings.copyProvider": "Copiar",
@@ -7279,7 +7600,41 @@
     "referenceFiles.historyPathMismatch": "Estes arquivos usam caminhos Responses diferentes",
     "history.referenceFiles": "Arquivos de refer\xEAncia",
     "history.downloadReferenceFile": "Baixar arquivo",
-    "history.readdReferenceFile": "Adicionar novamente"
+    "history.readdReferenceFile": "Adicionar novamente",
+    "modelSelection.family": "Fam\xEDlia de modelos",
+    "modelSelection.concreteModel": "Modelo",
+    "modelSelection.provider": "Provedor",
+    "modelSelection.providerUnavailable": "Nenhum provedor est\xE1 dispon\xEDvel para este modelo",
+    "modelSelection.openSettings": "Abrir configura\xE7\xF5es de provedores",
+    "modelSelection.codexUnavailable": "O login do Codex n\xE3o est\xE1 dispon\xEDvel",
+    "modelSelection.catalogUnavailable": "O cat\xE1logo de modelos n\xE3o est\xE1 dispon\xEDvel",
+    "output.background": "Fundo",
+    "canvas.aspectRatio": "Propor\xE7\xE3o",
+    "canvas.resolution": "Resolu\xE7\xE3o",
+    "gemini.googleSearch": "Pesquisa Google",
+    "gemini.googleImageSearch": "Pesquisa de imagens Google",
+    "output.modalities": "Modalidades de sa\xEDda",
+    "gemini.safetySettings": "Configura\xE7\xF5es de seguran\xE7a",
+    "gemini.safety.harassment": "Ass\xE9dio",
+    "gemini.safety.hateSpeech": "Discurso de \xF3dio",
+    "gemini.safety.sexuallyExplicit": "Sexualmente expl\xEDcito",
+    "gemini.safety.dangerousContent": "Conte\xFAdo perigoso",
+    "gemini.safety.threshold.unspecified": "Padr\xE3o",
+    "gemini.safety.threshold.off": "Filtro desativado",
+    "gemini.safety.threshold.blockNone": "N\xE3o bloquear",
+    "gemini.safety.threshold.blockOnlyHigh": "Bloquear alto",
+    "gemini.safety.threshold.blockMediumAndAbove": "Bloquear m\xE9dio+",
+    "gemini.safety.threshold.blockLowAndAbove": "Bloquear tudo",
+    "grounding.title": "Fontes da Pesquisa Google",
+    "grounding.searchSuggestions": "Sugest\xF5es da Pesquisa Google",
+    "grounding.sourceCount": "{count} fontes",
+    "grounding.source": "Fonte {index}",
+    "modelParameters.invalidValue": "Valor de par\xE2metro inv\xE1lido",
+    "modelParameters.objectRequired": "Insira um objeto JSON",
+    "modelParameters.invalidJson": "JSON inv\xE1lido",
+    "modelParameters.migrated": "Foram ajustados {count} par\xE2metros antigos ao modelo atual",
+    "modelParameters.historyConfiguration": "Configura\xE7\xE3o hist\xF3rica",
+    "modelParameters.legacyTask": "Tarefa antiga"
   };
 
   // codex_image/webui/frontend/src/i18n/ru.ts
@@ -7407,7 +7762,7 @@
     "footer.archiveCount": "\u0410\u0440\u0445\u0438\u0432 {count}",
     "footer.historyLibrary": "\u0418\u0441\u0442\u043E\u0440\u0438\u044F",
     "historyLibrary.openFull": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043F\u043E\u043B\u043D\u0443\u044E \u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0443 \u0438\u0441\u0442\u043E\u0440\u0438\u0438",
-    "history.documentTitle": "\u0418\u0441\u0442\u043E\u0440\u0438\u044F - iLab GPT CONJURE",
+    "history.documentTitle": "\u0418\u0441\u0442\u043E\u0440\u0438\u044F - iLab CONJURE",
     "history.back": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u0433\u0435\u043D\u0435\u0440\u0430\u0442\u043E\u0440\u0443",
     "history.title": "\u0418\u0441\u0442\u043E\u0440\u0438\u044F",
     "history.loading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430",
@@ -7741,6 +8096,7 @@
     "output.lock.lockedHint": "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0437\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u044B. \u0414\u043B\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u0437\u0430\u043C\u043E\u043A \u0441\u043F\u0440\u0430\u0432\u0430 \u0432\u0432\u0435\u0440\u0445\u0443.",
     "output.lock.enabled": "\u0412\u043A\u043B.",
     "output.lock.disabled": "\u0412\u044B\u043A\u043B.",
+    "output.lock.custom": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439",
     "output.mainModel": "\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u043C\u043E\u0434\u0435\u043B\u044C",
     "output.selectMainModel": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043E\u0441\u043D\u043E\u0432\u043D\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C",
     "output.mainModelCustomForInput": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C \u0434\u043B\u044F \u0442\u0435\u043A\u0443\u0449\u0435\u0433\u043E \u0432\u0432\u043E\u0434\u0430",
@@ -7764,6 +8120,7 @@
     "output.promptHelp.images.original": "\u041D\u0435 \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u043F\u0440\u0430\u0432\u0438\u043B \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F \u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u0442 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0439 \u0442\u0435\u043A\u0441\u0442 \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E \u0432 API \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439.",
     "output.promptHelp.images.strict": "\u041E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u0442 \u043F\u0440\u0430\u0432\u0438\u043B\u0430 \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u0438 \u0432\u043C\u0435\u0441\u0442\u0435 \u0441 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u043C \u043F\u0440\u043E\u043C\u043F\u0442\u043E\u043C, \u0447\u0442\u043E\u0431\u044B \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0443\u0441\u043B\u043E\u0432\u0438\u044F.",
     "output.promptHelp.images.automatic": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0443\u044E \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 API \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439 \u0438 \u0432\u043A\u043B\u044E\u0447\u0430\u0435\u0442 \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u044B\u0435 \u043F\u043E\u044F\u0441\u043D\u0435\u043D\u0438\u044F \u043A \u0441\u0441\u044B\u043B\u043A\u0430\u043C \u0438\u0437 \u0433\u0430\u043B\u0435\u0440\u0435\u0438.",
+    "output.size": "\u0420\u0430\u0437\u043C\u0435\u0440 \u0432\u044B\u0432\u043E\u0434\u0430",
     "output.sizeMode": "\u0420\u0435\u0436\u0438\u043C \u0440\u0430\u0437\u043C\u0435\u0440\u0430",
     "output.sizePreset": "\u041F\u0440\u0435\u0434\u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430",
     "output.sizeCustom": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439",
@@ -8070,6 +8427,20 @@
     "apiSettings.providerCount": "{count} \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u043E\u0432",
     "apiSettings.provider": "\u041F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A",
     "apiSettings.providerName": "\u0418\u043C\u044F \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
+    "apiSettings.providerIcon": "\u042D\u043C\u043E\u0434\u0437\u0438",
+    "apiSettings.providerIconPlaceholder": "\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "\u041F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043F\u0440\u043E\u043F\u043E\u0440\u0446\u0438\u0438",
+    "apiSettings.defaultProviderForModel": "\u041F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E",
+    "apiSettings.removeBinding": "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0443",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "\u0424\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0437\u0430\u043F\u0440\u043E\u0441",
     "apiSettings.newProviderAction": "\u041D\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440",
     "apiSettings.copyProvider": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
@@ -8250,7 +8621,41 @@
     "referenceFiles.historyPathMismatch": "\u042D\u0442\u0438 \u0444\u0430\u0439\u043B\u044B \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442 \u0440\u0430\u0437\u043D\u044B\u0435 \u043F\u0443\u0442\u0438 Responses",
     "history.referenceFiles": "\u0424\u0430\u0439\u043B\u044B-\u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438",
     "history.downloadReferenceFile": "\u0421\u043A\u0430\u0447\u0430\u0442\u044C \u0444\u0430\u0439\u043B",
-    "history.readdReferenceFile": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430"
+    "history.readdReferenceFile": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430",
+    "modelSelection.family": "\u0421\u0435\u043C\u0435\u0439\u0441\u0442\u0432\u043E \u043C\u043E\u0434\u0435\u043B\u0435\u0439",
+    "modelSelection.concreteModel": "\u041C\u043E\u0434\u0435\u043B\u044C",
+    "modelSelection.provider": "\u041F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440",
+    "modelSelection.providerUnavailable": "\u0414\u043B\u044F \u044D\u0442\u043E\u0439 \u043C\u043E\u0434\u0435\u043B\u0438 \u043D\u0435\u0442 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E\u0433\u043E \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
+    "modelSelection.openSettings": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u043E\u0432",
+    "modelSelection.codexUnavailable": "\u0412\u0445\u043E\u0434 \u0432 Codex \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D",
+    "modelSelection.catalogUnavailable": "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D",
+    "output.background": "\u0424\u043E\u043D",
+    "canvas.aspectRatio": "\u0421\u043E\u043E\u0442\u043D\u043E\u0448\u0435\u043D\u0438\u0435 \u0441\u0442\u043E\u0440\u043E\u043D",
+    "canvas.resolution": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0435",
+    "gemini.googleSearch": "\u041F\u043E\u0438\u0441\u043A Google",
+    "gemini.googleImageSearch": "\u041F\u043E\u0438\u0441\u043A \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439 Google",
+    "output.modalities": "\u041C\u043E\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0432\u044B\u0432\u043E\u0434\u0430",
+    "gemini.safetySettings": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u0438",
+    "gemini.safety.harassment": "\u0414\u043E\u043C\u043E\u0433\u0430\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0430",
+    "gemini.safety.hateSpeech": "\u042F\u0437\u044B\u043A \u043D\u0435\u043D\u0430\u0432\u0438\u0441\u0442\u0438",
+    "gemini.safety.sexuallyExplicit": "\u041E\u0442\u043A\u0440\u043E\u0432\u0435\u043D\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0435\u043D\u0442",
+    "gemini.safety.dangerousContent": "\u041E\u043F\u0430\u0441\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0435\u043D\u0442",
+    "gemini.safety.threshold.unspecified": "\u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E",
+    "gemini.safety.threshold.off": "\u0424\u0438\u043B\u044C\u0442\u0440 \u0432\u044B\u043A\u043B\u044E\u0447\u0435\u043D",
+    "gemini.safety.threshold.blockNone": "\u041D\u0435 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
+    "gemini.safety.threshold.blockOnlyHigh": "\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u044B\u0441\u043E\u043A\u0438\u0439",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0440\u0435\u0434\u043D\u0438\u0439+",
+    "gemini.safety.threshold.blockLowAndAbove": "\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0441\u0451",
+    "grounding.title": "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438 \u043F\u043E\u0438\u0441\u043A\u0430 Google",
+    "grounding.searchSuggestions": "\u041F\u043E\u0434\u0441\u043A\u0430\u0437\u043A\u0438 \u043F\u043E\u0438\u0441\u043A\u0430 Google",
+    "grounding.sourceCount": "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u043E\u0432: {count}",
+    "grounding.source": "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A {index}",
+    "modelParameters.invalidValue": "\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u043E\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430",
+    "modelParameters.objectRequired": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043E\u0431\u044A\u0435\u043A\u0442 JSON",
+    "modelParameters.invalidJson": "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 JSON",
+    "modelParameters.migrated": "\u0421\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0434\u043B\u044F \u0442\u0435\u043A\u0443\u0449\u0435\u0439 \u043C\u043E\u0434\u0435\u043B\u0438: {count}",
+    "modelParameters.historyConfiguration": "\u0418\u0441\u0442\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044F",
+    "modelParameters.legacyTask": "\u0421\u0442\u0430\u0440\u0430\u044F \u0437\u0430\u0434\u0430\u0447\u0430"
   };
 
   // codex_image/webui/frontend/src/i18n/it.ts
@@ -8378,7 +8783,7 @@
     "footer.archiveCount": "Archivio {count}",
     "footer.historyLibrary": "Storia",
     "historyLibrary.openFull": "Apri la libreria della cronologia completa",
-    "history.documentTitle": "Storia - iLab GPT CONJURE",
+    "history.documentTitle": "Storia - iLab CONJURE",
     "history.back": "Torniamo al generatore",
     "history.title": "Storia",
     "history.loading": "Caricamento in corso",
@@ -8712,6 +9117,7 @@
     "output.lock.lockedHint": "I parametri sono fissati. Usa il lucchetto in alto a destra per modificarli.",
     "output.lock.enabled": "Attiva",
     "output.lock.disabled": "Disattiva",
+    "output.lock.custom": "Personalizzato",
     "output.mainModel": "Modello principale",
     "output.selectMainModel": "Seleziona il modello principale",
     "output.mainModelCustomForInput": "Utilizza un modello personalizzato per l'input corrente",
@@ -8735,6 +9141,7 @@
     "output.promptHelp.images.original": "Non aggiunge regole dell\u2019app e invia il testo originale direttamente all\u2019API immagini.",
     "output.promptHelp.images.strict": "Invia le regole di fedelt\xE0 insieme al prompt originale per preservare tutti i vincoli.",
     "output.promptHelp.images.automatic": "Usa la gestione predefinita dell\u2019API immagini e include le note necessarie per i riferimenti della galleria.",
+    "output.size": "Dimensioni di output",
     "output.sizeMode": "Modalit\xE0 dimensione",
     "output.sizePreset": "Preimpostato",
     "output.sizeCustom": "Personalizzato",
@@ -9041,6 +9448,20 @@
     "apiSettings.providerCount": "{count} fornitori",
     "apiSettings.provider": "Fornitore",
     "apiSettings.providerName": "Nome del fornitore",
+    "apiSettings.providerIcon": "Emoji",
+    "apiSettings.providerIconPlaceholder": "Facoltativa, es. \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "Anteprima connessione",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "Aggiungi istruzione proporzioni",
+    "apiSettings.defaultProviderForModel": "Fornitore predefinito",
+    "apiSettings.removeBinding": "Rimuovi associazione",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "Richiesta effettiva",
     "apiSettings.newProviderAction": "Nuovo fornitore",
     "apiSettings.copyProvider": "Copia",
@@ -9221,7 +9642,41 @@
     "referenceFiles.historyPathMismatch": "Questi file usano percorsi Responses diversi",
     "history.referenceFiles": "File di riferimento",
     "history.downloadReferenceFile": "Scarica file",
-    "history.readdReferenceFile": "Aggiungi di nuovo"
+    "history.readdReferenceFile": "Aggiungi di nuovo",
+    "modelSelection.family": "Famiglia di modelli",
+    "modelSelection.concreteModel": "Modello",
+    "modelSelection.provider": "Fornitore",
+    "modelSelection.providerUnavailable": "Nessun fornitore \xE8 disponibile per questo modello",
+    "modelSelection.openSettings": "Apri impostazioni fornitori",
+    "modelSelection.codexUnavailable": "L\u2019accesso a Codex non \xE8 disponibile",
+    "modelSelection.catalogUnavailable": "Il catalogo dei modelli non \xE8 disponibile",
+    "output.background": "Sfondo",
+    "canvas.aspectRatio": "Proporzioni",
+    "canvas.resolution": "Risoluzione",
+    "gemini.googleSearch": "Ricerca Google",
+    "gemini.googleImageSearch": "Ricerca immagini Google",
+    "output.modalities": "Modalit\xE0 di output",
+    "gemini.safetySettings": "Impostazioni di sicurezza",
+    "gemini.safety.harassment": "Molestie",
+    "gemini.safety.hateSpeech": "Incitamento all\u2019odio",
+    "gemini.safety.sexuallyExplicit": "Sessualmente esplicito",
+    "gemini.safety.dangerousContent": "Contenuti pericolosi",
+    "gemini.safety.threshold.unspecified": "Predefinito",
+    "gemini.safety.threshold.off": "Filtro disattivato",
+    "gemini.safety.threshold.blockNone": "Non bloccare",
+    "gemini.safety.threshold.blockOnlyHigh": "Blocca alto",
+    "gemini.safety.threshold.blockMediumAndAbove": "Blocca medio+",
+    "gemini.safety.threshold.blockLowAndAbove": "Blocca tutto",
+    "grounding.title": "Fonti di ricerca Google",
+    "grounding.searchSuggestions": "Suggerimenti di ricerca Google",
+    "grounding.sourceCount": "{count} fonti",
+    "grounding.source": "Fonte {index}",
+    "modelParameters.invalidValue": "Valore parametro non valido",
+    "modelParameters.objectRequired": "Inserisci un oggetto JSON",
+    "modelParameters.invalidJson": "JSON non valido",
+    "modelParameters.migrated": "Adattati {count} parametri precedenti al modello attuale",
+    "modelParameters.historyConfiguration": "Configurazione storica",
+    "modelParameters.legacyTask": "Attivit\xE0 precedente"
   };
 
   // codex_image/webui/frontend/src/i18n/hi.ts
@@ -9349,7 +9804,7 @@
     "footer.archiveCount": "\u0938\u0902\u0917\u094D\u0930\u0939 {count}",
     "footer.historyLibrary": "\u0907\u0924\u093F\u0939\u093E\u0938",
     "historyLibrary.openFull": "\u092A\u0942\u0930\u094D\u0923 \u0907\u0924\u093F\u0939\u093E\u0938 \u092A\u0941\u0938\u094D\u0924\u0915\u093E\u0932\u092F \u0916\u094B\u0932\u0947\u0902",
-    "history.documentTitle": "\u0907\u0924\u093F\u0939\u093E\u0938 - \u0906\u0908\u0932\u0948\u092C \u091C\u0940\u092A\u0940\u091F\u0940 \u0915\u0902\u091C\u094D\u092F\u0942\u0930",
+    "history.documentTitle": "\u0907\u0924\u093F\u0939\u093E\u0938 - iLab CONJURE",
     "history.back": "\u091C\u0947\u0928\u0930\u0947\u091F\u0930 \u0915\u094B \u0932\u094C\u091F\u0947\u0902",
     "history.title": "\u0907\u0924\u093F\u0939\u093E\u0938",
     "history.loading": "\u0932\u094B\u0921 \u0939\u094B \u0930\u0939\u093E \u0939\u0948",
@@ -9683,6 +10138,7 @@
     "output.lock.lockedHint": "\u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930 \u0924\u092F \u0939\u0948\u0902\u0964 \u0938\u0902\u092A\u093E\u0926\u0928 \u0915\u0947 \u0932\u093F\u090F \u090A\u092A\u0930 \u0926\u093E\u0908\u0902 \u0913\u0930 \u0932\u0949\u0915 \u0906\u0907\u0915\u0928 \u0926\u092C\u093E\u090F\u0901\u0964",
     "output.lock.enabled": "\u091A\u093E\u0932\u0942",
     "output.lock.disabled": "\u092C\u0902\u0926",
+    "output.lock.custom": "\u0915\u0938\u094D\u091F\u092E",
     "output.mainModel": "\u092E\u0941\u0916\u094D\u092F \u092E\u0949\u0921\u0932",
     "output.selectMainModel": "\u092E\u0941\u0916\u094D\u092F \u092E\u0949\u0921\u0932 \u0915\u093E \u091A\u092F\u0928 \u0915\u0930\u0947\u0902",
     "output.mainModelCustomForInput": "\u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0907\u0928\u092A\u0941\u091F \u0915\u0947 \u0932\u093F\u090F \u090F\u0915 \u0915\u0938\u094D\u091F\u092E \u092E\u0949\u0921\u0932 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0947\u0902",
@@ -9706,6 +10162,7 @@
     "output.promptHelp.images.original": "\u0910\u092A \u0938\u094D\u0924\u0930 \u0915\u0947 \u0928\u093F\u092F\u092E \u091C\u094B\u0921\u093C\u0947 \u092C\u093F\u0928\u093E \u092E\u0942\u0932 \u092A\u093E\u0920 \u0938\u0940\u0927\u0947 \u0907\u092E\u0947\u091C API \u0915\u094B \u092D\u0947\u091C\u0924\u093E \u0939\u0948\u0964",
     "output.promptHelp.images.strict": "\u0938\u092D\u0940 \u0905\u0928\u093F\u0935\u093E\u0930\u094D\u092F \u0936\u0930\u094D\u0924\u0947\u0902 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u092E\u0942\u0932 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0915\u0947 \u0938\u093E\u0925 \u0935\u093F\u0936\u094D\u0935\u0938\u0928\u0940\u092F\u0924\u093E \u0928\u093F\u092F\u092E \u092D\u0947\u091C\u0924\u093E \u0939\u0948\u0964",
     "output.promptHelp.images.automatic": "\u0907\u092E\u0947\u091C API \u0915\u0940 \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092A\u094D\u0930\u094B\u0938\u0947\u0938\u093F\u0902\u0917 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0924\u093E \u0939\u0948 \u0914\u0930 \u0917\u0948\u0932\u0930\u0940 \u0938\u0902\u0926\u0930\u094D\u092D \u0915\u0940 \u0906\u0935\u0936\u094D\u092F\u0915 \u091F\u093F\u092A\u094D\u092A\u0923\u093F\u092F\u093E\u0901 \u0936\u093E\u092E\u093F\u0932 \u0930\u0916\u0924\u093E \u0939\u0948\u0964",
+    "output.size": "\u0906\u0909\u091F\u092A\u0941\u091F \u0906\u0915\u093E\u0930",
     "output.sizeMode": "\u0906\u0915\u093E\u0930 \u092E\u094B\u0921",
     "output.sizePreset": "\u092A\u094D\u0930\u0940\u0938\u0947\u091F",
     "output.sizeCustom": "\u0915\u0938\u094D\u091F\u092E",
@@ -10012,6 +10469,20 @@
     "apiSettings.providerCount": "{count} \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.provider": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.providerName": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u0928\u093E\u092E",
+    "apiSettings.providerIcon": "\u0907\u092E\u094B\u091C\u0940",
+    "apiSettings.providerIconPlaceholder": "\u0935\u0948\u0915\u0932\u094D\u092A\u093F\u0915, \u091C\u0948\u0938\u0947 \u{1FA84}",
+    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionPreview": "\u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928",
+    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
+    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.appendRatioPrompt": "\u0905\u0928\u0941\u092A\u093E\u0924 \u0928\u093F\u0930\u094D\u0926\u0947\u0936 \u091C\u094B\u0921\u093C\u0947\u0902",
+    "apiSettings.defaultProviderForModel": "\u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
+    "apiSettings.removeBinding": "\u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0939\u091F\u093E\u090F\u0901",
+    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
+    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
+    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
+    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
     "apiSettings.actualRequest": "\u0935\u093E\u0938\u094D\u0924\u0935\u093F\u0915 \u0905\u0928\u0941\u0930\u094B\u0927",
     "apiSettings.newProviderAction": "\u0928\u092F\u093E \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.copyProvider": "\u0915\u0949\u092A\u0940",
@@ -10192,7 +10663,41 @@
     "referenceFiles.historyPathMismatch": "\u0907\u0928 \u092B\u093C\u093E\u0907\u0932\u094B\u0902 \u0915\u0947 Responses \u092A\u0925 \u0905\u0932\u0917 \u0939\u0948\u0902",
     "history.referenceFiles": "\u0938\u0902\u0926\u0930\u094D\u092D \u092B\u093C\u093E\u0907\u0932\u0947\u0902",
     "history.downloadReferenceFile": "\u092B\u093C\u093E\u0907\u0932 \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0930\u0947\u0902",
-    "history.readdReferenceFile": "\u092B\u093F\u0930 \u091C\u094B\u0921\u093C\u0947\u0902"
+    "history.readdReferenceFile": "\u092B\u093F\u0930 \u091C\u094B\u0921\u093C\u0947\u0902",
+    "modelSelection.family": "\u092E\u0949\u0921\u0932 \u092A\u0930\u093F\u0935\u093E\u0930",
+    "modelSelection.concreteModel": "\u092E\u0949\u0921\u0932",
+    "modelSelection.provider": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E",
+    "modelSelection.providerUnavailable": "\u0907\u0938 \u092E\u0949\u0921\u0932 \u0915\u0947 \u0932\u093F\u090F \u0915\u094B\u0908 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0909\u092A\u0932\u092C\u094D\u0927 \u0928\u0939\u0940\u0902 \u0939\u0948",
+    "modelSelection.openSettings": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0938\u0947\u091F\u093F\u0902\u0917 \u0916\u094B\u0932\u0947\u0902",
+    "modelSelection.codexUnavailable": "Codex \u0938\u093E\u0907\u0928-\u0907\u0928 \u0909\u092A\u0932\u092C\u094D\u0927 \u0928\u0939\u0940\u0902 \u0939\u0948",
+    "modelSelection.catalogUnavailable": "\u092E\u0949\u0921\u0932 \u0915\u0948\u091F\u0932\u0949\u0917 \u0909\u092A\u0932\u092C\u094D\u0927 \u0928\u0939\u0940\u0902 \u0939\u0948",
+    "output.background": "\u092A\u0943\u0937\u094D\u0920\u092D\u0942\u092E\u093F",
+    "canvas.aspectRatio": "\u092A\u0939\u0932\u0942 \u0905\u0928\u0941\u092A\u093E\u0924",
+    "canvas.resolution": "\u0930\u093F\u091C\u093C\u0949\u0932\u094D\u092F\u0942\u0936\u0928",
+    "gemini.googleSearch": "Google \u0916\u094B\u091C",
+    "gemini.googleImageSearch": "Google \u091B\u0935\u093F \u0916\u094B\u091C",
+    "output.modalities": "\u0906\u0909\u091F\u092A\u0941\u091F \u092E\u094B\u0921\u0948\u0932\u093F\u091F\u0940",
+    "gemini.safetySettings": "\u0938\u0941\u0930\u0915\u094D\u0937\u093E \u0938\u0947\u091F\u093F\u0902\u0917",
+    "gemini.safety.harassment": "\u0909\u0924\u094D\u092A\u0940\u0921\u093C\u0928",
+    "gemini.safety.hateSpeech": "\u0918\u0943\u0923\u093E\u0938\u094D\u092A\u0926 \u092D\u093E\u0937\u0923",
+    "gemini.safety.sexuallyExplicit": "\u092F\u094C\u0928 \u0930\u0942\u092A \u0938\u0947 \u0938\u094D\u092A\u0937\u094D\u091F",
+    "gemini.safety.dangerousContent": "\u0916\u0924\u0930\u0928\u093E\u0915 \u0938\u093E\u092E\u0917\u094D\u0930\u0940",
+    "gemini.safety.threshold.unspecified": "\u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F",
+    "gemini.safety.threshold.off": "\u092B\u093C\u093F\u0932\u094D\u091F\u0930 \u092C\u0902\u0926",
+    "gemini.safety.threshold.blockNone": "\u0915\u0941\u091B \u0928 \u0930\u094B\u0915\u0947\u0902",
+    "gemini.safety.threshold.blockOnlyHigh": "\u0909\u091A\u094D\u091A \u091C\u094B\u0916\u093F\u092E \u0930\u094B\u0915\u0947\u0902",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u092E\u0927\u094D\u092F\u092E+ \u0930\u094B\u0915\u0947\u0902",
+    "gemini.safety.threshold.blockLowAndAbove": "\u0938\u092D\u0940 \u0930\u094B\u0915\u0947\u0902",
+    "grounding.title": "Google \u0916\u094B\u091C \u0938\u094D\u0930\u094B\u0924",
+    "grounding.searchSuggestions": "Google \u0916\u094B\u091C \u0938\u0941\u091D\u093E\u0935",
+    "grounding.sourceCount": "{count} \u0938\u094D\u0930\u094B\u0924",
+    "grounding.source": "\u0938\u094D\u0930\u094B\u0924 {index}",
+    "modelParameters.invalidValue": "\u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930 \u092E\u093E\u0928 \u0905\u092E\u093E\u0928\u094D\u092F \u0939\u0948",
+    "modelParameters.objectRequired": "JSON \u0911\u092C\u094D\u091C\u0947\u0915\u094D\u091F \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902",
+    "modelParameters.invalidJson": "\u0905\u092E\u093E\u0928\u094D\u092F JSON",
+    "modelParameters.migrated": "\u092E\u094C\u091C\u0942\u0926\u093E \u092E\u0949\u0921\u0932 \u0915\u0947 \u0932\u093F\u090F {count} \u092A\u0941\u0930\u093E\u0928\u0947 \u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930 \u0938\u092E\u093E\u092F\u094B\u091C\u093F\u0924 \u0915\u093F\u090F \u0917\u090F",
+    "modelParameters.historyConfiguration": "\u0910\u0924\u093F\u0939\u093E\u0938\u093F\u0915 \u0915\u0949\u0928\u094D\u092B\u093C\u093F\u0917\u0930\u0947\u0936\u0928",
+    "modelParameters.legacyTask": "\u092A\u0941\u0930\u093E\u0928\u093E \u0915\u093E\u0930\u094D\u092F"
   };
 
   // codex_image/webui/frontend/src/i18n/zh-cn.ts
@@ -10320,7 +10825,7 @@
     "footer.archiveCount": "\u4F1A\u8BDD\u5F52\u6863 {count}",
     "footer.historyLibrary": "\u5386\u53F2\u5E93",
     "historyLibrary.openFull": "\u6253\u5F00\u5B8C\u6574\u5386\u53F2\u5E93",
-    "history.documentTitle": "\u5386\u53F2\u5E93 - iLab GPT CONJURE",
+    "history.documentTitle": "\u5386\u53F2\u5E93 - iLab CONJURE",
     "history.back": "\u8FD4\u56DE\u751F\u6210\u9875",
     "history.title": "\u5386\u53F2\u5E93",
     "history.loading": "\u8F7D\u5165\u4E2D",
@@ -10664,6 +11169,7 @@
     "output.lock.lockedHint": "\u53C2\u6570\u5DF2\u56FA\u5B9A\u3002\u70B9\u51FB\u53F3\u4E0A\u89D2\u9501\u56FE\u6807\u6062\u590D\u7F16\u8F91\u3002",
     "output.lock.enabled": "\u5F00\u542F",
     "output.lock.disabled": "\u5173\u95ED",
+    "output.lock.custom": "\u81EA\u5B9A\u4E49",
     "output.mainModel": "\u4E3B\u6A21\u578B",
     "output.selectMainModel": "\u9009\u62E9\u4E3B\u6A21\u578B",
     "output.mainModelCustomForInput": "\u6309\u5F53\u524D\u8F93\u5165\u4F7F\u7528\u81EA\u5B9A\u4E49\u6A21\u578B",
@@ -10687,6 +11193,7 @@
     "output.promptHelp.images.original": "\u5E94\u7528\u4E0D\u6DFB\u52A0\u63D0\u793A\u8BCD\u89C4\u5219\uFF0C\u6309\u7528\u6237\u539F\u6587\u76F4\u63A5\u63D0\u4EA4\u7ED9\u56FE\u50CF\u63A5\u53E3\u3002",
     "output.promptHelp.images.strict": "\u5E94\u7528\u5C06\u4FDD\u771F\u89C4\u5219\u4E0E\u539F\u63D0\u793A\u8BCD\u4E00\u5E76\u63D0\u4EA4\uFF0C\u5F3A\u8C03\u4FDD\u7559\u6240\u6709\u786C\u6027\u7EA6\u675F\u3002",
     "output.promptHelp.images.automatic": "\u6309\u56FE\u50CF\u63A5\u53E3\u9ED8\u8BA4\u65B9\u5F0F\u63D0\u4EA4\uFF1B\u56FE\u5E93\u5F15\u7528\u7B49\u5FC5\u8981\u8BF4\u660E\u4ECD\u4F1A\u968F\u63D0\u793A\u8BCD\u53D1\u9001\u3002",
+    "output.size": "\u8F93\u51FA\u5C3A\u5BF8",
     "output.sizeMode": "\u5C3A\u5BF8\u6A21\u5F0F",
     "output.sizePreset": "\u9884\u8BBE\u5C3A\u5BF8",
     "output.sizeCustom": "\u81EA\u5B9A\u4E49\u5C3A\u5BF8",
@@ -10993,6 +11500,20 @@
     "apiSettings.providerCount": "{count} \u4E2A\u4F9B\u5E94\u5546",
     "apiSettings.provider": "\u4F9B\u5E94\u5546",
     "apiSettings.providerName": "\u4F9B\u5E94\u5546\u540D\u79F0",
+    "apiSettings.providerIcon": "Emoji \u56FE\u6807",
+    "apiSettings.providerIconPlaceholder": "\u53EF\u9009\uFF0C\u4F8B\u5982 \u{1FA84}",
+    "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
+    "apiSettings.connectionPreview": "\u8FDE\u63A5\u9884\u89C8",
+    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
+    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.appendRatioPrompt": "\u8FFD\u52A0\u6BD4\u4F8B\u63D0\u793A",
+    "apiSettings.defaultProviderForModel": "\u8BBE\u4E3A\u9ED8\u8BA4\u4F9B\u5E94\u5546",
+    "apiSettings.removeBinding": "\u5220\u9664\u7ED1\u5B9A",
+    "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
+    "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.bindingRequiredFields": "\u8BF7\u4E3A\u6BCF\u6761\u7ED1\u5B9A\u9009\u62E9\u578B\u53F7\u3001\u586B\u5199\u8FDC\u7AEF\u6A21\u578B\u540D\u5E76\u81F3\u5C11\u9009\u62E9\u4E00\u4E2A\u64CD\u4F5C",
+    "apiSettings.bindingOverlap": "{model} \u7684 {operation} \u64CD\u4F5C\u88AB\u591A\u6761\u7ED1\u5B9A\u91CD\u590D\u5904\u7406",
     "apiSettings.actualRequest": "\u5B9E\u9645\u8BF7\u6C42",
     "apiSettings.newProviderAction": "\u65B0\u5EFA\u4F9B\u5E94\u5546",
     "apiSettings.copyProvider": "\u590D\u5236",
@@ -11173,7 +11694,41 @@
     "referenceFiles.historyPathMismatch": "\u8FD9\u4E9B\u53C2\u8003\u6587\u4EF6\u4F7F\u7528\u4E86\u4E0D\u540C\u7684 Responses \u8DEF\u5F84",
     "history.referenceFiles": "\u53C2\u8003\u6587\u4EF6",
     "history.downloadReferenceFile": "\u4E0B\u8F7D\u6587\u4EF6",
-    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165"
+    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165",
+    "modelSelection.family": "\u6A21\u578B\u7CFB\u5217",
+    "modelSelection.concreteModel": "\u5177\u4F53\u578B\u53F7",
+    "modelSelection.provider": "\u4F9B\u5E94\u5546",
+    "modelSelection.providerUnavailable": "\u5F53\u524D\u578B\u53F7\u6CA1\u6709\u53EF\u7528\u4F9B\u5E94\u5546",
+    "modelSelection.openSettings": "\u6253\u5F00\u4F9B\u5E94\u5546\u8BBE\u7F6E",
+    "modelSelection.codexUnavailable": "Codex \u767B\u5F55\u4E0D\u53EF\u7528",
+    "modelSelection.catalogUnavailable": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528",
+    "output.background": "\u80CC\u666F",
+    "canvas.aspectRatio": "\u753B\u9762\u6BD4\u4F8B",
+    "canvas.resolution": "\u5206\u8FA8\u7387",
+    "gemini.googleSearch": "Google \u641C\u7D22",
+    "gemini.googleImageSearch": "Google \u56FE\u7247\u641C\u7D22",
+    "output.modalities": "\u8F93\u51FA\u6A21\u6001",
+    "gemini.safetySettings": "\u5B89\u5168\u8BBE\u7F6E",
+    "gemini.safety.harassment": "\u9A9A\u6270",
+    "gemini.safety.hateSpeech": "\u4EC7\u6068\u8A00\u8BBA",
+    "gemini.safety.sexuallyExplicit": "\u8272\u60C5\u9732\u9AA8\u5185\u5BB9",
+    "gemini.safety.dangerousContent": "\u5371\u9669\u5185\u5BB9",
+    "gemini.safety.threshold.unspecified": "\u9ED8\u8BA4",
+    "gemini.safety.threshold.off": "\u5173\u95ED\u8FC7\u6EE4",
+    "gemini.safety.threshold.blockNone": "\u4E0D\u62E6\u622A",
+    "gemini.safety.threshold.blockOnlyHigh": "\u62E6\u622A\u9AD8\u5371",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u62E6\u622A\u4E2D\u9AD8",
+    "gemini.safety.threshold.blockLowAndAbove": "\u62E6\u622A\u5168\u90E8",
+    "grounding.title": "Google \u641C\u7D22\u6765\u6E90",
+    "grounding.searchSuggestions": "Google \u641C\u7D22\u5EFA\u8BAE",
+    "grounding.sourceCount": "{count} \u4E2A\u6765\u6E90",
+    "grounding.source": "\u6765\u6E90 {index}",
+    "modelParameters.invalidValue": "\u53C2\u6570\u503C\u65E0\u6548",
+    "modelParameters.objectRequired": "\u8BF7\u8F93\u5165 JSON \u5BF9\u8C61",
+    "modelParameters.invalidJson": "JSON \u683C\u5F0F\u65E0\u6548",
+    "modelParameters.migrated": "\u5DF2\u6309\u5F53\u524D\u6A21\u578B\u517C\u5BB9 {count} \u4E2A\u65E7\u53C2\u6570",
+    "modelParameters.historyConfiguration": "\u5386\u53F2\u914D\u7F6E",
+    "modelParameters.legacyTask": "\u65E7\u7248\u4EFB\u52A1"
   };
 
   // codex_image/webui/frontend/src/i18n/zh-hk.ts
@@ -11301,7 +11856,7 @@
     "footer.archiveCount": "\u6703\u8A71\u6B78\u6A94{count}",
     "footer.historyLibrary": "\u6B77\u53F2\u5EAB",
     "historyLibrary.openFull": "\u958B\u555F\u5B8C\u6574\u6B77\u53F2\u5EAB",
-    "history.documentTitle": "\u6B77\u53F2\u5EAB - iLabGPTCONJURE",
+    "history.documentTitle": "\u6B77\u53F2\u5EAB - iLab CONJURE",
     "history.back": "\u8FD4\u56DE\u751F\u6210\u9801",
     "history.title": "\u6B77\u53F2\u5EAB",
     "history.loading": "\u8F09\u5165\u4E2D",
@@ -11645,6 +12200,7 @@
     "output.lock.lockedHint": "\u53C3\u6578\u5DF2\u56FA\u5B9A\u3002\u9EDE\u64CA\u53F3\u4E0A\u89D2\u9396\u5716\u793A\u6062\u5FA9\u7DE8\u8F2F\u3002",
     "output.lock.enabled": "\u958B\u555F",
     "output.lock.disabled": "\u95DC\u9589",
+    "output.lock.custom": "\u81EA\u8A02",
     "output.mainModel": "\u4E3B\u6A21\u578B",
     "output.selectMainModel": "\u9078\u64C7\u4E3B\u6A21\u578B",
     "output.mainModelCustomForInput": "\u4F9D\u76EE\u524D\u8F38\u5165\u4F7F\u7528\u81EA\u8A02\u6A21\u578B",
@@ -11668,6 +12224,7 @@
     "output.promptHelp.images.original": "\u61C9\u7528\u7A0B\u5F0F\u4E0D\u52A0\u5165\u63D0\u793A\u8A5E\u898F\u5247\uFF0C\u6309\u7528\u6236\u539F\u6587\u76F4\u63A5\u63D0\u4EA4\u81F3\u5716\u50CF\u4ECB\u9762\u3002",
     "output.promptHelp.images.strict": "\u61C9\u7528\u7A0B\u5F0F\u5C07\u4FDD\u771F\u898F\u5247\u8207\u539F\u63D0\u793A\u8A5E\u4E00\u4F75\u63D0\u4EA4\uFF0C\u5F37\u8ABF\u4FDD\u7559\u6240\u6709\u786C\u6027\u9650\u5236\u3002",
     "output.promptHelp.images.automatic": "\u6309\u5716\u50CF\u4ECB\u9762\u7684\u9810\u8A2D\u65B9\u5F0F\u63D0\u4EA4\uFF1B\u5716\u5EAB\u5F15\u7528\u7B49\u5FC5\u8981\u8AAA\u660E\u4ECD\u6703\u96A8\u63D0\u793A\u8A5E\u50B3\u9001\u3002",
+    "output.size": "\u8F38\u51FA\u5C3A\u5BF8",
     "output.sizeMode": "\u5C3A\u5BF8\u6A21\u5F0F",
     "output.sizePreset": "\u9810\u8A2D\u5C3A\u5BF8",
     "output.sizeCustom": "\u81EA\u8A02\u5C3A\u5BF8",
@@ -11974,6 +12531,20 @@
     "apiSettings.providerCount": "{count}\u500B\u4F9B\u61C9\u5546",
     "apiSettings.provider": "\u4F9B\u61C9\u5546",
     "apiSettings.providerName": "\u4F9B\u61C9\u5546\u540D\u7A31",
+    "apiSettings.providerIcon": "Emoji \u5716\u793A",
+    "apiSettings.providerIconPlaceholder": "\u53EF\u9078\uFF0C\u4F8B\u5982 \u{1FA84}",
+    "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
+    "apiSettings.connectionPreview": "\u9023\u7DDA\u9810\u89BD",
+    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
+    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.appendRatioPrompt": "\u52A0\u5165\u6BD4\u4F8B\u63D0\u793A",
+    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u9810\u8A2D\u4F9B\u61C9\u5546",
+    "apiSettings.removeBinding": "\u522A\u9664\u7D81\u5B9A",
+    "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
+    "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.bindingRequiredFields": "\u8BF7\u4E3A\u6BCF\u6761\u7ED1\u5B9A\u9009\u62E9\u578B\u53F7\u3001\u586B\u5199\u8FDC\u7AEF\u6A21\u578B\u540D\u5E76\u81F3\u5C11\u9009\u62E9\u4E00\u4E2A\u64CD\u4F5C",
+    "apiSettings.bindingOverlap": "{model} \u7684 {operation} \u64CD\u4F5C\u88AB\u591A\u6761\u7ED1\u5B9A\u91CD\u590D\u5904\u7406",
     "apiSettings.actualRequest": "\u5BE6\u969B\u8ACB\u6C42",
     "apiSettings.newProviderAction": "\u65B0\u5EFA\u4F9B\u61C9\u5546",
     "apiSettings.copyProvider": "\u8907\u88FD",
@@ -12154,7 +12725,41 @@
     "referenceFiles.historyPathMismatch": "\u9019\u4E9B\u53C3\u8003\u6A94\u6848\u4F7F\u7528\u4E0D\u540C\u7684 Responses \u8DEF\u5F91",
     "history.referenceFiles": "\u53C3\u8003\u6A94\u6848",
     "history.downloadReferenceFile": "\u4E0B\u8F09\u6A94\u6848",
-    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165"
+    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165",
+    "modelSelection.family": "\u6A21\u578B\u7CFB\u5217",
+    "modelSelection.concreteModel": "\u5177\u9AD4\u578B\u865F",
+    "modelSelection.provider": "\u4F9B\u61C9\u5546",
+    "modelSelection.providerUnavailable": "\u76EE\u524D\u578B\u865F\u6C92\u6709\u53EF\u7528\u4F9B\u61C9\u5546",
+    "modelSelection.openSettings": "\u958B\u555F\u4F9B\u61C9\u5546\u8A2D\u5B9A",
+    "modelSelection.codexUnavailable": "Codex \u767B\u5165\u4E0D\u53EF\u7528",
+    "modelSelection.catalogUnavailable": "\u6A21\u578B\u76EE\u9304\u4E0D\u53EF\u7528",
+    "output.background": "\u80CC\u666F",
+    "canvas.aspectRatio": "\u756B\u9762\u6BD4\u4F8B",
+    "canvas.resolution": "\u89E3\u50CF\u5EA6",
+    "gemini.googleSearch": "Google \u641C\u5C0B",
+    "gemini.googleImageSearch": "Google \u5716\u7247\u641C\u5C0B",
+    "output.modalities": "\u8F38\u51FA\u6A21\u614B",
+    "gemini.safetySettings": "\u5B89\u5168\u8A2D\u5B9A",
+    "gemini.safety.harassment": "\u9A37\u64FE",
+    "gemini.safety.hateSpeech": "\u4EC7\u6068\u8A00\u8AD6",
+    "gemini.safety.sexuallyExplicit": "\u8272\u60C5\u9732\u9AA8\u5167\u5BB9",
+    "gemini.safety.dangerousContent": "\u5371\u96AA\u5167\u5BB9",
+    "gemini.safety.threshold.unspecified": "\u9810\u8A2D",
+    "gemini.safety.threshold.off": "\u95DC\u9589\u904E\u6FFE",
+    "gemini.safety.threshold.blockNone": "\u4E0D\u6514\u622A",
+    "gemini.safety.threshold.blockOnlyHigh": "\u6514\u622A\u9AD8\u5371",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u6514\u622A\u4E2D\u9AD8",
+    "gemini.safety.threshold.blockLowAndAbove": "\u6514\u622A\u5168\u90E8",
+    "grounding.title": "Google \u641C\u5C0B\u4F86\u6E90",
+    "grounding.searchSuggestions": "Google \u641C\u5C0B\u5EFA\u8B70",
+    "grounding.sourceCount": "{count} \u500B\u4F86\u6E90",
+    "grounding.source": "\u4F86\u6E90 {index}",
+    "modelParameters.invalidValue": "\u53C3\u6578\u503C\u7121\u6548",
+    "modelParameters.objectRequired": "\u8ACB\u8F38\u5165 JSON \u7269\u4EF6",
+    "modelParameters.invalidJson": "JSON \u683C\u5F0F\u7121\u6548",
+    "modelParameters.migrated": "\u5DF2\u6309\u76EE\u524D\u6A21\u578B\u517C\u5BB9\u8655\u7406 {count} \u500B\u820A\u53C3\u6578",
+    "modelParameters.historyConfiguration": "\u6B77\u53F2\u8A2D\u5B9A",
+    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9"
   };
 
   // codex_image/webui/frontend/src/i18n/zh-tw.ts
@@ -12282,7 +12887,7 @@
     "footer.archiveCount": "\u6703\u8A71\u6B78\u6A94{count}",
     "footer.historyLibrary": "\u6B77\u53F2\u5EAB",
     "historyLibrary.openFull": "\u958B\u555F\u5B8C\u6574\u6B77\u53F2\u5EAB",
-    "history.documentTitle": "\u6B77\u53F2\u5EAB - iLabGPTCONJURE",
+    "history.documentTitle": "\u6B77\u53F2\u5EAB - iLab CONJURE",
     "history.back": "\u8FD4\u56DE\u751F\u6210\u9801",
     "history.title": "\u6B77\u53F2\u5EAB",
     "history.loading": "\u8F09\u5165\u4E2D",
@@ -12626,6 +13231,7 @@
     "output.lock.lockedHint": "\u53C3\u6578\u5DF2\u56FA\u5B9A\u3002\u9EDE\u64CA\u53F3\u4E0A\u89D2\u9396\u5716\u793A\u6062\u5FA9\u7DE8\u8F2F\u3002",
     "output.lock.enabled": "\u958B\u555F",
     "output.lock.disabled": "\u95DC\u9589",
+    "output.lock.custom": "\u81EA\u8A02",
     "output.mainModel": "\u4E3B\u6A21\u578B",
     "output.selectMainModel": "\u9078\u64C7\u4E3B\u6A21\u578B",
     "output.mainModelCustomForInput": "\u4F9D\u76EE\u524D\u8F38\u5165\u4F7F\u7528\u81EA\u8A02\u6A21\u578B",
@@ -12649,6 +13255,7 @@
     "output.promptHelp.images.original": "\u61C9\u7528\u7A0B\u5F0F\u4E0D\u52A0\u5165\u63D0\u793A\u8A5E\u898F\u5247\uFF0C\u6309\u4F7F\u7528\u8005\u539F\u6587\u76F4\u63A5\u63D0\u4EA4\u81F3\u5716\u50CF\u4ECB\u9762\u3002",
     "output.promptHelp.images.strict": "\u61C9\u7528\u7A0B\u5F0F\u5C07\u4FDD\u771F\u898F\u5247\u8207\u539F\u63D0\u793A\u8A5E\u4E00\u4F75\u63D0\u4EA4\uFF0C\u5F37\u8ABF\u4FDD\u7559\u6240\u6709\u786C\u6027\u9650\u5236\u3002",
     "output.promptHelp.images.automatic": "\u6309\u5716\u50CF\u4ECB\u9762\u7684\u9810\u8A2D\u65B9\u5F0F\u63D0\u4EA4\uFF1B\u5716\u5EAB\u5F15\u7528\u7B49\u5FC5\u8981\u8AAA\u660E\u4ECD\u6703\u96A8\u63D0\u793A\u8A5E\u50B3\u9001\u3002",
+    "output.size": "\u8F38\u51FA\u5C3A\u5BF8",
     "output.sizeMode": "\u5C3A\u5BF8\u6A21\u5F0F",
     "output.sizePreset": "\u9810\u8A2D\u5C3A\u5BF8",
     "output.sizeCustom": "\u81EA\u8A02\u5C3A\u5BF8",
@@ -12955,6 +13562,20 @@
     "apiSettings.providerCount": "{count}\u500B\u4F9B\u61C9\u5546",
     "apiSettings.provider": "\u4F9B\u61C9\u5546",
     "apiSettings.providerName": "\u4F9B\u61C9\u5546\u540D\u7A31",
+    "apiSettings.providerIcon": "Emoji \u5716\u793A",
+    "apiSettings.providerIconPlaceholder": "\u9078\u586B\uFF0C\u4F8B\u5982 \u{1FA84}",
+    "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
+    "apiSettings.connectionPreview": "\u9023\u7DDA\u9810\u89BD",
+    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
+    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.appendRatioPrompt": "\u8FFD\u52A0\u6BD4\u4F8B\u63D0\u793A",
+    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u9810\u8A2D\u4F9B\u61C9\u5546",
+    "apiSettings.removeBinding": "\u522A\u9664\u7D81\u5B9A",
+    "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
+    "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.bindingRequiredFields": "\u8BF7\u4E3A\u6BCF\u6761\u7ED1\u5B9A\u9009\u62E9\u578B\u53F7\u3001\u586B\u5199\u8FDC\u7AEF\u6A21\u578B\u540D\u5E76\u81F3\u5C11\u9009\u62E9\u4E00\u4E2A\u64CD\u4F5C",
+    "apiSettings.bindingOverlap": "{model} \u7684 {operation} \u64CD\u4F5C\u88AB\u591A\u6761\u7ED1\u5B9A\u91CD\u590D\u5904\u7406",
     "apiSettings.actualRequest": "\u5BE6\u969B\u8ACB\u6C42",
     "apiSettings.newProviderAction": "\u65B0\u5EFA\u4F9B\u61C9\u5546",
     "apiSettings.copyProvider": "\u8907\u88FD",
@@ -13135,7 +13756,41 @@
     "referenceFiles.historyPathMismatch": "\u9019\u4E9B\u53C3\u8003\u6A94\u6848\u4F7F\u7528\u4E0D\u540C\u7684 Responses \u8DEF\u5F91",
     "history.referenceFiles": "\u53C3\u8003\u6A94\u6848",
     "history.downloadReferenceFile": "\u4E0B\u8F09\u6A94\u6848",
-    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165"
+    "history.readdReferenceFile": "\u91CD\u65B0\u52A0\u5165",
+    "modelSelection.family": "\u6A21\u578B\u7CFB\u5217",
+    "modelSelection.concreteModel": "\u5177\u9AD4\u578B\u865F",
+    "modelSelection.provider": "\u4F9B\u61C9\u5546",
+    "modelSelection.providerUnavailable": "\u76EE\u524D\u578B\u865F\u6C92\u6709\u53EF\u7528\u4F9B\u61C9\u5546",
+    "modelSelection.openSettings": "\u958B\u555F\u4F9B\u61C9\u5546\u8A2D\u5B9A",
+    "modelSelection.codexUnavailable": "Codex \u767B\u5165\u4E0D\u53EF\u7528",
+    "modelSelection.catalogUnavailable": "\u6A21\u578B\u76EE\u9304\u4E0D\u53EF\u7528",
+    "output.background": "\u80CC\u666F",
+    "canvas.aspectRatio": "\u756B\u9762\u6BD4\u4F8B",
+    "canvas.resolution": "\u89E3\u6790\u5EA6",
+    "gemini.googleSearch": "Google \u641C\u5C0B",
+    "gemini.googleImageSearch": "Google \u5716\u7247\u641C\u5C0B",
+    "output.modalities": "\u8F38\u51FA\u6A21\u614B",
+    "gemini.safetySettings": "\u5B89\u5168\u8A2D\u5B9A",
+    "gemini.safety.harassment": "\u9A37\u64FE",
+    "gemini.safety.hateSpeech": "\u4EC7\u6068\u8A00\u8AD6",
+    "gemini.safety.sexuallyExplicit": "\u8272\u60C5\u9732\u9AA8\u5167\u5BB9",
+    "gemini.safety.dangerousContent": "\u5371\u96AA\u5167\u5BB9",
+    "gemini.safety.threshold.unspecified": "\u9810\u8A2D",
+    "gemini.safety.threshold.off": "\u95DC\u9589\u904E\u6FFE",
+    "gemini.safety.threshold.blockNone": "\u4E0D\u5C01\u9396",
+    "gemini.safety.threshold.blockOnlyHigh": "\u5C01\u9396\u9AD8\u98A8\u96AA",
+    "gemini.safety.threshold.blockMediumAndAbove": "\u5C01\u9396\u4E2D\u9AD8\u98A8\u96AA",
+    "gemini.safety.threshold.blockLowAndAbove": "\u5C01\u9396\u5168\u90E8",
+    "grounding.title": "Google \u641C\u5C0B\u4F86\u6E90",
+    "grounding.searchSuggestions": "Google \u641C\u5C0B\u5EFA\u8B70",
+    "grounding.sourceCount": "{count} \u500B\u4F86\u6E90",
+    "grounding.source": "\u4F86\u6E90 {index}",
+    "modelParameters.invalidValue": "\u53C3\u6578\u503C\u7121\u6548",
+    "modelParameters.objectRequired": "\u8ACB\u8F38\u5165 JSON \u7269\u4EF6",
+    "modelParameters.invalidJson": "JSON \u683C\u5F0F\u7121\u6548",
+    "modelParameters.migrated": "\u5DF2\u4F9D\u76EE\u524D\u6A21\u578B\u76F8\u5BB9\u8655\u7406 {count} \u500B\u820A\u53C3\u6578",
+    "modelParameters.historyConfiguration": "\u6B77\u53F2\u8A2D\u5B9A",
+    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9"
   };
 
   // codex_image/webui/frontend/src/i18n/dictionaries.ts
@@ -13156,6 +13811,333 @@
     "it": IT_DICTIONARY,
     "hi": HI_DICTIONARY
   };
+
+  // codex_image/webui/frontend/src/themed-select.ts
+  var DEFAULT_SELECT_IDS = ["languageSelect", "generationProviderSelect"];
+  var instances = /* @__PURE__ */ new WeakMap();
+  var openInstances = /* @__PURE__ */ new Set();
+  var nextInstanceId = 1;
+  var documentPointerListenerBound = false;
+  var documentPositionListenersBound = false;
+  var MENU_EDGE_GUTTER = 12;
+  var MENU_GAP = 5;
+  var MENU_MAX_HEIGHT = 280;
+  var MENU_PREFERRED_BELOW_HEIGHT = 160;
+  function optionText(option2) {
+    return option2?.textContent?.trim() || option2?.label || option2?.value || "";
+  }
+  function appendOptionContent(target, option2) {
+    target.replaceChildren();
+    const icon = option2?.dataset.optionIcon?.trim();
+    const kind = option2?.dataset.optionIconKind === "image" ? "image" : "emoji";
+    if (icon) {
+      const iconElement = document.createElement("span");
+      iconElement.className = `themed-select-option-icon ${kind}`;
+      iconElement.setAttribute("aria-hidden", "true");
+      if (kind === "image") {
+        const image = document.createElement("img");
+        image.src = icon;
+        image.alt = "";
+        image.decoding = "async";
+        iconElement.append(image);
+      } else {
+        iconElement.textContent = icon;
+      }
+      target.append(iconElement);
+    }
+    const label = document.createElement("span");
+    label.className = "themed-select-option-label";
+    label.textContent = optionText(option2);
+    target.append(label);
+  }
+  function selectableOptionIndexes(instance) {
+    return Array.from(instance.select.options).map((option2, index) => ({ option: option2, index })).filter(({ option: option2 }) => !option2.disabled && !option2.hidden).map(({ index }) => index);
+  }
+  function nearestSelectableIndex(instance, preferredIndex) {
+    const indexes = selectableOptionIndexes(instance);
+    if (!indexes.length) return -1;
+    return indexes.includes(preferredIndex) ? preferredIndex : indexes[0] ?? -1;
+  }
+  function moveSelectableIndex(instance, direction) {
+    const indexes = selectableOptionIndexes(instance);
+    if (!indexes.length) return -1;
+    const current = indexes.indexOf(nearestSelectableIndex(instance, instance.activeIndex));
+    return indexes[(current + direction + indexes.length) % indexes.length] ?? -1;
+  }
+  function copyAriaAttributes(instance) {
+    const attributes = ["aria-label", "aria-labelledby", "aria-describedby"];
+    attributes.forEach((attribute) => {
+      const value = instance.select.getAttribute(attribute);
+      if (value) instance.trigger.setAttribute(attribute, value);
+      else instance.trigger.removeAttribute(attribute);
+    });
+  }
+  function syncTrigger(instance) {
+    const selected = instance.select.selectedOptions[0];
+    appendOptionContent(instance.value, selected);
+    instance.trigger.disabled = instance.select.disabled;
+    instance.trigger.title = instance.select.title || optionText(selected);
+    copyAriaAttributes(instance);
+    if (instance.select.disabled) closeThemedSelect(instance);
+  }
+  function optionButtonId(instance, index) {
+    return `themed-select-${instance.id}-option-${index}`;
+  }
+  function focusOption(instance, index) {
+    const nextIndex = nearestSelectableIndex(instance, index);
+    if (nextIndex < 0) return;
+    instance.activeIndex = nextIndex;
+    renderOptions(instance);
+    instance.menu.querySelector(`#${optionButtonId(instance, nextIndex)}`)?.focus();
+  }
+  function selectOption(instance, index) {
+    const option2 = instance.select.options[index];
+    if (!option2 || option2.disabled) return;
+    instance.select.selectedIndex = index;
+    instance.select.dispatchEvent(new Event("input", { bubbles: true }));
+    instance.select.dispatchEvent(new Event("change", { bubbles: true }));
+    syncThemedSelect(instance.select);
+    closeThemedSelect(instance, true);
+  }
+  function handleOptionKeydown(instance, event, index) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      event.stopPropagation();
+      focusOption(instance, moveSelectableIndex(instance, 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      event.stopPropagation();
+      focusOption(instance, moveSelectableIndex(instance, -1));
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      event.stopPropagation();
+      focusOption(instance, selectableOptionIndexes(instance)[0] ?? -1);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      event.stopPropagation();
+      const indexes = selectableOptionIndexes(instance);
+      focusOption(instance, indexes[indexes.length - 1] ?? -1);
+    } else if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+      event.preventDefault();
+      event.stopPropagation();
+      selectOption(instance, index);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      closeThemedSelect(instance, true);
+    } else if (event.key === "Tab") {
+      closeThemedSelect(instance);
+    }
+  }
+  function renderOptions(instance) {
+    const selectedIndex = instance.select.selectedIndex;
+    const options = Array.from(instance.select.options);
+    if (!options.length) {
+      const empty = document.createElement("span");
+      empty.className = "themed-select-empty";
+      empty.textContent = "-";
+      instance.menu.replaceChildren(empty);
+      return;
+    }
+    const buttons = options.map((option2, index) => {
+      const button = document.createElement("button");
+      button.id = optionButtonId(instance, index);
+      button.type = "button";
+      button.className = "themed-select-option";
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", index === selectedIndex ? "true" : "false");
+      button.disabled = option2.disabled;
+      button.hidden = option2.hidden;
+      appendOptionContent(button, option2);
+      if (index === selectedIndex) button.classList.add("selected");
+      if (index === instance.activeIndex) button.classList.add("active");
+      button.addEventListener("click", () => selectOption(instance, index));
+      button.addEventListener("keydown", (event) => handleOptionKeydown(instance, event, index));
+      return button;
+    });
+    instance.menu.replaceChildren(...buttons);
+  }
+  function handleTriggerKeydown(instance, event) {
+    if (event.key === "Escape") {
+      if (!openInstances.has(instance)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeThemedSelect(instance);
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (!openInstances.has(instance)) openThemedSelect(instance);
+    const indexes = selectableOptionIndexes(instance);
+    const initialIndex = event.key === "ArrowUp" ? indexes[indexes.length - 1] ?? -1 : nearestSelectableIndex(instance, instance.select.selectedIndex);
+    focusOption(instance, initialIndex);
+  }
+  function resetThemedSelectMenuPosition(instance) {
+    instance.menu.classList.remove("is-portal", "opens-upward");
+    ["top", "left", "width", "max-height"].forEach((property) => {
+      instance.menu.style.removeProperty(property);
+    });
+  }
+  function restoreThemedSelectMenu(instance) {
+    resetThemedSelectMenuPosition(instance);
+    if (instance.menu.parentElement !== instance.host) instance.host.append(instance.menu);
+  }
+  function positionThemedSelectMenu(instance) {
+    const rect = instance.trigger.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const availableBelow = Math.max(0, viewportHeight - rect.bottom - MENU_GAP - MENU_EDGE_GUTTER);
+    const availableAbove = Math.max(0, rect.top - MENU_GAP - MENU_EDGE_GUTTER);
+    const opensUpward = availableBelow < MENU_PREFERRED_BELOW_HEIGHT && availableAbove > availableBelow;
+    const availableHeight = opensUpward ? availableAbove : availableBelow;
+    const maxHeight = Math.max(80, Math.min(MENU_MAX_HEIGHT, availableHeight));
+    const visibleHeight = Math.min(instance.menu.scrollHeight || maxHeight, maxHeight);
+    const width = Math.min(rect.width, Math.max(0, viewportWidth - MENU_EDGE_GUTTER * 2));
+    const maximumLeft = Math.max(MENU_EDGE_GUTTER, viewportWidth - MENU_EDGE_GUTTER - width);
+    const left = Math.min(Math.max(MENU_EDGE_GUTTER, rect.left), maximumLeft);
+    const top = opensUpward ? Math.max(MENU_EDGE_GUTTER, rect.top - MENU_GAP - visibleHeight) : rect.bottom + MENU_GAP;
+    instance.menu.classList.toggle("opens-upward", opensUpward);
+    instance.menu.style.top = `${top}px`;
+    instance.menu.style.left = `${left}px`;
+    instance.menu.style.width = `${width}px`;
+    instance.menu.style.maxHeight = `${maxHeight}px`;
+  }
+  function positionOpenThemedSelectMenus() {
+    openInstances.forEach((instance) => positionThemedSelectMenu(instance));
+  }
+  function closeThemedSelect(instance, restoreFocus = false) {
+    if (!openInstances.delete(instance)) return;
+    instance.menu.classList.add("hidden");
+    restoreThemedSelectMenu(instance);
+    instance.trigger.setAttribute("aria-expanded", "false");
+    if (restoreFocus) instance.trigger.focus({ preventScroll: true });
+  }
+  function openThemedSelect(instance) {
+    if (instance.trigger.disabled) return;
+    openInstances.forEach((openInstance) => {
+      if (openInstance !== instance) closeThemedSelect(openInstance);
+    });
+    instance.activeIndex = nearestSelectableIndex(instance, instance.select.selectedIndex);
+    syncTrigger(instance);
+    renderOptions(instance);
+    document.body.append(instance.menu);
+    instance.menu.classList.add("is-portal");
+    instance.menu.classList.remove("hidden");
+    positionThemedSelectMenu(instance);
+    instance.trigger.setAttribute("aria-expanded", "true");
+    openInstances.add(instance);
+  }
+  function bindDocumentPointerListener() {
+    if (documentPointerListenerBound) return;
+    documentPointerListenerBound = true;
+    document.addEventListener("pointerdown", (event) => {
+      openInstances.forEach((instance) => {
+        const target = event.target;
+        if (!instance.host.contains(target) && !instance.menu.contains(target)) closeThemedSelect(instance);
+      });
+    });
+  }
+  function bindDocumentPositionListeners() {
+    if (documentPositionListenersBound) return;
+    documentPositionListenersBound = true;
+    window.addEventListener("resize", positionOpenThemedSelectMenus);
+    document.addEventListener("scroll", positionOpenThemedSelectMenus, true);
+  }
+  function mountThemedSelect(select) {
+    if (!select || select.multiple || instances.has(select)) {
+      if (select) syncThemedSelect(select);
+      return;
+    }
+    const parent = select.parentElement;
+    if (!parent) return;
+    const host = document.createElement("div");
+    host.className = "themed-select";
+    host.dataset.themedSelect = "";
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "themed-select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    const value = document.createElement("span");
+    value.className = "themed-select-value";
+    const caret = document.createElement("span");
+    caret.className = "themed-select-caret";
+    caret.setAttribute("aria-hidden", "true");
+    trigger.append(value, caret);
+    const menu = document.createElement("div");
+    menu.className = "themed-select-menu hidden";
+    menu.setAttribute("role", "listbox");
+    const id = nextInstanceId++;
+    menu.id = `themed-select-${id}-options`;
+    trigger.setAttribute("aria-controls", menu.id);
+    parent.insertBefore(host, select);
+    host.append(select, trigger, menu);
+    const instance = {
+      id,
+      select,
+      host,
+      trigger,
+      value,
+      menu,
+      activeIndex: select.selectedIndex,
+      observer: new MutationObserver(() => syncThemedSelect(select)),
+      originalTabIndex: select.tabIndex,
+      originalAriaHidden: select.getAttribute("aria-hidden")
+    };
+    instances.set(select, instance);
+    select.classList.add("themed-select-native");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+    select.addEventListener("change", () => syncThemedSelect(select));
+    select.addEventListener("input", () => syncThemedSelect(select));
+    trigger.addEventListener("click", () => {
+      if (openInstances.has(instance)) closeThemedSelect(instance);
+      else openThemedSelect(instance);
+    });
+    trigger.addEventListener("keydown", (event) => handleTriggerKeydown(instance, event));
+    instance.observer.observe(select, {
+      attributes: true,
+      attributeFilter: ["aria-describedby", "aria-label", "aria-labelledby", "disabled", "title"],
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+    bindDocumentPointerListener();
+    bindDocumentPositionListeners();
+    syncThemedSelect(select);
+  }
+  function syncThemedSelect(select) {
+    if (!select) return;
+    const instance = instances.get(select);
+    if (!instance) return;
+    syncTrigger(instance);
+    if (openInstances.has(instance)) renderOptions(instance);
+  }
+  function destroyThemedSelects(container) {
+    if (!container) return;
+    container.querySelectorAll("select.themed-select-native").forEach((select) => {
+      const instance = instances.get(select);
+      if (!instance) return;
+      closeThemedSelect(instance);
+      restoreThemedSelectMenu(instance);
+      instance.observer.disconnect();
+      select.classList.remove("themed-select-native");
+      select.tabIndex = instance.originalTabIndex;
+      if (instance.originalAriaHidden === null) select.removeAttribute("aria-hidden");
+      else select.setAttribute("aria-hidden", instance.originalAriaHidden);
+      instance.menu.remove();
+      instance.host.replaceWith(select);
+      instances.delete(select);
+    });
+  }
+  function initThemedSelectFeature() {
+    DEFAULT_SELECT_IDS.forEach((id) => {
+      mountThemedSelect(document.getElementById(id));
+    });
+  }
 
   // codex_image/webui/frontend/src/i18n.ts
   var LOCALE_STORAGE_KEY = "codex-image-locale-preference";
@@ -13212,6 +14194,9 @@
   function translate(key, locale = currentLocale) {
     return DICTIONARIES[locale]?.[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
   }
+  function currentLocaleCode() {
+    return currentLocale;
+  }
   function formatTranslation(key, values = {}, locale = currentLocale) {
     return translate(key, locale).replace(/\{(\w+)\}/g, (match, name) => {
       const value = values[name];
@@ -13236,6 +14221,7 @@
   function updateLanguageSelect() {
     const select = languageSelectElement();
     if (select && select.value !== currentLocale) select.value = currentLocale;
+    syncThemedSelect(select);
   }
   function applyLocaleToDocument() {
     document.documentElement.lang = currentLocale;
@@ -13586,7 +14572,7 @@
   var DEFAULT_CODEX_MODE = "images";
   var DEFAULT_API_IMAGES_CONCURRENCY = 4;
   var API_SETTINGS_STORAGE_KEY = "codex-image-api-settings";
-  var DEFAULT_DOCUMENT_TITLE = document.title || "iLab GPT CONJURE";
+  var DEFAULT_DOCUMENT_TITLE = document.title || "iLab CONJURE";
   var TASK_HISTORY_EXPANDED_GROUP_STORAGE_KEY = "codex-image-task-history-expanded-group";
   function defaultGalleryCategories() {
     return DEFAULT_GALLERY_CATEGORIES.map((category) => ({ ...category }));
@@ -13675,6 +14661,19 @@
       taskNotificationToastTimerIds: [],
       taskNotificationSettings: { inApp: true, system: false },
       taskNotificationSeenKeys: /* @__PURE__ */ new Set(),
+      generationCatalog: null,
+      generationCatalogError: null,
+      selectedFamilyId: null,
+      selectedModelId: null,
+      selectedProviderId: null,
+      selectedProviderBindingId: null,
+      lastModelByFamily: {},
+      lastProviderByModel: {},
+      lastProviderSelectionByModel: {},
+      parameterDraftsByModel: {},
+      parameterDraftVersionsByModel: {},
+      parameterValidationErrorsByModel: {},
+      inspectedGenerationSnapshot: null,
       draggedPromptChip: null,
       legacyArchivedTaskIds: [],
       batchMode: false,
@@ -14246,7 +15245,7 @@
     const els43 = getEls();
     document.addEventListener("change", (event) => {
       const target = event.target;
-      if (target?.matches?.("#codexMode, #apiMode")) syncReferenceFileAvailability();
+      if (target?.matches?.("#generationProviderSelect, #apiMode")) syncReferenceFileAvailability();
     });
     els43.authSourceGroup?.addEventListener("click", () => queueMicrotask(syncReferenceFileAvailability));
     document.addEventListener(LOCALE_CHANGE_EVENT, renderReferenceFiles);
@@ -26667,13 +27666,13 @@ js: import "konva/skia-backend";
       scale
     };
   }
-  function imageEditorCanvasFromImage(image, dimensions = imageEditorExportDimensions(image)) {
+  function imageEditorCanvasFromImage(image, dimensions2 = imageEditorExportDimensions(image)) {
     const canvas = document.createElement("canvas");
-    canvas.width = dimensions.width;
-    canvas.height = dimensions.height;
+    canvas.width = dimensions2.width;
+    canvas.height = dimensions2.height;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error(translate("imageEditor.canvasCreateFailed"));
-    ctx.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+    ctx.drawImage(image, 0, 0, dimensions2.width, dimensions2.height);
     return canvas;
   }
   function imageEditorBaseDimensions() {
@@ -26701,16 +27700,16 @@ js: import "konva/skia-backend";
     if (snapshot) ctx.drawImage(snapshot, offsetX, offsetY);
   }
   function resizeImageEditorCanvas(width, height, offsetX = 0, offsetY = 0) {
-    const dimensions = imageEditorClampedCanvasDimensions(width, height);
+    const dimensions2 = imageEditorClampedCanvasDimensions(width, height);
     const stage = imageEditorState.konvaStage;
-    const didResize = stage?.width?.() !== dimensions.width || stage?.height?.() !== dimensions.height;
+    const didResize = stage?.width?.() !== dimensions2.width || stage?.height?.() !== dimensions2.height;
     const didShift = Boolean(offsetX || offsetY);
     if (!didResize && !didShift) return false;
-    stage?.width?.(dimensions.width);
-    stage?.height?.(dimensions.height);
-    resizeImageEditorBackingCanvas(imageEditorState.workCanvas, dimensions.width, dimensions.height, offsetX, offsetY);
-    resizeImageEditorBackingCanvas(imageEditorState.brushBoundaryCanvas, dimensions.width, dimensions.height, offsetX, offsetY);
-    resizeImageEditorBackingCanvas(imageEditorState.brushOverlayCanvas, dimensions.width, dimensions.height, offsetX, offsetY);
+    stage?.width?.(dimensions2.width);
+    stage?.height?.(dimensions2.height);
+    resizeImageEditorBackingCanvas(imageEditorState.workCanvas, dimensions2.width, dimensions2.height, offsetX, offsetY);
+    resizeImageEditorBackingCanvas(imageEditorState.brushBoundaryCanvas, dimensions2.width, dimensions2.height, offsetX, offsetY);
+    resizeImageEditorBackingCanvas(imageEditorState.brushOverlayCanvas, dimensions2.width, dimensions2.height, offsetX, offsetY);
     imageEditorState.layers.forEach((layer) => {
       layer.node?.x?.((layer.node.x?.() || 0) + offsetX);
       layer.node?.y?.((layer.node.y?.() || 0) + offsetY);
@@ -26726,8 +27725,8 @@ js: import "konva/skia-backend";
       imageEditorState.markNode.image(imageEditorState.workCanvas);
       imageEditorState.markNode.x(0);
       imageEditorState.markNode.y(0);
-      imageEditorState.markNode.width(dimensions.width);
-      imageEditorState.markNode.height(dimensions.height);
+      imageEditorState.markNode.width(dimensions2.width);
+      imageEditorState.markNode.height(dimensions2.height);
     }
     updateImageEditorDisplayScale();
     imageEditorState.konvaLayer?.batchDraw?.();
@@ -26956,17 +27955,17 @@ js: import "konva/skia-backend";
     bindImageEditorStageEvents(stage);
   }
   function initializeImageEditorCanvases(image) {
-    const dimensions = imageEditorExportDimensions(image);
-    const baseCanvas = imageEditorCanvasFromImage(image, dimensions);
+    const dimensions2 = imageEditorExportDimensions(image);
+    const baseCanvas = imageEditorCanvasFromImage(image, dimensions2);
     const workCanvas = document.createElement("canvas");
     const brushBoundaryCanvas = document.createElement("canvas");
     const brushOverlayCanvas = document.createElement("canvas");
-    workCanvas.width = dimensions.width;
-    workCanvas.height = dimensions.height;
-    brushBoundaryCanvas.width = dimensions.width;
-    brushBoundaryCanvas.height = dimensions.height;
-    brushOverlayCanvas.width = dimensions.width;
-    brushOverlayCanvas.height = dimensions.height;
+    workCanvas.width = dimensions2.width;
+    workCanvas.height = dimensions2.height;
+    brushBoundaryCanvas.width = dimensions2.width;
+    brushBoundaryCanvas.height = dimensions2.height;
+    brushOverlayCanvas.width = dimensions2.width;
+    brushOverlayCanvas.height = dimensions2.height;
     imageEditorState.baseCanvas = baseCanvas;
     imageEditorState.workCanvas = workCanvas;
     imageEditorState.brushBoundaryCanvas = brushBoundaryCanvas;
@@ -26978,7 +27977,7 @@ js: import "konva/skia-backend";
     imageEditorState.historyIndex = -1;
     imageEditorState.layers = [];
     imageEditorState.selectedLayerId = null;
-    initializeImageEditorKonva(dimensions.width, dimensions.height);
+    initializeImageEditorKonva(dimensions2.width, dimensions2.height);
     const baseLayer = createImageEditorLayerFromCanvas(baseCanvas, {
       source: imageEditorState.source,
       sourceIndex: imageEditorState.sourceIndex,
@@ -30281,6 +31280,200 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/provider-selection.ts
+  function providerBindingSelectionKey(providerId, bindingId) {
+    return `${providerId}::${bindingId}`;
+  }
+  function providerIsEligible(catalog, provider, modelId) {
+    if (!provider.available || !modelId) return false;
+    const model = catalog.models.find((item) => item.id === modelId);
+    return provider.id !== "codex" || catalog.codex.available && model?.family_id === "gpt-image" && model.id === "gpt-image-2";
+  }
+  function eligibleProviderBindings(catalog, modelId, operation) {
+    if (!modelId) return [];
+    return catalog.providers.flatMap((provider) => {
+      if (!providerIsEligible(catalog, provider, modelId)) return [];
+      return provider.bindings.filter((binding) => binding.canonical_model_id === modelId && binding.operations.includes(operation) && binding.available !== false).map((binding) => ({
+        provider,
+        binding,
+        selectionKey: providerBindingSelectionKey(provider.id, binding.id)
+      }));
+    });
+  }
+  function eligibleProviders(catalog, modelId, operation) {
+    const providers = /* @__PURE__ */ new Map();
+    eligibleProviderBindings(catalog, modelId, operation).forEach(({ provider }) => {
+      providers.set(provider.id, provider);
+    });
+    return [...providers.values()];
+  }
+  function preferredProviderBinding(entries, providerId, codexMode) {
+    const providerEntries = entries.filter((entry) => entry.provider.id === providerId);
+    if (!providerEntries.length) return null;
+    if (providerId === "codex") {
+      return providerEntries.find((entry) => entry.binding.protocol_profile === `codex_${codexMode}`) || providerEntries[0] || null;
+    }
+    return providerEntries[0] || null;
+  }
+  function resolveProviderSelection(entries, lastSelectionKey, lastProviderId, defaultProviderId, codexMode) {
+    if (lastSelectionKey) {
+      const remembered = entries.find((entry) => entry.selectionKey === lastSelectionKey);
+      if (remembered) return remembered;
+    }
+    return preferredProviderBinding(entries, lastProviderId, codexMode) || preferredProviderBinding(entries, defaultProviderId, codexMode) || entries[0] || null;
+  }
+  function resolveProviderId(eligible, lastProviderId, defaultProviderId) {
+    const ids = new Set(eligible.map((provider) => provider.id));
+    if (lastProviderId && ids.has(lastProviderId)) return lastProviderId;
+    if (defaultProviderId && ids.has(defaultProviderId)) return defaultProviderId;
+    return eligible[0]?.id ?? null;
+  }
+  function selectedProviderBinding() {
+    const { state: state32 } = getLegacyBridge();
+    const provider = state32.generationCatalog?.providers.find((item) => item.id === state32.selectedProviderId);
+    const candidates = provider?.bindings.filter((binding) => binding.canonical_model_id === state32.selectedModelId && binding.operations.includes(state32.mode) && binding.available !== false) || [];
+    return candidates.find((binding) => binding.id === state32.selectedProviderBindingId) || candidates[0] || null;
+  }
+  function syncCodexCatalogMode(mode) {
+    const { state: state32 } = getLegacyBridge();
+    const catalog = state32.generationCatalog;
+    if (!catalog) return;
+    catalog.codex.mode = mode;
+    if (state32.selectedProviderId !== "codex") return;
+    const selected = preferredProviderBinding(
+      eligibleProviderBindings(catalog, state32.selectedModelId, state32.mode),
+      "codex",
+      mode
+    );
+    if (selected) state32.selectedProviderBindingId = selected.binding.id;
+    renderProviderSelection();
+  }
+  function settingsTabForProvider(_providerId) {
+    return "api";
+  }
+  function optionLabel(entry) {
+    return entry.binding.display_name || entry.provider.name;
+  }
+  function applyOptionIcon(option2, entry) {
+    if (entry.provider.id === "codex") {
+      option2.dataset.optionIcon = "/static/brand/codex-channel-mark.svg";
+      option2.dataset.optionIconKind = "image";
+      return;
+    }
+    if (entry.provider.icon_emoji) {
+      option2.dataset.optionIcon = entry.provider.icon_emoji;
+      option2.dataset.optionIconKind = "emoji";
+    }
+  }
+  function renderProviderSelection() {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const select = els43.generationProviderSelect;
+    const catalog = state32.generationCatalog;
+    const entries = catalog ? eligibleProviderBindings(catalog, state32.selectedModelId, state32.mode) : [];
+    const resolved = catalog ? resolveProviderSelection(
+      entries,
+      state32.lastProviderSelectionByModel[state32.selectedModelId || ""],
+      state32.lastProviderByModel[state32.selectedModelId || ""],
+      catalog.default_provider_by_model[state32.selectedModelId || ""],
+      catalog.codex.mode
+    ) : null;
+    state32.selectedProviderId = resolved?.provider.id || null;
+    state32.selectedProviderBindingId = resolved?.binding.id || null;
+    state32.authAvailable = Boolean(resolved);
+    if (select) {
+      select.replaceChildren();
+      if (!entries.length) {
+        const option2 = document.createElement("option");
+        option2.value = "";
+        option2.textContent = catalog ? translate("modelSelection.providerUnavailable") : translate("modelSelection.catalogUnavailable");
+        select.append(option2);
+      } else {
+        for (const entry of entries) {
+          const option2 = document.createElement("option");
+          option2.value = entry.selectionKey;
+          option2.textContent = optionLabel(entry);
+          option2.title = optionLabel(entry);
+          applyOptionIcon(option2, entry);
+          select.append(option2);
+        }
+      }
+      select.value = resolved?.selectionKey || "";
+      select.disabled = !resolved;
+      select.title = resolved ? optionLabel(resolved) : "";
+      select.setAttribute("aria-invalid", resolved ? "false" : "true");
+      syncThemedSelect(select);
+    }
+    if (els43.runButton) els43.runButton.disabled = !resolved;
+  }
+  function selectGenerationProvider(selectionOrProviderId) {
+    const { state: state32 } = getLegacyBridge();
+    const catalog = state32.generationCatalog;
+    if (!catalog || !state32.selectedModelId) return;
+    const entries = eligibleProviderBindings(catalog, state32.selectedModelId, state32.mode);
+    const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId) || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
+    if (!selected) {
+      renderProviderSelection();
+      return;
+    }
+    state32.selectedProviderId = selected.provider.id;
+    state32.selectedProviderBindingId = selected.binding.id;
+    state32.lastProviderByModel[state32.selectedModelId] = selected.provider.id;
+    state32.lastProviderSelectionByModel[state32.selectedModelId] = selected.selectionKey;
+    getLegacyBridge().methods.persistModelSelection?.();
+    renderProviderSelection();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+  }
+  function initProviderSelectionFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      eligibleProviders,
+      eligibleProviderBindings,
+      resolveProviderId,
+      resolveProviderSelection,
+      settingsTabForProvider,
+      renderProviderSelection,
+      selectedProviderBinding,
+      selectGenerationProvider,
+      syncCodexCatalogMode
+    });
+  }
+
+  // codex_image/webui/frontend/src/mode-settings-visibility.ts
+  function resolveModeSettingsVisibility({
+    catalogAvailable,
+    modelId,
+    protocolProfile,
+    legacyDirectApi
+  }) {
+    if (!catalogAvailable) {
+      return {
+        showMainModel: !legacyDirectApi,
+        showApiDirectNotice: legacyDirectApi,
+        showPromptFidelity: true
+      };
+    }
+    if (modelId !== "gpt-image-2") {
+      return {
+        showMainModel: false,
+        showApiDirectNotice: false,
+        showPromptFidelity: false
+      };
+    }
+    if (!protocolProfile) {
+      return {
+        showMainModel: false,
+        showApiDirectNotice: false,
+        showPromptFidelity: true
+      };
+    }
+    const usesResponses = protocolProfile.endsWith("_responses");
+    return {
+      showMainModel: usesResponses,
+      showApiDirectNotice: !usesResponses,
+      showPromptFidelity: true
+    };
+  }
+
   // codex_image/webui/frontend/src/api-mode-settings.ts
   var bridge7 = getLegacyBridge();
   var els8 = bridge7.els;
@@ -30311,14 +31504,17 @@ ${hint}` : hint;
     element2.classList.add("mode-collapsed");
     element2.classList.add("hidden");
   }
-  function applyModeSettingsVisibility(isDirectApi) {
-    setModeSpecificElementVisibility(els8.modeSpecificSettings, true);
-    setModeSpecificElementVisibility(els8.mainModelField, !isDirectApi);
-    setModeSpecificElementVisibility(els8.apiDirectSettingsNotice, isDirectApi);
-    setModeSpecificElementVisibility(els8.promptFidelityField, true);
+  function applyModeSettingsVisibility(visibility) {
+    const showModeSettings = visibility.showMainModel || visibility.showApiDirectNotice || visibility.showPromptFidelity;
+    setModeSpecificElementVisibility(els8.modeSettingsSlot, showModeSettings);
+    setModeSpecificElementVisibility(els8.modeSpecificSettings, showModeSettings);
+    setModeSpecificElementVisibility(els8.mainModelField, visibility.showMainModel);
+    setModeSpecificElementVisibility(els8.apiDirectSettingsNotice, visibility.showApiDirectNotice);
+    setModeSpecificElementVisibility(els8.promptFidelityField, visibility.showPromptFidelity);
   }
   function updateWebSearchAvailability(authSource = currentAuthSource()) {
-    const supported = authSource === "api" ? currentApiMode() === "responses" : authSource === "codex" ? currentCodexMode() === "responses" : true;
+    const binding = selectedProviderBinding();
+    const supported = binding ? binding.protocol_profile.endsWith("_responses") : authSource === "api" ? currentApiMode() === "responses" : currentCodexMode() === "responses";
     if (els8.webSearch) {
       const wasChecked = Boolean(els8.webSearch.checked);
       els8.webSearch.disabled = !supported;
@@ -30332,17 +31528,28 @@ ${hint}` : hint;
       els8.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
     }
   }
-  function setModeSettingsVariant(isDirectApi) {
+  function setModeSettingsVariant(isDirectApi, visibility) {
     const slot = els8.modeSettingsSlot;
     if (slot) {
       slot.style.height = "";
       slot.classList.remove("is-transitioning");
     }
-    applyModeSettingsVisibility(isDirectApi);
+    applyModeSettingsVisibility(visibility || resolveModeSettingsVisibility({
+      catalogAvailable: false,
+      modelId: null,
+      protocolProfile: null,
+      legacyDirectApi: Boolean(isDirectApi)
+    }));
   }
   function updateModeSpecificSettings(authSource = currentAuthSource()) {
-    const isDirectApi = authSource === "api" && currentApiMode() !== "responses" || authSource === "codex" && currentCodexMode() !== "responses";
-    setModeSettingsVariant(isDirectApi);
+    const binding = selectedProviderBinding();
+    const isDirectApi = binding ? !binding.protocol_profile.endsWith("_responses") : authSource === "api" && currentApiMode() !== "responses" || authSource === "codex" && currentCodexMode() !== "responses";
+    setModeSettingsVariant(isDirectApi, resolveModeSettingsVisibility({
+      catalogAvailable: Boolean(getLegacyBridge().state.generationCatalog),
+      modelId: getLegacyBridge().state.selectedModelId,
+      protocolProfile: binding?.protocol_profile || null,
+      legacyDirectApi: isDirectApi
+    }));
     updateWebSearchAvailability(authSource);
     legacyMethod12("syncReferenceFileAvailability");
     const refreshOutputSettingsLock2 = getLegacyBridge().methods.refreshOutputSettingsLock;
@@ -30385,16 +31592,23 @@ ${hint}` : hint;
     try {
       const response = await fetch("/api/health");
       const data = await response.json();
-      state8.authAvailable = Boolean(data.auth_available);
+      if (!state8.generationCatalog) state8.authAvailable = Boolean(data.auth_available);
       state8.authStatus = data.auth || null;
       renderAuthSource(state8.authStatus);
       els9.apiStatus.className = `status-dot ${state8.authAvailable ? "ok" : "error"}`;
+      if (state8.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
       els9.runButton.disabled = !state8.authAvailable;
-      if (!state8.authAvailable) {
+      if (!state8.authAvailable && !state8.generationCatalog) {
         setStatus7(translate("auth.missingCodexSession"), "error");
       }
       updateRequestPreview4();
     } catch (error) {
+      if (state8.generationCatalog) {
+        getLegacyBridge().methods.renderProviderSelection?.();
+        getLegacyBridge().methods.updateModeSpecificSettings?.();
+        updateRequestPreview4();
+        return;
+      }
       state8.authAvailable = false;
       els9.apiStatus.className = "status-dot error";
       els9.runButton.disabled = true;
@@ -30417,8 +31631,10 @@ ${hint}` : hint;
       }
       state8.pendingAuthSource = null;
       state8.authStatus = data;
-      state8.authAvailable = Boolean(data.auth_available);
+      if (!state8.generationCatalog) state8.authAvailable = Boolean(data.auth_available);
       renderAuthSource(data);
+      if (state8.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      getLegacyBridge().methods.updateModeSpecificSettings?.();
       els9.apiStatus.className = `status-dot ${state8.authAvailable ? "ok" : "error"}`;
       els9.runButton.disabled = !state8.authAvailable;
       setStatus7(authSourceDetailText(data), state8.authAvailable ? "ok" : "error");
@@ -30427,6 +31643,8 @@ ${hint}` : hint;
     } catch (error) {
       state8.pendingAuthSource = null;
       renderAuthSource(state8.authStatus);
+      if (state8.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      getLegacyBridge().methods.updateModeSpecificSettings?.();
       updateRequestPreview4();
       setStatus7(error.message || translate("auth.switchFailed"), "error");
       return false;
@@ -30484,15 +31702,119 @@ ${hint}` : hint;
     return translate("auth.notActive");
   }
   function currentAuthSource2() {
+    if (state8.selectedProviderId) return state8.selectedProviderId === "codex" ? "codex" : "api";
     return state8.pendingAuthSource || state8.authStatus?.selected_source || "codex";
   }
   function isDirectApiMode(authSource = currentAuthSource2()) {
     return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
   }
 
+  // codex_image/webui/frontend/src/aspect-ratio-controls.ts
+  var PREFERRED_RATIO_SLOTS = [
+    ["1:1", "21:9"],
+    ["4:5", "5:4"],
+    ["3:4", "4:3"],
+    ["2:3", "3:2"],
+    ["9:16", "16:9"],
+    ["1:4", "4:1"],
+    ["1:8", "8:1"],
+    ["1:2", "2:1"],
+    ["9:19.5", "19.5:9"],
+    ["9:20", "20:9"]
+  ];
+  function parsedRatio(value) {
+    const match = value.trim().match(/^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/);
+    if (!match) return null;
+    const width = Number(match[1]);
+    const height = Number(match[2]);
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+    return { width, height };
+  }
+  function reciprocal(left, right) {
+    const a = parsedRatio(left);
+    const b = parsedRatio(right);
+    if (!a || !b) return false;
+    return Math.abs(a.width * b.width - a.height * b.height) < 1e-9;
+  }
+  function aspectRatioSlots(values) {
+    const available = new Set(values);
+    const used = /* @__PURE__ */ new Set();
+    const slots = [];
+    PREFERRED_RATIO_SLOTS.forEach((preferred, index) => {
+      const matched = preferred.filter((value) => available.has(value) && !used.has(value));
+      if (!matched.length) return;
+      if (index === 0 && matched.length === 1 && matched[0] === "1:1" && available.has("auto")) {
+        matched.push("auto");
+      }
+      matched.forEach((value) => used.add(value));
+      slots.push({ values: [...matched] });
+    });
+    values.forEach((value) => {
+      if (used.has(value)) return;
+      used.add(value);
+      const pair = values.find((candidate) => !used.has(candidate) && reciprocal(value, candidate));
+      if (pair) used.add(pair);
+      slots.push({ values: pair ? [value, pair] : [value] });
+    });
+    return slots;
+  }
+  function aspectRatioRect(value) {
+    const ratio = parsedRatio(value);
+    if (!ratio) return null;
+    const maximum = 16;
+    const minimum = 2;
+    let width = maximum;
+    let height = maximum;
+    if (ratio.width > ratio.height) height = Math.max(minimum, maximum * ratio.height / ratio.width);
+    else if (ratio.height > ratio.width) width = Math.max(minimum, maximum * ratio.width / ratio.height);
+    return {
+      x: (20 - width) / 2,
+      y: (20 - height) / 2,
+      width,
+      height
+    };
+  }
+  var SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+  function createAspectRatioIcon(value) {
+    const geometry = aspectRatioRect(value);
+    if (!geometry) return null;
+    const svg = document.createElementNS(SVG_NAMESPACE, "svg");
+    svg.classList.add("aspect-ratio-icon");
+    svg.setAttribute("viewBox", "0 0 20 20");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    const rect = document.createElementNS(SVG_NAMESPACE, "rect");
+    rect.setAttribute("x", String(geometry.x));
+    rect.setAttribute("y", String(geometry.y));
+    rect.setAttribute("width", String(geometry.width));
+    rect.setAttribute("height", String(geometry.height));
+    rect.setAttribute("rx", "1");
+    rect.setAttribute("fill", "none");
+    rect.setAttribute("stroke", "currentColor");
+    rect.setAttribute("stroke-width", "1.35");
+    rect.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.append(rect);
+    return svg;
+  }
+  function decorateLegacyAspectRatioButtons(root = document) {
+    root.querySelectorAll("#ratioGroup .radio-btn[data-val]").forEach((button) => {
+      if (button.querySelector(".aspect-ratio-icon")) return;
+      const value = button.dataset.val || button.textContent?.trim() || "";
+      const icon = createAspectRatioIcon(value);
+      if (!icon) return;
+      const label = document.createElement("span");
+      label.className = "aspect-ratio-label";
+      label.textContent = value;
+      button.replaceChildren(icon, label);
+    });
+  }
+  function initAspectRatioControlsFeature() {
+    decorateLegacyAspectRatioButtons();
+  }
+
   // codex_image/webui/frontend/src/segmented-indicator.ts
   var HOST_SELECTORS = [
-    ".radio-group:not(.ratio-group)",
+    ".radio-group:not(.ratio-group):not(.model-parameter-segmented-multiline):not(.model-aspect-ratio-grid)",
     "#authSourceGroup",
     "#systemSettingsTabs",
     ".history-view-toggle",
@@ -30502,6 +31824,7 @@ ${hint}` : hint;
   var BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .system-settings-tab, .history-view-button, .history-sort-button";
   var INDICATOR_CLASS = "segmented-indicator";
   var HOST_CLASS = "segmented-indicator-host";
+  var READY_CLASS = "segmented-indicator-ready";
   var initializedHosts = /* @__PURE__ */ new WeakSet();
   var scheduledFrames = /* @__PURE__ */ new WeakMap();
   var segmentedIndicatorsInitialized = false;
@@ -30520,15 +31843,21 @@ ${hint}` : hint;
   }
   function updateIndicator(host) {
     scheduledFrames.delete(host);
-    if (!host.isConnected) return;
+    if (!host.isConnected) return false;
     const indicator = ensureIndicator(host);
     const active = activeSegment(host);
     if (!active) {
+      host.classList.remove(READY_CLASS);
       indicator.style.setProperty("--segmented-indicator-opacity", "0");
-      return;
+      return false;
     }
     const hostRect = host.getBoundingClientRect();
     const activeRect = active.getBoundingClientRect();
+    if (hostRect.width <= 0 || hostRect.height <= 0 || activeRect.width <= 0 || activeRect.height <= 0) {
+      host.classList.remove(READY_CLASS);
+      indicator.style.setProperty("--segmented-indicator-opacity", "0");
+      return false;
+    }
     const hostStyle = window.getComputedStyle(host);
     const borderLeft = Number.parseFloat(hostStyle.borderLeftWidth) || 0;
     const borderTop = Number.parseFloat(hostStyle.borderTopWidth) || 0;
@@ -30537,10 +31866,14 @@ ${hint}` : hint;
     indicator.style.setProperty("--segmented-indicator-width", `${activeRect.width}px`);
     indicator.style.setProperty("--segmented-indicator-height", `${activeRect.height}px`);
     indicator.style.setProperty("--segmented-indicator-opacity", "1");
+    return true;
+  }
+  function commitIndicatorUpdate(host) {
+    if (updateIndicator(host)) host.classList.add(READY_CLASS);
   }
   function scheduleIndicatorUpdate(host) {
     if (scheduledFrames.has(host)) return;
-    scheduledFrames.set(host, window.requestAnimationFrame(() => updateIndicator(host)));
+    scheduledFrames.set(host, window.requestAnimationFrame(() => commitIndicatorUpdate(host)));
   }
   function watchButtonClassChanges(host) {
     const observer = new MutationObserver(() => scheduleIndicatorUpdate(host));
@@ -30549,7 +31882,7 @@ ${hint}` : hint;
     });
   }
   function initHost(host) {
-    if (initializedHosts.has(host)) return;
+    if (initializedHosts.has(host)) return false;
     initializedHosts.add(host);
     host.classList.add(HOST_CLASS);
     ensureIndicator(host);
@@ -30561,10 +31894,13 @@ ${hint}` : hint;
       }));
       resizeObserver.observe(host);
     }
-    scheduleIndicatorUpdate(host);
+    commitIndicatorUpdate(host);
+    return true;
   }
   function refreshSegmentedIndicators() {
-    document.querySelectorAll(HOST_SELECTOR).forEach(scheduleIndicatorUpdate);
+    document.querySelectorAll(HOST_SELECTOR).forEach((host) => {
+      if (!initHost(host)) scheduleIndicatorUpdate(host);
+    });
   }
   function initSegmentedIndicatorFeature() {
     if (segmentedIndicatorsInitialized) return;
@@ -30575,13 +31911,1183 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/model-parameters.ts
+  function cloneValue(value) {
+    if (Array.isArray(value)) return value.map(cloneValue);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneValue(item)]));
+    }
+    return value;
+  }
+  function gptSizeValid(value) {
+    if (typeof value !== "string") return false;
+    const match = value.match(/^(\d+)x(\d+)$/i);
+    if (!match) return false;
+    const width = Number(match[1]);
+    const height = Number(match[2]);
+    if (!Number.isInteger(width) || !Number.isInteger(height)) return false;
+    if (width < 16 || width > 3840 || height < 16 || height > 3840) return false;
+    if (width % 16 !== 0 || height % 16 !== 0) return false;
+    if (Math.max(width, height) / Math.min(width, height) > 3) return false;
+    const pixels = width * height;
+    return pixels >= 655360 && pixels <= 8294400;
+  }
+  function parameterValueValid(definition, value) {
+    if (definition.id === "canvas.size" && definition.allowed_values.length === 0) {
+      return gptSizeValid(value);
+    }
+    const typeValid = definition.value_type === "string" ? typeof value === "string" : definition.value_type === "integer" ? typeof value === "number" && Number.isInteger(value) : definition.value_type === "boolean" ? typeof value === "boolean" : definition.value_type === "object" ? Boolean(value) && typeof value === "object" && !Array.isArray(value) : false;
+    if (!typeValid) return false;
+    if (definition.object_choices?.length && value && typeof value === "object" && !Array.isArray(value)) {
+      const choices = new Map(definition.object_choices.map((row) => [row.key, row]));
+      for (const [key, item] of Object.entries(value)) {
+        const row = choices.get(key);
+        if (row && (typeof item !== "string" || !row.allowed_values.includes(item))) return false;
+      }
+    }
+    if (definition.allowed_values.length && !definition.allowed_values.includes(value)) return false;
+    if (typeof value === "number") {
+      if (definition.minimum !== null && value < definition.minimum) return false;
+      if (definition.maximum !== null && value > definition.maximum) return false;
+      if (definition.step !== null) {
+        const base = definition.minimum ?? 0;
+        const quotient = (value - base) / definition.step;
+        if (Math.abs(quotient - Math.round(quotient)) > 1e-9) return false;
+      }
+    }
+    return true;
+  }
+  function nextObjectChoiceValue(definition, value, key, next) {
+    const row = definition.object_choices?.find((item) => item.key === key);
+    if (!row || !row.allowed_values.includes(next)) return { ...value };
+    const updated = { ...value };
+    if (next === row.default) delete updated[key];
+    else updated[key] = next;
+    return updated;
+  }
+  function managedPresetKeys(definition) {
+    return new Set(definition.object_presets?.flatMap((preset) => Object.keys(preset.value)) || []);
+  }
+  function matchingObjectPreset(definition, value) {
+    const presets = definition.object_presets || [];
+    const managedKeys = managedPresetKeys(definition);
+    const presentManagedKeys = [...managedKeys].filter((key) => key in value);
+    if (presentManagedKeys.length === 0) {
+      return presets.find((preset) => preset.matches_empty) || null;
+    }
+    return presets.find((preset) => [...managedKeys].every((key) => key in value && key in preset.value && value[key] === preset.value[key])) || null;
+  }
+  function nextObjectPresetValue(definition, value, preset) {
+    if (!definition.object_presets?.some((item) => item.id === preset.id)) return { ...value };
+    const updated = { ...value };
+    managedPresetKeys(definition).forEach((key) => delete updated[key]);
+    Object.assign(updated, cloneValue(preset.value));
+    return updated;
+  }
+  function conditionMatches(condition, values) {
+    const actual = values[condition.parameter_id];
+    if (condition.operator === "equals") return actual === condition.value;
+    if (condition.operator === "not_equals") return actual !== condition.value;
+    return Array.isArray(condition.value) && condition.value.includes(actual);
+  }
+  function initializeParameterDraft(model, previous = {}) {
+    const values = {};
+    const defaulted = [];
+    const definitions = new Map(model.parameters.map((definition) => [definition.id, definition]));
+    for (const definition of model.parameters) {
+      if (!(definition.id in previous)) {
+        values[definition.id] = cloneValue(definition.default);
+        continue;
+      }
+      const prior = previous[definition.id];
+      if (parameterValueValid(definition, prior)) {
+        values[definition.id] = cloneValue(prior);
+      } else {
+        const replacement = cloneValue(definition.default);
+        values[definition.id] = replacement;
+        defaulted.push({ id: definition.id, previous: cloneValue(prior), replacement: cloneValue(replacement) });
+      }
+    }
+    const dropped = Object.entries(previous).filter(([id]) => !definitions.has(id)).map(([id, prior]) => ({ id, previous: cloneValue(prior) }));
+    return { values, defaulted, dropped };
+  }
+  function migrateParameterValues(model, previous) {
+    return initializeParameterDraft(model, previous);
+  }
+  function parameterAffectsVisibility(model, parameterId) {
+    return model.parameters.some((definition) => definition.visible_when.some(
+      (condition) => condition.parameter_id === parameterId
+    ));
+  }
+  function activeParameterValuesFor(model, operation, draft) {
+    const values = Object.fromEntries(model.parameters.map((definition) => {
+      const value = draft[definition.id];
+      return [definition.id, cloneValue(parameterValueValid(definition, value) ? value : definition.default)];
+    }));
+    return Object.fromEntries(model.parameters.filter((definition) => definition.operations.includes(operation)).filter((definition) => definition.control !== "notice").filter((definition) => definition.visible_when.every((condition) => conditionMatches(condition, values))).map((definition) => [definition.id, cloneValue(values[definition.id])]));
+  }
+  function activeParameterValues(model) {
+    const { state: state32 } = getLegacyBridge();
+    return activeParameterValuesFor(
+      model,
+      state32.mode,
+      state32.parameterDraftsByModel[model.id] || {}
+    );
+  }
+  function fieldShell(definition) {
+    const field = document.createElement("div");
+    field.className = `field model-parameter-field${definition.full_width ? " full-width" : ""}`;
+    field.dataset.parameterId = definition.id;
+    const label = document.createElement("span");
+    label.className = "model-parameter-label";
+    label.textContent = translate(definition.label_key);
+    field.append(label);
+    return field;
+  }
+  function setReadOnly(control, readOnly) {
+    if (!readOnly) return;
+    control.disabled = true;
+    control.tabIndex = -1;
+    control.setAttribute("aria-readonly", "true");
+  }
+  function interactiveModel(context) {
+    if (context.readOnly) return context.model;
+    const { state: state32 } = getLegacyBridge();
+    return state32.generationCatalog?.models.find((model) => model.id === state32.selectedModelId) || context.model;
+  }
+  function commitValue(context, definition, value, rerender = false) {
+    if (context.readOnly) return;
+    const model = interactiveModel(context);
+    const currentDefinition = model.parameters.find((item) => item.id === definition.id);
+    if (!currentDefinition) return;
+    setParameterValue(model.id, currentDefinition.id, value);
+    if (rerender) renderModelParameters(model, { readOnly: false });
+  }
+  function renderSelect(definition, value, context) {
+    const field = fieldShell(definition);
+    const select = document.createElement("select");
+    select.className = "control";
+    select.setAttribute("aria-label", translate(definition.label_key));
+    definition.allowed_values.forEach((allowed) => {
+      const option2 = document.createElement("option");
+      option2.value = String(allowed);
+      option2.textContent = String(allowed);
+      select.append(option2);
+    });
+    select.value = String(value);
+    setReadOnly(select, context.readOnly);
+    select.addEventListener("change", () => commitValue(
+      context,
+      definition,
+      select.value,
+      parameterAffectsVisibility(interactiveModel(context), definition.id)
+    ));
+    field.append(select);
+    return field;
+  }
+  function renderSegmented(definition, value, context) {
+    const field = fieldShell(definition);
+    if (definition.allowed_values.length === 1) {
+      const staticValue = document.createElement("div");
+      staticValue.className = "control model-parameter-static-value";
+      staticValue.textContent = String(definition.allowed_values[0]);
+      staticValue.setAttribute("aria-label", translate(definition.label_key));
+      field.append(staticValue);
+      return field;
+    }
+    const group = document.createElement("div");
+    const multiline = definition.allowed_values.length > 4;
+    group.className = `radio-group model-parameter-segmented${multiline ? " model-parameter-segmented-multiline" : ""}`;
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", translate(definition.label_key));
+    definition.allowed_values.forEach((allowed) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `radio-btn${allowed === value ? " active" : ""}`;
+      button.textContent = String(allowed);
+      button.disabled = context.readOnly;
+      button.tabIndex = context.readOnly ? -1 : 0;
+      button.setAttribute("aria-pressed", allowed === value ? "true" : "false");
+      button.addEventListener("click", () => {
+        if (context.readOnly || button.classList.contains("active")) return;
+        group.querySelectorAll(".radio-btn").forEach((item) => {
+          const active = item === button;
+          item.classList.toggle("active", active);
+          item.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+        commitValue(
+          context,
+          definition,
+          allowed,
+          parameterAffectsVisibility(interactiveModel(context), definition.id)
+        );
+        refreshSegmentedIndicators();
+      });
+      group.append(button);
+    });
+    field.append(group);
+    return field;
+  }
+  function renderBooleanSegmented(definition, value, context) {
+    const field = fieldShell(definition);
+    const group = document.createElement("div");
+    group.className = "radio-group model-parameter-segmented model-parameter-boolean-segmented";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", translate(definition.label_key));
+    const choices = [
+      { value: false, label: translate("output.lock.disabled") },
+      { value: true, label: translate("output.lock.enabled") }
+    ];
+    choices.forEach((choice) => {
+      const button = document.createElement("button");
+      const active = choice.value === Boolean(value);
+      button.type = "button";
+      button.className = `radio-btn${active ? " active" : ""}`;
+      button.textContent = choice.label;
+      button.disabled = context.readOnly;
+      button.tabIndex = context.readOnly ? -1 : 0;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.addEventListener("click", () => {
+        if (context.readOnly || button.classList.contains("active")) return;
+        group.querySelectorAll(".radio-btn").forEach((item) => {
+          const isActive = item === button;
+          item.classList.toggle("active", isActive);
+          item.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+        commitValue(
+          context,
+          definition,
+          choice.value,
+          parameterAffectsVisibility(interactiveModel(context), definition.id)
+        );
+        refreshSegmentedIndicators();
+      });
+      group.append(button);
+    });
+    field.append(group);
+    return field;
+  }
+  function renderToggle(definition, value, context) {
+    const field = fieldShell(definition);
+    const label = document.createElement("label");
+    label.className = "web-search-toggle model-parameter-toggle";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = Boolean(value);
+    input.setAttribute("aria-label", translate(definition.label_key));
+    setReadOnly(input, context.readOnly);
+    const track = document.createElement("span");
+    track.className = "web-search-toggle-track";
+    track.setAttribute("aria-hidden", "true");
+    const text = document.createElement("span");
+    text.className = "web-search-toggle-text";
+    text.textContent = translate(input.checked ? "output.lock.enabled" : "output.lock.disabled");
+    input.addEventListener("change", () => {
+      text.textContent = translate(input.checked ? "output.lock.enabled" : "output.lock.disabled");
+      commitValue(
+        context,
+        definition,
+        input.checked,
+        parameterAffectsVisibility(interactiveModel(context), definition.id)
+      );
+    });
+    label.append(input, track, text);
+    field.append(label);
+    return field;
+  }
+  function renderNumeric(definition, value, context, slider) {
+    const field = fieldShell(definition);
+    const input = document.createElement("input");
+    input.className = slider ? "slider" : "control";
+    input.type = slider ? "range" : "number";
+    input.value = String(value);
+    input.setAttribute("aria-label", translate(definition.label_key));
+    if (definition.minimum !== null) input.min = String(definition.minimum);
+    if (definition.maximum !== null) input.max = String(definition.maximum);
+    if (definition.step !== null) input.step = String(definition.step);
+    setReadOnly(input, context.readOnly);
+    const output = document.createElement("output");
+    output.className = "model-parameter-number-value";
+    output.textContent = String(value);
+    const error = document.createElement("span");
+    error.className = "model-parameter-error hidden";
+    error.setAttribute("role", "alert");
+    input.addEventListener("input", () => {
+      const next = Number(input.value);
+      output.textContent = input.value;
+      const message = parameterValueValid(definition, next) ? "" : translate("modelParameters.invalidValue");
+      error.textContent = message;
+      error.classList.toggle("hidden", !message);
+      setValidationError(interactiveModel(context).id, definition.id, message);
+      if (!message) commitValue(context, definition, next);
+    });
+    if (slider) field.append(input, output, error);
+    else field.append(input, error);
+    return field;
+  }
+  function renderSlider(definition, value, context) {
+    return renderNumeric(definition, value, context, true);
+  }
+  function renderNumber(definition, value, context) {
+    return renderNumeric(definition, value, context, false);
+  }
+  function setValidationError(modelId, parameterId, message) {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const errors = state32.parameterValidationErrorsByModel[modelId] || {};
+    if (message) errors[parameterId] = message;
+    else delete errors[parameterId];
+    state32.parameterValidationErrorsByModel[modelId] = errors;
+    if (els43.runButton) els43.runButton.disabled = !state32.authAvailable || Object.keys(errors).length > 0;
+  }
+  function renderText(definition, value, context) {
+    const field = fieldShell(definition);
+    const input = definition.value_type === "object" ? document.createElement("textarea") : document.createElement("input");
+    input.className = "control model-parameter-text";
+    input.setAttribute("aria-label", translate(definition.label_key));
+    if (input instanceof HTMLTextAreaElement) {
+      input.rows = 4;
+      input.value = JSON.stringify(value, null, 2);
+    } else {
+      input.type = "text";
+      input.value = String(value);
+    }
+    setReadOnly(input, context.readOnly);
+    const error = document.createElement("span");
+    error.className = "model-parameter-error hidden";
+    error.setAttribute("role", "alert");
+    const handle = () => {
+      if (context.readOnly) return;
+      if (definition.value_type !== "object") {
+        const message2 = parameterValueValid(definition, input.value) ? "" : translate("modelParameters.invalidValue");
+        error.textContent = message2;
+        error.classList.toggle("hidden", !message2);
+        setValidationError(interactiveModel(context).id, definition.id, message2);
+        if (!message2) commitValue(context, definition, input.value);
+        return;
+      }
+      let parsed;
+      let message = "";
+      try {
+        parsed = JSON.parse(input.value);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) message = translate("modelParameters.objectRequired");
+      } catch {
+        message = translate("modelParameters.invalidJson");
+      }
+      error.textContent = message;
+      error.classList.toggle("hidden", !message);
+      setValidationError(interactiveModel(context).id, definition.id, message);
+      if (!message) commitValue(context, definition, parsed);
+    };
+    input.addEventListener("input", handle);
+    input.addEventListener("blur", handle);
+    field.append(input, error);
+    return field;
+  }
+  function renderNotice(definition, value, _context) {
+    const notice = document.createElement("p");
+    notice.className = `model-parameter-notice${definition.full_width ? " full-width" : ""}`;
+    notice.dataset.parameterId = definition.id;
+    notice.textContent = String(value || translate(definition.label_key));
+    return notice;
+  }
+  function renderChoiceGrid(definition, value, context) {
+    const field = fieldShell(definition);
+    field.classList.add("model-parameter-choice-grid");
+    const current = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    definition.object_choices?.forEach((row) => {
+      const choiceRow = document.createElement("div");
+      choiceRow.className = "model-parameter-choice-row";
+      const label = document.createElement("span");
+      label.className = "model-parameter-choice-label";
+      label.textContent = translate(row.label_key);
+      const group = document.createElement("div");
+      group.className = "radio-group model-parameter-choice-options model-parameter-segmented-multiline";
+      group.setAttribute("role", "group");
+      group.setAttribute("aria-label", translate(row.label_key));
+      const selected = typeof current[row.key] === "string" ? String(current[row.key]) : row.default;
+      row.allowed_values.forEach((allowed, index) => {
+        const button = document.createElement("button");
+        const active = selected === allowed;
+        button.type = "button";
+        button.className = `radio-btn${active ? " active" : ""}`;
+        button.textContent = translate(row.label_keys[index] || row.label_key);
+        button.title = allowed;
+        button.disabled = context.readOnly;
+        button.tabIndex = context.readOnly ? -1 : 0;
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+        button.addEventListener("click", () => {
+          if (context.readOnly || button.classList.contains("active")) return;
+          group.querySelectorAll(".radio-btn").forEach((item) => {
+            const isActive = item === button;
+            item.classList.toggle("active", isActive);
+            item.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+          const nextValue = nextObjectChoiceValue(definition, current, row.key, allowed);
+          Object.keys(current).forEach((key) => delete current[key]);
+          Object.assign(current, nextValue);
+          commitValue(context, definition, nextValue);
+        });
+        group.append(button);
+      });
+      choiceRow.append(label, group);
+      field.append(choiceRow);
+    });
+    return field;
+  }
+  function renderObjectPresets(definition, value, context) {
+    const field = fieldShell(definition);
+    const group = document.createElement("div");
+    group.className = "radio-group model-parameter-object-presets";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", translate(definition.label_key));
+    let current = value && typeof value === "object" && !Array.isArray(value) ? { ...value } : {};
+    const selected = matchingObjectPreset(definition, current);
+    definition.object_presets?.forEach((preset) => {
+      const button = document.createElement("button");
+      const active = selected?.id === preset.id;
+      button.type = "button";
+      button.className = `radio-btn${active ? " active" : ""}`;
+      button.textContent = translate(preset.label_key);
+      button.disabled = context.readOnly;
+      button.tabIndex = context.readOnly ? -1 : 0;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.addEventListener("click", () => {
+        if (context.readOnly || button.classList.contains("active")) return;
+        group.querySelectorAll(".radio-btn").forEach((item) => {
+          const isActive = item === button;
+          item.classList.toggle("active", isActive);
+          item.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+        current = nextObjectPresetValue(definition, current, preset);
+        commitValue(context, definition, current);
+        refreshSegmentedIndicators();
+      });
+      group.append(button);
+    });
+    field.append(group);
+    return field;
+  }
+  function renderAspectRatioGrid(definition, value, context) {
+    const field = fieldShell(definition);
+    const group = document.createElement("div");
+    group.className = "radio-group model-aspect-ratio-grid";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", translate(definition.label_key));
+    aspectRatioSlots(definition.allowed_values.map(String)).forEach((ratioSlot) => {
+      const slot = document.createElement("div");
+      slot.className = "aspect-ratio-slot";
+      ratioSlot.values.forEach((allowed) => {
+        const button = document.createElement("button");
+        const active = allowed === value;
+        button.type = "button";
+        button.className = `radio-btn${active ? " active" : ""}`;
+        button.dataset.val = allowed;
+        button.disabled = context.readOnly;
+        button.tabIndex = context.readOnly ? -1 : 0;
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+        const icon = createAspectRatioIcon(allowed);
+        const label = document.createElement("span");
+        label.className = "aspect-ratio-label";
+        label.textContent = allowed;
+        if (icon) button.append(icon, label);
+        else {
+          button.classList.add("aspect-ratio-no-icon");
+          button.append(label);
+        }
+        button.addEventListener("click", () => {
+          if (context.readOnly || button.classList.contains("active")) return;
+          group.querySelectorAll(".radio-btn").forEach((item) => {
+            const isActive = item === button;
+            item.classList.toggle("active", isActive);
+            item.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+          commitValue(context, definition, allowed);
+        });
+        slot.append(button);
+      });
+      group.append(slot);
+    });
+    field.append(group);
+    return field;
+  }
+  var PARAMETER_RENDERERS = {
+    select: renderSelect,
+    segmented: renderSegmented,
+    boolean_segmented: renderBooleanSegmented,
+    toggle: renderToggle,
+    slider: renderSlider,
+    number: renderNumber,
+    text: renderText,
+    notice: renderNotice,
+    choice_grid: renderChoiceGrid,
+    object_presets: renderObjectPresets,
+    aspect_ratio_grid: renderAspectRatioGrid
+  };
+  function advancedParametersAreExpanded(model, readOnly) {
+    return readOnly || model.expand_advanced_parameters === true;
+  }
+  function legacyParameterVisibility(modelId, sizeMode) {
+    const legacyGpt = modelId === "gpt-image-2";
+    return {
+      legacyGpt,
+      customSize: legacyGpt && sizeMode === "custom"
+    };
+  }
+  function parameterTranslations(definition) {
+    return [
+      translate(definition.label_key),
+      ...(definition.object_choices || []).flatMap((choice) => [
+        translate(choice.label_key),
+        ...choice.label_keys.map((key) => translate(key))
+      ]),
+      ...(definition.object_presets || []).map((preset) => translate(preset.label_key))
+    ];
+  }
+  function parameterRenderFingerprint(definition, value, readOnly) {
+    return JSON.stringify([definition, value, readOnly, parameterTranslations(definition)]);
+  }
+  function resolvedParameterValues(model, values) {
+    return Object.fromEntries(model.parameters.map((definition) => [
+      definition.id,
+      parameterValueValid(definition, values[definition.id]) ? values[definition.id] : cloneValue(definition.default)
+    ]));
+  }
+  function visibleParameterDefinitions(model, values, operation) {
+    return model.parameters.filter((definition) => definition.operations.includes(operation)).filter((definition) => definition.visible_when.every((condition) => conditionMatches(condition, values)));
+  }
+  function renderParameterDefinitionsInto(root, model, values, options) {
+    const operation = options.operation || "generate";
+    const resolvedValues = resolvedParameterValues(model, values);
+    root.replaceChildren();
+    const context = { readOnly: options.readOnly, model, values: resolvedValues, root };
+    const visibleDefinitions = visibleParameterDefinitions(model, resolvedValues, operation);
+    visibleDefinitions.filter((definition) => definition.group !== "advanced").forEach((definition) => root.append(PARAMETER_RENDERERS[definition.control](definition, resolvedValues[definition.id], context)));
+    const advancedDefinitions = visibleDefinitions.filter((definition) => definition.group === "advanced");
+    if (advancedDefinitions.length) {
+      const content = document.createElement("div");
+      content.className = "model-parameter-advanced-grid";
+      advancedDefinitions.forEach((definition) => content.append(
+        PARAMETER_RENDERERS[definition.control](definition, resolvedValues[definition.id], context)
+      ));
+      if (advancedParametersAreExpanded(model, options.readOnly)) {
+        content.classList.add("model-parameter-advanced-grid-expanded", "full-width");
+        root.append(content);
+      } else {
+        const details = document.createElement("details");
+        details.className = "model-parameter-advanced full-width";
+        const summary = document.createElement("summary");
+        summary.textContent = translate("apiSettings.advancedSettings");
+        details.append(summary, content);
+        root.append(details);
+      }
+    }
+    refreshSegmentedIndicators();
+  }
+  function renderInteractiveParameterDefinitionsInto(root, model, values, operation) {
+    const resolvedValues = resolvedParameterValues(model, values);
+    const visibleDefinitions = visibleParameterDefinitions(model, resolvedValues, operation);
+    if (visibleDefinitions.some((definition) => definition.group === "advanced")) {
+      renderParameterDefinitionsInto(root, model, values, { readOnly: false, operation });
+      return;
+    }
+    const context = { readOnly: false, model, values: resolvedValues, root };
+    const existingFields = new Map(Array.from(root.children).flatMap((child) => {
+      const parameterId = child.dataset.parameterId;
+      return parameterId ? [[parameterId, child]] : [];
+    }));
+    const fields = visibleDefinitions.map((definition) => {
+      const fingerprint = parameterRenderFingerprint(definition, resolvedValues[definition.id], false);
+      const existingField = existingFields.get(definition.id);
+      if (existingField?.dataset.renderFingerprint === fingerprint) return existingField;
+      const field = PARAMETER_RENDERERS[definition.control](definition, resolvedValues[definition.id], context);
+      field.dataset.renderFingerprint = fingerprint;
+      return field;
+    });
+    root.replaceChildren(...fields);
+    refreshSegmentedIndicators();
+  }
+  function ensureModelDraft(model) {
+    const { state: state32 } = getLegacyBridge();
+    const previous = state32.parameterDraftsByModel[model.id] || {};
+    const report = initializeParameterDraft(model, previous);
+    state32.parameterDraftsByModel[model.id] = report.values;
+    state32.parameterDraftVersionsByModel[model.id] = model.version;
+    return report;
+  }
+  function renderModelParameters(model, options = { readOnly: false }) {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const root = options.root || els43.modelParameterGrid;
+    if (!root) return;
+    if (options.readOnly) {
+      renderParameterDefinitionsInto(root, model, options.values || {}, { readOnly: true, operation: state32.mode });
+      return;
+    }
+    ensureModelDraft(model);
+    const visibility = legacyParameterVisibility(model.id, els43.size?.value);
+    const legacyGpt = visibility.legacyGpt;
+    state32.customSizeTransitionSeq += 1;
+    state32.customSizeMode = visibility.customSize;
+    const legacyElements = [
+      els43.sizeModeGroup?.closest(".custom-size-control"),
+      els43.orientation?.closest(".orientation-field"),
+      els43.resolution?.closest(".resolution-field"),
+      els43.ratio?.closest(".ratio-field"),
+      els43.quality?.closest(".quantity-quality-row"),
+      els43.pixelPreview,
+      els43.outputFormatField,
+      els43.moderation?.closest(".moderation-field")
+    ].filter(Boolean);
+    legacyElements.forEach((element2) => {
+      element2.classList.toggle("hidden", !legacyGpt);
+    });
+    if (els43.customSize) {
+      els43.customSize.classList.toggle("hidden", !visibility.customSize);
+      els43.customSize.classList.toggle("custom-size-collapsed", !visibility.customSize);
+      els43.customSize.setAttribute("aria-hidden", visibility.customSize ? "false" : "true");
+    }
+    els43.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
+    els43.webSearchField?.classList.toggle("hidden", !legacyGpt);
+    root.classList.toggle("hidden", legacyGpt);
+    if (legacyGpt) root.replaceChildren();
+    else renderInteractiveParameterDefinitionsInto(
+      root,
+      model,
+      state32.parameterDraftsByModel[model.id] || {},
+      state32.mode
+    );
+  }
+  function setParameterValue(modelId, parameterId, value) {
+    const { state: state32 } = getLegacyBridge();
+    const model = state32.generationCatalog?.models.find((item) => item.id === modelId);
+    const definition = model?.parameters.find((item) => item.id === parameterId);
+    if (!model || !definition || !parameterValueValid(definition, value)) return;
+    state32.parameterDraftsByModel[modelId] = {
+      ...state32.parameterDraftsByModel[modelId] || {},
+      [parameterId]: cloneValue(value)
+    };
+    if (definition.scope === "application") {
+      state32.generationCatalog?.models.forEach((item) => {
+        if (item.parameters.some((parameter) => parameter.id === parameterId)) {
+          state32.parameterDraftsByModel[item.id] = {
+            ...state32.parameterDraftsByModel[item.id] || {},
+            [parameterId]: cloneValue(value)
+          };
+        }
+      });
+    }
+    getLegacyBridge().methods.persistModelSelection?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+  }
+  function renderCurrentModelParameters() {
+    const { state: state32 } = getLegacyBridge();
+    const model = state32.generationCatalog?.models.find((item) => item.id === state32.selectedModelId);
+    if (model) renderModelParameters(model, { readOnly: false });
+  }
+  function initModelParametersFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      activeParameterValues,
+      renderCurrentModelParameters,
+      renderModelParameters,
+      setParameterValue
+    });
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderCurrentModelParameters);
+  }
+
+  // codex_image/webui/frontend/src/model-parameter-drafts.ts
+  function cloneValue2(value) {
+    if (Array.isArray(value)) return value.map(cloneValue2);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneValue2(item)]));
+    }
+    return value;
+  }
+  function canonicalControlValues(taskParams, protocolProfile) {
+    const format = String(taskParams.output_format || "png");
+    const values = {
+      "canvas.size": taskParams.size,
+      "canvas.aspect_ratio": taskParams.ratio,
+      "canvas.resolution": taskParams.resolution,
+      "gpt.quality": taskParams.quality,
+      "gpt.background": taskParams.background ?? "auto",
+      "output.format": format,
+      "gpt.moderation": taskParams.moderation,
+      "gpt.web_search": protocolProfile.endsWith("_responses") && Boolean(taskParams.web_search),
+      "output.count": taskParams.n
+    };
+    if (format === "jpeg" || format === "webp") {
+      values["gpt.output_compression"] = taskParams.output_compression;
+    }
+    return Object.fromEntries(Object.entries(values).filter(([, value]) => value !== void 0 && value !== null));
+  }
+  function parameterValueValid2(parameter, value) {
+    const typeValid = parameter.value_type === "string" ? typeof value === "string" : parameter.value_type === "integer" ? typeof value === "number" && Number.isInteger(value) : parameter.value_type === "boolean" ? typeof value === "boolean" : parameter.value_type === "object" ? Boolean(value) && typeof value === "object" && !Array.isArray(value) : false;
+    if (!typeValid) return false;
+    if (parameter.allowed_values.length && !parameter.allowed_values.includes(value)) return false;
+    if (typeof value === "number") {
+      if (parameter.minimum !== null && value < parameter.minimum) return false;
+      if (parameter.maximum !== null && value > parameter.maximum) return false;
+      if (parameter.step !== null) {
+        const base = parameter.minimum ?? 0;
+        const quotient = (value - base) / parameter.step;
+        if (Math.abs(quotient - Math.round(quotient)) > 1e-9) return false;
+      }
+    }
+    return true;
+  }
+  function migratePortableModelDraft(sourceModel, targetModel, sourceDraft, targetDraft) {
+    const sourceIds = new Set(sourceModel.parameters.map((definition) => definition.id));
+    return Object.fromEntries(targetModel.parameters.map((definition) => {
+      if (sourceIds.has(definition.id)) {
+        const sourceValue = sourceDraft[definition.id];
+        return [definition.id, cloneValue2(
+          parameterValueValid2(definition, sourceValue) ? sourceValue : definition.default
+        )];
+      }
+      const targetValue = targetDraft[definition.id];
+      return [definition.id, cloneValue2(
+        parameterValueValid2(definition, targetValue) ? targetValue : definition.default
+      )];
+    }));
+  }
+  function saveCurrentModelParameterDraft() {
+    const { state: state32, methods } = getLegacyBridge();
+    const model = state32.generationCatalog?.models.find((item) => item.id === state32.selectedModelId);
+    if (!model || typeof methods.currentTaskParams !== "function") return;
+    if (model.id !== "gpt-image-2") {
+      methods.persistModelSelection?.();
+      return;
+    }
+    const values = canonicalControlValues(methods.currentTaskParams(), selectedProviderBinding()?.protocol_profile || "");
+    const allowed = new Set(model.parameters.map((parameter) => parameter.id));
+    state32.parameterDraftsByModel[model.id] = {
+      ...state32.parameterDraftsByModel[model.id] || {},
+      ...Object.fromEntries(Object.entries(values).filter(([id]) => allowed.has(id)))
+    };
+    methods.persistModelSelection?.();
+  }
+  function restoreCurrentModelParameterDraft() {
+    const { state: state32, els: els43, methods } = getLegacyBridge();
+    const modelId = state32.selectedModelId || "";
+    const model = state32.generationCatalog?.models.find((item) => item.id === modelId);
+    if (!model) return;
+    if (model.id !== "gpt-image-2") {
+      renderCurrentModelParameters();
+      return;
+    }
+    const draft = {
+      ...Object.fromEntries(model.parameters.map((parameter) => [parameter.id, parameter.default])),
+      ...state32.parameterDraftsByModel[modelId] || {}
+    };
+    if (typeof draft["canvas.resolution"] === "string" && els43.resolution) els43.resolution.value = draft["canvas.resolution"];
+    if (typeof draft["canvas.aspect_ratio"] === "string" && els43.ratio) els43.ratio.value = draft["canvas.aspect_ratio"];
+    if ((draft["canvas.resolution"] || draft["canvas.aspect_ratio"]) && typeof methods.updateSizeFromPreset === "function") {
+      methods.updateSizeFromPreset();
+    }
+    if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
+    if (typeof draft["gpt.quality"] === "string" && els43.quality) els43.quality.value = draft["gpt.quality"];
+    if (typeof draft["output.format"] === "string" && els43.outputFormat) els43.outputFormat.value = draft["output.format"];
+    if (typeof draft["gpt.moderation"] === "string" && els43.moderation) els43.moderation.value = draft["gpt.moderation"];
+    if (typeof draft["gpt.output_compression"] === "number" && els43.compression) els43.compression.value = String(draft["gpt.output_compression"]);
+    if (typeof draft["gpt.web_search"] === "boolean" && els43.webSearch) {
+      els43.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
+    }
+    if (typeof draft["output.count"] === "number" && els43.nInput) els43.nInput.value = String(draft["output.count"]);
+    methods.syncRadioButtons?.(els43.quality, els43.outputFormat, els43.moderation);
+    methods.updateQuantity?.();
+    methods.updateCompression?.();
+    renderCurrentModelParameters();
+  }
+  function initModelParameterDraftFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      restoreCurrentModelParameterDraft,
+      saveCurrentModelParameterDraft
+    });
+  }
+
+  // codex_image/webui/frontend/src/model-family-icons.ts
+  var BRAND_MARKS = {
+    "gpt-image": {
+      asset: "/static/brand/model-marks/openai.svg",
+      className: "openai"
+    },
+    "gemini-image": {
+      asset: "/static/brand/model-marks/gemini.svg",
+      className: "gemini"
+    }
+  };
+  function fallbackMarkHtml(className) {
+    return `
+    <svg class="${className} model-family-brand-mark-fallback" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m12 4 8 8-8 8-8-8Z" />
+    </svg>`;
+  }
+  function modelFamilyBrandMarkHtml(familyId, className) {
+    const mark = BRAND_MARKS[familyId];
+    if (!mark) return fallbackMarkHtml(className);
+    return `<img class="${className} model-family-brand-mark-${mark.className}" src="${mark.asset}" alt="" aria-hidden="true" decoding="async" />`;
+  }
+
+  // codex_image/webui/frontend/src/model-selection.ts
+  function modelsForFamily(catalog, familyId) {
+    return catalog.models.filter((model) => model.family_id === familyId);
+  }
+  function usesExpandedConcreteModelOptions(models) {
+    return models.length > 1;
+  }
+  function familyOptionButtons() {
+    const options = getLegacyBridge().els.modelFamilyOptions;
+    return options ? Array.from(options.querySelectorAll("[data-family-id]")) : [];
+  }
+  function focusFamilyOption(familyId) {
+    window.requestAnimationFrame(() => {
+      familyOptionButtons().find((button) => button.dataset.familyId === familyId)?.focus();
+    });
+  }
+  function selectModelFamily(familyId) {
+    const { state: state32 } = getLegacyBridge();
+    const catalog = state32.generationCatalog;
+    const family = catalog?.families.find((item) => item.id === familyId);
+    if (!catalog || !family) return;
+    const models = modelsForFamily(catalog, familyId);
+    const remembered = state32.lastModelByFamily[familyId];
+    const model = models.find((item) => item.id === remembered) || models[0];
+    if (!model) return;
+    saveCurrentModelParameterDraft();
+    state32.selectedFamilyId = familyId;
+    state32.selectedModelId = model.id;
+    state32.lastModelByFamily[familyId] = model.id;
+    getLegacyBridge().methods.persistModelSelection?.();
+    renderModelSelectors();
+    renderProviderSelection();
+    restoreCurrentModelParameterDraft();
+    getLegacyBridge().methods.reconcileTaskParameterInspection?.();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
+    getLegacyBridge().methods.refreshOutputSettingsLock?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+    focusFamilyOption(familyId);
+  }
+  function selectConcreteModel(modelId) {
+    const { state: state32 } = getLegacyBridge();
+    const model = state32.generationCatalog?.models.find((item) => item.id === modelId);
+    if (!model) return;
+    const sourceModel = state32.generationCatalog?.models.find((item) => item.id === state32.selectedModelId);
+    const familyChanged = sourceModel?.family_id !== model.family_id;
+    saveCurrentModelParameterDraft();
+    if (sourceModel?.family_id === model.family_id) {
+      state32.parameterDraftsByModel[model.id] = migratePortableModelDraft(
+        sourceModel,
+        model,
+        state32.parameterDraftsByModel[sourceModel.id] || {},
+        state32.parameterDraftsByModel[model.id] || {}
+      );
+    }
+    state32.selectedModelId = model.id;
+    state32.selectedFamilyId = model.family_id;
+    state32.lastModelByFamily[model.family_id] = model.id;
+    getLegacyBridge().methods.persistModelSelection?.();
+    if (familyChanged) renderModelSelectors();
+    else updateConcreteModelSelection(model.id);
+    renderProviderSelection();
+    restoreCurrentModelParameterDraft();
+    getLegacyBridge().methods.reconcileTaskParameterInspection?.();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
+    getLegacyBridge().methods.refreshOutputSettingsLock?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+  }
+  function updateConcreteModelSelection(modelId) {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const modelSelect = els43.concreteModelSelect;
+    const modelOptions = els43.concreteModelOptions;
+    if (modelSelect) modelSelect.value = modelId;
+    modelOptions?.querySelectorAll("[data-model-id]").forEach((button) => {
+      const active = button.dataset.modelId === modelId;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    const model = state32.generationCatalog?.models.find((item) => item.id === modelId);
+    if (modelSelect) modelSelect.title = model?.display_name || "";
+    refreshSegmentedIndicators();
+  }
+  function renderModelSelectors() {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const catalog = state32.generationCatalog;
+    const familyOptions = els43.modelFamilyOptions;
+    const modelSelect = els43.concreteModelSelect;
+    const modelOptions = els43.concreteModelOptions;
+    const modelField = modelSelect?.closest(".concrete-model-field");
+    if (!catalog) {
+      if (familyOptions) {
+        familyOptions.replaceChildren();
+        familyOptions.setAttribute("aria-disabled", "true");
+      }
+      if (modelSelect) modelSelect.disabled = true;
+      modelOptions?.replaceChildren();
+      modelOptions?.classList.add("hidden");
+      modelField?.classList.add("hidden");
+      return;
+    }
+    const selectedFamily = catalog.families.find((family) => family.id === state32.selectedFamilyId);
+    if (familyOptions) {
+      familyOptions.querySelectorAll("[data-family-id]").forEach((item) => item.remove());
+      familyOptions.removeAttribute("aria-disabled");
+      catalog.families.forEach((family) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.role = "radio";
+        const active = family.id === state32.selectedFamilyId;
+        item.className = `model-family-segment radio-btn${active ? " active" : ""}`;
+        item.dataset.familyId = family.id;
+        item.title = family.display_name;
+        item.setAttribute("aria-label", family.display_name);
+        item.setAttribute("aria-checked", active ? "true" : "false");
+        const icon = document.createElement("span");
+        icon.className = `model-family-segment-icon model-family-segment-icon-${family.id}`;
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = modelFamilyBrandMarkHtml(family.id, "model-family-brand-mark");
+        const label = document.createElement("span");
+        label.className = "model-family-segment-label";
+        label.textContent = family.short_name || family.display_name;
+        item.append(icon, label);
+        familyOptions.append(item);
+      });
+    }
+    if (modelSelect && selectedFamily) {
+      const familyModels = modelsForFamily(catalog, selectedFamily.id);
+      const expanded = usesExpandedConcreteModelOptions(familyModels);
+      modelField?.classList.toggle("hidden", !expanded);
+      modelSelect.replaceChildren();
+      familyModels.forEach((model) => {
+        const option2 = document.createElement("option");
+        option2.value = model.id;
+        option2.textContent = model.display_name;
+        option2.title = model.display_name;
+        modelSelect.append(option2);
+      });
+      modelSelect.value = state32.selectedModelId || "";
+      modelSelect.disabled = modelSelect.options.length === 0;
+      modelSelect.title = catalog.models.find((model) => model.id === state32.selectedModelId)?.display_name || "";
+      modelSelect.classList.toggle("hidden", expanded);
+      if (modelOptions) {
+        modelOptions.replaceChildren();
+        modelOptions.classList.toggle("hidden", !expanded);
+        if (expanded) {
+          familyModels.forEach((model) => {
+            const button = document.createElement("button");
+            const active = model.id === state32.selectedModelId;
+            button.type = "button";
+            button.className = `radio-btn${active ? " active" : ""}`;
+            button.dataset.modelId = model.id;
+            button.textContent = model.display_name;
+            button.title = model.display_name;
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+            button.addEventListener("click", () => {
+              if (!button.classList.contains("active")) selectConcreteModel(model.id);
+            });
+            modelOptions.append(button);
+          });
+        }
+      }
+    }
+    refreshSegmentedIndicators();
+  }
+  function handleModelFamilyOptionsKeydown(event) {
+    const buttons = familyOptionButtons();
+    const current = event.target?.closest?.("[data-family-id]");
+    const index = buttons.indexOf(current || document.activeElement);
+    const delta = event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 0;
+    const targetIndex = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : delta && buttons.length ? (index + delta + buttons.length) % buttons.length : -1;
+    if (targetIndex < 0 || !buttons.length) return;
+    event.preventDefault();
+    const target = buttons[targetIndex];
+    const familyId = target?.dataset.familyId;
+    if (!familyId) return;
+    selectModelFamily(familyId);
+  }
+  function initModelSelectionFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      handleModelFamilyOptionsKeydown,
+      renderModelSelectors,
+      selectConcreteModel,
+      selectModelFamily,
+      updateConcreteModelSelection
+    });
+  }
+
+  // codex_image/webui/frontend/src/model-catalog.ts
+  var MODEL_SELECTION_STORAGE_KEY = "codex-image-model-selection-v1";
+  function stringRecord(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "string"));
+  }
+  function safeDraftValue(value, depth = 0) {
+    if (value === null || ["string", "number", "boolean"].includes(typeof value)) return value;
+    if (depth >= 6) return void 0;
+    if (Array.isArray(value)) return value.map((item) => safeDraftValue(item, depth + 1)).filter((item) => item !== void 0);
+    if (!value || typeof value !== "object") return void 0;
+    const output = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (/api.?key|base.?url|remote.?model|secret|token|credential/i.test(key)) continue;
+      const safe = safeDraftValue(item, depth + 1);
+      if (safe !== void 0) output[key] = safe;
+    }
+    return output;
+  }
+  function draftRecord(value) {
+    const safe = safeDraftValue(value);
+    return safe && typeof safe === "object" && !Array.isArray(safe) ? safe : {};
+  }
+  function positiveIntegerRecord(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "number" && Number.isInteger(entry[1]) && entry[1] > 0));
+  }
+  function restoreModelSelection() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(MODEL_SELECTION_STORAGE_KEY) || "{}");
+      const { state: state32 } = getLegacyBridge();
+      state32.selectedModelId = typeof stored.selectedModelId === "string" ? stored.selectedModelId : null;
+      state32.lastModelByFamily = stringRecord(stored.lastModelByFamily);
+      state32.lastProviderByModel = stringRecord(stored.lastProviderByModel);
+      state32.lastProviderSelectionByModel = stringRecord(stored.lastProviderSelectionByModel);
+      state32.parameterDraftsByModel = draftRecord(stored.parameterDraftsByModel);
+      state32.parameterDraftVersionsByModel = positiveIntegerRecord(stored.parameterDraftVersionsByModel);
+    } catch {
+      localStorage.removeItem(MODEL_SELECTION_STORAGE_KEY);
+    }
+  }
+  function persistModelSelection() {
+    const { state: state32 } = getLegacyBridge();
+    const stored = {
+      ...state32.selectedModelId ? { selectedModelId: state32.selectedModelId } : {},
+      lastModelByFamily: stringRecord(state32.lastModelByFamily),
+      lastProviderByModel: stringRecord(state32.lastProviderByModel),
+      lastProviderSelectionByModel: stringRecord(state32.lastProviderSelectionByModel),
+      parameterDraftsByModel: draftRecord(state32.parameterDraftsByModel),
+      parameterDraftVersionsByModel: positiveIntegerRecord(state32.parameterDraftVersionsByModel)
+    };
+    localStorage.setItem(MODEL_SELECTION_STORAGE_KEY, JSON.stringify(stored));
+  }
+  function isGenerationCatalog(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+    const candidate = value;
+    const object = (item) => Boolean(item) && typeof item === "object" && !Array.isArray(item);
+    const nonempty = (item) => typeof item === "string" && item.length > 0;
+    const operation = (item) => item === "generate" || item === "edit";
+    const operations = (item) => Array.isArray(item) && item.length > 0 && item.every(operation);
+    const finiteOrNull = (item) => item === null || typeof item === "number" && Number.isFinite(item);
+    const valueType = (item) => ["string", "integer", "boolean", "object"].includes(String(item));
+    const hasValueType = (kind, item) => kind === "string" ? typeof item === "string" : kind === "integer" ? Number.isInteger(item) && typeof item !== "boolean" : kind === "boolean" ? typeof item === "boolean" : kind === "object" ? object(item) : false;
+    const parameter = (item) => {
+      if (!object(item)) return false;
+      const objectChoicesValid = item.object_choices === void 0 || Array.isArray(item.object_choices) && item.object_choices.every((row) => object(row) && nonempty(row.key) && nonempty(row.label_key) && nonempty(row.default) && Array.isArray(row.allowed_values) && row.allowed_values.length > 0 && row.allowed_values.every(nonempty) && row.allowed_values.includes(row.default) && Array.isArray(row.label_keys) && row.label_keys.length === row.allowed_values.length && row.label_keys.every(nonempty));
+      const objectPresetsValid = item.object_presets === void 0 || Array.isArray(item.object_presets) && item.object_presets.every((preset) => object(preset) && nonempty(preset.id) && nonempty(preset.label_key) && object(preset.value) && typeof preset.matches_empty === "boolean");
+      return nonempty(item.id) && nonempty(item.label_key) && ["model", "canvas", "generation", "advanced"].includes(String(item.group)) && ["select", "segmented", "boolean_segmented", "toggle", "slider", "number", "text", "notice", "choice_grid", "object_presets", "aspect_ratio_grid"].includes(String(item.control)) && valueType(item.value_type) && hasValueType(item.value_type, item.default) && Array.isArray(item.allowed_values) && item.allowed_values.every((value2) => hasValueType(item.value_type, value2)) && (item.scope === "application" || item.scope === "model") && finiteOrNull(item.minimum) && finiteOrNull(item.maximum) && finiteOrNull(item.step) && operations(item.operations) && typeof item.full_width === "boolean" && objectChoicesValid && objectPresetsValid && (item.control !== "boolean_segmented" || item.value_type === "boolean") && (item.control !== "choice_grid" || item.value_type === "object" && Array.isArray(item.object_choices) && item.object_choices.length > 0) && (item.control !== "object_presets" || item.value_type === "object" && Array.isArray(item.object_choices) && item.object_choices.length > 0 && Array.isArray(item.object_presets) && item.object_presets.length > 0) && (item.control !== "aspect_ratio_grid" || item.value_type === "string" && Array.isArray(item.allowed_values) && item.allowed_values.length > 0) && Array.isArray(item.visible_when) && item.visible_when.every((condition) => object(condition) && nonempty(condition.parameter_id) && ["equals", "not_equals", "in"].includes(String(condition.operator)) && (condition.operator !== "in" || Array.isArray(condition.value)));
+    };
+    if (candidate.schema_version !== 1 || !Number.isInteger(candidate.manifest_version) || candidate.manifest_version <= 0 || !Array.isArray(candidate.families) || candidate.families.length === 0 || !Array.isArray(candidate.models) || candidate.models.length === 0 || !Array.isArray(candidate.providers) || candidate.providers.length === 0 || !object(candidate.default_provider_by_model) || !object(candidate.codex)) return false;
+    const families = candidate.families;
+    if (!families.every((family) => object(family) && nonempty(family.id) && nonempty(family.display_name) && nonempty(family.short_name) && nonempty(family.label_key))) return false;
+    const familyIds = new Set(families.map((family) => family.id));
+    if (familyIds.size !== families.length) return false;
+    const models = candidate.models;
+    if (!models.every((model) => object(model) && nonempty(model.id) && nonempty(model.family_id) && familyIds.has(model.family_id) && nonempty(model.display_name) && nonempty(model.official_model_id) && Number.isInteger(model.version) && model.version > 0 && operations(model.operations) && Array.isArray(model.parameters) && model.parameters.every(parameter) && new Set(model.parameters.map((item) => item.id)).size === model.parameters.length && model.parameters.every((item) => item.visible_when.every((condition) => model.parameters.some((candidate2) => candidate2.id === condition.parameter_id))) && object(model.input_constraints) && Number.isInteger(model.input_constraints.max_images) && model.input_constraints.max_images >= 0 && typeof model.input_constraints.supports_mask === "boolean" && typeof model.input_constraints.supports_reference_files === "boolean" && (model.expand_advanced_parameters === void 0 || typeof model.expand_advanced_parameters === "boolean"))) return false;
+    const modelIds = new Set(models.map((model) => model.id));
+    if (modelIds.size !== models.length) return false;
+    const providers = candidate.providers;
+    const bindingValid = (binding) => {
+      if (!object(binding) || !nonempty(binding.id) || !nonempty(binding.canonical_model_id) || !modelIds.has(binding.canonical_model_id) || !nonempty(binding.remote_model_id) || !nonempty(binding.protocol_profile) || !nonempty(binding.parameter_codec) || !operations(binding.operations) || binding.available !== void 0 && typeof binding.available !== "boolean") return false;
+      const model = models.find((item) => item.id === binding.canonical_model_id);
+      return Boolean(model) && binding.operations.every((item) => (model?.operations).includes(item));
+    };
+    if (!providers.every((provider) => object(provider) && nonempty(provider.id) && nonempty(provider.name) && typeof provider.builtin === "boolean" && typeof provider.available === "boolean" && (provider.icon_emoji === void 0 || nonempty(provider.icon_emoji)) && Array.isArray(provider.bindings) && provider.bindings.length > 0 && provider.bindings.every(bindingValid) && new Set(provider.bindings.map((binding) => binding.id)).size === provider.bindings.length)) return false;
+    const providerIds = new Set(providers.map((provider) => provider.id));
+    if (providerIds.size !== providers.length) return false;
+    if (!Object.entries(candidate.default_provider_by_model).every(([modelId, providerId]) => modelIds.has(modelId) && typeof providerId === "string" && providerIds.has(providerId) && (providers.find((provider) => provider.id === providerId)?.bindings).some((binding) => binding.canonical_model_id === modelId))) return false;
+    const codex = candidate.codex;
+    if (typeof codex.available !== "boolean" || codex.mode !== "images" && codex.mode !== "responses") return false;
+    const codexProvider = providers.find((provider) => provider.id === "codex");
+    if (codex.available && !codexProvider) return false;
+    if (codexProvider) {
+      if (codexProvider.builtin !== true || codexProvider.available !== codex.available || codexProvider.bindings.length !== 2) return false;
+      const expected = /* @__PURE__ */ new Map([
+        ["codex-gpt-image-2-images", ["codex_images", "gpt_codex_images"]],
+        ["codex-gpt-image-2-responses", ["codex_responses", "gpt_codex_responses"]]
+      ]);
+      if (!codexProvider.bindings.every((binding) => object(binding) && binding.canonical_model_id === "gpt-image-2" && binding.remote_model_id === "gpt-image-2" && expected.get(String(binding.id))?.[0] === binding.protocol_profile && expected.get(String(binding.id))?.[1] === binding.parameter_codec)) return false;
+    }
+    return true;
+  }
+  function initialCatalogSelection(catalog, storedModelId, lastProviderByModel, operation, lastProviderSelectionByModel = {}) {
+    const model = catalog.models.find((item) => item.id === storedModelId) || catalog.models.find((item) => item.id === "gpt-image-2") || catalog.models[0];
+    if (!model) return { familyId: null, modelId: null, providerId: null, bindingId: null };
+    const entries = eligibleProviderBindings(catalog, model.id, operation);
+    const selected = resolveProviderSelection(
+      entries,
+      lastProviderSelectionByModel[model.id],
+      lastProviderByModel[model.id],
+      catalog.default_provider_by_model[model.id],
+      catalog.codex.mode
+    );
+    return {
+      familyId: model.family_id,
+      modelId: model.id,
+      providerId: selected?.provider.id || null,
+      bindingId: selected?.binding.id || null
+    };
+  }
+  async function refreshGenerationCatalog() {
+    const { state: state32 } = getLegacyBridge();
+    try {
+      const response = await fetch("/api/generation-catalog", { headers: { Accept: "application/json" } });
+      const payload2 = await response.json();
+      if (!response.ok || !isGenerationCatalog(payload2)) throw new Error("generation catalog unavailable");
+      state32.generationCatalog = payload2;
+      state32.generationCatalogError = null;
+      const selection = initialCatalogSelection(
+        payload2,
+        state32.selectedModelId,
+        state32.lastProviderByModel,
+        state32.mode,
+        state32.lastProviderSelectionByModel
+      );
+      state32.selectedFamilyId = selection.familyId;
+      state32.selectedModelId = selection.modelId;
+      state32.selectedProviderId = selection.providerId;
+      state32.selectedProviderBindingId = selection.bindingId;
+      if (selection.modelId && selection.providerId && selection.bindingId) {
+        state32.lastProviderByModel[selection.modelId] = selection.providerId;
+        state32.lastProviderSelectionByModel[selection.modelId] = `${selection.providerId}::${selection.bindingId}`;
+      }
+      persistModelSelection();
+    } catch (error) {
+      state32.generationCatalog = null;
+      state32.generationCatalogError = error instanceof Error ? error.message : "generation catalog unavailable";
+      state32.selectedFamilyId = null;
+      state32.selectedModelId = null;
+      state32.selectedProviderId = null;
+      state32.selectedProviderBindingId = null;
+    }
+    renderModelSelectors();
+    renderProviderSelection();
+    getLegacyBridge().methods.renderCurrentModelParameters?.();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+  }
+  function initModelCatalogFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      persistModelSelection,
+      refreshGenerationCatalog,
+      restoreModelSelection
+    });
+  }
+
   // codex_image/webui/frontend/src/system-settings.ts
   var systemSettingsFeatureInitialized = false;
   var systemSettingsHeightAnimationToken = 0;
   var systemSettingsHeightAnimationTimer;
+  var systemSettingsReturnFocus = null;
   var MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
-  var VALID_TABS = /* @__PURE__ */ new Set(["api", "codex", "language", "storage"]);
+  var VALID_TABS = /* @__PURE__ */ new Set(["api", "language", "storage"]);
   function normalizedTab(tab) {
+    if (tab === "codex") return "api";
     return VALID_TABS.has(tab) ? tab : "api";
   }
   function maybeCall(name, ...args) {
@@ -30670,7 +33176,6 @@ ${hint}` : hint;
     });
     [
       ["api", els43.systemSettingsApiPanel],
-      ["codex", els43.systemSettingsCodexPanel],
       ["language", els43.systemSettingsLanguagePanel],
       ["storage", els43.systemSettingsStoragePanel]
     ].forEach(([name, panel2]) => {
@@ -30681,7 +33186,7 @@ ${hint}` : hint;
     });
     if (options.refresh === false) return;
     if (selected === "storage") maybeCall("refreshSettings");
-    if (selected === "api" || selected === "codex") {
+    if (selected === "api") {
       maybeCall("setApiSettingsFeedback", "", "");
       maybeCall("populateApiSettingsForm");
       maybeCall("updateModeSpecificSettings");
@@ -30691,18 +33196,33 @@ ${hint}` : hint;
   }
   function openSystemSettingsModal(tab = "api") {
     const { els: els43 } = getLegacyBridge();
-    const wasHidden = els43.systemSettingsModal?.classList.contains("hidden") ?? true;
+    const modal = els43.systemSettingsModal;
+    const wasHidden = modal?.classList.contains("hidden") ?? true;
+    if (wasHidden) {
+      const activeElement = document.activeElement;
+      systemSettingsReturnFocus = activeElement instanceof HTMLElement && activeElement !== document.body && !modal?.contains(activeElement) ? activeElement : null;
+    }
     setSystemSettingsTab(tab);
-    els43.systemSettingsModal?.classList.remove("hidden");
-    els43.systemSettingsModal?.setAttribute("aria-hidden", "false");
+    modal?.classList.remove("hidden");
+    modal?.setAttribute("aria-hidden", "false");
     if (wasHidden) positionSystemSettingsModal();
     refreshSegmentedIndicators();
   }
   function closeSystemSettingsModal() {
     const { els: els43 } = getLegacyBridge();
-    els43.systemSettingsModal?.classList.add("hidden");
-    els43.systemSettingsModal?.setAttribute("aria-hidden", "true");
-    els43.systemSettingsModal?.style.removeProperty("--system-settings-modal-top");
+    const modal = els43.systemSettingsModal;
+    const activeElement = document.activeElement;
+    if (modal && activeElement instanceof HTMLElement && modal.contains(activeElement)) {
+      const returnFocus = systemSettingsReturnFocus;
+      if (returnFocus?.isConnected && !returnFocus.closest("[inert]")) {
+        returnFocus.focus({ preventScroll: true });
+      }
+      if (modal.contains(document.activeElement)) activeElement.blur();
+    }
+    systemSettingsReturnFocus = null;
+    modal?.classList.add("hidden");
+    modal?.setAttribute("aria-hidden", "true");
+    modal?.style.removeProperty("--system-settings-modal-top");
   }
   function openSystemSettingsFromUrl() {
     const params = new URLSearchParams(window.location.search);
@@ -30827,6 +33347,375 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/provider-model-bindings.ts
+  var BINDING_TEMPLATES = {
+    gpt_openai_images: {
+      protocol_profile: "openai_images",
+      parameter_codec: "gpt_openai_images",
+      base_url: "https://api.openai.com/v1"
+    },
+    gpt_openai_responses: {
+      protocol_profile: "openai_responses",
+      parameter_codec: "gpt_openai_responses",
+      base_url: "https://api.openai.com/v1"
+    },
+    gemini_generate_content: {
+      protocol_profile: "gemini_generate_content",
+      parameter_codec: "gemini_generate_content_image",
+      base_url: "https://generativelanguage.googleapis.com/v1beta"
+    },
+    gemini_generate_content_image_config: {
+      protocol_profile: "gemini_generate_content",
+      parameter_codec: "gemini_generate_content_image_config",
+      base_url: "https://api.change2pro.com/v1beta"
+    },
+    gemini_change2pro_generate_content: {
+      protocol_profile: "gemini_change2pro_generate_content",
+      parameter_codec: "gemini_generate_content_image_config",
+      base_url: "https://api.change2pro.com/v1"
+    },
+    gemini_openai_images: {
+      protocol_profile: "openai_images",
+      parameter_codec: "gemini_openai_images",
+      base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+    },
+    gemini_t8_images: {
+      protocol_profile: "t8_images",
+      parameter_codec: "gemini_t8_images",
+      base_url: "https://ai.t8star.org/v1"
+    },
+    gemini_openrouter_images: {
+      protocol_profile: "openrouter_images",
+      parameter_codec: "gemini_openrouter_images",
+      base_url: "https://openrouter.ai/api/v1"
+    }
+  };
+  var BINDING_PROTOCOL_LABELS = {
+    gemini: "Gemini",
+    openai_images: "OpenAI Images",
+    openai_responses: "OpenAI Responses"
+  };
+  var BINDING_COMPATIBILITY_LABELS = {
+    standard: "\u6807\u51C6",
+    gemini_image_config: "Gemini ImageConfig",
+    change2pro: "Change2Pro / Gemini v1beta",
+    t8_newapi: "T8 / NewAPI",
+    openrouter: "OpenRouter"
+  };
+  function slug(value, fallback) {
+    return String(value || fallback).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
+  }
+  function normalizedOperations(value) {
+    const operations = Array.isArray(value) ? value.filter((item) => item === "generate" || item === "edit") : [];
+    return [...new Set(operations)];
+  }
+  function resolvedBindingOperations(binding, bindings, model) {
+    const hasLegacySplitBindings = bindings.filter(
+      (candidate) => candidate.canonical_model_id === binding.canonical_model_id
+    ).length > 1;
+    if (hasLegacySplitBindings || !model) return binding.operations;
+    return [...model.operations];
+  }
+  function availableProtocolsForModel(modelId) {
+    if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
+    if (modelId === "gpt-image-2") return ["openai_images", "openai_responses"];
+    return [];
+  }
+  function availableCompatibilityLayers(modelId, protocol) {
+    if (modelId.startsWith("nano-banana") && protocol === "gemini") {
+      return ["standard", "gemini_image_config", "change2pro"];
+    }
+    if (modelId.startsWith("nano-banana") && protocol === "openai_images") {
+      return ["standard", "t8_newapi", "openrouter"];
+    }
+    return ["standard"];
+  }
+  function protocolForBinding(binding) {
+    const profile = String(binding.protocol_profile || "");
+    if (profile.startsWith("gemini_")) return "gemini";
+    return profile.includes("responses") ? "openai_responses" : "openai_images";
+  }
+  function compatibilityForBinding(binding) {
+    if (binding.protocol_profile === "gemini_change2pro_generate_content") return "change2pro";
+    const codec = String(binding.parameter_codec || "");
+    if (codec === "gemini_generate_content_image_config") return "gemini_image_config";
+    if (codec === "gemini_t8_images") return "t8_newapi";
+    if (codec === "gemini_openrouter_images") return "openrouter";
+    return "standard";
+  }
+  function bindingTemplateForProtocol(modelId, protocol) {
+    if (!availableProtocolsForModel(modelId).includes(protocol)) {
+      throw new Error("unsupported_binding_protocol");
+    }
+    if (modelId.startsWith("nano-banana")) {
+      return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
+    }
+    if (modelId === "gpt-image-2") {
+      return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
+    }
+    throw new Error("unsupported_binding_protocol");
+  }
+  function bindingTemplateForCompatibility(modelId, protocol, compatibility) {
+    if (!availableCompatibilityLayers(modelId, protocol).includes(compatibility)) {
+      throw new Error("unsupported_binding_compatibility");
+    }
+    if (compatibility === "gemini_image_config") {
+      return "gemini_generate_content_image_config";
+    }
+    if (compatibility === "change2pro") return "gemini_change2pro_generate_content";
+    if (compatibility === "t8_newapi") return "gemini_t8_images";
+    if (compatibility === "openrouter") return "gemini_openrouter_images";
+    return bindingTemplateForProtocol(modelId, protocol);
+  }
+  function bindingFromTemplate(id, canonicalModelId, remoteModelId, templateId, operations = ["generate", "edit"]) {
+    const template = BINDING_TEMPLATES[templateId];
+    return {
+      id: slug(id, `binding-${Date.now()}`),
+      canonical_model_id: String(canonicalModelId || "").trim(),
+      remote_model_id: String(remoteModelId || "").trim(),
+      protocol_profile: template.protocol_profile,
+      parameter_codec: template.parameter_codec,
+      operations: normalizedOperations(operations)
+    };
+  }
+  function bindingFromProtocol(id, canonicalModelId, remoteModelId, protocol, operations = ["generate", "edit"]) {
+    return bindingFromTemplate(
+      id,
+      canonicalModelId,
+      remoteModelId,
+      bindingTemplateForProtocol(canonicalModelId, protocol),
+      operations
+    );
+  }
+  function bindingForCompatibilitySelection(original, canonicalModelId, remoteModelId, protocol, compatibility, selectionChanged, operations) {
+    if (!selectionChanged && canonicalModelId === original.canonical_model_id) {
+      return {
+        ...original,
+        remote_model_id: remoteModelId,
+        operations: normalizedOperations(operations)
+      };
+    }
+    return {
+      ...bindingFromTemplate(
+        original.id,
+        canonicalModelId,
+        remoteModelId,
+        bindingTemplateForCompatibility(canonicalModelId, protocol, compatibility),
+        operations
+      ),
+      append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt)
+    };
+  }
+  function normalizeProviderBindings(bindings, providerId = "provider") {
+    if (!Array.isArray(bindings)) return [];
+    const seen = /* @__PURE__ */ new Set();
+    return bindings.filter((item) => Boolean(item && typeof item === "object")).map((item, index) => {
+      let id = slug(item.id, `${providerId}-binding-${index + 1}`);
+      while (seen.has(id)) id = `${id}-${index + 1}`;
+      seen.add(id);
+      const fallbackProtocol = availableProtocolsForModel(String(item.canonical_model_id || ""))[0];
+      const fallbackTemplate = fallbackProtocol ? BINDING_TEMPLATES[bindingTemplateForProtocol(String(item.canonical_model_id || ""), fallbackProtocol)] : null;
+      return {
+        id,
+        canonical_model_id: String(item.canonical_model_id || "").trim(),
+        remote_model_id: String(item.remote_model_id || "").trim(),
+        protocol_profile: String(item.protocol_profile || fallbackTemplate?.protocol_profile || "").trim(),
+        parameter_codec: String(item.parameter_codec || fallbackTemplate?.parameter_codec || "").trim(),
+        operations: normalizedOperations(item.operations),
+        append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt)
+      };
+    });
+  }
+  function validateProviderBindingOverlaps(bindings) {
+    const claimed = /* @__PURE__ */ new Map();
+    for (const binding of bindings) {
+      for (const operation of binding.operations) {
+        const key = `${binding.canonical_model_id}\0${operation}`;
+        const firstBindingId = claimed.get(key);
+        if (firstBindingId) {
+          return {
+            firstBindingId,
+            secondBindingId: binding.id,
+            canonicalModelId: binding.canonical_model_id,
+            operation
+          };
+        }
+        claimed.set(key, binding.id);
+      }
+    }
+    return null;
+  }
+  function bindingTemplateSuggestion(templateId) {
+    const template = BINDING_TEMPLATES[templateId];
+    return { base_url: template.base_url };
+  }
+  function isBindingTemplateBaseUrl(value) {
+    const normalized = String(value || "").trim().replace(/\/+$/, "");
+    return Object.values(BINDING_TEMPLATES).some(
+      (template) => template.base_url.replace(/\/+$/, "") === normalized
+    );
+  }
+  function option(value, label, selected) {
+    const element2 = document.createElement("option");
+    element2.value = value;
+    element2.textContent = label;
+    element2.selected = selected;
+    return element2;
+  }
+  function renderProviderBindingCards(container, bindings, models, providerId, defaults) {
+    if (!container) return;
+    destroyThemedSelects(container);
+    const normalizedBindings = normalizeProviderBindings(bindings, providerId);
+    const cards = normalizedBindings.map((binding, index) => {
+      const card = document.createElement("fieldset");
+      card.className = "provider-binding-card";
+      card.dataset.bindingId = binding.id;
+      const legend = document.createElement("legend");
+      legend.textContent = `\u6A21\u578B\u7ED1\u5B9A ${index + 1}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "ghost-button danger-button provider-binding-remove";
+      remove.dataset.removeProviderBinding = binding.id;
+      remove.dataset.i18n = "apiSettings.removeBinding";
+      remove.textContent = translate("apiSettings.removeBinding");
+      const grid = document.createElement("div");
+      grid.className = "provider-binding-grid";
+      const modelField = document.createElement("div");
+      modelField.className = "field";
+      const modelLabel = document.createElement("span");
+      modelLabel.id = `provider-binding-${binding.id}-model-label`;
+      modelLabel.textContent = "\u5177\u4F53\u578B\u53F7";
+      const modelSelect = document.createElement("select");
+      modelSelect.className = "control";
+      modelSelect.dataset.bindingModel = "";
+      modelSelect.setAttribute("aria-labelledby", modelLabel.id);
+      models.forEach((model) => modelSelect.append(option(model.id, model.display_name, model.id === binding.canonical_model_id)));
+      modelField.append(modelLabel, modelSelect);
+      const protocolField = document.createElement("div");
+      protocolField.className = "field";
+      const protocolLabel = document.createElement("span");
+      protocolLabel.id = `provider-binding-${binding.id}-protocol-label`;
+      protocolLabel.textContent = "\u534F\u8BAE";
+      const protocolSelect = document.createElement("select");
+      protocolSelect.className = "control";
+      protocolSelect.dataset.bindingProtocol = "";
+      protocolSelect.setAttribute("aria-labelledby", protocolLabel.id);
+      const selectedProtocol = protocolForBinding(binding);
+      const selectedModel = models.find((model) => model.id === binding.canonical_model_id);
+      card.dataset.bindingModelOperations = resolvedBindingOperations(
+        binding,
+        normalizedBindings,
+        selectedModel
+      ).join(",");
+      availableProtocolsForModel(binding.canonical_model_id).forEach((protocol) => {
+        protocolSelect.append(option(protocol, BINDING_PROTOCOL_LABELS[protocol], protocol === selectedProtocol));
+      });
+      protocolField.append(protocolLabel, protocolSelect);
+      const remoteField = document.createElement("label");
+      remoteField.className = "field provider-binding-remote-model";
+      remoteField.append(document.createTextNode("\u4E2D\u8F6C\u7AD9\u6A21\u578B\u540D\u79F0"));
+      const remoteInput = document.createElement("input");
+      remoteInput.className = "control";
+      remoteInput.type = "text";
+      remoteInput.autocomplete = "off";
+      remoteInput.value = binding.remote_model_id;
+      remoteInput.dataset.bindingRemoteModel = "";
+      remoteInput.placeholder = "\u4F8B\u5982 vendor/model.name:version-1";
+      remoteField.append(remoteInput);
+      const compatibilityField = document.createElement("div");
+      compatibilityField.className = "field provider-binding-compatibility";
+      const compatibilityLabel = document.createElement("span");
+      compatibilityLabel.id = `provider-binding-${binding.id}-compatibility-label`;
+      compatibilityLabel.textContent = "\u517C\u5BB9\u5C42";
+      const compatibilitySelect = document.createElement("select");
+      compatibilitySelect.className = "control";
+      compatibilitySelect.dataset.bindingCompatibility = "";
+      compatibilitySelect.setAttribute("aria-labelledby", compatibilityLabel.id);
+      const selectedCompatibility = compatibilityForBinding(binding);
+      availableCompatibilityLayers(binding.canonical_model_id, selectedProtocol).forEach((compatibility) => {
+        compatibilitySelect.append(option(
+          compatibility,
+          BINDING_COMPATIBILITY_LABELS[compatibility],
+          compatibility === selectedCompatibility
+        ));
+      });
+      compatibilityField.append(compatibilityLabel, compatibilitySelect);
+      const ratioPromptField = document.createElement("label");
+      ratioPromptField.className = "provider-binding-toggle provider-binding-ratio-prompt";
+      ratioPromptField.dataset.i18nAttr = "title:apiSettings.appendRatioPrompt";
+      const ratioPromptInput = document.createElement("input");
+      ratioPromptInput.type = "checkbox";
+      ratioPromptInput.dataset.bindingRatioPrompt = "";
+      ratioPromptInput.checked = Boolean(binding.append_aspect_ratio_prompt);
+      const ratioPromptLabel = document.createElement("span");
+      ratioPromptLabel.dataset.i18n = "apiSettings.appendRatioPrompt";
+      ratioPromptLabel.textContent = translate("apiSettings.appendRatioPrompt");
+      ratioPromptField.append(ratioPromptInput, ratioPromptLabel);
+      const defaultField = document.createElement("label");
+      defaultField.className = "provider-binding-toggle provider-binding-default";
+      defaultField.dataset.i18nAttr = "title:apiSettings.defaultProviderForModel";
+      const defaultInput = document.createElement("input");
+      defaultInput.type = "checkbox";
+      defaultInput.dataset.bindingDefault = "";
+      defaultInput.checked = defaults[binding.canonical_model_id] === providerId;
+      const defaultLabel = document.createElement("span");
+      defaultLabel.dataset.i18n = "apiSettings.defaultProviderForModel";
+      defaultLabel.textContent = translate("apiSettings.defaultProviderForModel");
+      defaultField.append(defaultInput, defaultLabel);
+      const footer = document.createElement("div");
+      footer.className = "provider-binding-footer";
+      const footerSettings = document.createElement("div");
+      footerSettings.className = "provider-binding-footer-settings";
+      footerSettings.append(ratioPromptField, defaultField);
+      footer.append(footerSettings, remove);
+      card.dataset.bindingOriginalModelId = binding.canonical_model_id;
+      card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
+      card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
+      card.dataset.bindingProtocolChanged = "false";
+      card.dataset.bindingCompatibilityChanged = "false";
+      grid.append(modelField, protocolField, remoteField, compatibilityField, footer);
+      card.append(legend, grid);
+      return card;
+    });
+    container.replaceChildren(...cards);
+    container.querySelectorAll("[data-binding-model], [data-binding-protocol], [data-binding-compatibility]").forEach((select) => mountThemedSelect(select));
+  }
+  function readProviderBindingCards(container) {
+    if (!container) return [];
+    return [...container.querySelectorAll("[data-binding-id]")].map((card) => {
+      const modelId = card.querySelector("[data-binding-model]")?.value || "";
+      const remoteModelId = card.querySelector("[data-binding-remote-model]")?.value || "";
+      const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
+      const compatibility = card.querySelector("[data-binding-compatibility]")?.value || "standard";
+      const operations = normalizedOperations(
+        String(card.dataset.bindingModelOperations || "").split(",")
+      );
+      const original = {
+        id: card.dataset.bindingId || "binding",
+        canonical_model_id: card.dataset.bindingOriginalModelId || modelId,
+        remote_model_id: remoteModelId,
+        protocol_profile: card.dataset.bindingOriginalProtocolProfile || "",
+        parameter_codec: card.dataset.bindingOriginalParameterCodec || "",
+        operations,
+        append_aspect_ratio_prompt: Boolean(
+          card.querySelector("[data-binding-ratio-prompt]")?.checked
+        )
+      };
+      return {
+        ...bindingForCompatibilitySelection(
+          original,
+          modelId,
+          remoteModelId,
+          protocol,
+          compatibility,
+          card.dataset.bindingProtocolChanged === "true" || card.dataset.bindingCompatibilityChanged === "true",
+          operations
+        ),
+        is_default: Boolean(card.querySelector("[data-binding-default]")?.checked)
+      };
+    });
+  }
+
   // codex_image/webui/frontend/src/api-provider-settings.ts
   var bridge9 = getLegacyBridge();
   var state9 = bridge9.state;
@@ -30854,18 +33743,51 @@ ${hint}` : hint;
   function normalizeApiProvider(provider = {}, index = 0) {
     const fallbackId = index === 0 ? "default" : `provider-${index + 1}`;
     const id = String(provider.id || fallbackId).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallbackId;
+    const legacyMode = provider.api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
+    const bindings = normalizeProviderBindings(
+      Array.isArray(provider.bindings) && provider.bindings.length ? provider.bindings : [{
+        id: `${id}-gpt-image-2`,
+        canonical_model_id: "gpt-image-2",
+        remote_model_id: String(provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL,
+        protocol_profile: legacyMode === "responses" ? "openai_responses" : "openai_images",
+        parameter_codec: legacyMode === "responses" ? "gpt_openai_responses" : "gpt_openai_images",
+        operations: ["generate", "edit"]
+      }],
+      id
+    );
+    const gptBinding = bindings.find((binding) => binding.canonical_model_id === "gpt-image-2") || bindings[0];
+    const apiMode = gptBinding?.protocol_profile === "openai_responses" ? "responses" : "images";
+    const concurrency = normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency);
     return {
       id,
       name: String(provider.name || (id === "default" ? "Default" : `Provider ${index + 1}`)).trim() || id,
       base_url: String(provider.base_url || DEFAULT_API_BASE_URL).trim() || DEFAULT_API_BASE_URL,
       api_key: String(provider.api_key || "").trim(),
-      image_model: String(provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL,
-      api_mode: provider.api_mode === "responses" ? "responses" : DEFAULT_API_MODE,
-      images_concurrency: normalizeApiImagesConcurrency(provider.images_concurrency),
+      concurrency,
+      bindings,
+      image_model: gptBinding?.remote_model_id || DEFAULT_API_IMAGE_MODEL,
+      api_mode: apiMode,
+      images_concurrency: concurrency,
       api_key_set: Boolean(provider.api_key_set || provider.api_key),
       api_key_masked: String(provider.api_key_masked || ""),
-      api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim()
+      api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim(),
+      icon_emoji: String(provider.icon_emoji || "").trim(),
+      default_model_ids: Array.isArray(provider.default_model_ids) ? provider.default_model_ids.map((value) => String(value || "").trim()).filter(Boolean) : []
     };
+  }
+  function appendProviderIdentity(target, provider, className) {
+    const icon = String(provider?.icon_emoji || "").trim();
+    if (icon) {
+      const emoji = document.createElement("span");
+      emoji.className = "api-provider-emoji";
+      emoji.setAttribute("aria-hidden", "true");
+      emoji.textContent = icon;
+      target.append(emoji);
+    }
+    const label = document.createElement("span");
+    label.className = className;
+    label.textContent = provider?.name || provider?.id || "";
+    target.append(label);
   }
   function normalizeApiImagesConcurrency(value) {
     const parsed = Number.parseInt(value, 10);
@@ -30878,9 +33800,6 @@ ${hint}` : hint;
   function providerById(providerId, settings = state9.apiSettings) {
     const normalized = normalizeApiSettings(settings);
     return normalized.providers.find((provider) => provider.id === providerId) || normalized.providers[0];
-  }
-  function providerMode(provider) {
-    return provider?.api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
   }
   function apiBaseUrlForEndpoint(value) {
     const withoutQueryOrFragment = String(value || DEFAULT_API_BASE_URL).trim().split(/[?#]/, 1)[0] || "";
@@ -30896,9 +33815,8 @@ ${hint}` : hint;
     if (!els10.apiRequestEndpointPreview) return;
     const provider = state9.apiProviderDraft || activeApiProvider();
     const baseUrl = apiBaseUrlForEndpoint(els10.apiBaseUrl?.value || provider?.base_url);
-    const mode = els10.apiMode?.value || providerMode(provider);
-    const endpoint = mode === "responses" ? "/responses" : state9.mode === "edit" ? "/images/edits" : "/images/generations";
-    const preview = `POST ${baseUrl}${endpoint}`;
+    const bindingCount = readProviderBindingCards(els10.apiProviderBindings).length || provider?.bindings?.length || 0;
+    const preview = `${baseUrl} \xB7 ${bindingCount} \xB7 ${translate("apiSettings.modelBindings")}`;
     els10.apiRequestEndpointPreview.textContent = preview;
     els10.apiRequestEndpointPreview.title = preview;
   }
@@ -30911,10 +33829,9 @@ ${hint}` : hint;
   }
   function providerMetaLabel(provider) {
     return [
-      apiModeLabel2(providerMode(provider)),
-      provider?.image_model || DEFAULT_API_IMAGE_MODEL,
+      `${provider?.bindings?.length || 0} \xB7 ${translate("apiSettings.modelBindings")}`,
       formatTranslation("apiSettings.concurrencyValue", {
-        concurrency: String(normalizeApiImagesConcurrency(provider?.images_concurrency))
+        concurrency: String(normalizeApiImagesConcurrency(provider?.concurrency ?? provider?.images_concurrency))
       })
     ].filter(Boolean).join(" \xB7 ");
   }
@@ -31000,14 +33917,16 @@ ${hint}` : hint;
   }
   function draftProviderFromForm() {
     const draft = state9.apiProviderDraft || activeApiProvider();
+    const bindingCards = readProviderBindingCards(els10.apiProviderBindings);
     return normalizeApiProvider({
       ...draft,
       name: els10.apiProviderName?.value || draft.name,
+      icon_emoji: els10.apiProviderIconEmoji ? els10.apiProviderIconEmoji.value : draft.icon_emoji,
       base_url: els10.apiBaseUrl?.value || DEFAULT_API_BASE_URL,
       api_key: els10.apiKey?.value || "",
-      api_mode: els10.apiMode?.value || DEFAULT_API_MODE,
-      image_model: els10.apiImageModel?.value || DEFAULT_API_IMAGE_MODEL,
-      images_concurrency: normalizeApiImagesConcurrency(els10.apiImagesConcurrency?.value),
+      concurrency: normalizeApiImagesConcurrency(els10.apiImagesConcurrency?.value),
+      bindings: bindingCards,
+      default_model_ids: bindingCards.filter((binding) => binding.is_default).map((binding) => binding.canonical_model_id),
       api_key_set: Boolean(draft.api_key_set || draft.api_key || draft.api_key_source_provider_id),
       api_key_masked: draft.api_key_masked,
       api_key_source_provider_id: draft.api_key_source_provider_id
@@ -31015,21 +33934,31 @@ ${hint}` : hint;
   }
   function writeProviderForm(provider) {
     if (els10.apiProviderName) els10.apiProviderName.value = provider.name || "";
+    if (els10.apiProviderIconEmoji) els10.apiProviderIconEmoji.value = provider.icon_emoji || "";
     if (els10.apiBaseUrl) els10.apiBaseUrl.value = provider.base_url || DEFAULT_API_BASE_URL;
-    if (els10.apiMode) {
-      els10.apiMode.value = providerMode(provider);
-      els10.apiMode.dispatchEvent(new Event("change"));
-    }
-    if (els10.apiImageModel) els10.apiImageModel.value = provider.image_model || DEFAULT_API_IMAGE_MODEL;
-    if (els10.apiImagesConcurrency) els10.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.images_concurrency));
+    if (els10.apiImagesConcurrency) els10.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
     if (els10.apiKey) {
       els10.apiKey.value = provider.api_key || "";
       els10.apiKey.placeholder = provider.api_key_set && !provider.api_key ? translate("apiSettings.savedKeyPlaceholder") : "sk-...";
     }
     hideApiKeyReveal();
     updateApiKeyRevealButton();
+    renderProviderBindingCards(
+      els10.apiProviderBindings,
+      provider.bindings || [],
+      state9.generationCatalog?.models || [],
+      provider.id,
+      state9.apiSettings.default_provider_by_model || {}
+    );
     updateApiRequestEndpointPreview();
     resetApiAdvancedSettings();
+  }
+  function defaultsForProviderDraft(provider) {
+    const defaults = { ...state9.apiSettings.default_provider_by_model || {} };
+    (provider.default_model_ids || []).forEach((modelId) => {
+      defaults[modelId] = provider.id;
+    });
+    return defaults;
   }
   function renderApiProviderList() {
     const settings = normalizeApiSettings(state9.apiSettings);
@@ -31060,7 +33989,8 @@ ${hint}` : hint;
         const content = document.createElement("div");
         content.className = "api-provider-sort-content";
         const name = document.createElement("strong");
-        name.textContent = provider.name || provider.id;
+        name.className = "api-provider-sort-name";
+        appendProviderIdentity(name, provider, "api-provider-choice-label");
         const meta = document.createElement("span");
         meta.textContent = providerMetaLabel(provider);
         content.append(name, meta);
@@ -31096,7 +34026,8 @@ ${hint}` : hint;
       button.setAttribute("role", "option");
       button.setAttribute("aria-selected", active ? "true" : "false");
       const name = document.createElement("strong");
-      name.textContent = provider.name || provider.id;
+      name.className = "api-provider-choice-name";
+      appendProviderIdentity(name, provider, "api-provider-choice-label");
       const meta = document.createElement("span");
       meta.textContent = providerMetaLabel(provider);
       button.append(name, meta);
@@ -31116,8 +34047,11 @@ ${hint}` : hint;
     const provider = activeApiProvider();
     setElementText(els10.apiProviderDetailBaseUrl, provider.base_url || DEFAULT_API_BASE_URL);
     setElementText(els10.apiProviderDetailKey, providerKeyLabel(provider));
-    setElementText(els10.apiProviderDetailMode, apiModeLabel2(providerMode(provider)));
-    setElementText(els10.apiProviderDetailConcurrency, normalizeApiImagesConcurrency(provider.images_concurrency));
+    setElementText(
+      els10.apiProviderDetailMode,
+      `${provider.bindings?.length || 0} \xB7 ${translate("apiSettings.modelBindings")}`
+    );
+    setElementText(els10.apiProviderDetailConcurrency, normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
   }
   function renderApiProviderEditor() {
     const editing = apiProviderEditorActive();
@@ -31138,6 +34072,18 @@ ${hint}` : hint;
       normalized.providers.push(normalizeApiProvider(draft, normalized.providers.length));
     }
     normalized.active_provider_id = draft.id;
+    const defaultModelIds = new Set(draft.default_model_ids || []);
+    for (const binding of draft.bindings || []) {
+      const modelId = binding.canonical_model_id;
+      if (defaultModelIds.has(modelId)) normalized.default_provider_by_model[modelId] = draft.id;
+      else if (normalized.default_provider_by_model[modelId] === draft.id) delete normalized.default_provider_by_model[modelId];
+    }
+    for (const modelId of Object.keys(normalized.default_provider_by_model)) {
+      if (normalized.default_provider_by_model[modelId] !== draft.id) continue;
+      if (!(draft.bindings || []).some((binding) => binding.canonical_model_id === modelId)) {
+        delete normalized.default_provider_by_model[modelId];
+      }
+    }
     state9.apiProviderEditingId = null;
     state9.apiProviderDraft = null;
     state9.apiProviderDraftIsNew = false;
@@ -31167,8 +34113,10 @@ ${hint}` : hint;
     const requestedActive = String(settings.active_provider_id || providers[0].id).trim().toLowerCase();
     const activeProvider = providers.find((provider) => provider.id === requestedActive) || providers[0];
     return {
+      schema_version: 2,
       codex_mode: normalizeCodexMode(settings.codex_mode),
       active_provider_id: activeProvider.id,
+      default_provider_by_model: { ...settings.default_provider_by_model || { "gpt-image-2": activeProvider.id } },
       providers
     };
   }
@@ -31190,7 +34138,16 @@ ${hint}` : hint;
       localStorage.setItem(API_SETTINGS_STORAGE_KEY, JSON.stringify({
         codex_mode: state9.apiSettings.codex_mode,
         active_provider_id: state9.apiSettings.active_provider_id,
-        providers: state9.apiSettings.providers
+        default_provider_by_model: state9.apiSettings.default_provider_by_model,
+        providers: state9.apiSettings.providers.map((provider) => ({
+          id: provider.id,
+          name: provider.name,
+          icon_emoji: provider.icon_emoji || "",
+          concurrency: provider.concurrency,
+          bindings: provider.bindings,
+          api_key_set: provider.api_key_set,
+          api_key_masked: provider.api_key_masked
+        }))
       }));
     } catch {
     }
@@ -31218,28 +34175,23 @@ ${hint}` : hint;
   }
   function populateApiSettingsForm() {
     const provider = activeApiProvider();
-    if (els10.codexMode) {
-      els10.codexMode.value = currentCodexMode3();
-      els10.codexMode.dispatchEvent(new Event("change"));
-      syncCodexModeNotes();
-    }
     if (els10.apiProviderQuick) {
       els10.apiProviderQuick.innerHTML = "";
       state9.apiSettings.providers.forEach((item) => {
-        const option = document.createElement("option");
-        option.value = item.id;
-        option.textContent = item.name || item.id;
-        els10.apiProviderQuick.append(option);
+        const option2 = document.createElement("option");
+        option2.value = item.id;
+        option2.textContent = item.name || item.id;
+        els10.apiProviderQuick.append(option2);
       });
       els10.apiProviderQuick.value = provider.id;
     }
     if (els10.apiProvider) {
       els10.apiProvider.innerHTML = "";
       state9.apiSettings.providers.forEach((item) => {
-        const option = document.createElement("option");
-        option.value = item.id;
-        option.textContent = item.name || item.id;
-        els10.apiProvider.append(option);
+        const option2 = document.createElement("option");
+        option2.value = item.id;
+        option2.textContent = item.name || item.id;
+        els10.apiProvider.append(option2);
       });
       els10.apiProvider.value = provider.id;
     }
@@ -31250,14 +34202,16 @@ ${hint}` : hint;
   }
   function readApiSettingsForm(options = {}) {
     const settings = normalizeApiSettings(state9.apiSettings);
-    settings.codex_mode = normalizeCodexMode(els10.codexMode?.value || settings.codex_mode);
     state9.apiSettings = options.applyProviderDraft ? applyApiProviderDraft(settings) : normalizeApiSettings(settings);
     return state9.apiSettings;
   }
   function currentApiProviderId() {
+    if (state9.selectedProviderId && state9.selectedProviderId !== "codex") return state9.selectedProviderId;
     return activeApiProvider().id;
   }
   function currentApiProviderLabel2() {
+    const selected = state9.generationCatalog?.providers.find((provider2) => provider2.id === state9.selectedProviderId);
+    if (selected) return String(selected.name || selected.id);
     const provider = activeApiProvider();
     return String(provider.name || provider.id || "").trim() || provider.id;
   }
@@ -31274,9 +34228,8 @@ ${hint}` : hint;
       id,
       name: translate("apiSettings.newProvider"),
       base_url: DEFAULT_API_BASE_URL,
-      image_model: DEFAULT_API_IMAGE_MODEL,
-      api_mode: DEFAULT_API_MODE,
-      images_concurrency: DEFAULT_API_IMAGES_CONCURRENCY
+      concurrency: DEFAULT_API_IMAGES_CONCURRENCY,
+      bindings: [bindingFromProtocol(`${id}-gpt-image-2`, "gpt-image-2", DEFAULT_API_IMAGE_MODEL, "openai_images")]
     }, state9.apiSettings.providers.length);
     populateApiSettingsForm();
     setApiSettingsFeedback(translate("apiSettings.newDraftStatus"), "running");
@@ -31296,6 +34249,7 @@ ${hint}` : hint;
     state9.apiProviderDraftIsNew = true;
     state9.apiProviderDraft = normalizeApiProvider({
       ...provider,
+      bindings: provider.bindings.map((binding, index) => ({ ...binding, id: `${id}-binding-${index + 1}` })),
       id,
       name: copiedProviderName(provider),
       api_key: "",
@@ -31317,6 +34271,12 @@ ${hint}` : hint;
     const activeId = state9.apiSettings.active_provider_id;
     state9.apiSettings.providers = state9.apiSettings.providers.filter((provider) => provider.id !== activeId);
     state9.apiSettings.active_provider_id = state9.apiSettings.providers[0]?.id || "default";
+    Object.entries(state9.apiSettings.default_provider_by_model || {}).forEach(([modelId, providerId]) => {
+      if (providerId === activeId) delete state9.apiSettings.default_provider_by_model[modelId];
+    });
+    Object.entries(state9.lastProviderByModel || {}).forEach(([modelId, providerId]) => {
+      if (providerId === activeId) delete state9.lastProviderByModel[modelId];
+    });
     if (state9.apiSettings.providers.length <= 1) state9.apiProviderSortMode = false;
     populateApiSettingsForm();
     persistApiSettings();
@@ -31352,6 +34312,9 @@ ${hint}` : hint;
     openSystemSettingsModal("api");
     scrollActiveApiProviderCardIntoView(activeApiProvider().id, "center");
   }
+  function openGenerationProviderSettings() {
+    openApiSettingsModal();
+  }
   function closeApiSettingsModal() {
     closeSystemSettingsModal();
   }
@@ -31372,6 +34335,7 @@ ${hint}` : hint;
       populateApiSettingsForm();
       scrollActiveApiProviderCardIntoView(provider.id, "nearest");
       persistApiSettings();
+      legacyMethod14("selectGenerationProvider", provider.id);
       renderAuthSourceAfterProviderChange();
       queueApiSettingsAutosave();
     };
@@ -31396,6 +34360,7 @@ ${hint}` : hint;
   }
   function cancelApiProviderEdit() {
     if (!apiProviderEditorActive()) return;
+    els10.systemSettingsApiTab?.focus({ preventScroll: true });
     state9.apiProviderEditingId = null;
     state9.apiProviderDraft = null;
     state9.apiProviderDraftIsNew = false;
@@ -31438,23 +34403,180 @@ ${hint}` : hint;
     if (!apiProviderEditorActive()) return;
     await saveApiSettings();
   }
+  function addProviderBinding() {
+    if (!apiProviderEditorActive()) return;
+    const draft = draftProviderFromForm();
+    const models = state9.generationCatalog?.models || [];
+    const model = models.find((item) => !draft.bindings.some((binding) => binding.canonical_model_id === item.id)) || models[0];
+    if (!model) {
+      setApiSettingsFeedback(translate("apiSettings.catalogRequiredForBinding"), "error");
+      return;
+    }
+    const bindingId = `${draft.id}-binding-${Date.now()}`;
+    const protocol = availableProtocolsForModel(model.id)[0];
+    if (!protocol) {
+      setApiSettingsFeedback(translate("apiSettings.catalogRequiredForBinding"), "error");
+      return;
+    }
+    draft.bindings.push(bindingFromProtocol(
+      bindingId,
+      model.id,
+      model.official_model_id || model.id,
+      protocol,
+      [...model.operations]
+    ));
+    if (!state9.apiSettings.default_provider_by_model?.[model.id]) {
+      draft.default_model_ids = [.../* @__PURE__ */ new Set([...draft.default_model_ids || [], model.id])];
+    }
+    state9.apiProviderDraft = draft;
+    renderProviderBindingCards(
+      els10.apiProviderBindings,
+      draft.bindings,
+      models,
+      draft.id,
+      defaultsForProviderDraft(draft)
+    );
+    updateApiRequestEndpointPreview();
+  }
+  function removeProviderBinding(bindingId) {
+    if (!apiProviderEditorActive()) return;
+    const draft = draftProviderFromForm();
+    if (draft.bindings.length <= 1) {
+      setApiSettingsFeedback(translate("apiSettings.keepOneBinding"), "error");
+      return;
+    }
+    draft.bindings = draft.bindings.filter((binding) => binding.id !== bindingId);
+    state9.apiProviderDraft = draft;
+    renderProviderBindingCards(
+      els10.apiProviderBindings,
+      draft.bindings,
+      state9.generationCatalog?.models || [],
+      draft.id,
+      defaultsForProviderDraft(draft)
+    );
+    updateApiRequestEndpointPreview();
+  }
+  function handleProviderBindingEditorChange(event) {
+    const target = event.target;
+    const card = target?.closest("[data-binding-id]");
+    if (!target || !card) return;
+    if (target.matches("[data-binding-model]")) {
+      const modelId = target.value;
+      const protocols = availableProtocolsForModel(modelId);
+      const defaultProtocol = protocols[0];
+      const protocolSelect = card.querySelector("[data-binding-protocol]");
+      if (protocolSelect) {
+        protocolSelect.replaceChildren(...protocols.map((protocol) => {
+          const option2 = document.createElement("option");
+          option2.value = protocol;
+          option2.textContent = BINDING_PROTOCOL_LABELS[protocol];
+          return option2;
+        }));
+        protocolSelect.value = protocols[0] || "";
+        syncThemedSelect(protocolSelect);
+      }
+      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
+      if (compatibilitySelect) {
+        compatibilitySelect.replaceChildren(...(defaultProtocol ? availableCompatibilityLayers(modelId, defaultProtocol) : []).map((compatibility) => {
+          const option2 = document.createElement("option");
+          option2.value = compatibility;
+          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
+          return option2;
+        }));
+        compatibilitySelect.value = "standard";
+        syncThemedSelect(compatibilitySelect);
+      }
+      card.dataset.bindingProtocolChanged = "true";
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state9.apiProviderDraftIsNew && defaultProtocol) {
+        const suggestion = bindingTemplateSuggestion(bindingTemplateForProtocol(modelId, defaultProtocol));
+        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
+      }
+      const remoteInput = card.querySelector("[data-binding-remote-model]");
+      const model = state9.generationCatalog?.models.find((item) => item.id === modelId);
+      if (remoteInput && !remoteInput.value.trim()) remoteInput.value = model?.official_model_id || modelId;
+      const existingOperations = String(card.dataset.bindingModelOperations || "").split(",").filter(Boolean);
+      card.dataset.bindingModelOperations = (model?.operations || existingOperations).join(",");
+    }
+    if (target.matches("[data-binding-default]")) {
+      const modelId = card.querySelector("[data-binding-model]")?.value;
+      if (modelId) {
+        els10.apiProviderBindings?.querySelectorAll("[data-binding-id]").forEach((item) => {
+          if (item === card) return;
+          if (item.querySelector("[data-binding-model]")?.value !== modelId) return;
+          const checkbox = item.querySelector("[data-binding-default]");
+          if (checkbox) checkbox.checked = target.checked;
+        });
+      }
+    }
+    if (target.matches("[data-binding-protocol]")) {
+      card.dataset.bindingProtocolChanged = "true";
+      const modelId = card.querySelector("[data-binding-model]")?.value || "";
+      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
+      const protocol = target.value;
+      if (compatibilitySelect) {
+        compatibilitySelect.replaceChildren(...availableCompatibilityLayers(modelId, protocol).map((compatibility) => {
+          const option2 = document.createElement("option");
+          option2.value = compatibility;
+          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
+          return option2;
+        }));
+        compatibilitySelect.value = "standard";
+        syncThemedSelect(compatibilitySelect);
+      }
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state9.apiProviderDraftIsNew) {
+        const templateId = bindingTemplateForProtocol(modelId, protocol);
+        const suggestion = bindingTemplateSuggestion(templateId);
+        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
+      }
+    }
+    if (target.matches("[data-binding-compatibility]")) {
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state9.apiProviderDraftIsNew) {
+        const modelId = card.querySelector("[data-binding-model]")?.value || "";
+        const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
+        const templateId = bindingTemplateForCompatibility(
+          modelId,
+          protocol,
+          target.value
+        );
+        const suggestion = bindingTemplateSuggestion(templateId);
+        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
+      }
+    }
+    updateApiRequestEndpointPreview();
+  }
   function renderAuthSourceAfterProviderChange() {
     legacyMethod14("renderAuthSource", state9.authStatus);
+    legacyMethod14("renderProviderSelection");
     updateModeSpecificSettings();
     updateRequestPreview5();
   }
   function currentApiImageModel() {
-    return (activeApiProvider().image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL;
+    const provider = activeApiProvider();
+    const binding = provider.bindings?.find((item) => item.canonical_model_id === state9.selectedModelId) || provider.bindings?.find((item) => item.canonical_model_id === "gpt-image-2") || provider.bindings?.[0];
+    return String(binding?.remote_model_id || provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL;
   }
   function currentApiMode3() {
+    const binding = selectedProviderBinding();
+    if (binding) return String(binding.protocol_profile).includes("responses") ? "responses" : "images";
     return activeApiProvider().api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
   }
   function currentCodexMode3() {
+    const binding = selectedProviderBinding();
+    if (state9.selectedProviderId === "codex" && binding) {
+      return binding.protocol_profile === "codex_responses" ? "responses" : "images";
+    }
     state9.apiSettings = normalizeApiSettings(state9.apiSettings);
     return normalizeCodexMode(state9.apiSettings.codex_mode);
   }
   function currentApiImagesConcurrency() {
-    return normalizeApiImagesConcurrency(activeApiProvider().images_concurrency);
+    const provider = activeApiProvider();
+    return normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency);
   }
   function apiModeLabel2(mode) {
     return mode === "responses" ? "Responses" : translate("apiSettings.modeImagesShort");
@@ -31475,29 +34597,19 @@ ${hint}` : hint;
     return "";
   }
   function syncCodexModeNotes() {
-    const mode = currentCodexMode3();
-    els10.codexModeNotes?.forEach?.((note) => {
-      const active = note.dataset.codexModeNote === mode;
-      note.classList.toggle("active", active);
-      note.setAttribute("aria-current", active ? "true" : "false");
-    });
   }
   function selectCodexMode(mode, anchor) {
     const normalized = normalizeCodexMode(mode);
-    const continueSwitch = () => {
-      if (els10.codexMode) {
-        els10.codexMode.value = normalized;
-        els10.codexMode.dispatchEvent(new Event("input", { bubbles: true }));
-        els10.codexMode.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-      syncCodexModeNotes();
-    };
-    if (normalized === currentCodexMode3()) {
-      continueSwitch();
-      return;
-    }
     void anchor;
-    continueSwitch();
+    state9.apiSettings = normalizeApiSettings({ ...state9.apiSettings, codex_mode: normalized });
+    legacyMethod14("syncCodexCatalogMode", normalized);
+    legacyMethod14("selectGenerationProvider", providerBindingSelectionKey("codex", `codex-gpt-image-2-${normalized}`));
+    legacyMethod14("renderProviderSelection");
+    updateModeSpecificSettings();
+    updateRequestPreview5();
+    persistApiSettings();
+    queueApiSettingsAutosave();
+    return true;
   }
   function queueApiSettingsAutosave() {
     if (apiProviderEditorActive()) return;
@@ -31544,7 +34656,7 @@ ${hint}` : hint;
     return [backendLabel, provider].filter(Boolean).join(" \xB7 ");
   }
   function setApiSettingsFeedback(message, type = "") {
-    [els10.apiSettingsStatus, els10.codexSettingsStatus].filter(Boolean).forEach((statusElement) => {
+    [els10.apiSettingsStatus].filter(Boolean).forEach((statusElement) => {
       statusElement.textContent = message;
       statusElement.className = `api-settings-feedback settings-action-status ${type || ""}`.trim();
     });
@@ -31575,22 +34687,40 @@ ${hint}` : hint;
     }
     const previousSettings = normalizeApiSettings(state9.apiSettings);
     const previousEditingId = state9.apiProviderEditingId;
-    const previousDraft = state9.apiProviderDraft ? { ...state9.apiProviderDraft } : null;
+    const previousDraft = state9.apiProviderDraft ? structuredClone(state9.apiProviderDraft) : null;
     const previousDraftIsNew = state9.apiProviderDraftIsNew;
+    if (!autoSave && apiProviderEditorActive()) {
+      const bindings = readProviderBindingCards(els10.apiProviderBindings);
+      if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id || !binding.remote_model_id || !binding.operations.length)) {
+        setApiSettingsFeedback(translate("apiSettings.bindingRequiredFields"), "error");
+        return false;
+      }
+      const overlap = validateProviderBindingOverlaps(bindings);
+      if (overlap) {
+        setApiSettingsFeedback(formatTranslation("apiSettings.bindingOverlap", {
+          model: overlap.canonicalModelId,
+          operation: overlap.operation
+        }), "error");
+        els10.apiProviderBindings?.querySelector(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
+        return false;
+      }
+    }
     const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
     persistApiSettings();
     const payload2 = {
+      schema_version: 2,
       codex_mode: settings.codex_mode,
       active_provider_id: settings.active_provider_id,
+      default_provider_by_model: settings.default_provider_by_model,
       providers: settings.providers.map((provider) => {
         const item = {
           id: provider.id,
           name: provider.name,
+          icon_emoji: provider.icon_emoji || "",
           base_url: provider.base_url,
-          image_model: provider.image_model,
-          api_mode: provider.api_mode
+          concurrency: provider.concurrency,
+          bindings: provider.bindings
         };
-        item.images_concurrency = provider.images_concurrency;
         if (provider.api_key || !provider.api_key_set) item.api_key = provider.api_key;
         if (!provider.api_key && provider.api_key_source_provider_id) {
           item.api_key_source_provider_id = provider.api_key_source_provider_id;
@@ -31630,6 +34760,7 @@ ${hint}` : hint;
         state9.apiSettingsSaveTimerId = null;
       }, 1600);
       setStatus8(translate("apiSettings.savedStatus"), "ok");
+      await refreshGenerationCatalog();
       await refreshHealth();
       updateRequestPreview5();
       return true;
@@ -31663,7 +34794,7 @@ ${hint}` : hint;
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
       const bridge39 = getLegacyBridge();
       renderAuthSource(bridge39.state.authStatus);
-      if (!bridge39.els.systemSettingsModal?.classList.contains("hidden") && (!bridge39.els.systemSettingsApiPanel?.hidden || !bridge39.els.systemSettingsCodexPanel?.hidden)) {
+      if (!bridge39.els.systemSettingsModal?.classList.contains("hidden") && !bridge39.els.systemSettingsApiPanel?.hidden) {
         setApiSettingsFeedback("", "");
       }
     });
@@ -31684,6 +34815,7 @@ ${hint}` : hint;
       normalizeApiImagesConcurrency,
       normalizeApiSettings,
       activeApiProvider,
+      addProviderBinding,
       restoreApiSettings,
       persistApiSettings,
       mergeApiProviderKeys,
@@ -31699,6 +34831,7 @@ ${hint}` : hint;
       deleteApiProvider,
       editApiProvider,
       hideApiKeyReveal,
+      handleProviderBindingEditorChange,
       cancelApiProviderEdit,
       saveApiProviderEdit,
       selectApiProvider,
@@ -31710,7 +34843,9 @@ ${hint}` : hint;
       renderApiProviderList,
       syncCodexModeNotes,
       moveApiProvider,
+      removeProviderBinding,
       toggleApiProviderSortMode,
+      openGenerationProviderSettings,
       openApiSettingsModal,
       closeApiSettingsModal,
       currentApiImageModel,
@@ -35355,11 +38490,17 @@ ${galleryText}`;
     });
   }
   function currentPromptForModel() {
+    if (!supportsGptPromptProcessing()) return buildPromptForModel();
     return currentPromptFidelity() === "original" ? expandPromptSnippets2(getPromptText8()) : buildPromptForModel();
   }
   function currentPromptFidelity() {
+    if (!supportsGptPromptProcessing()) return "off";
     const value = els20.promptFidelity?.value || "strict";
     return ["strict", "original", "off"].includes(value) ? value : "strict";
+  }
+  function supportsGptPromptProcessing() {
+    const { state: state32 } = getLegacyBridge();
+    return !state32.generationCatalog || state32.selectedModelId === "gpt-image-2";
   }
   function initPromptModelFeature() {
     Object.assign(getLegacyBridge().methods, {
@@ -35368,7 +38509,8 @@ ${galleryText}`;
       buildPromptForModel,
       galleryReferenceInstruction,
       currentPromptForModel,
-      currentPromptFidelity
+      currentPromptFidelity,
+      supportsGptPromptProcessing
     });
   }
 
@@ -36060,8 +39202,8 @@ ${galleryText}`;
   function presetDimensions(resolution, ratio) {
     const defaultPreset = GPT_IMAGE_2_SIZE_PRESETS[DEFAULT_RESOLUTION];
     const preset = GPT_IMAGE_2_SIZE_PRESETS[resolution] || defaultPreset;
-    const dimensions = preset[ratio] || preset[DEFAULT_RATIO] || defaultPreset[DEFAULT_RATIO] || [1024, 1024];
-    return dimensions;
+    const dimensions2 = preset[ratio] || preset[DEFAULT_RATIO] || defaultPreset[DEFAULT_RATIO] || [1024, 1024];
+    return dimensions2;
   }
   function sizeForPreset(resolution, ratio) {
     const [width, height] = presetDimensions(resolution, ratio);
@@ -36094,9 +39236,9 @@ ${galleryText}`;
   }
   function findPresetForSize(size) {
     for (const [resolution, ratios] of Object.entries(GPT_IMAGE_2_SIZE_PRESETS)) {
-      for (const [ratio, dimensions] of Object.entries(ratios)) {
-        if (`${dimensions[0]}x${dimensions[1]}` === size) {
-          return { resolution, ratio, orientation: RATIO_ORIENTATION[ratio] || orientationForDimensions(dimensions[0], dimensions[1]) };
+      for (const [ratio, dimensions2] of Object.entries(ratios)) {
+        if (`${dimensions2[0]}x${dimensions2[1]}` === size) {
+          return { resolution, ratio, orientation: RATIO_ORIENTATION[ratio] || orientationForDimensions(dimensions2[0], dimensions2[1]) };
         }
       }
     }
@@ -36120,16 +39262,19 @@ ${galleryText}`;
   }
   function currentTaskParams() {
     const params = {
-      main_model: currentMainModel(),
       model: currentImageToolModel(),
       size: currentSize(),
       n: currentQuantity(),
-      prompt_fidelity: currentPromptFidelity3(),
       quality: els25.quality.value,
       output_format: els25.outputFormat.value,
       moderation: els25.moderation.value,
       output_compression: els25.outputFormat.value === "png" ? null : Number(els25.compression.value)
     };
+    const { state: state32 } = getLegacyBridge();
+    if (!state32.generationCatalog || state32.selectedModelId === "gpt-image-2") {
+      params.main_model = currentMainModel();
+      params.prompt_fidelity = currentPromptFidelity3();
+    }
     if (currentWebSearchEnabled()) {
       params.web_search = true;
     }
@@ -36143,9 +39288,9 @@ ${galleryText}`;
       if (customRatio) {
         params.ratio = customRatio;
       }
-      const dimensions = String(params.size || "").split("x").map((value) => Number(value));
-      if (dimensions.length === 2 && dimensions.every((value) => Number.isFinite(value) && value > 0)) {
-        params.orientation = orientationForDimensions(dimensions[0], dimensions[1]);
+      const dimensions2 = String(params.size || "").split("x").map((value) => Number(value));
+      if (dimensions2.length === 2 && dimensions2.every((value) => Number.isFinite(value) && value > 0)) {
+        params.orientation = orientationForDimensions(dimensions2[0], dimensions2[1]);
       }
     }
     if (currentAuthSource2() === "api") {
@@ -36165,6 +39310,9 @@ ${galleryText}`;
   var state17 = bridge23.state;
   var els26 = bridge23.els;
   var customSizeTransitionTimers = /* @__PURE__ */ new WeakMap();
+  function saveCurrentModelParameterDraft2() {
+    bridge23.methods.saveCurrentModelParameterDraft?.();
+  }
   function measuredElementHeight2(element2) {
     if (!element2) return 0;
     return Math.ceil(element2.getBoundingClientRect().height);
@@ -36177,6 +39325,7 @@ ${galleryText}`;
   function setCustomSizeMode(isCustom) {
     if (els26.customSizeToggle) els26.customSizeToggle.checked = Boolean(isCustom);
     updateSizeFromPreset();
+    saveCurrentModelParameterDraft2();
   }
   function swapCustomSizeDimensions(event) {
     event?.preventDefault?.();
@@ -36188,6 +39337,7 @@ ${galleryText}`;
     updateCustomSize();
     updatePixelPreview("custom");
     updateRequestPreview10();
+    saveCurrentModelParameterDraft2();
   }
   function sanitizeCustomRatioInput(input) {
     const value = String(input?.value ?? "");
@@ -36331,11 +39481,12 @@ ${galleryText}`;
     if (!source) return;
     const url = sourceUrlForAspectRatio(source);
     if (!url) return;
-    return loadImageDimensions(url).catch(() => null).then((dimensions) => {
-      if (!dimensions) return;
-      const ratio = singleDigitAspectRatioForDimensions(dimensions.width, dimensions.height);
+    return loadImageDimensions(url).catch(() => null).then((dimensions2) => {
+      if (!dimensions2) return;
+      const ratio = singleDigitAspectRatioForDimensions(dimensions2.width, dimensions2.height);
       if (!ratio) return;
       applyCustomAspectRatioDigits(ratio.width, ratio.height);
+      saveCurrentModelParameterDraft2();
     });
   }
   function handleCustomDimensionInput(input) {
@@ -36649,15 +39800,20 @@ ${galleryText}`;
       els27.compression,
       els27.nInput,
       els27.promptFidelity
-    ].filter(Boolean).forEach((element2) => element2.addEventListener("input", () => {
-      persistMainModel();
-      updateQuantity();
-      updateCompression();
-      if (element2 === els27.customWidth || element2 === els27.customHeight) handleCustomDimensionInput(element2);
-      updateCustomSize();
-      if (element2 === els27.customWidth || element2 === els27.customHeight) updatePixelPreview("custom");
-      updateRequestPreview10();
-    }));
+    ].filter(Boolean).forEach((element2) => {
+      const handleParameterChange = () => {
+        persistMainModel();
+        updateQuantity();
+        updateCompression();
+        if (element2 === els27.customWidth || element2 === els27.customHeight) handleCustomDimensionInput(element2);
+        updateCustomSize();
+        if (element2 === els27.customWidth || element2 === els27.customHeight) updatePixelPreview("custom");
+        updateRequestPreview10();
+        saveCurrentModelParameterDraft();
+      };
+      element2.addEventListener("input", handleParameterChange);
+      element2.addEventListener("change", handleParameterChange);
+    });
     els27.mainModel?.addEventListener("focus", () => openMainModelCombobox({ showAll: true }));
     els27.mainModel?.addEventListener("click", () => {
       if (!state18.mainModelComboboxOpen) openMainModelCombobox({ showAll: true });
@@ -36682,8 +39838,14 @@ ${galleryText}`;
       closeMainModelCombobox();
     });
     [els27.resolution, els27.ratio, els27.orientation].filter(Boolean).forEach((element2) => {
-      element2.addEventListener("input", updateSizeFromPreset);
-      element2.addEventListener("change", updateSizeFromPreset);
+      element2.addEventListener("input", () => {
+        updateSizeFromPreset();
+        saveCurrentModelParameterDraft();
+      });
+      element2.addEventListener("change", () => {
+        updateSizeFromPreset();
+        saveCurrentModelParameterDraft();
+      });
     });
     [els27.customRatioWidth, els27.customRatioHeight].filter(Boolean).forEach((element2) => {
       element2.addEventListener("input", () => {
@@ -36691,6 +39853,7 @@ ${galleryText}`;
         updateCustomSize();
         updatePixelPreview("custom");
         updateRequestPreview10();
+        saveCurrentModelParameterDraft();
       });
     });
     els27.sizeModeGroup?.addEventListener("click", handleSizeModeEvent);
@@ -36704,6 +39867,7 @@ ${galleryText}`;
     els27.outputFormatGroup?.addEventListener("dblclick", handleOutputFormatDoubleClick);
   }
   function setMode4(mode) {
+    saveCurrentModelParameterDraft();
     state18.mode = mode;
     document.querySelectorAll("[data-mode]").forEach((button) => {
       button.classList.toggle("active", button.dataset.mode === mode);
@@ -36712,7 +39876,10 @@ ${galleryText}`;
       syncRunButtonLabel2();
     }
     syncRadioButtons(els27.quality, els27.outputFormat, els27.moderation);
-    updateRequestPreview10();
+    bridge24.methods.renderProviderSelection?.();
+    restoreCurrentModelParameterDraft();
+    bridge24.methods.updateModeSpecificSettings?.();
+    bridge24.methods.updateRequestPreview?.();
   }
   function initFormControlsFeature() {
     if (formControlsInitialized) return;
@@ -36786,23 +39953,39 @@ ${galleryText}`;
     const height = Math.max(1, Number(match[2]) || 1024);
     return [width, height];
   }
+  function record(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? { ...value } : {};
+  }
+  function hasOwn(source, key) {
+    return Object.prototype.hasOwnProperty.call(source, key);
+  }
   function normalizeOutputSettingsSnapshot(params) {
-    const [width, height] = normalizedDimensions(params?.size);
+    const parameters = record(params?.parameters);
+    const sizeValue = parameters["canvas.size"] || params?.size;
+    const [width, height] = normalizedDimensions(sizeValue);
     const divisor = greatestCommonDivisor(width, height);
     const fidelity = String(params?.prompt_fidelity || "strict");
-    const compression = params?.output_compression;
+    const compression = parameters["gpt.output_compression"] ?? params?.output_compression;
+    const canonicalModelId = String(params?.canonical_model_id || "gpt-image-2");
     return {
+      canonical_model_id: canonicalModelId,
+      model_display_name: String(params?.model_display_name || canonicalModelId),
+      parameters,
       main_model: String(params?.main_model || ""),
       model: String(params?.model || "gpt-image-2"),
       size: `${width}x${height}`,
-      ratio: String(params?.ratio || `${width / divisor}:${height / divisor}`),
-      n: Math.max(1, Math.min(4, Math.round(Number(params?.n) || 1))),
+      ratio: String(parameters["canvas.aspect_ratio"] || params?.ratio || `${width / divisor}:${height / divisor}`),
+      n: Math.max(1, Math.min(4, Math.round(Number(parameters["output.count"] ?? params?.n) || 1))),
       prompt_fidelity: fidelity === "original" || fidelity === "off" ? fidelity : "strict",
-      quality: String(params?.quality || "auto"),
-      output_format: String(params?.output_format || "png").toLowerCase(),
+      quality: String(parameters["gpt.quality"] || params?.quality || "auto"),
+      output_format: String(parameters["output.format"] || params?.output_format || "png").toLowerCase(),
       output_compression: compression === null || compression === void 0 ? null : Number(compression),
-      moderation: String(params?.moderation || "auto"),
-      web_search: Boolean(params?.web_search)
+      moderation: String(parameters["gpt.moderation"] || params?.moderation || "auto"),
+      web_search: Boolean(parameters["gpt.web_search"] ?? params?.web_search),
+      resolution: String(parameters["canvas.resolution"] || params?.resolution || ""),
+      has_safety_settings: hasOwn(parameters, "gemini.safety_settings"),
+      safety_settings: record(parameters["gemini.safety_settings"]),
+      google_search: hasOwn(parameters, "gemini.google_search") ? Boolean(parameters["gemini.google_search"]) : null
     };
   }
   function promptFidelityLabel(value) {
@@ -36812,6 +39995,15 @@ ${galleryText}`;
     const key = value === "low" ? "output.qualityLow" : value === "medium" ? "output.qualityMedium" : value === "high" ? "output.qualityHigh" : "output.qualityAuto";
     return translate(key);
   }
+  function geminiSafetyLabel(value, supported) {
+    const thresholds = Object.values(value).map(String);
+    if (!thresholds.length) return supported ? translate("gemini.safety.threshold.off") : "";
+    if (thresholds.every((threshold) => threshold === "OFF")) return translate("gemini.safety.threshold.off");
+    if (thresholds.every((threshold) => threshold === "BLOCK_LOW_AND_ABOVE")) {
+      return translate("gemini.safety.threshold.blockLowAndAbove");
+    }
+    return translate("output.lock.custom");
+  }
   function outputCountCardRatio(value) {
     const [width = 1, height = 1] = String(value || "").split(":").map(Number);
     return width > 0 && height > 0 ? width / height : 1;
@@ -36820,37 +40012,63 @@ ${galleryText}`;
     return count === 4 && outputCountCardRatio(ratioValue) >= 16 / 9;
   }
   function buildOutputSettingsSummaryModel(snapshot, context) {
-    const details = [
-      { label: translate("output.lock.prompt"), value: promptFidelityLabel(snapshot.prompt_fidelity) },
-      { label: translate("output.quality"), value: qualityLabel(snapshot.quality) }
-    ];
-    if (context.responses) {
-      details.push({
-        label: translate("output.lock.search"),
-        value: translate(snapshot.web_search ? "output.lock.enabled" : "output.lock.disabled")
-      });
+    const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+    const geminiImage = snapshot.canonical_model_id.startsWith("nano-banana");
+    const details = [];
+    if (gptImage) {
+      details.push(
+        { label: translate("output.lock.prompt"), value: promptFidelityLabel(snapshot.prompt_fidelity) },
+        { label: translate("output.quality"), value: qualityLabel(snapshot.quality) }
+      );
+      if (context.responses) {
+        details.push({
+          label: translate("output.lock.search"),
+          value: translate(snapshot.web_search ? "output.lock.enabled" : "output.lock.disabled")
+        });
+      } else {
+        details.push({ label: translate("output.lock.call"), value: context.callLabel });
+      }
+      details.push({ label: translate("output.moderation"), value: snapshot.moderation });
     } else {
-      details.push({ label: translate("output.lock.call"), value: context.callLabel });
+      const safety = geminiSafetyLabel(snapshot.safety_settings, snapshot.has_safety_settings);
+      if (safety) details.push({ label: translate("gemini.safetySettings"), value: safety });
+      if (snapshot.google_search !== null) {
+        details.push({
+          label: translate("gemini.googleSearch"),
+          value: translate(snapshot.google_search ? "output.lock.enabled" : "output.lock.disabled")
+        });
+      }
     }
-    details.push({ label: translate("output.moderation"), value: snapshot.moderation });
+    const thirdCard = gptImage ? {
+      kind: "format",
+      label: translate("output.lock.output"),
+      value: snapshot.output_format.toUpperCase(),
+      meta: translate("output.lock.fileFormat")
+    } : {
+      kind: "resolution",
+      label: translate("canvas.resolution"),
+      value: snapshot.resolution || "\u2014",
+      meta: ""
+    };
     return {
       contextLabel: context.task ? translate("output.lock.task") : "",
-      showModel: context.responses,
-      modelLabel: translate(context.responses ? "output.mainModel" : "output.lock.imageModel"),
-      modelValue: context.responses ? snapshot.main_model || snapshot.model : snapshot.model,
+      showModel: gptImage ? context.responses : context.task || geminiImage,
+      modelLabel: gptImage ? translate(context.responses ? "output.mainModel" : "output.lock.imageModel") : "",
+      modelValue: gptImage ? context.responses ? snapshot.main_model || snapshot.model : snapshot.model : snapshot.model_display_name || snapshot.canonical_model_id,
       hint: translate(context.task ? "output.lock.taskHint" : "output.lock.lockedHint"),
       ratio: snapshot.ratio,
-      pixels: snapshot.size.replace("x", " \xD7 "),
+      pixels: gptImage ? snapshot.size.replace("x", " \xD7 ") : "",
       count: snapshot.n,
       format: snapshot.output_format.toUpperCase(),
+      thirdCard,
       details
     };
   }
   function currentSummaryContext() {
     const authSource = String(legacyMethod30("currentAuthSource") || "codex");
     const currentCodexMode5 = authSource === "codex" ? String(legacyMethod30("currentCodexMode") || "image") : "";
-    const currentApiMode5 = authSource === "api" ? String(legacyMethod30("currentApiMode") || "images") : "";
-    const responses = authSource === "api" ? currentApiMode5 === "responses" : currentCodexMode5 === "responses";
+    const currentApiMode4 = authSource === "api" ? String(legacyMethod30("currentApiMode") || "images") : "";
+    const responses = authSource === "api" ? currentApiMode4 === "responses" : currentCodexMode5 === "responses";
     const callLabel = authSource === "api" ? "Images API" : "Codex Image";
     return { responses, task: false, callLabel };
   }
@@ -36864,13 +40082,31 @@ ${galleryText}`;
   function snapshotFromTask(task) {
     const params = task?.params || {};
     const request = task?.request || {};
+    const frozen = record(task?.generation_snapshot);
+    const canonicalModelId = String(frozen.canonical_model_id || request.canonical_model_id || "gpt-image-2");
+    const catalogModel = getLegacyBridge().state.generationCatalog?.models.find((item) => item.id === canonicalModelId);
     const responses = params.api_mode === "responses" || params.codex_mode === "responses" || request.api_mode === "responses" || request.codex_mode === "responses" || request.endpoint === "/responses";
     return normalizeOutputSettingsSnapshot({
       ...params,
+      canonical_model_id: canonicalModelId,
+      model_display_name: catalogModel?.display_name || canonicalModelId,
+      parameters: Object.keys(record(frozen.requested_parameters)).length ? record(frozen.requested_parameters) : record(request.parameters),
       main_model: params.main_model || request.main_model || (responses ? request.model : ""),
       model: params.model || request.image_model || request.model,
       size: params.size || request.size,
       n: params.n || request.n
+    });
+  }
+  function snapshotFromCurrentSelection() {
+    const bridge39 = getLegacyBridge();
+    const legacy = legacyMethod30("currentTaskParams");
+    const model = bridge39.state.generationCatalog?.models.find((item) => item.id === bridge39.state.selectedModelId);
+    const parameters = model && model.id !== "gpt-image-2" && typeof bridge39.methods.activeParameterValues === "function" ? bridge39.methods.activeParameterValues(model) : typeof bridge39.methods.currentCanonicalParameters === "function" ? bridge39.methods.currentCanonicalParameters() : {};
+    return normalizeOutputSettingsSnapshot({
+      ...legacy,
+      canonical_model_id: model?.id || "gpt-image-2",
+      model_display_name: model?.display_name || "GPT Image 2",
+      parameters
     });
   }
   function createElement(tag, className, text = "") {
@@ -36893,7 +40129,8 @@ ${galleryText}`;
     frame.classList.toggle("is-portrait", ratio < 1);
     frame.append(createElement("strong", "output-settings-ratio-value", model.ratio));
     visual.append(frame);
-    card.append(visual, createElement("span", "output-settings-card-meta", model.pixels));
+    card.append(visual);
+    if (model.pixels) card.append(createElement("span", "output-settings-card-meta", model.pixels));
     return card;
   }
   function renderCountCard(model) {
@@ -36912,10 +40149,11 @@ ${galleryText}`;
     card.append(visual, createElement("span", "output-settings-card-meta", `${model.count} ${translate("output.lock.sheets")}`));
     return card;
   }
-  function renderFormatCard(model) {
-    const card = createSummaryCard(translate("output.lock.output"));
-    const visual = createElement("div", "output-settings-format-visual", model.format);
-    card.append(visual, createElement("span", "output-settings-card-meta", translate("output.lock.fileFormat")));
+  function renderThirdCard(model) {
+    const card = createSummaryCard(model.thirdCard.label);
+    const visual = createElement("div", `output-settings-${model.thirdCard.kind}-visual`, model.thirdCard.value);
+    card.append(visual);
+    if (model.thirdCard.meta) card.append(createElement("span", "output-settings-card-meta", model.thirdCard.meta));
     return card;
   }
   function renderSummary(snapshot, context) {
@@ -36931,14 +40169,14 @@ ${galleryText}`;
     }
     if (model.showModel) {
       const modelLine = createElement("div", "output-settings-summary-model-line");
-      modelLine.append(
-        createElement("span", "output-settings-summary-model-label", model.modelLabel),
-        createElement("strong", "output-settings-summary-model", model.modelValue)
-      );
+      if (model.modelLabel) {
+        modelLine.append(createElement("span", "output-settings-summary-model-label", model.modelLabel));
+      }
+      modelLine.append(createElement("strong", "output-settings-summary-model", model.modelValue));
       intro.append(modelLine);
     }
     const cards = createElement("div", "output-settings-summary-cards");
-    cards.append(renderRatioCard(model), renderCountCard(model), renderFormatCard(model));
+    cards.append(renderRatioCard(model), renderCountCard(model), renderThirdCard(model));
     const details = createElement("div", "output-settings-summary-details");
     model.details.forEach((detail) => {
       const item = createElement("div", "output-settings-summary-detail");
@@ -36948,11 +40186,18 @@ ${galleryText}`;
       );
       details.append(item);
     });
+    details.classList.toggle("hidden", model.details.length === 0);
     const main = createElement("div", "output-settings-summary-main");
     if (intro.childElementCount) main.append(intro);
     main.append(cards, details);
-    root.append(main, createElement("p", "output-settings-summary-hint", model.hint));
-    els43.outputSettingsTaskAction?.classList.toggle("hidden", !context.task);
+    const footer = createElement("div", "output-settings-summary-footer");
+    const hint = createElement("p", "output-settings-summary-hint", model.hint);
+    footer.append(hint);
+    if (els43.outputSettingsTaskAction) {
+      els43.outputSettingsTaskAction.classList.toggle("hidden", !context.task);
+      footer.append(els43.outputSettingsTaskAction);
+    }
+    root.append(main, footer);
   }
   function updateLockButton() {
     const button = getLegacyBridge().els.outputSettingsLockButton;
@@ -37000,7 +40245,7 @@ ${galleryText}`;
     if (!locked) return;
     taskSnapshot = null;
     taskContext = null;
-    lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod30("currentTaskParams"));
+    lockedSnapshot = snapshotFromCurrentSelection();
     persistLockState();
     renderSummary(lockedSnapshot, currentSummaryContext());
     setLockedViewVisible(true);
@@ -37024,8 +40269,11 @@ ${galleryText}`;
   }
   function adoptTaskOutputSettings() {
     if (!locked || !taskSnapshot) return;
+    const state32 = getLegacyBridge().state;
+    const task = state32.tasks.find((item) => String(item.task_id) === String(state32.selectedTaskId));
+    if (task) legacyMethod30("adoptTaskParameters", task);
     applySnapshot(taskSnapshot);
-    lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod30("currentTaskParams"));
+    lockedSnapshot = snapshotFromCurrentSelection();
     taskSnapshot = null;
     taskContext = null;
     persistLockState();
@@ -37033,7 +40281,7 @@ ${galleryText}`;
     getLegacyBridge().els.outputSettingsTaskAction?.classList.add("hidden");
   }
   function lockOutputSettings() {
-    lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod30("currentTaskParams"));
+    lockedSnapshot = snapshotFromCurrentSelection();
     locked = true;
     taskSnapshot = null;
     taskContext = null;
@@ -37065,7 +40313,7 @@ ${galleryText}`;
       return;
     }
     applySnapshot(snapshot);
-    lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod30("currentTaskParams"));
+    lockedSnapshot = snapshotFromCurrentSelection();
     locked = true;
     renderSummary(lockedSnapshot, currentSummaryContext());
     setLockedViewVisible(true);
@@ -37085,6 +40333,277 @@ ${galleryText}`;
     getLegacyBridge().els.outputSettingsLockButton?.addEventListener("click", toggleOutputSettingsLock);
     getLegacyBridge().els.adoptTaskOutputSettingsButton?.addEventListener("click", adoptTaskOutputSettings);
     document.addEventListener(LOCALE_CHANGE_EVENT, refreshOutputSettingsLock);
+  }
+
+  // codex_image/webui/frontend/src/grounding-attribution.ts
+  function record2(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? value : null;
+  }
+  function groundingFromToolUsage(value) {
+    const usage = record2(value);
+    if (!usage) return [];
+    const providerMetadata = record2(usage.provider_metadata);
+    const grounding = providerMetadata?.grounding ?? usage.grounding;
+    return Array.isArray(grounding) ? grounding : [];
+  }
+  function toolUsages(task) {
+    const values = [];
+    if (task?.tool_usage) values.push(task.tool_usage);
+    if (Array.isArray(task?.tool_usages)) values.push(...task.tool_usages);
+    if (Array.isArray(task?.outputs)) {
+      task.outputs.forEach((output) => {
+        if (output?.tool_usage) values.push(output.tool_usage);
+      });
+    }
+    return values;
+  }
+  function taskGroundingEntries(task) {
+    const entries = [];
+    const seen = /* @__PURE__ */ new Set();
+    toolUsages(task).forEach((usage) => {
+      groundingFromToolUsage(usage).forEach((rawEntry) => {
+        const sourceEntry = record2(rawEntry);
+        if (!sourceEntry) return;
+        const sources = Array.isArray(sourceEntry.sources) ? sourceEntry.sources.map(record2).filter(Boolean).map((source) => {
+          const normalized = {};
+          if (typeof source?.page_uri === "string") normalized.page_uri = source.page_uri;
+          if (typeof source?.image_uri === "string") normalized.image_uri = source.image_uri;
+          if (typeof source?.title === "string") normalized.title = source.title;
+          return normalized;
+        }) : [];
+        const entry = { sources };
+        if (typeof sourceEntry.rendered_content === "string") {
+          entry.rendered_content = sourceEntry.rendered_content;
+        }
+        const key = JSON.stringify(entry);
+        if (seen.has(key)) return;
+        seen.add(key);
+        entries.push(entry);
+      });
+    });
+    return entries;
+  }
+  function safeHttpsUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return null;
+    try {
+      const url = new URL(value);
+      if (url.protocol !== "https:") return null;
+      return url.href;
+    } catch {
+      return null;
+    }
+  }
+  function usableSources(entries) {
+    const sources = [];
+    const seen = /* @__PURE__ */ new Set();
+    entries.forEach((entry) => {
+      entry.sources.forEach((source) => {
+        const pageUri = safeHttpsUrl(source.page_uri);
+        if (!pageUri || seen.has(pageUri)) return;
+        seen.add(pageUri);
+        const normalized = { page_uri: pageUri };
+        const imageUri = safeHttpsUrl(source.image_uri);
+        if (imageUri) normalized.image_uri = imageUri;
+        if (source.title) normalized.title = source.title;
+        sources.push(normalized);
+      });
+    });
+    return sources;
+  }
+  function groundingSourceCount(task) {
+    return usableSources(taskGroundingEntries(task)).length;
+  }
+  function groundingAttributionKey(task) {
+    return JSON.stringify(taskGroundingEntries(task));
+  }
+  function renderedContentFrame(renderedContent) {
+    const frame = document.createElement("iframe");
+    frame.className = "grounding-search-entry-frame";
+    frame.title = translate("grounding.searchSuggestions");
+    frame.setAttribute("sandbox", "allow-popups allow-popups-to-escape-sandbox");
+    frame.referrerPolicy = "no-referrer";
+    frame.loading = "lazy";
+    frame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src https: data:; base-uri 'none'"><base target="_blank"><style>html{color-scheme:light dark}body{margin:0;padding:4px;font:12px/1.35 system-ui,sans-serif;overflow:auto}a{color:inherit}</style></head><body>${renderedContent}</body></html>`;
+    return frame;
+  }
+  function createGroundingAttribution(task) {
+    const entries = taskGroundingEntries(task);
+    const renderedContent = entries.map((entry) => entry.rendered_content?.trim() || "").find(Boolean) || "";
+    const sources = usableSources(entries);
+    if (!renderedContent && !sources.length) return null;
+    const section = document.createElement("section");
+    section.className = "grounding-attribution";
+    section.setAttribute("aria-label", translate("grounding.title"));
+    const header = document.createElement("div");
+    header.className = "grounding-attribution-header";
+    const title = document.createElement("strong");
+    title.textContent = translate("grounding.title");
+    const count = document.createElement("span");
+    count.textContent = formatTranslation("grounding.sourceCount", { count: sources.length });
+    header.append(title, count);
+    section.append(header);
+    if (renderedContent) {
+      section.append(renderedContentFrame(renderedContent));
+    }
+    if (sources.length) {
+      const sourceList = document.createElement("div");
+      sourceList.className = "grounding-source-list";
+      sources.forEach((source, index) => {
+        const link = document.createElement("a");
+        link.className = "grounding-source-link";
+        link.href = source.page_uri || "";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.referrerPolicy = "no-referrer";
+        link.textContent = source.title?.trim() || formatTranslation("grounding.source", { index: index + 1 });
+        sourceList.append(link);
+      });
+      section.append(sourceList);
+    }
+    return section;
+  }
+  function syncGroundingAttribution(anchor, task, location) {
+    const parent = anchor?.parentElement;
+    if (!anchor || !parent) return;
+    const existing = parent.querySelector(
+      `[data-grounding-location="${location}"]`
+    );
+    const next = createGroundingAttribution(task);
+    if (!next) {
+      existing?.remove();
+      return;
+    }
+    next.dataset.groundingLocation = location;
+    if (existing) {
+      existing.replaceWith(next);
+    } else {
+      anchor.insertAdjacentElement("afterend", next);
+    }
+  }
+
+  // codex_image/webui/frontend/src/task-model-summary.ts
+  function record3(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  }
+  function explicitCanonicalModelId(task) {
+    const source = record3(task);
+    const snapshot = record3(source.generation_snapshot);
+    const request = record3(source.request);
+    return String(snapshot.canonical_model_id || request.canonical_model_id || "").trim();
+  }
+  function taskCanonicalModelId(task) {
+    return explicitCanonicalModelId(task) || "gpt-image-2";
+  }
+  function taskOutputSettingsView(task, selectedModelId, outputSettingsLocked) {
+    if (outputSettingsLocked) return "locked-summary";
+    return taskCanonicalModelId(task) === selectedModelId ? "editor" : "parameter-inspector";
+  }
+  function taskRequestedParameters(task) {
+    const source = record3(task);
+    const snapshot = record3(source.generation_snapshot);
+    const frozen = record3(snapshot.requested_parameters);
+    if (Object.keys(frozen).length) return { ...frozen };
+    return { ...record3(record3(source.request).parameters) };
+  }
+  function preferredParameter(parameters, parameterId, ...fallbacks) {
+    if (parameters[parameterId] !== void 0 && parameters[parameterId] !== null) {
+      return parameters[parameterId];
+    }
+    return fallbacks.find((value) => value !== void 0 && value !== null);
+  }
+  function taskOutputControlValues(task) {
+    const source = record3(task);
+    const params = record3(source.params);
+    const request = record3(source.request);
+    const parameters = taskRequestedParameters(task);
+    const values = {
+      size: preferredParameter(parameters, "canvas.size", params.size, request.size),
+      ratio: preferredParameter(parameters, "canvas.aspect_ratio", params.ratio, request.ratio),
+      resolution: preferredParameter(parameters, "canvas.resolution", params.resolution, request.resolution),
+      quality: preferredParameter(parameters, "gpt.quality", params.quality, request.quality),
+      background: preferredParameter(parameters, "gpt.background", params.background, request.background),
+      moderation: preferredParameter(parameters, "gpt.moderation", params.moderation, request.moderation),
+      web_search: preferredParameter(parameters, "gpt.web_search", params.web_search, request.web_search),
+      n: preferredParameter(parameters, "output.count", params.n, request.n),
+      output_format: preferredParameter(parameters, "output.format", params.output_format, request.output_format),
+      output_compression: preferredParameter(
+        parameters,
+        "gpt.output_compression",
+        params.output_compression,
+        request.output_compression
+      )
+    };
+    return Object.fromEntries(Object.entries(values).filter(([, value]) => value !== void 0 && value !== null));
+  }
+  function taskModelDisplayName(task, catalog) {
+    const modelId = taskCanonicalModelId(task);
+    return catalog?.models.find((model) => model.id === modelId)?.display_name || modelId;
+  }
+  function taskModelFamilyId(task, catalog) {
+    const modelId = taskCanonicalModelId(task);
+    const familyId = catalog?.models.find((model) => model.id === modelId)?.family_id;
+    if (familyId === "gpt-image" || familyId === "gemini-image") return familyId;
+    if (modelId === "gpt-image-2") return "gpt-image";
+    if (modelId.startsWith("nano-banana")) return "gemini-image";
+    return "unknown";
+  }
+  function greatestCommonDivisor2(left, right) {
+    let a = Math.abs(Math.round(left));
+    let b = Math.abs(Math.round(right));
+    while (b) [a, b] = [b, a % b];
+    return a || 1;
+  }
+  function dimensions(value) {
+    const match = String(value || "").trim().match(/^(\d+)\s*[x×]\s*(\d+)$/i);
+    if (!match) return null;
+    const width = Number(match[1]);
+    const height = Number(match[2]);
+    return width > 0 && height > 0 ? [width, height] : null;
+  }
+  function compactDimensions(value) {
+    return value ? `${value[0]}\xD7${value[1]}` : "";
+  }
+  function normalizedGptResolution(value) {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "standard" || normalized === "1k") return "1K";
+    if (normalized === "2k") return "2K";
+    if (normalized === "4k") return "4K";
+    return value.trim();
+  }
+  function taskCanvasSummaryParts(task) {
+    const source = record3(task);
+    const params = record3(source.params);
+    const request = record3(source.request);
+    const parameters = taskRequestedParameters(task);
+    const size = dimensions(
+      parameters["canvas.size"] || source.output_size || params.size || request.size
+    );
+    const explicitRatio = String(parameters["canvas.aspect_ratio"] || params.ratio || "").trim();
+    const ratio = explicitRatio || (size ? `${size[0] / greatestCommonDivisor2(size[0], size[1])}:${size[1] / greatestCommonDivisor2(size[0], size[1])}` : "");
+    const explicitResolution = String(parameters["canvas.resolution"] || params.resolution || "").trim();
+    const resolution = taskCanonicalModelId(task) === "gpt-image-2" ? normalizedGptResolution(explicitResolution) : explicitResolution;
+    const honestResolution = resolution && resolution.toLowerCase() !== "custom" ? resolution : compactDimensions(size);
+    return [ratio, honestResolution].filter(Boolean);
+  }
+  function channelLabelForProtocolProfile(value) {
+    const profile = String(value || "").trim();
+    if (profile === "openai_responses") return "Responses";
+    if (["openai_images", "t8_images", "openrouter_images", "gemini_openai_images"].includes(profile)) {
+      return "Image";
+    }
+    if (["gemini_generate_content", "gemini_change2pro_generate_content"].includes(profile)) {
+      return "Gemini";
+    }
+    return "";
+  }
+  function taskChannelLabel(task) {
+    const source = record3(task);
+    const snapshot = record3(source.generation_snapshot);
+    for (const profile of [source.backend, snapshot.protocol_profile, source.requested_backend]) {
+      const label = channelLabelForProtocolProfile(profile);
+      if (label) return label;
+    }
+    return "";
   }
 
   // codex_image/webui/frontend/src/task-list-render.ts
@@ -37783,10 +41302,13 @@ ${galleryText}`;
     const imageBlocks = showImageSummary ? taskImageBlocksHtml(task) : "";
     const imageSummary = showImageSummary ? escapeHtml13(taskImageSummaryText(task)) : "";
     const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";
+    const groundingCount = groundingSourceCount(task);
+    const groundingHtml = groundingCount > 0 ? `<span class="task-grounding-badge">${escapeHtml13(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>` : "";
     const retryFullText = taskRetryStateText2(task);
     const retryText = taskCardRetryStateText(task) || retryFullText;
     const runningTimerHtml = taskCardRunningTimerHtml(task, taskId);
     const statusLabel = taskStatusLabelHtml(task);
+    const modelFamilyIcon = taskModelFamilyIconHtml(task);
     const statusMetaText = runningTimerHtml && retryText ? [taskMetaDetailsText2(task), retryText].filter(Boolean).join(" \xB7 ") : retryText ? taskMetaDetailsWithCompletionText(task) : taskMetaDetailsText2(task);
     const statusMeta = escapeHtml13(statusMetaText);
     const taskTime = taskCardCompletionTimeText(task);
@@ -37801,6 +41323,7 @@ ${galleryText}`;
             ${imageBlocks}
             <span class="task-status-row task-status-inline" aria-label="${escapeHtml13(taskStatusAccessibleLabel2(task))}">
               ${statusLabel}
+              ${modelFamilyIcon}
             </span>
             ${imageSummaryHtml}
           </span>
@@ -37846,6 +41369,7 @@ ${galleryText}`;
           <div class="task-title">${title}</div>
         </div>
         ${detailRow}
+        ${groundingHtml}
       </div>
       ${queueActions}
       ${taskActions}
@@ -38008,7 +41532,8 @@ ${galleryText}`;
         task.failed_count,
         task.total_count,
         Array.isArray(task.input_sources) ? task.input_sources.map((item) => [item?.kind, item?.image_url, item?.thumbnail_url].join(":")).join("|") : "",
-        Array.isArray(task.outputs) ? task.outputs.map((item) => [item?.index, item?.status, item?.url, item?.thumbnail_url, item?.error].join(":")).join("|") : ""
+        Array.isArray(task.outputs) ? task.outputs.map((item) => [item?.index, item?.status, item?.url, item?.thumbnail_url, item?.error].join(":")).join("|") : "",
+        groundingAttributionKey(task)
       ])
     });
   }
@@ -38059,13 +41584,22 @@ ${galleryText}`;
     const taskId = escapeHtml13(task?.task_id || "");
     return `<span class="task-status-label" data-task-status-id="${taskId}">${label}</span>`;
   }
+  function taskModelFamilyIconHtml(task) {
+    const familyId = taskModelFamilyId(task, state19.generationCatalog);
+    const modelName = taskModelDisplayName(task, state19.generationCatalog);
+    return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml13(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
+  }
   function taskStatusAccessibleLabel2(task) {
-    return [formatTaskStatus2(task) || translate("taskStatus.unknown"), taskImageSummaryText(task), taskMetaDetailsText2(task)].filter(Boolean).join(" \xB7 ");
+    return [
+      formatTaskStatus2(task) || translate("taskStatus.unknown"),
+      taskModelDisplayName(task, state19.generationCatalog),
+      taskImageSummaryText(task),
+      taskMetaDetailsText2(task)
+    ].filter(Boolean).join(" \xB7 ");
   }
   function taskMetaDetailsText2(task) {
-    const size = task.output_size || task.params?.size || "";
     const backend = taskCardProviderLabel(task);
-    return [size, backend].filter(Boolean).join(" \xB7 ");
+    return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
   }
   function taskMetaDetailsWithCompletionText(task) {
     const statusMeta = taskMetaDetailsText2(task);
@@ -38091,7 +41625,7 @@ ${galleryText}`;
     const providerLabel = String(taskApiProviderLabel2(task) || "").trim();
     const providerId = String(taskApiProviderId2(task) || "").trim();
     const backend = String(task?.backend || task?.requested_backend || "").trim();
-    const channel = backend === "openai_responses" ? "Responses" : backend === "openai_images" ? "Image" : "";
+    const channel = taskChannelLabel(task);
     if (providerLabel && (!providerId || providerLabel !== providerId)) {
       const providerIdSuffix = providerId ? `(${providerId})` : "";
       const label = providerIdSuffix && providerLabel.endsWith(providerIdSuffix) ? providerLabel.slice(0, -providerIdSuffix.length).trim() : providerLabel;
@@ -38131,9 +41665,8 @@ ${galleryText}`;
   }
   function taskMetaText(task) {
     const status = formatTaskStatus2(task);
-    const size = task.output_size || task.params?.size || "";
     const backend = taskCardProviderLabel(task);
-    return [status, size, backend].filter(Boolean).join(" \xB7 ");
+    return [status, ...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
   }
   function initTaskListRenderFeature() {
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
@@ -39263,6 +42796,38 @@ ${galleryText}`;
     });
   }
 
+  // codex_image/webui/frontend/src/generation-request.ts
+  function sortedRecord(values) {
+    return Object.fromEntries(Object.keys(values).sort().map((key) => [key, values[key]]));
+  }
+  function currentGenerationSelection() {
+    const { state: state32, methods } = getLegacyBridge();
+    const model = state32.generationCatalog?.models.find((item) => item.id === state32.selectedModelId);
+    if (!model || !state32.selectedProviderId) {
+      return { canonicalModelId: "", providerId: "", bindingId: "", parameters: {} };
+    }
+    let draft = state32.parameterDraftsByModel[model.id] || {};
+    if (model.id === "gpt-image-2" && typeof methods.currentTaskParams === "function") {
+      draft = {
+        ...draft,
+        ...canonicalControlValues(methods.currentTaskParams(), selectedProviderBinding()?.protocol_profile || "")
+      };
+      state32.parameterDraftsByModel[model.id] = draft;
+    }
+    return {
+      canonicalModelId: model.id,
+      providerId: state32.selectedProviderId,
+      bindingId: selectedProviderBinding()?.id || "",
+      parameters: activeParameterValuesFor(model, state32.mode, draft)
+    };
+  }
+  function appendCanonicalGenerationFields(form, selection) {
+    form.append("canonical_model_id", selection.canonicalModelId);
+    form.append("provider_id", selection.providerId);
+    form.append("binding_id", selection.bindingId);
+    form.append("parameters_json", JSON.stringify(sortedRecord(selection.parameters)));
+  }
+
   // codex_image/webui/frontend/src/task-submit.ts
   var bridge30 = getLegacyBridge();
   var state24 = bridge30.state;
@@ -39323,15 +42888,6 @@ ${galleryText}`;
   function referenceAssetInputs3(...args) {
     return legacyMethod36("referenceAssetInputs", ...args);
   }
-  function currentAuthSource3(...args) {
-    return legacyMethod36("currentAuthSource", ...args);
-  }
-  function backendForAuthSource2(...args) {
-    return legacyMethod36("backendForAuthSource", ...args);
-  }
-  function currentApiMode4(...args) {
-    return legacyMethod36("currentApiMode", ...args);
-  }
   function currentCodexMode4(...args) {
     return legacyMethod36("currentCodexMode", ...args);
   }
@@ -39343,15 +42899,6 @@ ${galleryText}`;
   }
   function currentPromptFidelity4(...args) {
     return legacyMethod36("currentPromptFidelity", ...args);
-  }
-  function currentApiProviderId3(...args) {
-    return legacyMethod36("currentApiProviderId", ...args);
-  }
-  function currentApiProviderLabel3(...args) {
-    return legacyMethod36("currentApiProviderLabel", ...args);
-  }
-  function currentApiImagesConcurrency2(...args) {
-    return legacyMethod36("currentApiImagesConcurrency", ...args);
   }
   function currentMainModel2(...args) {
     return legacyMethod36("currentMainModel", ...args);
@@ -39407,6 +42954,14 @@ ${galleryText}`;
   function renderPreview4(...args) {
     return legacyMethod36("renderPreview", ...args);
   }
+  function currentCanonicalParameters() {
+    return currentGenerationSelection().parameters;
+  }
+  function selectedRoutingFields() {
+    const authSource = state24.selectedProviderId === "codex" ? "codex" : "api";
+    const profile = selectedProviderBinding()?.protocol_profile || "";
+    return { authSource, requestedBackend: profile || (authSource === "codex" ? "codex_images" : "api_images") };
+  }
   var REFERENCE_FILE_ERROR_KEYS = {
     reference_file_empty: "referenceFiles.errorEmpty",
     reference_file_type_unsupported: "referenceFiles.errorUnsupported",
@@ -39446,6 +43001,7 @@ ${galleryText}`;
   function applyTaskOutputParams(task) {
     const params = task.params || {};
     const request = task.request || {};
+    const output = taskOutputControlValues(task);
     const usesResponses = params.api_mode === "responses" || params.codex_mode === "responses" || request.api_mode === "responses" || request.codex_mode === "responses" || request.endpoint === "/responses";
     const mainModel = params.main_model || request.main_model || (usesResponses ? request.model : "");
     if (mainModel && els33.mainModel) {
@@ -39458,19 +43014,19 @@ ${galleryText}`;
       els33.promptFidelity.dispatchEvent(new Event("change"));
     }
     if (els33.webSearch) {
-      els33.webSearch.checked = Boolean(params.web_search);
+      els33.webSearch.checked = Boolean(output.web_search);
       els33.webSearch.dispatchEvent(new Event("input"));
     }
     if (params.model && els33.model) els33.model.value = params.model;
-    if (params.size) syncSizeControlsFromSize2(params.size);
-    if (params.n && els33.nInput) {
-      els33.nInput.value = String(params.n);
+    if (output.size) syncSizeControlsFromSize2(output.size);
+    if (output.n && els33.nInput) {
+      els33.nInput.value = String(output.n);
     }
-    if (params.quality && els33.quality) els33.quality.value = params.quality;
-    if (params.output_format && els33.outputFormat) els33.outputFormat.value = params.output_format;
-    if (params.moderation && els33.moderation) els33.moderation.value = params.moderation;
-    if (params.output_compression !== null && params.output_compression !== void 0 && els33.compression) {
-      els33.compression.value = params.output_compression;
+    if (output.quality && els33.quality) els33.quality.value = output.quality;
+    if (output.output_format && els33.outputFormat) els33.outputFormat.value = output.output_format;
+    if (output.moderation && els33.moderation) els33.moderation.value = output.moderation;
+    if (output.output_compression !== null && output.output_compression !== void 0 && els33.compression) {
+      els33.compression.value = output.output_compression;
     }
     [els33.quality, els33.outputFormat, els33.moderation].forEach((element2) => {
       element2?.dispatchEvent(new Event("change"));
@@ -39482,8 +43038,12 @@ ${galleryText}`;
     updateRequestPreview11();
   }
   function applyTaskToForm(task, options) {
+    if (options?.preserveComposer) {
+      updateRequestPreview11();
+      return;
+    }
     setMode5(task.mode || "generate");
-    setPromptWithGalleryRefs2(task.prompt || "", task.gallery_refs || []);
+    setPromptWithGalleryRefs2(task.prompt || task.prompt_for_model || "", task.gallery_refs || []);
     if (!options?.preserveOutputSettings) applyTaskOutputParams(task);
     updatePromptCount6();
     updateRequestPreview11();
@@ -39495,94 +43055,39 @@ ${galleryText}`;
     const assets = referenceAssetInputs3();
     const fileUploads = referenceFileUploads2();
     const storedFiles = storedReferenceFileInputs2();
-    const authSource = currentAuthSource3();
+    const { authSource, requestedBackend } = selectedRoutingFields();
     const isApi = authSource === "api";
     const isCodex = authSource === "codex";
     const codexMode = isCodex ? currentCodexMode4() : null;
-    const requestedBackend = backendForAuthSource2(authSource, isApi ? currentApiMode4() : null, codexMode);
+    const parameters = currentCanonicalParameters();
+    const selection = currentGenerationSelection();
     const payload2 = {
       mode: state24.mode,
       auth_source: authSource,
       requested_backend: requestedBackend,
+      canonical_model_id: selection.canonicalModelId,
+      provider_id: selection.providerId,
+      parameters,
+      ui_language: currentLocaleCode(),
       prompt: getPromptText9(),
       prompt_for_model: currentPromptForModel2(),
-      model: params.model,
-      size: params.size,
-      quality: params.quality,
-      output_format: params.output_format,
-      moderation: params.moderation,
-      output_compression: params.output_compression,
-      prompt_fidelity: currentPromptFidelity4(),
-      web_search: Boolean(params.web_search),
-      n: params.n,
       images: uploads.map((source) => source.name),
       gallery_image_ids: galleries.map((source) => source.id),
       reference_asset_ids: assets.map((source) => source.id),
       reference_files: fileUploads.map((source) => source.filename),
       reference_file_ids: storedFiles.map((source) => source.id)
     };
+    const usesGptPromptProcessing = !state24.generationCatalog || state24.selectedModelId === "gpt-image-2";
+    if (usesGptPromptProcessing) payload2.prompt_fidelity = currentPromptFidelity4();
     if (isApi) {
-      const apiMode = currentApiMode4();
-      const action = state24.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
-      payload2.api_provider_id = currentApiProviderId3();
-      payload2.api_provider_name = currentApiProviderLabel3();
+      payload2.api_provider_id = state24.selectedProviderId;
+      payload2.api_provider_name = state24.generationCatalog?.providers.find((provider) => provider.id === state24.selectedProviderId)?.name || "";
       payload2.webui_api_provider_id = payload2.api_provider_id;
       payload2.webui_api_provider_name = payload2.api_provider_name;
-      payload2.api_mode = apiMode;
-      payload2.api_images_concurrency = currentApiImagesConcurrency2();
-      if (apiMode === "responses") {
-        payload2.endpoint = "/responses";
-        payload2.model = params.main_model;
-        const imageTool = {
-          type: "image_generation",
-          action,
-          model: params.model,
-          size: params.size,
-          quality: params.quality,
-          output_format: params.output_format,
-          moderation: params.moderation
-        };
-        payload2.tools = params.web_search ? [{ type: "web_search", search_context_size: "low" }, imageTool] : [imageTool];
-        if (params.web_search) {
-          payload2.tool_choice = "required";
-          payload2.parallel_tool_calls = false;
-        }
-        if (params.output_compression !== null && params.output_compression !== void 0) {
-          imageTool.output_compression = params.output_compression;
-        }
-      } else {
-        payload2.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
-      }
+      payload2.endpoint = selectedProviderBinding()?.protocol_profile || "";
     } else if (isCodex) {
-      const action = state24.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
       payload2.codex_mode = codexMode;
-      if (codexMode === "responses") {
-        payload2.endpoint = "/responses";
-        payload2.main_model = params.main_model;
-        payload2.model = params.main_model;
-        const imageTool = {
-          type: "image_generation",
-          action,
-          model: params.model,
-          size: params.size,
-          quality: params.quality,
-          output_format: params.output_format,
-          moderation: params.moderation
-        };
-        payload2.tools = params.web_search ? [{ type: "web_search", search_context_size: "low" }, imageTool] : [imageTool];
-        if (params.web_search) {
-          payload2.tool_choice = "required";
-          payload2.parallel_tool_calls = false;
-        }
-        if (params.output_compression !== null && params.output_compression !== void 0) {
-          imageTool.output_compression = params.output_compression;
-        }
-      } else {
-        payload2.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
-        payload2.main_model = params.main_model;
-      }
-    } else {
-      payload2.main_model = params.main_model;
+      if (usesGptPromptProcessing) payload2.main_model = params.main_model;
     }
     return payload2;
   }
@@ -39646,6 +43151,10 @@ ${galleryText}`;
       setStatus17(translate("status.emptyPrompt"), "error");
       return;
     }
+    if (!state24.selectedModelId || !state24.selectedProviderId || !state24.authAvailable) {
+      setStatus17(translate("modelSelection.providerUnavailable"), "error");
+      return;
+    }
     if (state24.mode === "edit" && !uploads.length && !assets.length && !galleries.length) {
       setStatus17(translate("status.editNeedsImage"), "error");
       return;
@@ -39660,27 +43169,11 @@ ${galleryText}`;
     const form = new FormData();
     form.append("prompt", prompt);
     form.append("prompt_for_model", promptForModel);
-    const params = currentTaskParams2();
-    form.append("main_model", currentMainModel2());
-    form.append("model", params.model);
-    form.append("size", params.size);
-    if (params.resolution) form.append("resolution", params.resolution);
-    if (params.ratio) form.append("ratio", params.ratio);
-    if (params.orientation) form.append("orientation", params.orientation);
-    form.append("quality", params.quality);
-    form.append("output_format", params.output_format);
-    form.append("moderation", params.moderation);
-    form.append("n", String(params.n));
-    form.append("prompt_fidelity", currentPromptFidelity4());
-    if (params.web_search) form.append("web_search", "true");
-    if (currentAuthSource3() === "api") {
-      form.append("api_provider_id", currentApiProviderId3());
-      form.append("api_mode", currentApiMode4());
-    } else if (currentAuthSource3() === "codex") {
-      form.append("codex_mode", currentCodexMode4());
-    }
-    if (els33.outputFormat.value !== "png") {
-      form.append("output_compression", String(params.output_compression));
+    form.append("ui_language", currentLocaleCode());
+    appendCanonicalGenerationFields(form, currentGenerationSelection());
+    if (!state24.generationCatalog || state24.selectedModelId === "gpt-image-2") {
+      form.append("main_model", currentMainModel2());
+      form.append("prompt_fidelity", currentPromptFidelity4());
     }
     galleries.forEach((source) => form.append("gallery_image_ids", source.id));
     assets.forEach((source) => form.append("reference_asset_ids", source.id));
@@ -39735,6 +43228,7 @@ ${galleryText}`;
       applyTaskOutputParams,
       applyTaskToForm,
       buildPreviewRequest: buildPreviewRequest2,
+      currentCanonicalParameters,
       createPendingTask,
       addQueuedTask,
       runTask
@@ -40910,7 +44404,7 @@ ${galleryText}`;
     if (Array.isArray(task?.output_urls) && task.output_urls.length) return true;
     if (Array.isArray(task?.output_files) && task.output_files.length) return true;
     if (!Array.isArray(task?.outputs)) return false;
-    return task.outputs.some((record) => record?.status === "completed" && (record.url || record.file));
+    return task.outputs.some((record5) => record5?.status === "completed" && (record5.url || record5.file));
   }
   function positionTaskContextMenu(menu, clientX, clientY) {
     const margin = 8;
@@ -40949,6 +44443,7 @@ ${galleryText}`;
   var MAX_TASK_NOTIFICATIONS = 30;
   var MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
   var TASK_NOTIFICATION_TOAST_MS = 5200;
+  var TRANSIENT_NOTICE_MS = 4200;
   var taskNotificationsFeatureInitialized = false;
   function initTaskNotificationsFeature() {
     if (taskNotificationsFeatureInitialized) return;
@@ -40962,8 +44457,25 @@ ${galleryText}`;
       notifyTaskUpdate,
       openTaskNotificationCenter,
       renderTaskNotifications,
-      requestSystemNotificationPermission
+      requestSystemNotificationPermission,
+      showTransientNotice
     });
+  }
+  function showTransientNotice(message) {
+    const region = getLegacyBridge().els.taskNotificationToastRegion;
+    if (!region || !message) return;
+    const toast = document.createElement("div");
+    toast.className = "transient-notice-toast";
+    toast.setAttribute("role", "status");
+    const icon = document.createElement("span");
+    icon.className = "transient-notice-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "\u2713";
+    const text = document.createElement("span");
+    text.textContent = message;
+    toast.append(icon, text);
+    region.prepend(toast);
+    window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
   }
   function notifyTaskUpdate(previousTask, nextTask) {
     const status = terminalTaskStatus(nextTask?.status);
@@ -41237,7 +44749,7 @@ ${galleryText}`;
     const urls = bridge39.methods.taskThumbnailUrls?.(task);
     if (Array.isArray(urls) && urls[0]) return String(urls[0]);
     if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
-    const output = Array.isArray(task.outputs) ? task.outputs.find((record) => record?.status === "completed") : null;
+    const output = Array.isArray(task.outputs) ? task.outputs.find((record5) => record5?.status === "completed") : null;
     if (output?.thumbnail_url) return String(output.thumbnail_url);
     if (output?.thumbnail_file) return outputFileUrl(output.thumbnail_file);
     if (output?.url || output?.file) {
@@ -41350,7 +44862,7 @@ ${galleryText}`;
   }
   function completedOutputCount(task) {
     if (Array.isArray(task.outputs)) {
-      return task.outputs.filter((record) => record?.status === "completed").length;
+      return task.outputs.filter((record5) => record5?.status === "completed").length;
     }
     if (Array.isArray(task.output_urls)) return task.output_urls.filter(Boolean).length;
     return positiveNumber(task.generated_count);
@@ -41440,15 +44952,15 @@ ${galleryText}`;
     return legacyMethod39("escapeHtml", ...args);
   }
   function taskRatio2(task) {
-    const dimensions = taskSizeDimensions(task);
-    if (!dimensions) return "";
-    const [width, height] = dimensions;
+    const dimensions2 = taskSizeDimensions(task);
+    if (!dimensions2) return "";
+    const [width, height] = dimensions2;
     for (const ratios of Object.values(GPT_IMAGE_2_SIZE_PRESETS2)) {
       for (const [ratio, presetDimensions2] of Object.entries(ratios)) {
         if (presetDimensions2[0] === width && presetDimensions2[1] === height) return ratio;
       }
     }
-    const divisor = greatestCommonDivisor2(width, height);
+    const divisor = greatestCommonDivisor3(width, height);
     const normalized = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
     if (normalized === "3:7") return "9:21";
     if (normalized === "7:3") return "21:9";
@@ -41457,9 +44969,9 @@ ${galleryText}`;
   function taskOrientation2(task) {
     const ratio = taskRatio2(task);
     if (RATIO_ORIENTATION2[ratio]) return RATIO_ORIENTATION2[ratio];
-    const dimensions = taskSizeDimensions(task);
-    if (!dimensions) return "";
-    const [width, height] = dimensions;
+    const dimensions2 = taskSizeDimensions(task);
+    if (!dimensions2) return "";
+    const [width, height] = dimensions2;
     if (width === height) return "square";
     return width > height ? "landscape" : "portrait";
   }
@@ -41468,9 +44980,9 @@ ${galleryText}`;
     return ["original", "strict", "off"].includes(value) ? value : "strict";
   }
   function taskResolution2(task) {
-    const dimensions = taskSizeDimensions(task);
-    if (!dimensions) return "";
-    const [width, height] = dimensions;
+    const dimensions2 = taskSizeDimensions(task);
+    if (!dimensions2) return "";
+    const [width, height] = dimensions2;
     for (const [resolution, ratios] of Object.entries(GPT_IMAGE_2_SIZE_PRESETS2)) {
       const matchesPreset = Object.values(ratios).some((presetDimensions2) => {
         return presetDimensions2[0] === width && presetDimensions2[1] === height;
@@ -41497,7 +45009,7 @@ ${galleryText}`;
     if (!width || !height) return null;
     return [width, height];
   }
-  function greatestCommonDivisor2(left, right) {
+  function greatestCommonDivisor3(left, right) {
     let a = Math.abs(left);
     let b = Math.abs(right);
     while (b) {
@@ -41574,11 +45086,11 @@ ${galleryText}`;
       if (urls.length) return urls;
     }
     if (Array.isArray(task?.outputs)) {
-      task.outputs.forEach((record, fallbackIndex) => {
-        if (!record || typeof record !== "object" || taskOutputRecordIsDeleted(record)) return;
-        const index = positiveInt(record.index) || fallbackIndex + 1;
-        if (deletedIndexes.has(index) || record.status !== "completed") return;
-        const recordUrl = record.thumbnail_url || outputFileUrl2(record.thumbnail_file) || (record.url || record.file ? taskThumbnailRoute(task, index) : "");
+      task.outputs.forEach((record5, fallbackIndex) => {
+        if (!record5 || typeof record5 !== "object" || taskOutputRecordIsDeleted(record5)) return;
+        const index = positiveInt(record5.index) || fallbackIndex + 1;
+        if (deletedIndexes.has(index) || record5.status !== "completed") return;
+        const recordUrl = record5.thumbnail_url || outputFileUrl2(record5.thumbnail_file) || (record5.url || record5.file ? taskThumbnailRoute(task, index) : "");
         pushUrl(recordUrl, index);
       });
       if (urls.length) return urls;
@@ -41594,9 +45106,9 @@ ${galleryText}`;
     const deletedIndexes = taskDeletedOutputIndexes(task);
     if (Array.isArray(task.output_urls) && task.output_urls.length) {
       return task.output_urls.filter((url, fallbackIndex) => {
-        const record = Array.isArray(task?.outputs) ? task.outputs.find((item) => taskOutputRecordMatchesUrl(item, url)) : null;
-        const index = positiveInt(record?.index) || taskOutputIndexFromUrl(url) || fallbackIndex + 1;
-        return !deletedIndexes.has(index) && !taskOutputRecordIsDeleted(record);
+        const record5 = Array.isArray(task?.outputs) ? task.outputs.find((item) => taskOutputRecordMatchesUrl(item, url)) : null;
+        const index = positiveInt(record5?.index) || taskOutputIndexFromUrl(url) || fallbackIndex + 1;
+        return !deletedIndexes.has(index) && !taskOutputRecordIsDeleted(record5);
       });
     }
     const singleIndex = taskOutputIndexFromUrl(task.output_url) || 1;
@@ -41612,9 +45124,9 @@ ${galleryText}`;
       });
     }
     if (Array.isArray(task?.outputs)) {
-      task.outputs.forEach((record, fallbackIndex) => {
-        if (!taskOutputRecordIsDeleted(record)) return;
-        const index = positiveInt(record?.index) || fallbackIndex + 1;
+      task.outputs.forEach((record5, fallbackIndex) => {
+        if (!taskOutputRecordIsDeleted(record5)) return;
+        const index = positiveInt(record5?.index) || fallbackIndex + 1;
         indexes.add(index);
       });
     }
@@ -41636,14 +45148,14 @@ ${galleryText}`;
     if (index === null) return false;
     return taskSelectedOutputIndexes(task).includes(index);
   }
-  function taskOutputRecordIsDeleted(record) {
-    if (!record || typeof record !== "object") return false;
-    return Boolean(record.deleted) || record.status === "deleted";
+  function taskOutputRecordIsDeleted(record5) {
+    if (!record5 || typeof record5 !== "object") return false;
+    return Boolean(record5.deleted) || record5.status === "deleted";
   }
-  function taskOutputRecordMatchesUrl(record, url) {
-    if (!record || typeof record !== "object") return false;
-    if (record.url && String(record.url) === String(url)) return true;
-    const recordIndex = positiveInt(record.index);
+  function taskOutputRecordMatchesUrl(record5, url) {
+    if (!record5 || typeof record5 !== "object") return false;
+    if (record5.url && String(record5.url) === String(url)) return true;
+    const recordIndex = positiveInt(record5.index);
     const urlIndex = taskOutputIndexFromUrl(url);
     return recordIndex !== null && urlIndex !== null && recordIndex === urlIndex;
   }
@@ -41655,19 +45167,19 @@ ${galleryText}`;
     if (countStates.length) return countStates;
     const states = [];
     let runningAssigned = false;
-    const hasExplicitRunningRecords = Array.from(records.values()).some((record) => record?.status === "running");
+    const hasExplicitRunningRecords = Array.from(records.values()).some((record5) => record5?.status === "running");
     for (let index = 1; index <= total; index += 1) {
-      const record = records.get(index);
-      if (record?.status === "completed") {
-        states.push(taskOutputRecordHasDisplayableImage(record) ? "completed" : "waiting");
-      } else if (record?.status === "failed") {
+      const record5 = records.get(index);
+      if (record5?.status === "completed") {
+        states.push(taskOutputRecordHasDisplayableImage(record5) ? "completed" : "waiting");
+      } else if (record5?.status === "failed") {
         states.push("failed");
-      } else if (record?.status === "running" && (status === "failed" || status === "partial_failed")) {
+      } else if (record5?.status === "running" && (status === "failed" || status === "partial_failed")) {
         states.push("failed");
-      } else if (record?.status === "running") {
+      } else if (record5?.status === "running") {
         states.push("running");
-      } else if (record?.status === "queued" || record?.status === "waiting") {
-        states.push(record.status);
+      } else if (record5?.status === "queued" || record5?.status === "waiting") {
+        states.push(record5.status);
       } else if (status === "running" && !hasExplicitRunningRecords && !runningAssigned) {
         states.push("running");
         runningAssigned = true;
@@ -41716,14 +45228,14 @@ ${galleryText}`;
   }
   function taskVisibleCompletedCount(task) {
     if (!task) return 0;
-    const completedRecords = [...taskOutputRecordsByIndex(task).values()].filter((record) => record?.status === "completed" && taskOutputRecordHasDisplayableImage(record)).length;
+    const completedRecords = [...taskOutputRecordsByIndex(task).values()].filter((record5) => record5?.status === "completed" && taskOutputRecordHasDisplayableImage(record5)).length;
     return Math.max(completedRecords, taskOutputUrls2(task).length);
   }
   function taskRetrySuccessfulCount(task) {
     return Math.max(taskVisibleCompletedCount(task), nonnegativeInt(task?.generated_count) ?? 0);
   }
-  function taskOutputRecordHasDisplayableImage(record) {
-    return Boolean(record?.url);
+  function taskOutputRecordHasDisplayableImage(record5) {
+    return Boolean(record5?.url);
   }
   function taskOutputRecordsByIndex(task) {
     const records = /* @__PURE__ */ new Map();
@@ -41735,17 +45247,17 @@ ${galleryText}`;
       });
       return records;
     }
-    structuredOutputs.forEach((record, fallbackIndex) => {
-      if (!record || typeof record !== "object") return;
-      if (taskOutputRecordIsDeleted(record)) return;
-      const index = positiveInt(record.index) || fallbackIndex + 1;
+    structuredOutputs.forEach((record5, fallbackIndex) => {
+      if (!record5 || typeof record5 !== "object") return;
+      if (taskOutputRecordIsDeleted(record5)) return;
+      const index = positiveInt(record5.index) || fallbackIndex + 1;
       if (taskDeletedOutputIndexes(task).has(index)) return;
       const previous = records.get(index) || {};
-      records.set(index, { ...previous, ...record, url: record.url || previous.url });
+      records.set(index, { ...previous, ...record5, url: record5.url || previous.url });
     });
     outputUrls.forEach((url, fallbackIndex) => {
       if (!url) return;
-      const duplicateUrl = [...records.values()].some((record) => record?.url === url);
+      const duplicateUrl = [...records.values()].some((record5) => record5?.url === url);
       if (duplicateUrl) return;
       const index = taskOutputIndexFromUrl(url) || fallbackIndex + 1;
       const previous = records.get(index);
@@ -42030,7 +45542,7 @@ ${galleryText}`;
       taskPromptFidelity: taskPromptFidelity2,
       taskResolution: taskResolution2,
       taskSizeDimensions,
-      greatestCommonDivisor: greatestCommonDivisor2,
+      greatestCommonDivisor: greatestCommonDivisor3,
       taskInputUrls,
       taskInputThumbnailUrls,
       taskInputThumbnailRoute,
@@ -42186,6 +45698,7 @@ ${galleryText}`;
     const visibleSelectedTask = selectedTask && !isTaskArchived4(selectedTask.task_id) ? selectedTask : null;
     const selected = task || visibleSelectedTask || state28.tasks.find((item) => !isTaskArchived4(item.task_id)) || selectedTask || state28.tasks[0];
     const status = taskPreviewStatus(selected);
+    syncGroundingAttribution(els37.previewGrid, selected, "preview");
     updatePreviewDownloadActions(selected);
     const nextPreviewKey = previewStructureKey(selected);
     if (state28.previewRenderKey === nextPreviewKey) {
@@ -42256,7 +45769,7 @@ ${galleryText}`;
       return ["running", taskId, outputUrls, selectedIndexes, taskGeneratedCount2(task, 0), taskTotalCount2(task), size, task.mode || "", taskRetryStateText4(task), taskRunningFailureKey(task)].join("|");
     }
     if (outputUrls) {
-      return ["output", taskId, status, outputUrls, selectedIndexes, previewPromptKey(task)].join("|");
+      return ["output", taskId, status, outputUrls, selectedIndexes, previewPromptKey(task), groundingAttributionKey(task)].join("|");
     }
     return ["empty", taskId, status].join("|");
   }
@@ -42272,12 +45785,12 @@ ${galleryText}`;
   }
   function taskFailedOutputRecords(task) {
     if (!Array.isArray(task?.outputs)) return [];
-    return task.outputs.map((record, outputPosition) => {
-      if (!record || record.status !== "failed") return null;
-      const error = String(record.error || record.message || record.failure_reason || "").trim();
+    return task.outputs.map((record5, outputPosition) => {
+      if (!record5 || record5.status !== "failed") return null;
+      const error = String(record5.error || record5.message || record5.failure_reason || "").trim();
       if (!error) return null;
       return {
-        index: positiveInt2(record.index) || outputPosition + 1,
+        index: positiveInt2(record5.index) || outputPosition + 1,
         error
       };
     }).filter(Boolean).sort((left, right) => left.index - right.index);
@@ -43214,11 +46727,30 @@ ${galleryText}`;
   function assetSource2(item) {
     return legacyMethod42("assetSource", item);
   }
+  function inspectTaskParameters(task) {
+    legacyMethod42("inspectTaskParameters", task);
+  }
+  function clearTaskParameterInspection() {
+    legacyMethod42("clearTaskParameterInspection");
+  }
   function applyTaskToFormWithOutputLock(task) {
     const outputSettingsLocked = Boolean(legacyMethod42("isOutputSettingsLocked"));
-    applyTaskToForm2(task, { preserveOutputSettings: outputSettingsLocked });
-    if (outputSettingsLocked) legacyMethod42("showTaskOutputSettings", task);
-    else legacyMethod42("showLockedOutputSettings");
+    const outputView = taskOutputSettingsView(task, String(state30.selectedModelId || ""), outputSettingsLocked);
+    applyTaskToForm2(task, {
+      preserveOutputSettings: outputView !== "editor",
+      preserveComposer: false
+    });
+    if (outputView === "locked-summary") {
+      clearTaskParameterInspection();
+      legacyMethod42("showTaskOutputSettings", task);
+      return;
+    }
+    if (outputView === "parameter-inspector") {
+      inspectTaskParameters(task);
+      return;
+    }
+    clearTaskParameterInspection();
+    legacyMethod42("showLockedOutputSettings");
   }
   function selectedTaskInputRestoreCurrent(taskId, restoreSeq) {
     if (restoreSeq == null) return true;
@@ -43954,6 +47486,9 @@ ${galleryText}`;
   function updateRequestPreview13() {
     legacyMethod44("updateRequestPreview");
   }
+  function clearTaskParameterInspection2() {
+    legacyMethod44("clearTaskParameterInspection");
+  }
   function handleShellLocaleChange() {
     if (!els41.statusText) return;
     const current = String(els41.statusText.textContent || "").trim();
@@ -44198,6 +47733,7 @@ ${galleryText}`;
     closeGallery4();
     closeImageEditor3();
     state31.selectedTaskId = null;
+    clearTaskParameterInspection2();
     state31.mode = "generate";
     revokeUploadPreviewUrls3(state31.images);
     state31.images = [];
@@ -44326,7 +47862,7 @@ ${galleryText}`;
       source.textContent = runtimeSourceLabel(payload?.source);
     }
     if (releaseLink) {
-      releaseLink.href = payload?.release_url || "https://github.com/kadevin/ilab-gpt-conjure/releases";
+      releaseLink.href = payload?.release_url || "https://github.com/kadevin/ilab-conjure/releases";
     }
     if (panel) {
       panel.classList.toggle("has-onboarding", Boolean(onboarding));
@@ -44339,7 +47875,7 @@ ${galleryText}`;
     }
     if (standardDownloadLink) {
       standardDownloadLink.classList.toggle("hidden", !showStandardDownload);
-      standardDownloadLink.href = standardDownloadUrl || onboarding?.release_url || payload?.release_url || "https://github.com/kadevin/ilab-gpt-conjure/releases";
+      standardDownloadLink.href = standardDownloadUrl || onboarding?.release_url || payload?.release_url || "https://github.com/kadevin/ilab-conjure/releases";
     }
     if (continuePortableButton) {
       continuePortableButton.classList.toggle("hidden", !onboarding);
@@ -44372,7 +47908,7 @@ ${galleryText}`;
         source: "source",
         update_available: false,
         updater_available: false,
-        release_url: "https://github.com/kadevin/ilab-gpt-conjure/releases"
+        release_url: "https://github.com/kadevin/ilab-conjure/releases"
       };
     }
     renderAppVersion();
@@ -44637,6 +48173,252 @@ ${galleryText}`;
     });
   }
 
+  // codex_image/webui/frontend/src/task-parameter-inspector.ts
+  function record4(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? { ...value } : {};
+  }
+  function integer(value, fallback) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+  }
+  function notifyParameterMigration(report) {
+    const count = report.defaulted.length + report.dropped.length;
+    if (!count) return;
+    getLegacyBridge().methods.showTransientNotice?.(
+      formatTranslation("modelParameters.migrated", { count })
+    );
+  }
+  function snapshotFromTask2(task) {
+    const raw = record4(task.generation_snapshot);
+    if (!Object.keys(raw).length) return legacyGenerationSnapshot(task);
+    return {
+      schema_version: integer(raw.schema_version, 1),
+      family_id: String(raw.family_id || "gpt-image"),
+      canonical_model_id: String(raw.canonical_model_id || "gpt-image-2"),
+      model_manifest_version: integer(raw.model_manifest_version, 1),
+      provider_id: String(raw.provider_id || "codex"),
+      provider_name: String(raw.provider_name || raw.provider_id || "Codex"),
+      binding_id: String(raw.binding_id || "legacy"),
+      remote_model_id: String(raw.remote_model_id || raw.canonical_model_id || "gpt-image-2"),
+      protocol_profile: String(raw.protocol_profile || "codex_images"),
+      parameter_codec: String(raw.parameter_codec || "gpt_codex_images"),
+      requested_parameters: record4(raw.requested_parameters),
+      mapped_request: record4(raw.mapped_request),
+      legacy: false
+    };
+  }
+  function inspectTaskParameters2(task) {
+    const { state: state32, methods } = getLegacyBridge();
+    state32.inspectedGenerationSnapshot = snapshotFromTask2(task);
+    methods.renderTaskParameterInspector?.();
+  }
+  function clearTaskParameterInspection3() {
+    const { state: state32, methods } = getLegacyBridge();
+    state32.inspectedGenerationSnapshot = null;
+    methods.renderTaskParameterInspector?.();
+    renderCurrentModelParameters();
+  }
+  function legacyGenerationSnapshot(task) {
+    const params = record4(task.params);
+    const request = record4(task.request);
+    const requestedParameters = {
+      "canvas.size": String(params.size || request.size || "1024x1024"),
+      "gpt.quality": String(params.quality || request.quality || "auto"),
+      "output.format": String(params.output_format || request.output_format || "png"),
+      "gpt.moderation": String(params.moderation || request.moderation || "auto"),
+      "output.count": Math.max(1, Math.min(4, Number(params.n || request.n || 1)))
+    };
+    const hasParamsBackground = Object.prototype.hasOwnProperty.call(params, "background");
+    const hasRequestBackground = Object.prototype.hasOwnProperty.call(request, "background");
+    const background = hasParamsBackground ? params.background : request.background;
+    if ((hasParamsBackground || hasRequestBackground) && background !== null && background !== void 0 && String(background).trim()) {
+      requestedParameters["gpt.background"] = String(background);
+    }
+    if (requestedParameters["output.format"] !== "png" && params.output_compression !== void 0) {
+      requestedParameters["gpt.output_compression"] = Number(params.output_compression);
+    }
+    if (params.web_search) requestedParameters["gpt.web_search"] = true;
+    const responses = params.api_mode === "responses" || params.codex_mode === "responses" || request.api_mode === "responses" || request.codex_mode === "responses";
+    const providerId = String(params.api_provider_id || request.api_provider_id || "codex");
+    return {
+      schema_version: 1,
+      family_id: "gpt-image",
+      canonical_model_id: "gpt-image-2",
+      model_manifest_version: 1,
+      provider_id: providerId,
+      provider_name: String(params.api_provider_name || request.api_provider_name || (providerId === "codex" ? "Codex" : providerId)),
+      binding_id: "legacy-gpt-image-2",
+      remote_model_id: String(params.model || request.image_model || request.model || "gpt-image-2"),
+      protocol_profile: `${providerId === "codex" ? "codex" : "openai"}_${responses ? "responses" : "images"}`,
+      parameter_codec: `gpt_${providerId === "codex" ? "codex" : "openai"}_${responses ? "responses" : "images"}`,
+      requested_parameters: requestedParameters,
+      mapped_request: request,
+      legacy: true
+    };
+  }
+  function taskParameterInspectorTitle(snapshot, catalog) {
+    const historyLabel = translate("modelParameters.historyConfiguration");
+    const modelName = catalog?.models.find((model) => model.id === snapshot.canonical_model_id)?.display_name || snapshot.canonical_model_id;
+    return [historyLabel, modelName, snapshot.provider_name].filter(Boolean).join(" \xB7 ");
+  }
+  var TASK_PARAMETER_INSPECTOR_HIDDEN_IDS = /* @__PURE__ */ new Set([
+    "gpt.background",
+    "gpt.output_compression"
+  ]);
+  var GPT_TASK_PARAMETER_INSPECTOR_ORDER = new Map([
+    "canvas.size",
+    "gpt.quality",
+    "output.format",
+    "output.count",
+    "gpt.moderation",
+    "gpt.web_search"
+  ].map((id, index) => [id, index]));
+  function taskParameterVisibleInInspector(snapshot, parameterId) {
+    if (TASK_PARAMETER_INSPECTOR_HIDDEN_IDS.has(parameterId)) return false;
+    if (parameterId === "gpt.web_search" && !snapshot.protocol_profile.endsWith("_responses")) return false;
+    return true;
+  }
+  function taskParameterInspectorModel(snapshot, model) {
+    if (!model) return void 0;
+    const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+    const parameters = model.parameters.filter((definition) => taskParameterVisibleInInspector(snapshot, definition.id)).map((definition) => {
+      if (gptImage && definition.id === "gpt.moderation") {
+        return { ...definition, group: "generation" };
+      }
+      if (definition.id !== "output.count" || definition.control === "segmented") return definition;
+      const minimum = definition.minimum ?? 1;
+      const maximum = definition.maximum ?? 4;
+      return {
+        ...definition,
+        control: "segmented",
+        allowed_values: Array.from(
+          { length: Math.max(0, maximum - minimum + 1) },
+          (_item, index) => minimum + index
+        )
+      };
+    });
+    if (gptImage) {
+      parameters.sort((left, right) => (GPT_TASK_PARAMETER_INSPECTOR_ORDER.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (GPT_TASK_PARAMETER_INSPECTOR_ORDER.get(right.id) ?? Number.MAX_SAFE_INTEGER));
+    }
+    return {
+      ...model,
+      parameters
+    };
+  }
+  function taskParameterInspectorParameters(snapshot) {
+    return Object.fromEntries(
+      Object.entries(snapshot.requested_parameters).filter(([id]) => taskParameterVisibleInInspector(snapshot, id))
+    );
+  }
+  function taskParameterInspectionAction(task, selectedModelId, outputSettingsLocked) {
+    if (outputSettingsLocked) return "preserve";
+    if (!task) return "clear";
+    return taskCanonicalModelId(task) === selectedModelId ? "clear" : "inspect";
+  }
+  function reconcileTaskParameterInspection() {
+    const { state: state32, methods } = getLegacyBridge();
+    const task = state32.tasks.find((item) => String(item.task_id) === String(state32.selectedTaskId));
+    const action = taskParameterInspectionAction(
+      task,
+      String(state32.selectedModelId || ""),
+      Boolean(methods.isOutputSettingsLocked?.())
+    );
+    if (action === "inspect" && task) inspectTaskParameters2(task);
+    else if (action === "clear" && state32.inspectedGenerationSnapshot) clearTaskParameterInspection3();
+  }
+  function renderTaskParameterInspector() {
+    const { state: state32, els: els43 } = getLegacyBridge();
+    const snapshot = state32.inspectedGenerationSnapshot;
+    const inspector = els43.taskParameterInspector;
+    const stage = els43.outputSettingsStage;
+    if (!inspector) return;
+    inspector.classList.toggle("hidden", !snapshot);
+    inspector.setAttribute("aria-hidden", snapshot ? "false" : "true");
+    stage?.classList.toggle("is-inspecting-task", Boolean(snapshot));
+    if (!snapshot) {
+      els43.taskParameterInspectorHeader?.replaceChildren();
+      els43.taskParameterInspectorGrid?.replaceChildren();
+      els43.taskParameterInspectorUnknown?.replaceChildren();
+      return;
+    }
+    const title = document.createElement("strong");
+    title.textContent = taskParameterInspectorTitle(snapshot, state32.generationCatalog);
+    const badge = document.createElement("span");
+    badge.className = "task-parameter-history-badge";
+    badge.textContent = snapshot.legacy ? translate("modelParameters.legacyTask") : translate("modelParameters.historyConfiguration");
+    const adopt = document.createElement("button");
+    adopt.type = "button";
+    adopt.className = "ghost-button text-sm task-parameter-adopt";
+    adopt.textContent = translate("output.lock.adoptTask");
+    adopt.addEventListener("click", () => {
+      const task = state32.tasks.find((item) => String(item.task_id) === String(state32.selectedTaskId));
+      if (task) adoptTaskParameters(task);
+    });
+    els43.taskParameterInspectorHeader?.replaceChildren(title, badge, adopt);
+    const model = state32.generationCatalog?.models.find((item) => item.id === snapshot.canonical_model_id);
+    const inspectorModel = taskParameterInspectorModel(snapshot, model);
+    const inspectorParameters = taskParameterInspectorParameters(snapshot);
+    if (inspectorModel && els43.taskParameterInspectorGrid) {
+      renderParameterDefinitionsInto(
+        els43.taskParameterInspectorGrid,
+        inspectorModel,
+        inspectorParameters,
+        { readOnly: true, operation: "generate" }
+      );
+    } else {
+      els43.taskParameterInspectorGrid?.replaceChildren();
+    }
+    const known = new Set(inspectorModel?.parameters.map((definition) => definition.id) || []);
+    const unknown = Object.entries(inspectorParameters).filter(([id]) => !known.has(id));
+    const list = els43.taskParameterInspectorUnknown;
+    list?.replaceChildren();
+    unknown.forEach(([id, value]) => {
+      const term = document.createElement("dt");
+      term.textContent = id;
+      const description = document.createElement("dd");
+      description.textContent = typeof value === "string" ? value : JSON.stringify(value);
+      list?.append(term, description);
+    });
+    list?.classList.toggle("hidden", unknown.length === 0);
+  }
+  function adoptTaskParameters(task) {
+    const { state: state32, methods } = getLegacyBridge();
+    const snapshot = snapshotFromTask2(task);
+    const model = state32.generationCatalog?.models.find((item) => item.id === snapshot.canonical_model_id);
+    if (!model) {
+      return {
+        values: {},
+        defaulted: [],
+        dropped: Object.entries(snapshot.requested_parameters).map(([id, previous]) => ({ id, previous }))
+      };
+    }
+    const report = migrateParameterValues(model, snapshot.requested_parameters);
+    methods.setMode?.(task.mode === "edit" && model.operations.includes("edit") ? "edit" : "generate");
+    selectConcreteModel(model.id);
+    state32.parameterDraftsByModel[model.id] = report.values;
+    state32.parameterDraftVersionsByModel[model.id] = model.version;
+    const providers = eligibleProviders(state32.generationCatalog, model.id, state32.mode);
+    if (providers.some((provider) => provider.id === snapshot.provider_id)) {
+      selectGenerationProvider(snapshot.provider_id);
+    }
+    methods.persistModelSelection?.();
+    state32.inspectedGenerationSnapshot = null;
+    renderTaskParameterInspector();
+    renderCurrentModelParameters();
+    notifyParameterMigration(report);
+    return report;
+  }
+  function initTaskParameterInspectorFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      adoptTaskParameters,
+      clearTaskParameterInspection: clearTaskParameterInspection3,
+      inspectTaskParameters: inspectTaskParameters2,
+      legacyGenerationSnapshot,
+      reconcileTaskParameterInspection,
+      renderTaskParameterInspector
+    });
+  }
+
   // codex_image/webui/frontend/src/main.ts
   initReferenceFileInputsFeature();
   initInputSourcesFeature();
@@ -44674,13 +48456,21 @@ ${galleryText}`;
   initTaskDerivedFeature();
   initTaskPreviewFeature();
   initTaskFeature();
+  initTaskParameterInspectorFeature();
   initTaskSelectionFeature();
   initOverlayPopoversFeature();
   initShellUiFeature();
   initI18nFeature();
+  initThemedSelectFeature();
+  initProviderSelectionFeature();
+  initModelSelectionFeature();
+  initModelCatalogFeature();
+  initModelParametersFeature();
+  initModelParameterDraftFeature();
   initAppVersionFeature();
   initLightboxFeature();
   initializeQueueFeature();
+  initAspectRatioControlsFeature();
   initSegmentedIndicatorFeature();
   window.__codexImageWebUI?.boot();
 })();

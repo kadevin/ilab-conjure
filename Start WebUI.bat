@@ -43,7 +43,7 @@ if %ERRORLEVEL% NEQ 0 (
   )
 )
 
-echo Starting iLab GPT CONJURE at %URL%
+echo Starting iLab CONJURE at %URL%
 if not exist "output" mkdir "output"
 set "AUTH_SETTINGS_PATH=%PROJECT_DIR%output\webui-auth-settings.json"
 "%PYTHON_BIN%" -m codex_image.webui.startup_auth --settings-path "%AUTH_SETTINGS_PATH%" >nul
@@ -56,7 +56,7 @@ if %ERRORLEVEL% EQU 0 (
   exit /b 0
 )
 
-start "iLab GPT CONJURE WebUI" /b "%PYTHON_BIN%" -m uvicorn codex_image.webui.app:app --host 127.0.0.1 --port %PORT% --no-access-log >> "%LOG_FILE%" 2>&1
+start "iLab CONJURE WebUI" /b "%PYTHON_BIN%" -m uvicorn codex_image.webui.app:app --host 127.0.0.1 --port %PORT% --no-access-log >> "%LOG_FILE%" 2>&1
 
 call :wait_for_webui
 if %ERRORLEVEL% EQU 0 (

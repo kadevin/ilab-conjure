@@ -1,5 +1,5 @@
 const HOST_SELECTORS = [
-  ".radio-group:not(.ratio-group)",
+  ".radio-group:not(.ratio-group):not(.model-parameter-segmented-multiline):not(.model-aspect-ratio-grid)",
   "#authSourceGroup",
   "#systemSettingsTabs",
   ".history-view-toggle",
@@ -9,6 +9,7 @@ const HOST_SELECTOR = HOST_SELECTORS.join(", ");
 const BUTTON_SELECTOR = ".radio-btn, .auth-source-button, .system-settings-tab, .history-view-button, .history-sort-button";
 const INDICATOR_CLASS = "segmented-indicator";
 const HOST_CLASS = "segmented-indicator-host";
+const READY_CLASS = "segmented-indicator-ready";
 
 const initializedHosts = new WeakSet<HTMLElement>();
 const scheduledFrames = new WeakMap<HTMLElement, number>();
@@ -30,19 +31,25 @@ function ensureIndicator(host: HTMLElement): HTMLElement {
   return indicator;
 }
 
-function updateIndicator(host: HTMLElement): void {
+function updateIndicator(host: HTMLElement): boolean {
   scheduledFrames.delete(host);
-  if (!host.isConnected) return;
+  if (!host.isConnected) return false;
 
   const indicator = ensureIndicator(host);
   const active = activeSegment(host);
   if (!active) {
+    host.classList.remove(READY_CLASS);
     indicator.style.setProperty("--segmented-indicator-opacity", "0");
-    return;
+    return false;
   }
 
   const hostRect = host.getBoundingClientRect();
   const activeRect = active.getBoundingClientRect();
+  if (hostRect.width <= 0 || hostRect.height <= 0 || activeRect.width <= 0 || activeRect.height <= 0) {
+    host.classList.remove(READY_CLASS);
+    indicator.style.setProperty("--segmented-indicator-opacity", "0");
+    return false;
+  }
   const hostStyle = window.getComputedStyle(host);
   const borderLeft = Number.parseFloat(hostStyle.borderLeftWidth) || 0;
   const borderTop = Number.parseFloat(hostStyle.borderTopWidth) || 0;
@@ -51,11 +58,16 @@ function updateIndicator(host: HTMLElement): void {
   indicator.style.setProperty("--segmented-indicator-width", `${activeRect.width}px`);
   indicator.style.setProperty("--segmented-indicator-height", `${activeRect.height}px`);
   indicator.style.setProperty("--segmented-indicator-opacity", "1");
+  return true;
+}
+
+function commitIndicatorUpdate(host: HTMLElement): void {
+  if (updateIndicator(host)) host.classList.add(READY_CLASS);
 }
 
 function scheduleIndicatorUpdate(host: HTMLElement): void {
   if (scheduledFrames.has(host)) return;
-  scheduledFrames.set(host, window.requestAnimationFrame(() => updateIndicator(host)));
+  scheduledFrames.set(host, window.requestAnimationFrame(() => commitIndicatorUpdate(host)));
 }
 
 function watchButtonClassChanges(host: HTMLElement): void {
@@ -65,8 +77,8 @@ function watchButtonClassChanges(host: HTMLElement): void {
   });
 }
 
-function initHost(host: HTMLElement): void {
-  if (initializedHosts.has(host)) return;
+function initHost(host: HTMLElement): boolean {
+  if (initializedHosts.has(host)) return false;
   initializedHosts.add(host);
   host.classList.add(HOST_CLASS);
   ensureIndicator(host);
@@ -78,11 +90,14 @@ function initHost(host: HTMLElement): void {
     });
     resizeObserver.observe(host);
   }
-  scheduleIndicatorUpdate(host);
+  commitIndicatorUpdate(host);
+  return true;
 }
 
 export function refreshSegmentedIndicators(): void {
-  document.querySelectorAll<HTMLElement>(HOST_SELECTOR).forEach(scheduleIndicatorUpdate);
+  document.querySelectorAll<HTMLElement>(HOST_SELECTOR).forEach((host) => {
+    if (!initHost(host)) scheduleIndicatorUpdate(host);
+  });
 }
 
 export function initSegmentedIndicatorFeature(): void {

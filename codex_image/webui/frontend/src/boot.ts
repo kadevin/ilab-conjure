@@ -13,6 +13,7 @@ export function bootWebUI(state: WebUIState, els: WebUIElements, methods: Legacy
   call(methods, "restoreSidebarWidth");
   call(methods, "restoreMainModel");
   call(methods, "restoreApiSettings");
+  call(methods, "restoreModelSelection");
   call(methods, "syncReferenceFileAvailability");
   call(methods, "refreshColorPalette");
   call(methods, "refreshPromptSnippets");
@@ -33,6 +34,7 @@ export function bootWebUI(state: WebUIState, els: WebUIElements, methods: Legacy
   call(methods, "refreshSettings");
   call(methods, "refreshApiSettings");
   call(methods, "refreshHealth");
+  void call(methods, "refreshGenerationCatalog");
   call(methods, "refreshGallery");
   call(methods, "refreshRecentAssets");
   const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });

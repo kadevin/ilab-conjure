@@ -268,7 +268,7 @@
 .system-settings-modal-panel {
   width: min(624px, calc(100vw - 60px));
   max-height: min(760px, calc(100vh - var(--system-settings-modal-top, 30px) - 30px));
-  overflow: auto;
+  overflow: hidden;
   padding: 22px 28px 24px;
   display: flex;
   flex-direction: column;
@@ -438,8 +438,11 @@
 
 .system-settings-tabs {
   --segmented-indicator-radius: 999px;
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   width: 100%;
   margin: 0 0 18px;
@@ -447,6 +450,18 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface-soft);
+}
+
+.system-settings-tabs::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -28px;
+  bottom: -19px;
+  left: -28px;
+  height: 19px;
+  background: var(--surface);
+  pointer-events: none;
 }
 
 .system-settings-tab {
@@ -490,6 +505,8 @@
 }
 
 .system-settings-section {
+  position: relative;
+  z-index: 1;
   flex: 0 1 auto;
   min-height: 0;
   max-height: calc(100vh - 190px);

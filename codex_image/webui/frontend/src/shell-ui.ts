@@ -47,6 +47,7 @@ function renderImageStrip() { legacyMethod("renderImageStrip"); }
 function renderTasks() { legacyMethod("renderTasks"); }
 function renderPreview() { legacyMethod("renderPreview"); }
 function updateRequestPreview() { legacyMethod("updateRequestPreview"); }
+function clearTaskParameterInspection() { legacyMethod("clearTaskParameterInspection"); }
 function i18nText(key, fallback) {
   const value = translate(key);
   return value === key ? fallback : value;
@@ -324,6 +325,7 @@ function resetForm() {
   closeGallery();
   closeImageEditor();
   state.selectedTaskId = null;
+  clearTaskParameterInspection();
   state.mode = "generate";
   revokeUploadPreviewUrls(state.images);
   state.images = [];

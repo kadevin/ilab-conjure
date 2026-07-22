@@ -104,6 +104,9 @@ async def _call_image_client(
 
 
 def _direct_images_concurrent_enabled(client: Any, auth_source: str, api_mode: str | None) -> bool:
+    declared = getattr(client, "direct_images_concurrent", None)
+    if isinstance(declared, bool):
+        return declared
     image_client_classes: tuple[type[Any], ...] = (OpenAIImagesImageClient, CodexImagesImageClient)
     api_responses_client_classes: tuple[type[Any], ...] = (OpenAIResponsesImageClient,)
     try:

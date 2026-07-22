@@ -59,6 +59,29 @@ class WebUIGenerationTests(unittest.TestCase):
         image.save(buffer, format="PNG")
         return buffer.getvalue()
 
+    def test_ratio_prompt_instruction_matches_every_supported_interface_language(self) -> None:
+        from codex_image.webui.prompt_ratio import ratio_prompt_instruction
+
+        expected = {
+            "zh-CN": "将宽高比设为 9:16",
+            "zh-TW": "將寬高比設為 9:16",
+            "zh-HK": "將寬高比設為 9:16",
+            "ja": "アスペクト比を 9:16 に設定してください。",
+            "ko": "화면 비율을 9:16로 설정하세요.",
+            "en": "Set the aspect ratio to 9:16.",
+            "es": "Establece la relación de aspecto en 9:16.",
+            "pt": "Defina a proporção da imagem como 9:16.",
+            "fr": "Réglez le rapport largeur/hauteur sur 9:16.",
+            "de": "Stelle das Seitenverhältnis auf 9:16 ein.",
+            "ru": "Установите соотношение сторон 9:16.",
+            "it": "Imposta le proporzioni su 9:16.",
+            "hi": "पक्षानुपात को 9:16 पर सेट करें।",
+        }
+
+        for locale, instruction in expected.items():
+            with self.subTest(locale=locale):
+                self.assertEqual(ratio_prompt_instruction("9:16", locale=locale), instruction)
+
     def test_generate_route_persists_task_and_passes_parameters(self) -> None:
         from codex_image.webui.app import create_app
 
@@ -673,6 +696,10 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertEqual(body["request"]["webui_image_refs"]["mask_file"], input_name(task["task_id"], "mask.png", kind="mask"))
         self.assertNotIn("input_fidelity", request_tool)
         self.assertNotIn("input_fidelity", task["params"])
+        self.assertNotIn(
+            "gpt.input_fidelity",
+            task["generation_snapshot"].get("legacy_compat_parameters", {}),
+        )
         self.assertEqual(task["input_files"], [])
         self.assertEqual(task["input_sources"][0]["kind"], "asset")
         self.assertEqual(task["mask_file"], input_name(task["task_id"], "mask.png", kind="mask"))

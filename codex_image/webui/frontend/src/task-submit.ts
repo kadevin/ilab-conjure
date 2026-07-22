@@ -1,5 +1,8 @@
 import { getLegacyBridge } from "./state";
-import { translate } from "./i18n";
+import { currentLocaleCode, translate } from "./i18n";
+import { selectedProviderBinding } from "./provider-selection";
+import { appendCanonicalGenerationFields, currentGenerationSelection } from "./generation-request";
+import { taskOutputControlValues } from "./task-model-summary";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -17,6 +20,7 @@ const SUBMIT_TASK_TIMEOUT_MS = 45000;
 
 interface ApplyTaskToFormOptions {
   preserveOutputSettings?: boolean;
+  preserveComposer?: boolean;
 }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -38,16 +42,10 @@ function currentTaskParams(...args: any[]) { return legacyMethod("currentTaskPar
 function uploadInputs(...args: any[]) { return legacyMethod("uploadInputs", ...args); }
 function galleryInputs(...args: any[]) { return legacyMethod("galleryInputs", ...args); }
 function referenceAssetInputs(...args: any[]) { return legacyMethod("referenceAssetInputs", ...args); }
-function currentAuthSource(...args: any[]) { return legacyMethod("currentAuthSource", ...args); }
-function backendForAuthSource(...args: any[]) { return legacyMethod("backendForAuthSource", ...args); }
-function currentApiMode(...args: any[]) { return legacyMethod("currentApiMode", ...args); }
 function currentCodexMode(...args: any[]) { return legacyMethod("currentCodexMode", ...args); }
 function getPromptText(...args: any[]) { return legacyMethod("getPromptText", ...args); }
 function currentPromptForModel(...args: any[]) { return legacyMethod("currentPromptForModel", ...args); }
 function currentPromptFidelity(...args: any[]) { return legacyMethod("currentPromptFidelity", ...args); }
-function currentApiProviderId(...args: any[]) { return legacyMethod("currentApiProviderId", ...args); }
-function currentApiProviderLabel(...args: any[]) { return legacyMethod("currentApiProviderLabel", ...args); }
-function currentApiImagesConcurrency(...args: any[]) { return legacyMethod("currentApiImagesConcurrency", ...args); }
 function currentMainModel(...args: any[]) { return legacyMethod("currentMainModel", ...args); }
 function sourcePreviewUrl(...args: any[]) { return legacyMethod("sourcePreviewUrl", ...args); }
 function syncPromptFromEditor(...args: any[]) { return legacyMethod("syncPromptFromEditor", ...args); }
@@ -66,6 +64,16 @@ function referenceFileUploads(...args: any[]) { return legacyMethod("referenceFi
 function storedReferenceFileInputs(...args: any[]) { return legacyMethod("storedReferenceFileInputs", ...args); }
 function missingReferenceFileInputs(...args: any[]) { return legacyMethod("missingReferenceFileInputs", ...args); }
 function renderPreview(...args: any[]) { return legacyMethod("renderPreview", ...args); }
+
+export function currentCanonicalParameters(): Record<string, unknown> {
+  return currentGenerationSelection().parameters;
+}
+
+function selectedRoutingFields(): { authSource: "codex" | "api"; requestedBackend: string } {
+  const authSource = state.selectedProviderId === "codex" ? "codex" : "api";
+  const profile = selectedProviderBinding()?.protocol_profile || "";
+  return { authSource, requestedBackend: profile || (authSource === "codex" ? "codex_images" : "api_images") };
+}
 
 const REFERENCE_FILE_ERROR_KEYS: Record<string, string> = {
   reference_file_empty: "referenceFiles.errorEmpty",
@@ -115,6 +123,7 @@ function referenceFileMetadata(source: any) {
 export function applyTaskOutputParams(task: any): void {
   const params = task.params || {};
   const request = task.request || {};
+  const output = taskOutputControlValues(task);
   const usesResponses = params.api_mode === "responses"
     || params.codex_mode === "responses"
     || request.api_mode === "responses"
@@ -131,19 +140,19 @@ export function applyTaskOutputParams(task: any): void {
     els.promptFidelity.dispatchEvent(new Event("change"));
   }
   if (els.webSearch) {
-    els.webSearch.checked = Boolean(params.web_search);
+    els.webSearch.checked = Boolean(output.web_search);
     els.webSearch.dispatchEvent(new Event("input"));
   }
   if (params.model && els.model) els.model.value = params.model;
-  if (params.size) syncSizeControlsFromSize(params.size);
-  if (params.n && els.nInput) {
-    els.nInput.value = String(params.n);
+  if (output.size) syncSizeControlsFromSize(output.size);
+  if (output.n && els.nInput) {
+    els.nInput.value = String(output.n);
   }
-  if (params.quality && els.quality) els.quality.value = params.quality;
-  if (params.output_format && els.outputFormat) els.outputFormat.value = params.output_format;
-  if (params.moderation && els.moderation) els.moderation.value = params.moderation;
-  if (params.output_compression !== null && params.output_compression !== undefined && els.compression) {
-    els.compression.value = params.output_compression;
+  if (output.quality && els.quality) els.quality.value = output.quality;
+  if (output.output_format && els.outputFormat) els.outputFormat.value = output.output_format;
+  if (output.moderation && els.moderation) els.moderation.value = output.moderation;
+  if (output.output_compression !== null && output.output_compression !== undefined && els.compression) {
+    els.compression.value = output.output_compression;
   }
   [els.quality, els.outputFormat, els.moderation].forEach((element: any) => {
     element?.dispatchEvent(new Event("change"));
@@ -156,8 +165,12 @@ export function applyTaskOutputParams(task: any): void {
 }
 
 function applyTaskToForm(task: any, options?: ApplyTaskToFormOptions) {
+  if (options?.preserveComposer) {
+    updateRequestPreview();
+    return;
+  }
   setMode(task.mode || "generate");
-  setPromptWithGalleryRefs(task.prompt || "", task.gallery_refs || []);
+  setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || []);
   if (!options?.preserveOutputSettings) applyTaskOutputParams(task);
   updatePromptCount();
   updateRequestPreview();
@@ -170,98 +183,39 @@ function buildPreviewRequest() {
   const assets = referenceAssetInputs();
   const fileUploads = referenceFileUploads();
   const storedFiles = storedReferenceFileInputs();
-  const authSource = currentAuthSource();
+  const { authSource, requestedBackend } = selectedRoutingFields();
   const isApi = authSource === "api";
   const isCodex = authSource === "codex";
   const codexMode = isCodex ? currentCodexMode() : null;
-  const requestedBackend = backendForAuthSource(authSource, isApi ? currentApiMode() : null, codexMode);
+  const parameters = currentCanonicalParameters();
+  const selection = currentGenerationSelection();
   const payload: Record<string, any> = {
     mode: state.mode,
     auth_source: authSource,
     requested_backend: requestedBackend,
+    canonical_model_id: selection.canonicalModelId,
+    provider_id: selection.providerId,
+    parameters,
+    ui_language: currentLocaleCode(),
     prompt: getPromptText(),
     prompt_for_model: currentPromptForModel(),
-    model: params.model,
-    size: params.size,
-    quality: params.quality,
-    output_format: params.output_format,
-    moderation: params.moderation,
-    output_compression: params.output_compression,
-    prompt_fidelity: currentPromptFidelity(),
-    web_search: Boolean(params.web_search),
-    n: params.n,
     images: uploads.map((source: any) => source.name),
     gallery_image_ids: galleries.map((source: any) => source.id),
     reference_asset_ids: assets.map((source: any) => source.id),
     reference_files: fileUploads.map((source: any) => source.filename),
     reference_file_ids: storedFiles.map((source: any) => source.id),
   };
+  const usesGptPromptProcessing = !state.generationCatalog || state.selectedModelId === "gpt-image-2";
+  if (usesGptPromptProcessing) payload.prompt_fidelity = currentPromptFidelity();
   if (isApi) {
-    const apiMode = currentApiMode();
-    const action = state.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
-    payload.api_provider_id = currentApiProviderId();
-    payload.api_provider_name = currentApiProviderLabel();
+    payload.api_provider_id = state.selectedProviderId;
+    payload.api_provider_name = state.generationCatalog?.providers.find((provider: any) => provider.id === state.selectedProviderId)?.name || "";
     payload.webui_api_provider_id = payload.api_provider_id;
     payload.webui_api_provider_name = payload.api_provider_name;
-    payload.api_mode = apiMode;
-    payload.api_images_concurrency = currentApiImagesConcurrency();
-    if (apiMode === "responses") {
-      payload.endpoint = "/responses";
-      payload.model = params.main_model;
-      const imageTool: Record<string, any> = {
-        type: "image_generation",
-        action,
-        model: params.model,
-        size: params.size,
-        quality: params.quality,
-        output_format: params.output_format,
-        moderation: params.moderation,
-      };
-      payload.tools = params.web_search
-        ? [{ type: "web_search", search_context_size: "low" }, imageTool]
-        : [imageTool];
-      if (params.web_search) {
-        payload.tool_choice = "required";
-        payload.parallel_tool_calls = false;
-      }
-      if (params.output_compression !== null && params.output_compression !== undefined) {
-        imageTool.output_compression = params.output_compression;
-      }
-    } else {
-      payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
-    }
+    payload.endpoint = selectedProviderBinding()?.protocol_profile || "";
   } else if (isCodex) {
-    const action = state.mode === "edit" || uploads.length || assets.length || galleries.length ? "edit" : "generate";
     payload.codex_mode = codexMode;
-    if (codexMode === "responses") {
-      payload.endpoint = "/responses";
-      payload.main_model = params.main_model;
-      payload.model = params.main_model;
-      const imageTool: Record<string, any> = {
-        type: "image_generation",
-        action,
-        model: params.model,
-        size: params.size,
-        quality: params.quality,
-        output_format: params.output_format,
-        moderation: params.moderation,
-      };
-      payload.tools = params.web_search
-        ? [{ type: "web_search", search_context_size: "low" }, imageTool]
-        : [imageTool];
-      if (params.web_search) {
-        payload.tool_choice = "required";
-        payload.parallel_tool_calls = false;
-      }
-      if (params.output_compression !== null && params.output_compression !== undefined) {
-        imageTool.output_compression = params.output_compression;
-      }
-    } else {
-      payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations";
-      payload.main_model = params.main_model;
-    }
-  } else {
-    payload.main_model = params.main_model;
+    if (usesGptPromptProcessing) payload.main_model = params.main_model;
   }
   return payload;
 }
@@ -328,6 +282,10 @@ async function runTask() {
     setStatus(translate("status.emptyPrompt"), "error");
     return;
   }
+  if (!state.selectedModelId || !state.selectedProviderId || !state.authAvailable) {
+    setStatus(translate("modelSelection.providerUnavailable"), "error");
+    return;
+  }
   if (state.mode === "edit" && !uploads.length && !assets.length && !galleries.length) {
     setStatus(translate("status.editNeedsImage"), "error");
     return;
@@ -343,27 +301,11 @@ async function runTask() {
   const form = new FormData();
   form.append("prompt", prompt);
   form.append("prompt_for_model", promptForModel);
-  const params = currentTaskParams();
-  form.append("main_model", currentMainModel());
-  form.append("model", params.model);
-  form.append("size", params.size);
-  if (params.resolution) form.append("resolution", params.resolution);
-  if (params.ratio) form.append("ratio", params.ratio);
-  if (params.orientation) form.append("orientation", params.orientation);
-  form.append("quality", params.quality);
-  form.append("output_format", params.output_format);
-  form.append("moderation", params.moderation);
-  form.append("n", String(params.n));
-  form.append("prompt_fidelity", currentPromptFidelity());
-  if (params.web_search) form.append("web_search", "true");
-  if (currentAuthSource() === "api") {
-    form.append("api_provider_id", currentApiProviderId());
-    form.append("api_mode", currentApiMode());
-  } else if (currentAuthSource() === "codex") {
-    form.append("codex_mode", currentCodexMode());
-  }
-  if (els.outputFormat.value !== "png") {
-    form.append("output_compression", String(params.output_compression));
+  form.append("ui_language", currentLocaleCode());
+  appendCanonicalGenerationFields(form, currentGenerationSelection());
+  if (!state.generationCatalog || state.selectedModelId === "gpt-image-2") {
+    form.append("main_model", currentMainModel());
+    form.append("prompt_fidelity", currentPromptFidelity());
   }
   galleries.forEach((source: any) => form.append("gallery_image_ids", source.id));
   assets.forEach((source: any) => form.append("reference_asset_ids", source.id));
@@ -424,6 +366,7 @@ export function initTaskSubmitFeature() {
     applyTaskOutputParams,
     applyTaskToForm,
     buildPreviewRequest,
+    currentCanonicalParameters,
     createPendingTask,
     addQueuedTask,
     runTask,

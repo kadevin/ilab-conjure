@@ -1,15 +1,15 @@
-<h1 align="center">iLab GPT Conjure</h1>
+<h1 align="center">iLab CONJURE</h1>
 
 <p align="center">
-  <sub>GPT-image-2 WebUI workbench · Codex Image / OpenAI-compatible API · Gallery, templates, history, and concurrent tasks.</sub>
+  <sub>Multi-model AI image generation workbench · GPT Image / Gemini · Gallery, templates, history, and concurrent tasks.</sub>
 </p>
 
 <p align="center">
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=release&color=0EA5E9"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml/badge.svg?branch=main&event=push"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=last%20commit&color=10B981"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=stars&color=0284C7"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=forks&color=0369A1"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-conjure?style=flat-square&logo=github&label=release&color=0EA5E9"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/kadevin/ilab-conjure/actions/workflows/ci.yml/badge.svg?branch=main&event=push"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-conjure?style=flat-square&logo=github&label=last%20commit&color=10B981"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-conjure?style=flat-square&logo=github&label=stars&color=0284C7"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-conjure?style=flat-square&logo=github&label=forks&color=0369A1"></a>
 </p>
 
 <p align="center">
@@ -27,17 +27,30 @@
 </p>
 
 <p align="center">
-  <img src="assets/UI_en.png" alt="iLab GPT Conjure WebUI screenshot" width="960" />
+  <img src="assets/UI_en.png" alt="iLab CONJURE WebUI screenshot" width="960" />
 </p>
 
 ## Overview
 
-iLab GPT Conjure is an AI image generation WebUI workbench for GPT-image-2, with
-a companion CLI for local automation. It supports the default Codex Image
-channel, a Codex Responses compatibility channel, and OpenAI-compatible API
-access, and includes shared gallery references, multi-type quick chips, prompt
-templates, concurrent tasks, a paged history library, and local queue
-management.
+> [!IMPORTANT]
+> **Project upgrade:** This project was formerly named `iLab GPT CONJURE`
+> and was originally built around `GPT-Image-2`. Starting with `v0.7.0`, Gemini
+> support and a unified foundation for additional model families expand the product
+> beyond its original scope. The project and product display name are unified as
+> `iLab CONJURE`. The GitHub repository is renamed from `ilab-gpt-conjure` to `ilab-conjure`.
+> This is a continuation of the same project. The former name remains
+> in historical releases and in compatibility-period package filenames, app
+> executable names, and user data directories. Upgrading does not create a new data
+> directory or discard existing tasks and images.
+
+iLab CONJURE is a local-first, multi-model AI image generation workbench with a
+WebUI and companion CLI. Its unified model catalog supports GPT Image and Gemini
+through native provider protocols or OpenAI-compatible gateways. The
+Codex workflow exposes explicit Codex Image and Codex Responses provider
+choices. Shared gallery references,
+multi-type quick chips,
+prompt templates, concurrent tasks, a paged history library, and local queue
+management are built in.
 
 The recommended public integration path is OpenAI-compatible API mode, using
 the Images API or Responses API shape provided by your configured provider.
@@ -47,8 +60,8 @@ Download standard app packages and portable transition packages from
 
 ## Features
 
-- GPT-image-2 text-to-image, reference-image generation, and image editing
-  workflows.
+- GPT Image and Gemini image workflows in one model catalog, including
+  text-to-image, supported reference-image generation, and image editing.
 - Codex Image, Codex Responses, and OpenAI-compatible API access, with the API
   path recommended for public or shared use.
 - Concurrent task execution, local queue state, paged history library,
@@ -71,10 +84,12 @@ Download standard app packages and portable transition packages from
   Chinese, Japanese, Korean, English, Spanish, Portuguese, French, German,
   Russian, Italian, and Hindi, with first-launch browser detection and a
   browser-local language preference.
-- Centered System Settings with API Settings, Codex Channel, a discoverable
-  Language tab, and Storage & Notifications tabs.
+- Centered System Settings with API Settings, a discoverable Language tab, and
+  Storage & Notifications tabs; Codex Image and Codex Responses are chosen in
+  the generation-page provider menu.
 - API provider cards for fast selection, read-only details by default, explicit
-  editing, provider copy, delete confirmation, and multi-provider sorting.
+  editing, provider copy, delete confirmation, multi-provider sorting, and an
+  optional emoji identity mark for each custom provider.
 - Standard macOS DMG and Windows App ZIP packages with a rabbit tray/menu-bar
   launcher, Open WebUI / Settings / History Library actions, system-language
   menu labels, native About window, and confirmed legacy portable data copy on
@@ -105,10 +120,9 @@ with a base URL, API key, model name, and API mode.
 ### Advanced local mode: Codex / ChatGPT OAuth
 
 This project can optionally reuse a local Codex / ChatGPT OAuth session to call
-internal ChatGPT backend endpoints. Codex mode defaults to the direct Image
-channel for generation and editing, and the System Settings Codex Channel tab
-can switch it to the Responses compatibility channel. This mode is provided for
-local personal workflows only.
+internal ChatGPT backend endpoints. The generation-page provider menu exposes
+Codex Image for generation and editing and Codex Responses for the compatibility
+channel. This mode is provided for local personal workflows only.
 
 It is not an officially recommended OpenAI API integration path. The endpoint
 may change without notice, may stop working, and may be subject to account,
@@ -127,8 +141,8 @@ metadata, SQLite databases, or debug logs.
 ## Install
 
 ```bash
-git clone https://github.com/kadevin/ilab-gpt-conjure.git
-cd ilab-gpt-conjure
+git clone https://github.com/kadevin/ilab-conjure.git
+cd ilab-conjure
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-webui.txt
 ```
@@ -162,15 +176,15 @@ http://127.0.0.1:8787/
 ## App packages
 
 Download the current packages from [Downloads / Releases](RELEASES.md), or open
-[GitHub Release v0.6.2](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.6.2)
+[GitHub Release v0.7.0](https://github.com/kadevin/ilab-conjure/releases/tag/v0.7.0)
 directly.
 
 New users should choose the standard packages:
 
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.6.2.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.6.2.dmg`
+1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.7.0.dmg`
+   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.7.0.dmg`
    for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.6.2.zip`,
+2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.7.0.zip`,
    extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
 
 Standard packages store user data in `~/Library/Application Support/iLab GPT
@@ -355,7 +369,7 @@ I also take selected custom development work:
 - Agent-powered websites: customer support, knowledge-base Q&A, content
   generation, and workflow assistant web apps.
 
-Scan the QR code and mention `iLab GPT Conjure` or `custom development` so I can
+Scan the QR code and mention `iLab CONJURE` or `custom development` so I can
 understand the context quickly.
 
 <p align="center">

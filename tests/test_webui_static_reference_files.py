@@ -351,10 +351,12 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         index = (ROOT / "codex_image/webui/static/index.html").read_text(encoding="utf-8")
         history = (ROOT / "codex_image/webui/static/history.html").read_text(encoding="utf-8")
         worker = (ROOT / "codex_image/webui/static/service-worker.js").read_text(encoding="utf-8")
-        self.assertIn("runtime-568", index)
-        self.assertIn("runtime-568", history)
-        self.assertIn("history-69", history)
-        self.assertIn('ilab-gpt-conjure-shell-v50', worker)
+        self.assertIn("runtime-640", index)
+        self.assertIn("runtime-640", history)
+        self.assertIn("history-71", history)
+        self.assertIn('ilab-conjure-shell-v107', worker)
+        self.assertIn('/static/app.js?v=runtime-640', worker)
+        self.assertIn('/static/styles.css?v=runtime-640', worker)
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:
         design_path = ROOT / "DESIGN.md"
@@ -569,6 +571,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
               require(name) {{
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
+                if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
             }});
@@ -627,6 +630,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
               require(name) {{
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
+                if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
             }});

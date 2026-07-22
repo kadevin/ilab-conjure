@@ -283,7 +283,7 @@ jobs:
             }
           ' RELEASES.md)"
           if [[ -z "${release_summary//[[:space:]]/}" ]]; then
-            release_summary="此版本包含 iLab GPT Conjure 对应 tag 的源码和免安装一键包。"
+            release_summary="此版本包含 iLab CONJURE 对应 tag 的源码和免安装一键包。"
           fi
           cat > release-notes.md <<EOF
           ## 发布说明

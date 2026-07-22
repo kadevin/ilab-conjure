@@ -66,6 +66,7 @@ class TaskOutputRecord(TypedDict, total=False):
     background: str
     revised_prompt: str
     usage: dict[str, Any]
+    tool_usage: dict[str, Any]
     error: str
     attempts: int
 
@@ -82,6 +83,10 @@ class TaskMetadata(TypedDict, total=False):
     prompt: str
     prompt_for_model: str
     params: dict[str, Any]
+    generation_snapshot: dict[str, Any]
+    generation_error: dict[str, Any]
+    tool_usage: dict[str, Any]
+    tool_usages: list[dict[str, Any]]
     input_files: list[str]
     mask_file: str | None
     input_urls: list[str]

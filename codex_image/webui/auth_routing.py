@@ -164,6 +164,10 @@ def _apply_retry_api_provider(
 ) -> None:
     if not _task_metadata_uses_api(metadata):
         return
+    # A versioned generation snapshot is the routing identity for the queued
+    # task. Retrying failed outputs must not silently adopt a different relay.
+    if isinstance(metadata.get("generation_snapshot"), dict):
+        return
     provider_id = _request_api_provider_id("api", api_provider_id, api_settings)
     provider_name = _request_api_provider_name("api", provider_id, api_settings)
     api_mode = _request_api_mode("api", None, api_settings, provider_id)
@@ -267,9 +271,23 @@ def _api_queue_channel_count(api_settings: ApiSettings | None = None) -> int:
 
 def _queue_channels_for_source(source: str, *, api_settings: ApiSettings | None = None) -> list[QueueChannel]:
     if source == "api":
+        if api_settings is None:
+            provider_limits = [(DEFAULT_API_PROVIDER_ID, DEFAULT_API_IMAGES_CONCURRENCY)]
+        else:
+            provider_limits = [
+                (connection.id, _normalize_api_images_concurrency(connection.concurrency))
+                for connection in api_settings.read_connections()
+            ]
         return [
-            QueueChannel(channel_id=f"api:default:{index}", auth_source="api", account_id=None)
-            for index in range(1, _api_queue_channel_count(api_settings) + 1)
+            QueueChannel(
+                channel_id=f"provider:{provider_id}:{slot_index}",
+                auth_source="api",
+                account_id=None,
+                provider_id=provider_id,
+                slot_index=slot_index,
+            )
+            for provider_id, limit in provider_limits
+            for slot_index in range(limit)
         ]
     return [QueueChannel(channel_id="codex:local", auth_source="codex", account_id=None)]
 

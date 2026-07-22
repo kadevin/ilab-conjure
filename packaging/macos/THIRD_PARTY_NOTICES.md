@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This portable package contains iLab GPT Conjure, Python.org CPython for macOS,
+This portable package contains iLab CONJURE, Python.org CPython for macOS,
 Python packages installed from `requirements-webui.txt`, and a prebuilt WebUI
 JavaScript bundle that includes frontend npm packages from `package-lock.json`.
 
@@ -28,6 +28,6 @@ It currently includes Konva for the layered input-image editor. Konva is
 distributed under the MIT license; review the lock file and upstream package
 metadata before redistributing modified bundles.
 
-## iLab GPT Conjure
+## iLab CONJURE
 
-iLab GPT Conjure is licensed under GNU AGPLv3. See `LICENSE` in the package.
+iLab CONJURE is licensed under GNU AGPLv3. See `LICENSE` in the package.

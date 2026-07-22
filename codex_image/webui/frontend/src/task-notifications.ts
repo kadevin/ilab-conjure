@@ -7,6 +7,7 @@ const TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
 const MAX_TASK_NOTIFICATIONS = 30;
 const MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
 const TASK_NOTIFICATION_TOAST_MS = 5200;
+const TRANSIENT_NOTICE_MS = 4200;
 
 type TerminalTaskStatus = Extract<TaskStatus, "completed" | "failed" | "partial_failed">;
 
@@ -25,7 +26,25 @@ export function initTaskNotificationsFeature(): void {
     openTaskNotificationCenter,
     renderTaskNotifications,
     requestSystemNotificationPermission,
+    showTransientNotice,
   });
+}
+
+export function showTransientNotice(message: string): void {
+  const region = getLegacyBridge().els.taskNotificationToastRegion;
+  if (!region || !message) return;
+  const toast = document.createElement("div");
+  toast.className = "transient-notice-toast";
+  toast.setAttribute("role", "status");
+  const icon = document.createElement("span");
+  icon.className = "transient-notice-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = "✓";
+  const text = document.createElement("span");
+  text.textContent = message;
+  toast.append(icon, text);
+  region.prepend(toast);
+  window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
 }
 
 function notifyTaskUpdate(previousTask: WebUITask | null | undefined, nextTask: WebUITask | null | undefined): void {

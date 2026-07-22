@@ -1,4 +1,4 @@
-# macOS Portable Package
+# iLab CONJURE macOS Portable Package
 
 This package is intended for macOS users who want to unzip and run the WebUI
 without installing Python separately.
@@ -49,7 +49,7 @@ xattr -dr com.apple.quarantine /path/to/ilab-gpt-conjure_macos_portable_x64
 - `Start WebUI Portable.command`: legacy one-click terminal launcher.
 - `Update WebUI Portable.command`: one-click updater for the latest GitHub
   Release manifest entry matching this Mac architecture.
-- `app/`: iLab GPT Conjure source code, prebuilt static WebUI assets,
+- `app/`: iLab CONJURE source code, prebuilt static WebUI assets,
   frontend package metadata/build config for source rebuilds, and installed
   WebUI Python dependencies under `app/.deps`.
 - `python/`: bundled Python.org Python framework.

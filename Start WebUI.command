@@ -57,7 +57,7 @@ wait_for_webui() {
   return 1
 }
 
-echo "Starting iLab GPT CONJURE at ${URL}"
+echo "Starting iLab CONJURE at ${URL}"
 mkdir -p output
 AUTH_SETTINGS_PATH="${PROJECT_DIR}/output/webui-auth-settings.json"
 "$PYTHON_BIN" -m codex_image.webui.startup_auth --settings-path "$AUTH_SETTINGS_PATH" >/dev/null

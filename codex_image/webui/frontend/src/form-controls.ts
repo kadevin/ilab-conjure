@@ -42,6 +42,7 @@ import {
   updateCustomRatioReferenceButtonState,
 } from "./custom-size-controls";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
+import { restoreCurrentModelParameterDraft, saveCurrentModelParameterDraft } from "./model-parameter-drafts";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -78,7 +79,8 @@ export function bindFormControlEvents(): void {
     els.compression,
     els.nInput,
     els.promptFidelity,
-  ].filter(Boolean).forEach((element: any) => element.addEventListener("input", () => {
+  ].filter(Boolean).forEach((element: any) => {
+    const handleParameterChange = () => {
     persistMainModel();
     updateQuantity();
     updateCompression();
@@ -86,7 +88,11 @@ export function bindFormControlEvents(): void {
     updateCustomSize();
     if (element === els.customWidth || element === els.customHeight) updatePixelPreview("custom");
     updateRequestPreview();
-  }));
+    saveCurrentModelParameterDraft();
+    };
+    element.addEventListener("input", handleParameterChange);
+    element.addEventListener("change", handleParameterChange);
+  });
 
   els.mainModel?.addEventListener("focus", () => openMainModelCombobox({ showAll: true }));
   els.mainModel?.addEventListener("click", () => {
@@ -113,8 +119,14 @@ export function bindFormControlEvents(): void {
   });
 
   [els.resolution, els.ratio, els.orientation].filter(Boolean).forEach((element: any) => {
-    element.addEventListener("input", updateSizeFromPreset);
-    element.addEventListener("change", updateSizeFromPreset);
+    element.addEventListener("input", () => {
+      updateSizeFromPreset();
+      saveCurrentModelParameterDraft();
+    });
+    element.addEventListener("change", () => {
+      updateSizeFromPreset();
+      saveCurrentModelParameterDraft();
+    });
   });
   [els.customRatioWidth, els.customRatioHeight].filter(Boolean).forEach((element: any) => {
     element.addEventListener("input", () => {
@@ -122,6 +134,7 @@ export function bindFormControlEvents(): void {
       updateCustomSize();
       updatePixelPreview("custom");
       updateRequestPreview();
+      saveCurrentModelParameterDraft();
     });
   });
   els.sizeModeGroup?.addEventListener("click", handleSizeModeEvent);
@@ -136,6 +149,7 @@ export function bindFormControlEvents(): void {
 }
 
 export function setMode(mode: any): void {
+  saveCurrentModelParameterDraft();
   state.mode = mode;
   document.querySelectorAll("[data-mode]").forEach((button: any) => {
     button.classList.toggle("active", button.dataset.mode === mode);
@@ -144,7 +158,10 @@ export function setMode(mode: any): void {
     syncRunButtonLabel();
   }
   syncRadioButtons(els.quality, els.outputFormat, els.moderation);
-  updateRequestPreview();
+  bridge.methods.renderProviderSelection?.();
+  restoreCurrentModelParameterDraft();
+  bridge.methods.updateModeSpecificSettings?.();
+  bridge.methods.updateRequestPreview?.();
 }
 
 export function initFormControlsFeature(): void {

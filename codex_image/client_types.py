@@ -16,7 +16,7 @@ DEFAULT_CODEX_IMAGES_BASE_URL = "https://chatgpt.com/backend-api/codex"
 DEFAULT_OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_MAIN_MODEL = "gpt-5.4-mini"
 DEFAULT_IMAGE_MODEL = "gpt-image-2"
-OPENAI_COMPATIBLE_USER_AGENT = f"iLab-GPT-Conjure/{APP_VERSION}"
+OPENAI_COMPATIBLE_USER_AGENT = f"iLab-CONJURE/{APP_VERSION}"
 RESPONSES_ERROR_MESSAGE_LIMIT = 2_000
 RESPONSES_SENSITIVE_MARKER = "<redacted file data>"
 _RESPONSES_DATA_URL_RE = re.compile(r"data:[^,\s]*;base64,[A-Za-z0-9+/=_-]+", re.IGNORECASE)

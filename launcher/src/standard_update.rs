@@ -320,7 +320,7 @@ pub fn show_standard_update_error(message: &str, locale: &str) {
             .status();
     }
     #[cfg(not(target_os = "macos"))]
-    eprintln!("iLab GPT CONJURE update failed: {message}");
+    eprintln!("iLab CONJURE update failed: {message}");
 }
 
 pub fn cleanup_standard_updater_handoff() {
@@ -694,18 +694,18 @@ fn updater_messages(locale: &str) -> UpdaterMessages {
     match normalize_update_locale(locale).as_str() {
         "zh-CN" => UpdaterMessages {
             start: "正在下载并安装新版，应用将在完成后重新启动。",
-            success: "更新完成，已重新启动 iLab GPT CONJURE。",
-            error_title: "iLab GPT CONJURE 更新失败",
+            success: "更新完成，已重新启动 iLab CONJURE。",
+            error_title: "iLab CONJURE 更新失败",
         },
         "zh-TW" | "zh-HK" => UpdaterMessages {
             start: "正在下載並安裝新版，應用程式將在完成後重新啟動。",
-            success: "更新完成，已重新啟動 iLab GPT CONJURE。",
-            error_title: "iLab GPT CONJURE 更新失敗",
+            success: "更新完成，已重新啟動 iLab CONJURE。",
+            error_title: "iLab CONJURE 更新失敗",
         },
         _ => UpdaterMessages {
             start: "Downloading and installing the update. The app will relaunch when finished.",
-            success: "Update complete. iLab GPT CONJURE has been relaunched.",
-            error_title: "iLab GPT CONJURE Update Failed",
+            success: "Update complete. iLab CONJURE has been relaunched.",
+            error_title: "iLab CONJURE Update Failed",
         },
     }
 }
@@ -737,7 +737,7 @@ fn show_standard_update_notification(message: &str) {
     let script = format!(
         "display notification {} with title {}",
         apple_script_string(message),
-        apple_script_string("iLab GPT CONJURE"),
+        apple_script_string("iLab CONJURE"),
     );
     let _ = Command::new("/usr/bin/osascript")
         .args(["-e", &script])

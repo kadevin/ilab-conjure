@@ -10,6 +10,147 @@ from tests.webui_helpers import WebUIStaticTestCase
 
 
 class WebUIStaticLayoutTests(WebUIStaticTestCase):
+    def test_sidebar_brand_keeps_product_name_stable_and_model_selector_on_its_own_row(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+
+        self.assertIn('<div class="brand-name">iLab CONJURE</div>', html)
+        self.assertIn('id="modelFamilyOptions"', html)
+        self.assertLess(html.index('class="brand-name"'), html.index('id="modelFamilyOptions"'))
+        self.assertLess(html.index('id="modelFamilyOptions"'), html.index('class="sidebar-search"'))
+        self.assertNotIn(".brand-model-context", sidebar)
+        self.assertNotIn(".brand-subtitle", sidebar)
+
+    def test_model_family_segments_render_icons_before_short_labels(self) -> None:
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+        selection = Path("codex_image/webui/frontend/src/model-selection.ts").read_text(encoding="utf-8")
+
+        self.assertIn(
+            'icon.className = `model-family-segment-icon model-family-segment-icon-${family.id}`;',
+            selection,
+        )
+        self.assertIn(
+            "label.textContent = family.short_name || family.display_name;",
+            selection,
+        )
+        self.assertIn("item.append(icon, label)", selection)
+        self.assertIn(".model-family-segment-icon {", sidebar)
+        self.assertIn(".model-family-segment-label {", sidebar)
+
+    def test_model_family_marks_are_shared_by_selector_and_history_cards(self) -> None:
+        selection = Path("codex_image/webui/frontend/src/model-selection.ts").read_text(encoding="utf-8")
+        task_list = Path("codex_image/webui/frontend/src/task-list-render.ts").read_text(encoding="utf-8")
+        marks = Path("codex_image/webui/frontend/src/model-family-icons.ts").read_text(encoding="utf-8")
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+        tasks = Path("codex_image/webui/static/styles/20-tasks.css").read_text(encoding="utf-8")
+
+        self.assertIn("modelFamilyBrandMarkHtml", selection)
+        self.assertIn("modelFamilyBrandMarkHtml", task_list)
+        self.assertIn('asset: "/static/brand/model-marks/openai.svg"', marks)
+        self.assertIn('asset: "/static/brand/model-marks/gemini.svg"', marks)
+        self.assertNotIn("grok", marks.lower())
+        self.assertIn(".model-family-brand-mark", sidebar)
+        self.assertIn(".task-model-family-brand-mark", tasks)
+        for asset in ("openai.svg", "gemini.svg"):
+            self.assertTrue((Path("codex_image/webui/static/brand/model-marks") / asset).is_file())
+        self.assertFalse((Path("codex_image/webui/static/brand/model-marks") / "grok.svg").exists())
+
+    def test_model_family_selector_is_a_subtle_two_segment_control(self) -> None:
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+
+        rail_rule = sidebar.split(".model-family-segments {", 1)[1].split("}", 1)[0]
+        option_rule = sidebar.split(".model-family-segment {", 1)[1].split("}", 1)[0]
+        icon_rule = sidebar.split(".model-family-segment-icon {", 1)[1].split("}", 1)[0]
+        indicator_rule = sidebar.split(".model-family-segments .segmented-indicator {", 1)[1].split("}", 1)[0]
+
+        self.assertIn("grid-template-columns: repeat(2, minmax(0, 1fr))", rail_rule)
+        self.assertIn("--segmented-control-height: 30px", rail_rule)
+        self.assertIn("width: 100%", rail_rule)
+        self.assertIn("font-size: 13px", option_rule)
+        self.assertIn("gap: 6px", option_rule)
+        self.assertIn("width: 16px", icon_rule)
+        self.assertIn("height: 16px", icon_rule)
+        self.assertIn("background: color-mix", indicator_rule)
+        self.assertIn("box-shadow: none", indicator_rule)
+        self.assertNotIn("model-family-menu", sidebar)
+        self.assertNotIn("model-family-button::after", sidebar)
+
+    def test_model_provider_controls_shrink_without_workspace_overflow(self) -> None:
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+        layout = Path("codex_image/webui/static/styles/30-layout-top-nav-panels.css").read_text(encoding="utf-8")
+        output = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
+        responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
+
+        self.assertIn(".model-family-segments", sidebar)
+        self.assertIn("min-width: 0", sidebar)
+        self.assertIn(".generation-provider-control", layout)
+        self.assertIn("text-overflow: ellipsis", layout)
+        self.assertIn(".generation-provider-select-shell .themed-select-trigger", layout)
+        self.assertIn("max-width: 100%", layout)
+        self.assertIn(".concrete-model-field", output)
+        self.assertIn("min-width: 0", output)
+        self.assertIn("@container workspace (max-width: 899px)", responsive)
+        self.assertIn("grid-template-columns: minmax(0, 1fr)", responsive)
+        self.assertNotIn("overflow-x: auto", layout[layout.index(".nav-actions"):layout.index(".queue-button")])
+
+    def test_theme_popovers_replace_native_language_and_provider_menus(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        main = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
+        theme_select = Path("codex_image/webui/frontend/src/themed-select.ts").read_text(encoding="utf-8")
+        controls = Path("codex_image/webui/static/styles/40-controls.css").read_text(encoding="utf-8")
+
+        self.assertIn('id="languageSelect"', html)
+        self.assertIn('id="generationProviderSelect"', html)
+        self.assertIn('initThemedSelectFeature()', main)
+        self.assertIn('"languageSelect"', theme_select)
+        self.assertIn('"generationProviderSelect"', theme_select)
+        self.assertIn('setAttribute("role", "listbox")', theme_select)
+        self.assertIn('event.key === "Escape"', theme_select)
+        self.assertIn("event.stopPropagation()", theme_select)
+        self.assertIn("document.body.append(instance.menu)", theme_select)
+        self.assertIn("positionThemedSelectMenu", theme_select)
+        self.assertIn(".themed-select-menu", controls)
+        self.assertIn(".themed-select-menu.is-portal", controls)
+        self.assertIn(".themed-select-menu::-webkit-scrollbar-thumb", controls)
+        self.assertRegex(
+            controls,
+            r"\.themed-select-menu\s*\{[^}]*background:\s*var\(--surface\)[^}]*color:\s*var\(--text\)",
+        )
+
+    def test_portaled_theme_menu_reserves_its_trigger_gap_inside_the_viewport(self) -> None:
+        theme_select = Path("codex_image/webui/frontend/src/themed-select.ts").read_text(encoding="utf-8")
+
+        positioner = theme_select.split("function positionThemedSelectMenu", 1)[1].split(
+            "function positionOpenThemedSelectMenus", 1
+        )[0]
+        self.assertIn("viewportHeight - rect.bottom - MENU_GAP - MENU_EDGE_GUTTER", positioner)
+        self.assertIn("rect.top - MENU_GAP - MENU_EDGE_GUTTER", positioner)
+
+    def test_provider_empty_state_stays_inside_the_selector(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        source = Path("codex_image/webui/frontend/src/provider-selection.ts").read_text(encoding="utf-8")
+        layout = Path("codex_image/webui/static/styles/30-layout-top-nav-panels.css").read_text(encoding="utf-8")
+
+        self.assertNotIn('id="generationProviderUnavailable"', html)
+        self.assertNotIn("generationProviderUnavailable", source)
+        self.assertNotIn(".generation-provider-unavailable", layout)
+
+    def test_model_family_segments_collapse_to_icons_by_container_width(self) -> None:
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+        responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
+
+        self.assertIn("container-type: inline-size", sidebar)
+        self.assertIn("container-name: sidebar-shell", sidebar)
+        self.assertIn("@container sidebar-shell (max-width: 315px)", sidebar)
+        self.assertRegex(
+            sidebar,
+            r"@container sidebar-shell \(max-width: 315px\)[\s\S]*?\.model-family-segment-label\s*\{[^}]*display:\s*none",
+        )
+        self.assertRegex(
+            responsive,
+            r"@media \(max-width: 1180px\)[\s\S]*?\.model-family-segment-label\s*\{[^}]*display:\s*none",
+        )
+
     def _extract_css_at_rule(self, styles: str, marker: str) -> str:
         start = styles.index(marker)
         return self._extract_css_at_rule_from(styles, marker, start)
@@ -152,8 +293,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotRegex(source, r"rgba\(155,\s*127,\s*79")
         self.assertRegex(styles, r"\.primary-button\s*\{[^}]*transition:\s*background var\(--motion-base\)")
         self.assertRegex(styles, r"\.ghost-button\s*\{[^}]*background var\(--motion-base\)")
-        self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*transform var\(--motion-base\)")
-        self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*opacity var\(--motion-fast\)")
+        self.assertRegex(styles, r"\.segmented-indicator-host\.segmented-indicator-ready \.segmented-indicator\s*\{[^}]*transform var\(--motion-base\)")
+        self.assertRegex(styles, r"\.segmented-indicator-host\.segmented-indicator-ready \.segmented-indicator\s*\{[^}]*opacity var\(--motion-fast\)")
         self.assertRegex(styles, r"\.image-input-main\s*\{[^}]*border-color var\(--motion-base\)")
         self.assertRegex(styles, r"\.quick-gallery-item\s*\{[^}]*opacity var\(--motion-base\)")
         self.assertRegex(styles, r"\.resource-sheet\s*\{[^}]*transform var\(--motion-fast\)")
@@ -187,8 +328,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-568', html)
-        self.assertIn('/static/styles.css?v=runtime-568', html)
+        self.assertIn('/static/app.js?v=runtime-640', html)
+        self.assertIn('/static/styles.css?v=runtime-640', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertRegex(html, r'class="image-input-footer"[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'id="recentAssetDock"[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -498,6 +639,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("export function updateModeSpecificSettings(authSource", mode_source)
         self.assertIn("export function normalizeApiSettings(settings", provider_source)
         self.assertIn("export function openApiSettingsModal()", provider_source)
+        self.assertIn("export function openGenerationProviderSettings()", provider_source)
         self.assertIn("export function backendForAuthSource(authSource", provider_source)
         self.assertIn("Object.assign(getLegacyBridge().methods", api_settings_source)
         for function_name in [
@@ -567,6 +709,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         form_controls_source = self._form_controls_source()
         size_source = Path("codex_image/webui/frontend/src/size-presets.ts").read_text(encoding="utf-8")
         task_submit_source = Path("codex_image/webui/frontend/src/task-submit.ts").read_text(encoding="utf-8")
+        generation_request_source = Path("codex_image/webui/frontend/src/generation-request.ts").read_text(encoding="utf-8")
         generation_route_source = Path("codex_image/webui/routes/generation.py").read_text(encoding="utf-8")
         main_model_source = Path("codex_image/webui/frontend/src/main-model-combobox.ts").read_text(encoding="utf-8")
         custom_size_source = Path("codex_image/webui/frontend/src/custom-size-controls.ts").read_text(encoding="utf-8")
@@ -594,9 +737,13 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("params.orientation = presetMatch.orientation", size_source)
         self.assertIn("const customRatio = currentCustomRatio()", size_source)
         self.assertIn("params.ratio = customRatio", size_source)
-        self.assertIn('form.append("resolution", params.resolution)', task_submit_source)
-        self.assertIn('form.append("ratio", params.ratio)', task_submit_source)
-        self.assertIn('form.append("orientation", params.orientation)', task_submit_source)
+        self.assertNotIn('form.append("resolution"', task_submit_source)
+        self.assertNotIn('form.append("ratio"', task_submit_source)
+        self.assertNotIn('form.append("orientation"', task_submit_source)
+        self.assertIn("appendCanonicalGenerationFields(form, currentGenerationSelection())", task_submit_source)
+        self.assertIn('form.append("canonical_model_id", selection.canonicalModelId)', generation_request_source)
+        self.assertIn('form.append("provider_id", selection.providerId)', generation_request_source)
+        self.assertIn('form.append("parameters_json", JSON.stringify(sortedRecord(selection.parameters)))', generation_request_source)
         self.assertIn("resolution: str | None = Form(None)", generation_route_source)
         self.assertIn("ratio: str | None = Form(None)", generation_route_source)
         self.assertIn("orientation: str | None = Form(None)", generation_route_source)
@@ -710,7 +857,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("<title>iLab GPT CONJURE</title>", html)
+        self.assertIn("<title>iLab CONJURE</title>", html)
+        self.assertNotIn("<title>iLab GPT CONJURE</title>", html)
         self.assertIn('<link rel="icon" type="image/svg+xml" href="/static/brand/favicon.svg" />', html)
         self.assertNotIn('<link rel="icon" href="data:," />', html)
         self.assertIn('<div class="brand-lockup">', html)
@@ -719,9 +867,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('class="brand-rabbit-fill"', html)
         self.assertIn('class="brand-rabbit-cutout"', html)
         self.assertIn('class="brand-rabbit-spark"', html)
-        self.assertIn('<div class="brand-name">iLab GPT</div>', html)
-        self.assertIn('<div class="brand-subtitle">CONJURE</div>', html)
-        self.assertIn('aria-label="iLab GPT CONJURE"', html)
+        self.assertIn('<div class="brand-name">iLab CONJURE</div>', html)
+        self.assertRegex(html, r'id="modelFamilyOptions"[\s\S]*role="radiogroup"')
+        self.assertNotIn('class="brand-subtitle"', html)
+        self.assertIn('aria-label="iLab CONJURE"', html)
         self.assertNotIn("GPT-image-2 Studio", html)
         favicon_path = Path("codex_image/webui/static/brand/favicon.svg")
         self.assertTrue(favicon_path.exists())
@@ -741,9 +890,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.brand-rabbit-cutout\s*\{[^}]*fill:\s*#457b66")
         self.assertRegex(styles, r"\.brand-rabbit-spark\s*\{[^}]*stroke-width:\s*1\.55")
         self.assertRegex(styles, r"\.brand-name\s*\{[^}]*font-size:\s*17px")
-        self.assertRegex(styles, r"\.brand-subtitle\s*\{[^}]*font-weight:\s*700")
-        self.assertRegex(styles, r"\.brand-subtitle\s*\{[^}]*letter-spacing:\s*0\.12em")
-        self.assertRegex(styles, r"\.brand-subtitle\s*\{[^}]*text-transform:\s*uppercase")
+        self.assertRegex(styles, r"\.model-family-segments\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)")
+        self.assertRegex(styles, r"\.model-family-segments\s+\.model-family-segment\s*\{[^}]*font-size:\s*13px")
+        self.assertNotIn(".brand-subtitle", styles)
     def test_sidebar_footer_utilities_are_centered(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -900,7 +1049,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"\.controls-col\s*\{[^}]*max-width:\s*none[^}]*height:\s*auto[^}]*min-height:\s*auto[^}]*overflow:\s*visible",
         )
         self.assertRegex(stacked, r"\.preview-col\s*\{[^}]*height:\s*auto[^}]*min-height:\s*260px[^}]*overflow:\s*visible")
-        self.assertRegex(stacked, r"\.preview-panel\s*\{[^}]*min-height:\s*260px")
+        self.assertRegex(
+            stacked,
+            r"\.preview-panel\s*\{[^}]*position:\s*relative[^}]*inset:\s*auto[^}]*min-height:\s*260px",
+        )
 
         for title in ("参考输入（可选）", "提示词", "输出设置"):
             self.assertIn(title, html)
@@ -1023,11 +1175,13 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             Path("Start WebUI.bat").read_text(encoding="utf-8"),
         ]
 
-        self.assertIn('FastAPI(title="iLab GPT CONJURE"', app_source)
-        self.assertIn("<title>iLab GPT CONJURE</title><h1>iLab GPT CONJURE</h1>", app_source)
+        self.assertIn('FastAPI(title="iLab CONJURE"', app_source)
+        self.assertIn("<title>iLab CONJURE</title><h1>iLab CONJURE</h1>", app_source)
+        self.assertNotIn("iLab GPT CONJURE", app_source)
         self.assertNotIn("GPT-image-2 Studio", app_source)
         for source in launcher_sources:
-            self.assertIn("iLab GPT CONJURE", source)
+            self.assertIn("iLab CONJURE", source)
+            self.assertNotIn("iLab GPT CONJURE", source)
             self.assertNotIn("GPT-image-2 Studio", source)
     def test_output_size_controls_match_gpt_image_2_ratios(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
@@ -1619,98 +1773,26 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.gallery-edit-actions\s*\{[^}]*display:\s*flex")
         self.assertRegex(styles, r"\.gallery-card-actions\s*\{[^}]*grid-template-columns")
         self.assertNotRegex(styles, r"\.gallery-card-actions\s+\[data-gallery-replace\]\s*\{[^}]*grid-column")
-    def test_auth_source_switcher_is_available_in_top_nav(self) -> None:
+    def test_model_provider_selector_replaces_auth_source_switcher_in_top_nav(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
         auth_source = Path("codex_image/webui/frontend/src/auth-source.ts").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('id="authSourceGroup"', html)
-        self.assertIn('data-auth-source="codex"', html)
-        self.assertIn('data-auth-source="api"', html)
-        for removed_source in ("auto", "cock" + "pit"):
-            self.assertNotIn(f'data-auth-source="{removed_source}"', html)
-        self.assertIn('id="authSourceDetail"', html)
-        self.assertLess(html.index('id="authSourceDetail"'), html.index('id="authSourceGroup"'))
-        removed_quota_button_id = "account" + "QuotaButton"
-        self.assertNotIn(f'id="{removed_quota_button_id}"', html)
-        self.assertNotIn('id="authPill"', html)
-        self.assertNotIn('authPill:', script)
-        self.assertNotIn("authPillText", script)
-        self.assertNotIn(".auth-pill", styles)
-        self.assertIn("/api/auth", script)
-        self.assertIn("setAuthSource", script)
-        self.assertIn("renderAuthSource", script)
-        self.assertNotIn('onclick="setAuthSource', html)
-        self.assertIn('authSourceGroup?.addEventListener("click", (event) => call(methods, "handleAuthSourceClick", event))', script)
-        self.assertIn('button.setAttribute("aria-pressed", active ? "true" : "false")', script)
-        self.assertIn("function handleAuthSourceClick(event)", script)
-        self.assertIn('event.target.closest?.("[data-auth-source]")', script)
-        self.assertNotIn('if (source === "api" && currentAuthSource() === "api")', script)
-        self.assertIn('apiSourceSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"))', script)
-        self.assertIn("void setAuthSource(source, button)", auth_source)
-        self.assertIn('class="auth-source-button auth-source-api-button"', html)
-        self.assertIn('id="apiSourceSettingsButton"', html)
-        self.assertIn('aria-label="系统设置"', html)
-        self.assertIn('title="系统设置"', html)
-        self.assertNotIn("双击打开 API 设置", html)
-        self.assertIn('id="githubLink"', html)
-        self.assertIn('href="https://github.com/kadevin/ilab-gpt-conjure"', html)
-        self.assertIn('aria-label="GitHub"', html)
-        self.assertIn('target="_blank"', html)
-        self.assertIn('rel="noreferrer"', html)
         nav_actions = html[html.index('<div class="nav-actions">'):html.index('<div id="taskNotificationCenter"')]
-        self.assertNotIn('id="languageSwitcher"', nav_actions)
-        self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-control-height:\s*36px")
-        self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-control-radius:\s*999px")
-        self.assertRegex(styles, r"\.nav-actions\s*\{[^}]*--top-nav-segment-height:\s*30px")
-        self.assertRegex(styles, r"\.queue-button\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
-        self.assertRegex(styles, r"\.queue-button\s*\{[^}]*min-height:\s*var\(--top-nav-control-height\)")
-        self.assertRegex(styles, r"\.queue-button\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
-        self.assertRegex(styles, r"\.queue-badge\s*\{[^}]*height:\s*22px")
-        self.assertRegex(styles, r"\.queue-badge\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
-        self.assertRegex(styles, r"\.task-notification-button\s*\{[^}]*position:\s*relative")
-        self.assertRegex(styles, r"\.task-notification-button\.has-unread\s*\{[^}]*background:")
-        self.assertRegex(styles, r"\.task-notification-dot\s*\{[^}]*top:\s*8px")
-        self.assertRegex(styles, r"\.task-notification-dot\s*\{[^}]*right:\s*8px")
-        self.assertRegex(styles, r"\.task-notification-dot\s*\{[^}]*width:\s*7px")
-        self.assertNotRegex(styles, r"\.task-notification-button \.queue-badge\s*\{")
-        self.assertRegex(styles, r"\.auth-source-switcher\s*\{[^}]*display:\s*flex")
-        self.assertRegex(styles, r"\.auth-source-switcher\s*\{[^}]*flex-direction:\s*row")
-        self.assertRegex(styles, r"\.auth-source-switcher\s*\{[^}]*align-items:\s*center")
-        self.assertRegex(styles, r"\.auth-source-switcher\s*\{[^}]*position:\s*relative")
-        self.assertNotRegex(styles, r"\.auth-source-switcher\s*\{[^}]*flex-direction:\s*column")
-        self.assertRegex(styles, r"\.auth-source-group\s*\{[^}]*display:\s*inline-flex")
-        self.assertRegex(styles, r"\.auth-source-group\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
-        self.assertRegex(styles, r"\.auth-source-group\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
-        self.assertRegex(styles, r"\.auth-source-button\s*\{[^}]*height:\s*var\(--top-nav-segment-height\)")
-        self.assertRegex(styles, r"\.auth-source-button\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
-        self.assertNotIn(removed_quota_button_id, script)
-        self.assertIn('els.apiProviderQuick?.classList.add("hidden")', script)
-        self.assertNotIn('els.apiProviderQuick?.classList.toggle("hidden", selected !== "api")', script)
-        self.assertNotRegex(styles, r"\.account-quota-button\s*\{")
-        self.assertRegex(styles, r"\.auth-source-api-button\s*\{[^}]*gap:\s*4px")
-        self.assertRegex(styles, r"\.auth-source-settings-button\s*\{[^}]*width:\s*var\(--top-nav-control-height\)")
-        self.assertRegex(styles, r"\.github-link\s*\{[^}]*width:\s*var\(--top-nav-control-height\)")
-        self.assertNotRegex(styles, r"\.language-switcher\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
-        self.assertNotRegex(styles, r"\.language-option\s*\{")
-        self.assertNotRegex(styles, r"\.api-provider-quick\s*\{[^}]*position:\s*absolute")
-        self.assertRegex(styles, r"\.api-provider-quick\s*\{[^}]*height:\s*var\(--top-nav-control-height\)")
-        self.assertRegex(styles, r"\.api-provider-quick\s*\{[^}]*border-radius:\s*var\(--top-nav-control-radius\)")
-        self.assertRegex(styles, r"\.auth-source-detail\s*\{[^}]*width:\s*150px")
-        self.assertRegex(styles, r"\.auth-source-detail\s*\{[^}]*overflow:\s*hidden")
-        self.assertRegex(styles, r"\.auth-source-detail\s*\{[^}]*text-overflow:\s*ellipsis")
-        self.assertNotRegex(styles, r"\.auth-source-detail\s*\{[^}]*width:\s*128px")
-        self.assertIn("els.authSourceDetail.title = text", script)
-        self.assertIn('function currentApiProviderLabel(): string { return legacyMethod("currentApiProviderLabel"); }', auth_source)
-        self.assertNotIn("自动 →", auth_source)
-        self.assertIn('return `API · ${provider} · ${mode}`;', auth_source)
-        self.assertIn('return "Codex";', auth_source)
-        self.assertIn('formatTranslation("auth.sourceUnavailable", { source: selected })', auth_source)
-        self.assertNotIn('return `${effective} · ${mode} · ${imageModel}`', auth_source)
-        self.assertRegex(styles, r"\.auth-source-button\.active\s*\{[^}]*background:\s*var\(--primary\)")
-        self.assertNotIn("文档中心", html)
-        self.assertNotIn("user-profile", html)
+        self.assertNotIn('id="authSourceGroup"', nav_actions)
+        self.assertNotIn('data-auth-source="codex"', nav_actions)
+        self.assertNotIn('data-auth-source="api"', nav_actions)
+        self.assertIn('id="generationProviderSelect"', nav_actions)
+        self.assertIn('id="generationProviderSettingsButton"', nav_actions)
+        self.assertIn('generationProviderSelect: document.querySelector', script)
+        self.assertIn('return state.selectedProviderId === "codex" ? "codex" : "api";', auth_source)
+        self.assertRegex(styles, r"\.generation-provider-control\s*\{[^}]*min-width:\s*0")
+        self.assertRegex(
+            styles,
+            r"\.generation-provider-select-shell\s+\.themed-select-trigger\s*\{[^}]*text-overflow:\s*ellipsis",
+        )
+
     def test_output_and_auth_switchers_use_sliding_segmented_indicator(self) -> None:
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
         main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
@@ -1718,7 +1800,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
 
         self.assertIn('import { initSegmentedIndicatorFeature } from "./segmented-indicator";', main_source)
         self.assertLess(main_source.index("initSegmentedIndicatorFeature();"), main_source.index("window.__codexImageWebUI?.boot();"))
-        self.assertIn('".radio-group:not(.ratio-group)"', indicator_source)
+        self.assertIn(
+            '".radio-group:not(.ratio-group):not(.model-parameter-segmented-multiline):not(.model-aspect-ratio-grid)"',
+            indicator_source,
+        )
         self.assertIn('"#authSourceGroup"', indicator_source)
         self.assertIn('"#systemSettingsTabs"', indicator_source)
         self.assertIn(".system-settings-tab", indicator_source)
@@ -1749,13 +1834,31 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*border-radius:\s*var\(--segmented-indicator-radius\)")
         self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*background:\s*var\(--primary\)")
         self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*transform:\s*translate3d\(var\(--segmented-indicator-x")
-        self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*transition:\s*transform var\(--motion-base\)")
-        self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*width var\(--motion-base\)")
+        self.assertRegex(styles, r"\.segmented-indicator\s*\{[^}]*transition:\s*none")
+        indicator_transition = styles.split(
+            ".segmented-indicator-host.segmented-indicator-ready .segmented-indicator {", 1
+        )[1].split("}", 1)[0]
+        self.assertIn("transform var(--motion-base)", indicator_transition)
+        self.assertIn("opacity var(--motion-fast)", indicator_transition)
+        self.assertNotIn("width var(", indicator_transition)
+        self.assertNotIn("height var(", indicator_transition)
         self.assertRegex(styles, r"\.radio-group\.segmented-indicator-host\s+\.radio-btn\.active\s*\{[^}]*background:\s*transparent")
         self.assertRegex(styles, r"\.auth-source-group\.segmented-indicator-host\s+\.auth-source-button\.active\s*\{[^}]*background:\s*transparent")
         self.assertRegex(styles, r"\.system-settings-tabs\.segmented-indicator-host\s+\.system-settings-tab\.active\s*\{[^}]*background:\s*transparent")
         self.assertRegex(styles, r"\.system-settings-tabs\.segmented-indicator-host\s+\.system-settings-tab\.active\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertRegex(styles, r"@media \(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.segmented-indicator\s*\{[^}]*transition:\s*none")
+    def test_system_settings_restores_focus_before_hiding_modal(self) -> None:
+        source = Path("codex_image/webui/frontend/src/system-settings.ts").read_text(encoding="utf-8")
+
+        self.assertIn("let systemSettingsReturnFocus: HTMLElement | null = null", source)
+        self.assertIn("systemSettingsReturnFocus = activeElement", source)
+        self.assertIn("modal.contains(activeElement)", source)
+        self.assertIn("returnFocus.focus({ preventScroll: true })", source)
+        self.assertLess(
+            source.index("returnFocus.focus({ preventScroll: true })"),
+            source.index('modal?.setAttribute("aria-hidden", "true")'),
+        )
+
     def test_api_source_switcher_and_system_settings_modal_exist(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
@@ -1766,7 +1869,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('data-auth-source="api"', html)
+        self.assertNotIn('data-auth-source="api"', html)
+        self.assertIn('id="generationProviderSelect"', html)
         self.assertNotIn('onclick="setAuthSource', html)
         self.assertIn('id="systemSettingsModal"', html)
         self.assertIn('id="systemSettingsTabs"', html)
@@ -1776,93 +1880,68 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('data-i18n="settings.title"', html)
         self.assertNotIn('class="system-settings-section-heading"', html)
         self.assertIn('id="systemSettingsApiTab"', html)
-        self.assertIn('id="systemSettingsCodexTab"', html)
+        self.assertNotIn('id="systemSettingsCodexTab"', html)
         self.assertIn('id="systemSettingsLanguageTab"', html)
         self.assertIn('id="systemSettingsStorageTab"', html)
         self.assertIn('id="systemSettingsApiPanel"', html)
-        self.assertIn('id="systemSettingsCodexPanel"', html)
+        self.assertNotIn('id="systemSettingsCodexPanel"', html)
         self.assertIn('id="systemSettingsLanguagePanel"', html)
         self.assertIn('id="systemSettingsStoragePanel"', html)
         self.assertIn('id="languageSelect"', html)
         self.assertIn('id="apiSettingsStatus"', html)
-        self.assertIn('id="codexSettingsStatus"', html)
+        self.assertNotIn('id="codexSettingsStatus"', html)
         self.assertIn('id="languageSettingsStatus"', html)
         self.assertIn('id="settingsStatus"', html)
         self.assertIn('class="api-settings-feedback settings-action-status"', html)
         self.assertIn('class="settings-action-status" data-i18n="settings.status"', html)
         self.assertIn('class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus"', html)
         self.assertNotIn('id="apiSettingsStatus" class="api-settings-feedback" data-i18n="apiSettings.status"', html)
-        self.assertNotIn('id="codexSettingsStatus" class="api-settings-feedback" data-i18n="codexSettings.status"', html)
         self.assertIn("let systemSettingsBackdropPointerDown = false", event_source)
         self.assertIn('systemSettingsModal?.addEventListener("pointerdown"', event_source)
         self.assertIn("systemSettingsBackdropPointerDown = event.target === els.systemSettingsModal", event_source)
         self.assertIn("if (event.target === els.systemSettingsModal && systemSettingsBackdropPointerDown)", event_source)
         self.assertNotIn('if (event.target === els.systemSettingsModal) call(methods, "closeSystemSettingsModal")', event_source)
-        self.assertLess(html.index('id="systemSettingsApiTab"'), html.index('id="systemSettingsCodexTab"'))
-        self.assertLess(html.index('id="systemSettingsCodexTab"'), html.index('id="systemSettingsLanguageTab"'))
+        self.assertLess(html.index('id="systemSettingsApiTab"'), html.index('id="systemSettingsLanguageTab"'))
         self.assertLess(html.index('id="systemSettingsLanguageTab"'), html.index('id="systemSettingsStorageTab"'))
-        self.assertLess(html.index('id="systemSettingsApiPanel"'), html.index('id="systemSettingsCodexPanel"'))
-        self.assertLess(html.index('id="systemSettingsCodexPanel"'), html.index('id="systemSettingsLanguagePanel"'))
+        self.assertLess(html.index('id="systemSettingsApiPanel"'), html.index('id="systemSettingsLanguagePanel"'))
         self.assertLess(html.index('id="systemSettingsLanguagePanel"'), html.index('id="systemSettingsStoragePanel"'))
         self.assertIn('aria-selected="true"', html)
         self.assertIn('data-system-settings-tab="api"', html)
-        self.assertIn('data-system-settings-tab="codex"', html)
+        self.assertNotIn('data-system-settings-tab="codex"', html)
         self.assertIn('data-system-settings-tab="language"', html)
         self.assertIn('data-system-settings-tab="storage"', html)
         self.assertIn('id="apiBaseUrl"', html)
         self.assertIn('id="apiRequestEndpointPreview"', html)
-        self.assertIn('data-i18n="apiSettings.actualRequest"', html)
         provider_name_field_start = html.index('class="field api-provider-name-field"')
+        provider_icon_input_start = html.index('id="apiProviderIconEmoji"')
+        provider_name_input_start = html.index('id="apiProviderName"')
         base_url_field_start = html.index('class="field api-base-url-field"')
         api_key_field_start = html.index('class="field api-key-field"')
-        api_mode_field_start = html.index('class="field api-mode-field"')
-        endpoint_preview_start = html.index('class="api-request-endpoint-preview"')
-        advanced_settings_start = html.index('id="apiAdvancedSettings"')
-        image_model_field_start = html.index('class="field api-image-model-field"')
         concurrency_field_start = html.index('class="field api-concurrency-field"')
+        endpoint_preview_start = html.index('class="provider-bindings-connection"')
+        bindings_editor_start = html.index('class="provider-bindings-editor"')
+        self.assertNotIn('class="field api-provider-icon-field"', html)
+        self.assertLess(provider_name_field_start, provider_icon_input_start)
+        self.assertLess(provider_icon_input_start, provider_name_input_start)
         self.assertLess(provider_name_field_start, base_url_field_start)
         self.assertLess(base_url_field_start, api_key_field_start)
-        self.assertLess(api_key_field_start, api_mode_field_start)
-        self.assertLess(api_mode_field_start, endpoint_preview_start)
-        self.assertLess(endpoint_preview_start, advanced_settings_start)
-        self.assertLess(advanced_settings_start, image_model_field_start)
-        self.assertLess(image_model_field_start, concurrency_field_start)
+        self.assertLess(api_key_field_start, concurrency_field_start)
+        self.assertLess(concurrency_field_start, bindings_editor_start)
+        self.assertLess(bindings_editor_start, endpoint_preview_start)
         self.assertIn('id="apiKey"', html)
-        self.assertIn('id="apiImageModel"', html)
-        self.assertIn('data-i18n="apiSettings.imageModel">图像生成模型</span>', html)
-        self.assertIn('<details id="apiAdvancedSettings" class="api-advanced-settings">', html)
-        self.assertIn('data-i18n="apiSettings.advancedSettings">高级设置</strong>', html)
-        self.assertIn('id="apiAdvancedImageModelSummary"', html)
-        self.assertIn('id="apiAdvancedConcurrencySummary"', html)
-        self.assertNotIn('<details id="apiAdvancedSettings" class="api-advanced-settings" open', html)
-        api_mode_field = html[html.index('class="field api-mode-field"'):html.index('id="apiMode" class="hidden"')]
-        self.assertNotIn('data-i18n="apiSettings.mode">调用方式</span>', api_mode_field)
-        self.assertIn('id="apiModeGroup" role="group" aria-label="调用方式"', api_mode_field)
-        self.assertIn('data-i18n-attr="aria-label:apiSettings.mode"', api_mode_field)
+        self.assertNotIn('id="apiAuthScheme"', html)
         self.assertIn('id="apiImagesConcurrency"', html)
         self.assertIn('max="32"', html)
         self.assertIn('data-i18n="apiSettings.concurrency">并发上限</span>', html)
-        self.assertIn('imageModelInput()?.addEventListener("input", syncApiAdvancedSettingsSummary)', advanced_source)
-        self.assertIn('concurrencyInput()?.addEventListener("input", syncApiAdvancedSettingsSummary)', advanced_source)
-        self.assertIn("if (details) details.open = false", advanced_source)
-        self.assertIn("resetApiAdvancedSettings();", provider_source)
-        self.assertIn('import { initApiAdvancedSettingsFeature } from "./api-advanced-settings";', main_source)
-        self.assertLess(main_source.index("initApiAdvancedSettingsFeature();"), main_source.index("window.__codexImageWebUI?.boot();"))
-        self.assertIn('id="codexModeGroup"', html)
-        self.assertIn('id="codexMode"', html)
-        self.assertIn('data-codex-mode-note="images"', html)
-        self.assertIn('data-codex-mode-note="responses"', html)
-        self.assertIn('aria-current="true"', html)
-        self.assertIn('data-i18n="codexSettings.current"', html)
-        self.assertIn("Codex 通道", html)
-        self.assertRegex(html, r'id="codexModeGroup"[\s\S]*data-val="images"[\s\S]*data-val="responses"')
-        self.assertLess(html.index('id="apiProvider"'), html.index('id="systemSettingsCodexPanel"'))
-        self.assertLess(html.index('id="systemSettingsCodexPanel"'), html.index('id="codexModeGroup"'))
+        self.assertIn('id="apiProviderBindings"', html)
+        self.assertIn('id="addProviderBindingButton"', html)
+        self.assertIn('id="apiProviderIconEmoji"', html)
+        self.assertIn('aria-label:apiSettings.providerIcon', html)
         self.assertNotIn('id="saveApiSettingsButton"', html)
         self.assertNotIn('id="saveCodexSettingsButton"', html)
         self.assertIn('class="settings-modal-actions settings-status-only"', html)
-        self.assertIn('id="apiMode"', html)
-        self.assertIn('id="apiProviderQuick"', html)
+        self.assertNotIn('id="apiMode"', html)
+        self.assertIn('id="generationProviderSettingsButton"', html)
         self.assertIn('id="apiDirectSettingsButton"', html)
         self.assertIn('class="model-tool-row"', html)
         self.assertIn('id="webSearchField"', html)
@@ -1899,7 +1978,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('id="saveApiProviderEditButton"', html)
         self.assertIn('id="apiSettingsActions"', html)
         self.assertLess(html.index('id="apiSettingsActions"'), html.index('id="apiSettingsStatus"'))
-        self.assertLess(html.index('class="codex-channel-notes"'), html.index('id="codexSettingsStatus"'))
         self.assertLess(html.index('id="languageSelect"'), html.index('id="languageSettingsStatus"'))
         self.assertLess(html.index('id="settingsStatus"'), html.index('id="saveSettingsButton"'))
         self.assertLess(html.index('id="apiProviderList"'), html.index('id="addApiProviderButton"'))
@@ -1912,14 +1990,12 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertLess(html.index('id="apiProviderList"'), html.index('id="apiProviderDetail"'))
         self.assertLess(html.index('id="apiProviderDetail"'), html.index('id="apiProviderEditor"'))
         self.assertIn('api-settings-feedback settings-action-status', html)
-        self.assertIn('data-val="images"', html)
-        self.assertIn('data-val="responses"', html)
         self.assertEqual(html.count('id="mainModel"'), 1)
         self.assertNotIn('id="apiMainModel"', html)
         self.assertIn("API_SETTINGS_STORAGE_KEY", script)
         self.assertIn("systemSettingsModal: document.querySelector", script)
         self.assertIn("systemSettingsTabs: document.querySelector", script)
-        self.assertIn("systemSettingsCodexPanel: document.querySelector", script)
+        self.assertNotIn("systemSettingsCodexPanel: document.querySelector", script)
         self.assertIn("systemSettingsLanguagePanel: document.querySelector", script)
         self.assertIn("languageSelect: document.querySelector", script)
         self.assertIn("function openSystemSettingsModal", script)
@@ -1933,21 +2009,24 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("apiRequestEndpointPreview: document.querySelector", script)
         self.assertIn("apiKey: document.querySelector", script)
         self.assertIn("apiKeyRevealButton: document.querySelector", script)
-        self.assertIn("apiImageModel: document.querySelector", script)
+        self.assertNotIn("apiAuthScheme: document.querySelector", script)
+        self.assertIn("apiProviderBindings: document.querySelector", script)
+        self.assertIn("addProviderBindingButton: document.querySelector", script)
         self.assertIn("apiImagesConcurrency: document.querySelector", script)
-        self.assertIn("codexMode: document.querySelector", script)
-        self.assertIn("codexModeGroup: document.querySelector", script)
-        self.assertIn('codexModeNotes: document.querySelectorAll("[data-codex-mode-note]")', script)
+        self.assertIn("apiProviderIconEmoji: document.querySelector", script)
+        self.assertNotIn("codexMode: document.querySelector", script)
+        self.assertNotIn("codexModeGroup: document.querySelector", script)
+        self.assertNotIn('codexModeNotes: document.querySelectorAll("[data-codex-mode-note]")', script)
         self.assertNotIn("saveApiSettingsButton: document.querySelector", script)
         self.assertNotIn("saveCodexSettingsButton: document.querySelector", script)
         self.assertNotIn('saveApiSettingsButton?.addEventListener("click"', script)
         self.assertNotIn('saveCodexSettingsButton?.addEventListener("click"', script)
-        self.assertIn('codexModeNotes?.forEach', script)
-        self.assertIn('call(methods, "selectCodexMode", note.dataset.codexModeNote)', script)
-        self.assertIn('call(methods, "queueApiSettingsAutosave")', script)
-        self.assertIn("apiMode: document.querySelector", script)
+        self.assertNotIn('codexModeNotes?.forEach', script)
+        self.assertNotIn('call(methods, "selectCodexMode", note.dataset.codexModeNote)', script)
+        self.assertIn("queueApiSettingsAutosave();", provider_source)
+        self.assertNotIn("apiMode: document.querySelector", script)
         self.assertIn("apiProvider: document.querySelector", script)
-        self.assertIn("apiProviderQuick: document.querySelector", script)
+        self.assertIn("generationProviderSelect: document.querySelector", script)
         self.assertIn("apiDirectSettingsButton: document.querySelector", script)
         self.assertIn("webSearch: document.querySelector", script)
         self.assertIn("webSearchField: document.querySelector", script)
@@ -1996,9 +2075,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('apiProviderSection?.setAttribute("inert", "")', script)
         self.assertIn('apiProviderSection?.removeAttribute("inert")', script)
         self.assertIn("function updateApiRequestEndpointPreview", script)
-        self.assertIn('mode === "responses"', script)
-        self.assertIn('? "/responses"', script)
-        self.assertIn('state.mode === "edit" ? "/images/edits" : "/images/generations"', script)
+        self.assertIn("readProviderBindingCards(els.apiProviderBindings)", script)
+        self.assertIn('${bindingCount} · ${translate("apiSettings.modelBindings")}', script)
         self.assertIn(".split(/[?#]/, 1)[0]", script)
         self.assertIn("function setApiKeyRevealVisible", script)
         self.assertIn("function updateApiKeyRevealButton", script)
@@ -2018,8 +2096,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function currentCodexMode", script)
         self.assertIn('return mode === "responses" ? "Codex Responses" : "Codex Image"', script)
         self.assertIn("function syncCodexModeNotes", script)
-        self.assertIn('note.dataset.codexModeNote === mode', script)
-        self.assertIn('note.setAttribute("aria-current", active ? "true" : "false")', script)
+        self.assertIn('providerBindingSelectionKey("codex", `codex-gpt-image-2-${normalized}`)', provider_source)
         self.assertIn("function selectCodexMode", script)
         self.assertIn("function queueApiSettingsAutosave", script)
         self.assertRegex(provider_source, r"function deleteApiProvider\(\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*function confirmDeleteApiProvider")
@@ -2044,7 +2121,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("openApiSettingsModal", script)
         self.assertNotIn("handleAuthSourceDoubleClick", script)
         self.assertNotIn('authSourceGroup?.addEventListener("dblclick"', script)
-        self.assertIn('apiSourceSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"))', script)
+        self.assertIn('generationProviderSettingsButton?.addEventListener("click", () => call(methods, "openGenerationProviderSettings"))', script)
+        self.assertNotIn('apiSourceSettingsButton?.addEventListener("click"', script)
         self.assertIn('apiProviderList?.addEventListener("click"', script)
         self.assertIn('apiProviderSearch?.addEventListener("input", () => call(methods, "renderApiProviderList"))', script)
         self.assertIn('closest?.("[data-api-provider-sort]")', script)
@@ -2063,8 +2141,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('apiKeyRevealButton?.addEventListener("keyup"', script)
         self.assertIn('apiKey?.addEventListener("input"', script)
         self.assertIn('apiBaseUrl?.addEventListener("input"', script)
-        self.assertIn('apiMode?.addEventListener("change"', script)
-        self.assertNotIn("[els.codexMode, els.apiProviderName, els.apiBaseUrl, els.apiKey, els.apiMode, els.apiImageModel, els.apiImagesConcurrency]", script)
+        self.assertIn('addProviderBindingButton?.addEventListener("click"', script)
+        self.assertIn('apiProviderBindings?.addEventListener("change"', script)
+        self.assertNotIn("els.apiImageModel", script)
         self.assertIn("auth_source: authSource", script)
         self.assertIn("function backendForAuthSource", script)
         self.assertIn('return codexMode === "responses" ? "codex_responses" : "codex_images"', script)
@@ -2080,23 +2159,27 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('if (backend === "codex_responses") return "Codex Responses"', script)
         self.assertIn('if (backend === "openai_responses") return "API Responses"', script)
         self.assertIn('return [backendLabel, provider].filter(Boolean).join(" · ")', script)
-        self.assertIn('payload.endpoint = action === "edit" ? "/images/edits" : "/images/generations"', script)
-        self.assertIn('payload.endpoint = "/responses"', script)
+        self.assertIn("canonical_model_id: selection.canonicalModelId", script)
+        self.assertIn("provider_id: selection.providerId", script)
+        self.assertIn("parameters", script)
         self.assertIn("payload.main_model = params.main_model", script)
         self.assertIn('payload.codex_mode = codexMode', script)
-        self.assertIn('form.append("codex_mode", currentCodexMode())', script)
-        self.assertIn('form.append("api_mode", currentApiMode())', script)
-        self.assertIn('form.append("api_provider_id", currentApiProviderId())', script)
-        self.assertIn('form.append("web_search", "true")', script)
+        self.assertNotIn('form.append("codex_mode"', script)
+        self.assertNotIn('form.append("api_mode"', script)
+        self.assertNotIn('form.append("api_provider_id"', script)
+        self.assertNotIn('form.append("web_search"', script)
+        self.assertIn('form.append("canonical_model_id", selection.canonicalModelId)', script)
+        self.assertIn('form.append("provider_id", selection.providerId)', script)
+        self.assertIn('form.append("parameters_json", JSON.stringify(sortedRecord(selection.parameters)))', script)
         self.assertIn("params.web_search = true", script)
-        self.assertIn("payload.api_provider_name = currentApiProviderLabel()", script)
+        self.assertIn("payload.api_provider_name = state.generationCatalog", script)
         self.assertIn("webui_api_provider_name", script)
         self.assertIn("api_provider_name: request.api_provider_name", script)
-        self.assertIn("images_concurrency: normalizeApiImagesConcurrency(provider.images_concurrency)", script)
-        self.assertIn("images_concurrency: normalizeApiImagesConcurrency(els.apiImagesConcurrency?.value)", script)
+        self.assertIn("normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency)", script)
+        self.assertIn("concurrency: normalizeApiImagesConcurrency(els.apiImagesConcurrency?.value)", script)
         self.assertIn("return Math.min(32, Math.max(1, parsed));", script)
         self.assertIn("params.api_images_concurrency = currentApiImagesConcurrency()", script)
-        self.assertIn("item.images_concurrency = provider.images_concurrency", script)
+        self.assertIn("concurrency: provider.concurrency", script)
         self.assertNotIn("api_image_model: currentApiImageModel()", script)
         self.assertNotIn("api_key: currentApiKey()", script)
         self.assertNotIn("api_key: activeApiProvider", script)
@@ -2110,7 +2193,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn(".api-provider-detail-actions", styles)
         self.assertIn(".api-provider-section-title", styles)
         self.assertIn(".api-provider-editor", styles)
-        self.assertIn(".api-request-endpoint-preview", styles)
+        self.assertIn(".provider-bindings-connection", styles)
         self.assertIn(".compact-api-settings-grid", styles)
         self.assertRegex(styles, r"\.api-provider-section-header\s*\{[^}]*justify-content:\s*space-between")
         self.assertRegex(styles, r"\.api-provider-editor-heading\s*\{[^}]*justify-content:\s*flex-start")
@@ -2126,8 +2209,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.api-provider-choice-grid\.is-long-list\s*\{[^}]*overscroll-behavior:\s*contain")
         self.assertRegex(styles, r"\.api-provider-search-empty\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"\.api-provider-section\.editing\s*\{[^}]*display:\s*none")
-        self.assertRegex(styles, r"\.api-provider-editor\s+\.api-provider-name-field\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
-        self.assertRegex(styles, r"\.api-request-endpoint-preview\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
+        self.assertRegex(styles, r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field\s*\{[^}]*grid-column:\s*1\s*/\s*span\s+4[^}]*grid-row:\s*1")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-column:\s*5\s*/\s*span\s+2[^}]*grid-row:\s*1")
         self.assertRegex(styles, r"\.api-settings-grid\s*\{[^}]*align-items:\s*start")
         self.assertRegex(styles, r"\.api-mode-field\s*\{[^}]*grid-template-columns:\s*minmax\(280px,\s*320px\)")
         self.assertRegex(styles, r"\.api-mode-field\s*\{[^}]*justify-content:\s*center")
@@ -2149,12 +2233,17 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("window.innerHeight", script)
         self.assertIn("--system-settings-modal-top", script)
         self.assertIn("style.removeProperty(\"--system-settings-modal-top\")", script)
-        self.assertIn("const wasHidden = els.systemSettingsModal?.classList.contains(\"hidden\") ?? true", script)
+        self.assertIn("const wasHidden = modal?.classList.contains(\"hidden\") ?? true", script)
         self.assertIn("panel.scrollHeight", script)
         self.assertIn("(prefers-reduced-motion: reduce)", script)
         self.assertRegex(styles, r"\.api-settings-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
-        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-key-field\s*\{[^}]*display:\s*grid")
-        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-key-field\s*\{[^}]*grid-template-columns:\s*86px\s+minmax\(0,\s*1fr\)")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*display:\s*grid")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)")
+        self.assertRegex(
+            styles,
+            r"\.api-provider-name-inputs\s*\{[^}]*"
+            r"grid-template-columns:\s*minmax\(96px,\s*auto\)\s+minmax\(0,\s*1fr\)",
+        )
         self.assertRegex(styles, r"\.api-advanced-settings\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"\.api-advanced-settings > summary\s*\{[^}]*display:\s*flex")
         self.assertRegex(styles, r"\.api-advanced-settings-summary\s*\{[^}]*margin-left:\s*auto")
@@ -2181,13 +2270,13 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*>\s*\.modal-heading\s+\.drawer-close-button\s*\{[^}]*position:\s*absolute")
         self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*padding-right:\s*0")
         self.assertNotIn(".system-settings-section-heading", styles)
-        self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)")
+        self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)")
         self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*--segmented-indicator-radius:\s*999px")
         self.assertRegex(styles, r"\.system-settings-tab\.active\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertRegex(styles, r"\.system-settings-tabs\s+\.segmented-indicator\s*\{[^}]*border-radius:\s*999px")
-        self.assertIn(".codex-channel-notes", styles)
-        self.assertIn(".codex-channel-note.active", styles)
-        self.assertIn(".codex-channel-current", styles)
+        self.assertNotIn(".codex-channel-notes", styles)
+        self.assertNotIn(".codex-channel-note.active", styles)
+        self.assertNotIn(".codex-channel-current", styles)
         self.assertRegex(styles, r"\.api-provider-section-header\s*\{[^}]*justify-content:\s*space-between")
         self.assertRegex(styles, r"\.api-provider-sort-toggle\s*\{[^}]*min-width:\s*72px")
         self.assertRegex(styles, r"\.api-provider-list\.is-sorting\s*\{[^}]*display:\s*grid")
@@ -2233,7 +2322,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(html, r'id="quantityGroup"[\s\S]*data-val="1"[^>]*>1')
         self.assertRegex(html, r'id="quantityGroup"[\s\S]*data-val="4"[^>]*>4')
         self.assertRegex(html, r'<select id="nInput" class="hidden">[\s\S]*<option value="1" selected>1</option>')
-        self.assertIn('form.append("n"', script)
+        self.assertIn('"output.count": taskParams.n', script)
+        self.assertNotIn('form.append("n"', script)
         self.assertNotIn("nDecrease", html)
         self.assertNotIn("nIncrease", html)
     def test_output_sliders_match_theme(self) -> None:
@@ -2543,9 +2633,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 let customSizeUpdated = 0;
                 let pixelPreviewArg = "";
                 let requestPreviewUpdated = 0;
+                let modelDraftSaved = 0;
                 function updateCustomSize() { customSizeUpdated += 1; }
                 function updatePixelPreview(size) { pixelPreviewArg = size; }
                 function updateRequestPreview() { requestPreviewUpdated += 1; }
+                function saveCurrentModelParameterDraft() { modelDraftSaved += 1; }
                 """,
                 self._extract_javascript_function(script, "swapCustomSizeDimensions"),
                 """
@@ -2558,6 +2650,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 if (customSizeUpdated !== 1) throw new Error("expected custom size state update");
                 if (pixelPreviewArg !== "custom") throw new Error(`expected custom preview update, got ${pixelPreviewArg}`);
                 if (requestPreviewUpdated !== 1) throw new Error("expected request preview update");
+                if (modelDraftSaved !== 1) throw new Error("expected swapped dimensions to save the model draft");
                 """,
             ]
         )
@@ -2621,6 +2714,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 function updatePixelPreview() {}
                 function updateRequestPreview() { requestPreviewUpdated += 1; }
                 let requestPreviewUpdated = 0;
+                let modelDraftSaved = 0;
+                function saveCurrentModelParameterDraft() { modelDraftSaved += 1; }
                 function sourcePreviewUrl(source) { return source.previewUrl || source.image_url || ""; }
                 global.Image = class {
                   set src(value) {
@@ -2683,6 +2778,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                   if (els.customWidth.value !== "960" || els.customHeight.value !== "720") {
                     throw new Error(`expected nearest valid 4:3 dimensions 960x720, got ${els.customWidth.value}x${els.customHeight.value}`);
                   }
+                  if (modelDraftSaved !== 3) throw new Error("expected every applied image ratio to save the model draft");
                 }).catch((error) => {
                   console.error(error);
                   process.exit(1);
@@ -2798,9 +2894,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 let customSizeUpdated = 0;
                 let pixelPreviewArg = "";
                 let requestPreviewUpdated = 0;
+                let modelDraftSaved = 0;
                 function updateCustomSize() { customSizeUpdated += 1; }
                 function updatePixelPreview(size) { pixelPreviewArg = size; }
                 function updateRequestPreview() { requestPreviewUpdated += 1; }
+                function saveCurrentModelParameterDraft() { modelDraftSaved += 1; }
                 """,
                 self._extract_javascript_function(custom_size_source, "setCustomSizeMode"),
                 self._extract_javascript_function(custom_size_source, "updateSizeFromPreset"),
@@ -2823,6 +2921,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 if (customSizeUpdated !== 1) throw new Error("expected one custom size update");
                 if (pixelPreviewArg !== "custom") throw new Error(`expected custom pixel preview, got ${pixelPreviewArg}`);
                 if (requestPreviewUpdated !== 1) throw new Error("expected request preview update");
+                if (modelDraftSaved !== 1) throw new Error("expected custom mode switch to save the model draft");
                 els.customWidth.value = "1408";
                 els.customHeight.value = "2048";
                 updateSizeFromPreset();
@@ -2996,6 +3095,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
         shell = self._shell_ui_source()
+        layout = Path("codex_image/webui/static/styles/30-layout-top-nav-panels.css").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
         self.assertIn("controls-col", html)
@@ -3021,12 +3121,33 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         controls_block = self._extract_css_block(styles, ".controls-col")
         self.assertNotIn("height:", controls_block)
         self.assertNotIn("overflow-y:", controls_block)
+        self.assertRegex(
+            layout,
+            r"\.controls-col\s+\.image-panel,\s*\.controls-col\s+\.prompt-panel\s*\{[^}]*"
+            r"display:\s*flex[^}]*flex-direction:\s*column",
+        )
+        self.assertRegex(
+            layout,
+            r"\.controls-col\s+\.image-panel\s*\{[^}]*flex:\s*1\s+1\s+"
+            r"var\(--compact-image-panel-height,\s*276px\)",
+        )
+        self.assertRegex(
+            layout,
+            r"\.controls-col\s+\.prompt-panel\s*\{[^}]*flex:\s*1\.15\s+1\s+"
+            r"var\(--compact-prompt-panel-height,\s*260px\)",
+        )
+        self.assertRegex(
+            layout,
+            r"\.controls-col\s+\.output-panel\s*\{[^}]*flex:\s*0\s+0\s+auto",
+        )
         self.assertNotRegex(styles, r"\.controls-col\s*>\s*\.output-panel\s*\{[^}]*flex:\s*1\s+1\s+auto")
         self.assertNotRegex(styles, r"\.preview-col\s*\{[^}]*position:\s*sticky")
         self.assertRegex(styles, r"\.preview-col\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.preview-col\s*\{[^}]*height:\s*auto")
         self.assertRegex(styles, r"\.preview-col\s*\{[^}]*overflow:\s*hidden")
-        self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*height:\s*100%")
+        self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*position:\s*absolute")
+        self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*inset:\s*0")
+        self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*height:\s*auto")
         self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*max-height:\s*none")
         self.assertRegex(styles, r"\.preview-panel\s*\{[^}]*display:\s*flex")
         self.assertRegex(styles, r"\.preview-grid\s*\{[^}]*flex:\s*1")
@@ -3093,7 +3214,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("重启 WebUI 后生效", script)
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*width:\s*min\(624px,\s*calc\(100vw - 60px\)\)")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*max-height:\s*min\(760px,\s*calc\(100vh - var\(--system-settings-modal-top,\s*30px\) - 30px\)\)")
-        self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*overflow:\s*auto")
+        self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*overflow:\s*hidden")
+        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*overflow-y:\s*auto")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*padding:\s*22px\s+28px\s+24px")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*transition:\s*height var\(--motion-height\)")
         self.assertRegex(styles, r"\.system-settings-modal-panel\.is-height-animating\s*\{[^}]*overflow:\s*hidden")
@@ -3115,8 +3237,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-568', html)
-        self.assertIn('/static/styles.css?v=runtime-568', html)
+        self.assertIn('/static/app.js?v=runtime-640', html)
+        self.assertIn('/static/styles.css?v=runtime-640', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -3561,8 +3683,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-568", html)
-        self.assertIn("/static/styles.css?v=runtime-568", html)
+        self.assertIn("/static/app.js?v=runtime-640", html)
+        self.assertIn("/static/styles.css?v=runtime-640", html)
         self.assertIn('const THEME_STORAGE_KEY = "codex-image-theme-preference";', script)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)
@@ -3604,7 +3726,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             ".system-settings-tab.active",
             ".system-settings-tabs.segmented-indicator-host .system-settings-tab.active",
             ".api-provider-choice.active",
-            ".codex-channel-current",
             ".segment.active",
             ".radio-btn.active",
             ".quick-gallery-category.active",
@@ -3627,7 +3748,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             ".system-settings-tab.active",
             ".system-settings-tabs.segmented-indicator-host .system-settings-tab.active",
             ".api-provider-choice.active",
-            ".codex-channel-current",
         ):
             with self.subTest(selector=selector):
                 self.assertNotRegex(

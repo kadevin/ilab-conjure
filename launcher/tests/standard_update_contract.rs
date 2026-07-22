@@ -20,7 +20,7 @@ fn temp_root(label: &str) -> PathBuf {
 fn valid_args(target: &Path, log_path: &Path) -> Vec<String> {
     vec![
         "--url".to_string(),
-        "https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.6.2/iLab-GPT-CONJURE-macos-arm64-0.6.2.dmg".to_string(),
+        "https://github.com/kadevin/ilab-conjure/releases/download/v0.6.2/iLab-GPT-CONJURE-macos-arm64-0.6.2.dmg".to_string(),
         "--expected-sha256".to_string(),
         "a".repeat(64),
         "--expected-version".to_string(),

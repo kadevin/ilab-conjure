@@ -4,13 +4,15 @@ import { refreshSegmentedIndicators } from "./segmented-indicator";
 let systemSettingsFeatureInitialized = false;
 let systemSettingsHeightAnimationToken = 0;
 let systemSettingsHeightAnimationTimer: number | undefined;
+let systemSettingsReturnFocus: HTMLElement | null = null;
 
-type SystemSettingsTab = "api" | "codex" | "language" | "storage";
+type SystemSettingsTab = "api" | "language" | "storage";
 
 const MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
-const VALID_TABS = new Set<SystemSettingsTab>(["api", "codex", "language", "storage"]);
+const VALID_TABS = new Set<SystemSettingsTab>(["api", "language", "storage"]);
 
 function normalizedTab(tab: any): SystemSettingsTab {
+  if (tab === "codex") return "api";
   return VALID_TABS.has(tab) ? tab : "api";
 }
 
@@ -107,7 +109,6 @@ export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = 
   });
   [
     ["api", els.systemSettingsApiPanel],
-    ["codex", els.systemSettingsCodexPanel],
     ["language", els.systemSettingsLanguagePanel],
     ["storage", els.systemSettingsStoragePanel],
   ].forEach(([name, panel]: any[]) => {
@@ -118,7 +119,7 @@ export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = 
   });
   if (options.refresh === false) return;
   if (selected === "storage") maybeCall("refreshSettings");
-  if (selected === "api" || selected === "codex") {
+  if (selected === "api") {
     maybeCall("setApiSettingsFeedback", "", "");
     maybeCall("populateApiSettingsForm");
     maybeCall("updateModeSpecificSettings");
@@ -129,19 +130,38 @@ export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = 
 
 export function openSystemSettingsModal(tab: any = "api"): void {
   const { els } = getLegacyBridge();
-  const wasHidden = els.systemSettingsModal?.classList.contains("hidden") ?? true;
+  const modal = els.systemSettingsModal as HTMLElement | null;
+  const wasHidden = modal?.classList.contains("hidden") ?? true;
+  if (wasHidden) {
+    const activeElement = document.activeElement;
+    systemSettingsReturnFocus = activeElement instanceof HTMLElement
+      && activeElement !== document.body
+      && !modal?.contains(activeElement)
+      ? activeElement
+      : null;
+  }
   setSystemSettingsTab(tab);
-  els.systemSettingsModal?.classList.remove("hidden");
-  els.systemSettingsModal?.setAttribute("aria-hidden", "false");
+  modal?.classList.remove("hidden");
+  modal?.setAttribute("aria-hidden", "false");
   if (wasHidden) positionSystemSettingsModal();
   refreshSegmentedIndicators();
 }
 
 export function closeSystemSettingsModal(): void {
   const { els } = getLegacyBridge();
-  els.systemSettingsModal?.classList.add("hidden");
-  els.systemSettingsModal?.setAttribute("aria-hidden", "true");
-  (els.systemSettingsModal as HTMLElement | null)?.style.removeProperty("--system-settings-modal-top");
+  const modal = els.systemSettingsModal as HTMLElement | null;
+  const activeElement = document.activeElement;
+  if (modal && activeElement instanceof HTMLElement && modal.contains(activeElement)) {
+    const returnFocus = systemSettingsReturnFocus;
+    if (returnFocus?.isConnected && !returnFocus.closest("[inert]")) {
+      returnFocus.focus({ preventScroll: true });
+    }
+    if (modal.contains(document.activeElement)) activeElement.blur();
+  }
+  systemSettingsReturnFocus = null;
+  modal?.classList.add("hidden");
+  modal?.setAttribute("aria-hidden", "true");
+  modal?.style.removeProperty("--system-settings-modal-top");
 }
 
 export function openSystemSettingsFromUrl(): void {

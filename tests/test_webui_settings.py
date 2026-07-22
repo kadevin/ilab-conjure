@@ -12,6 +12,7 @@ import unittest
 import zipfile
 from io import BytesIO
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import patch
 
@@ -62,6 +63,48 @@ def _fake_jwt(payload: dict[str, object]) -> str:
 
 
 class WebUISettingsTests(unittest.TestCase):
+    def test_api_responses_slot_claim_admits_larger_task_into_remaining_provider_capacity(self) -> None:
+        from codex_image.webui.queue import QueueChannel
+        from codex_image.webui.queue_runtime import _api_responses_task_slot_claim
+
+        metadata_by_task = {
+            "two-images": {
+                "params": {
+                    "api_mode": "responses",
+                    "api_provider_id": "default",
+                    "api_images_concurrency": 4,
+                    "n": 2,
+                },
+            },
+            "four-images": {
+                "params": {
+                    "api_mode": "responses",
+                    "api_provider_id": "default",
+                    "api_images_concurrency": 4,
+                    "n": 4,
+                },
+            },
+            "next-task": {
+                "params": {
+                    "api_mode": "responses",
+                    "api_provider_id": "default",
+                    "api_images_concurrency": 4,
+                    "n": 1,
+                },
+            },
+        }
+        context = SimpleNamespace(
+            storage=SimpleNamespace(read_metadata=lambda task_id: metadata_by_task[task_id]),
+            api_task_slot_reservations={},
+        )
+        channel = QueueChannel("provider:default:0", "api", provider_id="default")
+
+        self.assertTrue(_api_responses_task_slot_claim(context, "two-images", channel))
+        self.assertTrue(_api_responses_task_slot_claim(context, "four-images", channel))
+        self.assertEqual(context.api_task_slot_reservations["two-images"]["slots"], 2)
+        self.assertEqual(context.api_task_slot_reservations["four-images"]["slots"], 4)
+        self.assertFalse(_api_responses_task_slot_claim(context, "next-task", channel))
+
     def test_api_responses_provider_concurrency_uses_multiple_queue_task_channels(self) -> None:
         from codex_image.webui.auth_routing import _queue_channels_for_source
         from codex_image.webui.settings_store import ApiSettings
@@ -80,7 +123,7 @@ class WebUISettingsTests(unittest.TestCase):
 
             channels = _queue_channels_for_source("api", api_settings=settings)
 
-        self.assertEqual([channel.channel_id for channel in channels], ["api:default:1", "api:default:2", "api:default:3", "api:default:4"])
+        self.assertEqual([channel.channel_id for channel in channels], ["provider:default:0", "provider:default:1", "provider:default:2", "provider:default:3"])
         self.assertEqual([channel.auth_source for channel in channels], ["api", "api", "api", "api"])
 
     def test_api_images_provider_concurrency_still_uses_multiple_queue_task_channels(self) -> None:
@@ -101,7 +144,7 @@ class WebUISettingsTests(unittest.TestCase):
 
             channels = _queue_channels_for_source("api", api_settings=settings)
 
-        self.assertEqual([channel.channel_id for channel in channels], ["api:default:1", "api:default:2", "api:default:3", "api:default:4"])
+        self.assertEqual([channel.channel_id for channel in channels], ["provider:default:0", "provider:default:1", "provider:default:2", "provider:default:3"])
         self.assertEqual([channel.auth_source for channel in channels], ["api", "api", "api", "api"])
 
     def test_health_reports_missing_auth(self) -> None:
@@ -159,7 +202,7 @@ class WebUISettingsTests(unittest.TestCase):
                         "current_version": "0.5.5",
                         "latest_version": "0.5.6",
                         "checked_at": "2026-07-08T00:00:00Z",
-                        "release_url": "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.5.6",
+                        "release_url": "https://github.com/kadevin/ilab-conjure/releases/tag/v0.5.6",
                         "download_url": "https://example.test/iLab-GPT-CONJURE-macos-arm64-0.5.6.dmg",
                         "standard_download_url": "https://example.test/iLab-GPT-CONJURE-macos-arm64-0.5.6.dmg",
                     }
@@ -212,7 +255,7 @@ class WebUISettingsTests(unittest.TestCase):
                         "current_version": "0.3.6",
                         "latest_version": "0.3.7",
                         "checked_at": "2026-06-14T00:00:00Z",
-                        "release_url": "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.3.7",
+                        "release_url": "https://github.com/kadevin/ilab-conjure/releases/tag/v0.3.7",
                     }
                 ),
                 encoding="utf-8",
@@ -471,6 +514,85 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(persisted["api_key"], "test-api-key-test-secret")
         self.assertEqual(persisted["api_mode"], "responses")
         self.assertNotIn("test-api-key-test-secret", response_text)
+
+    def test_api_settings_post_and_patch_share_v2_save_contract_without_key_echo(self) -> None:
+        from codex_image.webui.app import create_app
+
+        def assert_no_api_key(value: object) -> None:
+            if isinstance(value, dict):
+                self.assertNotIn("api_key", value)
+                for nested in value.values():
+                    assert_no_api_key(nested)
+            elif isinstance(value, list):
+                for nested in value:
+                    assert_no_api_key(nested)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            api_settings_path = root / "api-settings.json"
+            app = create_app(
+                output_root=root / "tasks",
+                auth_settings_path=root / "auth-settings.json",
+                api_settings_path=api_settings_path,
+                auto_start_queue=False,
+            )
+            client = TestClient(app)
+            v2_payload = {
+                "schema_version": 2,
+                "codex_mode": "responses",
+                "active_provider_id": "relay",
+                "default_provider_by_model": {"gpt-image-2": "relay"},
+                "providers": [
+                    {
+                        "id": "relay",
+                        "name": "Relay",
+                        "base_url": "https://relay.example/v1",
+                        "api_key": "test-api-key-post-v2-secret",
+                        "auth_scheme": "bearer",
+                        "concurrency": 5,
+                        "bindings": [
+                            {
+                                "id": "relay-gpt",
+                                "canonical_model_id": "gpt-image-2",
+                                "remote_model_id": "vendor/gpt image:custom",
+                                "protocol_profile": "openai_images",
+                                "parameter_codec": "gpt_openai_images",
+                                "operations": ["generate", "edit"],
+                            }
+                        ],
+                    }
+                ],
+            }
+
+            posted = client.post("/api/api-settings", json=v2_payload)
+            patched = client.patch("/api/api-settings", json={"codex_mode": "images"})
+            reported = client.get("/api/api-settings")
+            invalid_payload = {
+                "schema_version": 2,
+                "default_provider_by_model": {},
+                "providers": [],
+            }
+            invalid_post = client.post("/api/api-settings", json=invalid_payload)
+            invalid_patch = client.patch("/api/api-settings", json=invalid_payload)
+            persisted = json.loads(api_settings_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(posted.status_code, 200)
+        self.assertEqual(patched.status_code, 200)
+        self.assertEqual(posted.json()["settings"]["schema_version"], 2)
+        self.assertEqual(
+            posted.json()["settings"]["providers"][0]["bindings"][0]["remote_model_id"],
+            "vendor/gpt image:custom",
+        )
+        self.assertEqual(patched.json()["settings"]["codex_mode"], "images")
+        self.assertEqual(invalid_post.status_code, 400)
+        self.assertEqual(invalid_patch.status_code, 400)
+        self.assertEqual(invalid_post.json(), invalid_patch.json())
+        self.assertEqual(persisted["providers"][0]["api_key"], "test-api-key-post-v2-secret")
+        self.assertNotIn("auth_scheme", persisted["providers"][0])
+        self.assertNotIn("auth_scheme", posted.json()["settings"]["providers"][0])
+        assert_no_api_key(posted.json())
+        assert_no_api_key(patched.json())
+        assert_no_api_key(reported.json())
 
     def test_api_settings_preserve_custom_root_base_url_after_save_and_reload(self) -> None:
         from codex_image.webui.app import create_app
@@ -848,6 +970,8 @@ class WebUISettingsTests(unittest.TestCase):
                 auto_start_queue=False,
             )
             client = TestClient(app)
+            sentinel_api_key = "test-api-key-codex-images-no-leak"
+            client.patch("/api/api-settings", json={"api_key": sentinel_api_key})
 
             response = client.post(
                 "/api/generate",
@@ -860,6 +984,7 @@ class WebUISettingsTests(unittest.TestCase):
                 },
             )
             body = response.json()
+            response_text = json.dumps(body, ensure_ascii=False)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body["task"]["requested_backend"], "codex_images")
@@ -871,6 +996,8 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertIn("用户原始提示词：\ncodex images default", body["request"]["prompt"])
         self.assertNotIn("tools", body["request"])
         self.assertNotIn("instructions", body["request"])
+        self.assertNotIn(sentinel_api_key, response_text)
+        self.assertNotIn('"api_key"', response_text)
 
     def test_codex_generate_uses_responses_channel_when_selected(self) -> None:
         from codex_image.webui.app import create_app
@@ -887,7 +1014,11 @@ class WebUISettingsTests(unittest.TestCase):
                 auto_start_queue=False,
             )
             client = TestClient(app)
-            saved = client.patch("/api/api-settings", json={"codex_mode": "responses"})
+            sentinel_api_key = "test-api-key-codex-responses-no-leak"
+            saved = client.patch(
+                "/api/api-settings",
+                json={"codex_mode": "responses", "api_key": sentinel_api_key},
+            )
             response = client.post(
                 "/api/generate",
                 data={
@@ -899,6 +1030,7 @@ class WebUISettingsTests(unittest.TestCase):
                 },
             )
             body = response.json()
+            response_text = json.dumps(body, ensure_ascii=False)
 
         self.assertEqual(saved.status_code, 200)
         self.assertEqual(saved.json()["settings"]["codex_mode"], "responses")
@@ -909,6 +1041,8 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(body["request"]["webui_requested_backend"], "codex_responses")
         self.assertEqual(body["request"]["tools"][0]["type"], "web_search")
         self.assertEqual(body["request"]["tools"][1]["type"], "image_generation")
+        self.assertNotIn(sentinel_api_key, response_text)
+        self.assertNotIn('"api_key"', response_text)
 
     def test_codex_edit_defaults_to_images_edits_request_preview(self) -> None:
         from codex_image.webui.app import create_app
@@ -1114,7 +1248,7 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(api_client.api_key, "test-api-key-vendor-b-secret")
         self.assertEqual(api_client.base_url, "https://vendor-b.example.com/v1")
         self.assertEqual(api_client.image_model, "vendor-b-image")
-    def test_retry_failed_api_images_uses_current_provider(self) -> None:
+    def test_retry_failed_api_images_keeps_queued_provider_snapshot(self) -> None:
         from codex_image.webui.app import create_app
 
         ProviderSwitchRetryApiImageClient.reset()
@@ -1183,15 +1317,14 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(partial["status"], "partial_failed")
         self.assertEqual(partial["api_provider_id"], "vendor-b")
         self.assertEqual(retry_response.status_code, 200)
-        self.assertEqual(queued["params"]["api_provider_id"], "vendor-a")
-        self.assertEqual(queued["api_provider_id"], "vendor-a")
-        self.assertEqual(queued["api_provider_name"], "Vendor A")
-        self.assertEqual(retried["status"], "completed")
-        self.assertEqual(retried["api_provider_id"], "vendor-a")
-        self.assertEqual(retried["api_provider_name"], "Vendor A")
-        self.assertIn("https://vendor-a.example.com/v1", [instance.base_url for instance in ProviderSwitchRetryApiImageClient.instances])
-        self.assertEqual(ProviderSwitchRetryApiImageClient.calls_by_base_url["https://vendor-b.example.com/v1"], 2)
-        self.assertEqual(ProviderSwitchRetryApiImageClient.calls_by_base_url["https://vendor-a.example.com/v1"], 1)
+        self.assertEqual(queued["params"]["api_provider_id"], "vendor-b")
+        self.assertEqual(queued["api_provider_id"], "vendor-b")
+        self.assertEqual(queued["api_provider_name"], "Vendor B")
+        self.assertEqual(retried["status"], "partial_failed")
+        self.assertEqual(retried["api_provider_id"], "vendor-b")
+        self.assertEqual(retried["api_provider_name"], "Vendor B")
+        self.assertNotIn("https://vendor-a.example.com/v1", [instance.base_url for instance in ProviderSwitchRetryApiImageClient.instances])
+        self.assertEqual(ProviderSwitchRetryApiImageClient.calls_by_base_url["https://vendor-b.example.com/v1"], 3)
     def test_api_images_queue_worker_generates_multiple_outputs_concurrently(self) -> None:
         from codex_image.webui.app import create_app
 
@@ -1888,7 +2021,7 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(len(api_client.generate_calls), 4)
         self.assertEqual(api_client.max_active_requests, 3)
 
-    def test_api_responses_provider_concurrency_keeps_next_task_waiting_until_slots_are_available(self) -> None:
+    def test_api_responses_provider_concurrency_fills_remaining_slots_from_larger_next_task(self) -> None:
         from codex_image.client import ImageResult
         from codex_image.webui.app import create_app
 
@@ -1976,7 +2109,7 @@ class WebUISettingsTests(unittest.TestCase):
                         "size": "1024x1024",
                         "quality": "low",
                         "api_mode": "responses",
-                        "n": "2",
+                        "n": "4",
                     },
                 )
                 created_c = client.post(
@@ -2029,7 +2162,7 @@ class WebUISettingsTests(unittest.TestCase):
 
         self.assertFalse(worker_error)
         self.assertEqual([task["status"] for task in tasks], ["completed", "completed", "queued"])
-        self.assertEqual(BlockingSharedApiResponsesImageClient.generate_call_count, 4)
+        self.assertEqual(BlockingSharedApiResponsesImageClient.generate_call_count, 6)
 
     def test_api_responses_provider_concurrency_keeps_full_size_next_task_waiting(self) -> None:
         from codex_image.client import ImageResult

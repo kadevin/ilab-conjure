@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ProjectName = "ilab-gpt-conjure"
+$ProjectName = "ilab-conjure"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = (Resolve-Path (Join-Path $ScriptDir "..\..")).Path
 

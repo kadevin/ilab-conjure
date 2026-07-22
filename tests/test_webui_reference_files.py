@@ -1336,7 +1336,7 @@ class ReferenceFileSubmissionTests(unittest.TestCase):
 
 
 class ReferenceFileExecutionTests(unittest.TestCase):
-    def test_codex_file_task_claimed_by_api_records_provider_and_sends_file(self) -> None:
+    def test_codex_file_task_is_not_silently_claimed_by_api(self) -> None:
         from codex_image.webui.queue import QueueChannel
         from codex_image.webui.settings_store import ApiSettings, AuthSettings
 
@@ -1383,20 +1383,11 @@ class ReferenceFileExecutionTests(unittest.TestCase):
 
             metadata = app.state.ctx.storage.read_metadata(created["task_id"])
             self.assertEqual(metadata["requested_backend"], "codex_responses")
-            self.assertEqual(metadata["backend"], "openai_responses")
-            self.assertEqual(metadata["assigned_auth_source"], "api")
-            self.assertEqual(metadata["api_provider_id"], "provider-a")
-            self.assertEqual(metadata["api_provider_name"], "Provider A")
-            self.assertEqual(metadata["params"]["api_mode"], "responses")
-            self.assertEqual(metadata["params"]["api_images_concurrency"], 3)
-            self.assertEqual(len(fake.reference_file_snapshots), 1)
-            sent_file = fake.reference_file_snapshots[0][0]
-            self.assertEqual(sent_file.filename, "brief.pdf")
-            self.assertTrue(sent_file.file_data.startswith("data:application/pdf;base64,"))
+            self.assertNotIn("backend", metadata)
+            self.assertEqual(app.state.queue_storage.read_state()["waiting"], [created["task_id"]])
+            self.assertEqual(fake.reference_file_snapshots, [])
             stored_request = json.loads(app.state.ctx.storage.request_path(created["task_id"]).read_text(encoding="utf-8"))
-            self.assertEqual(stored_request["webui_requested_backend"], "openai_responses")
-            self.assertEqual(stored_request["webui_api_provider_id"], "provider-a")
-            self.assertEqual(stored_request["webui_api_provider_name"], "Provider A")
+            self.assertEqual(stored_request["webui_requested_backend"], "codex_responses")
             self.assertNotIn("api_key", json.dumps(stored_request))
             self.assertNotIn("file_data", json.dumps(stored_request))
 
@@ -1653,6 +1644,7 @@ class ReferenceFileExecutionTests(unittest.TestCase):
             metadata = app.state.ctx.storage.read_metadata(created["task_id"])
             metadata["requested_backend"] = "codex_images"
             metadata["params"]["codex_mode"] = "images"
+            metadata.pop("generation_snapshot", None)
             app.state.ctx.storage.write_metadata(created["task_id"], metadata)
             asset_id = created["reference_files"][0]["id"]
             app.state.ctx.reference_file_storage.file_path(asset_id).unlink()
@@ -2201,7 +2193,7 @@ class ReferenceFileCapabilityTests(unittest.TestCase):
                 )
                 self.assertEqual(next_response.status_code, 200)
 
-    def test_deleted_pinned_provider_caches_actual_fallback_provider_key(self) -> None:
+    def test_deleted_pinned_provider_does_not_fallback_or_cache_capability(self) -> None:
         from codex_image.webui.settings_store import ApiSettings, AuthSettings
 
         class RejectingApiClient(RejectingResponsesClient):
@@ -2288,10 +2280,7 @@ class ReferenceFileCapabilityTests(unittest.TestCase):
                 with self.assertRaises(Exception):
                     asyncio.run(app.state.queue_manager.run_available_once())
 
-                self.assertEqual(
-                    app.state.ctx.responses_file_unsupported_keys,
-                    {("openai_responses", "provider-b", "https://b.example.com/v1/responses", DEFAULT_MAIN_MODEL)},
-                )
+                self.assertEqual(app.state.ctx.responses_file_unsupported_keys, set())
                 before = list(app.state.ctx.reference_file_root.glob("*/*.bin"))
                 second = TestClient(app).post(
                     "/api/generate",
@@ -2303,10 +2292,9 @@ class ReferenceFileCapabilityTests(unittest.TestCase):
                     files={"reference_files": ("another.md", b"another", "text/markdown")},
                 )
 
-            self.assertEqual(app.state.ctx.storage.read_metadata(first["task_id"])["error"], "provider_reference_files_unsupported")
-            self.assertEqual(second.status_code, 400)
-            self.assertEqual(second.json()["detail"]["code"], "provider_reference_files_unsupported")
-            self.assertEqual(list(app.state.ctx.reference_file_root.glob("*/*.bin")), before)
+            first_metadata = app.state.ctx.storage.read_metadata(first["task_id"])
+            self.assertEqual(first_metadata["generation_error"]["code"], "provider_credentials_missing")
+            self.assertEqual(second.status_code, 200)
 
     def test_sse_status_200_schema_rejection_is_cached_and_non_retryable(self) -> None:
         from codex_image.codex_responses_client import CodexImageClient

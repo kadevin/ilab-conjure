@@ -259,7 +259,7 @@ export function initReferenceFileInputsFeature(): void {
   const els = getEls();
   document.addEventListener("change", (event) => {
     const target = event.target as HTMLElement | null;
-    if (target?.matches?.("#codexMode, #apiMode")) syncReferenceFileAvailability();
+    if (target?.matches?.("#generationProviderSelect, #apiMode")) syncReferenceFileAvailability();
   });
   els.authSourceGroup?.addEventListener("click", () => queueMicrotask(syncReferenceFileAvailability));
   document.addEventListener(LOCALE_CHANGE_EVENT, renderReferenceFiles);

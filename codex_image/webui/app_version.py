@@ -15,7 +15,7 @@ UPDATE_NOTICE_FILENAME = "update-notice.json"
 POST_UPDATE_ONBOARDING_FILENAME = "post-update-onboarding.json"
 STANDARD_APP_TRANSITION_KIND = "portable_standard_app_transition"
 STANDARD_APP_TRANSITION_VERSION = "0.5.5"
-RELEASES_URL = "https://github.com/kadevin/ilab-gpt-conjure/releases"
+RELEASES_URL = "https://github.com/kadevin/ilab-conjure/releases"
 
 
 def _parse_semver(value: str | None) -> tuple[int, int, int] | None:

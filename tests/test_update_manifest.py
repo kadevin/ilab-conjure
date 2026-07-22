@@ -58,7 +58,7 @@ class UpdateManifestTests(unittest.TestCase):
                     "--tag",
                     "v0.6.0",
                     "--repo",
-                    "kadevin/ilab-gpt-conjure",
+                    "kadevin/ilab-conjure",
                     "--output",
                     str(output_path),
                 ],
@@ -71,7 +71,7 @@ class UpdateManifestTests(unittest.TestCase):
             self.assertEqual(manifest["version"], "0.6.0")
             self.assertEqual(
                 manifest["release_url"],
-                "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.6.0",
+                "https://github.com/kadevin/ilab-conjure/releases/tag/v0.6.0",
             )
             self.assertEqual(
                 set(manifest["platforms"]),
@@ -84,7 +84,7 @@ class UpdateManifestTests(unittest.TestCase):
             windows = manifest["platforms"]["windows-x86_64"]
             self.assertEqual(
                 windows["url"],
-                "https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.6.0/ilab-gpt-conjure_windows_portable_x64_0.6.0.zip",
+                "https://github.com/kadevin/ilab-conjure/releases/download/v0.6.0/ilab-gpt-conjure_windows_portable_x64_0.6.0.zip",
             )
             self.assertEqual(windows["package"], "portable-zip")
             self.assertRegex(windows["sha256"], r"^[0-9a-f]{64}$")
@@ -92,13 +92,13 @@ class UpdateManifestTests(unittest.TestCase):
             self.assertEqual(windows_app["package"], "standard-zip")
             self.assertEqual(
                 windows_app["url"],
-                "https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.6.0/iLab-GPT-CONJURE-windows-x64_0.6.0.zip",
+                "https://github.com/kadevin/ilab-conjure/releases/download/v0.6.0/iLab-GPT-CONJURE-windows-x64_0.6.0.zip",
             )
             mac_app = manifest["standard_platforms"]["darwin-aarch64"]
             self.assertEqual(mac_app["package"], "standard-dmg")
             self.assertEqual(
                 mac_app["url"],
-                "https://github.com/kadevin/ilab-gpt-conjure/releases/download/v0.6.0/iLab-GPT-CONJURE-macos-arm64-0.6.0.dmg",
+                "https://github.com/kadevin/ilab-conjure/releases/download/v0.6.0/iLab-GPT-CONJURE-macos-arm64-0.6.0.dmg",
             )
 
     def test_build_update_manifest_can_sign_with_ed25519_private_key(self) -> None:
@@ -139,7 +139,7 @@ class UpdateManifestTests(unittest.TestCase):
                     "--tag",
                     "v0.6.0",
                     "--repo",
-                    "kadevin/ilab-gpt-conjure",
+                    "kadevin/ilab-conjure",
                     "--signing-private-key-b64",
                     self.TEST_PRIVATE_KEY_PEM_B64,
                     "--output",
@@ -234,7 +234,7 @@ class UpdateManifestTests(unittest.TestCase):
                     "--tag",
                     "v0.6.0",
                     "--repo",
-                    "kadevin/ilab-gpt-conjure",
+                    "kadevin/ilab-conjure",
                     "--require-signature",
                     "--output",
                     str(root / "latest.json"),

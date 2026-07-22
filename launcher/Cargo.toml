@@ -3,7 +3,7 @@ name = "ilab-conjure-launcher"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.73"
-description = "System tray launcher for iLab GPT CONJURE."
+description = "System tray launcher for iLab CONJURE."
 license = "AGPL-3.0-or-later"
 
 [dependencies]

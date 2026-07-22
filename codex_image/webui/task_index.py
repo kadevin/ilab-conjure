@@ -74,7 +74,8 @@ SUMMARY_KEYS = {
     "assigned_auth_source",
 }
 
-TASK_INDEX_SCHEMA_VERSION = 5
+TASK_INDEX_SCHEMA_VERSION = 7
+TASK_CARD_PARAMETER_KEYS = ("canvas.aspect_ratio", "canvas.resolution")
 RATIO_OTHER_VALUE = "__other__"
 KNOWN_RATIO_ORIENTATIONS = {
     "1:1": "square",
@@ -88,6 +89,53 @@ KNOWN_RATIO_ORIENTATIONS = {
     "16:9": "landscape",
     "9:21": "portrait",
     "21:9": "landscape",
+}
+GPT_IMAGE_2_PRESET_SIZES_BY_RESOLUTION = {
+    "1K": frozenset(
+        {
+            "1024x1024",
+            "1024x1280",
+            "1280x1024",
+            "1152x1536",
+            "1536x1152",
+            "1024x1536",
+            "1536x1024",
+            "864x1536",
+            "1536x864",
+            "672x1568",
+            "1568x672",
+        }
+    ),
+    "2K": frozenset(
+        {
+            "2048x2048",
+            "1600x2000",
+            "2000x1600",
+            "1536x2048",
+            "2048x1536",
+            "1344x2016",
+            "2016x1344",
+            "1152x2048",
+            "2048x1152",
+            "1152x2688",
+            "2688x1152",
+        }
+    ),
+    "4K": frozenset(
+        {
+            "2880x2880",
+            "2560x3200",
+            "3200x2560",
+            "2448x3264",
+            "3264x2448",
+            "2336x3504",
+            "3504x2336",
+            "2160x3840",
+            "3840x2160",
+            "1632x3808",
+            "3808x1632",
+        }
+    ),
 }
 
 
@@ -523,9 +571,58 @@ class SQLiteTaskIndex:
             self.fts_enabled = False
 
 
+def safe_task_canvas_parameters(generation_snapshot: object) -> dict[str, str]:
+    if not isinstance(generation_snapshot, dict):
+        return {}
+    requested_parameters = generation_snapshot.get("requested_parameters")
+    if not isinstance(requested_parameters, dict):
+        return {}
+    safe: dict[str, str] = {}
+    for key in TASK_CARD_PARAMETER_KEYS:
+        value = requested_parameters.get(key)
+        if isinstance(value, str) and value.strip():
+            safe[key] = value.strip()
+    if str(generation_snapshot.get("canonical_model_id") or "").strip() == "gpt-image-2":
+        for key, value in _gpt_image_2_card_canvas_parameters(requested_parameters).items():
+            safe.setdefault(key, value)
+    return safe
+
+
+def _gpt_image_2_card_canvas_parameters(requested_parameters: dict[str, Any]) -> dict[str, str]:
+    size = _normalize_dimension_size(requested_parameters.get("canvas.size"))
+    if not size:
+        return {}
+    parameters: dict[str, str] = {}
+    ratio = _known_ratio_from_size(size)
+    if ratio:
+        parameters["canvas.aspect_ratio"] = ratio
+    for resolution, preset_sizes in GPT_IMAGE_2_PRESET_SIZES_BY_RESOLUTION.items():
+        if size in preset_sizes:
+            parameters["canvas.resolution"] = resolution
+            break
+    return parameters
+
+
+def project_task_generation_snapshot(generation_snapshot: object) -> dict[str, Any]:
+    if not isinstance(generation_snapshot, dict):
+        return {}
+    projected: dict[str, Any] = {}
+    canonical_model_id = str(generation_snapshot.get("canonical_model_id") or "").strip()
+    if canonical_model_id:
+        projected["canonical_model_id"] = canonical_model_id
+    requested_parameters = safe_task_canvas_parameters(generation_snapshot)
+    if requested_parameters:
+        projected["requested_parameters"] = requested_parameters
+    return projected
+
+
 def _summary_for_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
     summary = {key: metadata[key] for key in SUMMARY_KEYS if key in metadata}
     summary["reference_file_count"] = _nonnegative_int(metadata.get("reference_file_count"))
+    generation_snapshot = metadata.get("generation_snapshot")
+    projected_snapshot = project_task_generation_snapshot(generation_snapshot)
+    if projected_snapshot:
+        summary["generation_snapshot"] = projected_snapshot
     params = summary.get("params")
     request_payload = metadata.get("request")
     if isinstance(params, dict) and not params.get("main_model") and isinstance(request_payload, dict) and request_payload.get("model"):

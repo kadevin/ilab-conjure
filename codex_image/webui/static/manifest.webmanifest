@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "iLab CONJ Web",
-  "short_name": "iLab CONJ Web",
+  "name": "iLab CONJURE",
+  "short_name": "iLab CONJURE",
   "description": "Local image generation and editing workspace.",
   "start_url": "/",
   "scope": "/",

@@ -9,6 +9,16 @@ from fastapi import FastAPI
 
 from codex_image.auth import load_auth_state
 from codex_image.client import CodexImageClient, CodexImagesImageClient
+from codex_image.generation.errors import (
+    GenerationProviderError,
+    provider_error,
+    provider_error_from_exception,
+    sanitize_generation_error_text,
+)
+from codex_image.generation.snapshot import execution_plan_from_snapshot
+from codex_image.generation.types import GenerationCommand, ImageInput
+from codex_image.prompt_guard import build_original_prompt_instructions, build_prompt_guard_instructions
+from codex_image.providers.registry import default_registry
 
 from .auth_routing import (
     DEFAULT_API_PROVIDER_ID,
@@ -28,7 +38,19 @@ from .executor import (
     _is_usage_limit_error,
     _task_cancel_requested,
 )
+from .execution_plan_client import ExecutionPlanImageClient
 from .executor_inputs import _is_reference_file_missing_error
+from .executor_inputs import (
+    _file_to_data_url,
+    _resolve_gallery_refs,
+    _resolve_reference_assets,
+    _resolve_reference_files,
+)
+from .executor_transport import (
+    _instructions_for_transport,
+    _normalize_prompt_fidelity,
+    _prompt_for_transport,
+)
 from .queue import NonRetryableTaskError, QueueChannel, QueueManager
 from .reference_file_capabilities import (
     CapabilityKey,
@@ -36,6 +58,7 @@ from .reference_file_capabilities import (
     is_explicit_file_input_rejection,
     reference_file_capability_key_for_resolved_backend,
 )
+from .prompt_ratio import append_ratio_prompt_instruction
 from .storage import utc_now
 
 
@@ -120,6 +143,45 @@ def _queue_channel_available(ctx: WebUIContext, channel: QueueChannel) -> bool:
     return True
 
 
+def _queue_channels_with_pending(ctx: WebUIContext, source: str) -> list[QueueChannel]:
+    channels = list(_queue_channels_for_source(source, api_settings=ctx.api_settings))
+    required: dict[str, int] = {}
+    try:
+        waiting = ctx.queue_storage.read_state().get("waiting") or []
+    except Exception:
+        waiting = []
+    needs_codex = source == "codex"
+    for task_id in waiting:
+        try:
+            snapshot = ctx.storage.read_metadata(str(task_id)).get("generation_snapshot")
+        except (FileNotFoundError, OSError, ValueError):
+            continue
+        if not isinstance(snapshot, dict):
+            continue
+        provider_id = str(snapshot.get("provider_id") or "")
+        if provider_id == "codex":
+            needs_codex = True
+            continue
+        try:
+            limit = max(1, min(32, int(snapshot.get("provider_concurrency") or 1)))
+        except (TypeError, ValueError):
+            limit = 1
+        required[provider_id] = max(required.get(provider_id, 0), limit)
+    by_id = {channel.channel_id: channel for channel in channels}
+    if needs_codex:
+        by_id.setdefault("codex:local", QueueChannel("codex:local", "codex"))
+    for provider_id, limit in required.items():
+        for slot_index in range(limit):
+            channel = QueueChannel(
+                f"provider:{provider_id}:{slot_index}",
+                "api",
+                provider_id=provider_id,
+                slot_index=slot_index,
+            )
+            by_id.setdefault(channel.channel_id, channel)
+    return list(by_id.values())
+
+
 def _provider_from_settings_snapshot(settings: dict[str, Any], provider_id: str) -> dict[str, Any]:
     providers = settings.get("providers") if isinstance(settings.get("providers"), list) else []
     target_id = str(provider_id or settings.get("active_provider_id") or "")
@@ -138,6 +200,112 @@ def _provider_from_settings_snapshot(settings: dict[str, Any], provider_id: str)
     return dict(provider)
 
 
+def _configured_provider_exact(ctx: WebUIContext, provider_id: str) -> dict[str, Any] | None:
+    settings = ctx.api_settings.read()
+    for provider in settings.get("providers") or []:
+        if isinstance(provider, dict) and str(provider.get("id") or "") == provider_id:
+            return dict(provider)
+    return None
+
+
+def _validated_snapshot_plan(ctx: WebUIContext, metadata: dict[str, Any]):
+    snapshot = metadata.get("generation_snapshot")
+    if not isinstance(snapshot, dict):
+        return None
+    provider_id = str(snapshot.get("provider_id") or "")
+    api_key = ""
+    if provider_id != "codex":
+        configured = _configured_provider_exact(ctx, provider_id)
+        if configured is None or not str(configured.get("api_key") or ""):
+            raise provider_error(
+                "provider_credentials_missing",
+                provider_id=provider_id,
+                canonical_model_id=str(snapshot.get("canonical_model_id") or ""),
+                protocol_profile=str(snapshot.get("protocol_profile") or ""),
+                status_code=400,
+                retryable=False,
+            )
+        api_key = str(configured["api_key"])
+    params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
+    raw_constraints = metadata.get("prompt_constraints")
+    constraints = [str(item) for item in raw_constraints] if isinstance(raw_constraints, list) else []
+    fidelity = _normalize_prompt_fidelity(params.get("prompt_fidelity") or "off")
+    if fidelity == "strict":
+        guard_instructions = build_prompt_guard_instructions(constraints)
+    elif fidelity == "original":
+        guard_instructions = build_original_prompt_instructions()
+    else:
+        guard_instructions = ""
+    profile = str(snapshot.get("protocol_profile") or "")
+    auth_source = "codex" if provider_id == "codex" else "api"
+    api_mode = "responses" if profile.endswith("responses") else "images"
+    model_prompt = append_ratio_prompt_instruction(
+        str(metadata.get("prompt_for_model") or metadata.get("prompt") or ""),
+        params.get("ratio"),
+    )
+    transport_prompt = _prompt_for_transport(
+        model_prompt,
+        auth_source=auth_source,
+        api_mode=api_mode,
+        prompt_fidelity=fidelity,
+        instructions=guard_instructions,
+    )
+    transport_instructions = _instructions_for_transport(
+        auth_source=auth_source,
+        api_mode=api_mode,
+        instructions=guard_instructions,
+    )
+    input_paths = [ctx.storage.input_path(str(name)) for name in metadata.get("input_files") or ()]
+    raw_assets = metadata.get("reference_assets")
+    asset_ids = [
+        str(item.get("id"))
+        for item in raw_assets if isinstance(item, dict) and item.get("id")
+    ] if isinstance(raw_assets, list) else []
+    _, asset_data_urls = _resolve_reference_assets(
+        ctx.reference_asset_storage, asset_ids, touch=False
+    )
+    _, gallery_data_urls = _resolve_gallery_refs(
+        ctx.gallery_storage,
+        [
+            str(item.get("id"))
+            for item in metadata.get("gallery_refs") or ()
+            if isinstance(item, dict) and item.get("id")
+        ],
+    )
+    image_data_urls = [
+        _file_to_data_url(path) for path in input_paths if path.exists()
+    ] + asset_data_urls + gallery_data_urls
+    mask_data_url = None
+    mask_name = metadata.get("mask_file")
+    if isinstance(mask_name, str) and mask_name:
+        mask_path = ctx.storage.input_path(mask_name)
+        if mask_path.exists():
+            mask_data_url = _file_to_data_url(mask_path)
+    _, reference_file_inputs = _resolve_reference_files(
+        ctx.reference_file_storage,
+        metadata.get("reference_files"),
+    )
+    command = GenerationCommand(
+        operation=str(metadata.get("mode") or "generate"),  # type: ignore[arg-type]
+        canonical_model_id=str(snapshot.get("canonical_model_id") or ""),
+        provider_id=provider_id,
+        prompt=transport_prompt,
+        parameters=dict(snapshot.get("requested_parameters") or {}),
+        image_inputs=tuple(ImageInput(item) for item in image_data_urls),
+        reference_files=tuple(reference_file_inputs),
+        mask_image=mask_data_url,
+        main_model=str(params.get("main_model") or "") or None,
+        instructions=transport_instructions,
+        legacy_compat_parameters=dict(snapshot.get("legacy_compat_parameters") or {}),
+    )
+    return execution_plan_from_snapshot(
+        snapshot=snapshot,
+        command=command,
+        api_key=api_key,
+        registry=default_registry(),
+    )
+
+
 def _queue_execution_contract(
     ctx: WebUIContext,
     channel: QueueChannel,
@@ -147,6 +315,55 @@ def _queue_execution_contract(
 ) -> QueueExecutionContract:
     params = metadata.get("params") if isinstance(metadata, dict) and isinstance(metadata.get("params"), dict) else {}
     main_model = effective_reference_file_main_model(params.get("main_model"))
+    snapshot_plan = _validated_snapshot_plan(ctx, metadata or {})
+    if snapshot_plan is not None:
+        if snapshot_plan.provider.id == "codex":
+            channel_matches = channel.auth_source == "codex"
+        else:
+            channel_matches = (
+                channel.auth_source == "api"
+                and channel.provider_id == snapshot_plan.provider.id
+                and channel.slot_index < snapshot_plan.provider.concurrency
+            )
+        if not channel_matches:
+            raise provider_error(
+                "snapshot_manifest_incompatible",
+                provider_id=snapshot_plan.provider.id,
+                canonical_model_id=snapshot_plan.model.id,
+                protocol_profile=snapshot_plan.binding.protocol_profile,
+                status_code=400,
+                retryable=False,
+            )
+        profile = snapshot_plan.binding.protocol_profile
+        backend = profile
+        if snapshot_plan.provider.id == "codex":
+            codex_mode = "responses" if profile == "codex_responses" else "images"
+            if client_factory_overridden:
+                client = ctx.client_factory()
+            else:
+                client_class = CodexImageClient if codex_mode == "responses" else CodexImagesImageClient
+                client = client_class(load_auth_state())
+            base_url = ""
+        else:
+            api_mode = "responses" if profile == "openai_responses" else "images"
+            frozen = {
+                "api_key": snapshot_plan.provider.api_key,
+                "base_url": snapshot_plan.provider.base_url,
+                "image_model": snapshot_plan.binding.remote_model_id,
+                "api_mode": api_mode,
+            }
+            client = ctx.client_factory() if client_factory_overridden else _api_client_from_settings(frozen, api_mode=api_mode)
+            base_url = snapshot_plan.provider.base_url
+        return QueueExecutionContract(
+            client=ExecutionPlanImageClient(snapshot_plan, client),
+            backend=backend,
+            reference_file_capability_key=reference_file_capability_key_for_resolved_backend(
+                requested_backend=backend,
+                provider_id=snapshot_plan.provider.id,
+                base_url=base_url,
+                main_model=main_model,
+            ),
+        )
     if channel.auth_source == "api":
         settings_payload = ctx.api_settings.read()
         provider_settings = _provider_from_settings_snapshot(
@@ -240,11 +457,24 @@ def _api_task_slot_demand(metadata: dict[str, Any], limit: int) -> int:
 
 
 def _api_responses_task_slot_claim(ctx: WebUIContext, task_id: str, channel: QueueChannel) -> bool:
-    if channel.auth_source != "api":
-        return True
     try:
         metadata = ctx.storage.read_metadata(task_id)
     except FileNotFoundError:
+        return True
+    snapshot = metadata.get("generation_snapshot")
+    if isinstance(snapshot, dict):
+        provider_id = str(snapshot.get("provider_id") or "")
+        if provider_id == "codex":
+            return channel.auth_source == "codex"
+        if channel.auth_source != "api" or channel.provider_id != provider_id:
+            return False
+        try:
+            concurrency = max(1, min(32, int(snapshot.get("provider_concurrency") or 1)))
+        except (TypeError, ValueError):
+            concurrency = 1
+        if channel.slot_index >= concurrency:
+            return False
+    elif channel.auth_source != "api":
         return True
     params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
     if _normalize_api_mode(params.get("api_mode")) != "responses":
@@ -259,7 +489,8 @@ def _api_responses_task_slot_claim(ctx: WebUIContext, task_id: str, channel: Que
         for reserved_task_id, record in ctx.api_task_slot_reservations.items()
         if reserved_task_id != task_id and record.get("provider_id") == provider_id and record.get("api_mode") == "responses"
     )
-    if used + demand > limit:
+    available = max(0, limit - used)
+    if available <= 0:
         return False
     ctx.api_task_slot_reservations[task_id] = {
         "provider_id": provider_id,
@@ -268,6 +499,26 @@ def _api_responses_task_slot_claim(ctx: WebUIContext, task_id: str, channel: Que
         "limit": limit,
     }
     return True
+
+
+def _task_channel_matches(ctx: WebUIContext, task_id: str, channel: QueueChannel) -> bool:
+    try:
+        metadata = ctx.storage.read_metadata(task_id)
+    except FileNotFoundError:
+        return True
+    snapshot = metadata.get("generation_snapshot")
+    if not isinstance(snapshot, dict):
+        return True
+    provider_id = str(snapshot.get("provider_id") or "")
+    if provider_id == "codex":
+        return channel.auth_source == "codex"
+    if channel.auth_source != "api" or channel.provider_id != provider_id:
+        return False
+    try:
+        concurrency = max(1, min(32, int(snapshot.get("provider_concurrency") or 1)))
+    except (TypeError, ValueError):
+        concurrency = 1
+    return channel.slot_index < concurrency
 
 
 def _mark_task_cancelled(ctx: WebUIContext, task_id: str) -> dict[str, Any]:
@@ -288,6 +539,39 @@ def _mark_task_cancelled(ctx: WebUIContext, task_id: str) -> dict[str, Any]:
     return metadata
 
 
+def _structured_task_error(ctx: WebUIContext, metadata: dict[str, Any], exc: BaseException):
+    snapshot = metadata.get("generation_snapshot")
+    if isinstance(snapshot, dict) and isinstance(exc, GenerationProviderError):
+        error: GenerationProviderError | None = exc
+    elif isinstance(snapshot, dict):
+        error = provider_error_from_exception(
+            exc,
+            provider_id=str(snapshot.get("provider_id") or ""),
+            canonical_model_id=str(snapshot.get("canonical_model_id") or ""),
+            protocol_profile=str(snapshot.get("protocol_profile") or ""),
+        )
+    else:
+        error = None
+    credentials: list[str] = []
+    try:
+        for provider in ctx.api_settings.read_connections():
+            if provider.api_key:
+                credentials.append(provider.api_key)
+    except Exception:
+        pass
+    prompts = tuple(
+        str(item)
+        for item in (metadata.get("prompt"), metadata.get("prompt_for_model"))
+        if isinstance(item, str) and item
+    )
+    safe = sanitize_generation_error_text(
+        exc,
+        sensitive_values=tuple(credentials),
+        prompt_values=prompts,
+    )
+    return error, safe
+
+
 async def execute_task(
     ctx: WebUIContext,
     task_id: str,
@@ -304,12 +588,6 @@ async def execute_task(
         ctx.running_worker_tasks[task_id] = current_task
     try:
         metadata = ctx.storage.read_metadata(task_id)
-        execution_contract = _queue_execution_contract(
-            ctx,
-            channel,
-            metadata,
-            client_factory_overridden=client_factory_overridden,
-        )
         attempt_started_at = utc_now()
         metadata["status"] = "running"
         metadata["started_at"] = metadata.get("started_at") or attempt_started_at
@@ -317,8 +595,17 @@ async def execute_task(
         metadata["updated_at"] = attempt_started_at
         metadata["assigned_auth_source"] = channel.auth_source
         metadata["assigned_account_id"] = channel.account_id
+        metadata["attempts"] = int(metadata.get("attempts") or 0) + 1
+        ctx.storage.write_metadata(task_id, metadata)
+
+        execution_contract = _queue_execution_contract(
+            ctx,
+            channel,
+            metadata,
+            client_factory_overridden=client_factory_overridden,
+        )
         metadata["backend"] = execution_contract.backend
-        if channel.auth_source == "api":
+        if channel.auth_source == "api" and not isinstance(metadata.get("generation_snapshot"), dict):
             params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
             _apply_api_execution_snapshot(
                 ctx.storage,
@@ -327,7 +614,6 @@ async def execute_task(
                 ctx.api_settings,
                 str(params.get("api_provider_id") or "") or None,
             )
-        metadata["attempts"] = int(metadata.get("attempts") or 0) + 1
         ctx.storage.write_metadata(task_id, metadata)
 
         await _execute_stored_task(
@@ -362,11 +648,15 @@ async def execute_task(
         elif explicit_file_rejection:
             ctx.responses_file_unsupported_keys.add(execution_contract.reference_file_capability_key)
             exc = RuntimeError("provider_reference_files_unsupported")
-        non_retryable = reference_file_missing or explicit_file_rejection or _is_non_retryable_error(exc) or local_usage_limit_error
+        structured_error, safe_error = _structured_task_error(ctx, metadata, exc)
+        provider_non_retryable = isinstance(exc, GenerationProviderError) and not exc.detail.retryable
+        non_retryable = reference_file_missing or explicit_file_rejection or provider_non_retryable or _is_non_retryable_error(exc) or local_usage_limit_error
         metadata["status"] = "failed" if is_final_attempt or non_retryable else "queued"
         metadata["updated_at"] = utc_now()
-        metadata["last_error"] = str(exc)
-        metadata["error"] = str(exc) if is_final_attempt or non_retryable else ""
+        metadata["last_error"] = safe_error
+        metadata["error"] = safe_error if is_final_attempt or non_retryable else ""
+        if structured_error is not None:
+            metadata["generation_error"] = structured_error.detail.to_dict()
         ctx.storage.write_metadata(task_id, metadata)
         if non_retryable:
             raise NonRetryableTaskError(str(exc)) from exc
@@ -379,7 +669,10 @@ async def execute_task(
 
 
 def _queue_max_attempts_for_channels(channels: list[QueueChannel]) -> int:
-    retry_identities = {(channel.auth_source, channel.account_id) for channel in channels}
+    retry_identities = {
+        (channel.auth_source, channel.account_id, channel.provider_id)
+        for channel in channels
+    }
     return max(2, len(retry_identities))
 
 
@@ -392,6 +685,7 @@ def install_queue_runtime(
 ) -> QueueRuntimeResult:
     queue_channel_available = lambda channel: _queue_channel_available(ctx, channel)
     queue_task_claim = lambda task_id, channel: _api_responses_task_slot_claim(ctx, task_id, channel)
+    task_channel_matches = lambda task_id, channel: _task_channel_matches(ctx, task_id, channel)
     task_executor = lambda task_id, channel, is_final_attempt: execute_task(
         ctx,
         task_id,
@@ -401,7 +695,7 @@ def install_queue_runtime(
         client_factory_overridden=client_factory_overridden,
     )
     initial_source = "codex" if client_factory_overridden else ctx.auth_settings.read_source()
-    initial_channels = _queue_channels_for_source(initial_source, api_settings=ctx.api_settings)
+    initial_channels = _queue_channels_with_pending(ctx, initial_source)
     ctx.queue_manager = QueueManager(
         queue_storage=ctx.queue_storage,
         channels=initial_channels,
@@ -409,6 +703,7 @@ def install_queue_runtime(
         max_attempts=_queue_max_attempts_for_channels(initial_channels),
         channel_available=queue_channel_available,
         claim_task=queue_task_claim,
+        task_channel_matches=task_channel_matches,
         auto_retry=auto_retry,
     )
     ctx.install_on_app_state()

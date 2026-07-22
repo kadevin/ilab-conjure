@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-PROJECT_NAME="ilab-gpt-conjure"
+PROJECT_NAME="ilab-conjure"
 APP_BUNDLE_NAME="iLab GPT CONJURE.app"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -230,7 +230,7 @@ write_macos_app_plist() {
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>iLab GPT CONJURE</string>
+  <string>iLab CONJURE</string>
   <key>CFBundleExecutable</key>
   <string>ilab-conjure-launcher</string>
   <key>CFBundleIconFile</key>
@@ -240,7 +240,7 @@ write_macos_app_plist() {
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>iLab GPT CONJURE</string>
+  <string>iLab CONJURE</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
@@ -331,7 +331,7 @@ codesign --force --deep --sign - "$APP_BUNDLE_ROOT" >/dev/null 2>&1 || true
 mkdir -p "$DMG_ROOT"
 cp -R "$APP_BUNDLE_ROOT" "$DMG_ROOT/${APP_BUNDLE_NAME}"
 ln -s /Applications "$DMG_ROOT/Applications"
-hdiutil create -volname "iLab GPT CONJURE" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG_PATH"
+hdiutil create -volname "iLab CONJURE" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG_PATH"
 
 SHA256="$(shasum -a 256 "$DMG_PATH" | awk '{print $1}')"
 printf "%s  %s\n" "$SHA256" "$(basename "$DMG_PATH")" > "$HASH_PATH"

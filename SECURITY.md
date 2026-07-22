@@ -2,7 +2,7 @@
 
 ## Local-only assumptions
 
-iLab GPT Conjure is designed for local personal workflows. Do not expose the
+iLab CONJURE is designed for local personal workflows. Do not expose the
 WebUI directly to the public internet unless you have reviewed and hardened the
 deployment yourself.
 

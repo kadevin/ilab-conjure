@@ -4,6 +4,9 @@ import { getLegacyBridge } from "./state";
 const STORAGE_KEY = "codex-image-output-settings-lock-v1";
 
 export interface OutputSettingsSnapshot {
+  canonical_model_id: string;
+  model_display_name: string;
+  parameters: Record<string, unknown>;
   main_model: string;
   model: string;
   size: string;
@@ -15,6 +18,10 @@ export interface OutputSettingsSnapshot {
   output_compression: number | null;
   moderation: string;
   web_search: boolean;
+  resolution: string;
+  has_safety_settings: boolean;
+  safety_settings: Record<string, unknown>;
+  google_search: boolean | null;
 }
 
 interface OutputSettingsSummaryContext {
@@ -38,6 +45,12 @@ interface OutputSettingsSummaryModel {
   pixels: string;
   count: number;
   format: string;
+  thirdCard: {
+    kind: "format" | "resolution";
+    label: string;
+    value: string;
+    meta: string;
+  };
   details: SummaryDetail[];
 }
 
@@ -70,23 +83,45 @@ function normalizedDimensions(value: unknown): [number, number] {
   return [width, height];
 }
 
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? { ...(value as Record<string, unknown>) }
+    : {};
+}
+
+function hasOwn(source: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(source, key);
+}
+
 export function normalizeOutputSettingsSnapshot(params: any): OutputSettingsSnapshot {
-  const [width, height] = normalizedDimensions(params?.size);
+  const parameters = record(params?.parameters);
+  const sizeValue = parameters["canvas.size"] || params?.size;
+  const [width, height] = normalizedDimensions(sizeValue);
   const divisor = greatestCommonDivisor(width, height);
   const fidelity = String(params?.prompt_fidelity || "strict");
-  const compression = params?.output_compression;
+  const compression = parameters["gpt.output_compression"] ?? params?.output_compression;
+  const canonicalModelId = String(params?.canonical_model_id || "gpt-image-2");
   return {
+    canonical_model_id: canonicalModelId,
+    model_display_name: String(params?.model_display_name || canonicalModelId),
+    parameters,
     main_model: String(params?.main_model || ""),
     model: String(params?.model || "gpt-image-2"),
     size: `${width}x${height}`,
-    ratio: String(params?.ratio || `${width / divisor}:${height / divisor}`),
-    n: Math.max(1, Math.min(4, Math.round(Number(params?.n) || 1))),
+    ratio: String(parameters["canvas.aspect_ratio"] || params?.ratio || `${width / divisor}:${height / divisor}`),
+    n: Math.max(1, Math.min(4, Math.round(Number(parameters["output.count"] ?? params?.n) || 1))),
     prompt_fidelity: fidelity === "original" || fidelity === "off" ? fidelity : "strict",
-    quality: String(params?.quality || "auto"),
-    output_format: String(params?.output_format || "png").toLowerCase(),
+    quality: String(parameters["gpt.quality"] || params?.quality || "auto"),
+    output_format: String(parameters["output.format"] || params?.output_format || "png").toLowerCase(),
     output_compression: compression === null || compression === undefined ? null : Number(compression),
-    moderation: String(params?.moderation || "auto"),
-    web_search: Boolean(params?.web_search),
+    moderation: String(parameters["gpt.moderation"] || params?.moderation || "auto"),
+    web_search: Boolean(parameters["gpt.web_search"] ?? params?.web_search),
+    resolution: String(parameters["canvas.resolution"] || params?.resolution || ""),
+    has_safety_settings: hasOwn(parameters, "gemini.safety_settings"),
+    safety_settings: record(parameters["gemini.safety_settings"]),
+    google_search: hasOwn(parameters, "gemini.google_search")
+      ? Boolean(parameters["gemini.google_search"])
+      : null,
   };
 }
 
@@ -105,6 +140,16 @@ function qualityLabel(value: string): string {
   return translate(key);
 }
 
+function geminiSafetyLabel(value: Record<string, unknown>, supported: boolean): string {
+  const thresholds = Object.values(value).map(String);
+  if (!thresholds.length) return supported ? translate("gemini.safety.threshold.off") : "";
+  if (thresholds.every((threshold) => threshold === "OFF")) return translate("gemini.safety.threshold.off");
+  if (thresholds.every((threshold) => threshold === "BLOCK_LOW_AND_ABOVE")) {
+    return translate("gemini.safety.threshold.blockLowAndAbove");
+  }
+  return translate("output.lock.custom");
+}
+
 export function outputCountCardRatio(value: string): number {
   const [width = 1, height = 1] = String(value || "").split(":").map(Number);
   return width > 0 && height > 0 ? width / height : 1;
@@ -118,29 +163,61 @@ export function buildOutputSettingsSummaryModel(
   snapshot: OutputSettingsSnapshot,
   context: OutputSettingsSummaryContext,
 ): OutputSettingsSummaryModel {
-  const details: SummaryDetail[] = [
-    { label: translate("output.lock.prompt"), value: promptFidelityLabel(snapshot.prompt_fidelity) },
-    { label: translate("output.quality"), value: qualityLabel(snapshot.quality) },
-  ];
-  if (context.responses) {
-    details.push({
-      label: translate("output.lock.search"),
-      value: translate(snapshot.web_search ? "output.lock.enabled" : "output.lock.disabled"),
-    });
+  const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+  const geminiImage = snapshot.canonical_model_id.startsWith("nano-banana");
+  const details: SummaryDetail[] = [];
+  if (gptImage) {
+    details.push(
+      { label: translate("output.lock.prompt"), value: promptFidelityLabel(snapshot.prompt_fidelity) },
+      { label: translate("output.quality"), value: qualityLabel(snapshot.quality) },
+    );
+    if (context.responses) {
+      details.push({
+        label: translate("output.lock.search"),
+        value: translate(snapshot.web_search ? "output.lock.enabled" : "output.lock.disabled"),
+      });
+    } else {
+      details.push({ label: translate("output.lock.call"), value: context.callLabel });
+    }
+    details.push({ label: translate("output.moderation"), value: snapshot.moderation });
   } else {
-    details.push({ label: translate("output.lock.call"), value: context.callLabel });
+    const safety = geminiSafetyLabel(snapshot.safety_settings, snapshot.has_safety_settings);
+    if (safety) details.push({ label: translate("gemini.safetySettings"), value: safety });
+    if (snapshot.google_search !== null) {
+      details.push({
+        label: translate("gemini.googleSearch"),
+        value: translate(snapshot.google_search ? "output.lock.enabled" : "output.lock.disabled"),
+      });
+    }
   }
-  details.push({ label: translate("output.moderation"), value: snapshot.moderation });
+  const thirdCard = gptImage
+    ? {
+        kind: "format" as const,
+        label: translate("output.lock.output"),
+        value: snapshot.output_format.toUpperCase(),
+        meta: translate("output.lock.fileFormat"),
+      }
+    : {
+        kind: "resolution" as const,
+        label: translate("canvas.resolution"),
+        value: snapshot.resolution || "—",
+        meta: "",
+      };
   return {
     contextLabel: context.task ? translate("output.lock.task") : "",
-    showModel: context.responses,
-    modelLabel: translate(context.responses ? "output.mainModel" : "output.lock.imageModel"),
-    modelValue: context.responses ? snapshot.main_model || snapshot.model : snapshot.model,
+    showModel: gptImage ? context.responses : context.task || geminiImage,
+    modelLabel: gptImage
+      ? translate(context.responses ? "output.mainModel" : "output.lock.imageModel")
+      : "",
+    modelValue: gptImage
+      ? context.responses ? snapshot.main_model || snapshot.model : snapshot.model
+      : snapshot.model_display_name || snapshot.canonical_model_id,
     hint: translate(context.task ? "output.lock.taskHint" : "output.lock.lockedHint"),
     ratio: snapshot.ratio,
-    pixels: snapshot.size.replace("x", " × "),
+    pixels: gptImage ? snapshot.size.replace("x", " × ") : "",
     count: snapshot.n,
     format: snapshot.output_format.toUpperCase(),
+    thirdCard,
     details,
   };
 }
@@ -170,6 +247,10 @@ function taskSummaryContext(task: any): OutputSettingsSummaryContext {
 function snapshotFromTask(task: any): OutputSettingsSnapshot {
   const params = task?.params || {};
   const request = task?.request || {};
+  const frozen = record(task?.generation_snapshot);
+  const canonicalModelId = String(frozen.canonical_model_id || request.canonical_model_id || "gpt-image-2");
+  const catalogModel = getLegacyBridge().state.generationCatalog?.models
+    .find((item: any) => item.id === canonicalModelId);
   const responses = params.api_mode === "responses"
     || params.codex_mode === "responses"
     || request.api_mode === "responses"
@@ -177,10 +258,32 @@ function snapshotFromTask(task: any): OutputSettingsSnapshot {
     || request.endpoint === "/responses";
   return normalizeOutputSettingsSnapshot({
     ...params,
+    canonical_model_id: canonicalModelId,
+    model_display_name: catalogModel?.display_name || canonicalModelId,
+    parameters: Object.keys(record(frozen.requested_parameters)).length
+      ? record(frozen.requested_parameters)
+      : record(request.parameters),
     main_model: params.main_model || request.main_model || (responses ? request.model : ""),
     model: params.model || request.image_model || request.model,
     size: params.size || request.size,
     n: params.n || request.n,
+  });
+}
+
+function snapshotFromCurrentSelection(): OutputSettingsSnapshot {
+  const bridge = getLegacyBridge();
+  const legacy = legacyMethod("currentTaskParams");
+  const model = bridge.state.generationCatalog?.models.find((item: any) => item.id === bridge.state.selectedModelId);
+    const parameters = model && model.id !== "gpt-image-2" && typeof bridge.methods.activeParameterValues === "function"
+    ? bridge.methods.activeParameterValues(model)
+    : typeof bridge.methods.currentCanonicalParameters === "function"
+      ? bridge.methods.currentCanonicalParameters()
+      : {};
+  return normalizeOutputSettingsSnapshot({
+    ...legacy,
+    canonical_model_id: model?.id || "gpt-image-2",
+    model_display_name: model?.display_name || "GPT Image 2",
+    parameters,
   });
 }
 
@@ -210,7 +313,8 @@ function renderRatioCard(model: OutputSettingsSummaryModel): HTMLDivElement {
   frame.classList.toggle("is-portrait", ratio < 1);
   frame.append(createElement("strong", "output-settings-ratio-value", model.ratio));
   visual.append(frame);
-  card.append(visual, createElement("span", "output-settings-card-meta", model.pixels));
+  card.append(visual);
+  if (model.pixels) card.append(createElement("span", "output-settings-card-meta", model.pixels));
   return card;
 }
 
@@ -231,10 +335,11 @@ function renderCountCard(model: OutputSettingsSummaryModel): HTMLDivElement {
   return card;
 }
 
-function renderFormatCard(model: OutputSettingsSummaryModel): HTMLDivElement {
-  const card = createSummaryCard(translate("output.lock.output"));
-  const visual = createElement("div", "output-settings-format-visual", model.format);
-  card.append(visual, createElement("span", "output-settings-card-meta", translate("output.lock.fileFormat")));
+function renderThirdCard(model: OutputSettingsSummaryModel): HTMLDivElement {
+  const card = createSummaryCard(model.thirdCard.label);
+  const visual = createElement("div", `output-settings-${model.thirdCard.kind}-visual`, model.thirdCard.value);
+  card.append(visual);
+  if (model.thirdCard.meta) card.append(createElement("span", "output-settings-card-meta", model.thirdCard.meta));
   return card;
 }
 
@@ -252,15 +357,15 @@ function renderSummary(snapshot: OutputSettingsSnapshot, context: OutputSettings
   }
   if (model.showModel) {
     const modelLine = createElement("div", "output-settings-summary-model-line");
-    modelLine.append(
-      createElement("span", "output-settings-summary-model-label", model.modelLabel),
-      createElement("strong", "output-settings-summary-model", model.modelValue),
-    );
+    if (model.modelLabel) {
+      modelLine.append(createElement("span", "output-settings-summary-model-label", model.modelLabel));
+    }
+    modelLine.append(createElement("strong", "output-settings-summary-model", model.modelValue));
     intro.append(modelLine);
   }
 
   const cards = createElement("div", "output-settings-summary-cards");
-  cards.append(renderRatioCard(model), renderCountCard(model), renderFormatCard(model));
+  cards.append(renderRatioCard(model), renderCountCard(model), renderThirdCard(model));
 
   const details = createElement("div", "output-settings-summary-details");
   model.details.forEach((detail) => {
@@ -271,12 +376,20 @@ function renderSummary(snapshot: OutputSettingsSnapshot, context: OutputSettings
     );
     details.append(item);
   });
+  details.classList.toggle("hidden", model.details.length === 0);
 
   const main = createElement("div", "output-settings-summary-main");
   if (intro.childElementCount) main.append(intro);
   main.append(cards, details);
-  root.append(main, createElement("p", "output-settings-summary-hint", model.hint));
-  els.outputSettingsTaskAction?.classList.toggle("hidden", !context.task);
+
+  const footer = createElement("div", "output-settings-summary-footer");
+  const hint = createElement("p", "output-settings-summary-hint", model.hint);
+  footer.append(hint);
+  if (els.outputSettingsTaskAction) {
+    els.outputSettingsTaskAction.classList.toggle("hidden", !context.task);
+    footer.append(els.outputSettingsTaskAction);
+  }
+  root.append(main, footer);
 }
 
 function updateLockButton(): void {
@@ -332,7 +445,7 @@ export function showLockedOutputSettings(): void {
   if (!locked) return;
   taskSnapshot = null;
   taskContext = null;
-  lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod("currentTaskParams"));
+  lockedSnapshot = snapshotFromCurrentSelection();
   persistLockState();
   renderSummary(lockedSnapshot, currentSummaryContext());
   setLockedViewVisible(true);
@@ -359,8 +472,11 @@ export function refreshOutputSettingsLock(): void {
 
 export function adoptTaskOutputSettings(): void {
   if (!locked || !taskSnapshot) return;
+  const state = getLegacyBridge().state;
+  const task = state.tasks.find((item: any) => String(item.task_id) === String(state.selectedTaskId));
+  if (task) legacyMethod("adoptTaskParameters", task);
   applySnapshot(taskSnapshot);
-  lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod("currentTaskParams"));
+  lockedSnapshot = snapshotFromCurrentSelection();
   taskSnapshot = null;
   taskContext = null;
   persistLockState();
@@ -369,7 +485,7 @@ export function adoptTaskOutputSettings(): void {
 }
 
 function lockOutputSettings(): void {
-  lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod("currentTaskParams"));
+  lockedSnapshot = snapshotFromCurrentSelection();
   locked = true;
   taskSnapshot = null;
   taskContext = null;
@@ -404,7 +520,7 @@ export function restoreOutputSettingsLock(): void {
     return;
   }
   applySnapshot(snapshot);
-  lockedSnapshot = normalizeOutputSettingsSnapshot(legacyMethod("currentTaskParams"));
+  lockedSnapshot = snapshotFromCurrentSelection();
   locked = true;
   renderSummary(lockedSnapshot, currentSummaryContext());
   setLockedViewVisible(true);

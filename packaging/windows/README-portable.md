@@ -1,4 +1,4 @@
-# Windows Portable Package
+# iLab CONJURE Windows Portable Package
 
 This package is intended for Windows x64 users who want to unzip and run the
 WebUI without installing Python separately.
@@ -30,7 +30,7 @@ launcher and run `Update WebUI Portable.bat` manually.
 - `Start WebUI Portable.bat`: legacy one-click terminal launcher.
 - `Update WebUI Portable.bat`: one-click updater for the latest GitHub Release
   manifest entry matching Windows x64.
-- `app/`: iLab GPT Conjure source code, prebuilt static WebUI assets, and
+- `app/`: iLab CONJURE source code, prebuilt static WebUI assets, and
   frontend package metadata/build config for source rebuilds.
 - `python/`: embedded CPython runtime and installed WebUI dependencies.
 - `data/`: local settings, gallery files, inputs, outputs, queue database, and

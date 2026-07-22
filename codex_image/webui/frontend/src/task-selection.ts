@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { formatTranslation, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
+import { taskOutputSettingsView } from "./task-model-summary";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -33,12 +34,27 @@ function taskInputUrls(task) { return legacyMethod("taskInputUrls", task); }
 function uploadSource(file) { return legacyMethod("uploadSource", file); }
 function gallerySource(item) { return legacyMethod("gallerySource", item); }
 function assetSource(item) { return legacyMethod("assetSource", item); }
+function inspectTaskParameters(task) { legacyMethod("inspectTaskParameters", task); }
+function clearTaskParameterInspection() { legacyMethod("clearTaskParameterInspection"); }
 
 function applyTaskToFormWithOutputLock(task) {
   const outputSettingsLocked = Boolean(legacyMethod("isOutputSettingsLocked"));
-  applyTaskToForm(task, { preserveOutputSettings: outputSettingsLocked });
-  if (outputSettingsLocked) legacyMethod("showTaskOutputSettings", task);
-  else legacyMethod("showLockedOutputSettings");
+  const outputView = taskOutputSettingsView(task, String(state.selectedModelId || ""), outputSettingsLocked);
+  applyTaskToForm(task, {
+    preserveOutputSettings: outputView !== "editor",
+    preserveComposer: false,
+  });
+  if (outputView === "locked-summary") {
+    clearTaskParameterInspection();
+    legacyMethod("showTaskOutputSettings", task);
+    return;
+  }
+  if (outputView === "parameter-inspector") {
+    inspectTaskParameters(task);
+    return;
+  }
+  clearTaskParameterInspection();
+  legacyMethod("showLockedOutputSettings");
 }
 
 function selectedTaskInputRestoreCurrent(taskId, restoreSeq) {

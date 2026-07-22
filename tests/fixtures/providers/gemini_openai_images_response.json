@@ -1,0 +1,12 @@
+{
+  "created": 1784073600,
+  "data": [
+    {
+      "b64_json": "ZmluYWwtaW1hZ2U=",
+      "revised_prompt": "A finished rabbit illustration"
+    }
+  ],
+  "usage": {
+    "total_tokens": 46
+  }
+}

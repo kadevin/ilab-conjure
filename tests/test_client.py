@@ -394,6 +394,8 @@ class ClientTests(unittest.TestCase):
 
         from codex_image.client import OPENAI_COMPATIBLE_USER_AGENT, OpenAIImagesImageClient
 
+        self.assertTrue(OPENAI_COMPATIBLE_USER_AGENT.startswith("iLab-CONJURE/"))
+
         client = OpenAIImagesImageClient(
             api_key="test-api-key-test-secret",
             base_url="https://api.example.com/v1",
@@ -769,6 +771,7 @@ class ClientTests(unittest.TestCase):
         self.assertIn(b"image", request["body"])
 
     def test_openai_images_client_downloads_url_image_output(self) -> None:
+        jpeg_bytes = b"\xff\xd8\xffdownloaded-jpeg"
         transport = FakeTransport(
             [
                 FakeResponse(
@@ -788,7 +791,7 @@ class ClientTests(unittest.TestCase):
                 ),
                 FakeResponse(
                     status=200,
-                    body=b"downloaded-jpeg",
+                    body=jpeg_bytes,
                     headers={"Content-Type": "image/jpeg"},
                 ),
             ]
@@ -808,7 +811,7 @@ class ClientTests(unittest.TestCase):
             output_format="jpeg",
         )
 
-        self.assertEqual(result.image_bytes, b"downloaded-jpeg")
+        self.assertEqual(result.image_bytes, jpeg_bytes)
         self.assertEqual(result.revised_prompt, "url revised prompt")
         self.assertEqual(result.output_format, "jpeg")
         self.assertEqual(result.usage["total_tokens"], 9)
@@ -817,6 +820,7 @@ class ClientTests(unittest.TestCase):
         self.assertNotIn("Authorization", transport.requests[1]["headers"])
 
     def test_openai_images_client_retries_url_download_with_api_key_after_forbidden(self) -> None:
+        jpeg_bytes = b"\xff\xd8\xffauthorized-jpeg"
         transport = FakeTransport(
             [
                 FakeResponse(
@@ -825,7 +829,7 @@ class ClientTests(unittest.TestCase):
                     headers={"Content-Type": "application/json"},
                 ),
                 FakeResponse(status=403, body=b"forbidden", headers={"Content-Type": "text/plain"}),
-                FakeResponse(status=200, body=b"authorized-jpeg", headers={"Content-Type": "image/jpeg"}),
+                FakeResponse(status=200, body=jpeg_bytes, headers={"Content-Type": "image/jpeg"}),
             ]
         )
 
@@ -838,9 +842,53 @@ class ClientTests(unittest.TestCase):
         )
         result = client.generate_image(prompt="draw authorized url", output_format="jpeg")
 
-        self.assertEqual(result.image_bytes, b"authorized-jpeg")
+        self.assertEqual(result.image_bytes, jpeg_bytes)
         self.assertNotIn("Authorization", transport.requests[1]["headers"])
         self.assertEqual(transport.requests[2]["headers"]["Authorization"], "Bearer test-api-key-url-retry-secret")
+
+    def test_openai_images_client_does_not_send_api_key_to_cross_origin_asset(self) -> None:
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    status=200,
+                    body=json.dumps(
+                        {"data": [{"url": "https://cdn.example.com/private/generated.jpg"}]}
+                    ).encode("utf-8"),
+                ),
+                FakeResponse(status=403, body=b"forbidden", headers={"Content-Type": "text/plain"}),
+            ]
+        )
+
+        from codex_image.client import OpenAIImagesImageClient
+
+        client = OpenAIImagesImageClient(
+            api_key="must-not-leak",
+            base_url="https://api.example.com/v1",
+            transport=transport,
+        )
+        with self.assertRaisesRegex(RuntimeError, "invalid image URL asset"):
+            client.generate_image(prompt="draw private url")
+        self.assertEqual(len(transport.requests), 2)
+        self.assertNotIn("Authorization", transport.requests[1]["headers"])
+
+    def test_openai_images_client_decodes_data_url_output(self) -> None:
+        png_bytes = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zya4AAAAASUVORK5CYII="
+        )
+        body = json.dumps(
+            {
+                "data": [
+                    {
+                        "url": "data:image/png;base64," + base64.b64encode(png_bytes).decode("ascii")
+                    }
+                ]
+            }
+        ).encode("utf-8")
+
+        from codex_image.client import OpenAIImagesImageClient
+
+        result = OpenAIImagesImageClient.parse_response_json(body)
+        self.assertEqual(result.image_bytes, png_bytes)
 
     def test_openai_images_client_surfaces_http_and_missing_image_errors(self) -> None:
         from codex_image.client import OpenAIImagesImageClient

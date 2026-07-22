@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
+import { groundingAttributionKey, syncGroundingAttribution } from "./grounding-attribution";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -81,6 +82,7 @@ function renderPreview(task: any = null) {
   const visibleSelectedTask = selectedTask && !isTaskArchived(selectedTask.task_id) ? selectedTask : null;
   const selected = task || visibleSelectedTask || state.tasks.find((item: any) => !isTaskArchived(item.task_id)) || selectedTask || state.tasks[0];
   const status = taskPreviewStatus(selected);
+  syncGroundingAttribution(els.previewGrid, selected, "preview");
   updatePreviewDownloadActions(selected);
   const nextPreviewKey = previewStructureKey(selected);
   if (state.previewRenderKey === nextPreviewKey) {
@@ -153,7 +155,7 @@ function previewStructureKey(task: any) {
     return ["running", taskId, outputUrls, selectedIndexes, taskGeneratedCount(task, 0), taskTotalCount(task), size, task.mode || "", taskRetryStateText(task), taskRunningFailureKey(task)].join("|");
   }
   if (outputUrls) {
-    return ["output", taskId, status, outputUrls, selectedIndexes, previewPromptKey(task)].join("|");
+    return ["output", taskId, status, outputUrls, selectedIndexes, previewPromptKey(task), groundingAttributionKey(task)].join("|");
   }
   return ["empty", taskId, status].join("|");
 }

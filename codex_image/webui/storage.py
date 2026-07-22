@@ -37,7 +37,7 @@ from .reference_files import (
     ReferenceFileStorage,
 )
 from .queue_storage import QueueStorage, SQLiteQueueStorage
-from .task_index import SQLiteTaskIndex
+from .task_index import SQLiteTaskIndex, project_task_generation_snapshot
 from .storage_utils import (
     _guess_mime_type,
     _safe_extension,
@@ -415,6 +415,7 @@ class TaskStorage:
 def _sidebar_task_card(metadata: dict[str, Any]) -> dict[str, Any]:
     task_id = str(metadata.get("task_id") or "")
     params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
+    generation_snapshot = project_task_generation_snapshot(metadata.get("generation_snapshot"))
     size = _sidebar_display_size(metadata, params)
     requested_size = _sidebar_requested_size(params) or size
     thumbnail_url = _first_sidebar_thumbnail_url(metadata)
@@ -443,6 +444,7 @@ def _sidebar_task_card(metadata: dict[str, Any]) -> dict[str, Any]:
             "api_provider_id": params.get("api_provider_id") or "",
             "api_provider_name": params.get("api_provider_name") or "",
         },
+        "generation_snapshot": generation_snapshot,
         "backend": metadata.get("backend") or metadata.get("requested_backend") or "",
         "requested_backend": metadata.get("requested_backend") or metadata.get("backend") or "",
         "api_provider_id": metadata.get("api_provider_id") or params.get("api_provider_id") or "",

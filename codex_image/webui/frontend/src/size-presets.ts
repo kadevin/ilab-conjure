@@ -190,16 +190,19 @@ export function currentWebSearchEnabled(): boolean {
 
 export function currentTaskParams(): any {
   const params: any = {
-    main_model: currentMainModel(),
     model: currentImageToolModel(),
     size: currentSize(),
     n: currentQuantity(),
-    prompt_fidelity: currentPromptFidelity(),
     quality: els.quality.value,
     output_format: els.outputFormat.value,
     moderation: els.moderation.value,
     output_compression: els.outputFormat.value === "png" ? null : Number(els.compression.value),
   };
+  const { state } = getLegacyBridge();
+  if (!state.generationCatalog || state.selectedModelId === "gpt-image-2") {
+    params.main_model = currentMainModel();
+    params.prompt_fidelity = currentPromptFidelity();
+  }
   if (currentWebSearchEnabled()) {
     params.web_search = true;
   }

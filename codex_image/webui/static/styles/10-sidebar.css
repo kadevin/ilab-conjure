@@ -8,6 +8,8 @@
   flex-direction: column;
   flex-shrink: 0;
   z-index: 10;
+  container-type: inline-size;
+  container-name: sidebar-shell;
 }
 
 .sidebar-resize-handle {
@@ -65,6 +67,7 @@
 
 .brand-lockup {
   min-width: 0;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -105,11 +108,13 @@
 
 .brand-title {
   min-width: 0;
-  display: grid;
-  gap: 2px;
+  display: block;
 }
 
 .brand-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 17px;
   line-height: 1.08;
   font-weight: 760;
@@ -118,14 +123,120 @@
   white-space: nowrap;
 }
 
-.brand-subtitle {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.model-family-segments {
+  --segmented-control-padding: 3px;
+  --segmented-control-height: 30px;
+  --segmented-indicator-radius: 7px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 10px;
+  border-radius: 10px;
+}
+
+.sidebar .model-family-segments {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: color-mix(in srgb, var(--surface-soft) 88%, var(--surface));
+  border-color: color-mix(in srgb, var(--line) 86%, transparent);
+}
+
+.model-family-segments .model-family-segment {
+  width: 100%;
+  min-width: 0;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 650;
   white-space: nowrap;
+}
+
+.model-family-segments .segmented-indicator {
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--line));
+  background: color-mix(in srgb, var(--primary-light) 48%, var(--surface));
+  box-shadow: none;
+}
+
+.sidebar .model-family-segments.segmented-indicator-host .model-family-segment.active {
+  background: transparent;
+  color: var(--primary-strong);
+}
+
+.model-family-segment-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.model-family-brand-mark {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.model-family-brand-mark-fallback {
+  fill: currentColor;
+}
+
+:root[data-theme="dark"] .model-family-brand-mark-openai {
+  filter: invert(1) brightness(1.08);
+}
+
+.model-family-segment-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-family-segments .model-family-segment:hover {
+  color: var(--primary-strong);
+}
+
+.model-family-segments .model-family-segment:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary) 44%, transparent);
+  outline-offset: -2px;
+}
+
+@container sidebar-shell (max-width: 360px) {
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-lockup {
+    gap: 10px;
+  }
+
+  .sidebar .brand-new-button {
+    min-width: 34px;
+    width: 34px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+
+  .brand-new-label {
+    display: none;
+  }
+}
+
+@container sidebar-shell (max-width: 315px) {
+  .model-family-segments .model-family-segment {
+    padding: 0;
+  }
+
+  .model-family-segment-label {
+    display: none;
+  }
 }
 
 .brand-actions {

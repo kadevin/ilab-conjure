@@ -32,6 +32,58 @@ button:disabled {
   }
 }
 
+/* Continuous locked-summary density; viewport height changes do not create a new layout band. */
+  .controls-col .output-settings-summary-content {
+    padding: clamp(8px, calc(2.57dvh - 11.7px), 24px);
+  }
+
+  .controls-col .output-settings-summary-main {
+    padding: clamp(0px, calc(2.69dvh - 19.4px), 18px) 0 0;
+  }
+
+  .controls-col .output-settings-summary-cards {
+    gap: clamp(8px, calc(0.64dvh + 3.1px), 12px);
+    margin-top: clamp(6px, calc(2.89dvh - 16.2px), 24px);
+  }
+
+  .controls-col .output-settings-summary-card {
+    min-height: clamp(82px, calc(13.5dvh - 21.7px), 166px);
+    gap: clamp(3px, calc(1.13dvh - 5.7px), 10px);
+    padding: clamp(8px, calc(1.29dvh - 1.9px), 16px);
+  }
+
+  .controls-col .output-settings-ratio-visual,
+  .controls-col .output-settings-count-visual {
+    min-height: clamp(40px, calc(8.36dvh - 24.2px), 92px);
+  }
+
+  .controls-col .output-settings-ratio-frame {
+    width: clamp(46px, calc(6.43dvh - 3.4px), 86px);
+  }
+
+  .controls-col .output-settings-ratio-frame.is-portrait {
+    height: clamp(46px, calc(6.43dvh - 3.4px), 86px);
+  }
+
+  .controls-col .output-settings-format-visual,
+  .controls-col .output-settings-resolution-visual {
+    width: clamp(46px, calc(6.43dvh - 3.4px), 86px);
+    font-size: clamp(12px, calc(0.64dvh + 7.1px), 16px);
+  }
+
+  .controls-col .output-settings-summary-details {
+    margin-top: clamp(4px, calc(1.93dvh - 8.8px), 18px);
+    padding-top: clamp(4px, calc(1.93dvh - 8.8px), 18px);
+  }
+
+  .controls-col .output-settings-summary-footer {
+    padding-top: clamp(4px, calc(3.54dvh - 21.2px), 28px);
+  }
+
+  .controls-col .output-settings-summary-hint {
+    font-size: clamp(11px, calc(0.15dvh + 9.9px), 12px);
+  }
+
 @media (max-height: 1390px) and (min-width: 900px) {
   .reference-file-thumb .reference-file-format-icon {
     width: 39px;
@@ -84,7 +136,7 @@ button:disabled {
   }
 
   .preview-panel {
-    height: 100%;
+    height: auto;
     max-height: none;
   }
 
@@ -157,53 +209,6 @@ button:disabled {
   .controls-col .output-settings-lock-button {
     width: clamp(24px, calc(1.29dvh + 14.1px), 32px);
     height: clamp(24px, calc(1.29dvh + 14.1px), 32px);
-  }
-
-  .controls-col .output-settings-summary-content {
-    padding: clamp(8px, calc(2.57dvh - 11.7px), 24px);
-  }
-
-  .controls-col .output-settings-summary-main {
-    padding: 0 0 clamp(6px, calc(4.82dvh - 31px), 36px);
-  }
-
-  .controls-col .output-settings-summary-cards {
-    gap: clamp(8px, calc(0.64dvh + 3.1px), 12px);
-    margin-top: clamp(6px, calc(2.89dvh - 16.2px), 24px);
-  }
-
-  .controls-col .output-settings-summary-card {
-    min-height: clamp(82px, calc(13.5dvh - 21.7px), 166px);
-    gap: clamp(3px, calc(1.13dvh - 5.7px), 10px);
-    padding: clamp(8px, calc(1.29dvh - 1.9px), 16px);
-  }
-
-  .controls-col .output-settings-ratio-visual,
-  .controls-col .output-settings-count-visual {
-    min-height: clamp(40px, calc(8.36dvh - 24.2px), 92px);
-  }
-
-  .controls-col .output-settings-ratio-frame {
-    width: clamp(46px, calc(6.43dvh - 3.4px), 86px);
-  }
-
-  .controls-col .output-settings-ratio-frame.is-portrait {
-    height: clamp(46px, calc(6.43dvh - 3.4px), 86px);
-  }
-
-  .controls-col .output-settings-format-visual {
-    width: clamp(46px, calc(6.43dvh - 3.4px), 86px);
-    font-size: clamp(12px, calc(0.64dvh + 7.1px), 16px);
-  }
-
-  .controls-col .output-settings-summary-details {
-    margin-top: clamp(6px, calc(1.93dvh - 8.8px), 18px);
-    padding-top: clamp(6px, calc(1.93dvh - 8.8px), 18px);
-  }
-
-  .controls-col .output-settings-summary-hint {
-    padding-top: clamp(6px, calc(3.54dvh - 21.2px), 28px);
-    font-size: 11px;
   }
 
   .controls-col .prompt-heading {
@@ -667,6 +672,27 @@ button:disabled {
       grid-column: 2 / 3;
       grid-row: 1 / 2;
     }
+
+    #apiDirectSettingsNotice .api-direct-settings-control {
+      grid-template-columns: minmax(0, 1fr) 28px;
+      gap: 4px;
+      padding-inline: 6px;
+    }
+
+    #apiDirectSettingsNotice .api-direct-settings-header {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #apiDirectSettingsNotice .api-direct-settings-header span,
+    #apiDirectSettingsNotice .api-direct-settings-button > span {
+      display: none;
+    }
+
+    #apiDirectSettingsNotice .api-direct-settings-button {
+      width: 28px;
+      min-width: 28px;
+      padding: 0;
+    }
   }
 }
 
@@ -825,12 +851,30 @@ button:disabled {
   .sidebar-header {
     min-width: 0;
     padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .brand {
+    min-width: 0;
     min-height: 64px;
     margin: 0;
     padding: 0;
+  }
+
+  .brand-lockup {
+    gap: 9px;
+  }
+
+  .model-family-segments {
+    width: 96px;
+    flex: 0 0 96px;
+    margin: 0;
+  }
+
+  .model-family-segment-label {
+    display: none;
   }
 
   .brand-mark {
@@ -906,6 +950,11 @@ button:disabled {
     flex: 0 0 auto;
   }
 
+  .generation-provider-control {
+    flex: 0 0 min(280px, 78vw);
+    max-width: min(280px, 78vw);
+  }
+
   .auth-source-detail {
     display: none;
   }
@@ -954,6 +1003,30 @@ button:disabled {
 }
 
 @container workspace (max-width: 899px) {
+  .model-parameter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .model-parameter-advanced-grid:not(.model-parameter-advanced-grid-expanded) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .model-parameter-choice-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .model-parameter-choice-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .model-aspect-ratio-grid {
+    grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+  }
+
+  .task-parameter-unknown-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .dashboard {
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
@@ -973,6 +1046,8 @@ button:disabled {
   }
 
   .preview-panel {
+    position: relative;
+    inset: auto;
     height: auto;
     max-height: none;
     min-height: 260px;
@@ -981,9 +1056,23 @@ button:disabled {
   .field-pair {
     grid-template-columns: 1fr;
   }
+
+  .settings-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @container workspace (max-width: 520px) {
+  .model-parameter-advanced-grid-expanded {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .generation-provider-control,
+  .generation-provider-select-shell,
+  .generation-provider-select-shell .themed-select {
+    min-width: 0;
+    max-width: 100%;
+  }
   .image-input-workspace,
   .controls-col .image-input-workspace {
     grid-template-columns: minmax(0, 1fr);

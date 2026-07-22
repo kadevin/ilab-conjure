@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#457B66" />
-    <title>iLab GPT CONJURE</title>
+    <title>iLab CONJURE</title>
     <link rel="icon" type="image/svg+xml" href="/static/brand/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <script src="/static/pwa.js?v=pwa-1" defer></script>
@@ -113,14 +113,14 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-568" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-640" />
   </head>
   <body>
     <div class="layout-container">
       <!-- Left Sidebar -->
       <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
-          <div class="brand" aria-label="iLab GPT CONJURE">
+          <div class="brand" aria-label="iLab CONJURE">
             <div class="brand-lockup">
               <div class="brand-mark brand-mark-rabbit" aria-hidden="true">
                 <svg class="brand-rabbit-logo" width="31" height="31" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -140,8 +140,7 @@
                 </svg>
               </div>
               <div class="brand-title">
-                <div class="brand-name">iLab GPT</div>
-                <div class="brand-subtitle">CONJURE</div>
+                <div class="brand-name">iLab CONJURE</div>
               </div>
             </div>
             <div class="brand-actions">
@@ -149,10 +148,17 @@
                 <svg class="brand-new-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
                 </svg>
-                <span data-i18n="app.newTask">新建</span>
+                <span class="brand-new-label" data-i18n="app.newTask">新建</span>
               </button>
             </div>
           </div>
+          <div
+            id="modelFamilyOptions"
+            class="model-family-segments radio-group"
+            role="radiogroup"
+            aria-label="模型系列"
+            data-i18n-attr="aria-label:modelSelection.family"
+          ></div>
           <div class="sidebar-search">
             <input id="taskSearch" type="search" placeholder="搜索对话..." data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
             <button
@@ -318,24 +324,24 @@
               <button class="theme-option" data-theme-option="light" type="button" aria-pressed="false" data-i18n="theme.light">浅色</button>
               <button class="theme-option" data-theme-option="dark" type="button" aria-pressed="false" data-i18n="theme.dark">深色</button>
             </div>
-            <a id="githubLink" class="queue-button github-link" href="https://github.com/kadevin/ilab-gpt-conjure" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+            <a id="githubLink" class="queue-button github-link" href="https://github.com/kadevin/ilab-conjure" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
               <svg class="github-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.4.7-4.1-1.5-4.1-1.5-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C16.8 4.7 17.8 5 17.8 5c.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.8c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/>
               </svg>
             </a>
-            <div class="auth-source-switcher" aria-label="授权来源" data-i18n-attr="aria-label:auth.label">
-              <div id="authSourceDetail" class="auth-source-detail" data-i18n="auth.checking">授权检查中</div>
-              <div id="authSourceGroup" class="auth-source-group">
-                <button class="auth-source-button active" data-auth-source="codex" type="button">Codex</button>
-                <button class="auth-source-button auth-source-api-button" data-auth-source="api" type="button">API</button>
+            <div class="generation-provider-control">
+              <div class="generation-provider-select-shell">
+                <span class="generation-provider-label" data-i18n="modelSelection.provider">供应商</span>
+                <select id="generationProviderSelect" aria-label="生成供应商" data-i18n-attr="aria-label:modelSelection.provider" disabled>
+                  <option value="" data-i18n="modelSelection.catalogUnavailable">模型目录不可用</option>
+                </select>
               </div>
-              <button id="apiSourceSettingsButton" class="auth-source-settings-button" type="button" aria-label="系统设置" title="系统设置" data-i18n-attr="aria-label:systemSettings.title;title:systemSettings.title">
+              <button id="generationProviderSettingsButton" class="auth-source-settings-button" type="button" aria-label="打开供应商设置" title="打开供应商设置" data-i18n-attr="aria-label:modelSelection.openSettings;title:modelSelection.openSettings">
                 <svg class="auth-source-settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
                   <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
                 </svg>
               </button>
-              <select id="apiProviderQuick" class="api-provider-quick hidden" aria-label="API 供应商" data-i18n-attr="aria-label:api.provider"></select>
             </div>
           </div>
           <div id="taskNotificationCenter" class="task-notification-center hidden" role="dialog" aria-hidden="true" aria-label="任务通知" data-i18n-attr="aria-label:notifications.title">
@@ -526,7 +532,16 @@
                     <button id="adoptTaskOutputSettingsButton" class="ghost-button" type="button" data-i18n="output.lock.adoptTask">使用此任务参数</button>
                   </div>
                 </div>
+                <section id="taskParameterInspector" class="task-parameter-inspector hidden" aria-live="polite" aria-hidden="true">
+                  <div id="taskParameterInspectorHeader" class="task-parameter-inspector-header"></div>
+                  <div id="taskParameterInspectorGrid" class="model-parameter-grid model-parameter-grid-readonly"></div>
+                  <dl id="taskParameterInspectorUnknown" class="task-parameter-unknown-list"></dl>
+                </section>
                 <div id="settingsGrid" class="settings-grid">
+                <div class="field concrete-model-field full-width">
+                  <select id="concreteModelSelect" class="control" aria-label="具体型号" data-i18n-attr="aria-label:modelSelection.concreteModel" disabled></select>
+                  <div id="concreteModelOptions" class="radio-group concrete-model-options hidden" role="group" aria-label="具体型号" data-i18n-attr="aria-label:modelSelection.concreteModel"></div>
+                </div>
                 <div id="modeSettingsSlot" class="mode-settings-slot full-width">
                   <div id="modeSpecificSettings" class="mode-specific-settings mode-transition">
                     <div class="model-tool-row">
@@ -617,6 +632,8 @@
                     </div>
                   </div>
                 </div>
+
+                <div id="modelParameterGrid" class="model-parameter-grid hidden full-width" aria-live="polite"></div>
 
                 <div class="field-group full-width custom-size-control">
                   <span class="field-label mb-0" data-i18n="output.sizeMode">尺寸模式</span>
@@ -946,7 +963,6 @@
         </div>
         <div id="systemSettingsTabs" class="system-settings-tabs" role="tablist" aria-label="系统设置选项" data-i18n-attr="aria-label:systemSettings.tabsLabel">
           <button id="systemSettingsApiTab" class="system-settings-tab active" type="button" role="tab" aria-selected="true" aria-controls="systemSettingsApiPanel" data-system-settings-tab="api" data-i18n="systemSettings.apiTab">API 设置</button>
-          <button id="systemSettingsCodexTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsCodexPanel" data-system-settings-tab="codex" data-i18n="systemSettings.codexTab">Codex 通道</button>
           <button id="systemSettingsLanguageTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsLanguagePanel" data-system-settings-tab="language" data-i18n="systemSettings.languageTab">语言 / Language</button>
           <button id="systemSettingsStorageTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsStoragePanel" data-system-settings-tab="storage" data-i18n="systemSettings.storageTab">存储与通知</button>
         </div>
@@ -990,8 +1006,8 @@
                   <dd id="apiProviderDetailKey" data-i18n="apiSettings.keyNotSet">未设置 API Key</dd>
                 </div>
                 <div>
-                  <dt data-i18n="apiSettings.mode">调用方式</dt>
-                  <dd id="apiProviderDetailMode">Image</dd>
+                  <dt data-i18n="apiSettings.modelBindings">模型绑定</dt>
+                  <dd id="apiProviderDetailMode">0</dd>
                 </div>
                 <div>
                   <dt data-i18n="apiSettings.concurrencyShort">并发</dt>
@@ -1011,10 +1027,16 @@
               <span data-i18n="apiSettings.editHint">点击保存前不会写入后端，取消可放弃本次编辑。</span>
             </div>
             <div class="api-settings-grid compact-api-settings-grid">
-              <label class="field api-provider-name-field">
-                <span data-i18n="apiSettings.providerName">供应商名称</span>
-                <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" />
-              </label>
+              <div class="field api-provider-name-field">
+                <span id="apiProviderNameFieldLabel" data-i18n="apiSettings.providerName">供应商名称</span>
+                <div class="api-provider-name-inputs">
+                  <label class="api-provider-icon-input">
+                    <span data-i18n="apiSettings.providerIcon">Emoji 图标</span>
+                    <input id="apiProviderIconEmoji" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="🪄" aria-label="Emoji 图标" title="可选，例如 🪄" data-i18n-attr="aria-label:apiSettings.providerIcon;title:apiSettings.providerIconPlaceholder" />
+                  </label>
+                  <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" aria-labelledby="apiProviderNameFieldLabel" />
+                </div>
+              </div>
               <label class="field api-base-url-field">
                 <span>Base URL</span>
                 <input id="apiBaseUrl" class="control" type="url" autocomplete="off" placeholder="https://api.openai.com/v1" />
@@ -1039,42 +1061,28 @@
                   </button>
                 </div>
               </label>
-              <div class="field api-mode-field">
-                <div class="radio-group" id="apiModeGroup" role="group" aria-label="调用方式" data-i18n-attr="aria-label:apiSettings.mode">
-                  <button class="radio-btn active" data-val="images" type="button" data-i18n="apiSettings.images">直连 Image API</button>
-                  <button class="radio-btn" data-val="responses" type="button" data-i18n="apiSettings.responses">Responses API</button>
+              <label class="field api-concurrency-field">
+                <span data-i18n="apiSettings.concurrency">并发上限</span>
+                <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
+              </label>
+              <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
+                <div class="provider-bindings-header">
+                  <div class="provider-bindings-title-row">
+                    <strong id="providerBindingsTitle" data-i18n="apiSettings.modelBindings">模型绑定</strong>
+                    <button id="addProviderBindingButton" class="ghost-button provider-binding-add" type="button">
+                      <svg class="provider-binding-add-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
+                      </svg>
+                      <span data-i18n="apiSettings.addModelBinding">添加模型绑定</span>
+                    </button>
+                  </div>
+                  <small class="provider-bindings-connection">
+                    <span class="provider-bindings-connection-label" data-i18n="apiSettings.connectionPreview">连接预览</span>
+                    <code id="apiRequestEndpointPreview">Base URL 由全部模型绑定共享，认证按协议自动处理</code>
+                  </small>
                 </div>
-                <select id="apiMode" class="hidden">
-                  <option value="images" selected data-i18n="apiSettings.images">直连 Image API</option>
-                  <option value="responses" data-i18n="apiSettings.responses">Responses API</option>
-                </select>
-              </div>
-              <small class="api-request-endpoint-preview">
-                <span data-i18n="apiSettings.actualRequest">实际请求</span>
-                <code id="apiRequestEndpointPreview">POST https://api.openai.com/v1/images/generations</code>
-              </small>
-              <details id="apiAdvancedSettings" class="api-advanced-settings">
-                <summary>
-                  <strong data-i18n="apiSettings.advancedSettings">高级设置</strong>
-                  <span class="api-advanced-settings-summary">
-                    <span id="apiAdvancedImageModelSummary">gpt-image-2</span>
-                    <span aria-hidden="true">·</span>
-                    <span data-i18n="apiSettings.concurrencyShort">并发</span>
-                    <span id="apiAdvancedConcurrencySummary">4</span>
-                  </span>
-                  <span class="api-advanced-settings-chevron" aria-hidden="true"></span>
-                </summary>
-                <div class="api-advanced-settings-body">
-                  <label class="field api-image-model-field">
-                    <span data-i18n="apiSettings.imageModel">图像生成模型</span>
-                    <input id="apiImageModel" class="control" type="text" autocomplete="off" value="gpt-image-2" />
-                  </label>
-                  <label class="field api-concurrency-field">
-                    <span data-i18n="apiSettings.concurrency">并发上限</span>
-                    <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
-                  </label>
-                </div>
-              </details>
+                <div id="apiProviderBindings" class="provider-bindings-list"></div>
+              </section>
             </div>
             <div class="api-provider-editor-actions">
               <button id="cancelApiProviderEditButton" class="ghost-button" type="button" data-i18n="apiSettings.cancelEdit">取消编辑</button>
@@ -1085,45 +1093,11 @@
             <p id="apiSettingsStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
           </div>
         </section>
-        <section id="systemSettingsCodexPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsCodexTab" hidden aria-hidden="true">
-          <div class="codex-settings-layout">
-            <div class="field codex-channel-control">
-              <span data-i18n="apiSettings.codexMode">Codex 通道</span>
-              <div class="radio-group" id="codexModeGroup">
-                <button class="radio-btn active" data-val="images" type="button" data-i18n="apiSettings.codexImages">Image</button>
-                <button class="radio-btn" data-val="responses" type="button" data-i18n="apiSettings.codexResponses">Responses</button>
-              </div>
-              <select id="codexMode" class="hidden">
-                <option value="images" selected data-i18n="apiSettings.codexImages">Image</option>
-                <option value="responses" data-i18n="apiSettings.codexResponses">Responses</option>
-              </select>
-            </div>
-            <div class="codex-channel-notes" aria-label="Codex 通道说明" data-i18n-attr="aria-label:codexSettings.notesLabel">
-              <button class="codex-channel-note active" type="button" data-codex-mode-note="images" aria-current="true">
-                <span class="codex-channel-note-header">
-                  <strong data-i18n="codexSettings.imagesTitle">Codex Image</strong>
-                  <span class="codex-channel-current" data-i18n="codexSettings.current">当前使用</span>
-                </span>
-                <span data-i18n="codexSettings.imagesCopy">默认通道，直接传递尺寸、质量和编辑参数。</span>
-              </button>
-              <button class="codex-channel-note" type="button" data-codex-mode-note="responses" aria-current="false">
-                <span class="codex-channel-note-header">
-                  <strong data-i18n="codexSettings.responsesTitle">Codex Responses</strong>
-                  <span class="codex-channel-current" data-i18n="codexSettings.current">当前使用</span>
-                </span>
-                <span data-i18n="codexSettings.responsesCopy">兼容通道，需要联网搜索工具流时使用。</span>
-              </button>
-            </div>
-          </div>
-          <div class="settings-modal-actions settings-status-only">
-            <p id="codexSettingsStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
-          </div>
-        </section>
         <section id="systemSettingsLanguagePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsLanguageTab" hidden aria-hidden="true">
           <div class="language-settings-panel">
-            <label class="field language-select-field">
-              <span data-i18n="settings.language">界面语言</span>
-              <select id="languageSelect" class="control" autocomplete="off" aria-describedby="languageSettingsCopy languageSettingsStatus">
+            <div class="field language-select-field">
+              <span id="languageSelectLabel" data-i18n="settings.language">界面语言</span>
+              <select id="languageSelect" class="control" autocomplete="off" aria-labelledby="languageSelectLabel" aria-describedby="languageSettingsCopy languageSettingsStatus">
                 <option value="zh-CN">简体中文</option>
                 <option value="zh-TW">正體中文</option>
                 <option value="zh-HK">繁体中文</option>
@@ -1139,7 +1113,7 @@
                 <option value="hi">हिन्दी</option>
               </select>
               <span id="languageSettingsCopy" class="field-hint" data-i18n="settings.languageCopy">首次启动会自动跟随浏览器语言，手动选择后会记住偏好。</span>
-            </label>
+            </div>
             <p id="languageSettingsStatus" class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus" aria-live="polite">切换后立即生效</p>
           </div>
         </section>
@@ -1221,8 +1195,8 @@
           </ul>
         </div>
         <div class="version-modal-actions">
-          <a id="versionReleaseLink" class="ghost-button text-sm" href="https://github.com/kadevin/ilab-gpt-conjure/releases" target="_blank" rel="noreferrer" data-i18n="version.release">查看发布页</a>
-          <a id="versionStandardDownloadLink" class="run-button text-sm hidden" href="https://github.com/kadevin/ilab-gpt-conjure/releases" target="_blank" rel="noreferrer" data-i18n="version.standardDownload">下载标准版</a>
+          <a id="versionReleaseLink" class="ghost-button text-sm" href="https://github.com/kadevin/ilab-conjure/releases" target="_blank" rel="noreferrer" data-i18n="version.release">查看发布页</a>
+          <a id="versionStandardDownloadLink" class="run-button text-sm hidden" href="https://github.com/kadevin/ilab-conjure/releases" target="_blank" rel="noreferrer" data-i18n="version.standardDownload">下载标准版</a>
           <button id="versionUpdateButton" class="run-button" type="button" disabled data-i18n="version.openUpdater">启动更新器</button>
           <button id="versionContinuePortableButton" class="ghost-button text-sm hidden" type="button" data-i18n="version.continuePortable">继续使用便携版</button>
           <button id="versionDismissOnboardingButton" class="ghost-button text-sm hidden" type="button" data-i18n="version.dismissOnboarding">不再提示</button>
@@ -1435,7 +1409,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-568"></script>
+  <script src="/static/app.js?v=runtime-640"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

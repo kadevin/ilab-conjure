@@ -27,6 +27,10 @@ const state = bridge.state;
 const els = bridge.els;
 const customSizeTransitionTimers = new WeakMap<HTMLElement, number>();
 
+function saveCurrentModelParameterDraft(): void {
+  bridge.methods.saveCurrentModelParameterDraft?.();
+}
+
 function measuredElementHeight(element: any): number {
   if (!element) return 0;
   return Math.ceil(element.getBoundingClientRect().height);
@@ -41,6 +45,7 @@ export function handleSizeModeEvent(event: any): void {
 export function setCustomSizeMode(isCustom: any): void {
   if (els.customSizeToggle) els.customSizeToggle.checked = Boolean(isCustom);
   updateSizeFromPreset();
+  saveCurrentModelParameterDraft();
 }
 
 export function swapCustomSizeDimensions(event?: any): void {
@@ -53,6 +58,7 @@ export function swapCustomSizeDimensions(event?: any): void {
   updateCustomSize();
   updatePixelPreview("custom");
   updateRequestPreview();
+  saveCurrentModelParameterDraft();
 }
 
 export function sanitizeCustomRatioInput(input: any): string {
@@ -229,6 +235,7 @@ export async function applyFirstReferenceImageAspectRatio(event?: any): Promise<
     const ratio = singleDigitAspectRatioForDimensions(dimensions.width, dimensions.height);
     if (!ratio) return;
     applyCustomAspectRatioDigits(ratio.width, ratio.height);
+    saveCurrentModelParameterDraft();
   });
 }
 

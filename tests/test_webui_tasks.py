@@ -172,6 +172,17 @@ class WebUITaskTests(unittest.TestCase):
                     "prompt": "sidebar card prompt",
                     "prompt_for_model": "expanded prompt should not ship to the main sidebar",
                     "params": {"size": "1152x2048", "n": 2},
+                    "generation_snapshot": {
+                        "canonical_model_id": "nano-banana-2",
+                        "provider_base_url": "https://private.example/v1",
+                        "remote_model_id": "private/model-name",
+                        "requested_parameters": {
+                            "canvas.aspect_ratio": "16:9",
+                            "canvas.resolution": "2K",
+                            "output.count": 2,
+                        },
+                        "mapped_request": {"json_body": {"prompt": "private"}},
+                    },
                     "input_sources": [
                         {
                             "kind": "asset",
@@ -200,12 +211,24 @@ class WebUITaskTests(unittest.TestCase):
         self.assertEqual(task["thumbnail_urls"], [f"/api/tasks/{task_id}/outputs/1/thumbnail"])
         self.assertEqual(task["input_thumbnail_urls"], ["/api/reference-assets/asset-1/image"])
         self.assertEqual(task["generated_count"], 2)
+        self.assertEqual(task["generation_snapshot"], {
+            "canonical_model_id": "nano-banana-2",
+            "requested_parameters": {
+                "canvas.aspect_ratio": "16:9",
+                "canvas.resolution": "2K",
+            },
+        })
         self.assertTrue(task["summary_only"])
         self.assertNotIn("outputs", task)
         self.assertNotIn("output_urls", task)
         self.assertNotIn("input_sources", task)
         self.assertNotIn("prompt_for_model", task)
         self.assertNotIn("request", task)
+        serialized = str(task)
+        self.assertNotIn("private.example", serialized)
+        self.assertNotIn("private/model-name", serialized)
+        self.assertNotIn("output.count", serialized)
+        self.assertNotIn("mapped_request", serialized)
 
     def test_recent_tasks_api_falls_back_to_requested_size_when_output_size_is_numeric(self) -> None:
         from codex_image.webui.app import create_app

@@ -8,13 +8,22 @@ import { PT_DICTIONARY } from "./pt";
 import { RU_DICTIONARY } from "./ru";
 import { IT_DICTIONARY } from "./it";
 import { HI_DICTIONARY } from "./hi";
-import type { Locale, TranslationDictionary } from "./types";
+import type { Locale, ModelSelectionTranslationKey, TranslationDictionary } from "./types";
 import { ZH_CN_DICTIONARY } from "./zh-cn";
 import { ZH_HK_DICTIONARY } from "./zh-hk";
 import { ZH_TW_DICTIONARY } from "./zh-tw";
 
 export const DEFAULT_LOCALE: Locale = "zh-CN";
 export const LOCALES: readonly Locale[] = ["zh-CN", "zh-TW", "zh-HK", "ja", "ko", "en", "es", "pt", "fr", "de", "ru", "it", "hi"];
+export const MODEL_SELECTION_TRANSLATION_KEYS: readonly ModelSelectionTranslationKey[] = [
+  "modelSelection.family",
+  "modelSelection.concreteModel",
+  "modelSelection.provider",
+  "modelSelection.providerUnavailable",
+  "modelSelection.openSettings",
+  "modelSelection.codexUnavailable",
+  "modelSelection.catalogUnavailable",
+];
 
 export const DICTIONARIES: Record<Locale, TranslationDictionary> = {
   "zh-CN": ZH_CN_DICTIONARY,

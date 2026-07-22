@@ -1,6 +1,14 @@
 import { getLegacyBridge } from "./state";
 import { cssEscape, prefersReducedMotion } from "./webui-utils";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
+import { groundingAttributionKey, groundingSourceCount } from "./grounding-attribution";
+import { modelFamilyBrandMarkHtml } from "./model-family-icons";
+import {
+  taskCanvasSummaryParts,
+  taskChannelLabel,
+  taskModelDisplayName,
+  taskModelFamilyId,
+} from "./task-model-summary";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -723,10 +731,15 @@ function taskCardHtml(task: any) {
   const imageBlocks = showImageSummary ? taskImageBlocksHtml(task) : "";
   const imageSummary = showImageSummary ? escapeHtml(taskImageSummaryText(task)) : "";
   const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";
+  const groundingCount = groundingSourceCount(task);
+  const groundingHtml = groundingCount > 0
+    ? `<span class="task-grounding-badge">${escapeHtml(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>`
+    : "";
   const retryFullText = taskRetryStateText(task);
   const retryText = taskCardRetryStateText(task) || retryFullText;
   const runningTimerHtml = taskCardRunningTimerHtml(task, taskId);
   const statusLabel = taskStatusLabelHtml(task);
+  const modelFamilyIcon = taskModelFamilyIconHtml(task);
   const statusMetaText = runningTimerHtml && retryText
     ? [taskMetaDetailsText(task), retryText].filter(Boolean).join(" · ")
     : retryText
@@ -745,6 +758,7 @@ function taskCardHtml(task: any) {
             ${imageBlocks}
             <span class="task-status-row task-status-inline" aria-label="${escapeHtml(taskStatusAccessibleLabel(task))}">
               ${statusLabel}
+              ${modelFamilyIcon}
             </span>
             ${imageSummaryHtml}
           </span>
@@ -790,6 +804,7 @@ function taskCardHtml(task: any) {
           <div class="task-title">${title}</div>
         </div>
         ${detailRow}
+        ${groundingHtml}
       </div>
       ${queueActions}
       ${taskActions}
@@ -978,6 +993,7 @@ function taskListRenderKey(tasks: any, query: any, layout: any = {}, filters: an
       Array.isArray(task.outputs)
         ? task.outputs.map((item: any) => [item?.index, item?.status, item?.url, item?.thumbnail_url, item?.error].join(":")).join("|")
         : "",
+      groundingAttributionKey(task),
     ]),
   });
 }
@@ -1033,16 +1049,26 @@ function taskStatusLabelHtml(task: any) {
   return `<span class="task-status-label" data-task-status-id="${taskId}">${label}</span>`;
 }
 
+function taskModelFamilyIconHtml(task: any) {
+  const familyId = taskModelFamilyId(task, state.generationCatalog);
+  const modelName = taskModelDisplayName(task, state.generationCatalog);
+  return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
+}
+
 function taskStatusAccessibleLabel(task: any) {
-  return [formatTaskStatus(task) || translate("taskStatus.unknown"), taskImageSummaryText(task), taskMetaDetailsText(task)]
+  return [
+    formatTaskStatus(task) || translate("taskStatus.unknown"),
+    taskModelDisplayName(task, state.generationCatalog),
+    taskImageSummaryText(task),
+    taskMetaDetailsText(task),
+  ]
     .filter(Boolean)
     .join(" · ");
 }
 
 function taskMetaDetailsText(task: any) {
-  const size = task.output_size || task.params?.size || "";
   const backend = taskCardProviderLabel(task);
-  return [size, backend].filter(Boolean).join(" · ");
+  return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" · ");
 }
 
 function taskMetaDetailsWithCompletionText(task: any) {
@@ -1076,7 +1102,7 @@ function taskCardProviderLabel(task: any) {
   const providerLabel = String(taskApiProviderLabel(task) || "").trim();
   const providerId = String(taskApiProviderId(task) || "").trim();
   const backend = String(task?.backend || task?.requested_backend || "").trim();
-  const channel = backend === "openai_responses" ? "Responses" : backend === "openai_images" ? "Image" : "";
+  const channel = taskChannelLabel(task);
   if (providerLabel && (!providerId || providerLabel !== providerId)) {
     const providerIdSuffix = providerId ? `(${providerId})` : "";
     const label = providerIdSuffix && providerLabel.endsWith(providerIdSuffix)
@@ -1123,9 +1149,8 @@ function taskImageSummaryVisible(task: any) {
 
 function taskMetaText(task: any) {
   const status = formatTaskStatus(task);
-  const size = task.output_size || task.params?.size || "";
   const backend = taskCardProviderLabel(task);
-  return [status, size, backend].filter(Boolean).join(" · ");
+  return [status, ...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" · ");
 }
 
 export function initTaskListRenderFeature() {

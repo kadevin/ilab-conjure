@@ -26,16 +26,23 @@ export async function refreshHealth(): Promise<void> {
   try {
     const response = await fetch("/api/health");
     const data = await response.json();
-    state.authAvailable = Boolean(data.auth_available);
+    if (!state.generationCatalog) state.authAvailable = Boolean(data.auth_available);
     state.authStatus = data.auth || null;
     renderAuthSource(state.authStatus);
     els.apiStatus.className = `status-dot ${state.authAvailable ? "ok" : "error"}`;
+    if (state.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
     els.runButton.disabled = !state.authAvailable;
-    if (!state.authAvailable) {
+    if (!state.authAvailable && !state.generationCatalog) {
       setStatus(translate("auth.missingCodexSession"), "error");
     }
     updateRequestPreview();
   } catch (error: any) {
+    if (state.generationCatalog) {
+      getLegacyBridge().methods.renderProviderSelection?.();
+      getLegacyBridge().methods.updateModeSpecificSettings?.();
+      updateRequestPreview();
+      return;
+    }
     state.authAvailable = false;
     els.apiStatus.className = "status-dot error";
     els.runButton.disabled = true;
@@ -59,8 +66,10 @@ async function applyAuthSource(source: any): Promise<boolean> {
     }
     state.pendingAuthSource = null;
     state.authStatus = data;
-    state.authAvailable = Boolean(data.auth_available);
+    if (!state.generationCatalog) state.authAvailable = Boolean(data.auth_available);
     renderAuthSource(data);
+    if (state.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
     els.apiStatus.className = `status-dot ${state.authAvailable ? "ok" : "error"}`;
     els.runButton.disabled = !state.authAvailable;
     setStatus(authSourceDetailText(data), state.authAvailable ? "ok" : "error");
@@ -69,6 +78,8 @@ async function applyAuthSource(source: any): Promise<boolean> {
   } catch (error: any) {
     state.pendingAuthSource = null;
     renderAuthSource(state.authStatus);
+    if (state.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
     updateRequestPreview();
     setStatus(error.message || translate("auth.switchFailed"), "error");
     return false;
@@ -133,6 +144,7 @@ export function sourceLabel(source: any): string {
 }
 
 export function currentAuthSource(): string {
+  if (state.selectedProviderId) return state.selectedProviderId === "codex" ? "codex" : "api";
   return state.pendingAuthSource || state.authStatus?.selected_source || "codex";
 }
 

@@ -45,7 +45,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-69', history_html)
+        self.assertIn('/static/history.js?v=history-71', history_html)
         self.assertIn('fetch("/api/task-history/summary")', history_source)
         self.assertIn('new URLSearchParams', history_source)
         self.assertIn('/api/task-history/tasks?', history_source)
@@ -431,6 +431,24 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.sidebar-search\s*\{[^}]*margin-top:\s*0")
         self.assertRegex(styles, r"\.task-search-clear-button\s*\{[^}]*right:\s*39px")
         self.assertRegex(styles, r"\.task-search-clear-button\[hidden\]\s*\{[^}]*display:\s*none")
+
+    def test_sidebar_new_task_button_collapses_to_an_icon_before_the_brand_overflows(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        sidebar = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
+
+        self.assertRegex(
+            html,
+            r'<span class="brand-new-label" data-i18n="app.newTask">新建</span>',
+        )
+        self.assertRegex(sidebar, r"\.brand-name\s*\{[^}]*overflow:\s*hidden[^}]*text-overflow:\s*ellipsis")
+        self.assertRegex(
+            sidebar,
+            r"@container sidebar-shell \(max-width:\s*360px\)\s*\{[\s\S]*?\.sidebar\s+\.brand-new-button\s*\{[^}]*min-width:\s*34px[^}]*width:\s*34px[^}]*padding:\s*0[^}]*gap:\s*0",
+        )
+        self.assertRegex(
+            sidebar,
+            r"@container sidebar-shell \(max-width:\s*360px\)\s*\{[\s\S]*?\.brand-new-label\s*\{[^}]*display:\s*none",
+        )
     def test_sidebar_history_groups_by_dates_and_uses_anchor_navigation(self) -> None:
         script = self._frontend_script_source()
         render_source = self._task_list_render_source()
@@ -590,10 +608,12 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("task.error || task.last_error", script)
         self.assertIn('taskFailureMessage(selected) || translate("preview.taskFailed")', preview_source)
         self.assertIn("const backend = taskCardProviderLabel(task)", meta_details_source)
-        self.assertIn('return [size, backend].filter(Boolean).join(" · ");', meta_details_source)
+        self.assertIn("taskCanvasSummaryParts(task)", meta_details_source)
+        self.assertIn('return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" · ");', meta_details_source)
         self.assertIn("function taskMetaDetailsWithCompletionText", script)
         self.assertIn("function taskCardCompletionTimeText", script)
         self.assertIn("const backend = taskCardProviderLabel(task)", meta_text_source)
+        self.assertIn("taskCanvasSummaryParts(task)", meta_text_source)
         self.assertNotIn("taskBackendLabel(task)", meta_details_source)
         self.assertNotIn("taskFailureMessage(task)", meta_details_source)
         self.assertNotIn("taskFailureMessage(task)", meta_text_source)
@@ -731,6 +751,8 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("const detailRightHtml = runningTimerHtml || retryHtml || timeHtml;", render_source)
         self.assertIn('const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";', script)
         self.assertIn('${imageBlocks}\n            <span class="task-status-row task-status-inline"', script)
+        self.assertIn("taskModelFamilyIconHtml(task)", script)
+        self.assertIn("task-model-family-icon", styles)
 
         self.assertLess(script.index('class="task-meta-row"'), script.index('class="task-title-row"'))
         self.assertLess(script.index('class="task-title-row"'), script.index('${detailRow}'))
@@ -746,7 +768,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('record?.status === "failed"', script)
         self.assertIn('const visibleCount = Math.min(total, 4)', script)
         self.assertNotIn(".task-status-light", styles)
-        self.assertRegex(styles, r"\.task-status-inline\s*\{[^}]*max-width:\s*58px")
+        self.assertRegex(styles, r"\.task-status-inline\s*\{[^}]*max-width:\s*76px")
         self.assertRegex(styles, r"\.task-status-label\s*\{[^}]*max-width:\s*58px")
         self.assertRegex(styles, r"\.task-card\.failed \.task-status-label,\s*\.task-card\.partial_failed \.task-status-label\s*\{[^}]*var\(--danger\)")
         self.assertRegex(styles, r"\.task-meta-row\s*\{[^}]*display:\s*grid")
@@ -754,6 +776,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.task-detail-row\s*\{[^}]*display:\s*grid")
         self.assertRegex(styles, r"\.task-detail-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(72px,\s*40%\)")
         self.assertRegex(styles, r"\.task-detail-row-meta-only\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
+
         self.assertRegex(styles, r"\.task-retry-state\s*\{[^}]*justify-self:\s*end")
         self.assertRegex(styles, r"\.task-retry-state\s*\{[^}]*text-align:\s*right")
         self.assertRegex(styles, r"\.task-card-time\s*\{[^}]*justify-self:\s*end")
@@ -787,6 +810,33 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("function taskImageSummaryVisible", script)
         self.assertIn("const showImageSummary = taskImageSummaryVisible(task)", script)
         self.assertRegex(script, r"function taskImageSummaryVisible\(task(?:: any)?\)\s*\{\s*void task;\s*return true;")
+
+    def test_history_task_selection_restores_prompt_and_routes_output_by_lock_and_model(self) -> None:
+        source = Path("codex_image/webui/frontend/src/task-selection.ts").read_text(encoding="utf-8")
+        submit_source = Path("codex_image/webui/frontend/src/task-submit.ts").read_text(encoding="utf-8")
+
+        self.assertIn('preserveOutputSettings: outputView !== "editor"', source)
+        self.assertIn("preserveComposer: false", source)
+        self.assertNotIn(
+            "applyTaskToForm(task, { preserveOutputSettings: true, preserveComposer: true });",
+            source,
+        )
+        self.assertIn(
+            'setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || []);',
+            submit_source,
+        )
+
+    def test_task_model_family_marks_reuse_the_brand_assets_at_mini_size(self) -> None:
+        marks = Path("codex_image/webui/frontend/src/model-family-icons.ts").read_text(encoding="utf-8")
+        styles = Path("codex_image/webui/static/styles/20-tasks.css").read_text(encoding="utf-8")
+
+        self.assertIn('asset: "/static/brand/model-marks/openai.svg"', marks)
+        self.assertIn('asset: "/static/brand/model-marks/gemini.svg"', marks)
+        self.assertNotIn("grok", marks.lower())
+        self.assertRegex(styles, r"\.task-model-family-brand-mark\s*\{[^}]*width:\s*13px[^}]*height:\s*13px[^}]*object-fit:\s*contain")
+        self.assertRegex(styles, r':root\[data-theme="dark"\]\s+\.task-model-family-brand-mark-openai')
+        self.assertNotIn("task-model-family-brand-mark-grok", styles)
+        self.assertNotIn(".task-model-family-glyph", styles)
 
     def test_restoring_task_keeps_current_api_provider_selection(self) -> None:
         submit_source = Path("codex_image/webui/frontend/src/task-submit.ts").read_text(encoding="utf-8")
@@ -1602,6 +1652,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
                 const state = { apiSettings: { providers: [] } };
                 function persistApiSettings() {}
                 function populateApiSettingsForm() {}
+                function taskOutputControlValues(task) { return task.params || {}; }
                 function syncSizeControlsFromSize() {}
                 function updatePromptCount() {}
                 function updateCompression() {}
@@ -1665,6 +1716,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
                 function setMode() {}
                 function setPromptWithGalleryRefs() {}
                 function persistMainModel() {}
+                function taskOutputControlValues(task) { return task.params || {}; }
                 function syncSizeControlsFromSize() {}
                 function updatePromptCount() {}
                 function updateCompression() {}

@@ -39,7 +39,7 @@ set "LOG_FILE=%DATA_DIR%\logs\webui-server.log"
 
 cd /d "%APP_DIR%"
 
-echo Starting iLab GPT Conjure at %URL%
+echo Starting iLab CONJURE at %URL%
 echo Data directory: %DATA_DIR%
 echo Writing server log to %LOG_FILE%
 
@@ -50,7 +50,7 @@ if %ERRORLEVEL% EQU 0 (
   exit /b 0
 )
 
-start "iLab GPT Conjure WebUI" /b "%PYTHON_BIN%" -m uvicorn portable_webui_app:app --host 127.0.0.1 --port %PORT% --no-access-log >> "%LOG_FILE%" 2>&1
+start "iLab CONJURE WebUI" /b "%PYTHON_BIN%" -m uvicorn portable_webui_app:app --host 127.0.0.1 --port %PORT% --no-access-log >> "%LOG_FILE%" 2>&1
 
 call :wait_for_webui
 if %ERRORLEVEL% EQU 0 (

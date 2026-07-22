@@ -1,4 +1,6 @@
 import { getLegacyBridge } from "./state";
+import { selectedProviderBinding } from "./provider-selection";
+import { resolveModeSettingsVisibility, type ModeSettingsVisibility } from "./mode-settings-visibility";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
@@ -27,19 +29,22 @@ export function setModeSpecificElementVisibility(element: any, visible: any): vo
   element.classList.add("hidden");
 }
 
-function applyModeSettingsVisibility(isDirectApi: any): void {
-  setModeSpecificElementVisibility(els.modeSpecificSettings, true);
-  setModeSpecificElementVisibility(els.mainModelField, !isDirectApi);
-  setModeSpecificElementVisibility(els.apiDirectSettingsNotice, isDirectApi);
-  setModeSpecificElementVisibility(els.promptFidelityField, true);
+function applyModeSettingsVisibility(visibility: ModeSettingsVisibility): void {
+  const showModeSettings = visibility.showMainModel
+    || visibility.showApiDirectNotice
+    || visibility.showPromptFidelity;
+  setModeSpecificElementVisibility(els.modeSettingsSlot, showModeSettings);
+  setModeSpecificElementVisibility(els.modeSpecificSettings, showModeSettings);
+  setModeSpecificElementVisibility(els.mainModelField, visibility.showMainModel);
+  setModeSpecificElementVisibility(els.apiDirectSettingsNotice, visibility.showApiDirectNotice);
+  setModeSpecificElementVisibility(els.promptFidelityField, visibility.showPromptFidelity);
 }
 
 function updateWebSearchAvailability(authSource: any = currentAuthSource()): void {
-  const supported = authSource === "api"
-    ? currentApiMode() === "responses"
-    : authSource === "codex"
-      ? currentCodexMode() === "responses"
-      : true;
+  const binding = selectedProviderBinding();
+  const supported = binding
+    ? binding.protocol_profile.endsWith("_responses")
+    : authSource === "api" ? currentApiMode() === "responses" : currentCodexMode() === "responses";
   if (els.webSearch) {
     const wasChecked = Boolean(els.webSearch.checked);
     els.webSearch.disabled = !supported;
@@ -54,19 +59,32 @@ function updateWebSearchAvailability(authSource: any = currentAuthSource()): voi
   }
 }
 
-export function setModeSettingsVariant(isDirectApi: any): void {
+export function setModeSettingsVariant(isDirectApi: any, visibility?: ModeSettingsVisibility): void {
   const slot = els.modeSettingsSlot;
   if (slot) {
     slot.style.height = "";
     slot.classList.remove("is-transitioning");
   }
-  applyModeSettingsVisibility(isDirectApi);
+  applyModeSettingsVisibility(visibility || resolveModeSettingsVisibility({
+    catalogAvailable: false,
+    modelId: null,
+    protocolProfile: null,
+    legacyDirectApi: Boolean(isDirectApi),
+  }));
 }
 
 export function updateModeSpecificSettings(authSource: any = currentAuthSource()): void {
-  const isDirectApi = (authSource === "api" && currentApiMode() !== "responses")
-    || (authSource === "codex" && currentCodexMode() !== "responses");
-  setModeSettingsVariant(isDirectApi);
+  const binding = selectedProviderBinding();
+  const isDirectApi = binding
+    ? !binding.protocol_profile.endsWith("_responses")
+    : (authSource === "api" && currentApiMode() !== "responses")
+      || (authSource === "codex" && currentCodexMode() !== "responses");
+  setModeSettingsVariant(isDirectApi, resolveModeSettingsVisibility({
+    catalogAvailable: Boolean(getLegacyBridge().state.generationCatalog),
+    modelId: getLegacyBridge().state.selectedModelId,
+    protocolProfile: binding?.protocol_profile || null,
+    legacyDirectApi: isDirectApi,
+  }));
   updateWebSearchAvailability(authSource);
   legacyMethod("syncReferenceFileAvailability");
   const refreshOutputSettingsLock = getLegacyBridge().methods.refreshOutputSettingsLock;

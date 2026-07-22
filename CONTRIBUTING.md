@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving iLab GPT Conjure.
+Thanks for your interest in improving iLab CONJURE.
 
 Before opening a pull request:
 

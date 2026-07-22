@@ -1,4 +1,4 @@
-# Windows Standard App ZIP
+# iLab CONJURE Windows Standard App ZIP
 
 This is not an installer. Extract the ZIP to a normal user-writable folder and
 double-click `iLab GPT CONJURE.exe`.

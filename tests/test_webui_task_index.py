@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 from tempfile import TemporaryDirectory
@@ -9,6 +10,77 @@ from codex_image.webui.task_index import RATIO_OTHER_VALUE, SQLiteTaskIndex, _en
 
 
 class WebUITaskIndexTests(unittest.TestCase):
+    def test_index_derives_gpt_card_canvas_fields_from_frozen_size(self) -> None:
+        with TemporaryDirectory() as tmp:
+            index = SQLiteTaskIndex(Path(tmp) / "tasks.db")
+            index.upsert(
+                {
+                    "task_id": "gpt-responses-task",
+                    "created_at": "2026-07-21T07:27:20+00:00",
+                    "params": {"size": "auto"},
+                    "output_size": "941x1672",
+                    "generation_snapshot": {
+                        "canonical_model_id": "gpt-image-2",
+                        "requested_parameters": {
+                            "canvas.size": "1152x2048",
+                            "output.count": 2,
+                        },
+                    },
+                }
+            )
+
+            summary = index.list_summaries()[0]
+
+        self.assertEqual(
+            summary.get("generation_snapshot"),
+            {
+                "canonical_model_id": "gpt-image-2",
+                "requested_parameters": {
+                    "canvas.aspect_ratio": "9:16",
+                    "canvas.resolution": "2K",
+                },
+            },
+        )
+
+    def test_index_projects_only_safe_canvas_fields_from_generation_snapshot(self) -> None:
+        with TemporaryDirectory() as tmp:
+            index = SQLiteTaskIndex(Path(tmp) / "tasks.db")
+            index.upsert(
+                {
+                    "task_id": "gemini-task",
+                    "created_at": "2026-07-15T00:00:00+00:00",
+                    "generation_snapshot": {
+                        "canonical_model_id": "nano-banana-2",
+                        "provider_base_url": "https://private.example/v1",
+                        "remote_model_id": "private/model-name",
+                        "requested_parameters": {
+                            "canvas.aspect_ratio": "16:9",
+                            "canvas.resolution": "2K",
+                            "output.count": 3,
+                        },
+                        "mapped_request": {"json_body": {"prompt": "private"}},
+                    },
+                }
+            )
+
+            summary = index.list_summaries()[0]
+
+        self.assertEqual(
+            summary.get("generation_snapshot"),
+            {
+                "canonical_model_id": "nano-banana-2",
+                "requested_parameters": {
+                    "canvas.aspect_ratio": "16:9",
+                    "canvas.resolution": "2K",
+                },
+            },
+        )
+        serialized = str(summary)
+        self.assertNotIn("private.example", serialized)
+        self.assertNotIn("private/model-name", serialized)
+        self.assertNotIn("output.count", serialized)
+        self.assertNotIn("mapped_request", serialized)
+
     def test_index_stores_reference_file_count_without_full_records(self) -> None:
         with TemporaryDirectory() as tmp:
             index = SQLiteTaskIndex(Path(tmp) / "tasks.db")
@@ -26,7 +98,7 @@ class WebUITaskIndexTests(unittest.TestCase):
                     "created_at": "2026-07-10T00:00:00+00:00",
                 }
             )
-            with sqlite3.connect(index.path) as connection:
+            with closing(sqlite3.connect(index.path)) as connection:
                 connection.execute(
                     "update task_index set summary_json = ? where task_id = ?",
                     ('{"task_id":"legacy","created_at":"2026-07-10T00:00:00+00:00"}', "legacy"),

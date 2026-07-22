@@ -70,11 +70,15 @@ export function bindWebUIEvents(state: WebUIState, els: WebUIElements, methods: 
   });
   els.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
   els.authSourceGroup?.addEventListener("click", (event: Event) => call(methods, "handleAuthSourceClick", event));
-  els.apiSourceSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
   els.apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
-  els.codexModeNotes?.forEach?.((note: HTMLElement) => {
-    note.addEventListener("click", () => call(methods, "selectCodexMode", note.dataset.codexModeNote));
+  els.modelFamilyOptions?.addEventListener("click", (event: Event) => {
+    const item = (event.target as HTMLElement | null)?.closest?.("[data-family-id]") as HTMLElement | null;
+    if (item?.dataset.familyId) call(methods, "selectModelFamily", item.dataset.familyId);
   });
+  els.modelFamilyOptions?.addEventListener("keydown", (event: KeyboardEvent) => call(methods, "handleModelFamilyOptionsKeydown", event));
+  els.concreteModelSelect?.addEventListener("change", () => call(methods, "selectConcreteModel", els.concreteModelSelect.value));
+  els.generationProviderSelect?.addEventListener("change", () => call(methods, "selectGenerationProvider", els.generationProviderSelect.value));
+  els.generationProviderSettingsButton?.addEventListener("click", () => call(methods, "openGenerationProviderSettings"));
   els.apiProviderQuick?.addEventListener("change", () => {
     call(methods, "selectApiProvider", els.apiProviderQuick?.value || call(methods, "currentApiProviderId"));
   });
@@ -99,6 +103,12 @@ export function bindWebUIEvents(state: WebUIState, els: WebUIElements, methods: 
   els.deleteApiProviderButton?.addEventListener("click", () => call(methods, "confirmDeleteApiProvider", els.deleteApiProviderButton));
   els.cancelApiProviderEditButton?.addEventListener("click", () => call(methods, "cancelApiProviderEdit"));
   els.saveApiProviderEditButton?.addEventListener("click", () => call(methods, "saveApiProviderEdit"));
+  els.addProviderBindingButton?.addEventListener("click", () => call(methods, "addProviderBinding"));
+  els.apiProviderBindings?.addEventListener("click", (event: Event) => {
+    const button = (event.target as HTMLElement | null)?.closest?.("[data-remove-provider-binding]") as HTMLElement | null;
+    if (button?.dataset.removeProviderBinding) call(methods, "removeProviderBinding", button.dataset.removeProviderBinding);
+  });
+  els.apiProviderBindings?.addEventListener("change", (event: Event) => call(methods, "handleProviderBindingEditorChange", event));
   els.apiKeyRevealButton?.addEventListener("pointerdown", (event: Event) => call(methods, "revealApiKeyWhilePressed", event));
   els.apiKeyRevealButton?.addEventListener("pointerup", () => call(methods, "hideApiKeyReveal"));
   els.apiKeyRevealButton?.addEventListener("pointercancel", () => call(methods, "hideApiKeyReveal"));
@@ -110,19 +120,6 @@ export function bindWebUIEvents(state: WebUIState, els: WebUIElements, methods: 
   els.apiKeyRevealButton?.addEventListener("keyup", () => call(methods, "hideApiKeyReveal"));
   els.apiKey?.addEventListener("input", () => call(methods, "updateApiKeyRevealButton"));
   els.apiBaseUrl?.addEventListener("input", () => call(methods, "updateApiRequestEndpointPreview"));
-  els.apiMode?.addEventListener("change", () => call(methods, "updateApiRequestEndpointPreview"));
-  [els.codexMode].filter(Boolean).forEach((element) => {
-    element?.addEventListener("input", () => {
-      call(methods, "readApiSettingsForm");
-      call(methods, "persistApiSettings");
-      call(methods, "renderAuthSource", state.authStatus);
-      call(methods, "updateModeSpecificSettings");
-      call(methods, "updateRequestPreview");
-      call(methods, "syncCodexModeNotes");
-      call(methods, "queueApiSettingsAutosave");
-    });
-    element?.addEventListener("change", () => call(methods, "syncCodexModeNotes"));
-  });
   call(methods, "bindOverlayPopoverEvents");
   els.runButton.addEventListener("click", () => call(methods, "runTask"));
   document.addEventListener("keydown", (event) => handleRunTaskShortcut(event, els, methods));

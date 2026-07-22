@@ -99,7 +99,7 @@ wait_for_webui() {
   return 1
 }
 
-echo "Starting iLab GPT Conjure at ${URL}"
+echo "Starting iLab CONJURE at ${URL}"
 echo "Data directory: ${DATA_DIR}"
 echo "Writing server log to ${LOG_FILE}"
 

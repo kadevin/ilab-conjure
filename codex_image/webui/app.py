@@ -67,6 +67,7 @@ from .queue_runtime import (
     _queue_channel_available,
     _queue_channel_worker_loop,
     _queue_max_attempts_for_channels,
+    _queue_channels_with_pending,
     _queue_worker_loop,
     execute_task,
     install_queue_runtime,
@@ -243,7 +244,7 @@ def create_app(
     make_client = client_factory or (lambda: _client_for_auth_source(auth_settings.read_source(), api_settings=api_settings))
     check_auth = auth_checker or (lambda: bool(_auth_status(auth_settings.read_source(), api_settings=api_settings)["auth_available"]))
 
-    app = FastAPI(title="iLab GPT CONJURE", lifespan=queue_lifespan)
+    app = FastAPI(title="iLab CONJURE", lifespan=queue_lifespan)
     ctx = WebUIContext(
         app=app,
         storage=storage,
@@ -285,7 +286,7 @@ def create_app(
         if index_path.exists():
             return FileResponse(index_path, headers={"Cache-Control": "no-store"})
         return HTMLResponse(
-            "<!doctype html><title>iLab GPT CONJURE</title><h1>iLab GPT CONJURE</h1>",
+            "<!doctype html><title>iLab CONJURE</title><h1>iLab CONJURE</h1>",
             headers={"Cache-Control": "no-store"},
         )
 
@@ -295,7 +296,7 @@ def create_app(
         if history_path.exists():
             return FileResponse(history_path, headers={"Cache-Control": "no-store"})
         return HTMLResponse(
-            "<!doctype html><title>History - iLab GPT CONJURE</title><h1>History</h1>",
+            "<!doctype html><title>History - iLab CONJURE</title><h1>History</h1>",
             headers={"Cache-Control": "no-store"},
         )
 
@@ -326,12 +327,13 @@ def create_app(
             "ensure_queue_worker_running": queue_runtime.ensure_queue_worker_running,
             "queue_channel_available": queue_runtime.queue_channel_available,
             "auth_status": lambda source: _auth_status(source, api_settings=api_settings),
+            "codex_auth_checker": check_auth if auth_checker is not None else _codex_auth_available,
             "auth_event_payload": lambda: (
                 _auth_status(auth_settings.read_source(), api_settings=api_settings)
                 if auth_checker is None
                 else {"auth_available": bool(check_auth())}
             ),
-            "queue_channels_for_source": lambda source: _queue_channels_for_source(source, api_settings=api_settings),
+            "queue_channels_for_source": lambda source: _queue_channels_with_pending(ctx, source),
             "queue_max_attempts_for_channels": _queue_max_attempts_for_channels,
             "visible_running_task_ids": lambda: _visible_running_task_ids(app.state.active_task_ids, queue_storage),
             "queue_has_running_task": lambda task_id: _queue_has_running_task(queue_storage, task_id),

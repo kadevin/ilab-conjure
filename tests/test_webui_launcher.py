@@ -40,6 +40,6 @@ class WebUILauncherTests(unittest.TestCase):
         self.assertIn('set "HEALTH_URL=%URL%api/health"', text)
         self.assertIn("call :is_webui_ready", text)
         self.assertIn("call :wait_for_webui", text)
-        self.assertIn('start "iLab GPT CONJURE WebUI" /b "%PYTHON_BIN%" -m uvicorn', text)
+        self.assertIn('start "iLab CONJURE WebUI" /b "%PYTHON_BIN%" -m uvicorn', text)
         self.assertIn('if %ERRORLEVEL% EQU 0 (\n  start "" "%URL%"', text)
         self.assertNotIn('start "" "%URL%"\n"%PYTHON_BIN%" -m uvicorn', text)

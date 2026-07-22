@@ -16,15 +16,16 @@ use std::{
 
 pub mod standard_update;
 
-pub const APP_NAME: &str = "iLab GPT CONJURE";
+pub const APP_NAME: &str = "iLab CONJURE";
+pub const LEGACY_DATA_DIR_NAME: &str = "iLab GPT CONJURE";
 pub const DEFAULT_PORT: u16 = 8787;
 pub const WEBUI_URL: &str = "http://127.0.0.1:8787/";
 pub const HEALTH_PATH: &str = "/api/health";
 pub const LOG_FILE_NAME: &str = "webui-server.log";
-pub const PROJECT_URL: &str = "https://github.com/kadevin/ilab-gpt-conjure";
-pub const RELEASES_URL: &str = "https://github.com/kadevin/ilab-gpt-conjure/releases/latest";
+pub const PROJECT_URL: &str = "https://github.com/kadevin/ilab-conjure";
+pub const RELEASES_URL: &str = "https://github.com/kadevin/ilab-conjure/releases/latest";
 pub const LATEST_UPDATE_MANIFEST_URL: &str =
-    "https://github.com/kadevin/ilab-gpt-conjure/releases/latest/download/latest.json";
+    "https://github.com/kadevin/ilab-conjure/releases/latest/download/latest.json";
 pub const UPDATE_SIGNING_PUBLIC_KEY_B64: &str =
     include_str!("../assets/update-signing-public-key.b64");
 pub const DEFAULT_LOCALE_TAG: &str = "zh-CN";
@@ -151,7 +152,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "打开设置",
             open_history: "历史库",
             check_updates: "检查更新",
-            about: "关于 iLab GPT CONJURE",
+            about: "关于 iLab CONJURE",
             restart: "重启 WebUI 服务",
             quit: "退出",
         },
@@ -160,7 +161,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "開啟設定",
             open_history: "歷史庫",
             check_updates: "檢查更新",
-            about: "關於 iLab GPT CONJURE",
+            about: "關於 iLab CONJURE",
             restart: "重新啟動 WebUI 服務",
             quit: "結束",
         },
@@ -169,7 +170,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "開啟設定",
             open_history: "歷史庫",
             check_updates: "檢查更新",
-            about: "關於 iLab GPT CONJURE",
+            about: "關於 iLab CONJURE",
             restart: "重新啟動 WebUI 服務",
             quit: "結束",
         },
@@ -178,7 +179,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "設定を開く",
             open_history: "履歴ライブラリ",
             check_updates: "アップデートを確認",
-            about: "iLab GPT CONJURE について",
+            about: "iLab CONJURE について",
             restart: "WebUI サービスを再起動",
             quit: "終了",
         },
@@ -187,7 +188,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "설정 열기",
             open_history: "기록 라이브러리",
             check_updates: "업데이트 확인",
-            about: "iLab GPT CONJURE 정보",
+            about: "iLab CONJURE 정보",
             restart: "WebUI 서비스 다시 시작",
             quit: "종료",
         },
@@ -196,7 +197,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Open Settings",
             open_history: "History Library",
             check_updates: "Check for Updates",
-            about: "About iLab GPT CONJURE",
+            about: "About iLab CONJURE",
             restart: "Restart WebUI Service",
             quit: "Quit",
         },
@@ -205,7 +206,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Abrir ajustes",
             open_history: "Historial",
             check_updates: "Buscar actualizaciones",
-            about: "Acerca de iLab GPT CONJURE",
+            about: "Acerca de iLab CONJURE",
             restart: "Reiniciar servicio WebUI",
             quit: "Salir",
         },
@@ -214,7 +215,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Abrir configurações",
             open_history: "Histórico",
             check_updates: "Verificar atualizações",
-            about: "Sobre iLab GPT CONJURE",
+            about: "Sobre iLab CONJURE",
             restart: "Reiniciar serviço WebUI",
             quit: "Sair",
         },
@@ -223,7 +224,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Ouvrir les réglages",
             open_history: "Historique",
             check_updates: "Rechercher des mises à jour",
-            about: "À propos de iLab GPT CONJURE",
+            about: "À propos de iLab CONJURE",
             restart: "Redémarrer le service WebUI",
             quit: "Quitter",
         },
@@ -232,7 +233,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Einstellungen öffnen",
             open_history: "Verlauf",
             check_updates: "Nach Updates suchen",
-            about: "Über iLab GPT CONJURE",
+            about: "Über iLab CONJURE",
             restart: "WebUI-Dienst neu starten",
             quit: "Beenden",
         },
@@ -241,7 +242,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Открыть настройки",
             open_history: "История",
             check_updates: "Проверить обновления",
-            about: "О iLab GPT CONJURE",
+            about: "О iLab CONJURE",
             restart: "Перезапустить службу WebUI",
             quit: "Выйти",
         },
@@ -250,7 +251,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "Apri impostazioni",
             open_history: "Cronologia",
             check_updates: "Controlla aggiornamenti",
-            about: "Informazioni su iLab GPT CONJURE",
+            about: "Informazioni su iLab CONJURE",
             restart: "Riavvia servizio WebUI",
             quit: "Esci",
         },
@@ -259,7 +260,7 @@ pub fn localized_menu_labels(locale: AppLocale) -> MenuLabels {
             open_settings: "सेटिंग्स खोलें",
             open_history: "इतिहास लाइब्रेरी",
             check_updates: "अपडेट जांचें",
-            about: "iLab GPT CONJURE के बारे में",
+            about: "iLab CONJURE के बारे में",
             restart: "WebUI सेवा पुनः शुरू करें",
             quit: "बाहर निकलें",
         },
@@ -279,7 +280,7 @@ pub struct AboutLabels {
 pub fn localized_about_labels(locale: AppLocale) -> AboutLabels {
     match locale {
         AppLocale::ZhCn => AboutLabels {
-            title: "关于 iLab GPT CONJURE",
+            title: "关于 iLab CONJURE",
             version: "版本",
             open_source: "开源地址",
             check_updates: "检查更新",
@@ -287,7 +288,7 @@ pub fn localized_about_labels(locale: AppLocale) -> AboutLabels {
             close: "关闭",
         },
         AppLocale::ZhTw | AppLocale::ZhHk => AboutLabels {
-            title: "關於 iLab GPT CONJURE",
+            title: "關於 iLab CONJURE",
             version: "版本",
             open_source: "開源地址",
             check_updates: "檢查更新",
@@ -295,7 +296,7 @@ pub fn localized_about_labels(locale: AppLocale) -> AboutLabels {
             close: "關閉",
         },
         _ => AboutLabels {
-            title: "About iLab GPT CONJURE",
+            title: "About iLab CONJURE",
             version: "Version",
             open_source: "Open source",
             check_updates: "Check for Updates",
@@ -2125,19 +2126,19 @@ fn standard_app_data_dir() -> PathBuf {
             .unwrap_or_else(|| PathBuf::from("."))
             .join("Library")
             .join("Application Support")
-            .join(APP_NAME)
+            .join(LEGACY_DATA_DIR_NAME)
     } else if cfg!(windows) {
         env::var_os("APPDATA")
             .map(PathBuf::from)
             .or_else(|| home_dir().map(|home| home.join("AppData").join("Roaming")))
             .unwrap_or_else(|| PathBuf::from("."))
-            .join(APP_NAME)
+            .join(LEGACY_DATA_DIR_NAME)
     } else {
         env::var_os("XDG_DATA_HOME")
             .map(PathBuf::from)
             .or_else(|| home_dir().map(|home| home.join(".local").join("share")))
             .unwrap_or_else(|| PathBuf::from("."))
-            .join(APP_NAME)
+            .join(LEGACY_DATA_DIR_NAME)
     }
 }
 
@@ -2659,7 +2660,7 @@ mod tests {
         assert_eq!(zh.open_settings, "打开设置");
         assert_eq!(zh.open_history, "历史库");
         assert_eq!(zh.check_updates, "检查更新");
-        assert_eq!(zh.about, "关于 iLab GPT CONJURE");
+        assert_eq!(zh.about, "关于 iLab CONJURE");
         assert_eq!(zh.restart, "重启 WebUI 服务");
         assert_eq!(zh.quit, "退出");
 
@@ -2668,7 +2669,7 @@ mod tests {
         assert_eq!(en.open_settings, "Open Settings");
         assert_eq!(en.open_history, "History Library");
         assert_eq!(en.check_updates, "Check for Updates");
-        assert_eq!(en.about, "About iLab GPT CONJURE");
+        assert_eq!(en.about, "About iLab CONJURE");
         assert_eq!(en.restart, "Restart WebUI Service");
         assert_eq!(en.quit, "Quit");
     }
@@ -2676,7 +2677,7 @@ mod tests {
     #[test]
     fn localized_about_labels_cover_simplified_chinese_and_english() {
         let zh = localized_about_labels(AppLocale::ZhCn);
-        assert_eq!(zh.title, "关于 iLab GPT CONJURE");
+        assert_eq!(zh.title, "关于 iLab CONJURE");
         assert_eq!(zh.version, "版本");
         assert_eq!(zh.open_source, "开源地址");
         assert_eq!(zh.check_updates, "检查更新");
@@ -2684,7 +2685,7 @@ mod tests {
         assert_eq!(zh.close, "关闭");
 
         let en = localized_about_labels(AppLocale::En);
-        assert_eq!(en.title, "About iLab GPT CONJURE");
+        assert_eq!(en.title, "About iLab CONJURE");
         assert_eq!(en.version, "Version");
         assert_eq!(en.open_source, "Open source");
         assert_eq!(en.check_updates, "Check for Updates");
@@ -2748,7 +2749,7 @@ mod tests {
             r#"{
                 "schema_version": 1,
                 "version": "0.6.0",
-                "release_url": "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.6.0",
+                "release_url": "https://github.com/kadevin/ilab-conjure/releases/tag/v0.6.0",
                 "notes": "更新说明",
                 "signature": {
                     "algorithm": "ed25519",
@@ -2783,7 +2784,7 @@ mod tests {
         assert_eq!(manifest.version, "0.6.0");
         assert_eq!(
             manifest.release_url,
-            "https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.6.0"
+            "https://github.com/kadevin/ilab-conjure/releases/tag/v0.6.0"
         );
         assert_eq!(manifest.notes, "更新说明");
         assert_eq!(manifest.platforms.len(), 2);
@@ -3177,6 +3178,13 @@ mod tests {
         assert!(data_dir.ends_with(Path::new("iLab GPT CONJURE")));
         assert!(!data_dir.starts_with("/Applications/iLab GPT CONJURE.app"));
         assert_ne!(data_dir, app_dir.join("output"));
+    }
+
+    #[test]
+    fn display_brand_is_decoupled_from_legacy_storage_identity() {
+        assert_eq!(APP_NAME, "iLab CONJURE");
+        assert_eq!(LEGACY_DATA_DIR_NAME, "iLab GPT CONJURE");
+        assert!(standard_app_data_dir().ends_with(LEGACY_DATA_DIR_NAME));
     }
 
     #[test]

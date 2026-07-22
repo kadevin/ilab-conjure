@@ -64,6 +64,32 @@ class CLITests(unittest.TestCase):
 
         self.assertIn("--moderation", stdout.getvalue())
 
+    def test_cli_defaults_remain_codex_gpt_image_without_provider_family_flags(self) -> None:
+        from codex_image.cli import build_parser
+
+        parser = build_parser()
+        generate = parser.parse_args(
+            ["generate", "--prompt", "fixture", "--out", str(self.out_path)]
+        )
+        edit = parser.parse_args(
+            [
+                "edit",
+                "--prompt",
+                "fixture",
+                "--image",
+                str(self.base / "input.png"),
+                "--out",
+                str(self.out_path),
+            ]
+        )
+
+        self.assertEqual(generate.model, "gpt-image-2")
+        self.assertEqual(edit.model, "gpt-image-2")
+        self.assertEqual(generate.output_format, "png")
+        self.assertEqual(edit.output_format, "png")
+        self.assertFalse(hasattr(generate, "provider_id"))
+        self.assertFalse(hasattr(generate, "canonical_model_id"))
+
     def test_run_generate_passes_moderation_to_request(self) -> None:
         write_auth_file(self.auth_path, access_token="cli-token", account_id="acct-cli")
         transport = FakeTransport(

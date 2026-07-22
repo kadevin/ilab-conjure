@@ -3,6 +3,158 @@ export type TaskMode = "generate" | "edit";
 export type OutputStatus = "running" | "completed" | "failed";
 export type AuthSource = "codex" | "api";
 export type ApiMode = "images" | "responses";
+export type ModelFamilyId = string;
+export type GenerationOperation = "generate" | "edit";
+
+export interface ProviderModelBindingSettings {
+  id: string;
+  canonical_model_id: string;
+  remote_model_id: string;
+  protocol_profile: string;
+  parameter_codec: string;
+  operations: GenerationOperation[];
+  append_aspect_ratio_prompt?: boolean;
+}
+
+export interface ProviderConnectionSettings {
+  id: string;
+  name: string;
+  icon_emoji?: string;
+  base_url: string;
+  concurrency: number;
+  bindings: ProviderModelBindingSettings[];
+  api_key?: string;
+  api_key_set?: boolean;
+  api_key_masked?: string;
+  api_key_source_provider_id?: string;
+  image_model?: string;
+  api_mode?: ApiMode;
+  images_concurrency?: number;
+}
+
+export interface ProviderSettingsV2 {
+  schema_version: 2;
+  codex_mode: ApiMode;
+  active_provider_id: string;
+  default_provider_by_model: Record<string, string>;
+  providers: ProviderConnectionSettings[];
+}
+
+export interface CatalogParameterVisibility {
+  parameter_id: string;
+  operator: "equals" | "not_equals" | "in";
+  value: unknown;
+}
+
+export interface CatalogObjectChoiceRow {
+  key: string;
+  label_key: string;
+  default: string;
+  allowed_values: string[];
+  label_keys: string[];
+}
+
+export interface CatalogObjectPreset {
+  id: string;
+  label_key: string;
+  value: Record<string, unknown>;
+  matches_empty: boolean;
+}
+
+export interface CatalogParameterDefinition {
+  id: string;
+  label_key: string;
+  group: "model" | "canvas" | "generation" | "advanced";
+  control: "select" | "segmented" | "boolean_segmented" | "toggle" | "slider" | "number" | "text" | "notice" | "choice_grid" | "object_presets" | "aspect_ratio_grid";
+  value_type: "string" | "integer" | "boolean" | "object";
+  default: unknown;
+  allowed_values: unknown[];
+  scope: "application" | "model";
+  minimum: number | null;
+  maximum: number | null;
+  step: number | null;
+  visible_when: CatalogParameterVisibility[];
+  operations: GenerationOperation[];
+  full_width: boolean;
+  object_choices?: CatalogObjectChoiceRow[];
+  object_presets?: CatalogObjectPreset[];
+}
+
+export interface CatalogModel {
+  id: string;
+  family_id: ModelFamilyId;
+  display_name: string;
+  official_model_id: string;
+  version: number;
+  operations: GenerationOperation[];
+  parameters: CatalogParameterDefinition[];
+  input_constraints: {
+    max_images: number;
+    supports_mask: boolean;
+    supports_reference_files: boolean;
+  };
+  expand_advanced_parameters?: boolean;
+}
+
+export interface CatalogFamily {
+  id: ModelFamilyId;
+  display_name: string;
+  short_name: string;
+  label_key: string;
+}
+
+export interface CatalogProviderBinding {
+  id: string;
+  canonical_model_id: string;
+  remote_model_id: string;
+  protocol_profile: string;
+  parameter_codec: string;
+  operations: GenerationOperation[];
+  append_aspect_ratio_prompt?: boolean;
+  available?: boolean;
+  display_name?: string;
+}
+
+export interface CatalogProvider {
+  id: string;
+  name: string;
+  builtin: boolean;
+  available: boolean;
+  bindings: CatalogProviderBinding[];
+  icon_emoji?: string;
+}
+
+export interface GenerationCatalog {
+  schema_version: 1;
+  manifest_version: number;
+  families: CatalogFamily[];
+  models: CatalogModel[];
+  providers: CatalogProvider[];
+  default_provider_by_model: Record<string, string>;
+  codex: { available: boolean; mode: ApiMode };
+}
+
+export interface GenerationSnapshotView {
+  schema_version: number;
+  family_id: ModelFamilyId;
+  canonical_model_id: string;
+  model_manifest_version: number;
+  provider_id: string;
+  provider_name: string;
+  binding_id: string;
+  remote_model_id: string;
+  protocol_profile: string;
+  parameter_codec: string;
+  requested_parameters: Record<string, unknown>;
+  mapped_request: Record<string, unknown>;
+  legacy: boolean;
+}
+
+export interface ParameterMigrationReport {
+  values: Record<string, unknown>;
+  defaulted: Array<{ id: string; previous: unknown; replacement: unknown }>;
+  dropped: Array<{ id: string; previous: unknown }>;
+}
 
 export interface TaskOutputRecord {
   index?: number;
@@ -17,6 +169,7 @@ export interface TaskOutputRecord {
   background?: string;
   revised_prompt?: string;
   usage?: Record<string, unknown>;
+  tool_usage?: Record<string, unknown>;
   error?: string;
   attempts?: number;
 }
@@ -132,6 +285,9 @@ export interface WebUITask {
   retry_requested_at?: string;
   retrying_failed_slots?: unknown[];
   request?: Record<string, any>;
+  generation_snapshot?: Partial<GenerationSnapshotView> & Record<string, unknown>;
+  tool_usage?: Record<string, unknown>;
+  tool_usages?: Array<Record<string, unknown>>;
 }
 
 export interface QueueSummary {

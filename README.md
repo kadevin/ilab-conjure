@@ -1,15 +1,15 @@
-<h1 align="center">iLab GPT Conjure</h1>
+<h1 align="center">iLab CONJURE</h1>
 
 <p align="center">
-  <sub>GPT-image-2 WebUI 工作台 · Codex Image / OpenAI 兼容 API · 图库、模板、历史库与并发任务</sub>
+  <sub>多模型 AI 图片生成工作台 · GPT Image / Gemini · 图库、模板、历史库与并发任务</sub>
 </p>
 
 <p align="center">
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=release&color=0EA5E9"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/kadevin/ilab-gpt-conjure/actions/workflows/ci.yml/badge.svg?branch=main&event=push"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=last%20commit&color=10B981"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=stars&color=0284C7"></a>
-  <a href="https://github.com/kadevin/ilab-gpt-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-gpt-conjure?style=flat-square&logo=github&label=forks&color=0369A1"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/releases"><img alt="release" src="https://img.shields.io/github/v/release/kadevin/ilab-conjure?style=flat-square&logo=github&label=release&color=0EA5E9"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/kadevin/ilab-conjure/actions/workflows/ci.yml/badge.svg?branch=main&event=push"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/commits/main"><img alt="last commit" src="https://img.shields.io/github/last-commit/kadevin/ilab-conjure?style=flat-square&logo=github&label=last%20commit&color=10B981"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/kadevin/ilab-conjure?style=flat-square&logo=github&label=stars&color=0284C7"></a>
+  <a href="https://github.com/kadevin/ilab-conjure/network/members"><img alt="forks" src="https://img.shields.io/github/forks/kadevin/ilab-conjure?style=flat-square&logo=github&label=forks&color=0369A1"></a>
 </p>
 
 <p align="center">
@@ -27,15 +27,23 @@
 </p>
 
 <p align="center">
-  <img src="assets/UI_cn.png" alt="iLab GPT Conjure WebUI 截图" width="960" />
+  <img src="assets/UI_cn.png" alt="iLab CONJURE WebUI 截图" width="960" />
 </p>
 
 ## 简介
 
-iLab GPT Conjure 是面向 GPT-image-2 的 AI 图片生成 WebUI 工作台，同时
-提供 CLI 便于本地自动化。它支持默认 Codex Image 通道、Codex Responses
-兼容通道与 OpenAI 兼容 API 接入，并内置公用图库、多类型 chip 快捷引用、
-提示词模板、多任务并发、分页历史库和本地队列管理。
+> [!IMPORTANT]
+> **项目升级：** 本项目原名 `iLab GPT CONJURE`，最初围绕 `GPT-Image-2` 构建。从 `v0.7.0` 起，随着
+> 新增 Gemini 支持并为后续更多模型预留统一扩展能力，项目名称和产品显示名统一更名为 `iLab CONJURE`，
+> GitHub 仓库由 `ilab-gpt-conjure` 更名为 `ilab-conjure`。这是同一项目的延续；原项目名称和旧仓库名仍会
+> 保留在历史版本与 Release 记录中。过渡期安装包、程序文件名和用户数据目录也继续沿用原项目名称，升级不会
+> 创建新的数据目录或丢失原有任务与图片。
+
+iLab CONJURE 是本地优先的多模型 AI 图片生成工作台，同时提供 CLI 便于本地
+自动化。统一模型目录支持 GPT Image 与 Gemini，可使用官方协议或
+OpenAI-compatible 中转站；Codex 工作流继续支持默认 Codex Image 通道、Codex Responses
+兼容通道。公用图库、多类型 chip 快捷引用、提示词模板、多任务并发、
+分页历史库和本地队列管理均内置于同一套 WebUI。
 
 公开版推荐优先使用 OpenAI-compatible API 模式，通过你配置的供应商使用
 Images API 或 Responses API 形态。
@@ -44,7 +52,7 @@ Images API 或 Responses API 形态。
 
 ## 功能
 
-- 面向 GPT-image-2 的文生图、参考图生成和图像编辑工作流。
+- 在同一模型目录中使用 GPT Image 与 Gemini，覆盖文生图及模型支持的参考图生成、图像编辑工作流。
 - 支持 Codex Image、Codex Responses 和 OpenAI 兼容 API 接入；公开或共享使用优先选择 API 模式。
 - 多任务并发、本地队列状态、分页历史库、缩略图和结果归档。
 - 生成页按需加载最近任务和媒体，隐藏图库与模板仅在打开后渲染；响应式工作区由 CSS Grid 与容器查询驱动，刷新和调整窗口尺寸更流畅。
@@ -56,8 +64,8 @@ Images API 或 Responses API 形态。
 - 图像编辑器支持插入输入框里的其他图片、多图层组合、默认锁定比例变换、
   Shift 自由变换、局部擦除和真实图层缩略图。
 - 系统设置提供语言下拉菜单，支持简体中文、正體中文、繁体中文、日语、韩语、English、西班牙语、葡萄牙语、法语、德语、俄语、意大利语和印地语；首次启动自动跟随浏览器语言，手动选择后偏好保存在当前浏览器。
-- 系统设置整合 API 设置、Codex 通道、语言 / Language、存储与通知四个 Tab；API 设置默认第一位。
-- API 供应商以卡片快速选择，默认只读详情，支持显式编辑、复制、删除确认和多供应商排序。
+- 系统设置整合 API 设置、语言 / Language、存储与通知三个 Tab；Codex Image / Codex Responses 直接在生成页供应商菜单中选择。
+- API 供应商以卡片快速选择，默认只读详情，支持显式编辑、复制、删除确认和多供应商排序；自定义供应商可选一个 emoji 标识以便快速识别。
 - 标准 macOS DMG 和 Windows App ZIP 提供 Rust 托盘 / 菜单栏启动器、小兔子图标、系统语言跟随、原生关于窗口，并在首次启动时由用户确认复制旧 portable 数据。
 - 包含标准更新助手的 macOS App 支持用户确认后的一键覆盖：helper 校验 signed manifest 与 DMG SHA256，退出当前 App，带回滚保护地替换并重新启动；用户数据仍保存在应用包外。旧版 macOS App 需要手动引导升级一次，Windows 标准 ZIP 仍手动替换。
 - 过渡期 portable 包继续把数据保存在同级 `data/`，并支持用户确认后的自动替换更新；更新器读取带签名的 `latest.json` manifest、校验 Ed25519 签名和 SHA256、保留 `data/`，并把被替换文件备份到 `.backup/`。
@@ -75,7 +83,7 @@ Images API 或 Responses API 形态。
 ### 高级本机模式：Codex / ChatGPT OAuth
 
 本项目可选复用本机 Codex / ChatGPT OAuth 登录态，调用 ChatGPT 内部后端接口。
-Codex 模式默认使用 Image 通道生成和编辑，也可在系统设置的 Codex 通道 Tab 切换到 Responses
+生成页供应商菜单将 Codex Image 与 Codex Responses 作为两个明确的内置绑定；前者用于生成和编辑，后者走 Responses
 兼容通道。该模式只面向个人本机工作流。
 
 这不是 OpenAI 官方推荐的 API 集成方式。接口可能随时变更、失效，也可能受到
@@ -94,8 +102,8 @@ Codex 模式默认使用 Image 通道生成和编辑，也可在系统设置的 
 ## 安装
 
 ```bash
-git clone https://github.com/kadevin/ilab-gpt-conjure.git
-cd ilab-gpt-conjure
+git clone https://github.com/kadevin/ilab-conjure.git
+cd ilab-conjure
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-webui.txt
 ```
@@ -129,14 +137,14 @@ http://127.0.0.1:8787/
 ## 应用包下载
 
 当前可用的标准包和一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.6.2](https://github.com/kadevin/ilab-gpt-conjure/releases/tag/v0.6.2)。
+[GitHub Release v0.7.0](https://github.com/kadevin/ilab-conjure/releases/tag/v0.7.0)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.6.2.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.6.2.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.7.0.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.7.0.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.6.2.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.7.0.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的
@@ -287,7 +295,7 @@ GitHub CI 会在 pull request 和推送到 `main` 时运行 Python 测试和 Web
 - 企业网站：企业官网、产品展示、活动落地页和轻量后台管理系统。
 - 智能体网站：客服问答、知识库检索、内容生成和业务流程助手类 Web 应用。
 
-扫码添加微信时，可以备注 `iLab GPT Conjure` 或 `定制开发`，方便快速对齐需求。
+扫码添加微信时，可以备注 `iLab CONJURE` 或 `定制开发`，方便快速对齐需求。
 
 <p align="center">
   <img src="assets/wechat-qr.jpg" alt="iLab WeChat QR Code" width="240" />

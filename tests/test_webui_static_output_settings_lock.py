@@ -71,6 +71,47 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
             if (!module.exports.usesWideFourGrid(4, "21:9")) throw new Error("21:9 four-output grid missing");
             if (module.exports.usesWideFourGrid(3, "21:9")) throw new Error("three outputs must remain a row");
             if (module.exports.usesWideFourGrid(4, "5:4")) throw new Error("non-wide four outputs must remain a row");
+
+            const safetyOff = {{
+              HARM_CATEGORY_HARASSMENT: "OFF",
+              HARM_CATEGORY_HATE_SPEECH: "OFF",
+              HARM_CATEGORY_SEXUALLY_EXPLICIT: "OFF",
+              HARM_CATEGORY_DANGEROUS_CONTENT: "OFF",
+            }};
+            const nano = module.exports.normalizeOutputSettingsSnapshot({{
+              canonical_model_id: "nano-banana-2",
+              model_display_name: "Nano Banana 2",
+              parameters: {{
+                "canvas.aspect_ratio": "16:9",
+                "canvas.resolution": "2K",
+                "output.count": 3,
+                "gemini.safety_settings": safetyOff,
+                "gemini.google_search": true,
+              }},
+            }});
+            const nanoSummary = module.exports.buildOutputSettingsSummaryModel(nano, {{ responses: false, task: false, callLabel: "Gemini" }});
+            if (!nanoSummary.showModel || nanoSummary.modelValue !== "Nano Banana 2") throw new Error("Nano model identity missing");
+            if (nanoSummary.modelLabel !== "") throw new Error("Nano model must not repeat a concrete-model label");
+            if (nanoSummary.thirdCard.kind !== "resolution" || nanoSummary.thirdCard.value !== "2K") throw new Error("Nano resolution card missing");
+            if (nanoSummary.ratio !== "16:9" || nanoSummary.count !== 3) throw new Error("Nano frame summary is stale");
+            if (!nanoSummary.details.some((item) => item.label === "gemini.safetySettings" && item.value === "gemini.safety.threshold.off")) throw new Error("Nano safety summary missing");
+            if (!nanoSummary.details.some((item) => item.label === "gemini.googleSearch" && item.value === "output.lock.enabled")) throw new Error("Nano search summary missing");
+            if (nanoSummary.details.some((item) => ["output.lock.prompt", "output.quality", "output.moderation"].includes(item.label))) throw new Error("Nano summary leaked GPT fields");
+
+            const lite = module.exports.normalizeOutputSettingsSnapshot({{
+              canonical_model_id: "nano-banana-2-lite",
+              model_display_name: "Nano Banana 2 Lite",
+              parameters: {{
+                "canvas.aspect_ratio": "1:1",
+                "canvas.resolution": "1K",
+                "output.count": 1,
+                "gemini.safety_settings": {{}},
+              }},
+            }});
+            const liteSummary = module.exports.buildOutputSettingsSummaryModel(lite, {{ responses: false, task: false, callLabel: "Gemini" }});
+            if (!liteSummary.details.some((item) => item.label === "gemini.safetySettings" && item.value === "gemini.safety.threshold.off")) throw new Error("Lite empty safety preset must summarize as filtering off");
+            if (liteSummary.details.some((item) => item.label === "gemini.googleSearch")) throw new Error("Lite exposed unsupported search");
+
             """
         )
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
@@ -110,6 +151,7 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
             "output.lock.outputCount",
             "output.lock.output",
             "output.lock.search",
+            "output.lock.custom",
         )
         for path in locale_files:
             source = path.read_text(encoding="utf-8")
@@ -122,6 +164,8 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertIn("export function buildOutputSettingsSummaryModel", source)
         self.assertIn("currentCodexMode", source)
         self.assertIn("currentApiMode", source)
+        self.assertIn('model && model.id !== "gpt-image-2"', source)
+        self.assertIn("bridge.methods.activeParameterValues(model)", source)
         self.assertIn("codex-image-output-settings-lock-v1", source)
         self.assertNotIn("data-output-settings-channel", source)
         self.assertNotIn("selectCodexMode", source)
@@ -146,6 +190,9 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertIn("export function applyTaskOutputParams", submit)
         self.assertIn("preserveOutputSettings", submit)
         self.assertIn("isOutputSettingsLocked", selection)
+        self.assertIn("taskOutputSettingsView", selection)
+        self.assertIn('if (outputView === "locked-summary")', selection)
+        self.assertIn("clearTaskParameterInspection()", selection)
         self.assertIn("showTaskOutputSettings", selection)
         self.assertIn("showLockedOutputSettings", selection)
         self.assertIn("isOutputSettingsLocked", shell)
@@ -171,17 +218,24 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.output-settings-summary-detail\s*\{[^}]*justify-items:\s*center")
         self.assertRegex(styles, r"\.output-settings-summary-detail\s*\{[^}]*text-align:\s*center")
 
-    def test_image_hides_model_while_responses_uses_a_centered_quiet_model_line(self) -> None:
+    def test_gpt_image_hides_model_while_responses_and_non_gpt_use_a_quiet_model_line(self) -> None:
         source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
+        selection = Path("codex_image/webui/frontend/src/model-selection.ts").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
 
-        self.assertIn("showModel: context.responses", source)
+        self.assertIn("showModel: gptImage ? context.responses : context.task || geminiImage", source)
         self.assertIn("if (model.showModel)", source)
+        self.assertIn("if (model.modelLabel)", source)
         self.assertIn('createElement("div", "output-settings-summary-model-line")', source)
         self.assertIn("if (intro.childElementCount)", source)
         self.assertRegex(styles, r"\.output-settings-summary-model-line\s*\{[^}]*justify-content:\s*center")
         self.assertRegex(styles, r"\.output-settings-summary-model\s*\{[^}]*color:\s*var\(--text-secondary\)[^}]*font-size:\s*14px")
         self.assertIn(".output-settings-summary-main > .output-settings-summary-cards:first-child", styles)
+        self.assertGreaterEqual(
+            selection.count("getLegacyBridge().methods.refreshOutputSettingsLock?.();"),
+            2,
+            "family and concrete-model changes must refresh a locked Gemini identity",
+        )
 
     def test_locked_summary_centers_its_main_group_and_uses_a_fading_divider(self) -> None:
         source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
@@ -191,7 +245,7 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertIn('const main = createElement("div", "output-settings-summary-main")', source)
         self.assertIn("if (intro.childElementCount) main.append(intro)", source)
         self.assertIn("main.append(cards, details)", source)
-        self.assertIn("root.append(main, createElement", source)
+        self.assertIn("root.append(main, footer)", source)
         self.assertRegex(styles, r"\.output-settings-summary-main\s*\{[^}]*flex:\s*1[^}]*justify-content:\s*center")
         self.assertRegex(styles, r"\.output-settings-summary-details\s*\{[^}]*border-top:\s*0")
         self.assertIn(".output-settings-summary-details::before", styles)
@@ -210,7 +264,7 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
 
         self.assertRegex(styles, rf"\.output-settings-ratio-frame\s*\{{[^}}]*{shared_border}")
         self.assertRegex(styles, rf"\.output-settings-count-card\s*\{{[^}}]*{shared_border}")
-        self.assertRegex(styles, rf"\.output-settings-format-visual\s*\{{[^}}]*{shared_border}")
+        self.assertRegex(styles, rf"\.output-settings-format-visual,\s*\.output-settings-resolution-visual\s*\{{[^}}]*{shared_border}")
 
     def test_four_wide_outputs_use_a_two_by_two_count_grid(self) -> None:
         source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
@@ -257,8 +311,9 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
 
     def test_extra_short_summary_compacts_inside_the_original_grid_budget(self) -> None:
         responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
-        marker = "@media (max-height: 1390px) and (min-width: 900px)"
-        block = responsive[responsive.index(marker):responsive.index("@media (max-width: 640px)")]
+        marker = "/* Continuous locked-summary density; viewport height changes do not create a new layout band. */"
+        desktop_marker = "@media (max-height: 1390px) and (min-width: 900px)"
+        block = responsive[responsive.index(marker):responsive.index(desktop_marker)]
         self.assertRegex(
             block,
             r"\.controls-col\s+\.output-settings-summary-card\s*\{[^}]*"
@@ -271,6 +326,51 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
             r"min-height:\s*clamp\(40px,[^}]*92px\)",
         )
         self.assertNotIn("output-settings-editor-height", responsive)
+
+    def test_short_height_summary_compaction_is_not_limited_to_desktop_widths(self) -> None:
+        responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
+        marker = "/* Continuous locked-summary density; viewport height changes do not create a new layout band. */"
+        desktop_marker = "@media (max-height: 1390px) and (min-width: 900px)"
+
+        self.assertIn(marker, responsive)
+        block = responsive[responsive.index(marker):responsive.index(desktop_marker)]
+        self.assertNotIn("@media", block)
+        self.assertRegex(
+            block,
+            r"\.controls-col\s+\.output-settings-summary-card\s*\{[^}]*"
+            r"min-height:\s*clamp\(82px,[^}]*166px\)",
+        )
+        self.assertRegex(
+            block,
+            r"\.controls-col\s+\.output-settings-format-visual,\s*"
+            r"\.controls-col\s+\.output-settings-resolution-visual\s*\{[^}]*"
+            r"width:\s*clamp\(46px,[^}]*86px\)",
+        )
+        self.assertRegex(
+            block,
+            r"\.controls-col\s+\.output-settings-summary-details\s*\{[^}]*"
+            r"margin-top:\s*clamp\(4px,[^}]*18px\)[^}]*"
+            r"padding-top:\s*clamp\(4px,[^}]*18px\)",
+        )
+
+    def test_task_summary_footer_keeps_hint_and_adoption_action_in_flow(self) -> None:
+        source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
+        styles = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
+
+        self.assertIn('const footer = createElement("div", "output-settings-summary-footer")', source)
+        self.assertIn("footer.append(hint)", source)
+        self.assertIn("footer.append(els.outputSettingsTaskAction)", source)
+        self.assertIn("root.append(main, footer)", source)
+        self.assertRegex(
+            styles,
+            r"\.output-settings-summary-footer\s*\{[^}]*"
+            r"grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto",
+        )
+        self.assertRegex(
+            styles,
+            r"\.output-settings-task-action\s*\{[^}]*position:\s*static",
+        )
+        self.assertNotIn("padding-right: 190px", styles)
 
 
 if __name__ == "__main__":

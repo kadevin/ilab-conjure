@@ -19,7 +19,7 @@ export const DEFAULT_API_MODE = "images";
 export const DEFAULT_CODEX_MODE = "images";
 export const DEFAULT_API_IMAGES_CONCURRENCY = 4;
 export const API_SETTINGS_STORAGE_KEY = "codex-image-api-settings";
-export const DEFAULT_DOCUMENT_TITLE = document.title || "iLab GPT CONJURE";
+export const DEFAULT_DOCUMENT_TITLE = document.title || "iLab CONJURE";
 export const SUBMIT_TASK_TIMEOUT_MS = 45000;
 export const TASK_CARD_SELECTOR = ".task-card[data-task-id]";
 export const TASK_HISTORY_EXPANDED_GROUP_STORAGE_KEY = "codex-image-task-history-expanded-group";
@@ -115,6 +115,19 @@ export function createDefaultState(): WebUIState {
   taskNotificationToastTimerIds: [],
   taskNotificationSettings: { inApp: true, system: false },
   taskNotificationSeenKeys: new Set(),
+  generationCatalog: null,
+  generationCatalogError: null,
+  selectedFamilyId: null,
+  selectedModelId: null,
+  selectedProviderId: null,
+  selectedProviderBindingId: null,
+  lastModelByFamily: {},
+  lastProviderByModel: {},
+  lastProviderSelectionByModel: {},
+  parameterDraftsByModel: {},
+  parameterDraftVersionsByModel: {},
+  parameterValidationErrorsByModel: {},
+  inspectedGenerationSnapshot: null,
   draggedPromptChip: null,
   legacyArchivedTaskIds: [],
   batchMode: false,

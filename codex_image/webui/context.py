@@ -6,9 +6,10 @@ from typing import Any, Callable
 
 from fastapi import FastAPI
 
+from .provider_settings import ProviderSettings
 from .queue import QueueManager
 from .reference_files import ReferenceFileStorage
-from .settings_store import ApiSettings, AuthSettings, ColorPaletteSettings, PromptSnippetSettings, PromptTemplateSettings, WebUISettings
+from .settings_store import AuthSettings, ColorPaletteSettings, PromptSnippetSettings, PromptTemplateSettings, WebUISettings
 from .storage import GalleryStorage, QueueStorage, ReferenceAssetStorage, SQLiteQueueStorage, TaskStorage
 
 ClientFactory = Callable[[], Any]
@@ -25,7 +26,7 @@ class WebUIContext:
     queue_storage: QueueStorage | SQLiteQueueStorage
     webui_settings: WebUISettings
     auth_settings: AuthSettings
-    api_settings: ApiSettings
+    api_settings: ProviderSettings
     color_settings: ColorPaletteSettings
     prompt_snippet_settings: PromptSnippetSettings
     prompt_template_settings: PromptTemplateSettings

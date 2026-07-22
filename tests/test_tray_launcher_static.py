@@ -52,7 +52,14 @@ class TrayLauncherStaticTests(unittest.TestCase):
         self.assertIn("assets/rabbit-logo.ico", build_source)
         self.assertIn("winresource::WindowsResource::new", build_source)
         self.assertIn('resource.set_icon("assets/rabbit-logo.ico")', build_source)
+        self.assertIn('resource.set("FileDescription", "iLab CONJURE")', build_source)
+        self.assertIn('resource.set("ProductName", "iLab CONJURE")', build_source)
         self.assertIn('"iLab GPT CONJURE.exe"', build_source)
+        self.assertIn('pub const APP_NAME: &str = "iLab CONJURE";', combined_source)
+        self.assertIn(
+            'pub const LEGACY_DATA_DIR_NAME: &str = "iLab GPT CONJURE";',
+            combined_source,
+        )
         self.assertIn("http://127.0.0.1:8787/", combined_source)
         self.assertIn("create_tray_state(&config)", source)
         self.assertIn("sync_locale", source)
@@ -88,7 +95,7 @@ class TrayLauncherStaticTests(unittest.TestCase):
         self.assertIn('"signature"', combined_source)
         self.assertIn("User-Agent", combined_source)
         self.assertIn(
-            "https://github.com/kadevin/ilab-gpt-conjure/releases/latest/download/latest.json",
+            "https://github.com/kadevin/ilab-conjure/releases/latest/download/latest.json",
             combined_source,
         )
         self.assertIn("show_platform_about_window", combined_source)
@@ -130,14 +137,14 @@ class TrayLauncherStaticTests(unittest.TestCase):
         self.assertIn("打开设置", combined_source)
         self.assertIn("历史库", combined_source)
         self.assertIn("检查更新", combined_source)
-        self.assertIn("关于 iLab GPT CONJURE", combined_source)
+        self.assertIn("关于 iLab CONJURE", combined_source)
         self.assertIn("重启 WebUI 服务", combined_source)
         self.assertIn("退出", combined_source)
         self.assertIn("Open WebUI", combined_source)
         self.assertIn("Open Settings", combined_source)
         self.assertIn("History Library", combined_source)
         self.assertIn("Check for Updates", combined_source)
-        self.assertIn("About iLab GPT CONJURE", combined_source)
+        self.assertIn("About iLab CONJURE", combined_source)
         self.assertIn("Restart WebUI Service", combined_source)
         self.assertIn("Quit", combined_source)
         self.assertIn("codex_image.webui.startup_auth", combined_source)

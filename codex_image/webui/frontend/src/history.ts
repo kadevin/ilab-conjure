@@ -29,6 +29,7 @@ import {
 } from "./history-lightbox";
 import { initSegmentedIndicatorFeature } from "./segmented-indicator";
 import { webAppDocumentTitle } from "./web-app-title";
+import { createGroundingAttribution } from "./grounding-attribution";
 
 type HistoryFacet = { value: string; count: number };
 type HistoryMonth = { month: string; count: number };
@@ -1469,6 +1470,9 @@ function renderTaskDetail(task: any): void {
     ${referenceFiles}
     ${promptCompareHtml(task)}
   `;
+  const grounding = createGroundingAttribution(task);
+  const imageGrid = els.detail.querySelector<HTMLElement>(".history-detail-images");
+  if (grounding && imageGrid) imageGrid.insertAdjacentElement("afterend", grounding);
 }
 
 function detailTitle(task: any): string {

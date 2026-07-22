@@ -200,7 +200,7 @@ def sign_payload(payload: bytes, private_key_pem: bytes) -> dict[str, str]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build iLab GPT CONJURE signed update manifest."
+        description="Build iLab CONJURE signed update manifest."
     )
     parser.add_argument("--assets-dir", required=True, type=Path)
     parser.add_argument("--version", required=True)

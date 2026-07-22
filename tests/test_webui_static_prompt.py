@@ -71,7 +71,8 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn("function currentPromptFidelity()", script)
         self.assertIn("function currentPromptForModel()", script)
         self.assertIn('currentPromptFidelity() === "original" ? expandPromptSnippets(getPromptText()) : buildPromptForModel()', script)
-        self.assertIn("prompt_fidelity: currentPromptFidelity()", script)
+        self.assertIn("params.prompt_fidelity = currentPromptFidelity()", script)
+        self.assertIn('state.selectedModelId === "gpt-image-2"', script)
         self.assertIn('form.append("prompt_fidelity", currentPromptFidelity())', script)
 
     def test_prompt_fidelity_help_explains_each_transport_without_adding_a_layout_row(self) -> None:
@@ -1209,8 +1210,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-568', html)
-        self.assertIn('/static/styles.css?v=runtime-568', html)
+        self.assertIn('/static/app.js?v=runtime-640', html)
+        self.assertIn('/static/styles.css?v=runtime-640', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)
@@ -1233,7 +1234,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('const query = state.mainModelShowAllOptions ? "" : els.mainModel.value;', script)
         self.assertIn('localStorage.getItem(MAIN_MODEL_STORAGE_KEY)', script)
         self.assertIn('localStorage.setItem(MAIN_MODEL_STORAGE_KEY', script)
-        self.assertIn("main_model: currentMainModel()", script)
+        self.assertIn("params.main_model = currentMainModel()", script)
+        self.assertIn('state.selectedModelId === "gpt-image-2"', script)
         self.assertIn('form.append("main_model", currentMainModel())', script)
         self.assertIn('params.main_model || request.main_model || (usesResponses ? request.model : "")', script)
         self.assertRegex(styles, r"\.model-combobox\s*\{[^}]*position:\s*relative")
@@ -1351,7 +1353,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn("function updateModeSpecificSettings(authSource = currentAuthSource())", script)
         self.assertIn('authSource === "api" && currentApiMode() !== "responses"', script)
         self.assertIn('authSource === "codex" && currentCodexMode() !== "responses"', script)
-        self.assertIn("setModeSettingsVariant(isDirectApi)", script)
+        self.assertIn("setModeSettingsVariant(isDirectApi, resolveModeSettingsVisibility({", script)
         self.assertNotIn("slot.style.height = `${fromHeight}px`;", script)
         self.assertNotIn("slot.style.height = `${targetHeight}px`;", script)
         self.assertNotIn("modeTransitionTimers", script)
@@ -1359,16 +1361,19 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
             auth_source,
             r"async function applyAuthSource\(source[^)]*\)[^{]*\{[\s\S]*state\.pendingAuthSource = source;[\s\S]*applyAuthSourceSelection\(source\);[\s\S]*const response = await fetch",
         )
-        self.assertRegex(
-            script,
-            r"function applyModeSettingsVisibility\(isDirectApi[^)]*\)[\s\S]*setModeSpecificElementVisibility\(els\.mainModelField,\s*!isDirectApi\);[\s\S]*setModeSpecificElementVisibility\(els\.apiDirectSettingsNotice,\s*isDirectApi\);[\s\S]*setModeSpecificElementVisibility\(els\.promptFidelityField,\s*true\);",
-        )
+        self.assertIn("function resolveModeSettingsVisibility", script)
+        self.assertIn('if (modelId !== "gpt-image-2")', script)
+        self.assertIn("setModeSpecificElementVisibility(els.modeSettingsSlot, showModeSettings);", script)
+        self.assertIn("setModeSpecificElementVisibility(els.mainModelField, visibility.showMainModel);", script)
+        self.assertIn("setModeSpecificElementVisibility(els.apiDirectSettingsNotice, visibility.showApiDirectNotice);", script)
+        self.assertIn("setModeSpecificElementVisibility(els.promptFidelityField, visibility.showPromptFidelity);", script)
         self.assertIn("state.pendingAuthSource = null;", auth_source)
         self.assertIn("renderAuthSource(state.authStatus);", auth_source)
         self.assertNotIn('element.classList.toggle("hidden", isDirectApi)', script)
         self.assertNotIn('els.apiDirectSettingsNotice?.classList.toggle("hidden", !isDirectApi)', script)
         self.assertNotIn('if (isDirectApiMode()) return "off";', script)
         self.assertNotIn("if (isDirectApiMode()) return buildPromptForModel();", script)
+        self.assertIn('return !state.generationCatalog || state.selectedModelId === "gpt-image-2";', script)
         self.assertIn('const value = els.promptFidelity?.value || "strict";', script)
         self.assertIn("updateModeSpecificSettings();", script)
         self.assertRegex(styles, r"\.api-direct-settings-notice\s*\{[^}]*min-height:\s*60px")

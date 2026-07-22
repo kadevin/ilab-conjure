@@ -84,7 +84,7 @@ function renderAppVersion(statusText?: string): void {
     source.textContent = runtimeSourceLabel(payload?.source);
   }
   if (releaseLink) {
-    releaseLink.href = payload?.release_url || "https://github.com/kadevin/ilab-gpt-conjure/releases";
+    releaseLink.href = payload?.release_url || "https://github.com/kadevin/ilab-conjure/releases";
   }
   if (panel) {
     panel.classList.toggle("has-onboarding", Boolean(onboarding));
@@ -97,7 +97,7 @@ function renderAppVersion(statusText?: string): void {
   }
   if (standardDownloadLink) {
     standardDownloadLink.classList.toggle("hidden", !showStandardDownload);
-    standardDownloadLink.href = standardDownloadUrl || onboarding?.release_url || payload?.release_url || "https://github.com/kadevin/ilab-gpt-conjure/releases";
+    standardDownloadLink.href = standardDownloadUrl || onboarding?.release_url || payload?.release_url || "https://github.com/kadevin/ilab-conjure/releases";
   }
   if (continuePortableButton) {
     continuePortableButton.classList.toggle("hidden", !onboarding);
@@ -142,7 +142,7 @@ async function refreshAppVersion(): Promise<void> {
       source: "source",
       update_available: false,
       updater_available: false,
-      release_url: "https://github.com/kadevin/ilab-gpt-conjure/releases",
+      release_url: "https://github.com/kadevin/ilab-conjure/releases",
     };
   }
   renderAppVersion();
