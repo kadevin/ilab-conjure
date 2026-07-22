@@ -2231,6 +2231,7 @@ fn looks_like_legacy_portable_data(path: &Path) -> bool {
             "webui-settings.json",
             "webui-auth-settings.json",
             "webui-api-settings.json",
+            "webui-network-egress-settings.json",
             "webui-color-settings.json",
             "webui-prompt-snippets.json",
             "webui-prompt-templates.json",

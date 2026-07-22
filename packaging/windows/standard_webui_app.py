@@ -27,6 +27,7 @@ app = create_app(
     webui_settings_path=DATA_DIR / "webui-settings.json",
     auth_settings_path=DATA_DIR / "webui-auth-settings.json",
     api_settings_path=DATA_DIR / "webui-api-settings.json",
+    network_egress_settings_path=DATA_DIR / "webui-network-egress-settings.json",
     color_settings_path=DATA_DIR / "webui-color-settings.json",
     prompt_snippets_path=DATA_DIR / "webui-prompt-snippets.json",
     prompt_templates_path=DATA_DIR / "webui-prompt-templates.json",

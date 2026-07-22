@@ -5,6 +5,7 @@ from typing import Any
 
 from codex_image.auth import load_auth_state
 from codex_image.client import CodexImageClient, CodexImagesImageClient, OpenAIImagesImageClient, OpenAIResponsesImageClient
+from codex_image.http import Transport
 
 from . import executor as _executor
 from .queue import QueueChannel
@@ -46,7 +47,12 @@ def _normalize_api_images_concurrency(value: Any) -> int:
     return min(MAX_API_IMAGES_CONCURRENCY, max(MIN_API_IMAGES_CONCURRENCY, parsed))
 
 
-def _api_client_from_settings(settings: dict[str, Any], *, api_mode: str | None = None) -> Any:
+def _api_client_from_settings(
+    settings: dict[str, Any],
+    *,
+    api_mode: str | None = None,
+    transport: Transport | None = None,
+) -> Any:
     mode = _normalize_api_mode(api_mode or settings.get("api_mode"))
     client_class = OpenAIResponsesImageClient if mode == "responses" else OpenAIImagesImageClient
     if mode == "images":
@@ -57,6 +63,7 @@ def _api_client_from_settings(settings: dict[str, Any], *, api_mode: str | None 
         api_key=str(settings["api_key"]),
         base_url=str(settings["base_url"]),
         image_model=str(settings["image_model"]),
+        transport=transport,
     )
 
 
@@ -245,16 +252,26 @@ def _update_stored_request_api_provider(storage: TaskStorage, task_id: str, para
     storage.write_request(task_id, request_payload)
 
 
-def _client_for_auth_source(source: str, *, api_settings: ApiSettings | None = None, codex_mode: str | None = None) -> Any:
+def _client_for_auth_source(
+    source: str,
+    *,
+    api_settings: ApiSettings | None = None,
+    codex_mode: str | None = None,
+    transport: Transport | None = None,
+) -> Any:
     normalized = source if source in AUTH_SOURCES else _default_auth_source()
     if normalized == "api":
         settings = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).read()
         provider = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).provider_settings(str(settings.get("active_provider_id") or ""))
-        return _api_client_from_settings(provider, api_mode=str(provider.get("api_mode") or DEFAULT_API_MODE))
+        return _api_client_from_settings(
+            provider,
+            api_mode=str(provider.get("api_mode") or DEFAULT_API_MODE),
+            transport=transport,
+        )
     settings = (api_settings or ApiSettings(DEFAULT_WEBUI_API_SETTINGS_PATH)).read()
     mode = _normalize_codex_mode(codex_mode or settings.get("codex_mode"))
     client_class = CodexImageClient if mode == "responses" else CodexImagesImageClient
-    return client_class(load_auth_state())
+    return client_class(load_auth_state(), transport=transport)
 
 
 def _api_queue_channel_count(api_settings: ApiSettings | None = None) -> int:

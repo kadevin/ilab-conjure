@@ -51,6 +51,7 @@ class QueueExecutionContract:
     client: Any
     backend: str
     reference_file_capability_key: CapabilityKey
+    network_egress: dict[str, Any]
 
 
 def _queue_channel_by_id(app_instance: FastAPI, channel_id: str) -> QueueChannel | None:
@@ -147,6 +148,8 @@ def _queue_execution_contract(
 ) -> QueueExecutionContract:
     params = metadata.get("params") if isinstance(metadata, dict) and isinstance(metadata.get("params"), dict) else {}
     main_model = effective_reference_file_main_model(params.get("main_model"))
+    resolved_egress = ctx.network_egress_manager.resolve()
+    transport = ctx.network_egress_manager.transport_for(resolved_egress)
     if channel.auth_source == "api":
         settings_payload = ctx.api_settings.read()
         provider_settings = _provider_from_settings_snapshot(
@@ -155,10 +158,15 @@ def _queue_execution_contract(
         )
         api_mode = _normalize_api_mode(params.get("api_mode") or provider_settings.get("api_mode"))
         backend = _backend_for_api_mode(api_mode)
-        client = ctx.client_factory() if client_factory_overridden else _api_client_from_settings(provider_settings, api_mode=api_mode)
+        client = (
+            ctx.client_factory()
+            if client_factory_overridden
+            else _api_client_from_settings(provider_settings, api_mode=api_mode, transport=transport)
+        )
         return QueueExecutionContract(
             client=client,
             backend=backend,
+            network_egress=resolved_egress.public_snapshot(),
             reference_file_capability_key=reference_file_capability_key_for_resolved_backend(
                 requested_backend=backend,
                 provider_id=str(provider_settings.get("id") or ""),
@@ -172,10 +180,11 @@ def _queue_execution_contract(
         client = ctx.client_factory()
     else:
         client_class = CodexImageClient if codex_mode == "responses" else CodexImagesImageClient
-        client = client_class(load_auth_state())
+        client = client_class(load_auth_state(), transport=transport)
     return QueueExecutionContract(
         client=client,
         backend=backend,
+        network_egress=resolved_egress.public_snapshot(),
         reference_file_capability_key=reference_file_capability_key_for_resolved_backend(
             requested_backend=backend,
             provider_id="codex",
@@ -318,6 +327,7 @@ async def execute_task(
         metadata["assigned_auth_source"] = channel.auth_source
         metadata["assigned_account_id"] = channel.account_id
         metadata["backend"] = execution_contract.backend
+        metadata["network_egress"] = execution_contract.network_egress
         if channel.auth_source == "api":
             params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
             _apply_api_execution_snapshot(

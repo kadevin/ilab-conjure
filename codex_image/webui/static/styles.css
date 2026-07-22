@@ -8537,7 +8537,7 @@ body.lightbox-open {
 .system-settings-tabs {
   --segmented-indicator-radius: 999px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   width: 100%;
   margin: 0 0 18px;
@@ -8949,6 +8949,79 @@ body.lightbox-open {
 .settings-path-grid {
   display: grid;
   gap: 12px;
+}
+
+.network-egress-settings-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.network-egress-mode-group {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.network-egress-custom-field[hidden] {
+  display: none;
+}
+
+.network-egress-current {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.network-egress-current strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 13px;
+  text-align: right;
+}
+
+.network-egress-actions,
+.network-egress-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.network-egress-actions {
+  justify-content: space-between;
+}
+
+.network-egress-action-buttons {
+  flex: 0 0 auto;
+}
+
+.network-egress-action-buttons .ghost-button,
+.network-egress-action-buttons .run-button {
+  width: auto;
+  min-width: 92px;
+}
+
+@media (max-width: 620px) {
+  .system-settings-tabs {
+    grid-template-columns: repeat(5, minmax(92px, max-content));
+    overflow-x: auto;
+    border-radius: 10px;
+    scrollbar-width: none;
+  }
+
+  .system-settings-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .system-settings-tab {
+    border-radius: 7px;
+    white-space: nowrap;
+  }
 }
 
 .notification-options-panel {

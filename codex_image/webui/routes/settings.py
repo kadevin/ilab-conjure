@@ -34,6 +34,7 @@ def register_settings_routes(app: FastAPI, ctx: WebUIContext) -> None:
             "gallery_root": str(ctx.gallery_root),
             "source_data_root": str(ctx.source_data_root),
             "queue_worker_running": bool(queue_worker is not None and not queue_worker.done()),
+            "network_egress": ctx.network_egress_manager.resolve().public_snapshot(),
         }
 
     @app.get("/api/app-version")
@@ -297,3 +298,22 @@ def register_settings_routes(app: FastAPI, ctx: WebUIContext) -> None:
             ctx.queue_manager.channels = channels
             ctx.queue_manager.max_attempts = h["queue_max_attempts_for_channels"](channels)
         return {"settings": ctx.api_settings.public_settings()}
+
+    @app.get("/api/network-egress")
+    def get_network_egress() -> dict[str, Any]:
+        return ctx.network_egress_manager.public_settings()
+
+    @app.patch("/api/network-egress")
+    def update_network_egress(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
+        try:
+            ctx.network_egress_settings.write(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return ctx.network_egress_manager.public_settings()
+
+    @app.post("/api/network-egress/test")
+    def test_network_egress(payload: dict[str, Any] = Body(default={})) -> dict[str, Any]:
+        try:
+            return ctx.network_egress_manager.probe(payload or None)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc

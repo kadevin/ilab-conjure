@@ -347,6 +347,9 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/auth", "PATCH"),
                 ("/api/api-settings", "GET"),
                 ("/api/api-settings", "PATCH"),
+                ("/api/network-egress", "GET"),
+                ("/api/network-egress", "PATCH"),
+                ("/api/network-egress/test", "POST"),
                 ("/api/tasks", "GET"),
                 ("/api/tasks/recent", "GET"),
                 ("/api/task-history/summary", "GET"),
@@ -399,6 +402,8 @@ class WebUIRefactorContractTests(unittest.TestCase):
             self.assertTrue(hasattr(app.state, "queue_manager"))
             self.assertTrue(hasattr(app.state, "api_settings"))
             self.assertTrue(hasattr(app.state, "auth_settings"))
+            self.assertTrue(hasattr(app.state, "network_egress_settings"))
+            self.assertTrue(hasattr(app.state, "network_egress_manager"))
             self.assertFalse(hasattr(app.state, "account_quota_cache"))
             self.assertTrue(hasattr(app.state, "active_task_ids"))
             self.assertTrue(hasattr(app.state, "running_worker_tasks"))

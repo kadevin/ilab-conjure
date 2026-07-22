@@ -2181,7 +2181,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*>\s*\.modal-heading\s+\.drawer-close-button\s*\{[^}]*position:\s*absolute")
         self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*padding-right:\s*0")
         self.assertNotIn(".system-settings-section-heading", styles)
-        self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)")
+        self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)")
         self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*--segmented-indicator-radius:\s*999px")
         self.assertRegex(styles, r"\.system-settings-tab\.active\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertRegex(styles, r"\.system-settings-tabs\s+\.segmented-indicator\s*\{[^}]*border-radius:\s*999px")

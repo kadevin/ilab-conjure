@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from fastapi import FastAPI
 
+from .network_egress import NetworkEgressManager, NetworkEgressSettings
 from .queue import QueueManager
 from .reference_files import ReferenceFileStorage
 from .settings_store import ApiSettings, AuthSettings, ColorPaletteSettings, PromptSnippetSettings, PromptTemplateSettings, WebUISettings
@@ -26,6 +27,8 @@ class WebUIContext:
     webui_settings: WebUISettings
     auth_settings: AuthSettings
     api_settings: ApiSettings
+    network_egress_settings: NetworkEgressSettings
+    network_egress_manager: NetworkEgressManager
     color_settings: ColorPaletteSettings
     prompt_snippet_settings: PromptSnippetSettings
     prompt_template_settings: PromptTemplateSettings
@@ -63,6 +66,8 @@ class WebUIContext:
         self.app.state.auto_start_queue = self.auto_start_queue
         self.app.state.auth_settings = self.auth_settings
         self.app.state.api_settings = self.api_settings
+        self.app.state.network_egress_settings = self.network_egress_settings
+        self.app.state.network_egress_manager = self.network_egress_manager
         self.app.state.prompt_template_settings = self.prompt_template_settings
         self.app.state.client_factory = self.client_factory
         self.app.state.auth_checker = self.auth_checker

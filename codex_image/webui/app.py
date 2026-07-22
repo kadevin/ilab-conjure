@@ -72,6 +72,7 @@ from .queue_runtime import (
     install_queue_runtime,
     queue_lifespan,
 )
+from .network_egress import NetworkEgressManager, NetworkEgressSettings
 from .recovery import (
     _disk_output_paths,
     _is_legacy_auto_retry_queue_task,
@@ -91,6 +92,7 @@ from .recovery import (
 from .schemas import (
     DEFAULT_WEBUI_AUTH_SETTINGS_PATH,
     DEFAULT_WEBUI_API_SETTINGS_PATH,
+    DEFAULT_WEBUI_NETWORK_EGRESS_SETTINGS_PATH,
     DEFAULT_WEBUI_COLOR_SETTINGS_PATH,
     DEFAULT_WEBUI_GALLERY_SUBDIR,
     DEFAULT_WEBUI_OUTPUT_ROOT,
@@ -199,6 +201,7 @@ def create_app(
     batch_delay_seconds: float = 5.0,
     auth_settings_path: Path | str = DEFAULT_WEBUI_AUTH_SETTINGS_PATH,
     api_settings_path: Path | str = DEFAULT_WEBUI_API_SETTINGS_PATH,
+    network_egress_settings_path: Path | str = DEFAULT_WEBUI_NETWORK_EGRESS_SETTINGS_PATH,
     color_settings_path: Path | str = DEFAULT_WEBUI_COLOR_SETTINGS_PATH,
     prompt_snippets_path: Path | str = DEFAULT_WEBUI_PROMPT_SNIPPETS_PATH,
     prompt_templates_path: Path | str = DEFAULT_WEBUI_PROMPT_TEMPLATES_PATH,
@@ -236,11 +239,19 @@ def create_app(
     _recover_queue_state(storage, queue_storage)
     auth_settings = AuthSettings(Path(auth_settings_path))
     api_settings = ApiSettings(Path(api_settings_path))
+    network_egress_settings = NetworkEgressSettings(Path(network_egress_settings_path))
+    network_egress_manager = NetworkEgressManager(network_egress_settings)
     color_settings = ColorPaletteSettings(Path(color_settings_path))
     prompt_snippet_settings = PromptSnippetSettings(Path(prompt_snippets_path))
     prompt_template_settings = PromptTemplateSettings(Path(prompt_templates_path))
     static_path = Path(static_dir) if static_dir is not None else Path(__file__).parent / "static"
-    make_client = client_factory or (lambda: _client_for_auth_source(auth_settings.read_source(), api_settings=api_settings))
+    make_client = client_factory or (
+        lambda: _client_for_auth_source(
+            auth_settings.read_source(),
+            api_settings=api_settings,
+            transport=network_egress_manager.transport(),
+        )
+    )
     check_auth = auth_checker or (lambda: bool(_auth_status(auth_settings.read_source(), api_settings=api_settings)["auth_available"]))
 
     app = FastAPI(title="iLab GPT CONJURE", lifespan=queue_lifespan)
@@ -254,6 +265,8 @@ def create_app(
         webui_settings=settings,
         auth_settings=auth_settings,
         api_settings=api_settings,
+        network_egress_settings=network_egress_settings,
+        network_egress_manager=network_egress_manager,
         color_settings=color_settings,
         prompt_snippet_settings=prompt_snippet_settings,
         prompt_template_settings=prompt_template_settings,

@@ -32,6 +32,7 @@ export function bootWebUI(state: WebUIState, els: WebUIElements, methods: Legacy
   void call(methods, "restoreHistoryTaskReuseHandoff");
   call(methods, "refreshSettings");
   call(methods, "refreshApiSettings");
+  call(methods, "refreshNetworkEgressSettings");
   call(methods, "refreshHealth");
   call(methods, "refreshGallery");
   call(methods, "refreshRecentAssets");

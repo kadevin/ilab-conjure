@@ -354,7 +354,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         self.assertIn("runtime-568", index)
         self.assertIn("runtime-568", history)
         self.assertIn("history-69", history)
-        self.assertIn('ilab-gpt-conjure-shell-v50', worker)
+        self.assertIn('ilab-gpt-conjure-shell-v53', worker)
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:
         design_path = ROOT / "DESIGN.md"

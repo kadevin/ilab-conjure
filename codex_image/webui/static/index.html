@@ -947,6 +947,7 @@
         <div id="systemSettingsTabs" class="system-settings-tabs" role="tablist" aria-label="系统设置选项" data-i18n-attr="aria-label:systemSettings.tabsLabel">
           <button id="systemSettingsApiTab" class="system-settings-tab active" type="button" role="tab" aria-selected="true" aria-controls="systemSettingsApiPanel" data-system-settings-tab="api" data-i18n="systemSettings.apiTab">API 设置</button>
           <button id="systemSettingsCodexTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsCodexPanel" data-system-settings-tab="codex" data-i18n="systemSettings.codexTab">Codex 通道</button>
+          <button id="systemSettingsNetworkTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsNetworkPanel" data-system-settings-tab="network" data-i18n="systemSettings.networkTab">网络出口</button>
           <button id="systemSettingsLanguageTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsLanguagePanel" data-system-settings-tab="language" data-i18n="systemSettings.languageTab">语言 / Language</button>
           <button id="systemSettingsStorageTab" class="system-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="systemSettingsStoragePanel" data-system-settings-tab="storage" data-i18n="systemSettings.storageTab">存储与通知</button>
         </div>
@@ -1117,6 +1118,40 @@
           </div>
           <div class="settings-modal-actions settings-status-only">
             <p id="codexSettingsStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
+          </div>
+        </section>
+        <section id="systemSettingsNetworkPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsNetworkTab" hidden aria-hidden="true">
+          <div class="network-egress-settings-layout">
+            <div class="field network-egress-mode-field">
+              <span data-i18n="networkEgress.mode">出口模式</span>
+              <div class="radio-group network-egress-mode-group" id="networkEgressModeGroup" role="group" aria-label="出口模式" data-i18n-attr="aria-label:networkEgress.mode">
+                <button class="radio-btn" data-val="auto" type="button" data-i18n="networkEgress.auto">自动</button>
+                <button class="radio-btn active" data-val="system" type="button" data-i18n="networkEgress.system">系统</button>
+                <button class="radio-btn" data-val="direct" type="button" data-i18n="networkEgress.direct">直连</button>
+                <button class="radio-btn" data-val="custom" type="button" data-i18n="networkEgress.custom">自定义</button>
+              </div>
+              <select id="networkEgressMode" class="hidden">
+                <option value="auto">auto</option>
+                <option value="system" selected>system</option>
+                <option value="direct">direct</option>
+                <option value="custom">custom</option>
+              </select>
+            </div>
+            <label id="networkEgressCustomField" class="field network-egress-custom-field" hidden>
+              <span data-i18n="networkEgress.customProxy">HTTP(S) 代理</span>
+              <input id="networkEgressCustomProxyUrl" class="control" type="url" autocomplete="off" placeholder="http://127.0.0.1:10808" />
+            </label>
+            <div class="network-egress-current" aria-live="polite">
+              <span data-i18n="networkEgress.currentRoute">当前出口</span>
+              <strong id="networkEgressResolvedRoute" data-i18n="networkEgress.unavailable">未检测</strong>
+            </div>
+          </div>
+          <div class="settings-modal-actions network-egress-actions">
+            <p id="networkEgressStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
+            <div class="network-egress-action-buttons">
+              <button id="testNetworkEgressButton" class="ghost-button" type="button" data-i18n="networkEgress.test">检测连接</button>
+              <button id="saveNetworkEgressButton" class="run-button" type="button" data-i18n="networkEgress.save">保存并应用</button>
+            </div>
           </div>
         </section>
         <section id="systemSettingsLanguagePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsLanguageTab" hidden aria-hidden="true">

@@ -150,6 +150,7 @@
     void call2(methods, "restoreHistoryTaskReuseHandoff");
     call2(methods, "refreshSettings");
     call2(methods, "refreshApiSettings");
+    call2(methods, "refreshNetworkEgressSettings");
     call2(methods, "refreshHealth");
     call2(methods, "refreshGallery");
     call2(methods, "refreshRecentAssets");
@@ -237,10 +238,12 @@
       systemSettingsTabs: document.querySelector("#systemSettingsTabs"),
       systemSettingsApiTab: document.querySelector("#systemSettingsApiTab"),
       systemSettingsCodexTab: document.querySelector("#systemSettingsCodexTab"),
+      systemSettingsNetworkTab: document.querySelector("#systemSettingsNetworkTab"),
       systemSettingsLanguageTab: document.querySelector("#systemSettingsLanguageTab"),
       systemSettingsStorageTab: document.querySelector("#systemSettingsStorageTab"),
       systemSettingsApiPanel: document.querySelector("#systemSettingsApiPanel"),
       systemSettingsCodexPanel: document.querySelector("#systemSettingsCodexPanel"),
+      systemSettingsNetworkPanel: document.querySelector("#systemSettingsNetworkPanel"),
       systemSettingsLanguagePanel: document.querySelector("#systemSettingsLanguagePanel"),
       systemSettingsStoragePanel: document.querySelector("#systemSettingsStoragePanel"),
       languageSettingsStatus: document.querySelector("#languageSettingsStatus"),
@@ -253,6 +256,14 @@
       apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
       apiSettingsActions: document.querySelector("#apiSettingsActions"),
       codexSettingsStatus: document.querySelector("#codexSettingsStatus"),
+      networkEgressMode: document.querySelector("#networkEgressMode"),
+      networkEgressModeGroup: document.querySelector("#networkEgressModeGroup"),
+      networkEgressCustomField: document.querySelector("#networkEgressCustomField"),
+      networkEgressCustomProxyUrl: document.querySelector("#networkEgressCustomProxyUrl"),
+      networkEgressResolvedRoute: document.querySelector("#networkEgressResolvedRoute"),
+      networkEgressStatus: document.querySelector("#networkEgressStatus"),
+      testNetworkEgressButton: document.querySelector("#testNetworkEgressButton"),
+      saveNetworkEgressButton: document.querySelector("#saveNetworkEgressButton"),
       apiProviderQuick: document.querySelector("#apiProviderQuick"),
       codexMode: document.querySelector("#codexMode"),
       codexModeGroup: document.querySelector("#codexModeGroup"),
@@ -1259,8 +1270,32 @@
     "systemSettings.tabsLabel": "System settings sections",
     "systemSettings.apiTab": "API Settings",
     "systemSettings.codexTab": "Codex Channel",
+    "systemSettings.networkTab": "Network",
     "systemSettings.languageTab": "Language",
     "systemSettings.storageTab": "Storage & Notifications",
+    "networkEgress.mode": "Egress mode",
+    "networkEgress.auto": "Auto",
+    "networkEgress.system": "System",
+    "networkEgress.direct": "Direct",
+    "networkEgress.custom": "Custom",
+    "networkEgress.customProxy": "HTTP(S) proxy",
+    "networkEgress.currentRoute": "Current route",
+    "networkEgress.unavailable": "Not checked",
+    "networkEgress.routeDirect": "Direct",
+    "networkEgress.routeCustom": "Custom proxy",
+    "networkEgress.routeSystem": "System proxy",
+    "networkEgress.routeAutoDirect": "Auto direct",
+    "networkEgress.routeSystemDirect": "System direct",
+    "networkEgress.test": "Test connection",
+    "networkEgress.save": "Save and apply",
+    "networkEgress.saving": "Saving",
+    "networkEgress.saved": "Network egress applied",
+    "networkEgress.testing": "Testing connection",
+    "networkEgress.testSucceeded": "Connection available",
+    "networkEgress.testFailed": "Connection failed",
+    "networkEgress.loadFailed": "Failed to load network egress",
+    "networkEgress.saveFailed": "Failed to save network egress",
+    "networkEgress.requestFailed": "Network egress request failed",
     "languageSettings.instantStatus": "Language changes apply immediately",
     "apiSettings.title": "API Settings",
     "apiSettings.status": "Saved settings apply immediately in API mode",
@@ -10979,8 +11014,32 @@
     "systemSettings.tabsLabel": "\u7CFB\u7EDF\u8BBE\u7F6E\u9009\u9879",
     "systemSettings.apiTab": "API \u8BBE\u7F6E",
     "systemSettings.codexTab": "Codex \u901A\u9053",
+    "systemSettings.networkTab": "\u7F51\u7EDC\u51FA\u53E3",
     "systemSettings.languageTab": "\u8BED\u8A00 / Language",
     "systemSettings.storageTab": "\u5B58\u50A8\u4E0E\u901A\u77E5",
+    "networkEgress.mode": "\u51FA\u53E3\u6A21\u5F0F",
+    "networkEgress.auto": "\u81EA\u52A8",
+    "networkEgress.system": "\u7CFB\u7EDF",
+    "networkEgress.direct": "\u76F4\u8FDE",
+    "networkEgress.custom": "\u81EA\u5B9A\u4E49",
+    "networkEgress.customProxy": "HTTP(S) \u4EE3\u7406",
+    "networkEgress.currentRoute": "\u5F53\u524D\u51FA\u53E3",
+    "networkEgress.unavailable": "\u672A\u68C0\u6D4B",
+    "networkEgress.routeDirect": "\u76F4\u8FDE",
+    "networkEgress.routeCustom": "\u81EA\u5B9A\u4E49\u4EE3\u7406",
+    "networkEgress.routeSystem": "\u7CFB\u7EDF\u4EE3\u7406",
+    "networkEgress.routeAutoDirect": "\u81EA\u52A8\u76F4\u8FDE",
+    "networkEgress.routeSystemDirect": "\u7CFB\u7EDF\u76F4\u8FDE",
+    "networkEgress.test": "\u68C0\u6D4B\u8FDE\u63A5",
+    "networkEgress.save": "\u4FDD\u5B58\u5E76\u5E94\u7528",
+    "networkEgress.saving": "\u6B63\u5728\u4FDD\u5B58",
+    "networkEgress.saved": "\u7F51\u7EDC\u51FA\u53E3\u5DF2\u5E94\u7528",
+    "networkEgress.testing": "\u6B63\u5728\u68C0\u6D4B\u8FDE\u63A5",
+    "networkEgress.testSucceeded": "\u8FDE\u63A5\u53EF\u7528",
+    "networkEgress.testFailed": "\u8FDE\u63A5\u5931\u8D25",
+    "networkEgress.loadFailed": "\u7F51\u7EDC\u51FA\u53E3\u8BFB\u53D6\u5931\u8D25",
+    "networkEgress.saveFailed": "\u7F51\u7EDC\u51FA\u53E3\u4FDD\u5B58\u5931\u8D25",
+    "networkEgress.requestFailed": "\u7F51\u7EDC\u51FA\u53E3\u8BF7\u6C42\u5931\u8D25",
     "languageSettings.instantStatus": "\u8BED\u8A00\u5207\u6362\u540E\u7ACB\u5373\u751F\u6548",
     "apiSettings.title": "API \u8BBE\u7F6E",
     "apiSettings.status": "\u4FDD\u5B58\u540E\u7ACB\u5373\u7528\u4E8E API \u6A21\u5F0F",
@@ -30580,7 +30639,7 @@ ${hint}` : hint;
   var systemSettingsHeightAnimationToken = 0;
   var systemSettingsHeightAnimationTimer;
   var MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
-  var VALID_TABS = /* @__PURE__ */ new Set(["api", "codex", "language", "storage"]);
+  var VALID_TABS = /* @__PURE__ */ new Set(["api", "codex", "network", "language", "storage"]);
   function normalizedTab(tab) {
     return VALID_TABS.has(tab) ? tab : "api";
   }
@@ -30671,6 +30730,7 @@ ${hint}` : hint;
     [
       ["api", els43.systemSettingsApiPanel],
       ["codex", els43.systemSettingsCodexPanel],
+      ["network", els43.systemSettingsNetworkPanel],
       ["language", els43.systemSettingsLanguagePanel],
       ["storage", els43.systemSettingsStoragePanel]
     ].forEach(([name, panel2]) => {
@@ -30681,6 +30741,7 @@ ${hint}` : hint;
     });
     if (options.refresh === false) return;
     if (selected === "storage") maybeCall("refreshSettings");
+    if (selected === "network") maybeCall("refreshNetworkEgressSettings");
     if (selected === "api" || selected === "codex") {
       maybeCall("setApiSettingsFeedback", "", "");
       maybeCall("populateApiSettingsForm");
@@ -31726,6 +31787,137 @@ ${hint}` : hint;
       taskBackendLabel,
       setApiSettingsFeedback,
       saveApiSettings
+    });
+  }
+
+  // codex_image/webui/frontend/src/network-egress-settings.ts
+  var networkEgressFeatureInitialized = false;
+  var lastResolvedNetworkEgress = null;
+  function elements() {
+    return getLegacyBridge().els;
+  }
+  function setNetworkEgressFeedback(message, type = "") {
+    const status = elements().networkEgressStatus;
+    if (!status) return;
+    status.textContent = message;
+    status.className = `api-settings-feedback settings-action-status${type ? ` ${type}` : ""}`;
+  }
+  function routeLabel(resolved) {
+    if (!resolved) return translate("networkEgress.unavailable");
+    let key = "networkEgress.routeDirect";
+    if (resolved.route === "proxy" && resolved.source === "custom") key = "networkEgress.routeCustom";
+    else if (resolved.route === "proxy" && resolved.source === "system") key = "networkEgress.routeSystem";
+    else if (resolved.source === "auto") key = "networkEgress.routeAutoDirect";
+    else if (resolved.source === "system") key = "networkEgress.routeSystemDirect";
+    const label = translate(key);
+    return resolved.proxy_url ? `${label} \xB7 ${resolved.proxy_url}` : label;
+  }
+  function renderResolvedNetworkEgress(resolved) {
+    lastResolvedNetworkEgress = resolved;
+    const target = elements().networkEgressResolvedRoute;
+    if (target) target.textContent = routeLabel(resolved);
+  }
+  function selectNetworkEgressMode(mode) {
+    const els43 = elements();
+    const select = els43.networkEgressMode;
+    if (select) select.value = mode;
+    const buttons = Array.from(els43.networkEgressModeGroup?.querySelectorAll("[data-val]") || []);
+    buttons.forEach((button) => button.classList.toggle("active", button.dataset.val === mode));
+    if (els43.networkEgressCustomField) {
+      els43.networkEgressCustomField.hidden = mode !== "custom" && mode !== "auto";
+    }
+    refreshSegmentedIndicators();
+  }
+  function readNetworkEgressForm() {
+    const els43 = elements();
+    return {
+      mode: els43.networkEgressMode?.value || "system",
+      custom_proxy_url: els43.networkEgressCustomProxyUrl?.value.trim() || ""
+    };
+  }
+  function populateNetworkEgressSettings(payload2) {
+    const settings = payload2?.settings || {};
+    const mode = ["auto", "system", "direct", "custom"].includes(settings.mode) ? settings.mode : "system";
+    const customInput = elements().networkEgressCustomProxyUrl;
+    if (customInput) customInput.value = settings.custom_proxy_url || "";
+    selectNetworkEgressMode(mode);
+    renderResolvedNetworkEgress(payload2?.resolved || null);
+  }
+  async function responseJson(response) {
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || translate("networkEgress.requestFailed"));
+    return data;
+  }
+  async function refreshNetworkEgressSettings() {
+    try {
+      const payload2 = await responseJson(await fetch("/api/network-egress"));
+      populateNetworkEgressSettings(payload2);
+    } catch (error) {
+      setNetworkEgressFeedback(error.message || translate("networkEgress.loadFailed"), "error");
+    }
+  }
+  async function saveNetworkEgressSettings() {
+    const button = elements().saveNetworkEgressButton;
+    if (!button) return;
+    button.disabled = true;
+    setNetworkEgressFeedback(translate("networkEgress.saving"), "running");
+    try {
+      const payload2 = await responseJson(await fetch("/api/network-egress", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(readNetworkEgressForm())
+      }));
+      populateNetworkEgressSettings(payload2);
+      setNetworkEgressFeedback(translate("networkEgress.saved"), "ok");
+    } catch (error) {
+      setNetworkEgressFeedback(error.message || translate("networkEgress.saveFailed"), "error");
+    } finally {
+      button.disabled = false;
+    }
+  }
+  async function testNetworkEgress() {
+    const button = elements().testNetworkEgressButton;
+    if (!button) return;
+    button.disabled = true;
+    setNetworkEgressFeedback(translate("networkEgress.testing"), "running");
+    try {
+      const payload2 = await responseJson(await fetch("/api/network-egress/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(readNetworkEgressForm())
+      }));
+      renderResolvedNetworkEgress(payload2.resolved || null);
+      const elapsed = Number.isFinite(payload2.elapsed_ms) ? ` \xB7 ${payload2.elapsed_ms} ms` : "";
+      setNetworkEgressFeedback(
+        payload2.ok ? `${translate("networkEgress.testSucceeded")}${elapsed}` : `${translate("networkEgress.testFailed")}: ${payload2.error || translate("networkEgress.unavailable")}`,
+        payload2.ok ? "ok" : "error"
+      );
+    } catch (error) {
+      setNetworkEgressFeedback(error.message || translate("networkEgress.testFailed"), "error");
+    } finally {
+      button.disabled = false;
+    }
+  }
+  function handleModeClick(event) {
+    const button = event.target?.closest?.("[data-val]");
+    if (!button) return;
+    selectNetworkEgressMode(button.dataset.val);
+    setNetworkEgressFeedback("", "");
+  }
+  function initNetworkEgressSettingsFeature() {
+    if (networkEgressFeatureInitialized) return;
+    networkEgressFeatureInitialized = true;
+    const els43 = elements();
+    els43.networkEgressModeGroup?.addEventListener("click", handleModeClick);
+    els43.saveNetworkEgressButton?.addEventListener("click", () => void saveNetworkEgressSettings());
+    els43.testNetworkEgressButton?.addEventListener("click", () => void testNetworkEgress());
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => renderResolvedNetworkEgress(lastResolvedNetworkEgress));
+    Object.assign(getLegacyBridge().methods, {
+      refreshNetworkEgressSettings,
+      populateNetworkEgressSettings,
+      saveNetworkEgressSettings,
+      testNetworkEgress,
+      selectNetworkEgressMode
     });
   }
 
@@ -44650,6 +44842,7 @@ ${galleryText}`;
   initGalleryFeature();
   initApiSettingsFeature();
   initApiAdvancedSettingsFeature();
+  initNetworkEgressSettingsFeature();
   initStorageSettingsFeature();
   initSystemSettingsFeature();
   initColorPaletteFeature();
