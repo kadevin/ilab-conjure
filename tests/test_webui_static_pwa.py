@@ -86,7 +86,7 @@ class WebUIPWATests(unittest.TestCase):
         self.assertTrue(worker_path.exists())
         source = worker_path.read_text(encoding="utf-8")
 
-        self.assertIn('const CACHE_NAME = "ilab-gpt-conjure-shell-v50";', source)
+        self.assertIn('const CACHE_NAME = "ilab-gpt-conjure-shell-v52";', source)
         self.assertIn('"/"', source)
         self.assertIn('"/history"', source)
         self.assertIn('"/manifest.webmanifest"', source)

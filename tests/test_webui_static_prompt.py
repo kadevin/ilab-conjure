@@ -249,6 +249,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
             "function closePromptSnippetPopover",
         ]:
             self.assertIn(marker, source)
+        self.assertIn('candidate.length === 1 && PROMPT_SNIPPET_TRIGGER_CHARS.includes(candidate)', source)
         for function_name in [
             "normalizePromptSnippet",
             "refreshPromptSnippets",

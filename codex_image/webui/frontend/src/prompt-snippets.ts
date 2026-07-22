@@ -65,7 +65,8 @@ function normalizePromptSnippetList(items: any) {
 }
 
 function isPromptSnippetTriggerChar(value: any) {
-  return PROMPT_SNIPPET_TRIGGER_CHARS.includes(String(value || ""));
+  const candidate = String(value || "");
+  return candidate.length === 1 && PROMPT_SNIPPET_TRIGGER_CHARS.includes(candidate);
 }
 
 function isPromptSnippetBoundaryChar(value: any) {

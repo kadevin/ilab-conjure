@@ -32627,7 +32627,8 @@ ${hint}` : hint;
     return (Array.isArray(items) ? items : []).map(normalizePromptSnippet).filter(Boolean).sort((left, right) => left.order - right.order || left.tag.localeCompare(right.tag, "zh-Hans-CN"));
   }
   function isPromptSnippetTriggerChar(value) {
-    return PROMPT_SNIPPET_TRIGGER_CHARS.includes(String(value || ""));
+    const candidate = String(value || "");
+    return candidate.length === 1 && PROMPT_SNIPPET_TRIGGER_CHARS.includes(candidate);
   }
   function isPromptSnippetBoundaryChar(value) {
     return !value || /\s/.test(String(value)) || PROMPT_SNIPPET_BOUNDARY_CHARS.includes(String(value));
