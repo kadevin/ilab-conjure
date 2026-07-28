@@ -104,6 +104,9 @@ class UrllibTransport:
         headers: dict[str, str],
         body: bytes,
     ) -> HTTPResponse:
+        _scheme = urlsplit(url).scheme.lower()
+        if _scheme not in {"http", "https"}:
+            raise ValueError(f"Unsupported URL scheme {_scheme!r}; only http and https are allowed")
         req = request.Request(url=url, data=body, headers=headers, method=method)
         started_at = time.monotonic()
         try:
