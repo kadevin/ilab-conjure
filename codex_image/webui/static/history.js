@@ -938,6 +938,14 @@
     "networkEgress.direct": "Direct",
     "networkEgress.custom": "Custom",
     "networkEgress.customProxy": "Custom proxy URL",
+    "networkEgress.timeout": "Image request timeout",
+    "networkEgress.timeoutUnit": "min",
+    "networkEgress.retryCount": "Retries after failure",
+    "networkEgress.retryUnit": "times",
+    "networkEgress.requestPolicyHelp": "Applies only to image requests started later. Each automatic retry gets a new timeout window.",
+    "networkEgress.timeoutInvalid": "Enter a whole number from 1 to 30 minutes",
+    "networkEgress.retryInvalid": "Enter a whole number from 0 to 5 retries",
+    "networkEgress.environmentTimeoutActive": "The environment timeout is active: {seconds} seconds. Saving replaces it with the setting above.",
     "networkEgress.currentRoute": "Current route: {route}",
     "networkEgress.test": "Test connection",
     "networkEgress.save": "Save and apply",
@@ -2115,6 +2123,14 @@
     "networkEgress.direct": "Direkt",
     "networkEgress.custom": "Benutzerdefiniert",
     "networkEgress.customProxy": "Benutzerdefinierte Proxy-URL",
+    "networkEgress.timeout": "Zeitlimit f\xFCr Bildanfragen",
+    "networkEgress.timeoutUnit": "Min.",
+    "networkEgress.retryCount": "Wiederholungen nach Fehler",
+    "networkEgress.retryUnit": "Mal",
+    "networkEgress.requestPolicyHelp": "Gilt nur f\xFCr sp\xE4ter gestartete Bildanfragen. Jeder automatische Wiederholungsversuch erh\xE4lt ein neues Zeitfenster.",
+    "networkEgress.timeoutInvalid": "Geben Sie eine ganze Zahl zwischen 1 und 30 Minuten ein",
+    "networkEgress.retryInvalid": "Geben Sie eine ganze Zahl zwischen 0 und 5 Wiederholungen ein",
+    "networkEgress.environmentTimeoutActive": "Das Zeitlimit der Umgebungsvariable ist aktiv: {seconds} Sekunden. Beim Speichern wird es durch die obige Einstellung ersetzt.",
     "networkEgress.currentRoute": "Aktuelle Route: {route}",
     "networkEgress.test": "Verbindung testen",
     "networkEgress.save": "Speichern und anwenden",
@@ -3292,6 +3308,14 @@
     "networkEgress.direct": "Directa",
     "networkEgress.custom": "Personalizada",
     "networkEgress.customProxy": "URL de proxy personalizada",
+    "networkEgress.timeout": "Tiempo de espera de la solicitud de imagen",
+    "networkEgress.timeoutUnit": "min",
+    "networkEgress.retryCount": "Reintentos tras un fallo",
+    "networkEgress.retryUnit": "veces",
+    "networkEgress.requestPolicyHelp": "Solo se aplica a las solicitudes de imagen que se inicien despu\xE9s. Cada reintento autom\xE1tico dispone de un nuevo tiempo de espera.",
+    "networkEgress.timeoutInvalid": "Introduce un n\xFAmero entero de 1 a 30 minutos",
+    "networkEgress.retryInvalid": "Introduce un n\xFAmero entero de 0 a 5 reintentos",
+    "networkEgress.environmentTimeoutActive": "Est\xE1 activo el tiempo de espera de la variable de entorno: {seconds} segundos. Al guardar se sustituir\xE1 por el ajuste anterior.",
     "networkEgress.currentRoute": "Ruta actual: {route}",
     "networkEgress.test": "Probar conexi\xF3n",
     "networkEgress.save": "Guardar y aplicar",
@@ -4469,6 +4493,14 @@
     "networkEgress.direct": "Directe",
     "networkEgress.custom": "Personnalis\xE9e",
     "networkEgress.customProxy": "URL de proxy personnalis\xE9e",
+    "networkEgress.timeout": "D\xE9lai d\u2019attente de la requ\xEAte d\u2019image",
+    "networkEgress.timeoutUnit": "min",
+    "networkEgress.retryCount": "Nouvelles tentatives apr\xE8s \xE9chec",
+    "networkEgress.retryUnit": "fois",
+    "networkEgress.requestPolicyHelp": "S\u2019applique uniquement aux requ\xEAtes d\u2019image lanc\xE9es ensuite. Chaque nouvelle tentative automatique b\xE9n\xE9ficie d\u2019un nouveau d\xE9lai.",
+    "networkEgress.timeoutInvalid": "Saisissez un nombre entier de 1 \xE0 30 minutes",
+    "networkEgress.retryInvalid": "Saisissez un nombre entier de 0 \xE0 5 nouvelles tentatives",
+    "networkEgress.environmentTimeoutActive": "Le d\xE9lai d\xE9fini par la variable d\u2019environnement est actif : {seconds} secondes. L\u2019enregistrement le remplacera par le r\xE9glage ci-dessus.",
     "networkEgress.currentRoute": "Route actuelle : {route}",
     "networkEgress.test": "Tester la connexion",
     "networkEgress.save": "Enregistrer et appliquer",
@@ -5646,6 +5678,14 @@
     "networkEgress.direct": "\u76F4\u63A5\u63A5\u7D9A",
     "networkEgress.custom": "\u30AB\u30B9\u30BF\u30E0",
     "networkEgress.customProxy": "\u30AB\u30B9\u30BF\u30E0\u30D7\u30ED\u30AD\u30B7 URL",
+    "networkEgress.timeout": "\u753B\u50CF\u30EA\u30AF\u30A8\u30B9\u30C8\u306E\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8",
+    "networkEgress.timeoutUnit": "\u5206",
+    "networkEgress.retryCount": "\u5931\u6557\u5F8C\u306E\u518D\u8A66\u884C",
+    "networkEgress.retryUnit": "\u56DE",
+    "networkEgress.requestPolicyHelp": "\u4ECA\u5F8C\u958B\u59CB\u3059\u308B\u753B\u50CF\u30EA\u30AF\u30A8\u30B9\u30C8\u306B\u306E\u307F\u9069\u7528\u3055\u308C\u307E\u3059\u3002\u81EA\u52D5\u518D\u8A66\u884C\u3054\u3068\u306B\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\u6642\u9593\u304C\u518D\u8A08\u7B97\u3055\u308C\u307E\u3059\u3002",
+    "networkEgress.timeoutInvalid": "1\uFF5E30 \u306E\u6574\u6570\uFF08\u5206\uFF09\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044",
+    "networkEgress.retryInvalid": "0\uFF5E5 \u306E\u6574\u6570\uFF08\u56DE\uFF09\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044",
+    "networkEgress.environmentTimeoutActive": "\u73FE\u5728\u3001\u74B0\u5883\u5909\u6570\u306E\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\uFF08{seconds} \u79D2\uFF09\u304C\u6709\u52B9\u3067\u3059\u3002\u4FDD\u5B58\u3059\u308B\u3068\u4E0A\u306E\u8A2D\u5B9A\u306B\u7F6E\u304D\u63DB\u308F\u308A\u307E\u3059\u3002",
     "networkEgress.currentRoute": "\u73FE\u5728\u306E\u7D4C\u8DEF\uFF1A{route}",
     "networkEgress.test": "\u63A5\u7D9A\u3092\u30C6\u30B9\u30C8",
     "networkEgress.save": "\u4FDD\u5B58\u3057\u3066\u9069\u7528",
@@ -6823,6 +6863,14 @@
     "networkEgress.direct": "\uC9C1\uC811 \uC5F0\uACB0",
     "networkEgress.custom": "\uC0AC\uC6A9\uC790 \uC9C0\uC815",
     "networkEgress.customProxy": "\uC0AC\uC6A9\uC790 \uC9C0\uC815 \uD504\uB85D\uC2DC URL",
+    "networkEgress.timeout": "\uC774\uBBF8\uC9C0 \uC694\uCCAD \uC2DC\uAC04 \uC81C\uD55C",
+    "networkEgress.timeoutUnit": "\uBD84",
+    "networkEgress.retryCount": "\uC2E4\uD328 \uD6C4 \uC7AC\uC2DC\uB3C4",
+    "networkEgress.retryUnit": "\uD68C",
+    "networkEgress.requestPolicyHelp": "\uC774\uD6C4 \uC2DC\uC791\uB418\uB294 \uC774\uBBF8\uC9C0 \uC694\uCCAD\uC5D0\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4. \uC790\uB3D9 \uC7AC\uC2DC\uB3C4\uB9C8\uB2E4 \uC2DC\uAC04 \uC81C\uD55C\uC744 \uC0C8\uB85C \uACC4\uC0B0\uD569\uB2C8\uB2E4.",
+    "networkEgress.timeoutInvalid": "1~30 \uC0AC\uC774\uC758 \uC815\uC218(\uBD84)\uB97C \uC785\uB825\uD558\uC138\uC694",
+    "networkEgress.retryInvalid": "0~5 \uC0AC\uC774\uC758 \uC815\uC218(\uD68C)\uB97C \uC785\uB825\uD558\uC138\uC694",
+    "networkEgress.environmentTimeoutActive": "\uD604\uC7AC \uD658\uACBD \uBCC0\uC218 \uC2DC\uAC04 \uC81C\uD55C({seconds}\uCD08)\uC774 \uC801\uC6A9 \uC911\uC785\uB2C8\uB2E4. \uC800\uC7A5\uD558\uBA74 \uC704 \uC124\uC815\uC73C\uB85C \uB300\uCCB4\uB429\uB2C8\uB2E4.",
     "networkEgress.currentRoute": "\uD604\uC7AC \uACBD\uB85C: {route}",
     "networkEgress.test": "\uC5F0\uACB0 \uD14C\uC2A4\uD2B8",
     "networkEgress.save": "\uC800\uC7A5 \uBC0F \uC801\uC6A9",
@@ -8000,6 +8048,14 @@
     "networkEgress.direct": "Direta",
     "networkEgress.custom": "Personalizada",
     "networkEgress.customProxy": "URL de proxy personalizada",
+    "networkEgress.timeout": "Tempo limite da solicita\xE7\xE3o de imagem",
+    "networkEgress.timeoutUnit": "min",
+    "networkEgress.retryCount": "Novas tentativas ap\xF3s falha",
+    "networkEgress.retryUnit": "vezes",
+    "networkEgress.requestPolicyHelp": "Aplica-se apenas \xE0s solicita\xE7\xF5es de imagem iniciadas depois. Cada nova tentativa autom\xE1tica recebe um novo tempo limite.",
+    "networkEgress.timeoutInvalid": "Insira um n\xFAmero inteiro de 1 a 30 minutos",
+    "networkEgress.retryInvalid": "Insira um n\xFAmero inteiro de 0 a 5 novas tentativas",
+    "networkEgress.environmentTimeoutActive": "O tempo limite da vari\xE1vel de ambiente est\xE1 ativo: {seconds} segundos. Ao salvar, ele ser\xE1 substitu\xEDdo pela configura\xE7\xE3o acima.",
     "networkEgress.currentRoute": "Rota atual: {route}",
     "networkEgress.test": "Testar conex\xE3o",
     "networkEgress.save": "Salvar e aplicar",
@@ -9177,6 +9233,14 @@
     "networkEgress.direct": "\u041F\u0440\u044F\u043C\u043E\u0439",
     "networkEgress.custom": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439",
     "networkEgress.customProxy": "URL \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u043F\u0440\u043E\u043A\u0441\u0438",
+    "networkEgress.timeout": "\u0422\u0430\u0439\u043C-\u0430\u0443\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u0430 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "networkEgress.timeoutUnit": "\u043C\u0438\u043D",
+    "networkEgress.retryCount": "\u041F\u043E\u0432\u0442\u043E\u0440\u044B \u043F\u043E\u0441\u043B\u0435 \u0441\u0431\u043E\u044F",
+    "networkEgress.retryUnit": "\u0440\u0430\u0437",
+    "networkEgress.requestPolicyHelp": "\u041F\u0440\u0438\u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u0442\u043E\u043B\u044C\u043A\u043E \u043A \u0437\u0430\u043F\u0440\u043E\u0441\u0430\u043C \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439, \u0437\u0430\u043F\u0443\u0449\u0435\u043D\u043D\u044B\u043C \u043F\u043E\u0437\u0434\u043D\u0435\u0435. \u0414\u043B\u044F \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u043F\u043E\u0432\u0442\u043E\u0440\u0430 \u043E\u0442\u0441\u0447\u0451\u0442 \u0442\u0430\u0439\u043C-\u0430\u0443\u0442\u0430 \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F \u0437\u0430\u043D\u043E\u0432\u043E.",
+    "networkEgress.timeoutInvalid": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0446\u0435\u043B\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u043E\u0442 1 \u0434\u043E 30 \u043C\u0438\u043D\u0443\u0442",
+    "networkEgress.retryInvalid": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0446\u0435\u043B\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u043F\u043E\u0432\u0442\u043E\u0440\u043E\u0432 \u043E\u0442 0 \u0434\u043E 5",
+    "networkEgress.environmentTimeoutActive": "\u0421\u0435\u0439\u0447\u0430\u0441 \u0434\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 \u0442\u0430\u0439\u043C-\u0430\u0443\u0442 \u0438\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0439 \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F: {seconds} \u0441\u0435\u043A\u0443\u043D\u0434. \u041F\u043E\u0441\u043B\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0435\u0433\u043E \u0437\u0430\u043C\u0435\u043D\u0438\u0442 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0432\u044B\u0448\u0435.",
     "networkEgress.currentRoute": "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u043C\u0430\u0440\u0448\u0440\u0443\u0442: {route}",
     "networkEgress.test": "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435",
     "networkEgress.save": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438 \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C",
@@ -10354,6 +10418,14 @@
     "networkEgress.direct": "Diretto",
     "networkEgress.custom": "Personalizzato",
     "networkEgress.customProxy": "URL proxy personalizzato",
+    "networkEgress.timeout": "Timeout della richiesta immagine",
+    "networkEgress.timeoutUnit": "min",
+    "networkEgress.retryCount": "Tentativi dopo un errore",
+    "networkEgress.retryUnit": "volte",
+    "networkEgress.requestPolicyHelp": "Si applica solo alle richieste di immagini avviate in seguito. Ogni tentativo automatico riceve una nuova finestra di timeout.",
+    "networkEgress.timeoutInvalid": "Inserisci un numero intero da 1 a 30 minuti",
+    "networkEgress.retryInvalid": "Inserisci un numero intero da 0 a 5 tentativi",
+    "networkEgress.environmentTimeoutActive": "\xC8 attivo il timeout della variabile di ambiente: {seconds} secondi. Il salvataggio lo sostituir\xE0 con l\u2019impostazione precedente.",
     "networkEgress.currentRoute": "Instradamento attuale: {route}",
     "networkEgress.test": "Verifica connessione",
     "networkEgress.save": "Salva e applica",
@@ -11531,6 +11603,14 @@
     "networkEgress.direct": "\u0938\u0940\u0927\u093E",
     "networkEgress.custom": "\u0915\u0938\u094D\u091F\u092E",
     "networkEgress.customProxy": "\u0915\u0938\u094D\u091F\u092E \u092A\u094D\u0930\u0949\u0915\u094D\u0938\u0940 URL",
+    "networkEgress.timeout": "\u0907\u092E\u0947\u091C \u0905\u0928\u0941\u0930\u094B\u0927 \u091F\u093E\u0907\u092E\u0906\u0909\u091F",
+    "networkEgress.timeoutUnit": "\u092E\u093F\u0928\u091F",
+    "networkEgress.retryCount": "\u0935\u093F\u092B\u0932\u0924\u093E \u0915\u0947 \u092C\u093E\u0926 \u092A\u0941\u0928\u0903 \u092A\u094D\u0930\u092F\u093E\u0938",
+    "networkEgress.retryUnit": "\u092C\u093E\u0930",
+    "networkEgress.requestPolicyHelp": "\u092F\u0939 \u0915\u0947\u0935\u0932 \u092C\u093E\u0926 \u092E\u0947\u0902 \u0936\u0941\u0930\u0942 \u0939\u094B\u0928\u0947 \u0935\u093E\u0932\u0947 \u0907\u092E\u0947\u091C \u0905\u0928\u0941\u0930\u094B\u0927\u094B\u0902 \u092A\u0930 \u0932\u093E\u0917\u0942 \u0939\u094B\u0924\u093E \u0939\u0948\u0964 \u0939\u0930 \u0938\u094D\u0935\u091A\u093E\u0932\u093F\u0924 \u092A\u0941\u0928\u0903 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u094B \u0928\u092F\u093E \u091F\u093E\u0907\u092E\u0906\u0909\u091F \u0938\u092E\u092F \u092E\u093F\u0932\u0924\u093E \u0939\u0948\u0964",
+    "networkEgress.timeoutInvalid": "1 \u0938\u0947 30 \u092E\u093F\u0928\u091F \u0924\u0915 \u0915\u0940 \u092A\u0942\u0930\u094D\u0923 \u0938\u0902\u0916\u094D\u092F\u093E \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902",
+    "networkEgress.retryInvalid": "0 \u0938\u0947 5 \u0924\u0915 \u092A\u0941\u0928\u0903 \u092A\u094D\u0930\u092F\u093E\u0938\u094B\u0902 \u0915\u0940 \u092A\u0942\u0930\u094D\u0923 \u0938\u0902\u0916\u094D\u092F\u093E \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902",
+    "networkEgress.environmentTimeoutActive": "\u0905\u092D\u0940 \u092A\u0930\u094D\u092F\u093E\u0935\u0930\u0923 \u091A\u0930 \u0915\u093E \u091F\u093E\u0907\u092E\u0906\u0909\u091F \u0938\u0915\u094D\u0930\u093F\u092F \u0939\u0948: {seconds} \u0938\u0947\u0915\u0902\u0921\u0964 \u0938\u0939\u0947\u091C\u0928\u0947 \u092A\u0930 \u0907\u0938\u0947 \u090A\u092A\u0930 \u0915\u0940 \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0947 \u092C\u0926\u0932 \u0926\u093F\u092F\u093E \u091C\u093E\u090F\u0917\u093E\u0964",
     "networkEgress.currentRoute": "\u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u092E\u093E\u0930\u094D\u0917: {route}",
     "networkEgress.test": "\u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u091C\u093E\u0902\u091A\u0947\u0902",
     "networkEgress.save": "\u0938\u0939\u0947\u091C\u0947\u0902 \u0914\u0930 \u0932\u093E\u0917\u0942 \u0915\u0930\u0947\u0902",
@@ -12718,6 +12798,14 @@
     "networkEgress.direct": "K\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp",
     "networkEgress.custom": "T\xF9y ch\u1EC9nh",
     "networkEgress.customProxy": "URL proxy t\xF9y ch\u1EC9nh",
+    "networkEgress.timeout": "Th\u1EDDi gian ch\u1EDD y\xEAu c\u1EA7u \u1EA3nh",
+    "networkEgress.timeoutUnit": "ph\xFAt",
+    "networkEgress.retryCount": "Th\u1EED l\u1EA1i sau khi l\u1ED7i",
+    "networkEgress.retryUnit": "l\u1EA7n",
+    "networkEgress.requestPolicyHelp": "Ch\u1EC9 \xE1p d\u1EE5ng cho c\xE1c y\xEAu c\u1EA7u \u1EA3nh b\u1EAFt \u0111\u1EA7u sau \u0111\xF3. M\u1ED7i l\u1EA7n t\u1EF1 \u0111\u1ED9ng th\u1EED l\u1EA1i c\xF3 m\u1ED9t kho\u1EA3ng th\u1EDDi gian ch\u1EDD m\u1EDBi.",
+    "networkEgress.timeoutInvalid": "Nh\u1EADp s\u1ED1 nguy\xEAn t\u1EEB 1 \u0111\u1EBFn 30 ph\xFAt",
+    "networkEgress.retryInvalid": "Nh\u1EADp s\u1ED1 nguy\xEAn t\u1EEB 0 \u0111\u1EBFn 5 l\u1EA7n th\u1EED l\u1EA1i",
+    "networkEgress.environmentTimeoutActive": "Th\u1EDDi gian ch\u1EDD t\u1EEB bi\u1EBFn m\xF4i tr\u01B0\u1EDDng \u0111ang ho\u1EA1t \u0111\u1ED9ng: {seconds} gi\xE2y. Khi l\u01B0u, gi\xE1 tr\u1ECB n\xE0y s\u1EBD \u0111\u01B0\u1EE3c thay b\u1EB1ng c\xE0i \u0111\u1EB7t \u1EDF tr\xEAn.",
     "networkEgress.currentRoute": "Tuy\u1EBFn hi\u1EC7n t\u1EA1i: {route}",
     "networkEgress.test": "Ki\u1EC3m tra k\u1EBFt n\u1ED1i",
     "networkEgress.save": "L\u01B0u v\xE0 \xE1p d\u1EE5ng",
@@ -13905,6 +13993,14 @@
     "networkEgress.direct": "\u76F4\u8FDE",
     "networkEgress.custom": "\u81EA\u5B9A\u4E49",
     "networkEgress.customProxy": "\u81EA\u5B9A\u4E49\u4EE3\u7406\u5730\u5740",
+    "networkEgress.timeout": "\u5355\u6B21\u751F\u56FE\u8D85\u65F6",
+    "networkEgress.timeoutUnit": "\u5206\u949F",
+    "networkEgress.retryCount": "\u5931\u8D25\u540E\u91CD\u8BD5",
+    "networkEgress.retryUnit": "\u6B21",
+    "networkEgress.requestPolicyHelp": "\u4EC5\u5F71\u54CD\u4E4B\u540E\u5F00\u59CB\u7684\u751F\u56FE\u8BF7\u6C42\uFF1B\u6BCF\u6B21\u81EA\u52A8\u91CD\u8BD5\u90FD\u4F1A\u91CD\u65B0\u8BA1\u7B97\u8D85\u65F6\u65F6\u95F4\u3002",
+    "networkEgress.timeoutInvalid": "\u8BF7\u8F93\u5165 1\u201330 \u7684\u6574\u6570\u5206\u949F",
+    "networkEgress.retryInvalid": "\u8BF7\u8F93\u5165 0\u20135 \u7684\u6574\u6570\u6B21\u6570",
+    "networkEgress.environmentTimeoutActive": "\u5F53\u524D\u4F7F\u7528\u73AF\u5883\u53D8\u91CF\u8D85\u65F6\uFF1A{seconds} \u79D2\uFF1B\u4FDD\u5B58\u540E\u5C06\u6539\u7528\u4E0A\u65B9\u8BBE\u7F6E\u3002",
     "networkEgress.currentRoute": "\u5F53\u524D\u51FA\u53E3\uFF1A{route}",
     "networkEgress.test": "\u68C0\u6D4B\u8FDE\u63A5",
     "networkEgress.save": "\u4FDD\u5B58\u5E76\u5E94\u7528",
@@ -15092,6 +15188,14 @@
     "networkEgress.direct": "\u76F4\u9023",
     "networkEgress.custom": "\u81EA\u8A02",
     "networkEgress.customProxy": "\u81EA\u8A02\u4EE3\u7406\u5730\u5740",
+    "networkEgress.timeout": "\u55AE\u6B21\u751F\u5716\u903E\u6642",
+    "networkEgress.timeoutUnit": "\u5206\u9418",
+    "networkEgress.retryCount": "\u5931\u6557\u5F8C\u91CD\u8A66",
+    "networkEgress.retryUnit": "\u6B21",
+    "networkEgress.requestPolicyHelp": "\u53EA\u5F71\u97FF\u4E4B\u5F8C\u958B\u59CB\u7684\u751F\u5716\u8ACB\u6C42\uFF1B\u6BCF\u6B21\u81EA\u52D5\u91CD\u8A66\u90FD\u6703\u91CD\u65B0\u8A08\u7B97\u903E\u6642\u6642\u9593\u3002",
+    "networkEgress.timeoutInvalid": "\u8ACB\u8F38\u5165 1\u201330 \u7684\u6574\u6578\u5206\u9418",
+    "networkEgress.retryInvalid": "\u8ACB\u8F38\u5165 0\u20135 \u7684\u6574\u6578\u6B21\u6578",
+    "networkEgress.environmentTimeoutActive": "\u76EE\u524D\u4F7F\u7528\u74B0\u5883\u8B8A\u6578\u903E\u6642\uFF1A{seconds} \u79D2\uFF1B\u5132\u5B58\u5F8C\u6703\u6539\u7528\u4E0A\u65B9\u8A2D\u5B9A\u3002",
     "networkEgress.currentRoute": "\u76EE\u524D\u51FA\u53E3\uFF1A{route}",
     "networkEgress.test": "\u6E2C\u8A66\u9023\u7DDA",
     "networkEgress.save": "\u5132\u5B58\u4E26\u5957\u7528",
@@ -16279,6 +16383,14 @@
     "networkEgress.direct": "\u76F4\u9023",
     "networkEgress.custom": "\u81EA\u8A02",
     "networkEgress.customProxy": "\u81EA\u8A02\u4EE3\u7406\u4F4D\u5740",
+    "networkEgress.timeout": "\u55AE\u6B21\u751F\u5716\u903E\u6642",
+    "networkEgress.timeoutUnit": "\u5206\u9418",
+    "networkEgress.retryCount": "\u5931\u6557\u5F8C\u91CD\u8A66",
+    "networkEgress.retryUnit": "\u6B21",
+    "networkEgress.requestPolicyHelp": "\u50C5\u5F71\u97FF\u4E4B\u5F8C\u958B\u59CB\u7684\u751F\u5716\u8ACB\u6C42\uFF1B\u6BCF\u6B21\u81EA\u52D5\u91CD\u8A66\u90FD\u6703\u91CD\u65B0\u8A08\u7B97\u903E\u6642\u6642\u9593\u3002",
+    "networkEgress.timeoutInvalid": "\u8ACB\u8F38\u5165 1\u201330 \u7684\u6574\u6578\u5206\u9418",
+    "networkEgress.retryInvalid": "\u8ACB\u8F38\u5165 0\u20135 \u7684\u6574\u6578\u6B21\u6578",
+    "networkEgress.environmentTimeoutActive": "\u76EE\u524D\u4F7F\u7528\u74B0\u5883\u8B8A\u6578\u903E\u6642\uFF1A{seconds} \u79D2\uFF1B\u5132\u5B58\u5F8C\u5C07\u6539\u7528\u4E0A\u65B9\u8A2D\u5B9A\u3002",
     "networkEgress.currentRoute": "\u76EE\u524D\u51FA\u53E3\uFF1A{route}",
     "networkEgress.test": "\u6E2C\u8A66\u9023\u7DDA",
     "networkEgress.save": "\u5132\u5B58\u4E26\u5957\u7528",
@@ -17312,6 +17424,11 @@
       networkEgressMode: document.querySelector("#networkEgressMode"),
       networkEgressCustomProxyField: document.querySelector("#networkEgressCustomProxyField"),
       networkEgressCustomProxy: document.querySelector("#networkEgressCustomProxy"),
+      networkEgressTimeoutMinutes: document.querySelector("#networkEgressTimeoutMinutes"),
+      networkEgressRetryCount: document.querySelector("#networkEgressRetryCount"),
+      networkEgressTimeoutError: document.querySelector("#networkEgressTimeoutError"),
+      networkEgressRetryError: document.querySelector("#networkEgressRetryError"),
+      networkEgressCompatibilityNotice: document.querySelector("#networkEgressCompatibilityNotice"),
       networkEgressCurrentRoute: document.querySelector("#networkEgressCurrentRoute"),
       networkEgressStatus: document.querySelector("#networkEgressStatus"),
       testNetworkEgressButton: document.querySelector("#testNetworkEgressButton"),
@@ -21934,6 +22051,53 @@
     initApiProviderSortFeature();
   }
 
+  // codex_image/webui/frontend/src/network-request-policy.ts
+  var DEFAULT_TIMEOUT_MINUTES = 10;
+  function boundedInteger(raw, minimum, maximum) {
+    const candidate = raw.trim();
+    if (!/^\d+$/.test(candidate)) return null;
+    const value = Number(candidate);
+    if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+      return null;
+    }
+    return value;
+  }
+  function parseNetworkRequestPolicy(timeoutMinutesRaw, retryCountRaw) {
+    const timeoutMinutes = boundedInteger(timeoutMinutesRaw, 1, 30);
+    if (timeoutMinutes === null) {
+      return {
+        ok: false,
+        field: "timeout",
+        errorKey: "networkEgress.timeoutInvalid"
+      };
+    }
+    const retryCount = boundedInteger(retryCountRaw, 0, 5);
+    if (retryCount === null) {
+      return {
+        ok: false,
+        field: "retry",
+        errorKey: "networkEgress.retryInvalid"
+      };
+    }
+    return {
+      ok: true,
+      value: {
+        image_request_timeout_seconds: timeoutMinutes * 60,
+        image_request_retry_count: retryCount
+      }
+    };
+  }
+  function editableTimeoutMinutes(timeoutSeconds) {
+    const minutes = timeoutSeconds / 60;
+    return Number.isInteger(minutes) && minutes >= 1 && minutes <= 30 ? minutes : DEFAULT_TIMEOUT_MINUTES;
+  }
+  function networkEgressRoutePayload(payload) {
+    return {
+      mode: payload.mode,
+      custom_proxy_url: payload.custom_proxy_url
+    };
+  }
+
   // codex_image/webui/frontend/src/network-egress-settings.ts
   var networkEgressFeatureInitialized = false;
   var currentNetworkEgress = null;
@@ -21954,6 +22118,28 @@
   function selectedNetworkEgressMode() {
     const { els: els9 } = getLegacyBridge();
     return normalizedMode(els9.networkEgressMode?.value);
+  }
+  function clearNetworkRequestPolicyError(field) {
+    const { els: els9 } = getLegacyBridge();
+    const fields = field ? [field] : ["timeout", "retry"];
+    fields.forEach((name) => {
+      const input = name === "timeout" ? els9.networkEgressTimeoutMinutes : els9.networkEgressRetryCount;
+      const error = name === "timeout" ? els9.networkEgressTimeoutError : els9.networkEgressRetryError;
+      input?.removeAttribute("aria-invalid");
+      if (error) error.hidden = true;
+    });
+  }
+  function showNetworkRequestPolicyError(result) {
+    const { els: els9 } = getLegacyBridge();
+    clearNetworkRequestPolicyError();
+    const input = result.field === "timeout" ? els9.networkEgressTimeoutMinutes : els9.networkEgressRetryCount;
+    const error = result.field === "timeout" ? els9.networkEgressTimeoutError : els9.networkEgressRetryError;
+    input?.setAttribute("aria-invalid", "true");
+    if (error) {
+      error.textContent = translate(result.errorKey);
+      error.hidden = false;
+    }
+    input?.focus();
   }
   function renderNetworkEgressMode(mode) {
     const { els: els9 } = getLegacyBridge();
@@ -21978,6 +22164,24 @@
     if (els9.networkEgressCustomProxy) {
       els9.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
     }
+    if (els9.networkEgressTimeoutMinutes) {
+      els9.networkEgressTimeoutMinutes.value = String(
+        editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds)
+      );
+    }
+    if (els9.networkEgressRetryCount) {
+      els9.networkEgressRetryCount.value = String(
+        payload.settings?.image_request_retry_count ?? 2
+      );
+    }
+    clearNetworkRequestPolicyError();
+    if (els9.networkEgressCompatibilityNotice) {
+      const environmentFallback = payload.resolved?.image_request_timeout_source === "environment";
+      els9.networkEgressCompatibilityNotice.hidden = !environmentFallback;
+      els9.networkEgressCompatibilityNotice.textContent = environmentFallback ? formatTranslation("networkEgress.environmentTimeoutActive", {
+        seconds: payload.resolved.image_request_timeout_seconds
+      }) : "";
+    }
     if (els9.networkEgressCurrentRoute) {
       const resolvedMode = normalizedMode(payload.resolved?.mode);
       els9.networkEgressCurrentRoute.textContent = formatTranslation(
@@ -21986,11 +22190,27 @@
       );
     }
   }
-  function networkEgressFormPayload() {
+  function networkEgressRouteFormPayload() {
     const { els: els9 } = getLegacyBridge();
     return {
       mode: selectedNetworkEgressMode(),
       custom_proxy_url: String(els9.networkEgressCustomProxy?.value || "").trim()
+    };
+  }
+  function networkEgressFormPayload() {
+    const { els: els9 } = getLegacyBridge();
+    const routePayload = networkEgressRouteFormPayload();
+    const policy = parseNetworkRequestPolicy(
+      String(els9.networkEgressTimeoutMinutes?.value || ""),
+      String(els9.networkEgressRetryCount?.value || "")
+    );
+    if (!policy.ok) return policy;
+    return {
+      ok: true,
+      payload: {
+        ...routePayload,
+        ...policy.value
+      }
     };
   }
   function networkEgressPayloadIsValid(payload) {
@@ -22019,17 +22239,24 @@
   async function saveNetworkEgress() {
     const { els: els9 } = getLegacyBridge();
     if (!els9.saveNetworkEgressButton) return;
-    const payload = networkEgressFormPayload();
-    if (!networkEgressPayloadIsValid(payload)) {
+    const routePayload = networkEgressRouteFormPayload();
+    if (!networkEgressPayloadIsValid(routePayload)) {
       setNetworkEgressFeedback(translate("networkEgress.saveFailed"), "error");
       return;
     }
+    const form = networkEgressFormPayload();
+    if (!form.ok) {
+      showNetworkRequestPolicyError(form);
+      setNetworkEgressFeedback(translate(form.errorKey), "error");
+      return;
+    }
+    clearNetworkRequestPolicyError();
     els9.saveNetworkEgressButton.disabled = true;
     try {
       const response = await fetch("/api/network-egress", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(form.payload)
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("networkEgress.saveFailed"));
@@ -22047,8 +22274,8 @@
   async function testNetworkEgress() {
     const { els: els9, state: state5 } = getLegacyBridge();
     if (!els9.testNetworkEgressButton) return;
-    const payload = networkEgressFormPayload();
-    if (!networkEgressPayloadIsValid(payload)) {
+    const routePayload = networkEgressRouteFormPayload();
+    if (!networkEgressPayloadIsValid(routePayload)) {
       setNetworkEgressFeedback(translate("networkEgress.testFailed"), "error");
       return;
     }
@@ -22056,7 +22283,11 @@
     setNetworkEgressFeedback(translate("networkEgress.test"), "running");
     try {
       const selectedProviderId = String(state5.selectedProviderId || "").trim();
-      const testPayload = selectedProviderId ? { ...payload, provider_id: selectedProviderId } : payload;
+      const payload = networkEgressRoutePayload(routePayload);
+      const testPayload = {
+        ...payload,
+        ...selectedProviderId ? { provider_id: selectedProviderId } : {}
+      };
       const response = await fetch("/api/network-egress/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -22099,6 +22330,12 @@
     );
     els9.testNetworkEgressButton?.addEventListener("click", testNetworkEgress);
     els9.saveNetworkEgressButton?.addEventListener("click", saveNetworkEgress);
+    els9.networkEgressTimeoutMinutes?.addEventListener("input", () => {
+      clearNetworkRequestPolicyError("timeout");
+    });
+    els9.networkEgressRetryCount?.addEventListener("input", () => {
+      clearNetworkRequestPolicyError("retry");
+    });
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
       if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress);
     });

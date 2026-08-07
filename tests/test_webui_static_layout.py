@@ -219,6 +219,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
     def test_system_settings_has_four_tabs_and_network_controls(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
+        network_styles = Path(
+            "codex_image/webui/static/styles/74-api-system-settings.css"
+        ).read_text(encoding="utf-8")
         source = Path(
             "codex_image/webui/frontend/src/network-egress-settings.ts"
         ).read_text(encoding="utf-8")
@@ -231,6 +234,20 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('data-network-egress-mode="direct"', html)
         self.assertIn('data-network-egress-mode="custom"', html)
         self.assertIn('id="networkEgressCustomProxy"', html)
+        self.assertRegex(
+            html,
+            r'id="networkEgressTimeoutMinutes"[^>]*type="number"[^>]*min="1"[^>]*max="30"[^>]*step="1"',
+        )
+        self.assertRegex(
+            html,
+            r'id="networkEgressRetryCount"[^>]*type="number"[^>]*min="0"[^>]*max="5"[^>]*step="1"',
+        )
+        self.assertIn('id="networkRequestPolicyHelp"', html)
+        self.assertIn('id="networkEgressTimeoutError"', html)
+        self.assertIn('id="networkEgressRetryError"', html)
+        self.assertIn('id="networkEgressCompatibilityNotice"', html)
+        self.assertIn('aria-describedby="networkRequestPolicyHelp networkEgressTimeoutError"', html)
+        self.assertIn('aria-describedby="networkRequestPolicyHelp networkEgressRetryError"', html)
         self.assertIn('id="testNetworkEgressButton"', html)
         self.assertIn('id="saveNetworkEgressButton"', html)
         self.assertRegex(
@@ -244,6 +261,18 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('url.protocol === "http:" || url.protocol === "https:"', source)
         self.assertIn("!url.username", source)
         self.assertIn("!url.password", source)
+        self.assertRegex(
+            network_styles,
+            r"\.network-request-policy-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)",
+        )
+        self.assertRegex(
+            network_styles,
+            r"\.network-egress-panel\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)",
+        )
+        self.assertRegex(
+            network_styles,
+            r"@media\s*\(max-width:\s*520px\)[\s\S]*?\.network-request-policy-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)",
+        )
 
     def test_network_egress_mode_selector_uses_shared_sliding_indicator(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
@@ -675,8 +704,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-768', html)
-        self.assertIn('/static/styles.css?v=runtime-768', html)
+        self.assertIn('/static/app.js?v=runtime-769', html)
+        self.assertIn('/static/styles.css?v=runtime-769', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -3689,8 +3718,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-768', html)
-        self.assertIn('/static/styles.css?v=runtime-768', html)
+        self.assertIn('/static/app.js?v=runtime-769', html)
+        self.assertIn('/static/styles.css?v=runtime-769', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4141,8 +4170,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-768", html)
-        self.assertIn("/static/styles.css?v=runtime-768", html)
+        self.assertIn("/static/app.js?v=runtime-769", html)
+        self.assertIn("/static/styles.css?v=runtime-769", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

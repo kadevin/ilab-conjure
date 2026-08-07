@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-768" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-769" />
   </head>
   <body>
     <div class="layout-container">
@@ -1173,6 +1173,26 @@
               <span data-i18n="networkEgress.customProxy">自定义代理地址</span>
               <input id="networkEgressCustomProxy" class="control" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://127.0.0.1:7890" />
             </label>
+            <div class="network-request-policy-grid">
+              <label class="field network-request-policy-field">
+                <span data-i18n="networkEgress.timeout">单次生图超时</span>
+                <span class="network-request-policy-input">
+                  <input id="networkEgressTimeoutMinutes" class="control" type="number" min="1" max="30" step="1" inputmode="numeric" value="10" aria-describedby="networkRequestPolicyHelp networkEgressTimeoutError" />
+                  <span class="network-request-policy-unit" data-i18n="networkEgress.timeoutUnit">分钟</span>
+                </span>
+                <small id="networkEgressTimeoutError" class="network-request-policy-error" data-i18n="networkEgress.timeoutInvalid" role="alert" hidden>请输入 1–30 的整数分钟</small>
+              </label>
+              <label class="field network-request-policy-field">
+                <span data-i18n="networkEgress.retryCount">失败后重试</span>
+                <span class="network-request-policy-input">
+                  <input id="networkEgressRetryCount" class="control" type="number" min="0" max="5" step="1" inputmode="numeric" value="2" aria-describedby="networkRequestPolicyHelp networkEgressRetryError" />
+                  <span class="network-request-policy-unit" data-i18n="networkEgress.retryUnit">次</span>
+                </span>
+                <small id="networkEgressRetryError" class="network-request-policy-error" data-i18n="networkEgress.retryInvalid" role="alert" hidden>请输入 0–5 的整数次数</small>
+              </label>
+            </div>
+            <p id="networkRequestPolicyHelp" class="network-request-policy-help" data-i18n="networkEgress.requestPolicyHelp">仅影响之后开始的生图请求；每次自动重试都会重新计算超时时间。</p>
+            <p id="networkEgressCompatibilityNotice" class="network-egress-compatibility-notice" aria-live="polite" hidden></p>
             <p id="networkEgressCurrentRoute" class="network-egress-current-route" data-i18n="networkEgress.currentRoute">当前出口：系统</p>
             <div class="settings-modal-actions network-egress-actions">
               <p id="networkEgressStatus" class="settings-action-status network-egress-feedback" aria-live="polite"></p>
@@ -1498,7 +1518,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-768"></script>
+  <script src="/static/app.js?v=runtime-769"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

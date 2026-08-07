@@ -5,9 +5,59 @@
 
 .network-egress-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   width: 100%;
   max-width: 640px;
+}
+
+.network-request-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.network-request-policy-field {
+  min-width: 0;
+}
+
+.network-request-policy-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.network-request-policy-input .control {
+  min-width: 0;
+}
+
+.network-request-policy-unit,
+.network-request-policy-help,
+.network-egress-compatibility-notice {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.network-request-policy-help,
+.network-egress-compatibility-notice {
+  margin: 0;
+}
+
+.network-request-policy-error {
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.network-request-policy-input .control[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.network-request-policy-error[hidden],
+.network-egress-compatibility-notice[hidden] {
+  display: none;
 }
 
 .network-egress-mode-selector {
@@ -98,6 +148,12 @@
   flex: 0 0 auto;
   min-width: 108px;
   height: 40px;
+}
+
+@media (max-width: 520px) {
+  .network-request-policy-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .notification-options-panel {

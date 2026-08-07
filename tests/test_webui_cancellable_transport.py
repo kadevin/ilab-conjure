@@ -35,6 +35,59 @@ def _running_server(
 
 
 class WebUICancellableTransportTests(unittest.TestCase):
+    def test_transient_retry_count_means_retries_after_the_first_attempt(self) -> None:
+        from codex_image.webui.executor_transport import _call_image_client
+
+        for retry_count, expected_attempts in ((0, 1), (2, 3), (5, 6)):
+            calls = 0
+
+            def fail_transiently(**_kwargs: object) -> object:
+                nonlocal calls
+                calls += 1
+                raise ConnectionResetError(54, "Connection reset by peer")
+
+            with self.subTest(retry_count=retry_count):
+                with (
+                    patch(
+                        "codex_image.webui.executor_transport._transient_image_retry_delay_seconds",
+                        return_value=0,
+                    ),
+                    self.assertRaises(ConnectionResetError),
+                ):
+                    asyncio.run(
+                        _call_image_client(
+                            None,
+                            {},
+                            fail_transiently,
+                            timeout_seconds=1,
+                            retry_count=retry_count,
+                        )
+                    )
+                self.assertEqual(calls, expected_attempts)
+
+    def test_non_transient_failure_is_not_retried_when_retry_count_is_five(self) -> None:
+        from codex_image.webui.executor_transport import _call_image_client
+
+        calls = 0
+
+        def fail_permanently(**_kwargs: object) -> object:
+            nonlocal calls
+            calls += 1
+            raise ValueError("invalid request")
+
+        with self.assertRaisesRegex(ValueError, "invalid request"):
+            asyncio.run(
+                _call_image_client(
+                    None,
+                    {},
+                    fail_permanently,
+                    timeout_seconds=1,
+                    retry_count=5,
+                )
+            )
+
+        self.assertEqual(calls, 1)
+
     def test_total_timeout_cancels_http_request_before_slow_response_finishes(self) -> None:
         from codex_image.httpx_transport import HttpxTransport
         from codex_image.webui.executor_transport import _call_image_client

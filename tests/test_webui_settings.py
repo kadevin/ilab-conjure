@@ -1632,6 +1632,79 @@ class WebUISettingsTests(unittest.TestCase):
         )
         self.assertEqual(task["outputs"][0]["attempts"], 3)
 
+    def test_api_images_honors_zero_configured_transient_retries(self) -> None:
+        from codex_image.webui.app import create_app
+
+        failure = RuntimeError(
+            'OpenAI-compatible images request failed: HTTP 502: '
+            '{"error":{"message":"Upstream service temporarily unavailable","type":"upstream_error"}}'
+        )
+        TransientFailingApiImageClient.reset(failure, failures=6)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch(
+                    "codex_image.webui.auth_routing.OpenAIImagesImageClient",
+                    TransientFailingApiImageClient,
+                    create=True,
+                ),
+                patch(
+                    "codex_image.webui.executor_transport._transient_image_retry_delay_seconds",
+                    return_value=0,
+                    create=True,
+                ),
+            ):
+                app = create_app(
+                    output_root=root / "tasks",
+                    auth_settings_path=root / "auth-settings.json",
+                    api_settings_path=root / "api-settings.json",
+                    network_egress_settings_path=root / "network-egress.json",
+                    batch_delay_seconds=0,
+                    auto_start_queue=False,
+                )
+                client = TestClient(app)
+                client.patch(
+                    "/api/api-settings",
+                    json={
+                        "base_url": "https://api.example.com/v1",
+                        "api_key": "test-api-key-worker-secret",
+                        "image_model": "gpt-image-2",
+                        "api_mode": "images",
+                    },
+                )
+                client.patch("/api/auth", json={"source": "api"})
+                policy_response = client.patch(
+                    "/api/network-egress",
+                    json={
+                        "mode": "system",
+                        "image_request_timeout_seconds": 600,
+                        "image_request_retry_count": 0,
+                    },
+                )
+                created = client.post(
+                    "/api/generate",
+                    data={
+                        "prompt": "do not retry upstream failure",
+                        "size": "1024x1024",
+                        "quality": "low",
+                        "n": "1",
+                    },
+                )
+                task_id = created.json()["task"]["task_id"]
+
+                with self.assertRaisesRegex(RuntimeError, "upstream_error"):
+                    asyncio.run(app.state.queue_manager.run_available_once())
+                task = client.get(f"/api/tasks/{task_id}").json()["task"]
+
+        self.assertEqual(policy_response.status_code, 200)
+        self.assertEqual(task["status"], "failed")
+        self.assertEqual(len(TransientFailingApiImageClient.instances), 1)
+        self.assertEqual(
+            len(TransientFailingApiImageClient.instances[0].generate_calls),
+            1,
+        )
+        self.assertEqual(task["outputs"][0]["attempts"], 1)
+
     def test_api_images_queue_worker_publishes_concurrent_outputs_while_running(self) -> None:
         from codex_image.webui.app import create_app
 

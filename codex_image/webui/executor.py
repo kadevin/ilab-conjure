@@ -23,6 +23,7 @@ from .executor_progress import _restore_completed_output_progress
 from .executor_transport import (
     DEFAULT_API_IMAGES_CONCURRENCY,
     DEFAULT_API_MODE,
+    DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
     DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS,
     DEFAULT_PROMPT_FIDELITY,
     MAX_API_IMAGES_CONCURRENCY,
@@ -87,6 +88,8 @@ async def _execute_stored_task(
     client: Any,
     batch_delay_seconds: float,
     request_context: Callable[[dict[str, Any]], AsyncContextManager[None]] | None = None,
+    image_request_timeout_seconds: float | None = None,
+    image_request_retry_count: int = DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
 ) -> dict[str, Any]:
     metadata = storage.read_metadata(task_id)
     request = json.loads(storage.request_path(task_id).read_text(encoding="utf-8"))
@@ -175,7 +178,11 @@ async def _execute_stored_task(
     data_urls = [_file_to_data_url(path) for path in input_paths if path.exists()] + reference_asset_data_urls + gallery_data_urls
     count = int(params.get("n") or 1)
     debug_sse_path = _debug_sse_path(storage, task_id)
-    image_request_timeout_seconds = _image_request_timeout_seconds()
+    effective_image_request_timeout_seconds = (
+        _image_request_timeout_seconds()
+        if image_request_timeout_seconds is None
+        else image_request_timeout_seconds
+    )
     results, output_paths, output_records = _restore_completed_output_progress(storage, metadata, params, count)
     completed_output_numbers = {
         int(record["index"])
@@ -255,7 +262,7 @@ async def _execute_stored_task(
                     "error": _output_error_message(
                         exc,
                         elapsed_seconds=elapsed_seconds,
-                        timeout_seconds=image_request_timeout_seconds,
+                        timeout_seconds=effective_image_request_timeout_seconds,
                     ),
                     "attempts": _image_request_attempts(exc),
                     "started_at": slot_started_at,
@@ -297,7 +304,8 @@ async def _execute_stored_task(
                                         None,
                                         params,
                                         client.edit_image,
-                                        timeout_seconds=image_request_timeout_seconds,
+                                        timeout_seconds=effective_image_request_timeout_seconds,
+                                        retry_count=image_request_retry_count,
                                         prompt=transport_prompt,
                                         images=data_urls,
                                         mask_image=mask_data_url,
@@ -319,7 +327,8 @@ async def _execute_stored_task(
                                         None,
                                         params,
                                         client.generate_image,
-                                        timeout_seconds=image_request_timeout_seconds,
+                                        timeout_seconds=effective_image_request_timeout_seconds,
+                                        retry_count=image_request_retry_count,
                                         prompt=transport_prompt,
                                         **prompt_kwargs,
                                         **response_file_kwargs,
@@ -440,7 +449,8 @@ async def _execute_stored_task(
                                 request_context,
                                 params,
                                 client.edit_image,
-                                timeout_seconds=image_request_timeout_seconds,
+                                timeout_seconds=effective_image_request_timeout_seconds,
+                                retry_count=image_request_retry_count,
                                 prompt=transport_prompt,
                                 images=data_urls,
                                 mask_image=mask_data_url,
@@ -462,7 +472,8 @@ async def _execute_stored_task(
                                 request_context,
                                 params,
                                 client.generate_image,
-                                timeout_seconds=image_request_timeout_seconds,
+                                timeout_seconds=effective_image_request_timeout_seconds,
+                                retry_count=image_request_retry_count,
                                 prompt=transport_prompt,
                                 **prompt_kwargs,
                                 **response_file_kwargs,
@@ -499,7 +510,7 @@ async def _execute_stored_task(
                                 "error": _output_error_message(
                                     exc,
                                     elapsed_seconds=elapsed_seconds,
-                                    timeout_seconds=image_request_timeout_seconds,
+                                    timeout_seconds=effective_image_request_timeout_seconds,
                                 ),
                                 "attempts": _image_request_attempts(exc, attempt),
                                 "started_at": slot_started_at,

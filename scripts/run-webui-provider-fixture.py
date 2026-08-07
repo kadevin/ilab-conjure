@@ -346,6 +346,7 @@ def build_fixture_app(root: Path, *, host: str, port: int, auto_start_queue: boo
         source_data_root=root / "source-data",
         auth_settings_path=root / "auth-settings.json",
         api_settings_path=root / "api-settings.json",
+        network_egress_settings_path=root / "network-egress-settings.json",
         webui_settings_path=root / "webui-settings.json",
         queue_path=root / "source-data" / "fixture-queue.json",
         auth_checker=lambda: False,

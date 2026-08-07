@@ -1,16 +1,28 @@
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
+import {
+  editableTimeoutMinutes,
+  networkEgressRoutePayload,
+  parseNetworkRequestPolicy,
+  type NetworkEgressMode,
+  type NetworkEgressRouteFields,
+  type NetworkEgressUpdatePayload,
+  type NetworkRequestPolicyResult,
+} from "./network-request-policy";
 import { getLegacyBridge } from "./state";
-
-type NetworkEgressMode = "system" | "direct" | "custom";
 
 interface NetworkEgressPayload {
   settings: {
     mode: NetworkEgressMode;
     custom_proxy_url: string;
+    image_request_timeout_seconds: number;
+    image_request_retry_count: number;
   };
   resolved: {
     mode: NetworkEgressMode;
     route: "system" | "direct" | "proxy";
+    image_request_timeout_seconds: number;
+    image_request_retry_count: number;
+    image_request_timeout_source: "settings" | "environment" | "default";
   };
   restart_required: false;
 }
@@ -40,6 +52,40 @@ function selectedNetworkEgressMode(): NetworkEgressMode {
   return normalizedMode(els.networkEgressMode?.value);
 }
 
+function clearNetworkRequestPolicyError(field?: "timeout" | "retry"): void {
+  const { els } = getLegacyBridge();
+  const fields = field ? [field] : ["timeout", "retry"] as const;
+  fields.forEach((name) => {
+    const input = name === "timeout"
+      ? els.networkEgressTimeoutMinutes
+      : els.networkEgressRetryCount;
+    const error = name === "timeout"
+      ? els.networkEgressTimeoutError
+      : els.networkEgressRetryError;
+    input?.removeAttribute("aria-invalid");
+    if (error) error.hidden = true;
+  });
+}
+
+function showNetworkRequestPolicyError(
+  result: Exclude<NetworkRequestPolicyResult, {ok: true}>,
+): void {
+  const { els } = getLegacyBridge();
+  clearNetworkRequestPolicyError();
+  const input = result.field === "timeout"
+    ? els.networkEgressTimeoutMinutes
+    : els.networkEgressRetryCount;
+  const error = result.field === "timeout"
+    ? els.networkEgressTimeoutError
+    : els.networkEgressRetryError;
+  input?.setAttribute("aria-invalid", "true");
+  if (error) {
+    error.textContent = translate(result.errorKey);
+    error.hidden = false;
+  }
+  input?.focus();
+}
+
 function renderNetworkEgressMode(mode: NetworkEgressMode): void {
   const { els } = getLegacyBridge();
   if (els.networkEgressMode) els.networkEgressMode.value = mode;
@@ -64,6 +110,28 @@ function renderNetworkEgress(payload: NetworkEgressPayload): void {
   if (els.networkEgressCustomProxy) {
     els.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
   }
+  if (els.networkEgressTimeoutMinutes) {
+    els.networkEgressTimeoutMinutes.value = String(
+      editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds),
+    );
+  }
+  if (els.networkEgressRetryCount) {
+    els.networkEgressRetryCount.value = String(
+      payload.settings?.image_request_retry_count ?? 2,
+    );
+  }
+  clearNetworkRequestPolicyError();
+  if (els.networkEgressCompatibilityNotice) {
+    const environmentFallback = (
+      payload.resolved?.image_request_timeout_source === "environment"
+    );
+    els.networkEgressCompatibilityNotice.hidden = !environmentFallback;
+    els.networkEgressCompatibilityNotice.textContent = environmentFallback
+      ? formatTranslation("networkEgress.environmentTimeoutActive", {
+          seconds: payload.resolved.image_request_timeout_seconds,
+        })
+      : "";
+  }
   if (els.networkEgressCurrentRoute) {
     const resolvedMode = normalizedMode(payload.resolved?.mode);
     els.networkEgressCurrentRoute.textContent = formatTranslation(
@@ -73,10 +141,7 @@ function renderNetworkEgress(payload: NetworkEgressPayload): void {
   }
 }
 
-function networkEgressFormPayload(): {
-  mode: NetworkEgressMode;
-  custom_proxy_url: string;
-} {
+function networkEgressRouteFormPayload(): NetworkEgressRouteFields {
   const { els } = getLegacyBridge();
   return {
     mode: selectedNetworkEgressMode(),
@@ -84,8 +149,27 @@ function networkEgressFormPayload(): {
   };
 }
 
+function networkEgressFormPayload():
+  | {ok: true; payload: NetworkEgressUpdatePayload}
+  | Exclude<NetworkRequestPolicyResult, {ok: true}> {
+  const { els } = getLegacyBridge();
+  const routePayload = networkEgressRouteFormPayload();
+  const policy = parseNetworkRequestPolicy(
+    String(els.networkEgressTimeoutMinutes?.value || ""),
+    String(els.networkEgressRetryCount?.value || ""),
+  );
+  if (!policy.ok) return policy;
+  return {
+    ok: true,
+    payload: {
+      ...routePayload,
+      ...policy.value,
+    },
+  };
+}
+
 function networkEgressPayloadIsValid(
-  payload: ReturnType<typeof networkEgressFormPayload>,
+  payload: NetworkEgressRouteFields,
 ): boolean {
   if (payload.mode !== "custom") return true;
   try {
@@ -122,17 +206,24 @@ async function refreshNetworkEgress(): Promise<void> {
 async function saveNetworkEgress(): Promise<void> {
   const { els } = getLegacyBridge();
   if (!els.saveNetworkEgressButton) return;
-  const payload = networkEgressFormPayload();
-  if (!networkEgressPayloadIsValid(payload)) {
+  const routePayload = networkEgressRouteFormPayload();
+  if (!networkEgressPayloadIsValid(routePayload)) {
     setNetworkEgressFeedback(translate("networkEgress.saveFailed"), "error");
     return;
   }
+  const form = networkEgressFormPayload();
+  if (!form.ok) {
+    showNetworkRequestPolicyError(form);
+    setNetworkEgressFeedback(translate(form.errorKey), "error");
+    return;
+  }
+  clearNetworkRequestPolicyError();
   els.saveNetworkEgressButton.disabled = true;
   try {
     const response = await fetch("/api/network-egress", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(form.payload),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || translate("networkEgress.saveFailed"));
@@ -151,8 +242,8 @@ async function saveNetworkEgress(): Promise<void> {
 async function testNetworkEgress(): Promise<void> {
   const { els, state } = getLegacyBridge();
   if (!els.testNetworkEgressButton) return;
-  const payload = networkEgressFormPayload();
-  if (!networkEgressPayloadIsValid(payload)) {
+  const routePayload = networkEgressRouteFormPayload();
+  if (!networkEgressPayloadIsValid(routePayload)) {
     setNetworkEgressFeedback(translate("networkEgress.testFailed"), "error");
     return;
   }
@@ -160,9 +251,11 @@ async function testNetworkEgress(): Promise<void> {
   setNetworkEgressFeedback(translate("networkEgress.test"), "running");
   try {
     const selectedProviderId = String(state.selectedProviderId || "").trim();
-    const testPayload = selectedProviderId
-      ? { ...payload, provider_id: selectedProviderId }
-      : payload;
+    const payload = networkEgressRoutePayload(routePayload);
+    const testPayload = {
+      ...payload,
+      ...(selectedProviderId ? {provider_id: selectedProviderId} : {}),
+    };
     const response = await fetch("/api/network-egress/test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -207,6 +300,12 @@ export function initNetworkEgressSettingsFeature(): void {
   );
   els.testNetworkEgressButton?.addEventListener("click", testNetworkEgress);
   els.saveNetworkEgressButton?.addEventListener("click", saveNetworkEgress);
+  els.networkEgressTimeoutMinutes?.addEventListener("input", () => {
+    clearNetworkRequestPolicyError("timeout");
+  });
+  els.networkEgressRetryCount?.addEventListener("input", () => {
+    clearNetworkRequestPolicyError("retry");
+  });
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
     if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress);
   });

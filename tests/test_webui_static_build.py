@@ -58,6 +58,8 @@ class WebUIStaticBuildTests(WebUIStaticTestCase):
         self.assertIn("../frontend/src/auth-source.ts", sources)
         self.assertIn("../frontend/src/api-provider-settings.ts", sources)
         self.assertIn("../frontend/src/api-mode-settings.ts", sources)
+        self.assertIn("../frontend/src/network-request-policy.ts", sources)
+        self.assertIn("../frontend/src/network-egress-settings.ts", sources)
         self.assertNotIn("../frontend/src/account-quota.ts", sources)
         self.assertIn("../frontend/src/storage-settings.ts", sources)
         self.assertIn("../frontend/src/system-settings.ts", sources)

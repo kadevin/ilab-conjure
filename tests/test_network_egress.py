@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -42,13 +43,23 @@ class NetworkEgressSettingsTests(unittest.TestCase):
     def test_network_settings_default_to_system(self) -> None:
         self.assertEqual(
             self.settings.read(),
-            {"mode": "system", "custom_proxy_url": ""},
+            {
+                "mode": "system",
+                "custom_proxy_url": "",
+                "image_request_timeout_seconds": 600,
+                "image_request_retry_count": 2,
+            },
         )
 
     def test_network_settings_accept_direct_and_custom_http_origins(self) -> None:
         self.assertEqual(
             self.settings.write({"mode": "direct"}),
-            {"mode": "direct", "custom_proxy_url": ""},
+            {
+                "mode": "direct",
+                "custom_proxy_url": "",
+                "image_request_timeout_seconds": 600,
+                "image_request_retry_count": 2,
+            },
         )
         self.assertEqual(
             self.settings.write(
@@ -60,6 +71,8 @@ class NetworkEgressSettingsTests(unittest.TestCase):
             {
                 "mode": "custom",
                 "custom_proxy_url": "https://proxy.example.test:8443",
+                "image_request_timeout_seconds": 600,
+                "image_request_retry_count": 2,
             },
         )
         self.assertEqual(
@@ -67,8 +80,126 @@ class NetworkEgressSettingsTests(unittest.TestCase):
             {
                 "mode": "custom",
                 "custom_proxy_url": "https://proxy.example.test:8443",
+                "image_request_timeout_seconds": 600,
+                "image_request_retry_count": 2,
             },
         )
+
+    def test_network_settings_accept_request_policy_boundaries(self) -> None:
+        for timeout_seconds, retry_count in ((60, 0), (600, 2), (1800, 5)):
+            with self.subTest(
+                timeout_seconds=timeout_seconds,
+                retry_count=retry_count,
+            ):
+                saved = self.settings.write(
+                    {
+                        "mode": "direct",
+                        "image_request_timeout_seconds": timeout_seconds,
+                        "image_request_retry_count": retry_count,
+                    }
+                )
+                self.assertEqual(
+                    saved["image_request_timeout_seconds"],
+                    timeout_seconds,
+                )
+                self.assertEqual(saved["image_request_retry_count"], retry_count)
+
+    def test_network_settings_reject_invalid_request_policy_values(self) -> None:
+        invalid_values = {
+            "image_request_timeout_seconds": (
+                True,
+                "600",
+                600.0,
+                "",
+                None,
+                59,
+                1801,
+            ),
+            "image_request_retry_count": (
+                True,
+                "2",
+                2.0,
+                "",
+                None,
+                -1,
+                6,
+            ),
+        }
+        for field, values in invalid_values.items():
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    with self.assertRaisesRegex(ValueError, field):
+                        self.settings.write({"mode": "direct", field: value})
+
+    def test_invalid_persisted_policy_preserves_valid_network_route(self) -> None:
+        self.path.write_text(
+            json.dumps(
+                {
+                    "mode": "custom",
+                    "custom_proxy_url": "https://proxy.example.test:8443",
+                    "image_request_timeout_seconds": "slow",
+                    "image_request_retry_count": 99,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        self.assertEqual(
+            self.settings.read(),
+            {
+                "mode": "custom",
+                "custom_proxy_url": "https://proxy.example.test:8443",
+                "image_request_timeout_seconds": 600,
+                "image_request_retry_count": 2,
+            },
+        )
+
+    def test_environment_timeout_remains_effective_until_explicitly_saved(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {"CODEX_IMAGE_REQUEST_TIMEOUT_SECONDS": "2400.5"},
+        ):
+            initial = self.settings.request_policy()
+            self.settings.write(
+                {
+                    "mode": "direct",
+                    "image_request_retry_count": 5,
+                }
+            )
+            after_mode_only_save = self.settings.request_policy()
+            persisted = json.loads(self.path.read_text(encoding="utf-8"))
+            self.settings.write(
+                {
+                    "image_request_timeout_seconds": 900,
+                    "image_request_retry_count": 4,
+                }
+            )
+            after_explicit_save = self.settings.request_policy()
+
+        self.assertEqual(initial.timeout_seconds, 2400.5)
+        self.assertEqual(initial.retry_count, 2)
+        self.assertEqual(initial.timeout_source, "environment")
+        self.assertNotIn("image_request_timeout_seconds", persisted)
+        self.assertEqual(after_mode_only_save.timeout_seconds, 2400.5)
+        self.assertEqual(after_mode_only_save.retry_count, 5)
+        self.assertEqual(after_mode_only_save.timeout_source, "environment")
+        self.assertEqual(after_explicit_save.timeout_seconds, 900)
+        self.assertEqual(after_explicit_save.retry_count, 4)
+        self.assertEqual(after_explicit_save.timeout_source, "settings")
+
+    def test_invalid_environment_timeout_falls_back_to_default(self) -> None:
+        for value in ("", "slow", "0", "-1", "nan", "inf", "Infinity"):
+            with (
+                self.subTest(value=value),
+                patch.dict(
+                    "os.environ",
+                    {"CODEX_IMAGE_REQUEST_TIMEOUT_SECONDS": value},
+                ),
+            ):
+                policy = self.settings.request_policy()
+                self.assertEqual(policy.timeout_seconds, 600)
+                self.assertEqual(policy.retry_count, 2)
+                self.assertEqual(policy.timeout_source, "default")
 
     def test_network_settings_reject_credentials_paths_queries_and_socks(self) -> None:
         rejected_urls = (
@@ -92,9 +223,15 @@ class NetworkEgressSettingsTests(unittest.TestCase):
 class NetworkEgressSnapshotTests(unittest.TestCase):
     def test_network_snapshot_redacts_custom_proxy_from_task_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            manager = NetworkEgressManager(
-                NetworkEgressSettings(Path(temp_dir) / "network-egress.json")
+            settings = NetworkEgressSettings(Path(temp_dir) / "network-egress.json")
+            settings.write(
+                {
+                    "mode": "system",
+                    "image_request_timeout_seconds": 900,
+                    "image_request_retry_count": 4,
+                }
             )
+            manager = NetworkEgressManager(settings)
             snapshot = manager.snapshot(
                 {
                     "mode": "custom",
@@ -104,6 +241,9 @@ class NetworkEgressSnapshotTests(unittest.TestCase):
 
         self.assertEqual(snapshot.mode, "custom")
         self.assertEqual(snapshot.route, "proxy")
+        self.assertEqual(snapshot.image_request_timeout_seconds, 900)
+        self.assertEqual(snapshot.image_request_retry_count, 4)
+        self.assertEqual(snapshot.image_request_timeout_source, "settings")
         self.assertEqual(
             dict(snapshot.proxy_map or {}),
             {
@@ -113,9 +253,16 @@ class NetworkEgressSnapshotTests(unittest.TestCase):
         )
         self.assertEqual(
             snapshot.task_metadata(),
-            {"mode": "custom", "route": "proxy"},
+            {
+                "mode": "custom",
+                "route": "proxy",
+                "image_request_timeout_seconds": 900,
+                "image_request_retry_count": 4,
+                "image_request_timeout_source": "settings",
+            },
         )
         self.assertNotIn("proxy.example.test", repr(snapshot.task_metadata()))
+        self.assertEqual(manager.transport(snapshot).timeout, 900)
 
 
 class NetworkEgressTransportTests(unittest.TestCase):
@@ -280,6 +427,8 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
                 {
                     "mode": "custom",
                     "custom_proxy_url": "http://proxy.example.test:8080",
+                    "image_request_timeout_seconds": 900,
+                    "image_request_retry_count": 4,
                 }
             )
             task_id = "20260726120000-network"
@@ -294,10 +443,17 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
             )
             observed_clients: list[Any] = []
             observed_transports: list[object] = []
+            observed_policies: list[tuple[object, object]] = []
 
             async def fake_execute_stored_task(**kwargs: Any) -> None:
                 client = kwargs["client"]
                 observed_transports.extend([client.transport, client.transport])
+                observed_policies.append(
+                    (
+                        kwargs.get("image_request_timeout_seconds"),
+                        kwargs.get("image_request_retry_count"),
+                    )
+                )
 
             manager = app.state.network_egress_manager
             with (
@@ -333,6 +489,8 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
         snapshot.assert_called_once_with()
         self.assertEqual(len(observed_clients), 1)
         self.assertIs(observed_transports[0], observed_transports[1])
+        self.assertEqual(observed_policies, [(900, 4)])
+        self.assertEqual(observed_clients[0].transport.timeout, 900)
         self.assertEqual(
             observed_clients[0].transport.proxy_map,
             {
@@ -342,7 +500,13 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
         )
         self.assertEqual(
             metadata["network_egress"],
-            {"mode": "custom", "route": "proxy"},
+            {
+                "mode": "custom",
+                "route": "proxy",
+                "image_request_timeout_seconds": 900,
+                "image_request_retry_count": 4,
+                "image_request_timeout_source": "settings",
+            },
         )
 
     def test_saved_network_change_affects_only_later_attempts(self) -> None:
@@ -363,6 +527,8 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
                 {
                     "mode": "custom",
                     "custom_proxy_url": "http://proxy.example.test:8080",
+                    "image_request_timeout_seconds": 900,
+                    "image_request_retry_count": 4,
                 }
             )
             channel = QueueChannel(channel_id="codex:local", auth_source="codex")
@@ -382,7 +548,13 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
                     channel,
                     {"params": {"codex_mode": "images"}},
                 )
-                settings.write({"mode": "direct"})
+                settings.write(
+                    {
+                        "mode": "direct",
+                        "image_request_timeout_seconds": 1200,
+                        "image_request_retry_count": 1,
+                    }
+                )
                 second = _queue_execution_contract(
                     app.state.ctx,
                     channel,
@@ -398,8 +570,20 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
         )
         self.assertEqual(first.client.transport.proxy_map, observed_clients[0].transport.proxy_map)
         self.assertEqual(second.client.transport.proxy_map, {})
+        self.assertEqual(first.client.transport.timeout, 900)
+        self.assertEqual(second.client.transport.timeout, 1200)
+        self.assertEqual(
+            getattr(first, "image_request_timeout_seconds", None),
+            900,
+        )
+        self.assertEqual(getattr(first, "image_request_retry_count", None), 4)
+        self.assertEqual(
+            getattr(second, "image_request_timeout_seconds", None),
+            1200,
+        )
+        self.assertEqual(getattr(second, "image_request_retry_count", None), 1)
 
-    def test_task_metadata_contains_only_network_mode_and_route(self) -> None:
+    def test_task_metadata_contains_request_policy_but_not_proxy(self) -> None:
         from codex_image.webui.app import create_app
         from codex_image.webui.queue import QueueChannel
         from codex_image.webui.queue_runtime import _queue_execution_contract
@@ -416,6 +600,8 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
                 {
                     "mode": "custom",
                     "custom_proxy_url": "https://proxy.example.test:8443",
+                    "image_request_timeout_seconds": 1200,
+                    "image_request_retry_count": 3,
                 }
             )
             metadata: dict[str, Any] = {"params": {"codex_mode": "images"}}
@@ -437,7 +623,13 @@ class QueueAttemptNetworkEgressTests(unittest.TestCase):
 
         self.assertEqual(
             metadata["network_egress"],
-            {"mode": "custom", "route": "proxy"},
+            {
+                "mode": "custom",
+                "route": "proxy",
+                "image_request_timeout_seconds": 1200,
+                "image_request_retry_count": 3,
+                "image_request_timeout_source": "settings",
+            },
         )
         self.assertNotIn("proxy.example.test", repr(metadata))
 
@@ -461,7 +653,11 @@ class NetworkEgressApiTests(unittest.TestCase):
             initial = client.get("/api/network-egress")
             saved = client.patch(
                 "/api/network-egress",
-                json={"mode": "direct"},
+                json={
+                    "mode": "direct",
+                    "image_request_timeout_seconds": 1800,
+                    "image_request_retry_count": 5,
+                },
             )
             reread = client.get("/api/network-egress")
 
@@ -469,15 +665,117 @@ class NetworkEgressApiTests(unittest.TestCase):
         self.assertEqual(
             initial.json(),
             {
-                "settings": {"mode": "system", "custom_proxy_url": ""},
-                "resolved": {"mode": "system", "route": "system"},
+                "settings": {
+                    "mode": "system",
+                    "custom_proxy_url": "",
+                    "image_request_timeout_seconds": 600,
+                    "image_request_retry_count": 2,
+                },
+                "resolved": {
+                    "mode": "system",
+                    "route": "system",
+                    "image_request_timeout_seconds": 600,
+                    "image_request_retry_count": 2,
+                    "image_request_timeout_source": "default",
+                },
                 "restart_required": False,
             },
         )
         self.assertEqual(saved.status_code, 200)
-        self.assertEqual(saved.json()["resolved"], {"mode": "direct", "route": "direct"})
+        self.assertEqual(
+            saved.json()["resolved"],
+            {
+                "mode": "direct",
+                "route": "direct",
+                "image_request_timeout_seconds": 1800,
+                "image_request_retry_count": 5,
+                "image_request_timeout_source": "settings",
+            },
+        )
         self.assertFalse(saved.json()["restart_required"])
         self.assertEqual(reread.json()["settings"]["mode"], "direct")
+        self.assertEqual(
+            reread.json()["settings"]["image_request_timeout_seconds"],
+            1800,
+        )
+        self.assertEqual(reread.json()["settings"]["image_request_retry_count"], 5)
+
+    def test_network_api_rejects_invalid_request_policy_values(self) -> None:
+        from fastapi.testclient import TestClient
+
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            client = TestClient(
+                create_app(
+                    output_root=root,
+                    network_egress_settings_path=root / "network-egress.json",
+                    auth_checker=lambda: True,
+                    auto_start_queue=False,
+                )
+            )
+            invalid_values = (
+                ("image_request_timeout_seconds", 59),
+                ("image_request_timeout_seconds", 1801),
+                ("image_request_timeout_seconds", 600.0),
+                ("image_request_timeout_seconds", True),
+                ("image_request_retry_count", -1),
+                ("image_request_retry_count", 6),
+                ("image_request_retry_count", 2.0),
+                ("image_request_retry_count", True),
+            )
+            responses = [
+                (
+                    field,
+                    client.patch("/api/network-egress", json={field: value}),
+                )
+                for field, value in invalid_values
+            ]
+
+        for field, response in responses:
+            with self.subTest(field=field, detail=response.json().get("detail")):
+                self.assertEqual(response.status_code, 400)
+                self.assertIn(field, response.json()["detail"])
+
+    def test_network_api_reports_environment_timeout_until_explicit_save(self) -> None:
+        from fastapi.testclient import TestClient
+
+        from codex_image.webui.app import create_app
+
+        with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            patch.dict(
+                "os.environ",
+                {"CODEX_IMAGE_REQUEST_TIMEOUT_SECONDS": "2400.5"},
+            ),
+        ):
+            root = Path(temp_dir)
+            client = TestClient(
+                create_app(
+                    output_root=root,
+                    network_egress_settings_path=root / "network-egress.json",
+                    auth_checker=lambda: True,
+                    auto_start_queue=False,
+                )
+            )
+            initial = client.get("/api/network-egress").json()
+            mode_only = client.patch(
+                "/api/network-egress",
+                json={"mode": "direct"},
+            ).json()
+            explicit = client.patch(
+                "/api/network-egress",
+                json={"image_request_timeout_seconds": 900},
+            ).json()
+
+        self.assertEqual(initial["settings"]["image_request_timeout_seconds"], 600)
+        self.assertEqual(initial["resolved"]["image_request_timeout_seconds"], 2400.5)
+        self.assertEqual(initial["resolved"]["image_request_timeout_source"], "environment")
+        self.assertEqual(mode_only["resolved"]["image_request_timeout_seconds"], 2400.5)
+        self.assertEqual(mode_only["resolved"]["image_request_timeout_source"], "environment")
+        self.assertEqual(explicit["resolved"]["image_request_timeout_seconds"], 900)
+        self.assertEqual(explicit["resolved"]["image_request_timeout_source"], "settings")
 
     def test_network_test_uses_configured_provider_origin_not_arbitrary_url(self) -> None:
         from fastapi.testclient import TestClient
@@ -511,12 +809,19 @@ class NetworkEgressApiTests(unittest.TestCase):
                     "api_mode": "images",
                 }
             )
+            app.state.network_egress_settings.write(
+                {
+                    "mode": "system",
+                    "image_request_timeout_seconds": 1800,
+                    "image_request_retry_count": 5,
+                }
+            )
             transport = CapturingTransport()
             with patch.object(
                 app.state.network_egress_manager,
                 "transport",
                 return_value=transport,
-            ):
+            ) as transport_factory:
                 response = TestClient(app).post(
                     "/api/network-egress/test",
                     json={
@@ -525,6 +830,11 @@ class NetworkEgressApiTests(unittest.TestCase):
                     },
                 )
 
+        transport_factory.assert_called_once()
+        self.assertEqual(
+            transport_factory.call_args.kwargs,
+            {"timeout_seconds": 10.0},
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["ok"])
         self.assertEqual(response.json()["target"], "https://relay.example.test")

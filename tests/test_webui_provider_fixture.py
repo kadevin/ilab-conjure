@@ -40,6 +40,10 @@ class ProviderFixtureTests(unittest.TestCase):
                 port=8897,
                 auto_start_queue=False,
             )
+            self.assertEqual(
+                app.state.network_egress_settings.path,
+                root / "network-egress-settings.json",
+            )
             with TestClient(app) as client:
                 response = client.get("/api/generation-catalog")
                 recent = client.get("/api/tasks/recent", params={"limit": 10})

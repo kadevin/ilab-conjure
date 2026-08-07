@@ -9,6 +9,8 @@ from fastapi import Body, FastAPI, HTTPException
 from codex_image.client_types import DEFAULT_CODEX_IMAGES_BASE_URL
 from codex_image.webui.context import WebUIContext
 
+NETWORK_EGRESS_TEST_TIMEOUT_SECONDS = 10.0
+
 
 def _origin(value: Any) -> str:
     try:
@@ -56,12 +58,19 @@ def _probe_target(
 
 def _settings_payload(ctx: WebUIContext) -> dict[str, Any]:
     settings = ctx.network_egress_settings.read()
-    snapshot = ctx.network_egress_manager.snapshot(settings)
+    snapshot = ctx.network_egress_manager.snapshot()
     return {
         "settings": settings,
         "resolved": {
             "mode": snapshot.mode,
             "route": snapshot.route,
+            "image_request_timeout_seconds": (
+                snapshot.image_request_timeout_seconds
+            ),
+            "image_request_retry_count": snapshot.image_request_retry_count,
+            "image_request_timeout_source": (
+                snapshot.image_request_timeout_source
+            ),
         },
         "restart_required": False,
     }
@@ -90,7 +99,10 @@ def register_network_egress_routes(app: FastAPI, ctx: WebUIContext) -> None:
             snapshot = ctx.network_egress_manager.snapshot(
                 payload if "mode" in payload or "custom_proxy_url" in payload else None
             )
-            transport = ctx.network_egress_manager.transport(snapshot)
+            transport = ctx.network_egress_manager.transport(
+                snapshot,
+                timeout_seconds=NETWORK_EGRESS_TEST_TIMEOUT_SECONDS,
+            )
             provider_id, target = _probe_target(ctx, payload.get("provider_id"))
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc

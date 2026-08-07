@@ -94,8 +94,12 @@ Download standard app packages and portable transition packages from
 - Centered System Settings with API Settings, Network, Language, and Storage &
   Notifications tabs; Codex Image and Codex Responses are chosen in the
   generation-page provider menu.
-- Explicit system, direct, or custom HTTP(S) network routing, persisted in the
-  app data directory and applied to later generation attempts without restart.
+- Explicit system, direct, or custom HTTP(S) network routing, plus global
+  per-request image timeouts (1–30 minutes, default 10) and retries after
+  retryable transient failures (0–5, default 2). The settings are persisted in
+  the app data directory, apply to generation and editing across every
+  provider, and affect later task executions without restart; each retry gets a
+  fresh full timeout window.
 - API provider cards for fast selection, read-only details by default, explicit
   editing, provider copy, delete confirmation, multi-provider sorting, and an
   optional emoji identity mark for each custom provider.

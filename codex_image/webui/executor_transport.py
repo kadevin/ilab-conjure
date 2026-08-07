@@ -15,14 +15,20 @@ from codex_image.client import CodexImagesImageClient, ImageResult, OpenAIImages
 from codex_image.httpx_transport import cancellable_http_request_scope
 from codex_image.prompt_guard import build_guarded_prompt
 
+from .network_egress import (
+    DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
+    DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS,
+    MAX_IMAGE_REQUEST_RETRY_COUNT,
+    MIN_IMAGE_REQUEST_RETRY_COUNT,
+    _environment_timeout_seconds,
+)
 from .storage import TaskStorage
 
-DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS = 600.0
 DEFAULT_API_MODE = "images"
 DEFAULT_API_IMAGES_CONCURRENCY = 4
 MIN_API_IMAGES_CONCURRENCY = 1
 MAX_API_IMAGES_CONCURRENCY = 32
-MAX_TRANSIENT_IMAGE_REQUEST_ATTEMPTS = 3
+MAX_TRANSIENT_IMAGE_REQUEST_ATTEMPTS = DEFAULT_IMAGE_REQUEST_RETRY_COUNT + 1
 TRANSIENT_IMAGE_RETRY_BASE_DELAY_SECONDS = 0.5
 TRANSIENT_IMAGE_RETRY_MAX_DELAY_SECONDS = 2.0
 PROMPT_FIDELITY_MODES = {"strict", "original", "off"}
@@ -43,14 +49,7 @@ def _normalize_api_images_concurrency(value: Any) -> int:
 
 
 def _image_request_timeout_seconds() -> float:
-    raw = os.getenv("CODEX_IMAGE_REQUEST_TIMEOUT_SECONDS", "").strip()
-    if not raw:
-        return DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS
-    try:
-        parsed = float(raw)
-    except ValueError:
-        return DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS
-    return parsed if parsed > 0 else DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS
+    return _environment_timeout_seconds() or DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS
 
 
 def _normalize_prompt_fidelity(value: Any) -> str:
@@ -220,9 +219,19 @@ async def _call_image_client(
     params: dict[str, Any],
     method: Callable[..., ImageResult],
     timeout_seconds: float | None = None,
+    retry_count: int = DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
     **kwargs: Any,
 ) -> ImageResult:
-    for attempt in range(1, MAX_TRANSIENT_IMAGE_REQUEST_ATTEMPTS + 1):
+    try:
+        parsed_retry_count = int(retry_count)
+    except (TypeError, ValueError):
+        parsed_retry_count = DEFAULT_IMAGE_REQUEST_RETRY_COUNT
+    normalized_retry_count = min(
+        MAX_IMAGE_REQUEST_RETRY_COUNT,
+        max(MIN_IMAGE_REQUEST_RETRY_COUNT, parsed_retry_count),
+    )
+    total_attempts = normalized_retry_count + 1
+    for attempt in range(1, total_attempts + 1):
         context = request_context(params) if request_context is not None else _noop_request_context()
         try:
             async with context:
@@ -232,12 +241,9 @@ async def _call_image_client(
                     kwargs=kwargs,
                 )
         except Exception as exc:
-            try:
-                setattr(exc, "_image_request_attempts", attempt)
-            except Exception:
-                pass
+            setattr(exc, "_image_request_attempts", attempt)
             if (
-                attempt >= MAX_TRANSIENT_IMAGE_REQUEST_ATTEMPTS
+                attempt >= total_attempts
                 or not _is_retryable_transient_image_error(exc)
             ):
                 raise

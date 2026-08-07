@@ -84,6 +84,8 @@ class QueueExecutionContract:
     client: Any
     backend: str
     reference_file_capability_key: CapabilityKey
+    image_request_timeout_seconds: float
+    image_request_retry_count: int
 
 
 def _queue_channel_by_id(app_instance: FastAPI, channel_id: str) -> QueueChannel | None:
@@ -614,6 +616,10 @@ def _queue_execution_contract(
                 base_url=base_url,
                 main_model=main_model,
             ),
+            image_request_timeout_seconds=(
+                network_snapshot.image_request_timeout_seconds
+            ),
+            image_request_retry_count=network_snapshot.image_request_retry_count,
         )
     if channel.auth_source == "api":
         settings_payload = ctx.api_settings.read()
@@ -641,6 +647,10 @@ def _queue_execution_contract(
                 base_url=str(provider_settings.get("base_url") or ""),
                 main_model=main_model,
             ),
+            image_request_timeout_seconds=(
+                network_snapshot.image_request_timeout_seconds
+            ),
+            image_request_retry_count=network_snapshot.image_request_retry_count,
         )
     codex_mode = _codex_mode_for_task_metadata(metadata, ctx.api_settings)
     backend = _backend_for_codex_mode(codex_mode)
@@ -658,6 +668,10 @@ def _queue_execution_contract(
             base_url="",
             main_model=main_model,
         ),
+        image_request_timeout_seconds=(
+            network_snapshot.image_request_timeout_seconds
+        ),
+        image_request_retry_count=network_snapshot.image_request_retry_count,
     )
 
 
@@ -872,6 +886,10 @@ async def execute_task(
             client=execution_contract.client,
             batch_delay_seconds=batch_delay_seconds,
             request_context=(lambda params: _api_provider_request_context(ctx, params)) if channel.auth_source == "api" else None,
+            image_request_timeout_seconds=(
+                execution_contract.image_request_timeout_seconds
+            ),
+            image_request_retry_count=execution_contract.image_request_retry_count,
         )
     except asyncio.CancelledError:
         externally_cancelled = bool(

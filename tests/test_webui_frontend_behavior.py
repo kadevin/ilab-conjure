@@ -556,6 +556,38 @@ class WebUIFrontendBehaviorTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_network_request_policy_behavior(self) -> None:
+        node = shutil.which("node")
+        esbuild = Path("node_modules/.bin/esbuild")
+        if node is None or not esbuild.exists():
+            self.skipTest("node and npm install are required for frontend behavior tests")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "network-request-policy.test.mjs"
+            build = subprocess.run(
+                [
+                    str(esbuild),
+                    "tests/frontend/network_request_policy.test.ts",
+                    "--bundle",
+                    "--platform=node",
+                    "--format=esm",
+                    "--target=node20",
+                    f"--outfile={output}",
+                    "--log-level=warning",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+            result = subprocess.run(
+                [node, "--test", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_real_nano_defaults_survive_fixed_controls_and_resolve(self) -> None:
         node = shutil.which("node")
         esbuild = Path("node_modules/.bin/esbuild")
