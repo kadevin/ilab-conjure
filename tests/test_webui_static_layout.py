@@ -704,8 +704,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-769', html)
-        self.assertIn('/static/styles.css?v=runtime-769', html)
+        self.assertIn('/static/app.js?v=runtime-770', html)
+        self.assertIn('/static/styles.css?v=runtime-770', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -1884,6 +1884,22 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("color: var(--primary-foreground)", resource_button_styles)
         self.assertNotIn("thumb-label", script)
         self.assertNotIn(".thumb-label", styles)
+
+    def test_short_desktop_recent_uploads_fit_inside_reference_input_footer(self) -> None:
+        responsive = Path(
+            "codex_image/webui/static/styles/80-utilities-responsive.css"
+        ).read_text(encoding="utf-8")
+        compact = self._extract_css_at_rule(
+            responsive,
+            "@media (max-height: 1390px) and (min-width: 900px)",
+        )
+
+        self.assertRegex(
+            compact,
+            r"\.image-input-workspace\s*\{[^}]*--recent-asset-size:\s*"
+            r"clamp\(\s*24px,\s*calc\(var\(--image-input-action-height\)\s*-\s*4px\),\s*32px\s*\)",
+        )
+
     def test_short_desktop_layout_reduces_input_prompt_and_output_settings_height(self) -> None:
         responsive = Path(
             "codex_image/webui/static/styles/80-utilities-responsive.css"
@@ -1913,7 +1929,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"\.image-input-workspace\s*\{[^}]*--image-input-thumb-size:\s*clamp\("
             r"[\s\S]*104px,[\s\S]*116px",
         )
-        self.assertIn("--recent-asset-size: 32px", compact)
+        self.assertRegex(
+            compact,
+            r"--recent-asset-size:\s*clamp\(\s*24px,\s*"
+            r"calc\(var\(--image-input-action-height\)\s*-\s*4px\),\s*32px",
+        )
         self.assertRegex(compact, r"\.image-uploader-grid\s*\{[^}]*padding:\s*clamp\(")
         self.assertRegex(
             compact,
@@ -3718,8 +3738,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-769', html)
-        self.assertIn('/static/styles.css?v=runtime-769', html)
+        self.assertIn('/static/app.js?v=runtime-770', html)
+        self.assertIn('/static/styles.css?v=runtime-770', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4170,8 +4190,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-769", html)
-        self.assertIn("/static/styles.css?v=runtime-769", html)
+        self.assertIn("/static/app.js?v=runtime-770", html)
+        self.assertIn("/static/styles.css?v=runtime-770", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

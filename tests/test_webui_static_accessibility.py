@@ -155,8 +155,9 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
         self.assertRegex(
             image_input,
             r"@media \(hover: none\), \(pointer: coarse\)\s*\{\s*"
-            r"\.recent-asset-list\s*\{[^}]*padding:\s*5px 4px 0 0[^}]*\}\s*"
-            r"\.recent-asset-delete\s*\{[^}]*width:\s*24px[^}]*height:\s*24px",
+            r"\.recent-asset-list\s*\{[^}]*padding:\s*4px 4px 0 0[^}]*\}\s*"
+            r"\.recent-asset-delete\s*\{[^}]*top:\s*-4px"
+            r"[^}]*width:\s*24px[^}]*height:\s*24px",
         )
 
         recent_list = re.search(

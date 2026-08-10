@@ -233,7 +233,11 @@ button:disabled {
     --image-input-gap: clamp(4px, calc(0.96dvh - 3.4px), 10px);
     --image-upload-source-compact-width: clamp(106px, calc(1.93dvh + 91.2px), 118px);
     --image-input-thumb-size: clamp(104px, calc(1.93dvh + 89.2px), 116px);
-    --recent-asset-size: 32px;
+    --recent-asset-size: clamp(
+      24px,
+      calc(var(--image-input-action-height) - 4px),
+      32px
+    );
     gap: 8px;
   }
 

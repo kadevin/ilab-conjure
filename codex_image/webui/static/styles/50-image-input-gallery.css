@@ -696,11 +696,11 @@
 
 @media (hover: none), (pointer: coarse) {
   .recent-asset-list {
-    padding: 5px 4px 0 0;
+    padding: 4px 4px 0 0;
   }
 
   .recent-asset-delete {
-    top: -5px;
+    top: -4px;
     width: 24px;
     height: 24px;
     font-size: 12px;
