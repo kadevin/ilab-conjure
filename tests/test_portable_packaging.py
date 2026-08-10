@@ -559,7 +559,10 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("GH_REPO: ${{ github.repository }}", text)
         self.assertIn("## 发布说明", text)
         self.assertIn('release_summary="$(awk', text)
-        self.assertIn("/^当前版本：/ || /^本版重点：/", text)
+        self.assertIn(
+            "/^(当前版本|受影响平台|必要操作与数据迁移|本版重点)：/",
+            text,
+        )
         self.assertIn("/^本版详情：/", text)
         self.assertIn("in_details && /^## /", text)
         self.assertIn("${release_summary}", text)
