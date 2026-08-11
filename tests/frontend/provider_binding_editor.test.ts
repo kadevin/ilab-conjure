@@ -20,6 +20,7 @@ test("only known template URLs are safe to replace during a new-provider compati
   assert.equal(isBindingTemplateBaseUrl("https://api.change2pro.com/v1beta"), true);
   assert.equal(isBindingTemplateBaseUrl("https://openrouter.ai/api/v1/"), true);
   assert.equal(isBindingTemplateBaseUrl("https://private-relay.example/v1"), false);
+  assert.equal(isBindingTemplateBaseUrl("https://api.atlascloud.ai"), true);
 });
 
 test("one provider preserves GPT and Nano Banana bindings with arbitrary remote IDs", () => {
@@ -76,6 +77,10 @@ test("compatibility layers stay binding-scoped and map to explicit transports", 
   assert.deepEqual(
     availableCompatibilityLayers("gpt-image-2", "openai_responses"),
     ["standard"],
+  );
+  assert.deepEqual(
+    availableCompatibilityLayers("gpt-image-2", "openai_images"),
+    ["standard", "atlascloud"],
   );
 
   const standard = bindingFromProtocol(
@@ -137,6 +142,19 @@ test("compatibility layers stay binding-scoped and map to explicit transports", 
   assert.equal(openrouter.protocol_profile, "openrouter_images");
   assert.equal(openrouter.parameter_codec, "gemini_openrouter_images");
   assert.equal(compatibilityForBinding(openrouter), "openrouter");
+
+  const atlascloud = bindingForCompatibilitySelection(
+    bindingFromProtocol("gpt", "gpt-image-2", "openai/gpt-image-2", "openai_images"),
+    "gpt-image-2",
+    "openai/gpt-image-2",
+    "openai_images",
+    "atlascloud",
+    true,
+    ["generate", "edit"],
+  );
+  assert.equal(atlascloud.protocol_profile, "atlascloud_images");
+  assert.equal(atlascloud.parameter_codec, "gpt_atlascloud_images");
+  assert.equal(compatibilityForBinding(atlascloud), "atlascloud");
 });
 
 test("unchanged protocol selection preserves the existing binding", () => {

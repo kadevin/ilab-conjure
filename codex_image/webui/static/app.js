@@ -37230,6 +37230,11 @@ ${hint}` : hint;
       protocol_profile: "openrouter_images",
       parameter_codec: "gemini_openrouter_images",
       base_url: "https://openrouter.ai/api/v1"
+    },
+    gpt_atlascloud_images: {
+      protocol_profile: "atlascloud_images",
+      parameter_codec: "gpt_atlascloud_images",
+      base_url: "https://api.atlascloud.ai"
     }
   };
   var BINDING_PROTOCOL_LABELS = {
@@ -37242,7 +37247,8 @@ ${hint}` : hint;
     gemini_image_config: "Gemini ImageConfig",
     change2pro: "Change2Pro / Gemini v1beta",
     t8_newapi: "T8 / NewAPI",
-    openrouter: "OpenRouter"
+    openrouter: "OpenRouter",
+    atlascloud: "Atlas Cloud"
   };
   function slug(value, fallback) {
     return String(value || fallback).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
@@ -37270,6 +37276,9 @@ ${hint}` : hint;
     if (modelId.startsWith("nano-banana") && protocol === "openai_images") {
       return ["standard", "t8_newapi", "openrouter"];
     }
+    if (modelId === "gpt-image-2" && protocol === "openai_images") {
+      return ["standard", "atlascloud"];
+    }
     return ["standard"];
   }
   function protocolForBinding(binding) {
@@ -37283,6 +37292,7 @@ ${hint}` : hint;
     if (codec === "gemini_generate_content_image_config") return "gemini_image_config";
     if (codec === "gemini_t8_images") return "t8_newapi";
     if (codec === "gemini_openrouter_images") return "openrouter";
+    if (codec === "gpt_atlascloud_images") return "atlascloud";
     return "standard";
   }
   function bindingTemplateForProtocol(modelId, protocol) {
@@ -37307,6 +37317,7 @@ ${hint}` : hint;
     if (compatibility === "change2pro") return "gemini_change2pro_generate_content";
     if (compatibility === "t8_newapi") return "gemini_t8_images";
     if (compatibility === "openrouter") return "gemini_openrouter_images";
+    if (compatibility === "atlascloud") return "gpt_atlascloud_images";
     return bindingTemplateForProtocol(modelId, protocol);
   }
   function bindingFromTemplate(id, canonicalModelId, remoteModelId, templateId, operations = ["generate", "edit"]) {
