@@ -898,6 +898,7 @@
     "taskGroup.collapse": "Collapse {label}",
     "taskGroup.buttonLabel": "{label}, {count} tasks",
     "taskGroup.loadMore": "Load {count} more",
+    "taskGroup.loadFailedRetry": "Load failed. Click to retry",
     "archive.title": "Archive",
     "archive.empty": "No archived chats",
     "archive.count": "{count} archived chats",
@@ -2083,6 +2084,7 @@
     "taskGroup.collapse": "Zusammenbruch {label}",
     "taskGroup.buttonLabel": "{label}, {count} Aufgaben",
     "taskGroup.loadMore": "{count} weitere laden",
+    "taskGroup.loadFailedRetry": "Laden fehlgeschlagen. Zum Wiederholen klicken",
     "archive.title": "Archiv",
     "archive.empty": "Keine archivierten Chats",
     "archive.count": "{count} archivierte Chats",
@@ -3268,6 +3270,7 @@
     "taskGroup.collapse": "Contraer {label}",
     "taskGroup.buttonLabel": "Tareas {label}, {count}",
     "taskGroup.loadMore": "Cargar {count} m\xE1s",
+    "taskGroup.loadFailedRetry": "Error al cargar. Haz clic para reintentar",
     "archive.title": "Archivo",
     "archive.empty": "No hay chats archivados",
     "archive.count": "{count} chats archivados",
@@ -4453,6 +4456,7 @@
     "taskGroup.collapse": "R\xE9duire {label}",
     "taskGroup.buttonLabel": "T\xE2ches {label}, {count}",
     "taskGroup.loadMore": "Charger {count} de plus",
+    "taskGroup.loadFailedRetry": "\xC9chec du chargement. Cliquez pour r\xE9essayer",
     "archive.title": "Archiver",
     "archive.empty": "Aucune discussion archiv\xE9e",
     "archive.count": "{count} discussions archiv\xE9es",
@@ -5638,6 +5642,7 @@
     "taskGroup.collapse": "\u5D29\u58CA{label}",
     "taskGroup.buttonLabel": "{label}\u3001{count}\u30BF\u30B9\u30AF",
     "taskGroup.loadMore": "\u3055\u3089\u306B {count} \u4EF6\u8AAD\u307F\u8FBC\u3080",
+    "taskGroup.loadFailedRetry": "\u8AAD\u307F\u8FBC\u307F\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u30AF\u30EA\u30C3\u30AF\u3057\u3066\u518D\u8A66\u884C",
     "archive.title": "\u30A2\u30FC\u30AB\u30A4\u30D6",
     "archive.empty": "\u30A2\u30FC\u30AB\u30A4\u30D6\u3055\u308C\u305F\u30C1\u30E3\u30C3\u30C8\u306F\u3042\u308A\u307E\u305B\u3093",
     "archive.count": "\u30A2\u30FC\u30AB\u30A4\u30D6\u6E08\u307F\u30C1\u30E3\u30C3\u30C8 {count} \u4EF6",
@@ -6823,6 +6828,7 @@
     "taskGroup.collapse": "\uCD95\uC18C{label}",
     "taskGroup.buttonLabel": "{label}, \uC791\uC5C5 {count}\uAC1C",
     "taskGroup.loadMore": "{count}\uAC1C \uB354 \uBD88\uB7EC\uC624\uAE30",
+    "taskGroup.loadFailedRetry": "\uB85C\uB4DC\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. \uD074\uB9AD\uD558\uC5EC \uB2E4\uC2DC \uC2DC\uB3C4",
     "archive.title": "\uBCF4\uAD00\uD568",
     "archive.empty": "\uBCF4\uAD00\uB41C \uCC44\uD305\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.",
     "archive.count": "\uBCF4\uAD00\uB41C \uCC44\uD305 {count}\uAC1C",
@@ -8008,6 +8014,7 @@
     "taskGroup.collapse": "Recolher {label}",
     "taskGroup.buttonLabel": "Tarefas {label}, {count}",
     "taskGroup.loadMore": "Carregar mais {count}",
+    "taskGroup.loadFailedRetry": "Falha ao carregar. Clique para tentar novamente",
     "archive.title": "Arquivo",
     "archive.empty": "Nenhum bate-papo arquivado",
     "archive.count": "{count} bate-papos arquivados",
@@ -9193,6 +9200,7 @@
     "taskGroup.collapse": "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C {label}",
     "taskGroup.buttonLabel": "{label}, {count} \u0437\u0430\u0434\u0430\u0447",
     "taskGroup.loadMore": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0435\u0449\u0451 {count}",
+    "taskGroup.loadFailedRetry": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043D\u0435 \u0443\u0434\u0430\u043B\u0430\u0441\u044C. \u041D\u0430\u0436\u043C\u0438\u0442\u0435, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C",
     "archive.title": "\u0410\u0440\u0445\u0438\u0432",
     "archive.empty": "\u041D\u0435\u0442 \u0430\u0440\u0445\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0447\u0430\u0442\u043E\u0432",
     "archive.count": "{count} \u0430\u0440\u0445\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0447\u0430\u0442\u044B",
@@ -10378,6 +10386,7 @@
     "taskGroup.collapse": "Comprimi {label}",
     "taskGroup.buttonLabel": "{label}, {count} attivit\xE0",
     "taskGroup.loadMore": "Carica altri {count}",
+    "taskGroup.loadFailedRetry": "Caricamento non riuscito. Fai clic per riprovare",
     "archive.title": "Archivio",
     "archive.empty": "Nessuna chat archiviata",
     "archive.count": "{count} chat archiviate",
@@ -11563,6 +11572,7 @@
     "taskGroup.collapse": "\u0938\u0902\u0915\u094D\u0937\u093F\u092A\u094D\u0924 \u0915\u0930\u0947\u0902 {label}",
     "taskGroup.buttonLabel": "{label}, {count} \u0915\u093E\u0930\u094D\u092F",
     "taskGroup.loadMore": "{count} \u0914\u0930 \u0932\u094B\u0921 \u0915\u0930\u0947\u0902",
+    "taskGroup.loadFailedRetry": "\u0932\u094B\u0921 \u0935\u093F\u092B\u0932 \u0930\u0939\u093E\u0964 \u092A\u0941\u0928\u0903 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0932\u093F\u0915 \u0915\u0930\u0947\u0902",
     "archive.title": "\u0938\u0902\u0917\u094D\u0930\u0939",
     "archive.empty": "\u0915\u094B\u0908 \u0938\u0902\u0917\u094D\u0930\u0939\u0940\u0924 \u091A\u0948\u091F \u0928\u0939\u0940\u0902",
     "archive.count": "{count} \u0938\u0902\u0917\u094D\u0930\u0939\u0940\u0924 \u091A\u0948\u091F",
@@ -12758,6 +12768,7 @@
     "taskGroup.collapse": "Thu g\u1ECDn {label}",
     "taskGroup.buttonLabel": "{label}, {count} t\xE1c v\u1EE5",
     "taskGroup.loadMore": "T\u1EA3i th\xEAm {count}",
+    "taskGroup.loadFailedRetry": "T\u1EA3i th\u1EA5t b\u1EA1i. Nh\u1EA5p \u0111\u1EC3 th\u1EED l\u1EA1i",
     "archive.title": "L\u01B0u tr\u1EEF",
     "archive.empty": "Kh\xF4ng c\xF3 cu\u1ED9c tr\xF2 chuy\u1EC7n n\xE0o \u0111\u01B0\u1EE3c l\u01B0u tr\u1EEF",
     "archive.count": "{count} c\xE1c cu\u1ED9c tr\xF2 chuy\u1EC7n \u0111\u01B0\u1EE3c l\u01B0u tr\u1EEF",
@@ -13953,6 +13964,7 @@
     "taskGroup.collapse": "\u6536\u8D77 {label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count} \u4E2A\u4EFB\u52A1",
     "taskGroup.loadMore": "\u518D\u52A0\u8F7D {count} \u6761",
+    "taskGroup.loadFailedRetry": "\u8F7D\u5165\u5931\u8D25\uFF0C\u70B9\u6B64\u91CD\u8BD5",
     "archive.title": "\u4F1A\u8BDD\u5F52\u6863",
     "archive.empty": "\u6682\u65E0\u5F52\u6863\u4F1A\u8BDD",
     "archive.count": "{count} \u4E2A\u5F52\u6863\u4F1A\u8BDD",
@@ -15148,6 +15160,7 @@
     "taskGroup.collapse": "\u6536\u8D77{label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count}\u500B\u4EFB\u52D9",
     "taskGroup.loadMore": "\u518D\u8F09\u5165{count}\u689D",
+    "taskGroup.loadFailedRetry": "\u8F09\u5165\u5931\u6557\uFF0C\u9EDE\u6B64\u91CD\u8A66",
     "archive.title": "\u6703\u8A71\u6B78\u6A94",
     "archive.empty": "\u66AB\u7121\u6B78\u6A94\u6703\u8A71",
     "archive.count": "{count}\u500B\u6B78\u6A94\u6703\u8A71",
@@ -16343,6 +16356,7 @@
     "taskGroup.collapse": "\u6536\u8D77{label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count}\u500B\u4EFB\u52D9",
     "taskGroup.loadMore": "\u518D\u8F09\u5165{count}\u7B46",
+    "taskGroup.loadFailedRetry": "\u8F09\u5165\u5931\u6557\uFF0C\u9EDE\u6B64\u91CD\u8A66",
     "archive.title": "\u6703\u8A71\u6B78\u6A94",
     "archive.empty": "\u66AB\u7121\u6B78\u6A94\u6703\u8A71",
     "archive.count": "{count}\u500B\u6B78\u6A94\u6703\u8A71",
@@ -17956,6 +17970,7 @@
       taskSidebarGroupCounts: {},
       taskSidebarGroupLoadedCounts: {},
       taskSidebarGroupLoading: null,
+      taskSidebarGroupLoadError: null,
       selectedTaskId: null,
       taskInputRestoreSeq: 0,
       authAvailable: false,
@@ -17965,6 +17980,7 @@
       uiClockTimerId: null,
       previewRenderKey: null,
       tasksRenderKey: null,
+      taskSearchQuery: "",
       taskSearchHistoryResultIds: [],
       taskSearchHistoryResultQuery: "",
       taskSearchHistoryRequestSeq: 0,
@@ -25199,19 +25215,6 @@
       results.filter((result) => result.status === "fulfilled").map((result) => result.value)
     );
   }
-  function historyLightboxFittedRect(image, container) {
-    const naturalWidth = Math.max(1, image.naturalWidth);
-    const naturalHeight = Math.max(1, image.naturalHeight);
-    const scale = Math.min(container.width / naturalWidth, container.height / naturalHeight);
-    const width = naturalWidth * scale;
-    const height = naturalHeight * scale;
-    return {
-      left: container.left + (container.width - width) / 2,
-      top: container.top + (container.height - height) / 2,
-      width,
-      height
-    };
-  }
   function historyLightboxEdgeRect(side, image, peek) {
     const peekRect = peek.getBoundingClientRect();
     const ratio = Math.max(0.05, image.naturalWidth / Math.max(1, image.naturalHeight));
@@ -25255,16 +25258,25 @@
       }
     ];
   }
+  function historyLightboxIncomingGhostKeyframes(from, to, fromOpacity, toOpacity) {
+    const translateX = from.left - to.left;
+    const translateY = from.top - to.top;
+    return [
+      {
+        opacity: fromOpacity,
+        transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${from.width / to.width})`
+      },
+      { opacity: toOpacity, transform: "translate3d(0, 0, 0) scale(1)" }
+    ];
+  }
   async function animateHistoryLightboxSwap(direction, targetImage, targetIndex) {
     if (!historyLightboxEl) return null;
     const currentImage = historyLightboxImage();
     const targetPeek = historyLightboxSlot(direction);
     const outgoingSide = direction === "next" ? "previous" : "next";
     const outgoingPeek = historyLightboxSlot(outgoingSide);
-    const currentFrame = historyLightboxSlot("current");
-    if (!currentImage || !targetPeek || !outgoingPeek || !currentFrame) return null;
+    if (!currentImage || !targetPeek || !outgoingPeek) return null;
     const currentRect = currentImage.getBoundingClientRect();
-    const centerRect = historyLightboxFittedRect(targetImage, currentFrame.getBoundingClientRect());
     const incomingEdgeRect = historyLightboxEdgeRect(direction, targetImage, targetPeek);
     const outgoingEdgeRect = historyLightboxEdgeRect(outgoingSide, currentImage, outgoingPeek);
     const incomingStartOpacity = Number.parseFloat(getComputedStyle(targetPeek).opacity) || 0.48;
@@ -25272,17 +25284,19 @@
     const layer = document.createElement("div");
     layer.className = "history-lightbox-transition-layer";
     const outgoingGhost = historyLightboxTransitionGhost(currentImage.currentSrc || currentImage.src, currentRect);
-    const incomingGhost = historyLightboxTransitionGhost(
-      targetImage.currentSrc || targetImage.src,
-      reduceMotion ? centerRect : incomingEdgeRect,
-      reduceMotion ? 0 : incomingStartOpacity
-    );
-    layer.append(outgoingGhost, incomingGhost);
+    layer.append(outgoingGhost);
     historyLightboxEl.append(layer);
     historyLightboxEl.classList.add("is-shared-switching");
     bindHistoryLightboxSlots(targetIndex);
     await decodeHistoryLightboxBoundSlots();
     await nextHistoryLightboxFrame();
+    const centerRect = currentImage.getBoundingClientRect();
+    const incomingGhost = historyLightboxTransitionGhost(
+      targetImage.currentSrc || targetImage.src,
+      centerRect,
+      reduceMotion ? 0 : incomingStartOpacity
+    );
+    layer.append(incomingGhost);
     const duration = reduceMotion ? 100 : 320;
     const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
     await Promise.all([
@@ -25296,7 +25310,7 @@
         { duration, easing, fill: "forwards" }
       ).finished,
       incomingGhost.animate(
-        historyLightboxGhostKeyframes(
+        historyLightboxIncomingGhostKeyframes(
           reduceMotion ? centerRect : incomingEdgeRect,
           centerRect,
           reduceMotion ? 0 : incomingStartOpacity,

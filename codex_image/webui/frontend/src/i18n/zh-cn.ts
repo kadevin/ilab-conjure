@@ -894,6 +894,7 @@ export const ZH_CN_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "收起 {label}",
     "taskGroup.buttonLabel": "{label}，{count} 个任务",
     "taskGroup.loadMore": "再加载 {count} 条",
+    "taskGroup.loadFailedRetry": "载入失败，点此重试",
     "archive.title": "会话归档",
     "archive.empty": "暂无归档会话",
     "archive.count": "{count} 个归档会话",

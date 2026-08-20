@@ -475,6 +475,54 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertEqual(body["request"]["input"][0]["content"][0]["text"], prompt)
         self.assertEqual(body["request"]["instructions"], "")
         self.assertNotIn("参考图 1", body["request"]["input"][0]["content"][0]["text"])
+
+    def test_generate_route_original_prompt_fidelity_expands_prompt_snippets(self) -> None:
+        from codex_image.webui.app import create_app
+        from codex_image.webui.prompt_snippets import PromptSnippetSettings
+
+        prompt = "人像摄影。~柔光+净背景"
+        expanded_prompt = "人像摄影。使用柔和主光与干净背景"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            snippets_path = root / "prompt-snippets.json"
+            PromptSnippetSettings(snippets_path).create(
+                {
+                    "tag": "柔光+净背景",
+                    "title": "柔光+净背景",
+                    "content": "使用柔和主光与干净背景",
+                }
+            )
+            app = create_app(
+                output_root=root / "tasks",
+                prompt_snippets_path=snippets_path,
+                client_factory=lambda: FakeImageClient(),
+                auth_checker=lambda: True,
+                auto_start_queue=False,
+            )
+            response = TestClient(app).post(
+                "/api/generate",
+                data={
+                    "prompt": prompt,
+                    "prompt_for_model": expanded_prompt,
+                    "model": "gpt-image-2",
+                    "size": "1024x1024",
+                    "quality": "low",
+                    "output_format": "png",
+                    "prompt_fidelity": "original",
+                    "codex_mode": "responses",
+                },
+            )
+            body = response.json()
+            task = body["task"]
+            metadata = json.loads(metadata_path(root / "tasks", task["task_id"]).read_text(encoding="utf-8"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(task["prompt"], prompt)
+        self.assertEqual(task["prompt_for_model"], expanded_prompt)
+        self.assertEqual(metadata["execution_prompt"], expanded_prompt)
+        self.assertEqual(body["request"]["input"][0]["content"][0]["text"], expanded_prompt)
+        self.assertEqual(body["request"]["instructions"], "")
+
     def test_edit_route_enqueues_without_calling_client_inline(self) -> None:
         from codex_image.webui.app import create_app
 

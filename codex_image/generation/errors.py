@@ -110,13 +110,23 @@ def provider_error_from_exception(
     protocol_profile: str,
 ) -> GenerationProviderError:
     text = str(exc).lower()
+    http_status = _explicit_http_status(exc, text)
     if isinstance(exc, TimeoutError) or "timed out" in text or "timeout" in text:
         code, status = "request_timeout", 504
-    elif "401" in text or "403" in text or "unauthorized" in text or "authentication" in text:
+    elif http_status is not None:
+        if http_status in {401, 403}:
+            code, status = "authentication_failed", 502
+        elif http_status == 429:
+            code, status = "rate_limited", 503
+        elif http_status in {400, 422}:
+            code, status = "invalid_parameters", 400
+        else:
+            code, status = "upstream_error", 502
+    elif "unauthorized" in text or "authentication" in text:
         code, status = "authentication_failed", 502
-    elif "429" in text or "rate limit" in text:
+    elif "rate limit" in text:
         code, status = "rate_limited", 503
-    elif "400" in text or "422" in text or "invalid parameter" in text:
+    elif "invalid parameter" in text:
         code, status = "invalid_parameters", 400
     else:
         code, status = "upstream_error", 502
@@ -127,6 +137,32 @@ def provider_error_from_exception(
         protocol_profile=protocol_profile,
         status_code=status,
     )
+
+
+def _explicit_http_status(exc: BaseException, text: str) -> int | None:
+    for attribute in ("status_code", "status"):
+        raw = getattr(exc, attribute, None)
+        try:
+            status = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if 100 <= status <= 599:
+            return status
+    match = re.search(
+        r"\bhttp(?:\s+(?:error|status))?\s*[:=]?\s*(\d{3})\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if match is None:
+        match = re.search(
+            r"\bstatus(?:\s+code)?\s*[:=]\s*(\d{3})\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+    if match is None:
+        return None
+    status = int(match.group(1))
+    return status if 100 <= status <= 599 else None
 
 
 __all__ = (

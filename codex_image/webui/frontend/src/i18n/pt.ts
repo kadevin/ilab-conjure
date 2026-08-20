@@ -884,6 +884,7 @@ export const PT_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "Recolher {label}",
     "taskGroup.buttonLabel": "Tarefas {label}, {count}",
     "taskGroup.loadMore": "Carregar mais {count}",
+    "taskGroup.loadFailedRetry": "Falha ao carregar. Clique para tentar novamente",
     "archive.title": "Arquivo",
     "archive.empty": "Nenhum bate-papo arquivado",
     "archive.count": "{count} bate-papos arquivados",

@@ -884,6 +884,7 @@ export const JA_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "崩壊{label}",
     "taskGroup.buttonLabel": "{label}、{count}タスク",
     "taskGroup.loadMore": "さらに {count} 件読み込む",
+    "taskGroup.loadFailedRetry": "読み込みに失敗しました。クリックして再試行",
     "archive.title": "アーカイブ",
     "archive.empty": "アーカイブされたチャットはありません",
     "archive.count": "アーカイブ済みチャット {count} 件",

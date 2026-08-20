@@ -884,6 +884,7 @@ export const HI_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "संक्षिप्त करें {label}",
     "taskGroup.buttonLabel": "{label}, {count} कार्य",
     "taskGroup.loadMore": "{count} और लोड करें",
+    "taskGroup.loadFailedRetry": "लोड विफल रहा। पुनः प्रयास करने के लिए क्लिक करें",
     "archive.title": "संग्रह",
     "archive.empty": "कोई संग्रहीत चैट नहीं",
     "archive.count": "{count} संग्रहीत चैट",

@@ -148,20 +148,6 @@ async function preloadHistoryLightboxSlotImages(index: number): Promise<Map<stri
 
 type HistoryLightboxRect = { left: number; top: number; width: number; height: number };
 
-function historyLightboxFittedRect(image: HTMLImageElement, container: DOMRect): HistoryLightboxRect {
-  const naturalWidth = Math.max(1, image.naturalWidth);
-  const naturalHeight = Math.max(1, image.naturalHeight);
-  const scale = Math.min(container.width / naturalWidth, container.height / naturalHeight);
-  const width = naturalWidth * scale;
-  const height = naturalHeight * scale;
-  return {
-    left: container.left + (container.width - width) / 2,
-    top: container.top + (container.height - height) / 2,
-    width,
-    height,
-  };
-}
-
 function historyLightboxEdgeRect(
   side: "previous" | "next",
   image: HTMLImageElement,
@@ -221,6 +207,23 @@ function historyLightboxGhostKeyframes(
   ];
 }
 
+function historyLightboxIncomingGhostKeyframes(
+  from: HistoryLightboxRect,
+  to: HistoryLightboxRect,
+  fromOpacity: number,
+  toOpacity: number,
+): Keyframe[] {
+  const translateX = from.left - to.left;
+  const translateY = from.top - to.top;
+  return [
+    {
+      opacity: fromOpacity,
+      transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${from.width / to.width})`,
+    },
+    { opacity: toOpacity, transform: "translate3d(0, 0, 0) scale(1)" },
+  ];
+}
+
 async function animateHistoryLightboxSwap(
   direction: "previous" | "next",
   targetImage: HTMLImageElement,
@@ -231,11 +234,9 @@ async function animateHistoryLightboxSwap(
   const targetPeek = historyLightboxSlot(direction);
   const outgoingSide = direction === "next" ? "previous" : "next";
   const outgoingPeek = historyLightboxSlot(outgoingSide);
-  const currentFrame = historyLightboxSlot("current");
-  if (!currentImage || !targetPeek || !outgoingPeek || !currentFrame) return null;
+  if (!currentImage || !targetPeek || !outgoingPeek) return null;
 
   const currentRect = currentImage.getBoundingClientRect();
-  const centerRect = historyLightboxFittedRect(targetImage, currentFrame.getBoundingClientRect());
   const incomingEdgeRect = historyLightboxEdgeRect(direction, targetImage, targetPeek);
   const outgoingEdgeRect = historyLightboxEdgeRect(outgoingSide, currentImage, outgoingPeek);
   const incomingStartOpacity = Number.parseFloat(getComputedStyle(targetPeek).opacity) || 0.48;
@@ -243,17 +244,19 @@ async function animateHistoryLightboxSwap(
   const layer = document.createElement("div");
   layer.className = "history-lightbox-transition-layer";
   const outgoingGhost = historyLightboxTransitionGhost(currentImage.currentSrc || currentImage.src, currentRect);
-  const incomingGhost = historyLightboxTransitionGhost(
-    targetImage.currentSrc || targetImage.src,
-    reduceMotion ? centerRect : incomingEdgeRect,
-    reduceMotion ? 0 : incomingStartOpacity,
-  );
-  layer.append(outgoingGhost, incomingGhost);
+  layer.append(outgoingGhost);
   historyLightboxEl.append(layer);
   historyLightboxEl.classList.add("is-shared-switching");
   bindHistoryLightboxSlots(targetIndex);
   await decodeHistoryLightboxBoundSlots();
   await nextHistoryLightboxFrame();
+  const centerRect = currentImage.getBoundingClientRect();
+  const incomingGhost = historyLightboxTransitionGhost(
+    targetImage.currentSrc || targetImage.src,
+    centerRect,
+    reduceMotion ? 0 : incomingStartOpacity,
+  );
+  layer.append(incomingGhost);
 
   const duration = reduceMotion ? 100 : 320;
   const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -268,7 +271,7 @@ async function animateHistoryLightboxSwap(
       { duration, easing, fill: "forwards" },
     ).finished,
     incomingGhost.animate(
-      historyLightboxGhostKeyframes(
+      historyLightboxIncomingGhostKeyframes(
         reduceMotion ? centerRect : incomingEdgeRect,
         centerRect,
         reduceMotion ? 0 : incomingStartOpacity,

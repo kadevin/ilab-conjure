@@ -894,6 +894,7 @@ export const EN_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "Collapse {label}",
     "taskGroup.buttonLabel": "{label}, {count} tasks",
     "taskGroup.loadMore": "Load {count} more",
+    "taskGroup.loadFailedRetry": "Load failed. Click to retry",
     "archive.title": "Archive",
     "archive.empty": "No archived chats",
     "archive.count": "{count} archived chats",

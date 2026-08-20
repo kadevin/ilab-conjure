@@ -21,7 +21,7 @@ fi
 
 if [ ! -x "$PYTHON_BIN" ]; then
   echo "Creating local virtual environment..."
-  python3 -m venv "$VENV_DIR"
+  python3 -m venv --clear "$VENV_DIR"
 fi
 
 if ! "$PYTHON_BIN" -m codex_image.dependency_check \

@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-770" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-776" />
   </head>
   <body>
     <div class="layout-container">
@@ -168,7 +168,7 @@
             data-i18n-attr="aria-label:modelSelection.family"
           ></div>
           <div class="sidebar-search">
-            <input id="taskSearch" type="search" placeholder="搜索对话..." data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
+            <input id="taskSearch" type="search" name="task-history-search" inputmode="search" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="搜索对话..." readonly data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
             <button
               id="taskSearchClearButton"
               class="task-search-clear-button"
@@ -1518,7 +1518,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-770"></script>
+  <script src="/static/app.js?v=runtime-776"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

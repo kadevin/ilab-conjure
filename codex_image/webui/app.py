@@ -110,6 +110,7 @@ from .schemas import (
 )
 from .shutdown_control import ShutdownCoordinator
 from .network_egress import NetworkEgressManager, NetworkEgressSettings
+from .prompt_snippets import expand_prompt_snippets
 from .storage import GalleryStorage, QueueStorage, ReferenceAssetStorage, SQLiteQueueStorage, TaskStorage, _guess_mime_type, utc_now
 from .reference_files import ReferenceFileStorage
 from .settings_store import (
@@ -479,7 +480,10 @@ def create_app(
                 ui_language,
             ),
             "model_prompt_for_fidelity": lambda prompt, prompt_for_model, prompt_fidelity: _model_prompt_for_fidelity(
-                prompt, prompt_for_model, prompt_fidelity
+                prompt,
+                prompt_for_model,
+                prompt_fidelity,
+                prompt_snippets=prompt_snippet_settings.list(),
             ),
             "backend_for_submit": _backend_for_submit,
             "request_api_provider_id": lambda auth_source, api_provider_id: _request_api_provider_id(
@@ -619,9 +623,16 @@ def _prompt_guard_context(
     )
 
 
-def _model_prompt_for_fidelity(prompt: str, prompt_for_model: str | None, prompt_fidelity: str) -> str:
+def _model_prompt_for_fidelity(
+    prompt: str,
+    prompt_for_model: str | None,
+    prompt_fidelity: str,
+    *,
+    prompt_snippets: list[dict[str, Any]] | None = None,
+) -> str:
     if _normalize_prompt_fidelity(prompt_fidelity) == "original":
-        return prompt
+        # Snippet chips are user-authored macros, not app-added prompt guidance.
+        return expand_prompt_snippets(prompt, prompt_snippets or [])
     return prompt_for_model or prompt
 
 

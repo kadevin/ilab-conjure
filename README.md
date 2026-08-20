@@ -146,14 +146,14 @@ http://127.0.0.1:8787/
 ## 应用包下载
 
 当前可用的标准包和一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.8.2](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.2)。
+[GitHub Release v0.8.3](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.3)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.2.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.2.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.3.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.3.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.2.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.3.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的

@@ -884,6 +884,7 @@ export const KO_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "축소{label}",
     "taskGroup.buttonLabel": "{label}, 작업 {count}개",
     "taskGroup.loadMore": "{count}개 더 불러오기",
+    "taskGroup.loadFailedRetry": "로드에 실패했습니다. 클릭하여 다시 시도",
     "archive.title": "보관함",
     "archive.empty": "보관된 채팅이 없습니다.",
     "archive.count": "보관된 채팅 {count}개",

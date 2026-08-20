@@ -894,6 +894,7 @@ export const VI_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "Thu gọn {label}",
     "taskGroup.buttonLabel": "{label}, {count} tác vụ",
     "taskGroup.loadMore": "Tải thêm {count}",
+    "taskGroup.loadFailedRetry": "Tải thất bại. Nhấp để thử lại",
     "archive.title": "Lưu trữ",
     "archive.empty": "Không có cuộc trò chuyện nào được lưu trữ",
     "archive.count": "{count} các cuộc trò chuyện được lưu trữ",

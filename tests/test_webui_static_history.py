@@ -1536,6 +1536,43 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn("return layer", animate_swap)
         self.assertNotIn("layer.remove()", animate_swap)
 
+    def test_history_lightbox_swap_uses_bound_image_geometry_for_handoff(self) -> None:
+        source = Path("codex_image/webui/frontend/src/history-lightbox.ts").read_text(encoding="utf-8")
+        animate_swap = _typescript_function_body(source, "animateHistoryLightboxSwap")
+
+        self.assertIn("const centerRect = currentImage.getBoundingClientRect()", animate_swap)
+        bind_slots = animate_swap.index("bindHistoryLightboxSlots(targetIndex)")
+        decode_slots = animate_swap.index("await decodeHistoryLightboxBoundSlots()")
+        measure_center = animate_swap.index("const centerRect = currentImage.getBoundingClientRect()")
+        create_incoming = animate_swap.index("const incomingGhost = historyLightboxTransitionGhost")
+        start_animation = animate_swap.index("outgoingGhost.animate")
+
+        self.assertLess(bind_slots, decode_slots)
+        self.assertLess(decode_slots, measure_center)
+        self.assertLess(measure_center, create_incoming)
+        self.assertLess(create_incoming, start_animation)
+        self.assertNotIn("currentFrame.getBoundingClientRect()", animate_swap)
+
+    def test_history_lightbox_incoming_ghost_finishes_with_an_unscaled_shadow(self) -> None:
+        source = Path("codex_image/webui/frontend/src/history-lightbox.ts").read_text(encoding="utf-8")
+        animate_swap = _typescript_function_body(source, "animateHistoryLightboxSwap")
+
+        self.assertRegex(
+            animate_swap,
+            r"const incomingGhost = historyLightboxTransitionGhost\(\s*"
+            r"targetImage\.currentSrc \|\| targetImage\.src,\s*centerRect,",
+        )
+        self.assertIn("historyLightboxIncomingGhostKeyframes", animate_swap)
+
+    def test_history_lightbox_settling_keeps_only_one_center_shadow(self) -> None:
+        styles = Path("codex_image/webui/static/styles/90-history.css").read_text(encoding="utf-8")
+
+        self.assertRegex(
+            styles,
+            r"\.history-lightbox\.is-shared-switching\.is-shared-settling\s+"
+            r"\.history-lightbox-current-image\s*\{[^}]*box-shadow:\s*none",
+        )
+
     def test_history_lightbox_swap_keeps_prepared_edge_slots_visible(self) -> None:
         source = Path("codex_image/webui/frontend/src/history-lightbox.ts").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles/90-history.css").read_text(encoding="utf-8")
@@ -1672,8 +1709,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('class="history-filter-heading-icon"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeFilters"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeDetail"', html)
-        self.assertIn('/static/styles.css?v=runtime-770', html)
-        self.assertIn('/static/history.js?v=history-110', html)
+        self.assertIn('/static/styles.css?v=runtime-776', html)
+        self.assertIn('/static/history.js?v=history-112', html)
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*height:\s*100dvh")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*--history-sidebar-width:\s*280px")

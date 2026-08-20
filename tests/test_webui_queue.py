@@ -211,6 +211,72 @@ class WebUIQueueTests(unittest.TestCase):
         self.assertNotIn("secret prompt", log_text)
         self.assertNotIn("/Users/example/private/output", log_text)
 
+    def test_queue_task_failures_log_safe_context_without_degrading_worker_health(self) -> None:
+        from codex_image.webui.context import QueueWorkerHealth
+        from codex_image.webui.queue import NonRetryableTaskError, QueueChannel, QueueManager
+        from codex_image.webui.queue_runtime import _queue_channel_worker_loop
+        from codex_image.webui.storage import QueueStorage
+        from fastapi import FastAPI
+
+        cases = (
+            (RuntimeError("secret prompt at /Users/example/private/output"), "task_execution_failed", "true"),
+            (NonRetryableTaskError("secret prompt at /Users/example/private/output"), "invalid_parameters", "false"),
+        )
+        for failure, expected_code, expected_retryable in cases:
+            with self.subTest(expected_code=expected_code), tempfile.TemporaryDirectory() as tmp:
+                if isinstance(failure, NonRetryableTaskError):
+                    failure.error_code = expected_code
+                storage = QueueStorage(Path(tmp) / "queue.json")
+                storage.enqueue("task-a")
+                channel = QueueChannel(channel_id="provider:test:0", auth_source="api")
+
+                async def fail_task(
+                    _task_id: str,
+                    _channel: QueueChannel,
+                    _is_final_attempt: bool,
+                    *,
+                    task_failure: Exception = failure,
+                ) -> None:
+                    raise task_failure
+
+                manager = QueueManager(
+                    queue_storage=storage,
+                    channels=[channel],
+                    execute_task=fail_task,
+                    auto_retry=False,
+                )
+                app = FastAPI()
+                app.state.queue_manager = manager
+                app.state.queue_worker_health = QueueWorkerHealth()
+                delays: list[float] = []
+                health_snapshots: list[dict[str, Any]] = []
+
+                async def sleeper(delay: float) -> None:
+                    delays.append(delay)
+                    health_snapshots.append(app.state.queue_worker_health.snapshot())
+                    await asyncio.sleep(0)
+
+                with self.assertLogs("codex_image.webui.queue_runtime", level="WARNING") as logs:
+                    asyncio.run(
+                        _queue_channel_worker_loop(
+                            app,
+                            channel.channel_id,
+                            sleeper=sleeper,
+                        )
+                    )
+
+                self.assertEqual(delays, [0.5])
+                self.assertTrue(health_snapshots)
+                self.assertTrue(all(item["status"] == "healthy" for item in health_snapshots))
+                log_text = "\n".join(logs.output)
+                self.assertIn("Queue task failure", log_text)
+                self.assertIn("task_id=task-a", log_text)
+                self.assertIn(f"error_code={expected_code}", log_text)
+                self.assertIn(f"retryable={expected_retryable}", log_text)
+                self.assertNotIn("Queue channel worker failure", log_text)
+                self.assertNotIn("secret prompt", log_text)
+                self.assertNotIn("/Users/example/private/output", log_text)
+
     def test_queue_channel_worker_returns_immediately_when_channel_is_idle(self) -> None:
         from codex_image.webui.queue import QueueChannel
         from codex_image.webui.queue_runtime import _queue_channel_worker_loop
@@ -1323,7 +1389,7 @@ raise SystemExit(1)
             )
             task_id = created.json()["task"]["task_id"]
 
-            with self.assertRaisesRegex(RuntimeError, "invalid_request_error"):
+            with self.assertRaisesRegex(RuntimeError, "invalid_request_error") as raised:
                 asyncio.run(app.state.queue_manager.run_available_once())
             task = client.get(f"/api/tasks/{task_id}").json()["task"]
             queue_state = app.state.queue_storage.read_state()
@@ -1333,6 +1399,9 @@ raise SystemExit(1)
         self.assertIn("invalid_request_error", task["last_error"])
         self.assertEqual(queue_state["waiting"], [])
         self.assertEqual(queue_state["running"], {})
+        self.assertEqual(getattr(raised.exception, "task_id", None), task_id)
+        self.assertEqual(getattr(raised.exception, "error_code", None), "invalid_parameters")
+        self.assertFalse(getattr(raised.exception, "retryable", True))
     def test_queue_worker_stops_after_failure_until_manual_retry(self) -> None:
         from codex_image.webui.app import create_app
 
@@ -1357,7 +1426,7 @@ raise SystemExit(1)
             created = client.post("/api/generate", data={"prompt": "manual retry only", "size": "1024x1024", "quality": "low"})
             task_id = created.json()["task"]["task_id"]
 
-            with self.assertRaisesRegex(RuntimeError, "temporary server failure"):
+            with self.assertRaisesRegex(RuntimeError, "temporary server failure") as raised:
                 asyncio.run(app.state.queue_manager.run_available_once())
             failed = client.get(f"/api/tasks/{task_id}").json()["task"]
             stopped_queue = app.state.queue_storage.read_state()
@@ -1377,6 +1446,9 @@ raise SystemExit(1)
         self.assertEqual(retry_queue["waiting"], [task_id])
         self.assertEqual(completed["status"], "completed")
         self.assertEqual(len(fake.generate_calls), 2)
+        self.assertEqual(getattr(raised.exception, "task_id", None), task_id)
+        self.assertEqual(getattr(raised.exception, "error_code", None), "upstream_error")
+        self.assertTrue(getattr(raised.exception, "retryable", False))
     def test_queue_worker_preserves_partial_outputs_when_usage_limit_stops_queue(self) -> None:
         from codex_image.webui.app import create_app
         from codex_image.webui.queue import QueueChannel

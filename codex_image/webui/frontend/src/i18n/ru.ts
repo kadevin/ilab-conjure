@@ -884,6 +884,7 @@ export const RU_DICTIONARY: TranslationDictionary = {
     "taskGroup.collapse": "Свернуть {label}",
     "taskGroup.buttonLabel": "{label}, {count} задач",
     "taskGroup.loadMore": "Загрузить ещё {count}",
+    "taskGroup.loadFailedRetry": "Загрузка не удалась. Нажмите, чтобы повторить",
     "archive.title": "Архив",
     "archive.empty": "Нет архивированных чатов",
     "archive.count": "{count} архивированные чаты",

@@ -14,6 +14,12 @@ MAX_PROMPT_SNIPPET_TAG_LENGTH = 24
 MAX_PROMPT_SNIPPET_TITLE_LENGTH = 80
 MAX_PROMPT_SNIPPET_CATEGORY_LENGTH = 32
 MAX_PROMPT_SNIPPET_CONTENT_LENGTH = 4000
+PROMPT_SNIPPET_TRIGGER_CHARS = "~～〜∼˜"
+PROMPT_SNIPPET_BOUNDARY_CHARS = "，。,.；;：:！？!?、（）()[]【】\"'“”‘’"
+_PROMPT_SNIPPET_TOKEN_PATTERN = re.compile(
+    rf"([{re.escape(PROMPT_SNIPPET_TRIGGER_CHARS)}]+)"
+    rf"([^\s{re.escape(PROMPT_SNIPPET_TRIGGER_CHARS + '@#' + PROMPT_SNIPPET_BOUNDARY_CHARS)}]+)"
+)
 
 
 class PromptSnippetSettings:
@@ -100,6 +106,32 @@ class PromptSnippetSettings:
     @staticmethod
     def default_settings() -> dict[str, Any]:
         return {"version": 1, "snippets": []}
+
+
+def expand_prompt_snippets(prompt: Any, snippets: list[dict[str, Any]]) -> str:
+    text = str(prompt or "")
+    content_by_tag = {
+        str(snippet.get("tag") or "").lower(): str(snippet.get("content") or "")
+        for snippet in snippets
+        if isinstance(snippet, dict) and snippet.get("tag") and snippet.get("content")
+    }
+    previous_snippet_end = -1
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal previous_snippet_end
+        previous = text[match.start() - 1] if match.start() > 0 else ""
+        follows_snippet = match.start() == previous_snippet_end
+        if previous and not previous.isspace() and previous not in PROMPT_SNIPPET_BOUNDARY_CHARS and not follows_snippet:
+            previous_snippet_end = -1
+            return match.group(0)
+        content = content_by_tag.get(match.group(2).lower())
+        if not content:
+            previous_snippet_end = -1
+            return match.group(0)
+        previous_snippet_end = match.end()
+        return content
+
+    return _PROMPT_SNIPPET_TOKEN_PATTERN.sub(replace, text)
 
 
 def _normalize_prompt_snippets_payload(payload: dict[str, Any], *, default_when_missing: bool) -> dict[str, Any]:

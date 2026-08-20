@@ -1,6 +1,6 @@
 [package]
 name = "ilab-conjure-launcher"
-version = "0.8.2"
+version = "0.8.3"
 edition = "2021"
 rust-version = "1.73"
 description = "System tray launcher for iLab CONJURE."

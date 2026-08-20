@@ -15734,6 +15734,7 @@ body.history-lightbox-open {
   align-items: center;
   justify-content: center;
   padding: 52px 18px;
+  outline: none;
   background: rgba(10, 24, 20, 0.82);
   backdrop-filter: blur(10px);
 }
@@ -15807,6 +15808,7 @@ body.history-lightbox-open {
 
 .history-lightbox.is-shared-switching.is-shared-settling .history-lightbox-current-image {
   opacity: 1;
+  box-shadow: none;
   transition: none;
 }
 

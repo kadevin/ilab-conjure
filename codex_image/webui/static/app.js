@@ -1399,6 +1399,7 @@
     "taskGroup.collapse": "Collapse {label}",
     "taskGroup.buttonLabel": "{label}, {count} tasks",
     "taskGroup.loadMore": "Load {count} more",
+    "taskGroup.loadFailedRetry": "Load failed. Click to retry",
     "archive.title": "Archive",
     "archive.empty": "No archived chats",
     "archive.count": "{count} archived chats",
@@ -2584,6 +2585,7 @@
     "taskGroup.collapse": "Zusammenbruch {label}",
     "taskGroup.buttonLabel": "{label}, {count} Aufgaben",
     "taskGroup.loadMore": "{count} weitere laden",
+    "taskGroup.loadFailedRetry": "Laden fehlgeschlagen. Zum Wiederholen klicken",
     "archive.title": "Archiv",
     "archive.empty": "Keine archivierten Chats",
     "archive.count": "{count} archivierte Chats",
@@ -3769,6 +3771,7 @@
     "taskGroup.collapse": "Contraer {label}",
     "taskGroup.buttonLabel": "Tareas {label}, {count}",
     "taskGroup.loadMore": "Cargar {count} m\xE1s",
+    "taskGroup.loadFailedRetry": "Error al cargar. Haz clic para reintentar",
     "archive.title": "Archivo",
     "archive.empty": "No hay chats archivados",
     "archive.count": "{count} chats archivados",
@@ -4954,6 +4957,7 @@
     "taskGroup.collapse": "R\xE9duire {label}",
     "taskGroup.buttonLabel": "T\xE2ches {label}, {count}",
     "taskGroup.loadMore": "Charger {count} de plus",
+    "taskGroup.loadFailedRetry": "\xC9chec du chargement. Cliquez pour r\xE9essayer",
     "archive.title": "Archiver",
     "archive.empty": "Aucune discussion archiv\xE9e",
     "archive.count": "{count} discussions archiv\xE9es",
@@ -6139,6 +6143,7 @@
     "taskGroup.collapse": "\u5D29\u58CA{label}",
     "taskGroup.buttonLabel": "{label}\u3001{count}\u30BF\u30B9\u30AF",
     "taskGroup.loadMore": "\u3055\u3089\u306B {count} \u4EF6\u8AAD\u307F\u8FBC\u3080",
+    "taskGroup.loadFailedRetry": "\u8AAD\u307F\u8FBC\u307F\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u30AF\u30EA\u30C3\u30AF\u3057\u3066\u518D\u8A66\u884C",
     "archive.title": "\u30A2\u30FC\u30AB\u30A4\u30D6",
     "archive.empty": "\u30A2\u30FC\u30AB\u30A4\u30D6\u3055\u308C\u305F\u30C1\u30E3\u30C3\u30C8\u306F\u3042\u308A\u307E\u305B\u3093",
     "archive.count": "\u30A2\u30FC\u30AB\u30A4\u30D6\u6E08\u307F\u30C1\u30E3\u30C3\u30C8 {count} \u4EF6",
@@ -7324,6 +7329,7 @@
     "taskGroup.collapse": "\uCD95\uC18C{label}",
     "taskGroup.buttonLabel": "{label}, \uC791\uC5C5 {count}\uAC1C",
     "taskGroup.loadMore": "{count}\uAC1C \uB354 \uBD88\uB7EC\uC624\uAE30",
+    "taskGroup.loadFailedRetry": "\uB85C\uB4DC\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. \uD074\uB9AD\uD558\uC5EC \uB2E4\uC2DC \uC2DC\uB3C4",
     "archive.title": "\uBCF4\uAD00\uD568",
     "archive.empty": "\uBCF4\uAD00\uB41C \uCC44\uD305\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.",
     "archive.count": "\uBCF4\uAD00\uB41C \uCC44\uD305 {count}\uAC1C",
@@ -8509,6 +8515,7 @@
     "taskGroup.collapse": "Recolher {label}",
     "taskGroup.buttonLabel": "Tarefas {label}, {count}",
     "taskGroup.loadMore": "Carregar mais {count}",
+    "taskGroup.loadFailedRetry": "Falha ao carregar. Clique para tentar novamente",
     "archive.title": "Arquivo",
     "archive.empty": "Nenhum bate-papo arquivado",
     "archive.count": "{count} bate-papos arquivados",
@@ -9694,6 +9701,7 @@
     "taskGroup.collapse": "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C {label}",
     "taskGroup.buttonLabel": "{label}, {count} \u0437\u0430\u0434\u0430\u0447",
     "taskGroup.loadMore": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0435\u0449\u0451 {count}",
+    "taskGroup.loadFailedRetry": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043D\u0435 \u0443\u0434\u0430\u043B\u0430\u0441\u044C. \u041D\u0430\u0436\u043C\u0438\u0442\u0435, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C",
     "archive.title": "\u0410\u0440\u0445\u0438\u0432",
     "archive.empty": "\u041D\u0435\u0442 \u0430\u0440\u0445\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0447\u0430\u0442\u043E\u0432",
     "archive.count": "{count} \u0430\u0440\u0445\u0438\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0447\u0430\u0442\u044B",
@@ -10879,6 +10887,7 @@
     "taskGroup.collapse": "Comprimi {label}",
     "taskGroup.buttonLabel": "{label}, {count} attivit\xE0",
     "taskGroup.loadMore": "Carica altri {count}",
+    "taskGroup.loadFailedRetry": "Caricamento non riuscito. Fai clic per riprovare",
     "archive.title": "Archivio",
     "archive.empty": "Nessuna chat archiviata",
     "archive.count": "{count} chat archiviate",
@@ -12064,6 +12073,7 @@
     "taskGroup.collapse": "\u0938\u0902\u0915\u094D\u0937\u093F\u092A\u094D\u0924 \u0915\u0930\u0947\u0902 {label}",
     "taskGroup.buttonLabel": "{label}, {count} \u0915\u093E\u0930\u094D\u092F",
     "taskGroup.loadMore": "{count} \u0914\u0930 \u0932\u094B\u0921 \u0915\u0930\u0947\u0902",
+    "taskGroup.loadFailedRetry": "\u0932\u094B\u0921 \u0935\u093F\u092B\u0932 \u0930\u0939\u093E\u0964 \u092A\u0941\u0928\u0903 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0932\u093F\u0915 \u0915\u0930\u0947\u0902",
     "archive.title": "\u0938\u0902\u0917\u094D\u0930\u0939",
     "archive.empty": "\u0915\u094B\u0908 \u0938\u0902\u0917\u094D\u0930\u0939\u0940\u0924 \u091A\u0948\u091F \u0928\u0939\u0940\u0902",
     "archive.count": "{count} \u0938\u0902\u0917\u094D\u0930\u0939\u0940\u0924 \u091A\u0948\u091F",
@@ -13259,6 +13269,7 @@
     "taskGroup.collapse": "Thu g\u1ECDn {label}",
     "taskGroup.buttonLabel": "{label}, {count} t\xE1c v\u1EE5",
     "taskGroup.loadMore": "T\u1EA3i th\xEAm {count}",
+    "taskGroup.loadFailedRetry": "T\u1EA3i th\u1EA5t b\u1EA1i. Nh\u1EA5p \u0111\u1EC3 th\u1EED l\u1EA1i",
     "archive.title": "L\u01B0u tr\u1EEF",
     "archive.empty": "Kh\xF4ng c\xF3 cu\u1ED9c tr\xF2 chuy\u1EC7n n\xE0o \u0111\u01B0\u1EE3c l\u01B0u tr\u1EEF",
     "archive.count": "{count} c\xE1c cu\u1ED9c tr\xF2 chuy\u1EC7n \u0111\u01B0\u1EE3c l\u01B0u tr\u1EEF",
@@ -14454,6 +14465,7 @@
     "taskGroup.collapse": "\u6536\u8D77 {label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count} \u4E2A\u4EFB\u52A1",
     "taskGroup.loadMore": "\u518D\u52A0\u8F7D {count} \u6761",
+    "taskGroup.loadFailedRetry": "\u8F7D\u5165\u5931\u8D25\uFF0C\u70B9\u6B64\u91CD\u8BD5",
     "archive.title": "\u4F1A\u8BDD\u5F52\u6863",
     "archive.empty": "\u6682\u65E0\u5F52\u6863\u4F1A\u8BDD",
     "archive.count": "{count} \u4E2A\u5F52\u6863\u4F1A\u8BDD",
@@ -15649,6 +15661,7 @@
     "taskGroup.collapse": "\u6536\u8D77{label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count}\u500B\u4EFB\u52D9",
     "taskGroup.loadMore": "\u518D\u8F09\u5165{count}\u689D",
+    "taskGroup.loadFailedRetry": "\u8F09\u5165\u5931\u6557\uFF0C\u9EDE\u6B64\u91CD\u8A66",
     "archive.title": "\u6703\u8A71\u6B78\u6A94",
     "archive.empty": "\u66AB\u7121\u6B78\u6A94\u6703\u8A71",
     "archive.count": "{count}\u500B\u6B78\u6A94\u6703\u8A71",
@@ -16844,6 +16857,7 @@
     "taskGroup.collapse": "\u6536\u8D77{label}",
     "taskGroup.buttonLabel": "{label}\uFF0C{count}\u500B\u4EFB\u52D9",
     "taskGroup.loadMore": "\u518D\u8F09\u5165{count}\u7B46",
+    "taskGroup.loadFailedRetry": "\u8F09\u5165\u5931\u6557\uFF0C\u9EDE\u6B64\u91CD\u8A66",
     "archive.title": "\u6703\u8A71\u6B78\u6A94",
     "archive.empty": "\u66AB\u7121\u6B78\u6A94\u6703\u8A71",
     "archive.count": "{count}\u500B\u6B78\u6A94\u6703\u8A71",
@@ -17963,6 +17977,7 @@
       taskSidebarGroupCounts: {},
       taskSidebarGroupLoadedCounts: {},
       taskSidebarGroupLoading: null,
+      taskSidebarGroupLoadError: null,
       selectedTaskId: null,
       taskInputRestoreSeq: 0,
       authAvailable: false,
@@ -17972,6 +17987,7 @@
       uiClockTimerId: null,
       previewRenderKey: null,
       tasksRenderKey: null,
+      taskSearchQuery: "",
       taskSearchHistoryResultIds: [],
       taskSearchHistoryResultQuery: "",
       taskSearchHistoryRequestSeq: 0,
@@ -44968,7 +44984,6 @@ ${galleryText}`;
   var els28 = bridge25.els;
   var EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT = 24;
   var EXPANDED_TASK_GROUP_CHUNK_SIZE = 48;
-  var TASK_SIDEBAR_GROUP_PAGE_SIZE = 50;
   var EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS = 320;
   var TASK_THUMB_OUTER_SPIN_DURATION_MS = 1300;
   var TASK_THUMB_INNER_SPIN_DURATION_MS = 950;
@@ -45035,6 +45050,10 @@ ${galleryText}`;
   function scheduleLatestTaskNavigationRefresh(...args) {
     return legacyMethod31("scheduleLatestTaskNavigationRefresh", ...args);
   }
+  function scheduleSidebarTaskGroupAutoLoad(...args) {
+    const method = getLegacyBridge().methods.scheduleSidebarTaskGroupAutoLoad;
+    return typeof method === "function" ? method(...args) : void 0;
+  }
   function consumeLatestTaskNavigationScrollAnchor(...args) {
     return legacyMethod31("consumeLatestTaskNavigationScrollAnchor", ...args);
   }
@@ -45082,7 +45101,18 @@ ${galleryText}`;
     const expandedGroup = ensureExpandedTaskGroupKey(groups);
     const layout = taskAnchorLayout(groups, expandedGroup?.key || null, query);
     const nextRenderKey = taskListRenderKey(tasks, query, layout, filters, activeGroup);
-    if (state19.tasksRenderKey === nextRenderKey) {
+    const appendGroupKey = String(options.appendGroupKey || "");
+    if (appendGroupKey && appendExpandedTaskGroupPage(layout.expandedGroup, appendGroupKey, layout.expandedKey)) {
+      state19.tasksRenderKey = nextRenderKey;
+      updateExpandedTaskGroupCount(layout.expandedGroup);
+      updateTaskElapsedDisplays2();
+      updateTaskSelectionVisuals();
+      updateDocumentTitle();
+      restoreTaskListScrollAnchors(scrollAnchors);
+      scheduleLatestTaskNavigationRefresh();
+      return;
+    }
+    if (!appendGroupKey && state19.tasksRenderKey === nextRenderKey) {
       updateTaskElapsedDisplays2();
       restoreTaskListScrollAnchors(scrollAnchors);
       scheduleLatestTaskNavigationRefresh();
@@ -45304,32 +45334,60 @@ ${galleryText}`;
       `.task-group-items-expanded[data-expanded-task-group-items-key="${cssEscape(groupKey)}"]`
     );
   }
-  function scheduleExpandedTaskGroupItemsRender(group, activeGroupKey = null) {
+  function updateExpandedTaskGroupCount(group) {
+    if (!group || !els28.taskHistoryCurrentAnchor) return;
+    const count = els28.taskHistoryCurrentAnchor.querySelector(".task-group-count");
+    if (count) count.textContent = String(taskGroupCount(group));
+  }
+  function appendExpandedTaskGroupPage(group, requestedGroupKey, activeGroupKey = null) {
+    const groupKey = String(group?.key || "");
+    const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
+    if (!groupKey || groupKey !== requestedGroupKey || normalizedActiveGroupKey !== groupKey) return false;
+    const body = expandedTaskGroupItemsContainer(groupKey);
+    if (!body || body.dataset.renderComplete !== "true") return false;
+    const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
+    const existingCards = Array.from(body.querySelectorAll(".task-card[data-task-id]"));
+    if (existingCards.length > tasks.length) return false;
+    const existingCardsMatch = existingCards.every((card, index) => String(card.dataset.taskId || "") === String(tasks[index]?.task_id || ""));
+    if (!existingCardsMatch) return false;
+    body.querySelectorAll("[data-load-more-task-group]").forEach((element2) => element2.remove());
+    body.dataset.renderComplete = "false";
+    scheduleExpandedTaskGroupItemsRender(group, normalizedActiveGroupKey, {
+      startIndex: existingCards.length,
+      preserveExisting: true
+    });
+    return true;
+  }
+  function scheduleExpandedTaskGroupItemsRender(group, activeGroupKey = null, options = {}) {
     const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
     const groupKey = String(group?.key || "");
     if (!groupKey) return;
     const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
-    const shouldAnimateExpand = state19.expandedTaskGroupAnimationPending === true;
+    const preserveExisting = options.preserveExisting === true;
+    const startIndex = Math.min(tasks.length, Math.max(0, Number(options.startIndex || 0)));
+    const shouldAnimateExpand = !preserveExisting && state19.expandedTaskGroupAnimationPending === true;
     state19.expandedTaskGroupAnimationPending = false;
     const token = ++expandedTaskGroupRenderToken;
-    let index = 0;
+    let index = startIndex;
     const renderChunk = () => {
       if (token !== expandedTaskGroupRenderToken) return;
       if (normalizedActiveGroupKey !== groupKey) return;
       const body = expandedTaskGroupItemsContainer(groupKey);
       if (!body) return;
-      const chunkSize = index === 0 ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT : EXPANDED_TASK_GROUP_CHUNK_SIZE;
+      const firstChunk = index === startIndex;
+      const chunkSize = !preserveExisting && firstChunk ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT : EXPANDED_TASK_GROUP_CHUNK_SIZE;
       const nextTasks = tasks.slice(index, index + chunkSize);
       if (!nextTasks.length) {
         body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
         finalizeExpandedTaskGroupBody(groupKey);
         body.dataset.renderComplete = "true";
         scheduleLatestTaskNavigationRefresh();
+        scheduleSidebarTaskGroupAutoLoad();
         return;
       }
       body.insertAdjacentHTML("beforeend", nextTasks.map((task) => taskCardHtml(task)).join(""));
       index += nextTasks.length;
-      if (index === nextTasks.length) {
+      if (firstChunk) {
         if (shouldAnimateExpand) {
           animateExpandedTaskGroupBody(groupKey);
         } else {
@@ -45343,6 +45401,7 @@ ${galleryText}`;
       } else {
         body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
         body.dataset.renderComplete = "true";
+        scheduleSidebarTaskGroupAutoLoad();
       }
       scheduleLatestTaskNavigationRefresh();
     };
@@ -45378,7 +45437,7 @@ ${galleryText}`;
     updateDocumentTitle();
   }
   function taskSearchQuery() {
-    return els28.taskSearch.value.trim().toLowerCase();
+    return String(state19.taskSearchQuery || "").trim().toLowerCase();
   }
   function taskFilterValues() {
     return {
@@ -45899,19 +45958,45 @@ ${galleryText}`;
     return Math.max(loadedCount, Math.max(0, Number(group?.count || 0)));
   }
   function taskGroupLoadMoreHtml(group) {
-    const loadedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+    const renderedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+    const loadedCount = Math.max(
+      renderedCount,
+      Math.max(0, Number(state19.taskSidebarGroupLoadedCounts?.[String(group?.key || "")] || 0))
+    );
     const totalCount = Math.max(0, Number(group?.count || 0));
     if (!group?.key || loadedCount >= totalCount) return "";
     const loading = String(state19.taskSidebarGroupLoading || "") === String(group.key);
-    const remaining = Math.min(TASK_SIDEBAR_GROUP_PAGE_SIZE, totalCount - loadedCount);
+    const failed = String(state19.taskSidebarGroupLoadError || "") === String(group.key);
+    const groupKey = escapeHtml13(group.key);
+    if (loading) {
+      return `
+      <div
+        class="task-group-load-more task-group-load-more-sentinel"
+        data-auto-load-task-group="${groupKey}"
+        data-load-more-task-group="${groupKey}"
+        aria-busy="true"
+        aria-hidden="true"
+        hidden
+      ></div>
+    `;
+    }
+    if (failed) {
+      return `
+      <button
+        class="ghost-button text-sm task-group-load-more task-group-load-more-error"
+        type="button"
+        data-load-more-task-group="${groupKey}"
+      >${escapeHtml13(translate("taskGroup.loadFailedRetry"))}</button>
+    `;
+    }
     return `
-    <button
-      class="ghost-button text-sm task-group-load-more"
-      type="button"
-      data-load-more-task-group="${escapeHtml13(group.key)}"
-      aria-busy="${loading ? "true" : "false"}"
-      ${loading ? "disabled" : ""}
-    >${escapeHtml13(formatTranslation("taskGroup.loadMore", { count: remaining }))}</button>
+    <div
+      class="task-group-load-more task-group-load-more-sentinel"
+      data-auto-load-task-group="${groupKey}"
+      data-load-more-task-group="${groupKey}"
+      aria-hidden="true"
+      hidden
+    ></div>
   `;
   }
   function taskListRenderKey(tasks, query, layout = {}, filters = {}, activeGroup = null) {
@@ -48169,8 +48254,11 @@ ${galleryText}`;
   var handleTaskListPointerDown2 = (...args) => legacyMethod37("handleTaskListPointerDown", ...args);
   var loadMoreSidebarTaskGroup = (...args) => legacyMethod37("loadMoreSidebarTaskGroup", ...args);
   var closeArchiveModal2 = (...args) => legacyMethod37("closeArchiveModal", ...args);
+  var TASK_SIDEBAR_AUTO_LOAD_THRESHOLD_PX = 320;
   var taskListControlsInitialized = false;
   var taskListControlEventsBound = false;
+  var taskSearchAcceptManualInput = false;
+  var sidebarTaskGroupAutoLoadScheduled = false;
   function taskFilterControls() {
     return [els34.taskStatusFilter, els34.taskRatioFilter, els34.taskOrientationFilter, els34.taskPromptFidelityFilter, els34.taskResolutionFilter].filter(Boolean);
   }
@@ -48178,19 +48266,49 @@ ${galleryText}`;
     return taskFilterControls().filter((element2) => Boolean(element2.value)).length;
   }
   function taskSearchHasValue() {
-    return Boolean(String(els34.taskSearch?.value || "").trim());
+    return Boolean(String(state25.taskSearchQuery || "").trim());
   }
   function updateTaskSearchClearButton() {
     if (!els34.taskSearchClearButton) return;
     els34.taskSearchClearButton.hidden = !taskSearchHasValue();
   }
   function clearTaskSearch() {
-    if (!els34.taskSearch?.value) return;
-    els34.taskSearch.value = "";
-    updateTaskSearchClearButton();
+    if (!taskSearchHasValue()) {
+      syncTaskSearchInput();
+      return;
+    }
+    state25.taskSearchQuery = "";
+    taskSearchAcceptManualInput = false;
+    setTaskSearchLocked(false);
+    syncTaskSearchInput();
     renderTasks6();
     void syncTaskSearchHistoryResults();
-    els34.taskSearch.focus({ preventScroll: true });
+    els34.taskSearch?.focus({ preventScroll: true });
+  }
+  function syncTaskSearchInput() {
+    const input = els34.taskSearch;
+    if (!input) {
+      updateTaskSearchClearButton();
+      return;
+    }
+    const nextValue = String(state25.taskSearchQuery || "");
+    if (input.value !== nextValue) input.value = nextValue;
+    updateTaskSearchClearButton();
+  }
+  function setTaskSearchLocked(locked2) {
+    const input = els34.taskSearch;
+    if (!input) return;
+    input.readOnly = locked2;
+    if (locked2) {
+      input.setAttribute("readonly", "");
+    } else {
+      input.removeAttribute("readonly");
+    }
+  }
+  function guardTaskSearchInput(delays = [0, 120, 360, 900, 1800]) {
+    delays.forEach((delay) => {
+      window.setTimeout(syncTaskSearchInput, delay);
+    });
   }
   function setTaskFilterPopoverOpen(open) {
     if (!els34.taskFilterPopover || !els34.taskFilterButton) return;
@@ -48245,7 +48363,52 @@ ${galleryText}`;
     els34.batchArchiveButton?.addEventListener("click", archiveSelectedTasks2);
     els34.batchCancelSelectedButton?.addEventListener("click", openBatchCancelConfirm2);
     els34.batchDeleteButton?.addEventListener("click", openBatchDeleteConfirm2);
+    els34.taskSearch?.addEventListener("pointerdown", (event) => {
+      const input = els34.taskSearch;
+      if (!input?.readOnly) return;
+      event.preventDefault();
+      setTaskSearchLocked(false);
+      syncTaskSearchInput();
+      input.focus({ preventScroll: true });
+    });
+    els34.taskSearch?.addEventListener("keydown", (event) => {
+      const input = els34.taskSearch;
+      if (input?.readOnly && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        const key = event.key || "";
+        const isPrintable = key.length === 1;
+        const isClearKey = key === "Backspace" || key === "Delete";
+        if (isPrintable || isClearKey) {
+          event.preventDefault();
+          setTaskSearchLocked(false);
+          taskSearchAcceptManualInput = true;
+          const nextValue = isClearKey ? "" : key;
+          input.value = nextValue;
+          state25.taskSearchQuery = nextValue;
+          updateTaskSearchClearButton();
+          renderTasks6();
+          void syncTaskSearchHistoryResults();
+        }
+        return;
+      }
+      taskSearchAcceptManualInput = true;
+    });
+    els34.taskSearch?.addEventListener("paste", () => {
+      taskSearchAcceptManualInput = true;
+      setTaskSearchLocked(false);
+    });
+    els34.taskSearch?.addEventListener("drop", () => {
+      taskSearchAcceptManualInput = true;
+      setTaskSearchLocked(false);
+    });
+    els34.taskSearch?.addEventListener("blur", () => {
+      taskSearchAcceptManualInput = false;
+      setTaskSearchLocked(true);
+    });
     els34.taskSearch.addEventListener("input", handleTaskSearchInput);
+    els34.taskSearch?.addEventListener("focus", () => {
+      taskSearchAcceptManualInput = false;
+      guardTaskSearchInput();
+    });
     els34.taskSearchClearButton?.addEventListener("click", clearTaskSearch);
     els34.taskFilterButton?.addEventListener("click", toggleTaskFilterPopover);
     els34.taskFilterClearButton?.addEventListener("click", () => clearTaskFilters());
@@ -48256,11 +48419,22 @@ ${galleryText}`;
         renderTasks6();
       });
     });
-    updateTaskSearchClearButton();
+    state25.taskSearchQuery = "";
+    taskSearchAcceptManualInput = false;
+    setTaskSearchLocked(true);
+    syncTaskSearchInput();
+    guardTaskSearchInput();
+    window.addEventListener("pageshow", () => guardTaskSearchInput());
     updateTaskFilterSummary();
     bindTaskListEvents();
   }
   function handleTaskSearchInput() {
+    if (!taskSearchAcceptManualInput) {
+      syncTaskSearchInput();
+      guardTaskSearchInput([120, 360, 900, 1800]);
+      return;
+    }
+    state25.taskSearchQuery = els34.taskSearch?.value || "";
     updateTaskSearchClearButton();
     renderTasks6();
     void syncTaskSearchHistoryResults();
@@ -48270,6 +48444,26 @@ ${galleryText}`;
     interactiveRoot?.addEventListener("click", handleTaskListClick);
     interactiveRoot?.addEventListener("keydown", handleTaskListKeydown);
     els34.taskList?.addEventListener("pointerdown", handleTaskListPointerDown2);
+    els34.sidebarContent?.addEventListener("scroll", scheduleSidebarTaskGroupAutoLoad2, { passive: true });
+  }
+  function maybeAutoLoadSidebarTaskGroup() {
+    const scroller = els34.sidebarContent;
+    if (!scroller || state25.taskSidebarGroupLoading) return false;
+    const loadMore = els34.taskList?.querySelector?.("[data-load-more-task-group]");
+    const groupKey = String(loadMore?.dataset?.loadMoreTaskGroup || "");
+    if (!groupKey || String(state25.taskSidebarGroupLoadError || "") === groupKey) return false;
+    const remaining = Number(scroller.scrollHeight || 0) - Number(scroller.scrollTop || 0) - Number(scroller.clientHeight || 0);
+    if (remaining > TASK_SIDEBAR_AUTO_LOAD_THRESHOLD_PX) return false;
+    void loadMoreSidebarTaskGroup(groupKey);
+    return true;
+  }
+  function scheduleSidebarTaskGroupAutoLoad2() {
+    if (sidebarTaskGroupAutoLoadScheduled) return;
+    sidebarTaskGroupAutoLoadScheduled = true;
+    window.requestAnimationFrame(() => {
+      sidebarTaskGroupAutoLoadScheduled = false;
+      maybeAutoLoadSidebarTaskGroup();
+    });
   }
   function taskHistoryInteractiveRoot() {
     return els34.taskHistoryShell || els34.sidebarContent || els34.taskList;
@@ -48328,7 +48522,7 @@ ${galleryText}`;
     const loadMoreButton = event.target.closest("[data-load-more-task-group]");
     if (loadMoreButton) {
       event.stopPropagation();
-      void loadMoreSidebarTaskGroup(loadMoreButton.dataset.loadMoreTaskGroup);
+      void loadMoreSidebarTaskGroup(loadMoreButton.dataset.loadMoreTaskGroup, { manual: true });
       return;
     }
     const toggleButton = event.target.closest("[data-task-group-toggle-key]");
@@ -48407,6 +48601,8 @@ ${galleryText}`;
       clearTaskFilters,
       bindTaskListControlEvents,
       bindTaskListEvents,
+      maybeAutoLoadSidebarTaskGroup,
+      scheduleSidebarTaskGroupAutoLoad: scheduleSidebarTaskGroupAutoLoad2,
       handleTaskCardArrowNavigation,
       handleTaskListClick,
       handleTaskListKeydown
@@ -52056,7 +52252,7 @@ ${galleryText}`;
   var ensureSelectedTaskDetail = (...args) => legacyMethod42("ensureSelectedTaskDetail", ...args);
   var TASK_SEARCH_HISTORY_LIMIT = 100;
   var TASK_SEARCH_HISTORY_DEBOUNCE_MS = 180;
-  var TASK_SIDEBAR_GROUP_PAGE_SIZE2 = 50;
+  var TASK_SIDEBAR_GROUP_PAGE_SIZE = 50;
   var TASK_SIDEBAR_REVEAL_PAGE_SIZE = 100;
   var HISTORY_TASK_REVEAL_LAYOUT_TIMEOUT_MS = 5e3;
   var taskSearchHistoryTimerId = 0;
@@ -52121,6 +52317,7 @@ ${galleryText}`;
     const pendingTask = state30.pendingTaskId ? state30.tasks.find((task) => task.task_id === state30.pendingTaskId) : null;
     state30.tasks = mergeActiveQueueTaskDetails(Array.isArray(tasks) ? tasks : []);
     if (Array.isArray(taskGroups)) {
+      state30.taskSidebarGroupLoadError = null;
       state30.taskSidebarGroupCounts = Object.fromEntries(
         taskGroups.map((group) => [String(group?.key || ""), Math.max(0, Number(group?.count || 0))])
       );
@@ -52166,16 +52363,16 @@ ${galleryText}`;
     });
     return merged;
   }
-  async function loadMoreSidebarTaskGroup2(groupKey) {
+  async function loadMoreSidebarTaskGroup2(groupKey, { manual = false } = {}) {
     const key = String(groupKey || "");
-    if (!key || state30.taskSidebarGroupLoading) return;
+    if (!key || state30.taskSidebarGroupLoading) return false;
+    if (!manual && String(state30.taskSidebarGroupLoadError || "") === key) return false;
     const offset = Math.max(0, Number(state30.taskSidebarGroupLoadedCounts?.[key] || 0));
     state30.taskSidebarGroupLoading = key;
-    state30.tasksRenderKey = null;
-    renderTasks8({ preserveScroll: true });
+    state30.taskSidebarGroupLoadError = null;
     try {
       const response = await fetch(
-        `/api/tasks/sidebar/groups/${encodeURIComponent(key)}?offset=${offset}&limit=${TASK_SIDEBAR_GROUP_PAGE_SIZE2}`
+        `/api/tasks/sidebar/groups/${encodeURIComponent(key)}?offset=${offset}&limit=${TASK_SIDEBAR_GROUP_PAGE_SIZE}`
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.detail || "Task group loading failed");
@@ -52191,10 +52388,13 @@ ${galleryText}`;
       });
       state30.taskSidebarGroupCounts[key] = Math.max(0, Number(data.count || 0));
       state30.taskSidebarGroupLoadedCounts[key] = Math.max(offset, Number(data.next_offset || offset + incoming.length));
+      return true;
+    } catch (_error) {
+      state30.taskSidebarGroupLoadError = key;
+      return false;
     } finally {
       state30.taskSidebarGroupLoading = null;
-      state30.tasksRenderKey = null;
-      renderTasks8({ preserveScroll: true });
+      renderTasks8({ preserveScroll: true, appendGroupKey: key });
     }
   }
   async function fetchSidebarRevealPage(groupKey, offset) {
@@ -52344,7 +52544,7 @@ ${galleryText}`;
     }
   }
   function currentTaskSearchQuery() {
-    return String(els39.taskSearch?.value || "").trim();
+    return String(state30.taskSearchQuery || "").trim();
   }
   function activeOrSelectedTask(task) {
     const taskId = String(task?.task_id || "");
@@ -54145,19 +54345,6 @@ ${galleryText}`;
       results.filter((result) => result.status === "fulfilled").map((result) => result.value)
     );
   }
-  function historyLightboxFittedRect(image, container) {
-    const naturalWidth = Math.max(1, image.naturalWidth);
-    const naturalHeight = Math.max(1, image.naturalHeight);
-    const scale = Math.min(container.width / naturalWidth, container.height / naturalHeight);
-    const width = naturalWidth * scale;
-    const height = naturalHeight * scale;
-    return {
-      left: container.left + (container.width - width) / 2,
-      top: container.top + (container.height - height) / 2,
-      width,
-      height
-    };
-  }
   function historyLightboxEdgeRect(side, image, peek) {
     const peekRect = peek.getBoundingClientRect();
     const ratio = Math.max(0.05, image.naturalWidth / Math.max(1, image.naturalHeight));
@@ -54201,16 +54388,25 @@ ${galleryText}`;
       }
     ];
   }
+  function historyLightboxIncomingGhostKeyframes(from, to, fromOpacity, toOpacity) {
+    const translateX = from.left - to.left;
+    const translateY = from.top - to.top;
+    return [
+      {
+        opacity: fromOpacity,
+        transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${from.width / to.width})`
+      },
+      { opacity: toOpacity, transform: "translate3d(0, 0, 0) scale(1)" }
+    ];
+  }
   async function animateHistoryLightboxSwap(direction, targetImage, targetIndex) {
     if (!historyLightboxEl) return null;
     const currentImage = historyLightboxImage();
     const targetPeek = historyLightboxSlot(direction);
     const outgoingSide = direction === "next" ? "previous" : "next";
     const outgoingPeek = historyLightboxSlot(outgoingSide);
-    const currentFrame = historyLightboxSlot("current");
-    if (!currentImage || !targetPeek || !outgoingPeek || !currentFrame) return null;
+    if (!currentImage || !targetPeek || !outgoingPeek) return null;
     const currentRect = currentImage.getBoundingClientRect();
-    const centerRect = historyLightboxFittedRect(targetImage, currentFrame.getBoundingClientRect());
     const incomingEdgeRect = historyLightboxEdgeRect(direction, targetImage, targetPeek);
     const outgoingEdgeRect = historyLightboxEdgeRect(outgoingSide, currentImage, outgoingPeek);
     const incomingStartOpacity = Number.parseFloat(getComputedStyle(targetPeek).opacity) || 0.48;
@@ -54218,17 +54414,19 @@ ${galleryText}`;
     const layer = document.createElement("div");
     layer.className = "history-lightbox-transition-layer";
     const outgoingGhost = historyLightboxTransitionGhost(currentImage.currentSrc || currentImage.src, currentRect);
-    const incomingGhost = historyLightboxTransitionGhost(
-      targetImage.currentSrc || targetImage.src,
-      reduceMotion ? centerRect : incomingEdgeRect,
-      reduceMotion ? 0 : incomingStartOpacity
-    );
-    layer.append(outgoingGhost, incomingGhost);
+    layer.append(outgoingGhost);
     historyLightboxEl.append(layer);
     historyLightboxEl.classList.add("is-shared-switching");
     bindHistoryLightboxSlots(targetIndex);
     await decodeHistoryLightboxBoundSlots();
     await nextHistoryLightboxFrame();
+    const centerRect = currentImage.getBoundingClientRect();
+    const incomingGhost = historyLightboxTransitionGhost(
+      targetImage.currentSrc || targetImage.src,
+      centerRect,
+      reduceMotion ? 0 : incomingStartOpacity
+    );
+    layer.append(incomingGhost);
     const duration = reduceMotion ? 100 : 320;
     const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
     await Promise.all([
@@ -54242,7 +54440,7 @@ ${galleryText}`;
         { duration, easing, fill: "forwards" }
       ).finished,
       incomingGhost.animate(
-        historyLightboxGhostKeyframes(
+        historyLightboxIncomingGhostKeyframes(
           reduceMotion ? centerRect : incomingEdgeRect,
           centerRect,
           reduceMotion ? 0 : incomingStartOpacity,
