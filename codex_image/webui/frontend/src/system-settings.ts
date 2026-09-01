@@ -1,10 +1,14 @@
 import { getLegacyBridge } from "./state";
 import { refreshSegmentedIndicators } from "./segmented-indicator";
+import { translate } from "./i18n";
 
 let systemSettingsFeatureInitialized = false;
 let systemSettingsHeightAnimationToken = 0;
 let systemSettingsHeightAnimationTimer: number | undefined;
 let systemSettingsReturnFocus: HTMLElement | null = null;
+let userConfigBackupOpen = false;
+let userConfigBackupTrigger: HTMLElement | null = null;
+let storagePanelScrollTop = 0;
 
 type SystemSettingsTab = "api" | "network" | "language" | "storage";
 
@@ -16,9 +20,10 @@ function normalizedTab(tab: any): SystemSettingsTab {
   return VALID_TABS.has(tab) ? tab : "api";
 }
 
-function maybeCall(name: string, ...args: any[]): void {
+function maybeCall(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
-  if (typeof method === "function") method(...args);
+  if (typeof method === "function") return method(...args);
+  return undefined;
 }
 
 function systemSettingsPanel(): HTMLElement | null {
@@ -94,6 +99,7 @@ function animateSystemSettingsPanelHeight(panel: HTMLElement, beforeHeight: numb
 }
 
 export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = {}): void {
+  if (userConfigBackupOpen) closeUserConfigBackupView({ restoreFocus: false, force: true });
   const selected = normalizedTab(tab);
   const { els } = getLegacyBridge();
   const panel = systemSettingsPanel();
@@ -130,6 +136,105 @@ export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = 
   if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
 }
 
+export function userConfigBackupViewIsOpen(): boolean {
+  return userConfigBackupOpen;
+}
+
+export function openUserConfigBackupView(trigger?: HTMLElement): void {
+  const { els } = getLegacyBridge();
+  if (userConfigBackupOpen) return;
+  setSystemSettingsTab("storage");
+  userConfigBackupOpen = true;
+  userConfigBackupTrigger = trigger ?? (
+    document.activeElement instanceof HTMLElement ? document.activeElement : null
+  );
+  storagePanelScrollTop = Number(els.systemSettingsStoragePanel?.scrollTop || 0);
+  const panel = systemSettingsPanel();
+  const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+  const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+  if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+  if (els.systemSettingsTabs instanceof HTMLElement) {
+    els.systemSettingsTabs.hidden = true;
+    els.systemSettingsTabs.inert = true;
+    els.systemSettingsTabs.setAttribute("aria-hidden", "true");
+  }
+  [
+    els.systemSettingsApiPanel,
+    els.systemSettingsNetworkPanel,
+    els.systemSettingsLanguagePanel,
+    els.systemSettingsStoragePanel,
+  ].forEach((settingsPanel: HTMLElement | null) => {
+    if (!settingsPanel) return;
+    settingsPanel.hidden = true;
+    settingsPanel.inert = true;
+    settingsPanel.setAttribute("aria-hidden", "true");
+  });
+  if (els.userConfigBackupView instanceof HTMLElement) {
+    els.userConfigBackupView.hidden = false;
+    els.userConfigBackupView.inert = false;
+    els.userConfigBackupView.setAttribute("aria-hidden", "false");
+  }
+  els.userConfigBackupBackButton?.classList.remove("hidden");
+  if (els.systemSettingsTitle) {
+    els.systemSettingsTitle.dataset.i18n = "userConfigBackup.title";
+    els.systemSettingsTitle.textContent = translate("userConfigBackup.title");
+  }
+  maybeCall("openUserConfigBackupController");
+  refreshSegmentedIndicators();
+  if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+  (els.userConfigBackupBackButton as HTMLElement | null)?.focus({ preventScroll: true });
+}
+
+export function closeUserConfigBackupView(
+  options: { restoreFocus?: boolean; force?: boolean; closeModal?: boolean } = {},
+): boolean {
+  if (!userConfigBackupOpen) return true;
+  if (!options.force && maybeCall("guardUserConfigBackupClose", options.closeModal === true) === false) return false;
+  const { els } = getLegacyBridge();
+  const panel = systemSettingsPanel();
+  const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+  const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+  if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+  userConfigBackupOpen = false;
+  if (els.userConfigBackupView instanceof HTMLElement) {
+    els.userConfigBackupView.hidden = true;
+    els.userConfigBackupView.inert = true;
+    els.userConfigBackupView.setAttribute("aria-hidden", "true");
+  }
+  if (els.systemSettingsTabs instanceof HTMLElement) {
+    els.systemSettingsTabs.hidden = false;
+    els.systemSettingsTabs.inert = false;
+    els.systemSettingsTabs.setAttribute("aria-hidden", "false");
+  }
+  els.userConfigBackupBackButton?.classList.add("hidden");
+  if (els.systemSettingsTitle) {
+    els.systemSettingsTitle.dataset.i18n = "systemSettings.title";
+    els.systemSettingsTitle.textContent = translate("systemSettings.title");
+  }
+  [
+    ["api", els.systemSettingsApiPanel],
+    ["network", els.systemSettingsNetworkPanel],
+    ["language", els.systemSettingsLanguagePanel],
+    ["storage", els.systemSettingsStoragePanel],
+  ].forEach(([name, settingsPanel]: any[]) => {
+    if (!(settingsPanel instanceof HTMLElement)) return;
+    settingsPanel.inert = false;
+    const active = name === "storage";
+    settingsPanel.hidden = !active;
+    settingsPanel.setAttribute("aria-hidden", active ? "false" : "true");
+  });
+  setSystemSettingsTab("storage", { refresh: false });
+  if (els.systemSettingsStoragePanel) els.systemSettingsStoragePanel.scrollTop = storagePanelScrollTop;
+  maybeCall("closeUserConfigBackupController");
+  refreshSegmentedIndicators();
+  if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+  if (options.restoreFocus !== false && userConfigBackupTrigger?.isConnected) {
+    userConfigBackupTrigger.focus({ preventScroll: true });
+  }
+  userConfigBackupTrigger = null;
+  return true;
+}
+
 export function openSystemSettingsModal(tab: any = "api"): void {
   const { els } = getLegacyBridge();
   const modal = els.systemSettingsModal as HTMLElement | null;
@@ -149,7 +254,12 @@ export function openSystemSettingsModal(tab: any = "api"): void {
   refreshSegmentedIndicators();
 }
 
-export function closeSystemSettingsModal(): void {
+export function closeSystemSettingsModal(options: { force?: boolean } = {}): void {
+  if (userConfigBackupOpen && !closeUserConfigBackupView({
+    restoreFocus: false,
+    force: options.force === true,
+    closeModal: true,
+  })) return;
   const { els } = getLegacyBridge();
   const modal = els.systemSettingsModal as HTMLElement | null;
   const activeElement = document.activeElement;
@@ -193,16 +303,34 @@ function handleSystemSettingsResize(): void {
   positionSystemSettingsModal();
 }
 
+function handleUserConfigBackupEntry(event: Event): void {
+  const trigger = event.currentTarget;
+  openUserConfigBackupView(trigger instanceof HTMLElement ? trigger : undefined);
+}
+
+function handleSystemSettingsKeydown(event: KeyboardEvent): void {
+  if (event.key !== "Escape" || !userConfigBackupOpen) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  closeUserConfigBackupView();
+}
+
 export function initSystemSettingsFeature(): void {
   if (systemSettingsFeatureInitialized) return;
   systemSettingsFeatureInitialized = true;
   const { els } = getLegacyBridge();
   els.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
+  els.openUserConfigBackupButton?.addEventListener("click", handleUserConfigBackupEntry);
+  els.userConfigBackupBackButton?.addEventListener("click", () => closeUserConfigBackupView());
   window.addEventListener("resize", handleSystemSettingsResize);
+  document.addEventListener("keydown", handleSystemSettingsKeydown, true);
   Object.assign(getLegacyBridge().methods, {
     setSystemSettingsTab,
     openSystemSettingsModal,
     openSystemSettingsFromUrl,
     closeSystemSettingsModal,
+    openUserConfigBackupView,
+    closeUserConfigBackupView,
+    userConfigBackupViewIsOpen,
   });
 }

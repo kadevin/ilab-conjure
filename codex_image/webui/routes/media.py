@@ -220,6 +220,13 @@ def _legacy_output_path(ctx: WebUIContext, filename: str) -> Path | None:
 
 
 def register_media_routes(app: FastAPI, ctx: WebUIContext) -> None:
+    @app.get("/api/prompt-template-assets/{asset_id}/image")
+    def get_prompt_template_asset_image(asset_id: str) -> FileResponse:
+        asset = ctx.prompt_template_asset_storage.resolve(asset_id)
+        if asset is None:
+            raise HTTPException(status_code=404, detail="Template asset not found")
+        return _media_response(asset.path)
+
     @app.get("/api/tasks/{task_id}/inputs/{input_index}/image")
     def get_task_input_image(task_id: str, input_index: int) -> FileResponse:
         path = _task_input_path(ctx, task_id, input_index)

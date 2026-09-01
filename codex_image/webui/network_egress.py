@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import threading
 from dataclasses import dataclass
 from math import isfinite
 from pathlib import Path
@@ -13,6 +14,7 @@ from urllib.parse import urlsplit, urlunsplit
 from codex_image.httpx_transport import HttpxTransport
 
 from .schemas import DEFAULT_WEBUI_NETWORK_EGRESS_SETTINGS_PATH
+from .store_locks import StoreLockMixin, store_locked
 
 NetworkEgressMode = Literal["system", "direct", "custom"]
 NetworkEgressRoute = Literal["system", "direct", "proxy"]
@@ -186,10 +188,12 @@ class NetworkEgressSnapshot:
         }
 
 
-class NetworkEgressSettings:
+class NetworkEgressSettings(StoreLockMixin):
     def __init__(self, path: Path | str = DEFAULT_WEBUI_NETWORK_EGRESS_SETTINGS_PATH) -> None:
         self.path = Path(path)
+        self._lock = threading.RLock()
 
+    @store_locked
     def _read_payload(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -199,9 +203,11 @@ class NetworkEgressSettings:
             return {}
         return payload
 
+    @store_locked
     def read(self) -> dict[str, NetworkEgressSettingValue]:
         return _editable_settings_from_payload(self._read_payload())
 
+    @store_locked
     def request_policy(self) -> ImageRequestPolicy:
         payload = self._read_payload()
         try:
@@ -247,6 +253,7 @@ class NetworkEgressSettings:
             timeout_source="default",
         )
 
+    @store_locked
     def write(
         self,
         payload: Mapping[str, Any],
@@ -312,6 +319,20 @@ class NetworkEgressSettings:
                 except FileNotFoundError:
                     pass
         return _editable_settings_from_payload(clean)
+
+    @store_locked
+    def snapshot_payload(self) -> dict[str, Any]:
+        payload = self._read_payload()
+        field_order = (
+            "mode",
+            "custom_proxy_url",
+            "image_request_timeout_seconds",
+            "image_request_retry_count",
+        )
+        return {
+            "values": _editable_settings_from_payload(payload),
+            "present_fields": [field for field in field_order if field in payload],
+        }
 
 
 class NetworkEgressManager:

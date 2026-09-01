@@ -17,6 +17,7 @@ function legacyMethod(name: string, ...args: any[]): any {
 }
 
 const SUBMIT_TASK_TIMEOUT_MS = 45000;
+let taskSubmissionPending = false;
 
 interface ApplyTaskToFormOptions {
   preserveOutputSettings?: boolean;
@@ -257,6 +258,7 @@ function addQueuedTask(task: any) {
 }
 
 async function runTask() {
+  if (taskSubmissionPending) return;
   syncPromptFromEditor();
   syncGalleryInputsFromPrompt();
   const prompt = getPromptText();
@@ -324,7 +326,7 @@ async function runTask() {
     els.requestJson.textContent = JSON.stringify(pendingTask.request, null, 2);
   }
   startRunFeedback(pendingTask, translate("taskStatus.submitting"));
-  els.runButton.disabled = true;
+  taskSubmissionPending = true;
 
   const controller = new AbortController();
   const submitTimeoutId = window.setTimeout(() => controller.abort(), SUBMIT_TASK_TIMEOUT_MS);
@@ -356,8 +358,8 @@ async function runTask() {
     setStatus(message, "error");
   } finally {
     window.clearTimeout(submitTimeoutId);
+    taskSubmissionPending = false;
     stopRunFeedback();
-    els.runButton.disabled = !state.authAvailable;
   }
 }
 

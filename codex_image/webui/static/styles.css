@@ -12705,6 +12705,349 @@ body.api-provider-sort-dragging * {
   }
 }
 
+/* source: styles/76-user-config-backup.css */
+.user-config-back-button {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.user-config-backup-entry {
+  display: flex;
+  width: 100%;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: border-color var(--motion-fast), background var(--motion-fast);
+}
+
+.user-config-backup-entry:hover {
+  border-color: color-mix(in srgb, var(--primary) 38%, var(--line));
+  background: color-mix(in srgb, var(--primary) 5%, var(--surface-soft));
+}
+
+.user-config-backup-entry:focus-visible,
+.user-config-segmented button:focus-visible,
+.user-config-section-row:has(input:focus-visible),
+.user-config-sensitive-row:has(input:focus-visible),
+.user-config-replace-ack:has(input:focus-visible) {
+  outline: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.user-config-backup-entry-copy,
+.user-config-section-row > span,
+.user-config-sensitive-row > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.user-config-backup-entry-copy strong,
+.user-config-section-row strong,
+.user-config-sensitive-row strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.user-config-backup-entry-copy span,
+.user-config-section-row small,
+.user-config-sensitive-row small {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.user-config-section-row .user-config-group-counts {
+  color: var(--text-secondary);
+}
+
+.user-config-section-row .user-config-empty-replace-warning {
+  color: var(--danger);
+  font-weight: 650;
+}
+
+.user-config-backup-entry svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.user-config-backup-view {
+  min-height: 0;
+  max-height: calc(100vh - 146px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.user-config-backup-view[hidden],
+.user-config-transfer-pane[hidden],
+.user-config-restore-stage.hidden {
+  display: none;
+}
+
+.user-config-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+
+.user-config-segmented button {
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.user-config-segmented button.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-soft);
+}
+
+.user-config-transfer-pane {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.user-config-intro,
+.user-config-danger-stage p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.user-config-section-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.user-config-section-fieldset legend {
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-config-section-list {
+  display: grid;
+  gap: 8px;
+}
+
+.user-config-section-row,
+.user-config-sensitive-row,
+.user-config-replace-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+
+.user-config-section-row input,
+.user-config-sensitive-row input,
+.user-config-replace-ack input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+}
+
+.user-config-sensitive-row {
+  border-color: color-mix(in srgb, var(--danger) 32%, var(--line));
+}
+
+.user-config-progress {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+
+.user-config-progress span {
+  display: block;
+  width: var(--user-config-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width var(--motion-fast);
+}
+
+.user-config-progress.is-indeterminate span {
+  width: 38%;
+  animation: user-config-progress 1.2s ease-in-out infinite;
+}
+
+@keyframes user-config-progress {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(270%); }
+}
+
+.user-config-status {
+  min-height: 20px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.user-config-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.user-config-actions .run-button,
+.user-config-actions .ghost-button {
+  width: auto;
+  min-width: 112px;
+  height: 36px;
+  justify-content: center;
+  padding-inline: 18px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#downloadUserConfigBackupButton {
+  min-width: 132px;
+}
+
+.user-config-actions svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+}
+
+.user-config-actions .run-button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.user-config-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.user-config-file-picker {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px dashed color-mix(in srgb, var(--primary) 42%, var(--line));
+  border-radius: 12px;
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+
+.user-config-file-picker span,
+.user-config-stage-heading span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+#userConfigRestoreFile {
+  max-width: 100%;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+}
+
+.user-config-restore-stage {
+  display: grid;
+  gap: 12px;
+}
+
+.user-config-stage-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.user-config-danger-stage {
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.user-config-impact-list {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .system-settings-modal-panel {
+    width: calc(100vw - 24px);
+    padding-inline: 16px;
+  }
+
+  .user-config-actions > button {
+    flex: 1 1 100%;
+  }
+
+  .user-config-stage-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-config-progress span {
+    transition: none;
+  }
+
+  .user-config-progress.is-indeterminate span {
+    animation-duration: 2.4s;
+  }
+}
+
 /* source: styles/80-utilities-responsive.css */
 /* JSON */
 #requestJson {

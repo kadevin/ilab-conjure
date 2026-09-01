@@ -94,6 +94,9 @@ Download standard app packages and portable transition packages from
 - Centered System Settings with API Settings, Network, Language, and Storage &
   Notifications tabs; Codex Image and Codex Responses are chosen in the
   generation-page provider menu.
+- Configuration backup and restore under Storage & Notifications, with
+  selectable chips, public gallery, prompt templates, and system settings,
+  plus additive restore or separately confirmed replacement restore.
 - Explicit system, direct, or custom HTTP(S) network routing, plus global
   per-request image timeouts (1–30 minutes, default 10) and retries after
   retryable transient failures (0–5, default 2). The settings are persisted in
@@ -197,15 +200,15 @@ http://127.0.0.1:8787/
 ## App packages
 
 Download the current packages from [Downloads / Releases](RELEASES.md), or open
-[GitHub Release v0.8.3](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.3)
+[GitHub Release v0.8.4](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.4)
 directly.
 
 New users should choose the standard packages:
 
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.3.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.3.dmg`
+1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg`
+   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.4.dmg`
    for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.3.zip`,
+2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.4.zip`,
    extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
 
 Standard packages store user data in `~/Library/Application Support/iLab GPT
@@ -299,6 +302,33 @@ commit that already passed CI, the same workflow can also be run manually with
    proxies that ignore size parameters can still receive the intended ratio.
 6. Start generation, track running and queued tasks in the left task list, then
    review, select, retry, download, or archive results from the preview area.
+
+### User configuration backup and restore
+
+Open **System Settings → Storage & Notifications → Configuration backup and
+restore** to select one or more of chips, public gallery, prompt templates, and
+system settings. Every backup is a complete snapshot of the selected sections,
+and the completed ZIP can be downloaded repeatedly for 24 hours. Closing and
+discarding it, or reaching expiry, removes the temporary server copy.
+
+Restore first uploads and validates the ZIP and shows each available section,
+including backup and current counts for its resource groups. Then choose one mode:
+
+- **Additive restore** keeps current data, skips duplicates, and creates
+  recovered copies for ordinary resource conflicts.
+- **Replacement restore** affects only explicitly selected sections. It shows
+  deletion and reference impact first and runs only after a separate
+  acknowledgement. If colors, prompt snippets, shared images, or templates are
+  empty in the backup while the matching current group still contains data,
+  replacement is refused; deselect that section or use additive restore.
+  Running or queued tasks may block gallery or settings replacement.
+
+API keys are excluded by default. If explicitly included, the ZIP is **not
+encrypted**. Codex / ChatGPT OAuth state is never backed up. Local prompt-template
+thumbnails migrate with templates, while external HTTP(S) thumbnails remain
+URLs; missing assets and invalid paths are skipped with warnings. Restored
+storage-path changes require a WebUI restart. Generated tasks and historical
+images remain in the separate task-backup workflow in the History Library.
 
 ## Public gallery
 

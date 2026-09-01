@@ -928,6 +928,95 @@
     "settings.saved": "Saved",
     "settings.savedRestartStatus": "Storage settings saved. Restart WebUI to apply.",
     "systemSettings.title": "System Settings",
+    "userConfigBackup.title": "Backup & Restore",
+    "userConfigBackup.back": "Back to System Settings",
+    "userConfigBackup.entryTitle": "Configuration Backup & Restore",
+    "userConfigBackup.entryCopy": "Move chips, shared images, templates, and system settings",
+    "userConfigBackup.modeLabel": "Backup or restore",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Restore",
+    "userConfigBackup.backupCopy": "Choose the configuration to include. Generated tasks and OAuth sessions are never included.",
+    "userConfigBackup.selectSections": "Select data",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Shared images",
+    "userConfigBackup.sectionTemplates": "Templates",
+    "userConfigBackup.sectionSettings": "System settings",
+    "userConfigBackup.groupColors": "Colors",
+    "userConfigBackup.groupPromptSnippets": "Prompt snippets",
+    "userConfigBackup.groupGalleryItems": "Shared images",
+    "userConfigBackup.groupPromptTemplates": "Prompt templates",
+    "userConfigBackup.groupSettings": "System settings",
+    "userConfigBackup.includeApiKeys": "Include API keys (sensitive)",
+    "userConfigBackup.apiKeyWarning": "The archive is not encrypted. Store it securely.",
+    "userConfigBackup.backupProgress": "Backup progress",
+    "userConfigBackup.restoreProgress": "Restore upload progress",
+    "userConfigBackup.download": "Download backup",
+    "userConfigBackup.create": "Create backup",
+    "userConfigBackup.chooseArchive": "Choose backup ZIP",
+    "userConfigBackup.chooseArchiveCopy": "The file is uploaded and validated first. Previewing does not change current data.",
+    "userConfigBackup.previewTitle": "Restore preview",
+    "userConfigBackup.restoreModeLabel": "Restore mode",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Replace",
+    "userConfigBackup.incrementalCopy": "Keep existing data, skip duplicates, and create recovery copies for conflicts.",
+    "userConfigBackup.replaceCopy": "Replace existing data in the selected sections. A second confirmation is required.",
+    "userConfigBackup.restoreSelected": "Restore selected data",
+    "userConfigBackup.replaceConfirmTitle": "Confirm replacement",
+    "userConfigBackup.replaceConfirmCopy": "Only selected sections are affected, but their current data will be removed. This cannot be undone.",
+    "userConfigBackup.replaceAcknowledge": "I understand that existing data will be replaced",
+    "userConfigBackup.backToPreview": "Back to preview",
+    "userConfigBackup.confirmReplace": "Confirm replace and restore",
+    "userConfigBackup.summaryLoading": "Reading configuration summary\u2026",
+    "userConfigBackup.summaryFailed": "Could not read the configuration summary",
+    "userConfigBackup.itemCount": "{count} items",
+    "userConfigBackup.warningCount": "{count} warnings",
+    "userConfigBackup.selectAtLeastOne": "Select at least one data type",
+    "userConfigBackup.apiKeyConfirm": "This unencrypted archive will contain API keys. Create it anyway?",
+    "userConfigBackup.cancelled": "Backup cancelled",
+    "userConfigBackup.downloaded": "Download started. You can download this backup again for up to 24 hours.",
+    "userConfigBackup.status.queued": "Backup queued\u2026",
+    "userConfigBackup.status.planning": "Planning backup\u2026",
+    "userConfigBackup.status.packing": "Packing archive\u2026",
+    "userConfigBackup.status.ready": "Backup ready. You can download it again for up to 24 hours.",
+    "userConfigBackup.status.failed": "Backup failed",
+    "userConfigBackup.status.cancelled": "Backup cancelled",
+    "userConfigBackup.status.expired": "Backup expired",
+    "userConfigBackup.status.interrupted": "Backup stopped when the WebUI was interrupted",
+    "userConfigBackup.creatingSession": "Preparing upload\u2026",
+    "userConfigBackup.uploading": "Uploading backup\u2026",
+    "userConfigBackup.validating": "Validating backup\u2026",
+    "userConfigBackup.validationReady": "Validation complete. Choose how to restore.",
+    "userConfigBackup.versionUnsupported": "This backup uses a newer format and can only be previewed.",
+    "userConfigBackup.previewCounts": "{count} in archive \xB7 {duplicate} duplicates \xB7 {conflict} conflicts",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 current {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / current {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup is empty, current {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Cannot replace: {groups} is empty in the backup but has current data. Deselect it or use incremental restore.",
+    "userConfigBackup.archiveMeta": "{count} sections \xB7 format v{version}",
+    "userConfigBackup.replaceImpact": "{section}: remove {current} current items, then import {archive} backup items",
+    "userConfigBackup.galleryReferenceImpact": "{count} historical tasks will lose shared-image references",
+    "userConfigBackup.providerRetention": "{count} providers with credentials will be retained for safety",
+    "userConfigBackup.restoring": "Restoring. Keep the WebUI open\u2026",
+    "userConfigBackup.restoreComplete": "Restore complete",
+    "userConfigBackup.resultCounts": "{section}: {added} added \xB7 {replaced} replaced \xB7 {skipped} skipped \xB7 {copies} recovery copies",
+    "userConfigBackup.restartRequired": "Storage paths were restored. Restart the WebUI to use them.",
+    "userConfigBackup.restoreContinues": "Restore writing has started. Closing this panel will not cancel it; reopen later to view the result.",
+    "userConfigBackup.closeActiveConfirm": "An upload or backup is still running. Close and cancel it?",
+    "userConfigBackup.discardReadyConfirm": "Closing deletes the temporary server copy. Files already saved on this device are kept. Continue?",
+    "user_config_restore_system_notification_permission_missing": "System notifications were not enabled because the browser has not granted permission.",
+    "user_config_backup_failed": "The selected data could not be read or packed. Check it and try again.",
+    "user_config_backup_gallery_invalid": "A shared image does not match its gallery record. Re-save or remove the affected image, then try again.",
+    "user_config_backup_source_changed": "Configuration changed during backup. Stop editing it and try again.",
+    "user_config_backup_source_unreadable": "A configuration file could not be read. Check its permissions and try again.",
+    "user_config_backup_insufficient_space": "There is not enough free disk space to create the backup.",
+    "user_config_backup_io_error": "Backup file access failed. Check the disk and folder permissions.",
+    "user_config_backup_internal_error": "The backup service encountered an internal error. Restart the WebUI and try again; check the startup log if it continues.",
+    "user_config_restore_failed": "Restore failed. Existing configuration was preserved.",
+    "user_config_restore_active_tasks": "Active tasks are still running. Wait for them before replacing data.",
+    "user_config_restore_empty_replace_blocked": "Empty backup data cannot replace existing data. Deselect it or use incremental restore.",
+    "user_config_restore_preview_unavailable": "Current data could not be read safely. Check the local files and validate the backup again.",
+    "user_config_restore_preview_stale": "Current configuration changed. Validate the archive again.",
+    "user_config_restore_version_unsupported": "This backup format is too new to restore.",
     "systemSettings.tabsLabel": "System settings sections",
     "systemSettings.apiTab": "API Settings",
     "systemSettings.codexTab": "Codex Channel",
@@ -1025,6 +1114,13 @@
     "apiSettings.save": "Save API settings",
     "apiSettings.loadFailed": "Failed to load API settings",
     "apiSettings.savedKeyPlaceholder": "API key is saved on the backend. Enter a new key to replace it.",
+    "apiSettings.apiKeyRequired": "Enter an API key before saving this provider.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL origin changed",
+    "apiSettings.originChangeMessage": "Keeping the existing key will send it to the new address. A mistyped address could expose the key.",
+    "apiSettings.originChangeDetail": "Previous: {previousOrigin}; New: {nextOrigin}",
+    "apiSettings.enterNewKey": "Enter a new key",
+    "apiSettings.keepKeyAndSave": "Keep key and save",
+    "apiSettings.originChangeConfirmationRequired": "The Base URL origin changed. Confirm keeping the existing key or enter a new key.",
     "apiSettings.newProvider": "New provider",
     "apiSettings.saving": "Saving...",
     "apiSettings.savingStatus": "Saving API settings...",
@@ -2114,6 +2210,36 @@
     "settings.saved": "Gespeichert",
     "settings.savedRestartStatus": "Speichereinstellungen gespeichert. Starten Sie WebUI neu, um es anzuwenden.",
     "systemSettings.title": "Systemeinstellungen",
+    "userConfigBackup.title": "Sichern und Wiederherstellen",
+    "userConfigBackup.back": "Zur\xFCck zu den Systemeinstellungen",
+    "userConfigBackup.entryTitle": "Konfiguration sichern und wiederherstellen",
+    "userConfigBackup.entryCopy": "Chips, gemeinsame Bilder, Vorlagen und Systemeinstellungen \xFCbertragen",
+    "userConfigBackup.backupTab": "Sichern",
+    "userConfigBackup.restoreTab": "Wiederherstellen",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Gemeinsame Bilder",
+    "userConfigBackup.sectionTemplates": "Vorlagen",
+    "userConfigBackup.sectionSettings": "Systemeinstellungen",
+    "userConfigBackup.groupColors": "Farben",
+    "userConfigBackup.groupPromptSnippets": "Prompt-Bausteine",
+    "userConfigBackup.groupGalleryItems": "Gemeinsame Bilder",
+    "userConfigBackup.groupPromptTemplates": "Prompt-Vorlagen",
+    "userConfigBackup.groupSettings": "Systemeinstellungen",
+    "userConfigBackup.previewSectionCounts": "Sicherung {archive} \xB7 aktuell {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: Sicherung {archive} / aktuell {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: Sicherung leer, aktuell {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Ersetzen nicht m\xF6glich: {groups} sind in der Sicherung leer, enthalten aber aktuelle Daten. Heben Sie die Auswahl auf oder verwenden Sie die inkrementelle Wiederherstellung.",
+    "user_config_restore_empty_replace_blocked": "Leere Sicherungsdaten d\xFCrfen keine vorhandenen Daten ersetzen. Heben Sie die Auswahl auf oder verwenden Sie die inkrementelle Wiederherstellung.",
+    "user_config_restore_preview_unavailable": "Die aktuellen Daten konnten nicht sicher gelesen werden. Pr\xFCfen Sie die lokalen Dateien und validieren Sie die Sicherung erneut.",
+    "userConfigBackup.includeApiKeys": "API-Schl\xFCssel einschlie\xDFen (sensibel)",
+    "userConfigBackup.apiKeyWarning": "Die Sicherung ist nicht verschl\xFCsselt. Bewahren Sie sie sicher auf.",
+    "userConfigBackup.incremental": "Inkrementell",
+    "userConfigBackup.replace": "Ersetzen",
+    "userConfigBackup.replaceCopy": "Ersetzt vorhandene Daten in den gew\xE4hlten Bereichen. Eine zweite Best\xE4tigung ist erforderlich.",
+    "userConfigBackup.replaceConfirmTitle": "Ersetzen vorhandener Daten best\xE4tigen",
+    "userConfigBackup.replaceAcknowledge": "Mir ist bewusst, dass vorhandene Daten ersetzt werden",
+    "userConfigBackup.confirmReplace": "Ersetzen und wiederherstellen",
+    "userConfigBackup.restoreComplete": "Wiederherstellung abgeschlossen",
     "systemSettings.tabsLabel": "Abschnitte mit den Systemeinstellungen",
     "systemSettings.apiTab": "API Einstellungen",
     "systemSettings.codexTab": "Codex Kanal",
@@ -2211,6 +2337,13 @@
     "apiSettings.save": "Speichern Sie die API-Einstellungen",
     "apiSettings.loadFailed": "Die Einstellungen f\xFCr API konnten nicht geladen werden",
     "apiSettings.savedKeyPlaceholder": "Der Schl\xFCssel API wird im Backend gespeichert. Geben Sie einen neuen Schl\xFCssel ein, um ihn zu ersetzen.",
+    "apiSettings.apiKeyRequired": "Geben Sie vor dem Speichern des Anbieters einen API-Key ein.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base-URL-Ursprung ge\xE4ndert",
+    "apiSettings.originChangeMessage": "Wenn Sie den vorhandenen Key behalten, wird er an die neue Adresse gesendet. Eine falsche Adresse k\xF6nnte den Key offenlegen.",
+    "apiSettings.originChangeDetail": "Bisher: {previousOrigin}; Neu: {nextOrigin}",
+    "apiSettings.enterNewKey": "Neuen Key eingeben",
+    "apiSettings.keepKeyAndSave": "Key behalten und speichern",
+    "apiSettings.originChangeConfirmationRequired": "Der Ursprung der Base URL wurde ge\xE4ndert. Best\xE4tigen Sie den vorhandenen Key oder geben Sie einen neuen ein.",
     "apiSettings.newProvider": "Neuer Anbieter",
     "apiSettings.saving": "Sparen...",
     "apiSettings.savingStatus": "API-Einstellungen werden gespeichert...",
@@ -3300,6 +3433,36 @@
     "settings.saved": "Guardado",
     "settings.savedRestartStatus": "Configuraci\xF3n de almacenamiento guardada. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configuraci\xF3n del sistema",
+    "userConfigBackup.title": "Copia de seguridad y restauraci\xF3n",
+    "userConfigBackup.back": "Volver a Configuraci\xF3n del sistema",
+    "userConfigBackup.entryTitle": "Copia y restauraci\xF3n de la configuraci\xF3n",
+    "userConfigBackup.entryCopy": "Migra chips, im\xE1genes compartidas, plantillas y ajustes del sistema",
+    "userConfigBackup.backupTab": "Copia",
+    "userConfigBackup.restoreTab": "Restaurar",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Im\xE1genes compartidas",
+    "userConfigBackup.sectionTemplates": "Plantillas",
+    "userConfigBackup.sectionSettings": "Ajustes del sistema",
+    "userConfigBackup.groupColors": "Colores",
+    "userConfigBackup.groupPromptSnippets": "Fragmentos de prompt",
+    "userConfigBackup.groupGalleryItems": "Im\xE1genes compartidas",
+    "userConfigBackup.groupPromptTemplates": "Plantillas de prompt",
+    "userConfigBackup.groupSettings": "Ajustes del sistema",
+    "userConfigBackup.previewSectionCounts": "Copia {archive} \xB7 actual {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: copia {archive} / actual {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: copia vac\xEDa, actual {current}",
+    "userConfigBackup.emptyReplaceBlocked": "No se puede reemplazar: {groups} est\xE1 vac\xEDo en la copia pero contiene datos actuales. Anula la selecci\xF3n o usa la restauraci\xF3n incremental.",
+    "user_config_restore_empty_replace_blocked": "Los datos vac\xEDos de una copia no pueden reemplazar datos existentes. Anula la selecci\xF3n o usa la restauraci\xF3n incremental.",
+    "user_config_restore_preview_unavailable": "No se pudieron leer con seguridad los datos actuales. Revisa los archivos locales y vuelve a validar la copia.",
+    "userConfigBackup.includeApiKeys": "Incluir claves API (sensible)",
+    "userConfigBackup.apiKeyWarning": "La copia no est\xE1 cifrada. Gu\xE1rdala de forma segura.",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Reemplazar",
+    "userConfigBackup.replaceCopy": "Reemplaza los datos actuales de las secciones elegidas. Se requiere una segunda confirmaci\xF3n.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmar reemplazo de datos",
+    "userConfigBackup.replaceAcknowledge": "Entiendo que los datos actuales ser\xE1n reemplazados",
+    "userConfigBackup.confirmReplace": "Confirmar reemplazo y restaurar",
+    "userConfigBackup.restoreComplete": "Restauraci\xF3n completada",
     "systemSettings.tabsLabel": "Secciones de configuraci\xF3n del sistema",
     "systemSettings.apiTab": "API Configuraci\xF3n",
     "systemSettings.codexTab": "Codex Canal",
@@ -3397,6 +3560,13 @@
     "apiSettings.save": "Guardar la configuraci\xF3n de API",
     "apiSettings.loadFailed": "No se pudo cargar la configuraci\xF3n API",
     "apiSettings.savedKeyPlaceholder": "La clave API se guarda en el backend. Ingrese una nueva clave para reemplazarla.",
+    "apiSettings.apiKeyRequired": "Introduce una API Key antes de guardar este proveedor.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Cambi\xF3 el origen de la Base URL",
+    "apiSettings.originChangeMessage": "Conservar la clave actual har\xE1 que se env\xEDe a la nueva direcci\xF3n. Una direcci\xF3n incorrecta podr\xEDa exponerla.",
+    "apiSettings.originChangeDetail": "Anterior: {previousOrigin}; Nueva: {nextOrigin}",
+    "apiSettings.enterNewKey": "Introducir una clave nueva",
+    "apiSettings.keepKeyAndSave": "Conservar clave y guardar",
+    "apiSettings.originChangeConfirmationRequired": "Cambi\xF3 el origen de la Base URL. Confirma que deseas conservar la clave o introduce una nueva.",
     "apiSettings.newProvider": "Nuevo proveedor",
     "apiSettings.saving": "Guardando...",
     "apiSettings.savingStatus": "Guardando la configuraci\xF3n de API...",
@@ -4486,6 +4656,36 @@
     "settings.saved": "Enregistr\xE9",
     "settings.savedRestartStatus": "Param\xE8tres de stockage enregistr\xE9s. Red\xE9marrez WebUI pour appliquer.",
     "systemSettings.title": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.title": "Sauvegarde et restauration",
+    "userConfigBackup.back": "Retour aux param\xE8tres syst\xE8me",
+    "userConfigBackup.entryTitle": "Sauvegarde et restauration de la configuration",
+    "userConfigBackup.entryCopy": "Migrez les chips, images partag\xE9es, mod\xE8les et param\xE8tres syst\xE8me",
+    "userConfigBackup.backupTab": "Sauvegarder",
+    "userConfigBackup.restoreTab": "Restaurer",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Images partag\xE9es",
+    "userConfigBackup.sectionTemplates": "Mod\xE8les",
+    "userConfigBackup.sectionSettings": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.groupColors": "Couleurs",
+    "userConfigBackup.groupPromptSnippets": "Fragments de prompt",
+    "userConfigBackup.groupGalleryItems": "Images partag\xE9es",
+    "userConfigBackup.groupPromptTemplates": "Mod\xE8les de prompt",
+    "userConfigBackup.groupSettings": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.previewSectionCounts": "Sauvegarde {archive} \xB7 actuel {current}",
+    "userConfigBackup.previewGroupCounts": "{group} : sauvegarde {archive} / actuel {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group} : sauvegarde vide, actuel {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Remplacement impossible : {groups} est vide dans la sauvegarde mais contient des donn\xE9es actuelles. D\xE9s\xE9lectionnez-le ou utilisez la restauration incr\xE9mentielle.",
+    "user_config_restore_empty_replace_blocked": "Des donn\xE9es de sauvegarde vides ne peuvent pas remplacer des donn\xE9es existantes. D\xE9s\xE9lectionnez-les ou utilisez la restauration incr\xE9mentielle.",
+    "user_config_restore_preview_unavailable": "Les donn\xE9es actuelles n\u2019ont pas pu \xEAtre lues en toute s\xE9curit\xE9. V\xE9rifiez les fichiers locaux et revalidez la sauvegarde.",
+    "userConfigBackup.includeApiKeys": "Inclure les cl\xE9s API (sensible)",
+    "userConfigBackup.apiKeyWarning": "La sauvegarde n\u2019est pas chiffr\xE9e. Conservez-la en lieu s\xFBr.",
+    "userConfigBackup.incremental": "Incr\xE9mentiel",
+    "userConfigBackup.replace": "Remplacer",
+    "userConfigBackup.replaceCopy": "Remplace les donn\xE9es actuelles des sections choisies. Une seconde confirmation est requise.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmer le remplacement des donn\xE9es",
+    "userConfigBackup.replaceAcknowledge": "Je comprends que les donn\xE9es actuelles seront remplac\xE9es",
+    "userConfigBackup.confirmReplace": "Confirmer le remplacement et restaurer",
+    "userConfigBackup.restoreComplete": "Restauration termin\xE9e",
     "systemSettings.tabsLabel": "Sections des param\xE8tres syst\xE8me",
     "systemSettings.apiTab": "API Param\xE8tres",
     "systemSettings.codexTab": "Canal Codex",
@@ -4583,6 +4783,13 @@
     "apiSettings.save": "Enregistrer les param\xE8tres API",
     "apiSettings.loadFailed": "\xC9chec du chargement des param\xE8tres API",
     "apiSettings.savedKeyPlaceholder": "La cl\xE9 API est enregistr\xE9e sur le backend. Entrez une nouvelle cl\xE9 pour la remplacer.",
+    "apiSettings.apiKeyRequired": "Saisissez une cl\xE9 API avant d\u2019enregistrer ce fournisseur.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origine de la Base URL modifi\xE9e",
+    "apiSettings.originChangeMessage": "Conserver la cl\xE9 actuelle l\u2019enverra \xE0 la nouvelle adresse. Une adresse erron\xE9e pourrait exposer la cl\xE9.",
+    "apiSettings.originChangeDetail": "Ancienne : {previousOrigin} ; Nouvelle : {nextOrigin}",
+    "apiSettings.enterNewKey": "Saisir une nouvelle cl\xE9",
+    "apiSettings.keepKeyAndSave": "Conserver la cl\xE9 et enregistrer",
+    "apiSettings.originChangeConfirmationRequired": "L\u2019origine de la Base URL a chang\xE9. Confirmez la conservation de la cl\xE9 ou saisissez-en une nouvelle.",
     "apiSettings.newProvider": "Nouveau fournisseur",
     "apiSettings.saving": "Sauvegarde...",
     "apiSettings.savingStatus": "Enregistrement des param\xE8tres API...",
@@ -5672,6 +5879,36 @@
     "settings.saved": "\u4FDD\u5B58\u3057\u307E\u3057\u305F",
     "settings.savedRestartStatus": "\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\u3002WebUI \u3092\u518D\u8D77\u52D5\u3059\u308B\u3068\u53CD\u6620\u3055\u308C\u307E\u3059\u3002",
     "systemSettings.title": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
+    "userConfigBackup.back": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u306B\u623B\u308B",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
+    "userConfigBackup.entryCopy": "\u30C1\u30C3\u30D7\u3001\u5171\u6709\u753B\u50CF\u3001\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8\u3001\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u3092\u79FB\u884C\u3057\u307E\u3059",
+    "userConfigBackup.backupTab": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7",
+    "userConfigBackup.restoreTab": "\u5FA9\u5143",
+    "userConfigBackup.sectionChips": "\u30C1\u30C3\u30D7",
+    "userConfigBackup.sectionGallery": "\u5171\u6709\u753B\u50CF",
+    "userConfigBackup.sectionTemplates": "\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8",
+    "userConfigBackup.sectionSettings": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u30AB\u30E9\u30FC",
+    "userConfigBackup.groupPromptSnippets": "\u30D7\u30ED\u30F3\u30D7\u30C8\u30B9\u30CB\u30DA\u30C3\u30C8",
+    "userConfigBackup.groupGalleryItems": "\u5171\u6709\u753B\u50CF",
+    "userConfigBackup.groupPromptTemplates": "\u30D7\u30ED\u30F3\u30D7\u30C8\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8",
+    "userConfigBackup.groupSettings": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7 {archive} \xB7 \u73FE\u5728 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7 {archive} / \u73FE\u5728 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306F\u7A7A\u3001\u73FE\u5728 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7F6E\u63DB\u3067\u304D\u307E\u305B\u3093\u3002\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u5185\u306E {groups} \u306F\u7A7A\u3067\u3059\u304C\u3001\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u304C\u3042\u308A\u307E\u3059\u3002\u9078\u629E\u3092\u5916\u3059\u304B\u3001\u5897\u5206\u5FA9\u5143\u3092\u4F7F\u7528\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30C7\u30FC\u30BF\u3067\u65E2\u5B58\u30C7\u30FC\u30BF\u3092\u7F6E\u63DB\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u307E\u305B\u3093\u3002\u9078\u629E\u3092\u5916\u3059\u304B\u3001\u5897\u5206\u5FA9\u5143\u3092\u4F7F\u7528\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_preview_unavailable": "\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u3092\u5B89\u5168\u306B\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30ED\u30FC\u30AB\u30EB\u30D5\u30A1\u30A4\u30EB\u3092\u78BA\u8A8D\u3057\u3001\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u518D\u691C\u8A3C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.includeApiKeys": "API \u30AD\u30FC\u3092\u542B\u3081\u308B\uFF08\u6A5F\u5BC6\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306F\u6697\u53F7\u5316\u3055\u308C\u307E\u305B\u3093\u3002\u5B89\u5168\u306B\u4FDD\u7BA1\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.incremental": "\u8FFD\u52A0",
+    "userConfigBackup.replace": "\u7F6E\u63DB",
+    "userConfigBackup.replaceCopy": "\u9078\u629E\u3057\u305F\u9805\u76EE\u306E\u65E2\u5B58\u30C7\u30FC\u30BF\u3092\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3067\u7F6E\u304D\u63DB\u3048\u307E\u3059\u3002\u518D\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u65E2\u5B58\u30C7\u30FC\u30BF\u306E\u7F6E\u63DB\u3092\u78BA\u8A8D",
+    "userConfigBackup.replaceAcknowledge": "\u65E2\u5B58\u30C7\u30FC\u30BF\u304C\u7F6E\u304D\u63DB\u3048\u3089\u308C\u308B\u3053\u3068\u3092\u7406\u89E3\u3057\u307E\u3057\u305F",
+    "userConfigBackup.confirmReplace": "\u7F6E\u63DB\u3057\u3066\u5FA9\u5143\u3059\u308B",
+    "userConfigBackup.restoreComplete": "\u5FA9\u5143\u304C\u5B8C\u4E86\u3057\u307E\u3057\u305F",
     "systemSettings.tabsLabel": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u30BB\u30AF\u30B7\u30E7\u30F3",
     "systemSettings.apiTab": "API\u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex\u30C1\u30E3\u30CD\u30EB",
@@ -5769,6 +6006,13 @@
     "apiSettings.save": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u306E\u30ED\u30FC\u30C9\u306B\u5931\u6557\u3057\u307E\u3057\u305F",
     "apiSettings.savedKeyPlaceholder": "API Key\u306F\u30D0\u30C3\u30AF\u30A8\u30F3\u30C9\u306B\u4FDD\u5B58\u3055\u308C\u307E\u3059\u3002\u65B0\u3057\u3044\u30AD\u30FC\u3092\u5165\u529B\u3057\u3066\u7F6E\u304D\u63DB\u3048\u307E\u3059\u3002",
+    "apiSettings.apiKeyRequired": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u4FDD\u5B58\u3059\u308B\u524D\u306B API Key \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u306E\u30AA\u30EA\u30B8\u30F3\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F",
+    "apiSettings.originChangeMessage": "\u65E2\u5B58\u306E Key \u3092\u4FDD\u6301\u3059\u308B\u3068\u3001\u65B0\u3057\u3044\u30A2\u30C9\u30EC\u30B9\u3078\u9001\u4FE1\u3055\u308C\u307E\u3059\u3002\u5165\u529B\u30DF\u30B9\u304C\u3042\u308B\u3068 Key \u304C\u6F0F\u3048\u3044\u3059\u308B\u53EF\u80FD\u6027\u304C\u3042\u308A\u307E\u3059\u3002",
+    "apiSettings.originChangeDetail": "\u5909\u66F4\u524D\uFF1A{previousOrigin}\uFF1B\u5909\u66F4\u5F8C\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u65B0\u3057\u3044 Key \u3092\u5165\u529B",
+    "apiSettings.keepKeyAndSave": "Key \u3092\u4FDD\u6301\u3057\u3066\u4FDD\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u306E\u30AA\u30EA\u30B8\u30F3\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u65E2\u5B58\u306E Key \u3092\u4FDD\u6301\u3059\u308B\u304B\u3001\u65B0\u3057\u3044 Key \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "apiSettings.newProvider": "\u65B0\u3057\u3044\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
     "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
     "apiSettings.savingStatus": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u3066\u3044\u307E\u3059...",
@@ -6858,6 +7102,36 @@
     "settings.saved": "\uC800\uC7A5\uB428",
     "settings.savedRestartStatus": "\uC800\uC7A5\uC18C \uC124\uC815\uC774 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uC801\uC6A9\uB429\uB2C8\uB2E4.",
     "systemSettings.title": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.title": "\uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
+    "userConfigBackup.back": "\uC2DC\uC2A4\uD15C \uC124\uC815\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+    "userConfigBackup.entryTitle": "\uC124\uC815 \uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
+    "userConfigBackup.entryCopy": "\uCE69, \uACF5\uC720 \uC774\uBBF8\uC9C0, \uD15C\uD50C\uB9BF\uACFC \uC2DC\uC2A4\uD15C \uC124\uC815\uC744 \uC774\uC804\uD569\uB2C8\uB2E4",
+    "userConfigBackup.backupTab": "\uBC31\uC5C5",
+    "userConfigBackup.restoreTab": "\uBCF5\uC6D0",
+    "userConfigBackup.sectionChips": "\uCE69",
+    "userConfigBackup.sectionGallery": "\uACF5\uC720 \uC774\uBBF8\uC9C0",
+    "userConfigBackup.sectionTemplates": "\uD15C\uD50C\uB9BF",
+    "userConfigBackup.sectionSettings": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.groupColors": "\uC0C9\uC0C1",
+    "userConfigBackup.groupPromptSnippets": "\uD504\uB86C\uD504\uD2B8 \uC2A4\uB2C8\uD3AB",
+    "userConfigBackup.groupGalleryItems": "\uACF5\uC720 \uC774\uBBF8\uC9C0",
+    "userConfigBackup.groupPromptTemplates": "\uD504\uB86C\uD504\uD2B8 \uD15C\uD50C\uB9BF",
+    "userConfigBackup.groupSettings": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.previewSectionCounts": "\uBC31\uC5C5 {archive} \xB7 \uD604\uC7AC {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \uBC31\uC5C5 {archive} / \uD604\uC7AC {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \uBC31\uC5C5 \uBE44\uC5B4 \uC788\uC74C, \uD604\uC7AC {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\uAD50\uCCB4\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uBC31\uC5C5\uC758 {groups} \uD56D\uBAA9\uC740 \uBE44\uC5B4 \uC788\uC9C0\uB9CC \uD604\uC7AC \uB370\uC774\uD130\uAC00 \uC788\uC2B5\uB2C8\uB2E4. \uC120\uD0DD\uC744 \uD574\uC81C\uD558\uAC70\uB098 \uC99D\uBD84 \uBCF5\uC6D0\uC744 \uC0AC\uC6A9\uD558\uC138\uC694.",
+    "user_config_restore_empty_replace_blocked": "\uBE48 \uBC31\uC5C5 \uB370\uC774\uD130\uB85C \uAE30\uC874 \uB370\uC774\uD130\uB97C \uAD50\uCCB4\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uC120\uD0DD\uC744 \uD574\uC81C\uD558\uAC70\uB098 \uC99D\uBD84 \uBCF5\uC6D0\uC744 \uC0AC\uC6A9\uD558\uC138\uC694.",
+    "user_config_restore_preview_unavailable": "\uD604\uC7AC \uB370\uC774\uD130\uB97C \uC548\uC804\uD558\uAC8C \uC77D\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB85C\uCEEC \uD30C\uC77C\uC744 \uD655\uC778\uD558\uACE0 \uBC31\uC5C5\uC744 \uB2E4\uC2DC \uAC80\uC99D\uD558\uC138\uC694.",
+    "userConfigBackup.includeApiKeys": "API \uD0A4 \uD3EC\uD568(\uBBFC\uAC10 \uC815\uBCF4)",
+    "userConfigBackup.apiKeyWarning": "\uBC31\uC5C5 \uD30C\uC77C\uC740 \uC554\uD638\uD654\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC548\uC804\uD558\uAC8C \uBCF4\uAD00\uD558\uC138\uC694.",
+    "userConfigBackup.incremental": "\uC99D\uBD84",
+    "userConfigBackup.replace": "\uAD50\uCCB4",
+    "userConfigBackup.replaceCopy": "\uC120\uD0DD\uD55C \uD56D\uBAA9\uC758 \uAE30\uC874 \uB370\uC774\uD130\uB97C \uBC31\uC5C5\uC73C\uB85C \uAD50\uCCB4\uD569\uB2C8\uB2E4. \uB2E4\uC2DC \uD655\uC778\uD574\uC57C \uD569\uB2C8\uB2E4.",
+    "userConfigBackup.replaceConfirmTitle": "\uAE30\uC874 \uB370\uC774\uD130 \uAD50\uCCB4 \uD655\uC778",
+    "userConfigBackup.replaceAcknowledge": "\uAE30\uC874 \uB370\uC774\uD130\uAC00 \uAD50\uCCB4\uB428\uC744 \uC774\uD574\uD588\uC2B5\uB2C8\uB2E4",
+    "userConfigBackup.confirmReplace": "\uAD50\uCCB4 \uD6C4 \uBCF5\uC6D0",
+    "userConfigBackup.restoreComplete": "\uBCF5\uC6D0\uC774 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4",
     "systemSettings.tabsLabel": "\uC2DC\uC2A4\uD15C \uC124\uC815 \uC139\uC158",
     "systemSettings.apiTab": "API \uC124\uC815",
     "systemSettings.codexTab": "Codex \uCC44\uB110",
@@ -6955,6 +7229,13 @@
     "apiSettings.save": "API \uC124\uC815 \uC800\uC7A5",
     "apiSettings.loadFailed": "API\uC124\uC815\uC744 \uB85C\uB4DC\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
     "apiSettings.savedKeyPlaceholder": "API Key\uAC00 \uBC31\uC5D4\uB4DC\uC5D0 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uAD50\uCCB4\uD558\uB824\uBA74 \uC0C8 \uD0A4\uB97C \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.apiKeyRequired": "\uACF5\uAE09\uC790\uB97C \uC800\uC7A5\uD558\uAE30 \uC804\uC5D0 API Key\uB97C \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \uC6D0\uBCF8\uC774 \uBCC0\uACBD\uB428",
+    "apiSettings.originChangeMessage": "\uAE30\uC874 Key\uB97C \uC720\uC9C0\uD558\uBA74 \uC0C8 \uC8FC\uC18C\uB85C \uC804\uC1A1\uB429\uB2C8\uB2E4. \uC8FC\uC18C\uB97C \uC798\uBABB \uC785\uB825\uD558\uBA74 Key\uAC00 \uB178\uCD9C\uB420 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.originChangeDetail": "\uC774\uC804: {previousOrigin}; \uC0C8 \uC8FC\uC18C: {nextOrigin}",
+    "apiSettings.enterNewKey": "\uC0C8 Key \uC785\uB825",
+    "apiSettings.keepKeyAndSave": "Key \uC720\uC9C0 \uD6C4 \uC800\uC7A5",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \uC6D0\uBCF8\uC774 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uAE30\uC874 Key \uC720\uC9C0 \uB610\uB294 \uC0C8 Key \uC785\uB825\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
     "apiSettings.newProvider": "\uC0C8 \uACF5\uAE09\uC790",
     "apiSettings.saving": "\uC800\uC7A5 \uC911...",
     "apiSettings.savingStatus": "API \uC124\uC815\uC744 \uC800\uC7A5\uD558\uB294 \uC911...",
@@ -8044,6 +8325,36 @@
     "settings.saved": "Salvo",
     "settings.savedRestartStatus": "Configura\xE7\xF5es de armazenamento salvas. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.title": "Backup e restaura\xE7\xE3o",
+    "userConfigBackup.back": "Voltar \xE0s Configura\xE7\xF5es do sistema",
+    "userConfigBackup.entryTitle": "Backup e restaura\xE7\xE3o da configura\xE7\xE3o",
+    "userConfigBackup.entryCopy": "Migre chips, imagens compartilhadas, modelos e configura\xE7\xF5es do sistema",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Restaurar",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Imagens compartilhadas",
+    "userConfigBackup.sectionTemplates": "Modelos",
+    "userConfigBackup.sectionSettings": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.groupColors": "Cores",
+    "userConfigBackup.groupPromptSnippets": "Trechos de prompt",
+    "userConfigBackup.groupGalleryItems": "Imagens compartilhadas",
+    "userConfigBackup.groupPromptTemplates": "Modelos de prompt",
+    "userConfigBackup.groupSettings": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 atual {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / atual {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup vazio, atual {current}",
+    "userConfigBackup.emptyReplaceBlocked": "N\xE3o \xE9 poss\xEDvel substituir: {groups} est\xE1 vazio no backup, mas cont\xE9m dados atuais. Desmarque-o ou use a restaura\xE7\xE3o incremental.",
+    "user_config_restore_empty_replace_blocked": "Dados vazios do backup n\xE3o podem substituir dados existentes. Desmarque-os ou use a restaura\xE7\xE3o incremental.",
+    "user_config_restore_preview_unavailable": "N\xE3o foi poss\xEDvel ler os dados atuais com seguran\xE7a. Verifique os arquivos locais e valide o backup novamente.",
+    "userConfigBackup.includeApiKeys": "Incluir chaves de API (sens\xEDvel)",
+    "userConfigBackup.apiKeyWarning": "O backup n\xE3o \xE9 criptografado. Guarde-o com seguran\xE7a.",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Substituir",
+    "userConfigBackup.replaceCopy": "Substitui os dados atuais das se\xE7\xF5es selecionadas. Uma segunda confirma\xE7\xE3o \xE9 necess\xE1ria.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmar substitui\xE7\xE3o dos dados",
+    "userConfigBackup.replaceAcknowledge": "Entendo que os dados atuais ser\xE3o substitu\xEDdos",
+    "userConfigBackup.confirmReplace": "Confirmar substitui\xE7\xE3o e restaurar",
+    "userConfigBackup.restoreComplete": "Restaura\xE7\xE3o conclu\xEDda",
     "systemSettings.tabsLabel": "Se\xE7\xF5es de configura\xE7\xF5es do sistema",
     "systemSettings.apiTab": "API Configura\xE7\xF5es",
     "systemSettings.codexTab": "Codex Canal",
@@ -8141,6 +8452,13 @@
     "apiSettings.save": "Salvar configura\xE7\xF5es de API",
     "apiSettings.loadFailed": "Falha ao carregar configura\xE7\xF5es de API",
     "apiSettings.savedKeyPlaceholder": "A chave API \xE9 salva no backend. Insira uma nova chave para substitu\xED-la.",
+    "apiSettings.apiKeyRequired": "Insira uma API Key antes de salvar este provedor.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origem da Base URL alterada",
+    "apiSettings.originChangeMessage": "Manter a chave existente far\xE1 com que ela seja enviada ao novo endere\xE7o. Um endere\xE7o incorreto pode expor a chave.",
+    "apiSettings.originChangeDetail": "Anterior: {previousOrigin}; Novo: {nextOrigin}",
+    "apiSettings.enterNewKey": "Inserir nova chave",
+    "apiSettings.keepKeyAndSave": "Manter chave e salvar",
+    "apiSettings.originChangeConfirmationRequired": "A origem da Base URL mudou. Confirme a chave existente ou insira uma nova.",
     "apiSettings.newProvider": "Novo provedor",
     "apiSettings.saving": "Salvando...",
     "apiSettings.savingStatus": "Salvando configura\xE7\xF5es de API...",
@@ -9230,6 +9548,36 @@
     "settings.saved": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E",
     "settings.savedRestartStatus": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C.",
     "systemSettings.title": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.title": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435",
+    "userConfigBackup.back": "\u041D\u0430\u0437\u0430\u0434 \u043A \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u043C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u043C",
+    "userConfigBackup.entryTitle": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438",
+    "userConfigBackup.entryCopy": "\u041F\u0435\u0440\u0435\u043D\u043E\u0441 \u0447\u0438\u043F\u043E\u0432, \u043E\u0431\u0449\u0438\u0445 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439, \u0448\u0430\u0431\u043B\u043E\u043D\u043E\u0432 \u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
+    "userConfigBackup.backupTab": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F",
+    "userConfigBackup.restoreTab": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C",
+    "userConfigBackup.sectionChips": "\u0427\u0438\u043F\u044B",
+    "userConfigBackup.sectionGallery": "\u041E\u0431\u0449\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "userConfigBackup.sectionTemplates": "\u0428\u0430\u0431\u043B\u043E\u043D\u044B",
+    "userConfigBackup.sectionSettings": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.groupColors": "\u0426\u0432\u0435\u0442\u0430",
+    "userConfigBackup.groupPromptSnippets": "\u0424\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u044B \u043F\u0440\u043E\u043C\u043F\u0442\u043E\u0432",
+    "userConfigBackup.groupGalleryItems": "\u041E\u0431\u0449\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "userConfigBackup.groupPromptTemplates": "\u0428\u0430\u0431\u043B\u043E\u043D\u044B \u043F\u0440\u043E\u043C\u043F\u0442\u043E\u0432",
+    "userConfigBackup.groupSettings": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.previewSectionCounts": "\u0412 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438 {archive} \xB7 \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \u0432 \u043A\u043E\u043F\u0438\u0438 {archive} / \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \u043A\u043E\u043F\u0438\u044F \u043F\u0443\u0441\u0442\u0430, \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u0417\u0430\u043C\u0435\u043D\u0430 \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u0430: {groups} \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438, \u043D\u043E \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u0421\u043D\u0438\u043C\u0438\u0442\u0435 \u0432\u044B\u0431\u043E\u0440 \u0438\u043B\u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0434\u043E\u0431\u0430\u0432\u043E\u0447\u043D\u043E\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435.",
+    "user_config_restore_empty_replace_blocked": "\u041F\u0443\u0441\u0442\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438 \u043D\u0435 \u043C\u043E\u0433\u0443\u0442 \u0437\u0430\u043C\u0435\u043D\u0438\u0442\u044C \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u0421\u043D\u0438\u043C\u0438\u0442\u0435 \u0432\u044B\u0431\u043E\u0440 \u0438\u043B\u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0434\u043E\u0431\u0430\u0432\u043E\u0447\u043D\u043E\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435.",
+    "user_config_restore_preview_unavailable": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E.",
+    "userConfigBackup.includeApiKeys": "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043A\u043B\u044E\u0447\u0438 API (\u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E)",
+    "userConfigBackup.apiKeyWarning": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u043D\u0435 \u0437\u0430\u0448\u0438\u0444\u0440\u043E\u0432\u0430\u043D\u0430. \u0425\u0440\u0430\u043D\u0438\u0442\u0435 \u0435\u0451 \u0432 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u043C \u043C\u0435\u0441\u0442\u0435.",
+    "userConfigBackup.incremental": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C",
+    "userConfigBackup.replace": "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C",
+    "userConfigBackup.replaceCopy": "\u0417\u0430\u043C\u0435\u043D\u044F\u0435\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0445 \u0440\u0430\u0437\u0434\u0435\u043B\u043E\u0432. \u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435.",
+    "userConfigBackup.replaceConfirmTitle": "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C \u0437\u0430\u043C\u0435\u043D\u0443 \u0434\u0430\u043D\u043D\u044B\u0445",
+    "userConfigBackup.replaceAcknowledge": "\u042F \u043F\u043E\u043D\u0438\u043C\u0430\u044E, \u0447\u0442\u043E \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0437\u0430\u043C\u0435\u043D\u0435\u043D\u044B",
+    "userConfigBackup.confirmReplace": "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C",
+    "userConfigBackup.restoreComplete": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E",
     "systemSettings.tabsLabel": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
     "systemSettings.apiTab": "API \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
     "systemSettings.codexTab": "Codex \u041A\u0430\u043D\u0430\u043B",
@@ -9327,6 +9675,13 @@
     "apiSettings.save": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 API",
     "apiSettings.loadFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 API.",
     "apiSettings.savedKeyPlaceholder": "\u041A\u043B\u044E\u0447 API \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F \u043D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043D\u043E\u0432\u044B\u0439 \u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0435\u0433\u043E \u0437\u0430\u043C\u0435\u043D\u044B.",
+    "apiSettings.apiKeyRequired": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 API Key \u043F\u0435\u0440\u0435\u0434 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435\u043C \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u0430.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F \u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A Base URL \u0438\u0437\u043C\u0435\u043D\u0451\u043D",
+    "apiSettings.originChangeMessage": "\u0415\u0441\u043B\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0439 \u043A\u043B\u044E\u0447, \u043E\u043D \u0431\u0443\u0434\u0435\u0442 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0442\u044C\u0441\u044F \u043D\u0430 \u043D\u043E\u0432\u044B\u0439 \u0430\u0434\u0440\u0435\u0441. \u041E\u0448\u0438\u0431\u043A\u0430 \u0432 \u0430\u0434\u0440\u0435\u0441\u0435 \u043C\u043E\u0436\u0435\u0442 \u0440\u0430\u0441\u043A\u0440\u044B\u0442\u044C \u043A\u043B\u044E\u0447.",
+    "apiSettings.originChangeDetail": "\u041F\u0440\u0435\u0436\u043D\u0438\u0439: {previousOrigin}; \u041D\u043E\u0432\u044B\u0439: {nextOrigin}",
+    "apiSettings.enterNewKey": "\u0412\u0432\u0435\u0441\u0442\u0438 \u043D\u043E\u0432\u044B\u0439 \u043A\u043B\u044E\u0447",
+    "apiSettings.keepKeyAndSave": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043A\u043B\u044E\u0447 \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "apiSettings.originChangeConfirmationRequired": "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A Base URL \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0441\u044F. \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043A\u043B\u044E\u0447\u0430 \u0438\u043B\u0438 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043D\u043E\u0432\u044B\u0439.",
     "apiSettings.newProvider": "\u041D\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440",
     "apiSettings.saving": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435...",
     "apiSettings.savingStatus": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A API...",
@@ -10416,6 +10771,36 @@
     "settings.saved": "Salvato",
     "settings.savedRestartStatus": "Impostazioni di archiviazione salvate. Riavvia WebUI per applicare.",
     "systemSettings.title": "Impostazioni di sistema",
+    "userConfigBackup.title": "Backup e ripristino",
+    "userConfigBackup.back": "Torna alle impostazioni di sistema",
+    "userConfigBackup.entryTitle": "Backup e ripristino della configurazione",
+    "userConfigBackup.entryCopy": "Trasferisci chip, immagini condivise, modelli e impostazioni di sistema",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Ripristina",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "Immagini condivise",
+    "userConfigBackup.sectionTemplates": "Modelli",
+    "userConfigBackup.sectionSettings": "Impostazioni di sistema",
+    "userConfigBackup.groupColors": "Colori",
+    "userConfigBackup.groupPromptSnippets": "Frammenti di prompt",
+    "userConfigBackup.groupGalleryItems": "Immagini condivise",
+    "userConfigBackup.groupPromptTemplates": "Modelli di prompt",
+    "userConfigBackup.groupSettings": "Impostazioni di sistema",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 attuali {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / attuali {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup vuoto, attuali {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Impossibile sostituire: {groups} \xE8 vuoto nel backup ma contiene dati attuali. Deselezionalo o usa il ripristino incrementale.",
+    "user_config_restore_empty_replace_blocked": "I dati vuoti del backup non possono sostituire dati esistenti. Deselezionali o usa il ripristino incrementale.",
+    "user_config_restore_preview_unavailable": "Impossibile leggere in sicurezza i dati attuali. Controlla i file locali e convalida di nuovo il backup.",
+    "userConfigBackup.includeApiKeys": "Includi chiavi API (sensibile)",
+    "userConfigBackup.apiKeyWarning": "Il backup non \xE8 crittografato. Conservalo in modo sicuro.",
+    "userConfigBackup.incremental": "Incrementale",
+    "userConfigBackup.replace": "Sostituisci",
+    "userConfigBackup.replaceCopy": "Sostituisce i dati attuali nelle sezioni selezionate. \xC8 richiesta una seconda conferma.",
+    "userConfigBackup.replaceConfirmTitle": "Conferma la sostituzione dei dati",
+    "userConfigBackup.replaceAcknowledge": "Comprendo che i dati attuali verranno sostituiti",
+    "userConfigBackup.confirmReplace": "Conferma sostituzione e ripristina",
+    "userConfigBackup.restoreComplete": "Ripristino completato",
     "systemSettings.tabsLabel": "Sezioni delle impostazioni di sistema",
     "systemSettings.apiTab": "API Impostazioni",
     "systemSettings.codexTab": "Codex Canale",
@@ -10513,6 +10898,13 @@
     "apiSettings.save": "Salva le impostazioni API",
     "apiSettings.loadFailed": "Impossibile caricare le impostazioni API",
     "apiSettings.savedKeyPlaceholder": "La chiave API viene salvata sul back-end. Immettere una nuova chiave per sostituirla.",
+    "apiSettings.apiKeyRequired": "Inserisci una API Key prima di salvare il fornitore.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origine della Base URL modificata",
+    "apiSettings.originChangeMessage": "Mantenendo la chiave esistente, verr\xE0 inviata al nuovo indirizzo. Un indirizzo errato potrebbe esporla.",
+    "apiSettings.originChangeDetail": "Precedente: {previousOrigin}; Nuovo: {nextOrigin}",
+    "apiSettings.enterNewKey": "Inserisci una nuova chiave",
+    "apiSettings.keepKeyAndSave": "Mantieni chiave e salva",
+    "apiSettings.originChangeConfirmationRequired": "L\u2019origine della Base URL \xE8 cambiata. Conferma la chiave esistente o inseriscine una nuova.",
     "apiSettings.newProvider": "Nuovo fornitore",
     "apiSettings.saving": "Salvataggio...",
     "apiSettings.savingStatus": "Salvataggio delle impostazioni API...",
@@ -11602,6 +11994,36 @@
     "settings.saved": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E",
     "settings.savedRestartStatus": "\u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908\u0902. \u0932\u093E\u0917\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F WebUI \u0915\u094B \u092A\u0941\u0928\u0930\u093E\u0930\u0902\u092D \u0915\u0930\u0947\u0902\u0964",
     "systemSettings.title": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.title": "\u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
+    "userConfigBackup.back": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u092A\u0930 \u0935\u093E\u092A\u0938 \u091C\u093E\u090F\u0901",
+    "userConfigBackup.entryTitle": "\u0915\u0949\u0928\u094D\u092B\u093C\u093F\u0917\u0930\u0947\u0936\u0928 \u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
+    "userConfigBackup.entryCopy": "\u091A\u093F\u092A, \u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930, \u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F \u0914\u0930 \u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.backupTab": "\u092C\u0948\u0915\u0905\u092A",
+    "userConfigBackup.restoreTab": "\u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.sectionChips": "\u091A\u093F\u092A",
+    "userConfigBackup.sectionGallery": "\u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930",
+    "userConfigBackup.sectionTemplates": "\u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F",
+    "userConfigBackup.sectionSettings": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.groupColors": "\u0930\u0902\u0917",
+    "userConfigBackup.groupPromptSnippets": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u094D\u0928\u093F\u092A\u0947\u091F",
+    "userConfigBackup.groupGalleryItems": "\u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930",
+    "userConfigBackup.groupPromptTemplates": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F",
+    "userConfigBackup.groupSettings": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.previewSectionCounts": "\u092C\u0948\u0915\u0905\u092A {archive} \xB7 \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \u092C\u0948\u0915\u0905\u092A {archive} / \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \u092C\u0948\u0915\u0905\u092A \u0916\u093E\u0932\u0940, \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u092C\u0926\u0932 \u0928\u0939\u0940\u0902 \u0938\u0915\u0924\u0947: \u092C\u0948\u0915\u0905\u092A \u092E\u0947\u0902 {groups} \u0916\u093E\u0932\u0940 \u0939\u0948, \u0932\u0947\u0915\u093F\u0928 \u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0921\u0947\u091F\u093E \u092E\u094C\u091C\u0942\u0926 \u0939\u0948\u0964 \u0907\u0938\u0947 \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902 \u092F\u093E \u0907\u0928\u094D\u0915\u094D\u0930\u0940\u092E\u0947\u0902\u091F\u0932 \u0930\u093F\u0938\u094D\u091F\u094B\u0930 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "user_config_restore_empty_replace_blocked": "\u0916\u093E\u0932\u0940 \u092C\u0948\u0915\u0905\u092A \u0921\u0947\u091F\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0915\u094B \u0928\u0939\u0940\u0902 \u092C\u0926\u0932 \u0938\u0915\u0924\u093E\u0964 \u0907\u0938\u0947 \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902 \u092F\u093E \u0907\u0928\u094D\u0915\u094D\u0930\u0940\u092E\u0947\u0902\u091F\u0932 \u0930\u093F\u0938\u094D\u091F\u094B\u0930 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "user_config_restore_preview_unavailable": "\u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0921\u0947\u091F\u093E \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0930\u0942\u092A \u0938\u0947 \u092A\u0922\u093C\u093E \u0928\u0939\u0940\u0902 \u091C\u093E \u0938\u0915\u093E\u0964 \u0938\u094D\u0925\u093E\u0928\u0940\u092F \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091C\u093E\u0901\u091A\u0947\u0902 \u0914\u0930 \u092C\u0948\u0915\u0905\u092A \u0915\u094B \u092B\u093F\u0930 \u0938\u0924\u094D\u092F\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902\u0964",
+    "userConfigBackup.includeApiKeys": "API \u0915\u0941\u0902\u091C\u093F\u092F\u093E\u0901 \u0936\u093E\u092E\u093F\u0932 \u0915\u0930\u0947\u0902 (\u0938\u0902\u0935\u0947\u0926\u0928\u0936\u0940\u0932)",
+    "userConfigBackup.apiKeyWarning": "\u092C\u0948\u0915\u0905\u092A \u090F\u0928\u094D\u0915\u094D\u0930\u093F\u092A\u094D\u091F\u0947\u0921 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u0907\u0938\u0947 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0930\u0916\u0947\u0902\u0964",
+    "userConfigBackup.incremental": "\u0915\u094D\u0930\u092E\u093F\u0915",
+    "userConfigBackup.replace": "\u092C\u0926\u0932\u0947\u0902",
+    "userConfigBackup.replaceCopy": "\u091A\u0941\u0928\u0947 \u0917\u090F \u0905\u0928\u0941\u092D\u093E\u0917\u094B\u0902 \u0915\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0948\u0915\u0905\u092A \u0938\u0947 \u092C\u0926\u0932\u0924\u093E \u0939\u0948\u0964 \u0926\u0942\u0938\u0930\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0906\u0935\u0936\u094D\u092F\u0915 \u0939\u0948\u0964",
+    "userConfigBackup.replaceConfirmTitle": "\u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0926\u0932\u0928\u0947 \u0915\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0915\u0930\u0947\u0902",
+    "userConfigBackup.replaceAcknowledge": "\u092E\u0948\u0902 \u0938\u092E\u091D\u0924\u093E/\u0938\u092E\u091D\u0924\u0940 \u0939\u0942\u0901 \u0915\u093F \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0926\u0932 \u0926\u093F\u092F\u093E \u091C\u093E\u090F\u0917\u093E",
+    "userConfigBackup.confirmReplace": "\u092C\u0926\u0932\u0947\u0902 \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.restoreComplete": "\u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E \u092A\u0942\u0930\u094D\u0923 \u0939\u0941\u0908",
     "systemSettings.tabsLabel": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0905\u0928\u0941\u092D\u093E\u0917",
     "systemSettings.apiTab": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
     "systemSettings.codexTab": "Codex \u091A\u0948\u0928\u0932",
@@ -11699,6 +12121,13 @@
     "apiSettings.save": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u0939\u0947\u091C\u0947\u0902",
     "apiSettings.loadFailed": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0932\u094B\u0921 \u0915\u0930\u0928\u0947 \u092E\u0947\u0902 \u0935\u093F\u092B\u0932",
     "apiSettings.savedKeyPlaceholder": "API \u0915\u0941\u0902\u091C\u0940 \u092C\u0948\u0915\u090F\u0902\u0921 \u092A\u0930 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908 \u0939\u0948\u0964 \u0907\u0938\u0947 \u092C\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u090F\u0915 \u0928\u0908 \u0915\u0941\u0902\u091C\u0940 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.apiKeyRequired": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0938\u0939\u0947\u091C\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 API Key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u0915\u093E \u092E\u0942\u0932 \u092C\u0926\u0932 \u0917\u092F\u093E",
+    "apiSettings.originChangeMessage": "\u092E\u094C\u091C\u0942\u0926\u093E key \u0930\u0916\u0928\u0947 \u092A\u0930 \u0935\u0939 \u0928\u090F \u092A\u0924\u0947 \u092A\u0930 \u092D\u0947\u091C\u0940 \u091C\u093E\u090F\u0917\u0940\u0964 \u0917\u0932\u0924 \u092A\u0924\u093E key \u0915\u094B \u0909\u091C\u093E\u0917\u0930 \u0915\u0930 \u0938\u0915\u0924\u093E \u0939\u0948\u0964",
+    "apiSettings.originChangeDetail": "\u092A\u0941\u0930\u093E\u0928\u093E: {previousOrigin}; \u0928\u092F\u093E: {nextOrigin}",
+    "apiSettings.enterNewKey": "\u0928\u0908 key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902",
+    "apiSettings.keepKeyAndSave": "Key \u0930\u0916\u0947\u0902 \u0914\u0930 \u0938\u0939\u0947\u091C\u0947\u0902",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u0915\u093E \u092E\u0942\u0932 \u092C\u0926\u0932 \u0917\u092F\u093E \u0939\u0948\u0964 \u092A\u0941\u0930\u093E\u0928\u0940 key \u0930\u0916\u0928\u0947 \u0915\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0915\u0930\u0947\u0902 \u092F\u093E \u0928\u0908 key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
     "apiSettings.newProvider": "\u0928\u092F\u093E \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.saving": "\u0938\u0939\u0947\u091C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948...",
     "apiSettings.savingStatus": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u0939\u0947\u091C\u0940 \u091C\u093E \u0930\u0939\u0940 \u0939\u0948\u0902...",
@@ -12798,6 +13227,95 @@
     "settings.saved": "\u0110\xE3 l\u01B0u",
     "settings.savedRestartStatus": "\u0110\xE3 l\u01B0u c\xE0i \u0111\u1EB7t l\u01B0u tr\u1EEF. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 \xE1p d\u1EE5ng.",
     "systemSettings.title": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.title": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.back": "Quay l\u1EA1i C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.entryTitle": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c c\u1EA5u h\xECnh",
+    "userConfigBackup.entryCopy": "Di chuy\u1EC3n chip, \u1EA3nh d\xF9ng chung, m\u1EABu v\xE0 c\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.modeLabel": "Sao l\u01B0u ho\u1EB7c kh\xF4i ph\u1EE5c",
+    "userConfigBackup.backupTab": "Sao l\u01B0u",
+    "userConfigBackup.restoreTab": "Kh\xF4i ph\u1EE5c",
+    "userConfigBackup.backupCopy": "Ch\u1ECDn c\u1EA5u h\xECnh c\u1EA7n \u0111\u01B0a v\xE0o b\u1EA3n sao l\u01B0u. T\xE1c v\u1EE5 \u0111\xE3 t\u1EA1o v\xE0 phi\xEAn \u0111\u0103ng nh\u1EADp OAuth kh\xF4ng bao gi\u1EDD \u0111\u01B0\u1EE3c bao g\u1ED3m.",
+    "userConfigBackup.selectSections": "Ch\u1ECDn d\u1EEF li\u1EC7u",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u1EA2nh d\xF9ng chung",
+    "userConfigBackup.sectionTemplates": "M\u1EABu",
+    "userConfigBackup.sectionSettings": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.groupColors": "M\xE0u s\u1EAFc",
+    "userConfigBackup.groupPromptSnippets": "\u0110o\u1EA1n prompt",
+    "userConfigBackup.groupGalleryItems": "\u1EA2nh d\xF9ng chung",
+    "userConfigBackup.groupPromptTemplates": "M\u1EABu prompt",
+    "userConfigBackup.groupSettings": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.includeApiKeys": "Bao g\u1ED3m API Key (nh\u1EA1y c\u1EA3m)",
+    "userConfigBackup.apiKeyWarning": "B\u1EA3n sao l\u01B0u kh\xF4ng \u0111\u01B0\u1EE3c m\xE3 h\xF3a. H\xE3y l\u01B0u gi\u1EEF an to\xE0n.",
+    "userConfigBackup.backupProgress": "Ti\u1EBFn \u0111\u1ED9 sao l\u01B0u",
+    "userConfigBackup.restoreProgress": "Ti\u1EBFn \u0111\u1ED9 t\u1EA3i l\xEAn \u0111\u1EC3 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.download": "T\u1EA3i b\u1EA3n sao l\u01B0u",
+    "userConfigBackup.create": "T\u1EA1o b\u1EA3n sao l\u01B0u",
+    "userConfigBackup.chooseArchive": "Ch\u1ECDn t\u1EC7p ZIP sao l\u01B0u",
+    "userConfigBackup.chooseArchiveCopy": "T\u1EC7p \u0111\u01B0\u1EE3c t\u1EA3i l\xEAn v\xE0 x\xE1c th\u1EF1c tr\u01B0\u1EDBc. Xem tr\u01B0\u1EDBc kh\xF4ng thay \u0111\u1ED5i d\u1EEF li\u1EC7u hi\u1EC7n c\xF3.",
+    "userConfigBackup.previewTitle": "Xem tr\u01B0\u1EDBc kh\xF4i ph\u1EE5c",
+    "userConfigBackup.restoreModeLabel": "Ch\u1EBF \u0111\u1ED9 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.incremental": "T\u0103ng d\u1EA7n",
+    "userConfigBackup.replace": "Thay th\u1EBF",
+    "userConfigBackup.incrementalCopy": "Gi\u1EEF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3, b\u1ECF qua m\u1EE5c tr\xF9ng v\xE0 t\u1EA1o b\u1EA3n kh\xF4i ph\u1EE5c cho m\u1EE5c xung \u0111\u1ED9t.",
+    "userConfigBackup.replaceCopy": "Thay d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 trong c\xE1c m\u1EE5c \u0111\xE3 ch\u1ECDn b\u1EB1ng b\u1EA3n sao l\u01B0u. C\u1EA7n x\xE1c nh\u1EADn l\u1EA7n n\u1EEFa.",
+    "userConfigBackup.restoreSelected": "Kh\xF4i ph\u1EE5c d\u1EEF li\u1EC7u \u0111\xE3 ch\u1ECDn",
+    "userConfigBackup.replaceConfirmTitle": "X\xE1c nh\u1EADn thay th\u1EBF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3",
+    "userConfigBackup.replaceConfirmCopy": "Ch\u1EC9 c\xE1c m\u1EE5c \u0111\xE3 ch\u1ECDn b\u1ECB \u1EA3nh h\u01B0\u1EDFng, nh\u01B0ng d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 c\u1EE7a ch\xFAng s\u1EBD b\u1ECB x\xF3a. Thao t\xE1c n\xE0y kh\xF4ng th\u1EC3 ho\xE0n t\xE1c.",
+    "userConfigBackup.replaceAcknowledge": "T\xF4i hi\u1EC3u d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 s\u1EBD b\u1ECB thay th\u1EBF",
+    "userConfigBackup.backToPreview": "Quay l\u1EA1i xem tr\u01B0\u1EDBc",
+    "userConfigBackup.confirmReplace": "X\xE1c nh\u1EADn thay th\u1EBF v\xE0 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.summaryLoading": "\u0110ang \u0111\u1ECDc t\xF3m t\u1EAFt c\u1EA5u h\xECnh\u2026",
+    "userConfigBackup.summaryFailed": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc t\xF3m t\u1EAFt c\u1EA5u h\xECnh",
+    "userConfigBackup.itemCount": "{count} m\u1EE5c",
+    "userConfigBackup.warningCount": "{count} c\u1EA3nh b\xE1o",
+    "userConfigBackup.selectAtLeastOne": "Ch\u1ECDn \xEDt nh\u1EA5t m\u1ED9t lo\u1EA1i d\u1EEF li\u1EC7u",
+    "userConfigBackup.apiKeyConfirm": "B\u1EA3n sao l\u01B0u kh\xF4ng m\xE3 h\xF3a n\xE0y s\u1EBD ch\u1EE9a API Key. V\u1EABn t\u1EA1o ch\u1EE9?",
+    "userConfigBackup.cancelled": "\u0110\xE3 h\u1EE7y sao l\u01B0u",
+    "userConfigBackup.downloaded": "\u0110\xE3 b\u1EAFt \u0111\u1EA7u t\u1EA3i xu\u1ED1ng. B\u1EA1n c\xF3 th\u1EC3 t\u1EA3i l\u1EA1i b\u1EA3n sao l\u01B0u n\xE0y trong t\u1ED1i \u0111a 24 gi\u1EDD.",
+    "userConfigBackup.status.queued": "\u0110\xE3 x\u1EBFp h\xE0ng sao l\u01B0u\u2026",
+    "userConfigBackup.status.planning": "\u0110ang l\u1EADp k\u1EBF ho\u1EA1ch sao l\u01B0u\u2026",
+    "userConfigBackup.status.packing": "\u0110ang \u0111\xF3ng g\xF3i\u2026",
+    "userConfigBackup.status.ready": "B\u1EA3n sao l\u01B0u \u0111\xE3 s\u1EB5n s\xE0ng v\xE0 c\xF3 th\u1EC3 t\u1EA3i l\u1EA1i trong t\u1ED1i \u0111a 24 gi\u1EDD.",
+    "userConfigBackup.status.failed": "Sao l\u01B0u th\u1EA5t b\u1EA1i",
+    "userConfigBackup.status.cancelled": "\u0110\xE3 h\u1EE7y sao l\u01B0u",
+    "userConfigBackup.status.expired": "B\u1EA3n sao l\u01B0u \u0111\xE3 h\u1EBFt h\u1EA1n",
+    "userConfigBackup.status.interrupted": "Sao l\u01B0u d\u1EEBng khi WebUI b\u1ECB gi\xE1n \u0111o\u1EA1n",
+    "userConfigBackup.creatingSession": "\u0110ang chu\u1EA9n b\u1ECB t\u1EA3i l\xEAn\u2026",
+    "userConfigBackup.uploading": "\u0110ang t\u1EA3i b\u1EA3n sao l\u01B0u l\xEAn\u2026",
+    "userConfigBackup.validating": "\u0110ang x\xE1c th\u1EF1c b\u1EA3n sao l\u01B0u\u2026",
+    "userConfigBackup.validationReady": "X\xE1c th\u1EF1c ho\xE0n t\u1EA5t. H\xE3y ch\u1ECDn c\xE1ch kh\xF4i ph\u1EE5c.",
+    "userConfigBackup.versionUnsupported": "B\u1EA3n sao l\u01B0u d\xF9ng \u0111\u1ECBnh d\u1EA1ng m\u1EDBi h\u01A1n v\xE0 ch\u1EC9 c\xF3 th\u1EC3 xem tr\u01B0\u1EDBc.",
+    "userConfigBackup.previewCounts": "{count} m\u1EE5c trong g\xF3i \xB7 {duplicate} tr\xF9ng \xB7 {conflict} xung \u0111\u1ED9t",
+    "userConfigBackup.previewSectionCounts": "B\u1EA3n sao l\u01B0u {archive} \xB7 hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: sao l\u01B0u {archive} / hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: b\u1EA3n sao l\u01B0u tr\u1ED1ng, hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Kh\xF4ng th\u1EC3 thay th\u1EBF: {groups} tr\u1ED1ng trong b\u1EA3n sao l\u01B0u nh\u01B0ng hi\u1EC7n c\xF3 d\u1EEF li\u1EC7u. H\xE3y b\u1ECF ch\u1ECDn ho\u1EB7c d\xF9ng kh\xF4i ph\u1EE5c t\u0103ng d\u1EA7n.",
+    "userConfigBackup.archiveMeta": "{count} m\u1EE5c \xB7 \u0111\u1ECBnh d\u1EA1ng v{version}",
+    "userConfigBackup.replaceImpact": "{section}: x\xF3a {current} m\u1EE5c hi\u1EC7n c\xF3 r\u1ED3i nh\u1EADp {archive} m\u1EE5c sao l\u01B0u",
+    "userConfigBackup.galleryReferenceImpact": "{count} t\xE1c v\u1EE5 l\u1ECBch s\u1EED s\u1EBD m\u1EA5t tham chi\u1EBFu \u1EA3nh d\xF9ng chung",
+    "userConfigBackup.providerRetention": "{count} provider c\xF3 th\xF4ng tin x\xE1c th\u1EF1c s\u1EBD \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i \u0111\u1EC3 b\u1EA3o \u0111\u1EA3m an to\xE0n",
+    "userConfigBackup.restoring": "\u0110ang kh\xF4i ph\u1EE5c. H\xE3y gi\u1EEF WebUI m\u1EDF\u2026",
+    "userConfigBackup.restoreComplete": "Kh\xF4i ph\u1EE5c ho\xE0n t\u1EA5t",
+    "userConfigBackup.resultCounts": "{section}: th\xEAm {added} \xB7 thay th\u1EBF {replaced} \xB7 b\u1ECF qua {skipped} \xB7 b\u1EA3n kh\xF4i ph\u1EE5c {copies}",
+    "userConfigBackup.restartRequired": "\u0110\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF \u0111\xE3 \u0111\u01B0\u1EE3c kh\xF4i ph\u1EE5c. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 s\u1EED d\u1EE5ng.",
+    "userConfigBackup.restoreContinues": "Qu\xE1 tr\xECnh ghi \u0111\xE3 b\u1EAFt \u0111\u1EA7u. \u0110\xF3ng b\u1EA3ng n\xE0y kh\xF4ng h\u1EE7y kh\xF4i ph\u1EE5c; h\xE3y m\u1EDF l\u1EA1i \u0111\u1EC3 xem k\u1EBFt qu\u1EA3.",
+    "userConfigBackup.closeActiveConfirm": "M\u1ED9t l\u01B0\u1EE3t t\u1EA3i l\xEAn ho\u1EB7c sao l\u01B0u v\u1EABn \u0111ang ch\u1EA1y. \u0110\xF3ng v\xE0 h\u1EE7y ch\u1EE9?",
+    "userConfigBackup.discardReadyConfirm": "\u0110\xF3ng s\u1EBD x\xF3a b\u1EA3n t\u1EA1m tr\xEAn m\xE1y ch\u1EE7. C\xE1c t\u1EC7p \u0111\xE3 l\u01B0u tr\xEAn thi\u1EBFt b\u1ECB v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF. Ti\u1EBFp t\u1EE5c ch\u1EE9?",
+    "user_config_restore_system_notification_permission_missing": "Th\xF4ng b\xE1o h\u1EC7 th\u1ED1ng kh\xF4ng \u0111\u01B0\u1EE3c b\u1EADt v\xEC tr\xECnh duy\u1EC7t ch\u01B0a c\u1EA5p quy\u1EC1n.",
+    "user_config_backup_failed": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc ho\u1EB7c \u0111\xF3ng g\xF3i d\u1EEF li\u1EC7u \u0111\xE3 ch\u1ECDn. H\xE3y ki\u1EC3m tra v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_gallery_invalid": "M\u1ED9t \u1EA3nh d\xF9ng chung kh\xF4ng kh\u1EDBp v\u1EDBi b\u1EA3n ghi th\u01B0 vi\u1EC7n. H\xE3y l\u01B0u l\u1EA1i ho\u1EB7c x\xF3a \u1EA3nh b\u1ECB \u1EA3nh h\u01B0\u1EDFng r\u1ED3i th\u1EED l\u1EA1i.",
+    "user_config_backup_source_changed": "C\u1EA5u h\xECnh \u0111\xE3 thay \u0111\u1ED5i trong khi sao l\u01B0u. H\xE3y d\u1EEBng ch\u1EC9nh s\u1EEDa v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_source_unreadable": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc t\u1EC7p c\u1EA5u h\xECnh. H\xE3y ki\u1EC3m tra quy\u1EC1n truy c\u1EADp v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_insufficient_space": "Kh\xF4ng \u0111\u1EE7 dung l\u01B0\u1EE3ng \u0111\u0129a tr\u1ED1ng \u0111\u1EC3 t\u1EA1o b\u1EA3n sao l\u01B0u.",
+    "user_config_backup_io_error": "Kh\xF4ng th\u1EC3 truy c\u1EADp t\u1EC7p sao l\u01B0u. H\xE3y ki\u1EC3m tra \u1ED5 \u0111\u0129a v\xE0 quy\u1EC1n th\u01B0 m\u1EE5c.",
+    "user_config_backup_internal_error": "D\u1ECBch v\u1EE5 sao l\u01B0u g\u1EB7p l\u1ED7i n\u1ED9i b\u1ED9. H\xE3y kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI v\xE0 th\u1EED l\u1EA1i; ki\u1EC3m tra nh\u1EADt k\xFD kh\u1EDFi \u0111\u1ED9ng n\u1EBFu l\u1ED7i v\u1EABn ti\u1EBFp di\u1EC5n.",
+    "user_config_restore_failed": "Kh\xF4i ph\u1EE5c th\u1EA5t b\u1EA1i. C\u1EA5u h\xECnh hi\u1EC7n c\xF3 \u0111\xE3 \u0111\u01B0\u1EE3c gi\u1EEF nguy\xEAn.",
+    "user_config_restore_active_tasks": "V\u1EABn c\xF3 t\xE1c v\u1EE5 \u0111ang ch\u1EA1y. H\xE3y ch\u1EDD ch\xFAng ho\xE0n t\u1EA5t tr\u01B0\u1EDBc khi thay th\u1EBF d\u1EEF li\u1EC7u.",
+    "user_config_restore_empty_replace_blocked": "D\u1EEF li\u1EC7u sao l\u01B0u tr\u1ED1ng kh\xF4ng th\u1EC3 thay th\u1EBF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3. H\xE3y b\u1ECF ch\u1ECDn ho\u1EB7c d\xF9ng kh\xF4i ph\u1EE5c t\u0103ng d\u1EA7n.",
+    "user_config_restore_preview_unavailable": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc an to\xE0n d\u1EEF li\u1EC7u hi\u1EC7n t\u1EA1i. H\xE3y ki\u1EC3m tra t\u1EC7p c\u1EE5c b\u1ED9 v\xE0 x\xE1c th\u1EF1c l\u1EA1i b\u1EA3n sao l\u01B0u.",
+    "user_config_restore_preview_stale": "C\u1EA5u h\xECnh hi\u1EC7n t\u1EA1i \u0111\xE3 thay \u0111\u1ED5i. H\xE3y x\xE1c th\u1EF1c l\u1EA1i b\u1EA3n sao l\u01B0u.",
+    "user_config_restore_version_unsupported": "\u0110\u1ECBnh d\u1EA1ng sao l\u01B0u n\xE0y qu\xE1 m\u1EDBi \u0111\u1EC3 kh\xF4i ph\u1EE5c.",
     "systemSettings.tabsLabel": "Ph\u1EA7n c\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
     "systemSettings.apiTab": "C\xE0i \u0111\u1EB7t API",
     "systemSettings.codexTab": "K\xEAnh Codex",
@@ -12895,6 +13413,13 @@
     "apiSettings.save": "L\u01B0u c\xE0i \u0111\u1EB7t API",
     "apiSettings.loadFailed": "Kh\xF4ng t\u1EA3i \u0111\u01B0\u1EE3c c\xE0i \u0111\u1EB7t API",
     "apiSettings.savedKeyPlaceholder": "Backend \u0111\xE3 l\u01B0u API key. Nh\u1EADp key m\u1EDBi \u0111\u1EC3 thay th\u1EBF.",
+    "apiSettings.apiKeyRequired": "H\xE3y nh\u1EADp API Key tr\u01B0\u1EDBc khi l\u01B0u nh\xE0 cung c\u1EA5p.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Ngu\u1ED3n Base URL \u0111\xE3 thay \u0111\u1ED5i",
+    "apiSettings.originChangeMessage": "Gi\u1EEF key hi\u1EC7n t\u1EA1i s\u1EBD g\u1EEDi key \u0111\u1EBFn \u0111\u1ECBa ch\u1EC9 m\u1EDBi. N\u1EBFu nh\u1EADp sai \u0111\u1ECBa ch\u1EC9, key c\xF3 th\u1EC3 b\u1ECB l\u1ED9.",
+    "apiSettings.originChangeDetail": "\u0110\u1ECBa ch\u1EC9 c\u0169: {previousOrigin}; \u0110\u1ECBa ch\u1EC9 m\u1EDBi: {nextOrigin}",
+    "apiSettings.enterNewKey": "Nh\u1EADp key m\u1EDBi",
+    "apiSettings.keepKeyAndSave": "Gi\u1EEF key v\xE0 l\u01B0u",
+    "apiSettings.originChangeConfirmationRequired": "Ngu\u1ED3n Base URL \u0111\xE3 thay \u0111\u1ED5i. H\xE3y x\xE1c nh\u1EADn gi\u1EEF key c\u0169 ho\u1EB7c nh\u1EADp key m\u1EDBi.",
     "apiSettings.newProvider": "Provider m\u1EDBi",
     "apiSettings.saving": "\u0110ang l\u01B0u...",
     "apiSettings.savingStatus": "\u0110ang l\u01B0u c\xE0i \u0111\u1EB7t API...",
@@ -13994,6 +14519,95 @@
     "settings.saved": "\u5DF2\u4FDD\u5B58",
     "settings.savedRestartStatus": "\u5B58\u50A8\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.title": "\u5907\u4EFD\u4E0E\u6062\u590D",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.entryTitle": "\u914D\u7F6E\u5907\u4EFD\u4E0E\u6062\u590D",
+    "userConfigBackup.entryCopy": "\u8FC1\u79FB chip\u3001\u516C\u7528\u56FE\u3001\u6A21\u677F\u548C\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.modeLabel": "\u5907\u4EFD\u6216\u6062\u590D",
+    "userConfigBackup.backupTab": "\u5907\u4EFD",
+    "userConfigBackup.restoreTab": "\u6062\u590D",
+    "userConfigBackup.backupCopy": "\u9009\u62E9\u8981\u5199\u5165\u5907\u4EFD\u5305\u7684\u914D\u7F6E\u3002\u751F\u6210\u4EFB\u52A1\u548C OAuth \u767B\u5F55\u6001\u4E0D\u4F1A\u5305\u542B\u5728\u5185\u3002",
+    "userConfigBackup.selectSections": "\u9009\u62E9\u6570\u636E",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u516C\u7528\u56FE",
+    "userConfigBackup.sectionTemplates": "\u6A21\u677F",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.groupColors": "\u989C\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8BCD\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u56FE",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8BCD\u6A21\u677F",
+    "userConfigBackup.groupSettings": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5907\u4EFD\u5305\u4E0D\u52A0\u5BC6\uFF0C\u8BF7\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.backupProgress": "\u5907\u4EFD\u8FDB\u5EA6",
+    "userConfigBackup.restoreProgress": "\u6062\u590D\u4E0A\u4F20\u8FDB\u5EA6",
+    "userConfigBackup.download": "\u4E0B\u8F7D\u5907\u4EFD",
+    "userConfigBackup.create": "\u521B\u5EFA\u5907\u4EFD",
+    "userConfigBackup.chooseArchive": "\u9009\u62E9\u5907\u4EFD ZIP",
+    "userConfigBackup.chooseArchiveCopy": "\u6587\u4EF6\u4F1A\u5148\u4E0A\u4F20\u5E76\u6821\u9A8C\uFF0C\u9884\u89C8\u4E0D\u4F1A\u4FEE\u6539\u73B0\u6709\u6570\u636E\u3002",
+    "userConfigBackup.previewTitle": "\u6062\u590D\u9884\u89C8",
+    "userConfigBackup.restoreModeLabel": "\u6062\u590D\u6A21\u5F0F",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u66FF\u6362",
+    "userConfigBackup.incrementalCopy": "\u4FDD\u7559\u73B0\u6709\u6570\u636E\uFF0C\u91CD\u590D\u5185\u5BB9\u8DF3\u8FC7\uFF0C\u51B2\u7A81\u9879\u521B\u5EFA\u6062\u590D\u526F\u672C\u3002",
+    "userConfigBackup.replaceCopy": "\u7528\u5907\u4EFD\u5185\u5BB9\u66FF\u6362\u6240\u9009\u7C7B\u522B\u7684\u73B0\u6709\u6570\u636E\uFF0C\u9700\u8981\u518D\u6B21\u786E\u8BA4\u3002",
+    "userConfigBackup.restoreSelected": "\u6062\u590D\u6240\u9009\u5185\u5BB9",
+    "userConfigBackup.replaceConfirmTitle": "\u786E\u8BA4\u66FF\u6362\u73B0\u6709\u6570\u636E",
+    "userConfigBackup.replaceConfirmCopy": "\u66FF\u6362\u53EA\u5F71\u54CD\u6240\u9009\u7C7B\u522B\uFF0C\u4F46\u4F1A\u5220\u9664\u8FD9\u4E9B\u7C7B\u522B\u7684\u73B0\u6709\u5185\u5BB9\u3002\u6B64\u64CD\u4F5C\u5B8C\u6210\u540E\u4E0D\u80FD\u64A4\u9500\u3002",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u4E86\u89E3\u73B0\u6709\u6570\u636E\u5C06\u88AB\u66FF\u6362",
+    "userConfigBackup.backToPreview": "\u8FD4\u56DE\u9884\u89C8",
+    "userConfigBackup.confirmReplace": "\u786E\u8BA4\u66FF\u6362\u5E76\u6062\u590D",
+    "userConfigBackup.summaryLoading": "\u6B63\u5728\u8BFB\u53D6\u914D\u7F6E\u6982\u8981\u2026",
+    "userConfigBackup.summaryFailed": "\u65E0\u6CD5\u8BFB\u53D6\u914D\u7F6E\u6982\u8981",
+    "userConfigBackup.itemCount": "{count} \u9879",
+    "userConfigBackup.warningCount": "{count} \u4E2A\u8B66\u544A",
+    "userConfigBackup.selectAtLeastOne": "\u8BF7\u81F3\u5C11\u9009\u62E9\u4E00\u7C7B\u6570\u636E",
+    "userConfigBackup.apiKeyConfirm": "\u5907\u4EFD\u5305\u5C06\u5305\u542B API Key \u4E14\u4E0D\u4F1A\u52A0\u5BC6\u3002\u4ECD\u8981\u521B\u5EFA\u5417\uFF1F",
+    "userConfigBackup.cancelled": "\u5907\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.downloaded": "\u4E0B\u8F7D\u5DF2\u5F00\u59CB\uFF1B24 \u5C0F\u65F6\u6709\u6548\u671F\u5185\u4ECD\u53EF\u518D\u6B21\u4E0B\u8F7D",
+    "userConfigBackup.status.queued": "\u5907\u4EFD\u5DF2\u6392\u961F\u2026",
+    "userConfigBackup.status.planning": "\u6B63\u5728\u89C4\u5212\u5907\u4EFD\u2026",
+    "userConfigBackup.status.packing": "\u6B63\u5728\u6253\u5305\u2026",
+    "userConfigBackup.status.ready": "\u5907\u4EFD\u5DF2\u5C31\u7EEA\uFF0C24 \u5C0F\u65F6\u5185\u53EF\u91CD\u590D\u4E0B\u8F7D",
+    "userConfigBackup.status.failed": "\u5907\u4EFD\u5931\u8D25",
+    "userConfigBackup.status.cancelled": "\u5907\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.status.expired": "\u5907\u4EFD\u5DF2\u8FC7\u671F",
+    "userConfigBackup.status.interrupted": "\u5907\u4EFD\u56E0 WebUI \u4E2D\u65AD\u800C\u505C\u6B62",
+    "userConfigBackup.creatingSession": "\u6B63\u5728\u51C6\u5907\u4E0A\u4F20\u2026",
+    "userConfigBackup.uploading": "\u6B63\u5728\u4E0A\u4F20\u5907\u4EFD\u5305\u2026",
+    "userConfigBackup.validating": "\u6B63\u5728\u6821\u9A8C\u5907\u4EFD\u5305\u2026",
+    "userConfigBackup.validationReady": "\u6821\u9A8C\u5B8C\u6210\uFF0C\u8BF7\u9009\u62E9\u6062\u590D\u65B9\u5F0F",
+    "userConfigBackup.versionUnsupported": "\u6B64\u5907\u4EFD\u6765\u81EA\u66F4\u9AD8\u683C\u5F0F\u7248\u672C\uFF0C\u53EA\u80FD\u67E5\u770B\uFF0C\u4E0D\u80FD\u6062\u590D",
+    "userConfigBackup.previewCounts": "\u5305\u5185 {count} \u9879 \xB7 \u91CD\u590D {duplicate} \xB7 \u51B2\u7A81 {conflict}",
+    "userConfigBackup.previewSectionCounts": "\u5907\u4EFD {archive} \u9879 \xB7 \u5F53\u524D {current} \u9879",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5907\u4EFD {archive} / \u5F53\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5907\u4EFD\u4E3A\u7A7A\uFF0C\u5F53\u524D\u6709 {current} \u9879",
+    "userConfigBackup.emptyReplaceBlocked": "\u65E0\u6CD5\u66FF\u6362\uFF1A\u5907\u4EFD\u4E2D\u7684{groups}\u4E3A\u7A7A\uFF0C\u4F46\u5F53\u524D\u4ECD\u6709\u6570\u636E\u3002\u8BF7\u53D6\u6D88\u9009\u62E9\u6216\u6539\u7528\u589E\u91CF\u6062\u590D\u3002",
+    "userConfigBackup.archiveMeta": "{count} \u7C7B \xB7 \u683C\u5F0F v{version}",
+    "userConfigBackup.replaceImpact": "{section}\uFF1A\u6E05\u9664\u5F53\u524D {current} \u9879\uFF0C\u518D\u5BFC\u5165\u5907\u4EFD {archive} \u9879",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u4E2A\u5386\u53F2\u4EFB\u52A1\u5C06\u5931\u53BB\u516C\u7528\u56FE\u5F15\u7528",
+    "userConfigBackup.providerRetention": "{count} \u4E2A\u5E26\u51ED\u636E\u4F9B\u5E94\u5546\u5C06\u6309\u5B89\u5168\u89C4\u5219\u4FDD\u7559",
+    "userConfigBackup.restoring": "\u6B63\u5728\u6062\u590D\uFF0C\u8BF7\u52FF\u5173\u95ED WebUI\u2026",
+    "userConfigBackup.restoreComplete": "\u6062\u590D\u5B8C\u6210",
+    "userConfigBackup.resultCounts": "{section}\uFF1A\u65B0\u589E {added} \xB7 \u66FF\u6362 {replaced} \xB7 \u8DF3\u8FC7 {skipped} \xB7 \u6062\u590D\u526F\u672C {copies}",
+    "userConfigBackup.restartRequired": "\u5B58\u50A8\u8DEF\u5F84\u5DF2\u7ECF\u6062\u590D\uFF1B\u5F53\u524D\u8FDB\u7A0B\u4ECD\u4F7F\u7528\u539F\u8DEF\u5F84\uFF0C\u8BF7\u91CD\u542F WebUI\u3002",
+    "userConfigBackup.restoreContinues": "\u6062\u590D\u5199\u5165\u5DF2\u7ECF\u5F00\u59CB\uFF0C\u5173\u95ED\u9762\u677F\u4E0D\u4F1A\u53D6\u6D88\u64CD\u4F5C\u3002\u7A0D\u540E\u91CD\u65B0\u6253\u5F00\u53EF\u67E5\u770B\u7ED3\u679C\u3002",
+    "userConfigBackup.closeActiveConfirm": "\u4E0A\u4F20\u6216\u5907\u4EFD\u4ECD\u5728\u8FDB\u884C\u3002\u5173\u95ED\u5E76\u53D6\u6D88\u5417\uFF1F",
+    "userConfigBackup.discardReadyConfirm": "\u5173\u95ED\u4F1A\u5220\u9664\u670D\u52A1\u7AEF\u4E34\u65F6\u5907\u4EFD\uFF1B\u5DF2\u7ECF\u4FDD\u5B58\u5230\u672C\u673A\u7684\u6587\u4EF6\u4E0D\u53D7\u5F71\u54CD\u3002\u786E\u5B9A\u5417\uFF1F",
+    "user_config_restore_system_notification_permission_missing": "\u6D4F\u89C8\u5668\u672A\u6388\u4E88\u7CFB\u7EDF\u901A\u77E5\u6743\u9650\uFF0C\u8BE5\u504F\u597D\u672A\u542F\u7528\u3002",
+    "user_config_backup_failed": "\u5907\u4EFD\u6570\u636E\u65E0\u6CD5\u8BFB\u53D6\u6216\u6253\u5305\uFF0C\u8BF7\u68C0\u67E5\u6240\u9009\u5185\u5BB9\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_gallery_invalid": "\u516C\u7528\u56FE\u5E93\u4E2D\u6709\u56FE\u7247\u6587\u4EF6\u4E0E\u8BB0\u5F55\u4E0D\u4E00\u81F4\u3002\u8BF7\u91CD\u65B0\u4FDD\u5B58\u6216\u79FB\u9664\u5F02\u5E38\u56FE\u7247\u540E\u518D\u8BD5\u3002",
+    "user_config_backup_source_changed": "\u914D\u7F6E\u5728\u5907\u4EFD\u8FC7\u7A0B\u4E2D\u53D1\u751F\u53D8\u5316\uFF0C\u8BF7\u505C\u6B62\u7F16\u8F91\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_source_unreadable": "\u5907\u4EFD\u65E0\u6CD5\u8BFB\u53D6\u914D\u7F6E\u6587\u4EF6\uFF0C\u8BF7\u68C0\u67E5\u6587\u4EF6\u6743\u9650\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_insufficient_space": "\u78C1\u76D8\u53EF\u7528\u7A7A\u95F4\u4E0D\u8DB3\uFF0C\u65E0\u6CD5\u521B\u5EFA\u5907\u4EFD\u3002",
+    "user_config_backup_io_error": "\u5907\u4EFD\u6587\u4EF6\u8BFB\u5199\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u78C1\u76D8\u548C\u76EE\u5F55\u6743\u9650\u3002",
+    "user_config_backup_internal_error": "\u5907\u4EFD\u670D\u52A1\u53D1\u751F\u5185\u90E8\u9519\u8BEF\uFF0C\u8BF7\u91CD\u542F WebUI \u540E\u91CD\u8BD5\uFF1B\u82E5\u4ECD\u5931\u8D25\uFF0C\u8BF7\u67E5\u770B\u542F\u52A8\u65E5\u5FD7\u3002",
+    "user_config_restore_failed": "\u6062\u590D\u5931\u8D25\uFF0C\u73B0\u6709\u914D\u7F6E\u5DF2\u4FDD\u7559",
+    "user_config_restore_active_tasks": "\u4ECD\u6709\u6D3B\u52A8\u4EFB\u52A1\uFF0C\u8BF7\u7B49\u5F85\u4EFB\u52A1\u7ED3\u675F\u540E\u518D\u66FF\u6362",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u5907\u4EFD\u5185\u5BB9\u4E0D\u80FD\u66FF\u6362\u73B0\u6709\u6570\u636E\u3002\u8BF7\u53D6\u6D88\u9009\u62E9\u6216\u6539\u7528\u589E\u91CF\u6062\u590D\u3002",
+    "user_config_restore_preview_unavailable": "\u65E0\u6CD5\u5B89\u5168\u8BFB\u53D6\u5F53\u524D\u6570\u636E\u3002\u8BF7\u68C0\u67E5\u672C\u5730\u6587\u4EF6\u540E\u91CD\u65B0\u6821\u9A8C\u5907\u4EFD\u5305\u3002",
+    "user_config_restore_preview_stale": "\u5F53\u524D\u914D\u7F6E\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u6821\u9A8C\u5907\u4EFD\u5305",
+    "user_config_restore_version_unsupported": "\u5907\u4EFD\u683C\u5F0F\u7248\u672C\u8FC7\u9AD8\uFF0C\u4E0D\u80FD\u6062\u590D",
     "systemSettings.tabsLabel": "\u7CFB\u7EDF\u8BBE\u7F6E\u9009\u9879",
     "systemSettings.apiTab": "API \u8BBE\u7F6E",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -14091,6 +14705,13 @@
     "apiSettings.save": "\u4FDD\u5B58 API \u8BBE\u7F6E",
     "apiSettings.loadFailed": "API \u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25",
     "apiSettings.savedKeyPlaceholder": "\u540E\u7AEF\u5DF2\u4FDD\u5B58 API Key\uFF0C\u8F93\u5165\u65B0 key \u53EF\u8986\u76D6",
+    "apiSettings.apiKeyRequired": "\u8BF7\u586B\u5199 API Key \u540E\u518D\u4FDD\u5B58\u4F9B\u5E94\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u57DF\u540D\u5DF2\u66F4\u6539",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u540E\uFF0C\u5B83\u4F1A\u968F\u8BF7\u6C42\u53D1\u9001\u5230\u65B0\u5730\u5740\u3002\u82E5\u65B0\u5730\u5740\u586B\u5199\u9519\u8BEF\uFF0CKey \u53EF\u80FD\u6CC4\u9732\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u5730\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u5730\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5199\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u5E76\u4FDD\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u57DF\u540D\u5DF2\u66F4\u6539\uFF0C\u8BF7\u786E\u8BA4\u4FDD\u7559\u539F Key \u6216\u586B\u5199\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u5E94\u5546",
     "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...",
@@ -15190,6 +15811,36 @@
     "settings.saved": "\u5DF2\u5132\u5B58",
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u6A21\u677F\u53CA\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.backupTab": "\u5099\u4EFD",
+    "userConfigBackup.restoreTab": "\u9084\u539F",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u5171\u7528\u5716\u7247",
+    "userConfigBackup.sectionTemplates": "\u6A21\u677F",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u984F\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u5716",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8A5E\u7BC4\u672C",
+    "userConfigBackup.groupSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u5099\u4EFD {archive} \xB7 \u76EE\u524D {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5099\u4EFD {archive} / \u76EE\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5099\u4EFD\u70BA\u7A7A\uFF0C\u73FE\u6709 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7121\u6CD5\u53D6\u4EE3\uFF1A\u5099\u4EFD\u4E2D\u7684 {groups} \u70BA\u7A7A\uFF0C\u4F46\u76EE\u524D\u4ECD\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u64C7\u6216\u6539\u7528\u589E\u91CF\u6062\u5FA9\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u767D\u5099\u4EFD\u5167\u5BB9\u4E0D\u80FD\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u64C7\u6216\u6539\u7528\u589E\u91CF\u6062\u5FA9\u3002",
+    "user_config_restore_preview_unavailable": "\u7121\u6CD5\u5B89\u5168\u8B80\u53D6\u76EE\u524D\u8CC7\u6599\u3002\u8ACB\u6AA2\u67E5\u672C\u6A5F\u6A94\u6848\u5F8C\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u3002",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5099\u4EFD\u6A94\u672A\u7D93\u52A0\u5BC6\uFF0C\u8ACB\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u53D6\u4EE3",
+    "userConfigBackup.replaceCopy": "\u4EE5\u5099\u4EFD\u5167\u5BB9\u53D6\u4EE3\u6240\u9078\u985E\u5225\u7684\u73FE\u6709\u8CC7\u6599\uFF0C\u9700\u8981\u518D\u6B21\u78BA\u8A8D\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u78BA\u8A8D\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u660E\u767D\u73FE\u6709\u8CC7\u6599\u5C07\u88AB\u53D6\u4EE3",
+    "userConfigBackup.confirmReplace": "\u78BA\u8A8D\u53D6\u4EE3\u4E26\u9084\u539F",
+    "userConfigBackup.restoreComplete": "\u9084\u539F\u5B8C\u6210",
     "systemSettings.tabsLabel": "\u7CFB\u7D71\u8A2D\u5B9A\u9078\u9805",
     "systemSettings.apiTab": "API \u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -15287,6 +15938,13 @@
     "apiSettings.save": "\u5132\u5B58API\u8A2D\u5B9A",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u8B80\u53D6\u5931\u6557",
     "apiSettings.savedKeyPlaceholder": "\u5F8C\u7AEF\u5DF2\u5132\u5B58API Key\uFF0C\u8F38\u5165\u65B0 key \u53EF\u8986\u84CB",
+    "apiSettings.apiKeyRequired": "\u8ACB\u586B\u5BEB API Key \u5F8C\u518D\u5132\u5B58\u4F9B\u61C9\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u5F8C\uFF0C\u5B83\u6703\u96A8\u8ACB\u6C42\u50B3\u9001\u5230\u65B0\u5730\u5740\u3002\u82E5\u65B0\u5730\u5740\u586B\u5BEB\u932F\u8AA4\uFF0CKey \u53EF\u80FD\u6D29\u6F0F\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u5730\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u5730\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5BEB\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u4E26\u5132\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u78BA\u8A8D\u4FDD\u7559\u539F Key \u6216\u586B\u5BEB\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u61C9\u5546",
     "apiSettings.saving": "\u5132\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
@@ -16386,6 +17044,36 @@
     "settings.saved": "\u5DF2\u5132\u5B58",
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u7BC4\u672C\u8207\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.backupTab": "\u5099\u4EFD",
+    "userConfigBackup.restoreTab": "\u9084\u539F",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u5171\u7528\u5716\u7247",
+    "userConfigBackup.sectionTemplates": "\u7BC4\u672C",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u984F\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u5716",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8A5E\u7BC4\u672C",
+    "userConfigBackup.groupSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u5099\u4EFD {archive} \xB7 \u76EE\u524D {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5099\u4EFD {archive} / \u76EE\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5099\u4EFD\u70BA\u7A7A\uFF0C\u73FE\u6709 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7121\u6CD5\u53D6\u4EE3\uFF1A\u5099\u4EFD\u4E2D\u7684 {groups} \u70BA\u7A7A\uFF0C\u4F46\u76EE\u524D\u4ECD\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u53D6\u6216\u6539\u7528\u589E\u91CF\u9084\u539F\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u767D\u5099\u4EFD\u5167\u5BB9\u4E0D\u80FD\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u53D6\u6216\u6539\u7528\u589E\u91CF\u9084\u539F\u3002",
+    "user_config_restore_preview_unavailable": "\u7121\u6CD5\u5B89\u5168\u8B80\u53D6\u76EE\u524D\u8CC7\u6599\u3002\u8ACB\u6AA2\u67E5\u672C\u6A5F\u6A94\u6848\u5F8C\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u3002",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5099\u4EFD\u6A94\u672A\u52A0\u5BC6\uFF0C\u8ACB\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u53D6\u4EE3",
+    "userConfigBackup.replaceCopy": "\u4EE5\u5099\u4EFD\u5167\u5BB9\u53D6\u4EE3\u6240\u9078\u985E\u5225\u7684\u73FE\u6709\u8CC7\u6599\uFF0C\u9700\u8981\u518D\u6B21\u78BA\u8A8D\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u78BA\u8A8D\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u77AD\u89E3\u73FE\u6709\u8CC7\u6599\u5C07\u88AB\u53D6\u4EE3",
+    "userConfigBackup.confirmReplace": "\u78BA\u8A8D\u53D6\u4EE3\u4E26\u9084\u539F",
+    "userConfigBackup.restoreComplete": "\u9084\u539F\u5B8C\u6210",
     "systemSettings.tabsLabel": "\u7CFB\u7D71\u8A2D\u5B9A\u9078\u9805",
     "systemSettings.apiTab": "API \u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -16483,6 +17171,13 @@
     "apiSettings.save": "\u5132\u5B58API\u8A2D\u5B9A",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u8B80\u53D6\u5931\u6557",
     "apiSettings.savedKeyPlaceholder": "\u5F8C\u7AEF\u5DF2\u5132\u5B58API Key\uFF0C\u8F38\u5165\u65B0 key \u53EF\u8986\u84CB",
+    "apiSettings.apiKeyRequired": "\u8ACB\u586B\u5BEB API Key \u5F8C\u518D\u5132\u5B58\u4F9B\u61C9\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u5F8C\uFF0C\u5B83\u6703\u96A8\u8ACB\u6C42\u50B3\u9001\u5230\u65B0\u4F4D\u5740\u3002\u82E5\u65B0\u4F4D\u5740\u586B\u5BEB\u932F\u8AA4\uFF0CKey \u53EF\u80FD\u5916\u6D29\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u4F4D\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u4F4D\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5BEB\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u4E26\u5132\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u78BA\u8A8D\u4FDD\u7559\u539F Key \u6216\u586B\u5BEB\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u61C9\u5546",
     "apiSettings.saving": "\u5132\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
@@ -17071,7 +17766,7 @@
     return DEFAULT_LOCALE;
   }
   function translate(key, locale = currentLocale) {
-    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES.en[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
   }
   function formatTranslation(key, values = {}, locale = currentLocale) {
     return translate(key, locale).replace(/\{(\w+)\}/g, (match, name) => {
@@ -17426,6 +18121,8 @@
       archiveCount: document.querySelector("#archiveCount"),
       systemSettingsModal: document.querySelector("#systemSettingsModal"),
       systemSettingsModalClose: document.querySelector("#systemSettingsModalClose"),
+      systemSettingsTitle: document.querySelector("#systemSettingsTitle"),
+      userConfigBackupBackButton: document.querySelector("#userConfigBackupBackButton"),
       systemSettingsTabs: document.querySelector("#systemSettingsTabs"),
       systemSettingsApiTab: document.querySelector("#systemSettingsApiTab"),
       systemSettingsNetworkTab: document.querySelector("#systemSettingsNetworkTab"),
@@ -17435,6 +18132,34 @@
       systemSettingsNetworkPanel: document.querySelector("#systemSettingsNetworkPanel"),
       systemSettingsLanguagePanel: document.querySelector("#systemSettingsLanguagePanel"),
       systemSettingsStoragePanel: document.querySelector("#systemSettingsStoragePanel"),
+      openUserConfigBackupButton: document.querySelector("#openUserConfigBackupButton"),
+      userConfigBackupView: document.querySelector("#userConfigBackupView"),
+      userConfigTransferMode: document.querySelector("#userConfigTransferMode"),
+      userConfigBackupPane: document.querySelector("#userConfigBackupPane"),
+      userConfigRestorePane: document.querySelector("#userConfigRestorePane"),
+      userConfigBackupSectionList: document.querySelector("#userConfigBackupSectionList"),
+      userConfigIncludeApiKeysRow: document.querySelector("#userConfigIncludeApiKeysRow"),
+      userConfigIncludeApiKeys: document.querySelector("#userConfigIncludeApiKeys"),
+      userConfigBackupProgress: document.querySelector("#userConfigBackupProgress"),
+      userConfigBackupStatus: document.querySelector("#userConfigBackupStatus"),
+      cancelUserConfigBackupButton: document.querySelector("#cancelUserConfigBackupButton"),
+      downloadUserConfigBackupButton: document.querySelector("#downloadUserConfigBackupButton"),
+      createUserConfigBackupButton: document.querySelector("#createUserConfigBackupButton"),
+      userConfigRestoreFile: document.querySelector("#userConfigRestoreFile"),
+      userConfigRestoreProgress: document.querySelector("#userConfigRestoreProgress"),
+      userConfigRestoreStatus: document.querySelector("#userConfigRestoreStatus"),
+      userConfigRestorePreview: document.querySelector("#userConfigRestorePreview"),
+      userConfigRestoreArchiveMeta: document.querySelector("#userConfigRestoreArchiveMeta"),
+      userConfigRestoreSectionList: document.querySelector("#userConfigRestoreSectionList"),
+      userConfigRestoreMode: document.querySelector("#userConfigRestoreMode"),
+      userConfigRestoreModeCopy: document.querySelector("#userConfigRestoreModeCopy"),
+      startUserConfigRestoreButton: document.querySelector("#startUserConfigRestoreButton"),
+      userConfigReplaceConfirmation: document.querySelector("#userConfigReplaceConfirmation"),
+      userConfigReplaceImpactList: document.querySelector("#userConfigReplaceImpactList"),
+      userConfigReplaceAcknowledge: document.querySelector("#userConfigReplaceAcknowledge"),
+      backToUserConfigPreviewButton: document.querySelector("#backToUserConfigPreviewButton"),
+      confirmUserConfigReplaceButton: document.querySelector("#confirmUserConfigReplaceButton"),
+      userConfigRestoreResult: document.querySelector("#userConfigRestoreResult"),
       networkEgressMode: document.querySelector("#networkEgressMode"),
       networkEgressCustomProxyField: document.querySelector("#networkEgressCustomProxyField"),
       networkEgressCustomProxy: document.querySelector("#networkEgressCustomProxy"),
@@ -17913,20 +18638,18 @@
     renderPreview(task);
   }
   function startRunFeedback(task, actionLabel = null) {
-    const { state: state5, els: els9 } = getLegacyBridge();
+    const { state: state5 } = getLegacyBridge();
     stopRunFeedback();
     state5.runFeedbackAction = actionLabel;
     state5.runStartedAt = timestampMs(task.started_at || task.created_at) || Date.now();
     state5.runTimerId = window.setInterval(updateRunFeedback, 100);
-    els9.runButton?.classList.add("running");
     updateRunFeedback();
   }
   function updateRunFeedback() {
-    const { state: state5, els: els9 } = getLegacyBridge();
+    const { state: state5 } = getLegacyBridge();
     if (!state5.runStartedAt) return;
     const elapsed = formatDurationTenths(elapsedMillisecondsSince(state5.runStartedAt));
     const action = state5.runFeedbackAction || (state5.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
-    if (els9.runButton) els9.runButton.textContent = `${action} ${elapsed}`;
     setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
     updateElapsedDisplays();
     if (state5.selectedTaskId === state5.pendingTaskId) {
@@ -17934,14 +18657,13 @@
     }
   }
   function stopRunFeedback() {
-    const { state: state5, els: els9 } = getLegacyBridge();
+    const { state: state5 } = getLegacyBridge();
     if (state5.runTimerId) {
       window.clearInterval(state5.runTimerId);
     }
     state5.runTimerId = null;
     state5.runStartedAt = null;
     state5.runFeedbackAction = null;
-    els9.runButton?.classList.remove("running");
     syncRunButtonLabel();
   }
 
@@ -20043,6 +20765,9 @@
   var systemSettingsHeightAnimationToken = 0;
   var systemSettingsHeightAnimationTimer;
   var systemSettingsReturnFocus = null;
+  var userConfigBackupOpen = false;
+  var userConfigBackupTrigger = null;
+  var storagePanelScrollTop = 0;
   var MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
   var VALID_TABS = /* @__PURE__ */ new Set(["api", "network", "language", "storage"]);
   function normalizedTab(tab) {
@@ -20051,7 +20776,8 @@
   }
   function maybeCall(name, ...args) {
     const method = getLegacyBridge().methods[name];
-    if (typeof method === "function") method(...args);
+    if (typeof method === "function") return method(...args);
+    return void 0;
   }
   function systemSettingsPanel() {
     const { els: els9 } = getLegacyBridge();
@@ -20120,6 +20846,7 @@
     systemSettingsHeightAnimationTimer = window.setTimeout(() => cleanup(), 320);
   }
   function setSystemSettingsTab(tab, options = {}) {
+    if (userConfigBackupOpen) closeUserConfigBackupView({ restoreFocus: false, force: true });
     const selected = normalizedTab(tab);
     const { els: els9 } = getLegacyBridge();
     const panel = systemSettingsPanel();
@@ -20155,6 +20882,98 @@
     refreshSegmentedIndicators();
     if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
   }
+  function userConfigBackupViewIsOpen() {
+    return userConfigBackupOpen;
+  }
+  function openUserConfigBackupView(trigger) {
+    const { els: els9 } = getLegacyBridge();
+    if (userConfigBackupOpen) return;
+    setSystemSettingsTab("storage");
+    userConfigBackupOpen = true;
+    userConfigBackupTrigger = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    storagePanelScrollTop = Number(els9.systemSettingsStoragePanel?.scrollTop || 0);
+    const panel = systemSettingsPanel();
+    const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+    const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+    if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+    if (els9.systemSettingsTabs instanceof HTMLElement) {
+      els9.systemSettingsTabs.hidden = true;
+      els9.systemSettingsTabs.inert = true;
+      els9.systemSettingsTabs.setAttribute("aria-hidden", "true");
+    }
+    [
+      els9.systemSettingsApiPanel,
+      els9.systemSettingsNetworkPanel,
+      els9.systemSettingsLanguagePanel,
+      els9.systemSettingsStoragePanel
+    ].forEach((settingsPanel) => {
+      if (!settingsPanel) return;
+      settingsPanel.hidden = true;
+      settingsPanel.inert = true;
+      settingsPanel.setAttribute("aria-hidden", "true");
+    });
+    if (els9.userConfigBackupView instanceof HTMLElement) {
+      els9.userConfigBackupView.hidden = false;
+      els9.userConfigBackupView.inert = false;
+      els9.userConfigBackupView.setAttribute("aria-hidden", "false");
+    }
+    els9.userConfigBackupBackButton?.classList.remove("hidden");
+    if (els9.systemSettingsTitle) {
+      els9.systemSettingsTitle.dataset.i18n = "userConfigBackup.title";
+      els9.systemSettingsTitle.textContent = translate("userConfigBackup.title");
+    }
+    maybeCall("openUserConfigBackupController");
+    refreshSegmentedIndicators();
+    if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+    els9.userConfigBackupBackButton?.focus({ preventScroll: true });
+  }
+  function closeUserConfigBackupView(options = {}) {
+    if (!userConfigBackupOpen) return true;
+    if (!options.force && maybeCall("guardUserConfigBackupClose", options.closeModal === true) === false) return false;
+    const { els: els9 } = getLegacyBridge();
+    const panel = systemSettingsPanel();
+    const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+    const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+    if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+    userConfigBackupOpen = false;
+    if (els9.userConfigBackupView instanceof HTMLElement) {
+      els9.userConfigBackupView.hidden = true;
+      els9.userConfigBackupView.inert = true;
+      els9.userConfigBackupView.setAttribute("aria-hidden", "true");
+    }
+    if (els9.systemSettingsTabs instanceof HTMLElement) {
+      els9.systemSettingsTabs.hidden = false;
+      els9.systemSettingsTabs.inert = false;
+      els9.systemSettingsTabs.setAttribute("aria-hidden", "false");
+    }
+    els9.userConfigBackupBackButton?.classList.add("hidden");
+    if (els9.systemSettingsTitle) {
+      els9.systemSettingsTitle.dataset.i18n = "systemSettings.title";
+      els9.systemSettingsTitle.textContent = translate("systemSettings.title");
+    }
+    [
+      ["api", els9.systemSettingsApiPanel],
+      ["network", els9.systemSettingsNetworkPanel],
+      ["language", els9.systemSettingsLanguagePanel],
+      ["storage", els9.systemSettingsStoragePanel]
+    ].forEach(([name, settingsPanel]) => {
+      if (!(settingsPanel instanceof HTMLElement)) return;
+      settingsPanel.inert = false;
+      const active = name === "storage";
+      settingsPanel.hidden = !active;
+      settingsPanel.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+    setSystemSettingsTab("storage", { refresh: false });
+    if (els9.systemSettingsStoragePanel) els9.systemSettingsStoragePanel.scrollTop = storagePanelScrollTop;
+    maybeCall("closeUserConfigBackupController");
+    refreshSegmentedIndicators();
+    if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+    if (options.restoreFocus !== false && userConfigBackupTrigger?.isConnected) {
+      userConfigBackupTrigger.focus({ preventScroll: true });
+    }
+    userConfigBackupTrigger = null;
+    return true;
+  }
   function openSystemSettingsModal(tab = "api") {
     const { els: els9 } = getLegacyBridge();
     const modal = els9.systemSettingsModal;
@@ -20169,7 +20988,12 @@
     if (wasHidden) positionSystemSettingsModal();
     refreshSegmentedIndicators();
   }
-  function closeSystemSettingsModal() {
+  function closeSystemSettingsModal(options = {}) {
+    if (userConfigBackupOpen && !closeUserConfigBackupView({
+      restoreFocus: false,
+      force: options.force === true,
+      closeModal: true
+    })) return;
     const { els: els9 } = getLegacyBridge();
     const modal = els9.systemSettingsModal;
     const activeElement = document.activeElement;
@@ -20207,17 +21031,33 @@
   function handleSystemSettingsResize() {
     positionSystemSettingsModal();
   }
+  function handleUserConfigBackupEntry(event) {
+    const trigger = event.currentTarget;
+    openUserConfigBackupView(trigger instanceof HTMLElement ? trigger : void 0);
+  }
+  function handleSystemSettingsKeydown(event) {
+    if (event.key !== "Escape" || !userConfigBackupOpen) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeUserConfigBackupView();
+  }
   function initSystemSettingsFeature() {
     if (systemSettingsFeatureInitialized) return;
     systemSettingsFeatureInitialized = true;
     const { els: els9 } = getLegacyBridge();
     els9.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
+    els9.openUserConfigBackupButton?.addEventListener("click", handleUserConfigBackupEntry);
+    els9.userConfigBackupBackButton?.addEventListener("click", () => closeUserConfigBackupView());
     window.addEventListener("resize", handleSystemSettingsResize);
+    document.addEventListener("keydown", handleSystemSettingsKeydown, true);
     Object.assign(getLegacyBridge().methods, {
       setSystemSettingsTab,
       openSystemSettingsModal,
       openSystemSettingsFromUrl,
-      closeSystemSettingsModal
+      closeSystemSettingsModal,
+      openUserConfigBackupView,
+      closeUserConfigBackupView,
+      userConfigBackupViewIsOpen
     });
   }
 
@@ -20894,6 +21734,50 @@
     });
   }
 
+  // codex_image/webui/frontend/src/api-provider-credentials.ts
+  function providerUrlOrigin(value) {
+    try {
+      return new URL(String(value || "").trim()).origin;
+    } catch {
+      return "";
+    }
+  }
+  function evaluateProviderCredentialSave(draft, savedProviders) {
+    if (String(draft?.api_key || "").trim()) return { kind: "allow" };
+    const providers = Array.isArray(savedProviders) ? savedProviders : [];
+    const nextOrigin = providerUrlOrigin(draft?.base_url);
+    const existing = providers.find((provider) => provider?.id === draft?.id);
+    if (existing && Boolean(existing.api_key_set || existing.api_key)) {
+      const previousOrigin = providerUrlOrigin(existing.base_url);
+      if (previousOrigin && previousOrigin === nextOrigin) return { kind: "allow" };
+      return {
+        kind: "confirm_origin_change",
+        providerId: String(draft.id || ""),
+        previousOrigin,
+        nextOrigin
+      };
+    }
+    const sourceId = String(draft?.api_key_source_provider_id || "").trim();
+    const source = providers.find((provider) => provider?.id === sourceId);
+    if (source && Boolean(source.api_key_set || source.api_key) && providerUrlOrigin(source.base_url) === nextOrigin) {
+      return { kind: "allow" };
+    }
+    return { kind: "key_required" };
+  }
+  function isConfirmedProviderOriginChange(decision, confirmation) {
+    return decision.kind === "confirm_origin_change" && Boolean(confirmation) && decision.providerId === confirmation?.providerId && decision.previousOrigin === confirmation?.previousOrigin && decision.nextOrigin === confirmation?.nextOrigin;
+  }
+  function clearProviderApiKeyInputs(settings) {
+    return {
+      ...settings,
+      providers: Array.isArray(settings?.providers) ? settings.providers.map((provider) => ({
+        ...provider,
+        api_key: "",
+        api_key_source_provider_id: ""
+      })) : []
+    };
+  }
+
   // codex_image/webui/frontend/src/api-provider-settings.ts
   var bridge3 = getLegacyBridge();
   var state3 = bridge3.state;
@@ -21055,6 +21939,7 @@
   function updateApiKeyRevealButton() {
     if (!els4.apiKeyRevealButton) return;
     const canReveal = Boolean(els4.apiKey?.value);
+    if (canReveal) els4.apiKey?.removeAttribute("aria-invalid");
     if (!canReveal) hideApiKeyReveal();
     els4.apiKeyRevealButton.disabled = !canReveal;
     const label = translate("apiSettings.showApiKey");
@@ -21889,6 +22774,7 @@
     const previousEditingId = state3.apiProviderEditingId;
     const previousDraft = state3.apiProviderDraft ? structuredClone(state3.apiProviderDraft) : null;
     const previousDraftIsNew = state3.apiProviderDraftIsNew;
+    let confirmedOriginChange = null;
     if (!autoSave && apiProviderEditorActive()) {
       const bindings = readProviderBindingCards(els4.apiProviderBindings);
       if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id || !binding.remote_model_id || !binding.operations.length)) {
@@ -21904,6 +22790,44 @@
         els4.apiProviderBindings?.querySelector(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
         return false;
       }
+      const providerDraft = draftProviderFromForm();
+      const credentialDecision = evaluateProviderCredentialSave(
+        providerDraft,
+        previousSettings.providers
+      );
+      if (credentialDecision.kind === "key_required") {
+        els4.apiKey?.setAttribute("aria-invalid", "true");
+        setApiSettingsFeedback(translate("apiSettings.apiKeyRequired"), "error");
+        els4.apiKey?.focus();
+        return false;
+      }
+      const requestedConfirmation = options.originChangeConfirmation || null;
+      if (credentialDecision.kind === "confirm_origin_change") {
+        if (!isConfirmedProviderOriginChange(credentialDecision, requestedConfirmation)) {
+          openConfirmPopover(els4.saveApiProviderEditButton, {
+            title: translate("apiSettings.originChangeTitle"),
+            message: translate("apiSettings.originChangeMessage"),
+            detail: formatTranslation("apiSettings.originChangeDetail", {
+              previousOrigin: credentialDecision.previousOrigin,
+              nextOrigin: credentialDecision.nextOrigin
+            }),
+            cancelText: translate("apiSettings.enterNewKey"),
+            confirmText: translate("apiSettings.keepKeyAndSave"),
+            focusCancel: true,
+            onCancel: () => els4.apiKey?.focus(),
+            onConfirm: () => saveApiSettings({
+              originChangeConfirmation: {
+                providerId: credentialDecision.providerId,
+                previousOrigin: credentialDecision.previousOrigin,
+                nextOrigin: credentialDecision.nextOrigin
+              }
+            })
+          });
+          return false;
+        }
+        confirmedOriginChange = requestedConfirmation;
+      }
+      els4.apiKey?.removeAttribute("aria-invalid");
     }
     const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
     persistApiSettings();
@@ -21925,6 +22849,9 @@
         if (!provider.api_key && provider.api_key_source_provider_id) {
           item.api_key_source_provider_id = provider.api_key_source_provider_id;
         }
+        if (provider.id === confirmedOriginChange?.providerId) {
+          item.preserve_api_key_on_origin_change = true;
+        }
         return item;
       })
     };
@@ -21940,8 +22867,15 @@
         body: JSON.stringify(payload)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || translate("apiSettings.saveFailed"));
-      state3.apiSettings = mergeApiProviderKeys(data.settings || {});
+      if (!response.ok) {
+        const detail = String(data.detail || "");
+        if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+        if (detail === "api_key_origin_change_confirmation_required") {
+          throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
+        }
+        throw new Error(detail || translate("apiSettings.saveFailed"));
+      }
+      state3.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
       state3.apiProviderEditingId = null;
       state3.apiProviderDraft = null;
       state3.apiProviderDraftIsNew = false;
@@ -22463,17 +23397,21 @@
     const message = options.message ? `<p class="confirm-popover-message">${escapeHtml2(options.message)}</p>` : "";
     const detail = options.detail ? `<div class="confirm-popover-detail">${escapeHtml2(options.detail)}</div>` : "";
     const confirmText = options.confirmText || translate("action.confirm");
+    const cancelText = options.cancelText || translate("action.cancel");
     const confirmClass = options.danger === false ? "ghost-button text-sm confirm-popover-confirm" : "ghost-button text-sm danger-button confirm-popover-confirm";
     popover.innerHTML = `
     <div class="confirm-popover-title">${escapeHtml2(options.title || translate("action.confirmQuestion"))}</div>
     ${message}
     ${detail}
     <div class="confirm-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml2(translate("action.cancel"))}</button>
+      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml2(cancelText)}</button>
       <button class="${confirmClass}" type="button" data-confirm-popover-confirm>${escapeHtml2(confirmText)}</button>
     </div>
   `;
-    popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", closeConfirmPopover);
+    popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", () => {
+      closeConfirmPopover();
+      if (typeof options.onCancel === "function") options.onCancel();
+    });
     popover.querySelector("[data-confirm-popover-confirm]")?.addEventListener("click", async () => {
       const onConfirm = confirmPopoverState.onConfirm;
       closeConfirmPopover();
@@ -22481,7 +23419,9 @@
     });
     popover.classList.remove("hidden");
     positionConfirmPopover(anchor, popover);
-    popover.querySelector("[data-confirm-popover-confirm]")?.focus({ preventScroll: true });
+    popover.querySelector(
+      options.focusCancel ? "[data-confirm-popover-cancel]" : "[data-confirm-popover-confirm]"
+    )?.focus({ preventScroll: true });
   }
   function closeConfirmPopover() {
     if (!confirmPopoverEl) return;

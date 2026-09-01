@@ -246,6 +246,8 @@
       archiveCount: document.querySelector("#archiveCount"),
       systemSettingsModal: document.querySelector("#systemSettingsModal"),
       systemSettingsModalClose: document.querySelector("#systemSettingsModalClose"),
+      systemSettingsTitle: document.querySelector("#systemSettingsTitle"),
+      userConfigBackupBackButton: document.querySelector("#userConfigBackupBackButton"),
       systemSettingsTabs: document.querySelector("#systemSettingsTabs"),
       systemSettingsApiTab: document.querySelector("#systemSettingsApiTab"),
       systemSettingsNetworkTab: document.querySelector("#systemSettingsNetworkTab"),
@@ -255,6 +257,34 @@
       systemSettingsNetworkPanel: document.querySelector("#systemSettingsNetworkPanel"),
       systemSettingsLanguagePanel: document.querySelector("#systemSettingsLanguagePanel"),
       systemSettingsStoragePanel: document.querySelector("#systemSettingsStoragePanel"),
+      openUserConfigBackupButton: document.querySelector("#openUserConfigBackupButton"),
+      userConfigBackupView: document.querySelector("#userConfigBackupView"),
+      userConfigTransferMode: document.querySelector("#userConfigTransferMode"),
+      userConfigBackupPane: document.querySelector("#userConfigBackupPane"),
+      userConfigRestorePane: document.querySelector("#userConfigRestorePane"),
+      userConfigBackupSectionList: document.querySelector("#userConfigBackupSectionList"),
+      userConfigIncludeApiKeysRow: document.querySelector("#userConfigIncludeApiKeysRow"),
+      userConfigIncludeApiKeys: document.querySelector("#userConfigIncludeApiKeys"),
+      userConfigBackupProgress: document.querySelector("#userConfigBackupProgress"),
+      userConfigBackupStatus: document.querySelector("#userConfigBackupStatus"),
+      cancelUserConfigBackupButton: document.querySelector("#cancelUserConfigBackupButton"),
+      downloadUserConfigBackupButton: document.querySelector("#downloadUserConfigBackupButton"),
+      createUserConfigBackupButton: document.querySelector("#createUserConfigBackupButton"),
+      userConfigRestoreFile: document.querySelector("#userConfigRestoreFile"),
+      userConfigRestoreProgress: document.querySelector("#userConfigRestoreProgress"),
+      userConfigRestoreStatus: document.querySelector("#userConfigRestoreStatus"),
+      userConfigRestorePreview: document.querySelector("#userConfigRestorePreview"),
+      userConfigRestoreArchiveMeta: document.querySelector("#userConfigRestoreArchiveMeta"),
+      userConfigRestoreSectionList: document.querySelector("#userConfigRestoreSectionList"),
+      userConfigRestoreMode: document.querySelector("#userConfigRestoreMode"),
+      userConfigRestoreModeCopy: document.querySelector("#userConfigRestoreModeCopy"),
+      startUserConfigRestoreButton: document.querySelector("#startUserConfigRestoreButton"),
+      userConfigReplaceConfirmation: document.querySelector("#userConfigReplaceConfirmation"),
+      userConfigReplaceImpactList: document.querySelector("#userConfigReplaceImpactList"),
+      userConfigReplaceAcknowledge: document.querySelector("#userConfigReplaceAcknowledge"),
+      backToUserConfigPreviewButton: document.querySelector("#backToUserConfigPreviewButton"),
+      confirmUserConfigReplaceButton: document.querySelector("#confirmUserConfigReplaceButton"),
+      userConfigRestoreResult: document.querySelector("#userConfigRestoreResult"),
       networkEgressMode: document.querySelector("#networkEgressMode"),
       networkEgressCustomProxyField: document.querySelector("#networkEgressCustomProxyField"),
       networkEgressCustomProxy: document.querySelector("#networkEgressCustomProxy"),
@@ -1429,6 +1459,95 @@
     "settings.saved": "Saved",
     "settings.savedRestartStatus": "Storage settings saved. Restart WebUI to apply.",
     "systemSettings.title": "System Settings",
+    "userConfigBackup.title": "Backup & Restore",
+    "userConfigBackup.back": "Back to System Settings",
+    "userConfigBackup.entryTitle": "Configuration Backup & Restore",
+    "userConfigBackup.entryCopy": "Move chips, shared images, templates, and system settings",
+    "userConfigBackup.modeLabel": "Backup or restore",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Restore",
+    "userConfigBackup.backupCopy": "Choose the configuration to include. Generated tasks and OAuth sessions are never included.",
+    "userConfigBackup.selectSections": "Select data",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Shared images",
+    "userConfigBackup.sectionTemplates": "Templates",
+    "userConfigBackup.sectionSettings": "System settings",
+    "userConfigBackup.groupColors": "Colors",
+    "userConfigBackup.groupPromptSnippets": "Prompt snippets",
+    "userConfigBackup.groupGalleryItems": "Shared images",
+    "userConfigBackup.groupPromptTemplates": "Prompt templates",
+    "userConfigBackup.groupSettings": "System settings",
+    "userConfigBackup.includeApiKeys": "Include API keys (sensitive)",
+    "userConfigBackup.apiKeyWarning": "The archive is not encrypted. Store it securely.",
+    "userConfigBackup.backupProgress": "Backup progress",
+    "userConfigBackup.restoreProgress": "Restore upload progress",
+    "userConfigBackup.download": "Download backup",
+    "userConfigBackup.create": "Create backup",
+    "userConfigBackup.chooseArchive": "Choose backup ZIP",
+    "userConfigBackup.chooseArchiveCopy": "The file is uploaded and validated first. Previewing does not change current data.",
+    "userConfigBackup.previewTitle": "Restore preview",
+    "userConfigBackup.restoreModeLabel": "Restore mode",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Replace",
+    "userConfigBackup.incrementalCopy": "Keep existing data, skip duplicates, and create recovery copies for conflicts.",
+    "userConfigBackup.replaceCopy": "Replace existing data in the selected sections. A second confirmation is required.",
+    "userConfigBackup.restoreSelected": "Restore selected data",
+    "userConfigBackup.replaceConfirmTitle": "Confirm replacement",
+    "userConfigBackup.replaceConfirmCopy": "Only selected sections are affected, but their current data will be removed. This cannot be undone.",
+    "userConfigBackup.replaceAcknowledge": "I understand that existing data will be replaced",
+    "userConfigBackup.backToPreview": "Back to preview",
+    "userConfigBackup.confirmReplace": "Confirm replace and restore",
+    "userConfigBackup.summaryLoading": "Reading configuration summary\u2026",
+    "userConfigBackup.summaryFailed": "Could not read the configuration summary",
+    "userConfigBackup.itemCount": "{count} items",
+    "userConfigBackup.warningCount": "{count} warnings",
+    "userConfigBackup.selectAtLeastOne": "Select at least one data type",
+    "userConfigBackup.apiKeyConfirm": "This unencrypted archive will contain API keys. Create it anyway?",
+    "userConfigBackup.cancelled": "Backup cancelled",
+    "userConfigBackup.downloaded": "Download started. You can download this backup again for up to 24 hours.",
+    "userConfigBackup.status.queued": "Backup queued\u2026",
+    "userConfigBackup.status.planning": "Planning backup\u2026",
+    "userConfigBackup.status.packing": "Packing archive\u2026",
+    "userConfigBackup.status.ready": "Backup ready. You can download it again for up to 24 hours.",
+    "userConfigBackup.status.failed": "Backup failed",
+    "userConfigBackup.status.cancelled": "Backup cancelled",
+    "userConfigBackup.status.expired": "Backup expired",
+    "userConfigBackup.status.interrupted": "Backup stopped when the WebUI was interrupted",
+    "userConfigBackup.creatingSession": "Preparing upload\u2026",
+    "userConfigBackup.uploading": "Uploading backup\u2026",
+    "userConfigBackup.validating": "Validating backup\u2026",
+    "userConfigBackup.validationReady": "Validation complete. Choose how to restore.",
+    "userConfigBackup.versionUnsupported": "This backup uses a newer format and can only be previewed.",
+    "userConfigBackup.previewCounts": "{count} in archive \xB7 {duplicate} duplicates \xB7 {conflict} conflicts",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 current {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / current {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup is empty, current {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Cannot replace: {groups} is empty in the backup but has current data. Deselect it or use incremental restore.",
+    "userConfigBackup.archiveMeta": "{count} sections \xB7 format v{version}",
+    "userConfigBackup.replaceImpact": "{section}: remove {current} current items, then import {archive} backup items",
+    "userConfigBackup.galleryReferenceImpact": "{count} historical tasks will lose shared-image references",
+    "userConfigBackup.providerRetention": "{count} providers with credentials will be retained for safety",
+    "userConfigBackup.restoring": "Restoring. Keep the WebUI open\u2026",
+    "userConfigBackup.restoreComplete": "Restore complete",
+    "userConfigBackup.resultCounts": "{section}: {added} added \xB7 {replaced} replaced \xB7 {skipped} skipped \xB7 {copies} recovery copies",
+    "userConfigBackup.restartRequired": "Storage paths were restored. Restart the WebUI to use them.",
+    "userConfigBackup.restoreContinues": "Restore writing has started. Closing this panel will not cancel it; reopen later to view the result.",
+    "userConfigBackup.closeActiveConfirm": "An upload or backup is still running. Close and cancel it?",
+    "userConfigBackup.discardReadyConfirm": "Closing deletes the temporary server copy. Files already saved on this device are kept. Continue?",
+    "user_config_restore_system_notification_permission_missing": "System notifications were not enabled because the browser has not granted permission.",
+    "user_config_backup_failed": "The selected data could not be read or packed. Check it and try again.",
+    "user_config_backup_gallery_invalid": "A shared image does not match its gallery record. Re-save or remove the affected image, then try again.",
+    "user_config_backup_source_changed": "Configuration changed during backup. Stop editing it and try again.",
+    "user_config_backup_source_unreadable": "A configuration file could not be read. Check its permissions and try again.",
+    "user_config_backup_insufficient_space": "There is not enough free disk space to create the backup.",
+    "user_config_backup_io_error": "Backup file access failed. Check the disk and folder permissions.",
+    "user_config_backup_internal_error": "The backup service encountered an internal error. Restart the WebUI and try again; check the startup log if it continues.",
+    "user_config_restore_failed": "Restore failed. Existing configuration was preserved.",
+    "user_config_restore_active_tasks": "Active tasks are still running. Wait for them before replacing data.",
+    "user_config_restore_empty_replace_blocked": "Empty backup data cannot replace existing data. Deselect it or use incremental restore.",
+    "user_config_restore_preview_unavailable": "Current data could not be read safely. Check the local files and validate the backup again.",
+    "user_config_restore_preview_stale": "Current configuration changed. Validate the archive again.",
+    "user_config_restore_version_unsupported": "This backup format is too new to restore.",
     "systemSettings.tabsLabel": "System settings sections",
     "systemSettings.apiTab": "API Settings",
     "systemSettings.codexTab": "Codex Channel",
@@ -1526,6 +1645,13 @@
     "apiSettings.save": "Save API settings",
     "apiSettings.loadFailed": "Failed to load API settings",
     "apiSettings.savedKeyPlaceholder": "API key is saved on the backend. Enter a new key to replace it.",
+    "apiSettings.apiKeyRequired": "Enter an API key before saving this provider.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL origin changed",
+    "apiSettings.originChangeMessage": "Keeping the existing key will send it to the new address. A mistyped address could expose the key.",
+    "apiSettings.originChangeDetail": "Previous: {previousOrigin}; New: {nextOrigin}",
+    "apiSettings.enterNewKey": "Enter a new key",
+    "apiSettings.keepKeyAndSave": "Keep key and save",
+    "apiSettings.originChangeConfirmationRequired": "The Base URL origin changed. Confirm keeping the existing key or enter a new key.",
     "apiSettings.newProvider": "New provider",
     "apiSettings.saving": "Saving...",
     "apiSettings.savingStatus": "Saving API settings...",
@@ -2615,6 +2741,36 @@
     "settings.saved": "Gespeichert",
     "settings.savedRestartStatus": "Speichereinstellungen gespeichert. Starten Sie WebUI neu, um es anzuwenden.",
     "systemSettings.title": "Systemeinstellungen",
+    "userConfigBackup.title": "Sichern und Wiederherstellen",
+    "userConfigBackup.back": "Zur\xFCck zu den Systemeinstellungen",
+    "userConfigBackup.entryTitle": "Konfiguration sichern und wiederherstellen",
+    "userConfigBackup.entryCopy": "Chips, gemeinsame Bilder, Vorlagen und Systemeinstellungen \xFCbertragen",
+    "userConfigBackup.backupTab": "Sichern",
+    "userConfigBackup.restoreTab": "Wiederherstellen",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Gemeinsame Bilder",
+    "userConfigBackup.sectionTemplates": "Vorlagen",
+    "userConfigBackup.sectionSettings": "Systemeinstellungen",
+    "userConfigBackup.groupColors": "Farben",
+    "userConfigBackup.groupPromptSnippets": "Prompt-Bausteine",
+    "userConfigBackup.groupGalleryItems": "Gemeinsame Bilder",
+    "userConfigBackup.groupPromptTemplates": "Prompt-Vorlagen",
+    "userConfigBackup.groupSettings": "Systemeinstellungen",
+    "userConfigBackup.previewSectionCounts": "Sicherung {archive} \xB7 aktuell {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: Sicherung {archive} / aktuell {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: Sicherung leer, aktuell {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Ersetzen nicht m\xF6glich: {groups} sind in der Sicherung leer, enthalten aber aktuelle Daten. Heben Sie die Auswahl auf oder verwenden Sie die inkrementelle Wiederherstellung.",
+    "user_config_restore_empty_replace_blocked": "Leere Sicherungsdaten d\xFCrfen keine vorhandenen Daten ersetzen. Heben Sie die Auswahl auf oder verwenden Sie die inkrementelle Wiederherstellung.",
+    "user_config_restore_preview_unavailable": "Die aktuellen Daten konnten nicht sicher gelesen werden. Pr\xFCfen Sie die lokalen Dateien und validieren Sie die Sicherung erneut.",
+    "userConfigBackup.includeApiKeys": "API-Schl\xFCssel einschlie\xDFen (sensibel)",
+    "userConfigBackup.apiKeyWarning": "Die Sicherung ist nicht verschl\xFCsselt. Bewahren Sie sie sicher auf.",
+    "userConfigBackup.incremental": "Inkrementell",
+    "userConfigBackup.replace": "Ersetzen",
+    "userConfigBackup.replaceCopy": "Ersetzt vorhandene Daten in den gew\xE4hlten Bereichen. Eine zweite Best\xE4tigung ist erforderlich.",
+    "userConfigBackup.replaceConfirmTitle": "Ersetzen vorhandener Daten best\xE4tigen",
+    "userConfigBackup.replaceAcknowledge": "Mir ist bewusst, dass vorhandene Daten ersetzt werden",
+    "userConfigBackup.confirmReplace": "Ersetzen und wiederherstellen",
+    "userConfigBackup.restoreComplete": "Wiederherstellung abgeschlossen",
     "systemSettings.tabsLabel": "Abschnitte mit den Systemeinstellungen",
     "systemSettings.apiTab": "API Einstellungen",
     "systemSettings.codexTab": "Codex Kanal",
@@ -2712,6 +2868,13 @@
     "apiSettings.save": "Speichern Sie die API-Einstellungen",
     "apiSettings.loadFailed": "Die Einstellungen f\xFCr API konnten nicht geladen werden",
     "apiSettings.savedKeyPlaceholder": "Der Schl\xFCssel API wird im Backend gespeichert. Geben Sie einen neuen Schl\xFCssel ein, um ihn zu ersetzen.",
+    "apiSettings.apiKeyRequired": "Geben Sie vor dem Speichern des Anbieters einen API-Key ein.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base-URL-Ursprung ge\xE4ndert",
+    "apiSettings.originChangeMessage": "Wenn Sie den vorhandenen Key behalten, wird er an die neue Adresse gesendet. Eine falsche Adresse k\xF6nnte den Key offenlegen.",
+    "apiSettings.originChangeDetail": "Bisher: {previousOrigin}; Neu: {nextOrigin}",
+    "apiSettings.enterNewKey": "Neuen Key eingeben",
+    "apiSettings.keepKeyAndSave": "Key behalten und speichern",
+    "apiSettings.originChangeConfirmationRequired": "Der Ursprung der Base URL wurde ge\xE4ndert. Best\xE4tigen Sie den vorhandenen Key oder geben Sie einen neuen ein.",
     "apiSettings.newProvider": "Neuer Anbieter",
     "apiSettings.saving": "Sparen...",
     "apiSettings.savingStatus": "API-Einstellungen werden gespeichert...",
@@ -3801,6 +3964,36 @@
     "settings.saved": "Guardado",
     "settings.savedRestartStatus": "Configuraci\xF3n de almacenamiento guardada. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configuraci\xF3n del sistema",
+    "userConfigBackup.title": "Copia de seguridad y restauraci\xF3n",
+    "userConfigBackup.back": "Volver a Configuraci\xF3n del sistema",
+    "userConfigBackup.entryTitle": "Copia y restauraci\xF3n de la configuraci\xF3n",
+    "userConfigBackup.entryCopy": "Migra chips, im\xE1genes compartidas, plantillas y ajustes del sistema",
+    "userConfigBackup.backupTab": "Copia",
+    "userConfigBackup.restoreTab": "Restaurar",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Im\xE1genes compartidas",
+    "userConfigBackup.sectionTemplates": "Plantillas",
+    "userConfigBackup.sectionSettings": "Ajustes del sistema",
+    "userConfigBackup.groupColors": "Colores",
+    "userConfigBackup.groupPromptSnippets": "Fragmentos de prompt",
+    "userConfigBackup.groupGalleryItems": "Im\xE1genes compartidas",
+    "userConfigBackup.groupPromptTemplates": "Plantillas de prompt",
+    "userConfigBackup.groupSettings": "Ajustes del sistema",
+    "userConfigBackup.previewSectionCounts": "Copia {archive} \xB7 actual {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: copia {archive} / actual {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: copia vac\xEDa, actual {current}",
+    "userConfigBackup.emptyReplaceBlocked": "No se puede reemplazar: {groups} est\xE1 vac\xEDo en la copia pero contiene datos actuales. Anula la selecci\xF3n o usa la restauraci\xF3n incremental.",
+    "user_config_restore_empty_replace_blocked": "Los datos vac\xEDos de una copia no pueden reemplazar datos existentes. Anula la selecci\xF3n o usa la restauraci\xF3n incremental.",
+    "user_config_restore_preview_unavailable": "No se pudieron leer con seguridad los datos actuales. Revisa los archivos locales y vuelve a validar la copia.",
+    "userConfigBackup.includeApiKeys": "Incluir claves API (sensible)",
+    "userConfigBackup.apiKeyWarning": "La copia no est\xE1 cifrada. Gu\xE1rdala de forma segura.",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Reemplazar",
+    "userConfigBackup.replaceCopy": "Reemplaza los datos actuales de las secciones elegidas. Se requiere una segunda confirmaci\xF3n.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmar reemplazo de datos",
+    "userConfigBackup.replaceAcknowledge": "Entiendo que los datos actuales ser\xE1n reemplazados",
+    "userConfigBackup.confirmReplace": "Confirmar reemplazo y restaurar",
+    "userConfigBackup.restoreComplete": "Restauraci\xF3n completada",
     "systemSettings.tabsLabel": "Secciones de configuraci\xF3n del sistema",
     "systemSettings.apiTab": "API Configuraci\xF3n",
     "systemSettings.codexTab": "Codex Canal",
@@ -3898,6 +4091,13 @@
     "apiSettings.save": "Guardar la configuraci\xF3n de API",
     "apiSettings.loadFailed": "No se pudo cargar la configuraci\xF3n API",
     "apiSettings.savedKeyPlaceholder": "La clave API se guarda en el backend. Ingrese una nueva clave para reemplazarla.",
+    "apiSettings.apiKeyRequired": "Introduce una API Key antes de guardar este proveedor.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Cambi\xF3 el origen de la Base URL",
+    "apiSettings.originChangeMessage": "Conservar la clave actual har\xE1 que se env\xEDe a la nueva direcci\xF3n. Una direcci\xF3n incorrecta podr\xEDa exponerla.",
+    "apiSettings.originChangeDetail": "Anterior: {previousOrigin}; Nueva: {nextOrigin}",
+    "apiSettings.enterNewKey": "Introducir una clave nueva",
+    "apiSettings.keepKeyAndSave": "Conservar clave y guardar",
+    "apiSettings.originChangeConfirmationRequired": "Cambi\xF3 el origen de la Base URL. Confirma que deseas conservar la clave o introduce una nueva.",
     "apiSettings.newProvider": "Nuevo proveedor",
     "apiSettings.saving": "Guardando...",
     "apiSettings.savingStatus": "Guardando la configuraci\xF3n de API...",
@@ -4987,6 +5187,36 @@
     "settings.saved": "Enregistr\xE9",
     "settings.savedRestartStatus": "Param\xE8tres de stockage enregistr\xE9s. Red\xE9marrez WebUI pour appliquer.",
     "systemSettings.title": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.title": "Sauvegarde et restauration",
+    "userConfigBackup.back": "Retour aux param\xE8tres syst\xE8me",
+    "userConfigBackup.entryTitle": "Sauvegarde et restauration de la configuration",
+    "userConfigBackup.entryCopy": "Migrez les chips, images partag\xE9es, mod\xE8les et param\xE8tres syst\xE8me",
+    "userConfigBackup.backupTab": "Sauvegarder",
+    "userConfigBackup.restoreTab": "Restaurer",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Images partag\xE9es",
+    "userConfigBackup.sectionTemplates": "Mod\xE8les",
+    "userConfigBackup.sectionSettings": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.groupColors": "Couleurs",
+    "userConfigBackup.groupPromptSnippets": "Fragments de prompt",
+    "userConfigBackup.groupGalleryItems": "Images partag\xE9es",
+    "userConfigBackup.groupPromptTemplates": "Mod\xE8les de prompt",
+    "userConfigBackup.groupSettings": "Param\xE8tres syst\xE8me",
+    "userConfigBackup.previewSectionCounts": "Sauvegarde {archive} \xB7 actuel {current}",
+    "userConfigBackup.previewGroupCounts": "{group} : sauvegarde {archive} / actuel {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group} : sauvegarde vide, actuel {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Remplacement impossible : {groups} est vide dans la sauvegarde mais contient des donn\xE9es actuelles. D\xE9s\xE9lectionnez-le ou utilisez la restauration incr\xE9mentielle.",
+    "user_config_restore_empty_replace_blocked": "Des donn\xE9es de sauvegarde vides ne peuvent pas remplacer des donn\xE9es existantes. D\xE9s\xE9lectionnez-les ou utilisez la restauration incr\xE9mentielle.",
+    "user_config_restore_preview_unavailable": "Les donn\xE9es actuelles n\u2019ont pas pu \xEAtre lues en toute s\xE9curit\xE9. V\xE9rifiez les fichiers locaux et revalidez la sauvegarde.",
+    "userConfigBackup.includeApiKeys": "Inclure les cl\xE9s API (sensible)",
+    "userConfigBackup.apiKeyWarning": "La sauvegarde n\u2019est pas chiffr\xE9e. Conservez-la en lieu s\xFBr.",
+    "userConfigBackup.incremental": "Incr\xE9mentiel",
+    "userConfigBackup.replace": "Remplacer",
+    "userConfigBackup.replaceCopy": "Remplace les donn\xE9es actuelles des sections choisies. Une seconde confirmation est requise.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmer le remplacement des donn\xE9es",
+    "userConfigBackup.replaceAcknowledge": "Je comprends que les donn\xE9es actuelles seront remplac\xE9es",
+    "userConfigBackup.confirmReplace": "Confirmer le remplacement et restaurer",
+    "userConfigBackup.restoreComplete": "Restauration termin\xE9e",
     "systemSettings.tabsLabel": "Sections des param\xE8tres syst\xE8me",
     "systemSettings.apiTab": "API Param\xE8tres",
     "systemSettings.codexTab": "Canal Codex",
@@ -5084,6 +5314,13 @@
     "apiSettings.save": "Enregistrer les param\xE8tres API",
     "apiSettings.loadFailed": "\xC9chec du chargement des param\xE8tres API",
     "apiSettings.savedKeyPlaceholder": "La cl\xE9 API est enregistr\xE9e sur le backend. Entrez une nouvelle cl\xE9 pour la remplacer.",
+    "apiSettings.apiKeyRequired": "Saisissez une cl\xE9 API avant d\u2019enregistrer ce fournisseur.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origine de la Base URL modifi\xE9e",
+    "apiSettings.originChangeMessage": "Conserver la cl\xE9 actuelle l\u2019enverra \xE0 la nouvelle adresse. Une adresse erron\xE9e pourrait exposer la cl\xE9.",
+    "apiSettings.originChangeDetail": "Ancienne : {previousOrigin} ; Nouvelle : {nextOrigin}",
+    "apiSettings.enterNewKey": "Saisir une nouvelle cl\xE9",
+    "apiSettings.keepKeyAndSave": "Conserver la cl\xE9 et enregistrer",
+    "apiSettings.originChangeConfirmationRequired": "L\u2019origine de la Base URL a chang\xE9. Confirmez la conservation de la cl\xE9 ou saisissez-en une nouvelle.",
     "apiSettings.newProvider": "Nouveau fournisseur",
     "apiSettings.saving": "Sauvegarde...",
     "apiSettings.savingStatus": "Enregistrement des param\xE8tres API...",
@@ -6173,6 +6410,36 @@
     "settings.saved": "\u4FDD\u5B58\u3057\u307E\u3057\u305F",
     "settings.savedRestartStatus": "\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\u3002WebUI \u3092\u518D\u8D77\u52D5\u3059\u308B\u3068\u53CD\u6620\u3055\u308C\u307E\u3059\u3002",
     "systemSettings.title": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
+    "userConfigBackup.back": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u306B\u623B\u308B",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
+    "userConfigBackup.entryCopy": "\u30C1\u30C3\u30D7\u3001\u5171\u6709\u753B\u50CF\u3001\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8\u3001\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u3092\u79FB\u884C\u3057\u307E\u3059",
+    "userConfigBackup.backupTab": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7",
+    "userConfigBackup.restoreTab": "\u5FA9\u5143",
+    "userConfigBackup.sectionChips": "\u30C1\u30C3\u30D7",
+    "userConfigBackup.sectionGallery": "\u5171\u6709\u753B\u50CF",
+    "userConfigBackup.sectionTemplates": "\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8",
+    "userConfigBackup.sectionSettings": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u30AB\u30E9\u30FC",
+    "userConfigBackup.groupPromptSnippets": "\u30D7\u30ED\u30F3\u30D7\u30C8\u30B9\u30CB\u30DA\u30C3\u30C8",
+    "userConfigBackup.groupGalleryItems": "\u5171\u6709\u753B\u50CF",
+    "userConfigBackup.groupPromptTemplates": "\u30D7\u30ED\u30F3\u30D7\u30C8\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8",
+    "userConfigBackup.groupSettings": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7 {archive} \xB7 \u73FE\u5728 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7 {archive} / \u73FE\u5728 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306F\u7A7A\u3001\u73FE\u5728 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7F6E\u63DB\u3067\u304D\u307E\u305B\u3093\u3002\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u5185\u306E {groups} \u306F\u7A7A\u3067\u3059\u304C\u3001\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u304C\u3042\u308A\u307E\u3059\u3002\u9078\u629E\u3092\u5916\u3059\u304B\u3001\u5897\u5206\u5FA9\u5143\u3092\u4F7F\u7528\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30C7\u30FC\u30BF\u3067\u65E2\u5B58\u30C7\u30FC\u30BF\u3092\u7F6E\u63DB\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u307E\u305B\u3093\u3002\u9078\u629E\u3092\u5916\u3059\u304B\u3001\u5897\u5206\u5FA9\u5143\u3092\u4F7F\u7528\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_preview_unavailable": "\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u3092\u5B89\u5168\u306B\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30ED\u30FC\u30AB\u30EB\u30D5\u30A1\u30A4\u30EB\u3092\u78BA\u8A8D\u3057\u3001\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u518D\u691C\u8A3C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.includeApiKeys": "API \u30AD\u30FC\u3092\u542B\u3081\u308B\uFF08\u6A5F\u5BC6\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306F\u6697\u53F7\u5316\u3055\u308C\u307E\u305B\u3093\u3002\u5B89\u5168\u306B\u4FDD\u7BA1\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.incremental": "\u8FFD\u52A0",
+    "userConfigBackup.replace": "\u7F6E\u63DB",
+    "userConfigBackup.replaceCopy": "\u9078\u629E\u3057\u305F\u9805\u76EE\u306E\u65E2\u5B58\u30C7\u30FC\u30BF\u3092\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3067\u7F6E\u304D\u63DB\u3048\u307E\u3059\u3002\u518D\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u65E2\u5B58\u30C7\u30FC\u30BF\u306E\u7F6E\u63DB\u3092\u78BA\u8A8D",
+    "userConfigBackup.replaceAcknowledge": "\u65E2\u5B58\u30C7\u30FC\u30BF\u304C\u7F6E\u304D\u63DB\u3048\u3089\u308C\u308B\u3053\u3068\u3092\u7406\u89E3\u3057\u307E\u3057\u305F",
+    "userConfigBackup.confirmReplace": "\u7F6E\u63DB\u3057\u3066\u5FA9\u5143\u3059\u308B",
+    "userConfigBackup.restoreComplete": "\u5FA9\u5143\u304C\u5B8C\u4E86\u3057\u307E\u3057\u305F",
     "systemSettings.tabsLabel": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u30BB\u30AF\u30B7\u30E7\u30F3",
     "systemSettings.apiTab": "API\u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex\u30C1\u30E3\u30CD\u30EB",
@@ -6270,6 +6537,13 @@
     "apiSettings.save": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u306E\u30ED\u30FC\u30C9\u306B\u5931\u6557\u3057\u307E\u3057\u305F",
     "apiSettings.savedKeyPlaceholder": "API Key\u306F\u30D0\u30C3\u30AF\u30A8\u30F3\u30C9\u306B\u4FDD\u5B58\u3055\u308C\u307E\u3059\u3002\u65B0\u3057\u3044\u30AD\u30FC\u3092\u5165\u529B\u3057\u3066\u7F6E\u304D\u63DB\u3048\u307E\u3059\u3002",
+    "apiSettings.apiKeyRequired": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u4FDD\u5B58\u3059\u308B\u524D\u306B API Key \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u306E\u30AA\u30EA\u30B8\u30F3\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F",
+    "apiSettings.originChangeMessage": "\u65E2\u5B58\u306E Key \u3092\u4FDD\u6301\u3059\u308B\u3068\u3001\u65B0\u3057\u3044\u30A2\u30C9\u30EC\u30B9\u3078\u9001\u4FE1\u3055\u308C\u307E\u3059\u3002\u5165\u529B\u30DF\u30B9\u304C\u3042\u308B\u3068 Key \u304C\u6F0F\u3048\u3044\u3059\u308B\u53EF\u80FD\u6027\u304C\u3042\u308A\u307E\u3059\u3002",
+    "apiSettings.originChangeDetail": "\u5909\u66F4\u524D\uFF1A{previousOrigin}\uFF1B\u5909\u66F4\u5F8C\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u65B0\u3057\u3044 Key \u3092\u5165\u529B",
+    "apiSettings.keepKeyAndSave": "Key \u3092\u4FDD\u6301\u3057\u3066\u4FDD\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u306E\u30AA\u30EA\u30B8\u30F3\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u65E2\u5B58\u306E Key \u3092\u4FDD\u6301\u3059\u308B\u304B\u3001\u65B0\u3057\u3044 Key \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "apiSettings.newProvider": "\u65B0\u3057\u3044\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
     "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
     "apiSettings.savingStatus": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u3066\u3044\u307E\u3059...",
@@ -7359,6 +7633,36 @@
     "settings.saved": "\uC800\uC7A5\uB428",
     "settings.savedRestartStatus": "\uC800\uC7A5\uC18C \uC124\uC815\uC774 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uC801\uC6A9\uB429\uB2C8\uB2E4.",
     "systemSettings.title": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.title": "\uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
+    "userConfigBackup.back": "\uC2DC\uC2A4\uD15C \uC124\uC815\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+    "userConfigBackup.entryTitle": "\uC124\uC815 \uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
+    "userConfigBackup.entryCopy": "\uCE69, \uACF5\uC720 \uC774\uBBF8\uC9C0, \uD15C\uD50C\uB9BF\uACFC \uC2DC\uC2A4\uD15C \uC124\uC815\uC744 \uC774\uC804\uD569\uB2C8\uB2E4",
+    "userConfigBackup.backupTab": "\uBC31\uC5C5",
+    "userConfigBackup.restoreTab": "\uBCF5\uC6D0",
+    "userConfigBackup.sectionChips": "\uCE69",
+    "userConfigBackup.sectionGallery": "\uACF5\uC720 \uC774\uBBF8\uC9C0",
+    "userConfigBackup.sectionTemplates": "\uD15C\uD50C\uB9BF",
+    "userConfigBackup.sectionSettings": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.groupColors": "\uC0C9\uC0C1",
+    "userConfigBackup.groupPromptSnippets": "\uD504\uB86C\uD504\uD2B8 \uC2A4\uB2C8\uD3AB",
+    "userConfigBackup.groupGalleryItems": "\uACF5\uC720 \uC774\uBBF8\uC9C0",
+    "userConfigBackup.groupPromptTemplates": "\uD504\uB86C\uD504\uD2B8 \uD15C\uD50C\uB9BF",
+    "userConfigBackup.groupSettings": "\uC2DC\uC2A4\uD15C \uC124\uC815",
+    "userConfigBackup.previewSectionCounts": "\uBC31\uC5C5 {archive} \xB7 \uD604\uC7AC {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \uBC31\uC5C5 {archive} / \uD604\uC7AC {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \uBC31\uC5C5 \uBE44\uC5B4 \uC788\uC74C, \uD604\uC7AC {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\uAD50\uCCB4\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uBC31\uC5C5\uC758 {groups} \uD56D\uBAA9\uC740 \uBE44\uC5B4 \uC788\uC9C0\uB9CC \uD604\uC7AC \uB370\uC774\uD130\uAC00 \uC788\uC2B5\uB2C8\uB2E4. \uC120\uD0DD\uC744 \uD574\uC81C\uD558\uAC70\uB098 \uC99D\uBD84 \uBCF5\uC6D0\uC744 \uC0AC\uC6A9\uD558\uC138\uC694.",
+    "user_config_restore_empty_replace_blocked": "\uBE48 \uBC31\uC5C5 \uB370\uC774\uD130\uB85C \uAE30\uC874 \uB370\uC774\uD130\uB97C \uAD50\uCCB4\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uC120\uD0DD\uC744 \uD574\uC81C\uD558\uAC70\uB098 \uC99D\uBD84 \uBCF5\uC6D0\uC744 \uC0AC\uC6A9\uD558\uC138\uC694.",
+    "user_config_restore_preview_unavailable": "\uD604\uC7AC \uB370\uC774\uD130\uB97C \uC548\uC804\uD558\uAC8C \uC77D\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB85C\uCEEC \uD30C\uC77C\uC744 \uD655\uC778\uD558\uACE0 \uBC31\uC5C5\uC744 \uB2E4\uC2DC \uAC80\uC99D\uD558\uC138\uC694.",
+    "userConfigBackup.includeApiKeys": "API \uD0A4 \uD3EC\uD568(\uBBFC\uAC10 \uC815\uBCF4)",
+    "userConfigBackup.apiKeyWarning": "\uBC31\uC5C5 \uD30C\uC77C\uC740 \uC554\uD638\uD654\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC548\uC804\uD558\uAC8C \uBCF4\uAD00\uD558\uC138\uC694.",
+    "userConfigBackup.incremental": "\uC99D\uBD84",
+    "userConfigBackup.replace": "\uAD50\uCCB4",
+    "userConfigBackup.replaceCopy": "\uC120\uD0DD\uD55C \uD56D\uBAA9\uC758 \uAE30\uC874 \uB370\uC774\uD130\uB97C \uBC31\uC5C5\uC73C\uB85C \uAD50\uCCB4\uD569\uB2C8\uB2E4. \uB2E4\uC2DC \uD655\uC778\uD574\uC57C \uD569\uB2C8\uB2E4.",
+    "userConfigBackup.replaceConfirmTitle": "\uAE30\uC874 \uB370\uC774\uD130 \uAD50\uCCB4 \uD655\uC778",
+    "userConfigBackup.replaceAcknowledge": "\uAE30\uC874 \uB370\uC774\uD130\uAC00 \uAD50\uCCB4\uB428\uC744 \uC774\uD574\uD588\uC2B5\uB2C8\uB2E4",
+    "userConfigBackup.confirmReplace": "\uAD50\uCCB4 \uD6C4 \uBCF5\uC6D0",
+    "userConfigBackup.restoreComplete": "\uBCF5\uC6D0\uC774 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4",
     "systemSettings.tabsLabel": "\uC2DC\uC2A4\uD15C \uC124\uC815 \uC139\uC158",
     "systemSettings.apiTab": "API \uC124\uC815",
     "systemSettings.codexTab": "Codex \uCC44\uB110",
@@ -7456,6 +7760,13 @@
     "apiSettings.save": "API \uC124\uC815 \uC800\uC7A5",
     "apiSettings.loadFailed": "API\uC124\uC815\uC744 \uB85C\uB4DC\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
     "apiSettings.savedKeyPlaceholder": "API Key\uAC00 \uBC31\uC5D4\uB4DC\uC5D0 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uAD50\uCCB4\uD558\uB824\uBA74 \uC0C8 \uD0A4\uB97C \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.apiKeyRequired": "\uACF5\uAE09\uC790\uB97C \uC800\uC7A5\uD558\uAE30 \uC804\uC5D0 API Key\uB97C \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \uC6D0\uBCF8\uC774 \uBCC0\uACBD\uB428",
+    "apiSettings.originChangeMessage": "\uAE30\uC874 Key\uB97C \uC720\uC9C0\uD558\uBA74 \uC0C8 \uC8FC\uC18C\uB85C \uC804\uC1A1\uB429\uB2C8\uB2E4. \uC8FC\uC18C\uB97C \uC798\uBABB \uC785\uB825\uD558\uBA74 Key\uAC00 \uB178\uCD9C\uB420 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.originChangeDetail": "\uC774\uC804: {previousOrigin}; \uC0C8 \uC8FC\uC18C: {nextOrigin}",
+    "apiSettings.enterNewKey": "\uC0C8 Key \uC785\uB825",
+    "apiSettings.keepKeyAndSave": "Key \uC720\uC9C0 \uD6C4 \uC800\uC7A5",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \uC6D0\uBCF8\uC774 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uAE30\uC874 Key \uC720\uC9C0 \uB610\uB294 \uC0C8 Key \uC785\uB825\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
     "apiSettings.newProvider": "\uC0C8 \uACF5\uAE09\uC790",
     "apiSettings.saving": "\uC800\uC7A5 \uC911...",
     "apiSettings.savingStatus": "API \uC124\uC815\uC744 \uC800\uC7A5\uD558\uB294 \uC911...",
@@ -8545,6 +8856,36 @@
     "settings.saved": "Salvo",
     "settings.savedRestartStatus": "Configura\xE7\xF5es de armazenamento salvas. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.title": "Backup e restaura\xE7\xE3o",
+    "userConfigBackup.back": "Voltar \xE0s Configura\xE7\xF5es do sistema",
+    "userConfigBackup.entryTitle": "Backup e restaura\xE7\xE3o da configura\xE7\xE3o",
+    "userConfigBackup.entryCopy": "Migre chips, imagens compartilhadas, modelos e configura\xE7\xF5es do sistema",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Restaurar",
+    "userConfigBackup.sectionChips": "Chips",
+    "userConfigBackup.sectionGallery": "Imagens compartilhadas",
+    "userConfigBackup.sectionTemplates": "Modelos",
+    "userConfigBackup.sectionSettings": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.groupColors": "Cores",
+    "userConfigBackup.groupPromptSnippets": "Trechos de prompt",
+    "userConfigBackup.groupGalleryItems": "Imagens compartilhadas",
+    "userConfigBackup.groupPromptTemplates": "Modelos de prompt",
+    "userConfigBackup.groupSettings": "Configura\xE7\xF5es do sistema",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 atual {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / atual {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup vazio, atual {current}",
+    "userConfigBackup.emptyReplaceBlocked": "N\xE3o \xE9 poss\xEDvel substituir: {groups} est\xE1 vazio no backup, mas cont\xE9m dados atuais. Desmarque-o ou use a restaura\xE7\xE3o incremental.",
+    "user_config_restore_empty_replace_blocked": "Dados vazios do backup n\xE3o podem substituir dados existentes. Desmarque-os ou use a restaura\xE7\xE3o incremental.",
+    "user_config_restore_preview_unavailable": "N\xE3o foi poss\xEDvel ler os dados atuais com seguran\xE7a. Verifique os arquivos locais e valide o backup novamente.",
+    "userConfigBackup.includeApiKeys": "Incluir chaves de API (sens\xEDvel)",
+    "userConfigBackup.apiKeyWarning": "O backup n\xE3o \xE9 criptografado. Guarde-o com seguran\xE7a.",
+    "userConfigBackup.incremental": "Incremental",
+    "userConfigBackup.replace": "Substituir",
+    "userConfigBackup.replaceCopy": "Substitui os dados atuais das se\xE7\xF5es selecionadas. Uma segunda confirma\xE7\xE3o \xE9 necess\xE1ria.",
+    "userConfigBackup.replaceConfirmTitle": "Confirmar substitui\xE7\xE3o dos dados",
+    "userConfigBackup.replaceAcknowledge": "Entendo que os dados atuais ser\xE3o substitu\xEDdos",
+    "userConfigBackup.confirmReplace": "Confirmar substitui\xE7\xE3o e restaurar",
+    "userConfigBackup.restoreComplete": "Restaura\xE7\xE3o conclu\xEDda",
     "systemSettings.tabsLabel": "Se\xE7\xF5es de configura\xE7\xF5es do sistema",
     "systemSettings.apiTab": "API Configura\xE7\xF5es",
     "systemSettings.codexTab": "Codex Canal",
@@ -8642,6 +8983,13 @@
     "apiSettings.save": "Salvar configura\xE7\xF5es de API",
     "apiSettings.loadFailed": "Falha ao carregar configura\xE7\xF5es de API",
     "apiSettings.savedKeyPlaceholder": "A chave API \xE9 salva no backend. Insira uma nova chave para substitu\xED-la.",
+    "apiSettings.apiKeyRequired": "Insira uma API Key antes de salvar este provedor.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origem da Base URL alterada",
+    "apiSettings.originChangeMessage": "Manter a chave existente far\xE1 com que ela seja enviada ao novo endere\xE7o. Um endere\xE7o incorreto pode expor a chave.",
+    "apiSettings.originChangeDetail": "Anterior: {previousOrigin}; Novo: {nextOrigin}",
+    "apiSettings.enterNewKey": "Inserir nova chave",
+    "apiSettings.keepKeyAndSave": "Manter chave e salvar",
+    "apiSettings.originChangeConfirmationRequired": "A origem da Base URL mudou. Confirme a chave existente ou insira uma nova.",
     "apiSettings.newProvider": "Novo provedor",
     "apiSettings.saving": "Salvando...",
     "apiSettings.savingStatus": "Salvando configura\xE7\xF5es de API...",
@@ -9731,6 +10079,36 @@
     "settings.saved": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E",
     "settings.savedRestartStatus": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C.",
     "systemSettings.title": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.title": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435",
+    "userConfigBackup.back": "\u041D\u0430\u0437\u0430\u0434 \u043A \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u043C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u043C",
+    "userConfigBackup.entryTitle": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438",
+    "userConfigBackup.entryCopy": "\u041F\u0435\u0440\u0435\u043D\u043E\u0441 \u0447\u0438\u043F\u043E\u0432, \u043E\u0431\u0449\u0438\u0445 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439, \u0448\u0430\u0431\u043B\u043E\u043D\u043E\u0432 \u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
+    "userConfigBackup.backupTab": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F",
+    "userConfigBackup.restoreTab": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C",
+    "userConfigBackup.sectionChips": "\u0427\u0438\u043F\u044B",
+    "userConfigBackup.sectionGallery": "\u041E\u0431\u0449\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "userConfigBackup.sectionTemplates": "\u0428\u0430\u0431\u043B\u043E\u043D\u044B",
+    "userConfigBackup.sectionSettings": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.groupColors": "\u0426\u0432\u0435\u0442\u0430",
+    "userConfigBackup.groupPromptSnippets": "\u0424\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u044B \u043F\u0440\u043E\u043C\u043F\u0442\u043E\u0432",
+    "userConfigBackup.groupGalleryItems": "\u041E\u0431\u0449\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "userConfigBackup.groupPromptTemplates": "\u0428\u0430\u0431\u043B\u043E\u043D\u044B \u043F\u0440\u043E\u043C\u043F\u0442\u043E\u0432",
+    "userConfigBackup.groupSettings": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "userConfigBackup.previewSectionCounts": "\u0412 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438 {archive} \xB7 \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \u0432 \u043A\u043E\u043F\u0438\u0438 {archive} / \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \u043A\u043E\u043F\u0438\u044F \u043F\u0443\u0441\u0442\u0430, \u0441\u0435\u0439\u0447\u0430\u0441 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u0417\u0430\u043C\u0435\u043D\u0430 \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u0430: {groups} \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438, \u043D\u043E \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u0421\u043D\u0438\u043C\u0438\u0442\u0435 \u0432\u044B\u0431\u043E\u0440 \u0438\u043B\u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0434\u043E\u0431\u0430\u0432\u043E\u0447\u043D\u043E\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435.",
+    "user_config_restore_empty_replace_blocked": "\u041F\u0443\u0441\u0442\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438 \u043D\u0435 \u043C\u043E\u0433\u0443\u0442 \u0437\u0430\u043C\u0435\u043D\u0438\u0442\u044C \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u0421\u043D\u0438\u043C\u0438\u0442\u0435 \u0432\u044B\u0431\u043E\u0440 \u0438\u043B\u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0434\u043E\u0431\u0430\u0432\u043E\u0447\u043D\u043E\u0435 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435.",
+    "user_config_restore_preview_unavailable": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E.",
+    "userConfigBackup.includeApiKeys": "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043A\u043B\u044E\u0447\u0438 API (\u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E)",
+    "userConfigBackup.apiKeyWarning": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u043D\u0435 \u0437\u0430\u0448\u0438\u0444\u0440\u043E\u0432\u0430\u043D\u0430. \u0425\u0440\u0430\u043D\u0438\u0442\u0435 \u0435\u0451 \u0432 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u043C \u043C\u0435\u0441\u0442\u0435.",
+    "userConfigBackup.incremental": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C",
+    "userConfigBackup.replace": "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C",
+    "userConfigBackup.replaceCopy": "\u0417\u0430\u043C\u0435\u043D\u044F\u0435\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0445 \u0440\u0430\u0437\u0434\u0435\u043B\u043E\u0432. \u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435.",
+    "userConfigBackup.replaceConfirmTitle": "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C \u0437\u0430\u043C\u0435\u043D\u0443 \u0434\u0430\u043D\u043D\u044B\u0445",
+    "userConfigBackup.replaceAcknowledge": "\u042F \u043F\u043E\u043D\u0438\u043C\u0430\u044E, \u0447\u0442\u043E \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0437\u0430\u043C\u0435\u043D\u0435\u043D\u044B",
+    "userConfigBackup.confirmReplace": "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C",
+    "userConfigBackup.restoreComplete": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E",
     "systemSettings.tabsLabel": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
     "systemSettings.apiTab": "API \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
     "systemSettings.codexTab": "Codex \u041A\u0430\u043D\u0430\u043B",
@@ -9828,6 +10206,13 @@
     "apiSettings.save": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 API",
     "apiSettings.loadFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 API.",
     "apiSettings.savedKeyPlaceholder": "\u041A\u043B\u044E\u0447 API \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F \u043D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043D\u043E\u0432\u044B\u0439 \u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0435\u0433\u043E \u0437\u0430\u043C\u0435\u043D\u044B.",
+    "apiSettings.apiKeyRequired": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 API Key \u043F\u0435\u0440\u0435\u0434 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435\u043C \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u0430.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F \u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A Base URL \u0438\u0437\u043C\u0435\u043D\u0451\u043D",
+    "apiSettings.originChangeMessage": "\u0415\u0441\u043B\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0439 \u043A\u043B\u044E\u0447, \u043E\u043D \u0431\u0443\u0434\u0435\u0442 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0442\u044C\u0441\u044F \u043D\u0430 \u043D\u043E\u0432\u044B\u0439 \u0430\u0434\u0440\u0435\u0441. \u041E\u0448\u0438\u0431\u043A\u0430 \u0432 \u0430\u0434\u0440\u0435\u0441\u0435 \u043C\u043E\u0436\u0435\u0442 \u0440\u0430\u0441\u043A\u0440\u044B\u0442\u044C \u043A\u043B\u044E\u0447.",
+    "apiSettings.originChangeDetail": "\u041F\u0440\u0435\u0436\u043D\u0438\u0439: {previousOrigin}; \u041D\u043E\u0432\u044B\u0439: {nextOrigin}",
+    "apiSettings.enterNewKey": "\u0412\u0432\u0435\u0441\u0442\u0438 \u043D\u043E\u0432\u044B\u0439 \u043A\u043B\u044E\u0447",
+    "apiSettings.keepKeyAndSave": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043A\u043B\u044E\u0447 \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+    "apiSettings.originChangeConfirmationRequired": "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A Base URL \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0441\u044F. \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043A\u043B\u044E\u0447\u0430 \u0438\u043B\u0438 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043D\u043E\u0432\u044B\u0439.",
     "apiSettings.newProvider": "\u041D\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440",
     "apiSettings.saving": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435...",
     "apiSettings.savingStatus": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A API...",
@@ -10917,6 +11302,36 @@
     "settings.saved": "Salvato",
     "settings.savedRestartStatus": "Impostazioni di archiviazione salvate. Riavvia WebUI per applicare.",
     "systemSettings.title": "Impostazioni di sistema",
+    "userConfigBackup.title": "Backup e ripristino",
+    "userConfigBackup.back": "Torna alle impostazioni di sistema",
+    "userConfigBackup.entryTitle": "Backup e ripristino della configurazione",
+    "userConfigBackup.entryCopy": "Trasferisci chip, immagini condivise, modelli e impostazioni di sistema",
+    "userConfigBackup.backupTab": "Backup",
+    "userConfigBackup.restoreTab": "Ripristina",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "Immagini condivise",
+    "userConfigBackup.sectionTemplates": "Modelli",
+    "userConfigBackup.sectionSettings": "Impostazioni di sistema",
+    "userConfigBackup.groupColors": "Colori",
+    "userConfigBackup.groupPromptSnippets": "Frammenti di prompt",
+    "userConfigBackup.groupGalleryItems": "Immagini condivise",
+    "userConfigBackup.groupPromptTemplates": "Modelli di prompt",
+    "userConfigBackup.groupSettings": "Impostazioni di sistema",
+    "userConfigBackup.previewSectionCounts": "Backup {archive} \xB7 attuali {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: backup {archive} / attuali {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: backup vuoto, attuali {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Impossibile sostituire: {groups} \xE8 vuoto nel backup ma contiene dati attuali. Deselezionalo o usa il ripristino incrementale.",
+    "user_config_restore_empty_replace_blocked": "I dati vuoti del backup non possono sostituire dati esistenti. Deselezionali o usa il ripristino incrementale.",
+    "user_config_restore_preview_unavailable": "Impossibile leggere in sicurezza i dati attuali. Controlla i file locali e convalida di nuovo il backup.",
+    "userConfigBackup.includeApiKeys": "Includi chiavi API (sensibile)",
+    "userConfigBackup.apiKeyWarning": "Il backup non \xE8 crittografato. Conservalo in modo sicuro.",
+    "userConfigBackup.incremental": "Incrementale",
+    "userConfigBackup.replace": "Sostituisci",
+    "userConfigBackup.replaceCopy": "Sostituisce i dati attuali nelle sezioni selezionate. \xC8 richiesta una seconda conferma.",
+    "userConfigBackup.replaceConfirmTitle": "Conferma la sostituzione dei dati",
+    "userConfigBackup.replaceAcknowledge": "Comprendo che i dati attuali verranno sostituiti",
+    "userConfigBackup.confirmReplace": "Conferma sostituzione e ripristina",
+    "userConfigBackup.restoreComplete": "Ripristino completato",
     "systemSettings.tabsLabel": "Sezioni delle impostazioni di sistema",
     "systemSettings.apiTab": "API Impostazioni",
     "systemSettings.codexTab": "Codex Canale",
@@ -11014,6 +11429,13 @@
     "apiSettings.save": "Salva le impostazioni API",
     "apiSettings.loadFailed": "Impossibile caricare le impostazioni API",
     "apiSettings.savedKeyPlaceholder": "La chiave API viene salvata sul back-end. Immettere una nuova chiave per sostituirla.",
+    "apiSettings.apiKeyRequired": "Inserisci una API Key prima di salvare il fornitore.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Origine della Base URL modificata",
+    "apiSettings.originChangeMessage": "Mantenendo la chiave esistente, verr\xE0 inviata al nuovo indirizzo. Un indirizzo errato potrebbe esporla.",
+    "apiSettings.originChangeDetail": "Precedente: {previousOrigin}; Nuovo: {nextOrigin}",
+    "apiSettings.enterNewKey": "Inserisci una nuova chiave",
+    "apiSettings.keepKeyAndSave": "Mantieni chiave e salva",
+    "apiSettings.originChangeConfirmationRequired": "L\u2019origine della Base URL \xE8 cambiata. Conferma la chiave esistente o inseriscine una nuova.",
     "apiSettings.newProvider": "Nuovo fornitore",
     "apiSettings.saving": "Salvataggio...",
     "apiSettings.savingStatus": "Salvataggio delle impostazioni API...",
@@ -12103,6 +12525,36 @@
     "settings.saved": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E",
     "settings.savedRestartStatus": "\u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908\u0902. \u0932\u093E\u0917\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F WebUI \u0915\u094B \u092A\u0941\u0928\u0930\u093E\u0930\u0902\u092D \u0915\u0930\u0947\u0902\u0964",
     "systemSettings.title": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.title": "\u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
+    "userConfigBackup.back": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u092A\u0930 \u0935\u093E\u092A\u0938 \u091C\u093E\u090F\u0901",
+    "userConfigBackup.entryTitle": "\u0915\u0949\u0928\u094D\u092B\u093C\u093F\u0917\u0930\u0947\u0936\u0928 \u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
+    "userConfigBackup.entryCopy": "\u091A\u093F\u092A, \u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930, \u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F \u0914\u0930 \u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.backupTab": "\u092C\u0948\u0915\u0905\u092A",
+    "userConfigBackup.restoreTab": "\u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.sectionChips": "\u091A\u093F\u092A",
+    "userConfigBackup.sectionGallery": "\u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930",
+    "userConfigBackup.sectionTemplates": "\u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F",
+    "userConfigBackup.sectionSettings": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.groupColors": "\u0930\u0902\u0917",
+    "userConfigBackup.groupPromptSnippets": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u094D\u0928\u093F\u092A\u0947\u091F",
+    "userConfigBackup.groupGalleryItems": "\u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930",
+    "userConfigBackup.groupPromptTemplates": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F",
+    "userConfigBackup.groupSettings": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
+    "userConfigBackup.previewSectionCounts": "\u092C\u0948\u0915\u0905\u092A {archive} \xB7 \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: \u092C\u0948\u0915\u0905\u092A {archive} / \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: \u092C\u0948\u0915\u0905\u092A \u0916\u093E\u0932\u0940, \u0935\u0930\u094D\u0924\u092E\u093E\u0928 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u092C\u0926\u0932 \u0928\u0939\u0940\u0902 \u0938\u0915\u0924\u0947: \u092C\u0948\u0915\u0905\u092A \u092E\u0947\u0902 {groups} \u0916\u093E\u0932\u0940 \u0939\u0948, \u0932\u0947\u0915\u093F\u0928 \u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0921\u0947\u091F\u093E \u092E\u094C\u091C\u0942\u0926 \u0939\u0948\u0964 \u0907\u0938\u0947 \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902 \u092F\u093E \u0907\u0928\u094D\u0915\u094D\u0930\u0940\u092E\u0947\u0902\u091F\u0932 \u0930\u093F\u0938\u094D\u091F\u094B\u0930 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "user_config_restore_empty_replace_blocked": "\u0916\u093E\u0932\u0940 \u092C\u0948\u0915\u0905\u092A \u0921\u0947\u091F\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0915\u094B \u0928\u0939\u0940\u0902 \u092C\u0926\u0932 \u0938\u0915\u0924\u093E\u0964 \u0907\u0938\u0947 \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902 \u092F\u093E \u0907\u0928\u094D\u0915\u094D\u0930\u0940\u092E\u0947\u0902\u091F\u0932 \u0930\u093F\u0938\u094D\u091F\u094B\u0930 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "user_config_restore_preview_unavailable": "\u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0921\u0947\u091F\u093E \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0930\u0942\u092A \u0938\u0947 \u092A\u0922\u093C\u093E \u0928\u0939\u0940\u0902 \u091C\u093E \u0938\u0915\u093E\u0964 \u0938\u094D\u0925\u093E\u0928\u0940\u092F \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091C\u093E\u0901\u091A\u0947\u0902 \u0914\u0930 \u092C\u0948\u0915\u0905\u092A \u0915\u094B \u092B\u093F\u0930 \u0938\u0924\u094D\u092F\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902\u0964",
+    "userConfigBackup.includeApiKeys": "API \u0915\u0941\u0902\u091C\u093F\u092F\u093E\u0901 \u0936\u093E\u092E\u093F\u0932 \u0915\u0930\u0947\u0902 (\u0938\u0902\u0935\u0947\u0926\u0928\u0936\u0940\u0932)",
+    "userConfigBackup.apiKeyWarning": "\u092C\u0948\u0915\u0905\u092A \u090F\u0928\u094D\u0915\u094D\u0930\u093F\u092A\u094D\u091F\u0947\u0921 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u0907\u0938\u0947 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0930\u0916\u0947\u0902\u0964",
+    "userConfigBackup.incremental": "\u0915\u094D\u0930\u092E\u093F\u0915",
+    "userConfigBackup.replace": "\u092C\u0926\u0932\u0947\u0902",
+    "userConfigBackup.replaceCopy": "\u091A\u0941\u0928\u0947 \u0917\u090F \u0905\u0928\u0941\u092D\u093E\u0917\u094B\u0902 \u0915\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0948\u0915\u0905\u092A \u0938\u0947 \u092C\u0926\u0932\u0924\u093E \u0939\u0948\u0964 \u0926\u0942\u0938\u0930\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0906\u0935\u0936\u094D\u092F\u0915 \u0939\u0948\u0964",
+    "userConfigBackup.replaceConfirmTitle": "\u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0926\u0932\u0928\u0947 \u0915\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0915\u0930\u0947\u0902",
+    "userConfigBackup.replaceAcknowledge": "\u092E\u0948\u0902 \u0938\u092E\u091D\u0924\u093E/\u0938\u092E\u091D\u0924\u0940 \u0939\u0942\u0901 \u0915\u093F \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u092C\u0926\u0932 \u0926\u093F\u092F\u093E \u091C\u093E\u090F\u0917\u093E",
+    "userConfigBackup.confirmReplace": "\u092C\u0926\u0932\u0947\u0902 \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.restoreComplete": "\u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E \u092A\u0942\u0930\u094D\u0923 \u0939\u0941\u0908",
     "systemSettings.tabsLabel": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0905\u0928\u0941\u092D\u093E\u0917",
     "systemSettings.apiTab": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
     "systemSettings.codexTab": "Codex \u091A\u0948\u0928\u0932",
@@ -12200,6 +12652,13 @@
     "apiSettings.save": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u0939\u0947\u091C\u0947\u0902",
     "apiSettings.loadFailed": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0932\u094B\u0921 \u0915\u0930\u0928\u0947 \u092E\u0947\u0902 \u0935\u093F\u092B\u0932",
     "apiSettings.savedKeyPlaceholder": "API \u0915\u0941\u0902\u091C\u0940 \u092C\u0948\u0915\u090F\u0902\u0921 \u092A\u0930 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908 \u0939\u0948\u0964 \u0907\u0938\u0947 \u092C\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u090F\u0915 \u0928\u0908 \u0915\u0941\u0902\u091C\u0940 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.apiKeyRequired": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0938\u0939\u0947\u091C\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 API Key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u0915\u093E \u092E\u0942\u0932 \u092C\u0926\u0932 \u0917\u092F\u093E",
+    "apiSettings.originChangeMessage": "\u092E\u094C\u091C\u0942\u0926\u093E key \u0930\u0916\u0928\u0947 \u092A\u0930 \u0935\u0939 \u0928\u090F \u092A\u0924\u0947 \u092A\u0930 \u092D\u0947\u091C\u0940 \u091C\u093E\u090F\u0917\u0940\u0964 \u0917\u0932\u0924 \u092A\u0924\u093E key \u0915\u094B \u0909\u091C\u093E\u0917\u0930 \u0915\u0930 \u0938\u0915\u0924\u093E \u0939\u0948\u0964",
+    "apiSettings.originChangeDetail": "\u092A\u0941\u0930\u093E\u0928\u093E: {previousOrigin}; \u0928\u092F\u093E: {nextOrigin}",
+    "apiSettings.enterNewKey": "\u0928\u0908 key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902",
+    "apiSettings.keepKeyAndSave": "Key \u0930\u0916\u0947\u0902 \u0914\u0930 \u0938\u0939\u0947\u091C\u0947\u0902",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u0915\u093E \u092E\u0942\u0932 \u092C\u0926\u0932 \u0917\u092F\u093E \u0939\u0948\u0964 \u092A\u0941\u0930\u093E\u0928\u0940 key \u0930\u0916\u0928\u0947 \u0915\u0940 \u092A\u0941\u0937\u094D\u091F\u093F \u0915\u0930\u0947\u0902 \u092F\u093E \u0928\u0908 key \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
     "apiSettings.newProvider": "\u0928\u092F\u093E \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.saving": "\u0938\u0939\u0947\u091C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948...",
     "apiSettings.savingStatus": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u0939\u0947\u091C\u0940 \u091C\u093E \u0930\u0939\u0940 \u0939\u0948\u0902...",
@@ -13299,6 +13758,95 @@
     "settings.saved": "\u0110\xE3 l\u01B0u",
     "settings.savedRestartStatus": "\u0110\xE3 l\u01B0u c\xE0i \u0111\u1EB7t l\u01B0u tr\u1EEF. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 \xE1p d\u1EE5ng.",
     "systemSettings.title": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.title": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.back": "Quay l\u1EA1i C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.entryTitle": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c c\u1EA5u h\xECnh",
+    "userConfigBackup.entryCopy": "Di chuy\u1EC3n chip, \u1EA3nh d\xF9ng chung, m\u1EABu v\xE0 c\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.modeLabel": "Sao l\u01B0u ho\u1EB7c kh\xF4i ph\u1EE5c",
+    "userConfigBackup.backupTab": "Sao l\u01B0u",
+    "userConfigBackup.restoreTab": "Kh\xF4i ph\u1EE5c",
+    "userConfigBackup.backupCopy": "Ch\u1ECDn c\u1EA5u h\xECnh c\u1EA7n \u0111\u01B0a v\xE0o b\u1EA3n sao l\u01B0u. T\xE1c v\u1EE5 \u0111\xE3 t\u1EA1o v\xE0 phi\xEAn \u0111\u0103ng nh\u1EADp OAuth kh\xF4ng bao gi\u1EDD \u0111\u01B0\u1EE3c bao g\u1ED3m.",
+    "userConfigBackup.selectSections": "Ch\u1ECDn d\u1EEF li\u1EC7u",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u1EA2nh d\xF9ng chung",
+    "userConfigBackup.sectionTemplates": "M\u1EABu",
+    "userConfigBackup.sectionSettings": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.groupColors": "M\xE0u s\u1EAFc",
+    "userConfigBackup.groupPromptSnippets": "\u0110o\u1EA1n prompt",
+    "userConfigBackup.groupGalleryItems": "\u1EA2nh d\xF9ng chung",
+    "userConfigBackup.groupPromptTemplates": "M\u1EABu prompt",
+    "userConfigBackup.groupSettings": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.includeApiKeys": "Bao g\u1ED3m API Key (nh\u1EA1y c\u1EA3m)",
+    "userConfigBackup.apiKeyWarning": "B\u1EA3n sao l\u01B0u kh\xF4ng \u0111\u01B0\u1EE3c m\xE3 h\xF3a. H\xE3y l\u01B0u gi\u1EEF an to\xE0n.",
+    "userConfigBackup.backupProgress": "Ti\u1EBFn \u0111\u1ED9 sao l\u01B0u",
+    "userConfigBackup.restoreProgress": "Ti\u1EBFn \u0111\u1ED9 t\u1EA3i l\xEAn \u0111\u1EC3 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.download": "T\u1EA3i b\u1EA3n sao l\u01B0u",
+    "userConfigBackup.create": "T\u1EA1o b\u1EA3n sao l\u01B0u",
+    "userConfigBackup.chooseArchive": "Ch\u1ECDn t\u1EC7p ZIP sao l\u01B0u",
+    "userConfigBackup.chooseArchiveCopy": "T\u1EC7p \u0111\u01B0\u1EE3c t\u1EA3i l\xEAn v\xE0 x\xE1c th\u1EF1c tr\u01B0\u1EDBc. Xem tr\u01B0\u1EDBc kh\xF4ng thay \u0111\u1ED5i d\u1EEF li\u1EC7u hi\u1EC7n c\xF3.",
+    "userConfigBackup.previewTitle": "Xem tr\u01B0\u1EDBc kh\xF4i ph\u1EE5c",
+    "userConfigBackup.restoreModeLabel": "Ch\u1EBF \u0111\u1ED9 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.incremental": "T\u0103ng d\u1EA7n",
+    "userConfigBackup.replace": "Thay th\u1EBF",
+    "userConfigBackup.incrementalCopy": "Gi\u1EEF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3, b\u1ECF qua m\u1EE5c tr\xF9ng v\xE0 t\u1EA1o b\u1EA3n kh\xF4i ph\u1EE5c cho m\u1EE5c xung \u0111\u1ED9t.",
+    "userConfigBackup.replaceCopy": "Thay d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 trong c\xE1c m\u1EE5c \u0111\xE3 ch\u1ECDn b\u1EB1ng b\u1EA3n sao l\u01B0u. C\u1EA7n x\xE1c nh\u1EADn l\u1EA7n n\u1EEFa.",
+    "userConfigBackup.restoreSelected": "Kh\xF4i ph\u1EE5c d\u1EEF li\u1EC7u \u0111\xE3 ch\u1ECDn",
+    "userConfigBackup.replaceConfirmTitle": "X\xE1c nh\u1EADn thay th\u1EBF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3",
+    "userConfigBackup.replaceConfirmCopy": "Ch\u1EC9 c\xE1c m\u1EE5c \u0111\xE3 ch\u1ECDn b\u1ECB \u1EA3nh h\u01B0\u1EDFng, nh\u01B0ng d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 c\u1EE7a ch\xFAng s\u1EBD b\u1ECB x\xF3a. Thao t\xE1c n\xE0y kh\xF4ng th\u1EC3 ho\xE0n t\xE1c.",
+    "userConfigBackup.replaceAcknowledge": "T\xF4i hi\u1EC3u d\u1EEF li\u1EC7u hi\u1EC7n c\xF3 s\u1EBD b\u1ECB thay th\u1EBF",
+    "userConfigBackup.backToPreview": "Quay l\u1EA1i xem tr\u01B0\u1EDBc",
+    "userConfigBackup.confirmReplace": "X\xE1c nh\u1EADn thay th\u1EBF v\xE0 kh\xF4i ph\u1EE5c",
+    "userConfigBackup.summaryLoading": "\u0110ang \u0111\u1ECDc t\xF3m t\u1EAFt c\u1EA5u h\xECnh\u2026",
+    "userConfigBackup.summaryFailed": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc t\xF3m t\u1EAFt c\u1EA5u h\xECnh",
+    "userConfigBackup.itemCount": "{count} m\u1EE5c",
+    "userConfigBackup.warningCount": "{count} c\u1EA3nh b\xE1o",
+    "userConfigBackup.selectAtLeastOne": "Ch\u1ECDn \xEDt nh\u1EA5t m\u1ED9t lo\u1EA1i d\u1EEF li\u1EC7u",
+    "userConfigBackup.apiKeyConfirm": "B\u1EA3n sao l\u01B0u kh\xF4ng m\xE3 h\xF3a n\xE0y s\u1EBD ch\u1EE9a API Key. V\u1EABn t\u1EA1o ch\u1EE9?",
+    "userConfigBackup.cancelled": "\u0110\xE3 h\u1EE7y sao l\u01B0u",
+    "userConfigBackup.downloaded": "\u0110\xE3 b\u1EAFt \u0111\u1EA7u t\u1EA3i xu\u1ED1ng. B\u1EA1n c\xF3 th\u1EC3 t\u1EA3i l\u1EA1i b\u1EA3n sao l\u01B0u n\xE0y trong t\u1ED1i \u0111a 24 gi\u1EDD.",
+    "userConfigBackup.status.queued": "\u0110\xE3 x\u1EBFp h\xE0ng sao l\u01B0u\u2026",
+    "userConfigBackup.status.planning": "\u0110ang l\u1EADp k\u1EBF ho\u1EA1ch sao l\u01B0u\u2026",
+    "userConfigBackup.status.packing": "\u0110ang \u0111\xF3ng g\xF3i\u2026",
+    "userConfigBackup.status.ready": "B\u1EA3n sao l\u01B0u \u0111\xE3 s\u1EB5n s\xE0ng v\xE0 c\xF3 th\u1EC3 t\u1EA3i l\u1EA1i trong t\u1ED1i \u0111a 24 gi\u1EDD.",
+    "userConfigBackup.status.failed": "Sao l\u01B0u th\u1EA5t b\u1EA1i",
+    "userConfigBackup.status.cancelled": "\u0110\xE3 h\u1EE7y sao l\u01B0u",
+    "userConfigBackup.status.expired": "B\u1EA3n sao l\u01B0u \u0111\xE3 h\u1EBFt h\u1EA1n",
+    "userConfigBackup.status.interrupted": "Sao l\u01B0u d\u1EEBng khi WebUI b\u1ECB gi\xE1n \u0111o\u1EA1n",
+    "userConfigBackup.creatingSession": "\u0110ang chu\u1EA9n b\u1ECB t\u1EA3i l\xEAn\u2026",
+    "userConfigBackup.uploading": "\u0110ang t\u1EA3i b\u1EA3n sao l\u01B0u l\xEAn\u2026",
+    "userConfigBackup.validating": "\u0110ang x\xE1c th\u1EF1c b\u1EA3n sao l\u01B0u\u2026",
+    "userConfigBackup.validationReady": "X\xE1c th\u1EF1c ho\xE0n t\u1EA5t. H\xE3y ch\u1ECDn c\xE1ch kh\xF4i ph\u1EE5c.",
+    "userConfigBackup.versionUnsupported": "B\u1EA3n sao l\u01B0u d\xF9ng \u0111\u1ECBnh d\u1EA1ng m\u1EDBi h\u01A1n v\xE0 ch\u1EC9 c\xF3 th\u1EC3 xem tr\u01B0\u1EDBc.",
+    "userConfigBackup.previewCounts": "{count} m\u1EE5c trong g\xF3i \xB7 {duplicate} tr\xF9ng \xB7 {conflict} xung \u0111\u1ED9t",
+    "userConfigBackup.previewSectionCounts": "B\u1EA3n sao l\u01B0u {archive} \xB7 hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.previewGroupCounts": "{group}: sao l\u01B0u {archive} / hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}: b\u1EA3n sao l\u01B0u tr\u1ED1ng, hi\u1EC7n t\u1EA1i {current}",
+    "userConfigBackup.emptyReplaceBlocked": "Kh\xF4ng th\u1EC3 thay th\u1EBF: {groups} tr\u1ED1ng trong b\u1EA3n sao l\u01B0u nh\u01B0ng hi\u1EC7n c\xF3 d\u1EEF li\u1EC7u. H\xE3y b\u1ECF ch\u1ECDn ho\u1EB7c d\xF9ng kh\xF4i ph\u1EE5c t\u0103ng d\u1EA7n.",
+    "userConfigBackup.archiveMeta": "{count} m\u1EE5c \xB7 \u0111\u1ECBnh d\u1EA1ng v{version}",
+    "userConfigBackup.replaceImpact": "{section}: x\xF3a {current} m\u1EE5c hi\u1EC7n c\xF3 r\u1ED3i nh\u1EADp {archive} m\u1EE5c sao l\u01B0u",
+    "userConfigBackup.galleryReferenceImpact": "{count} t\xE1c v\u1EE5 l\u1ECBch s\u1EED s\u1EBD m\u1EA5t tham chi\u1EBFu \u1EA3nh d\xF9ng chung",
+    "userConfigBackup.providerRetention": "{count} provider c\xF3 th\xF4ng tin x\xE1c th\u1EF1c s\u1EBD \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i \u0111\u1EC3 b\u1EA3o \u0111\u1EA3m an to\xE0n",
+    "userConfigBackup.restoring": "\u0110ang kh\xF4i ph\u1EE5c. H\xE3y gi\u1EEF WebUI m\u1EDF\u2026",
+    "userConfigBackup.restoreComplete": "Kh\xF4i ph\u1EE5c ho\xE0n t\u1EA5t",
+    "userConfigBackup.resultCounts": "{section}: th\xEAm {added} \xB7 thay th\u1EBF {replaced} \xB7 b\u1ECF qua {skipped} \xB7 b\u1EA3n kh\xF4i ph\u1EE5c {copies}",
+    "userConfigBackup.restartRequired": "\u0110\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF \u0111\xE3 \u0111\u01B0\u1EE3c kh\xF4i ph\u1EE5c. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 s\u1EED d\u1EE5ng.",
+    "userConfigBackup.restoreContinues": "Qu\xE1 tr\xECnh ghi \u0111\xE3 b\u1EAFt \u0111\u1EA7u. \u0110\xF3ng b\u1EA3ng n\xE0y kh\xF4ng h\u1EE7y kh\xF4i ph\u1EE5c; h\xE3y m\u1EDF l\u1EA1i \u0111\u1EC3 xem k\u1EBFt qu\u1EA3.",
+    "userConfigBackup.closeActiveConfirm": "M\u1ED9t l\u01B0\u1EE3t t\u1EA3i l\xEAn ho\u1EB7c sao l\u01B0u v\u1EABn \u0111ang ch\u1EA1y. \u0110\xF3ng v\xE0 h\u1EE7y ch\u1EE9?",
+    "userConfigBackup.discardReadyConfirm": "\u0110\xF3ng s\u1EBD x\xF3a b\u1EA3n t\u1EA1m tr\xEAn m\xE1y ch\u1EE7. C\xE1c t\u1EC7p \u0111\xE3 l\u01B0u tr\xEAn thi\u1EBFt b\u1ECB v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF. Ti\u1EBFp t\u1EE5c ch\u1EE9?",
+    "user_config_restore_system_notification_permission_missing": "Th\xF4ng b\xE1o h\u1EC7 th\u1ED1ng kh\xF4ng \u0111\u01B0\u1EE3c b\u1EADt v\xEC tr\xECnh duy\u1EC7t ch\u01B0a c\u1EA5p quy\u1EC1n.",
+    "user_config_backup_failed": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc ho\u1EB7c \u0111\xF3ng g\xF3i d\u1EEF li\u1EC7u \u0111\xE3 ch\u1ECDn. H\xE3y ki\u1EC3m tra v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_gallery_invalid": "M\u1ED9t \u1EA3nh d\xF9ng chung kh\xF4ng kh\u1EDBp v\u1EDBi b\u1EA3n ghi th\u01B0 vi\u1EC7n. H\xE3y l\u01B0u l\u1EA1i ho\u1EB7c x\xF3a \u1EA3nh b\u1ECB \u1EA3nh h\u01B0\u1EDFng r\u1ED3i th\u1EED l\u1EA1i.",
+    "user_config_backup_source_changed": "C\u1EA5u h\xECnh \u0111\xE3 thay \u0111\u1ED5i trong khi sao l\u01B0u. H\xE3y d\u1EEBng ch\u1EC9nh s\u1EEDa v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_source_unreadable": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc t\u1EC7p c\u1EA5u h\xECnh. H\xE3y ki\u1EC3m tra quy\u1EC1n truy c\u1EADp v\xE0 th\u1EED l\u1EA1i.",
+    "user_config_backup_insufficient_space": "Kh\xF4ng \u0111\u1EE7 dung l\u01B0\u1EE3ng \u0111\u0129a tr\u1ED1ng \u0111\u1EC3 t\u1EA1o b\u1EA3n sao l\u01B0u.",
+    "user_config_backup_io_error": "Kh\xF4ng th\u1EC3 truy c\u1EADp t\u1EC7p sao l\u01B0u. H\xE3y ki\u1EC3m tra \u1ED5 \u0111\u0129a v\xE0 quy\u1EC1n th\u01B0 m\u1EE5c.",
+    "user_config_backup_internal_error": "D\u1ECBch v\u1EE5 sao l\u01B0u g\u1EB7p l\u1ED7i n\u1ED9i b\u1ED9. H\xE3y kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI v\xE0 th\u1EED l\u1EA1i; ki\u1EC3m tra nh\u1EADt k\xFD kh\u1EDFi \u0111\u1ED9ng n\u1EBFu l\u1ED7i v\u1EABn ti\u1EBFp di\u1EC5n.",
+    "user_config_restore_failed": "Kh\xF4i ph\u1EE5c th\u1EA5t b\u1EA1i. C\u1EA5u h\xECnh hi\u1EC7n c\xF3 \u0111\xE3 \u0111\u01B0\u1EE3c gi\u1EEF nguy\xEAn.",
+    "user_config_restore_active_tasks": "V\u1EABn c\xF3 t\xE1c v\u1EE5 \u0111ang ch\u1EA1y. H\xE3y ch\u1EDD ch\xFAng ho\xE0n t\u1EA5t tr\u01B0\u1EDBc khi thay th\u1EBF d\u1EEF li\u1EC7u.",
+    "user_config_restore_empty_replace_blocked": "D\u1EEF li\u1EC7u sao l\u01B0u tr\u1ED1ng kh\xF4ng th\u1EC3 thay th\u1EBF d\u1EEF li\u1EC7u hi\u1EC7n c\xF3. H\xE3y b\u1ECF ch\u1ECDn ho\u1EB7c d\xF9ng kh\xF4i ph\u1EE5c t\u0103ng d\u1EA7n.",
+    "user_config_restore_preview_unavailable": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc an to\xE0n d\u1EEF li\u1EC7u hi\u1EC7n t\u1EA1i. H\xE3y ki\u1EC3m tra t\u1EC7p c\u1EE5c b\u1ED9 v\xE0 x\xE1c th\u1EF1c l\u1EA1i b\u1EA3n sao l\u01B0u.",
+    "user_config_restore_preview_stale": "C\u1EA5u h\xECnh hi\u1EC7n t\u1EA1i \u0111\xE3 thay \u0111\u1ED5i. H\xE3y x\xE1c th\u1EF1c l\u1EA1i b\u1EA3n sao l\u01B0u.",
+    "user_config_restore_version_unsupported": "\u0110\u1ECBnh d\u1EA1ng sao l\u01B0u n\xE0y qu\xE1 m\u1EDBi \u0111\u1EC3 kh\xF4i ph\u1EE5c.",
     "systemSettings.tabsLabel": "Ph\u1EA7n c\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
     "systemSettings.apiTab": "C\xE0i \u0111\u1EB7t API",
     "systemSettings.codexTab": "K\xEAnh Codex",
@@ -13396,6 +13944,13 @@
     "apiSettings.save": "L\u01B0u c\xE0i \u0111\u1EB7t API",
     "apiSettings.loadFailed": "Kh\xF4ng t\u1EA3i \u0111\u01B0\u1EE3c c\xE0i \u0111\u1EB7t API",
     "apiSettings.savedKeyPlaceholder": "Backend \u0111\xE3 l\u01B0u API key. Nh\u1EADp key m\u1EDBi \u0111\u1EC3 thay th\u1EBF.",
+    "apiSettings.apiKeyRequired": "H\xE3y nh\u1EADp API Key tr\u01B0\u1EDBc khi l\u01B0u nh\xE0 cung c\u1EA5p.",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Ngu\u1ED3n Base URL \u0111\xE3 thay \u0111\u1ED5i",
+    "apiSettings.originChangeMessage": "Gi\u1EEF key hi\u1EC7n t\u1EA1i s\u1EBD g\u1EEDi key \u0111\u1EBFn \u0111\u1ECBa ch\u1EC9 m\u1EDBi. N\u1EBFu nh\u1EADp sai \u0111\u1ECBa ch\u1EC9, key c\xF3 th\u1EC3 b\u1ECB l\u1ED9.",
+    "apiSettings.originChangeDetail": "\u0110\u1ECBa ch\u1EC9 c\u0169: {previousOrigin}; \u0110\u1ECBa ch\u1EC9 m\u1EDBi: {nextOrigin}",
+    "apiSettings.enterNewKey": "Nh\u1EADp key m\u1EDBi",
+    "apiSettings.keepKeyAndSave": "Gi\u1EEF key v\xE0 l\u01B0u",
+    "apiSettings.originChangeConfirmationRequired": "Ngu\u1ED3n Base URL \u0111\xE3 thay \u0111\u1ED5i. H\xE3y x\xE1c nh\u1EADn gi\u1EEF key c\u0169 ho\u1EB7c nh\u1EADp key m\u1EDBi.",
     "apiSettings.newProvider": "Provider m\u1EDBi",
     "apiSettings.saving": "\u0110ang l\u01B0u...",
     "apiSettings.savingStatus": "\u0110ang l\u01B0u c\xE0i \u0111\u1EB7t API...",
@@ -14495,6 +15050,95 @@
     "settings.saved": "\u5DF2\u4FDD\u5B58",
     "settings.savedRestartStatus": "\u5B58\u50A8\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.title": "\u5907\u4EFD\u4E0E\u6062\u590D",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.entryTitle": "\u914D\u7F6E\u5907\u4EFD\u4E0E\u6062\u590D",
+    "userConfigBackup.entryCopy": "\u8FC1\u79FB chip\u3001\u516C\u7528\u56FE\u3001\u6A21\u677F\u548C\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.modeLabel": "\u5907\u4EFD\u6216\u6062\u590D",
+    "userConfigBackup.backupTab": "\u5907\u4EFD",
+    "userConfigBackup.restoreTab": "\u6062\u590D",
+    "userConfigBackup.backupCopy": "\u9009\u62E9\u8981\u5199\u5165\u5907\u4EFD\u5305\u7684\u914D\u7F6E\u3002\u751F\u6210\u4EFB\u52A1\u548C OAuth \u767B\u5F55\u6001\u4E0D\u4F1A\u5305\u542B\u5728\u5185\u3002",
+    "userConfigBackup.selectSections": "\u9009\u62E9\u6570\u636E",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u516C\u7528\u56FE",
+    "userConfigBackup.sectionTemplates": "\u6A21\u677F",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.groupColors": "\u989C\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8BCD\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u56FE",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8BCD\u6A21\u677F",
+    "userConfigBackup.groupSettings": "\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5907\u4EFD\u5305\u4E0D\u52A0\u5BC6\uFF0C\u8BF7\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.backupProgress": "\u5907\u4EFD\u8FDB\u5EA6",
+    "userConfigBackup.restoreProgress": "\u6062\u590D\u4E0A\u4F20\u8FDB\u5EA6",
+    "userConfigBackup.download": "\u4E0B\u8F7D\u5907\u4EFD",
+    "userConfigBackup.create": "\u521B\u5EFA\u5907\u4EFD",
+    "userConfigBackup.chooseArchive": "\u9009\u62E9\u5907\u4EFD ZIP",
+    "userConfigBackup.chooseArchiveCopy": "\u6587\u4EF6\u4F1A\u5148\u4E0A\u4F20\u5E76\u6821\u9A8C\uFF0C\u9884\u89C8\u4E0D\u4F1A\u4FEE\u6539\u73B0\u6709\u6570\u636E\u3002",
+    "userConfigBackup.previewTitle": "\u6062\u590D\u9884\u89C8",
+    "userConfigBackup.restoreModeLabel": "\u6062\u590D\u6A21\u5F0F",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u66FF\u6362",
+    "userConfigBackup.incrementalCopy": "\u4FDD\u7559\u73B0\u6709\u6570\u636E\uFF0C\u91CD\u590D\u5185\u5BB9\u8DF3\u8FC7\uFF0C\u51B2\u7A81\u9879\u521B\u5EFA\u6062\u590D\u526F\u672C\u3002",
+    "userConfigBackup.replaceCopy": "\u7528\u5907\u4EFD\u5185\u5BB9\u66FF\u6362\u6240\u9009\u7C7B\u522B\u7684\u73B0\u6709\u6570\u636E\uFF0C\u9700\u8981\u518D\u6B21\u786E\u8BA4\u3002",
+    "userConfigBackup.restoreSelected": "\u6062\u590D\u6240\u9009\u5185\u5BB9",
+    "userConfigBackup.replaceConfirmTitle": "\u786E\u8BA4\u66FF\u6362\u73B0\u6709\u6570\u636E",
+    "userConfigBackup.replaceConfirmCopy": "\u66FF\u6362\u53EA\u5F71\u54CD\u6240\u9009\u7C7B\u522B\uFF0C\u4F46\u4F1A\u5220\u9664\u8FD9\u4E9B\u7C7B\u522B\u7684\u73B0\u6709\u5185\u5BB9\u3002\u6B64\u64CD\u4F5C\u5B8C\u6210\u540E\u4E0D\u80FD\u64A4\u9500\u3002",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u4E86\u89E3\u73B0\u6709\u6570\u636E\u5C06\u88AB\u66FF\u6362",
+    "userConfigBackup.backToPreview": "\u8FD4\u56DE\u9884\u89C8",
+    "userConfigBackup.confirmReplace": "\u786E\u8BA4\u66FF\u6362\u5E76\u6062\u590D",
+    "userConfigBackup.summaryLoading": "\u6B63\u5728\u8BFB\u53D6\u914D\u7F6E\u6982\u8981\u2026",
+    "userConfigBackup.summaryFailed": "\u65E0\u6CD5\u8BFB\u53D6\u914D\u7F6E\u6982\u8981",
+    "userConfigBackup.itemCount": "{count} \u9879",
+    "userConfigBackup.warningCount": "{count} \u4E2A\u8B66\u544A",
+    "userConfigBackup.selectAtLeastOne": "\u8BF7\u81F3\u5C11\u9009\u62E9\u4E00\u7C7B\u6570\u636E",
+    "userConfigBackup.apiKeyConfirm": "\u5907\u4EFD\u5305\u5C06\u5305\u542B API Key \u4E14\u4E0D\u4F1A\u52A0\u5BC6\u3002\u4ECD\u8981\u521B\u5EFA\u5417\uFF1F",
+    "userConfigBackup.cancelled": "\u5907\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.downloaded": "\u4E0B\u8F7D\u5DF2\u5F00\u59CB\uFF1B24 \u5C0F\u65F6\u6709\u6548\u671F\u5185\u4ECD\u53EF\u518D\u6B21\u4E0B\u8F7D",
+    "userConfigBackup.status.queued": "\u5907\u4EFD\u5DF2\u6392\u961F\u2026",
+    "userConfigBackup.status.planning": "\u6B63\u5728\u89C4\u5212\u5907\u4EFD\u2026",
+    "userConfigBackup.status.packing": "\u6B63\u5728\u6253\u5305\u2026",
+    "userConfigBackup.status.ready": "\u5907\u4EFD\u5DF2\u5C31\u7EEA\uFF0C24 \u5C0F\u65F6\u5185\u53EF\u91CD\u590D\u4E0B\u8F7D",
+    "userConfigBackup.status.failed": "\u5907\u4EFD\u5931\u8D25",
+    "userConfigBackup.status.cancelled": "\u5907\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.status.expired": "\u5907\u4EFD\u5DF2\u8FC7\u671F",
+    "userConfigBackup.status.interrupted": "\u5907\u4EFD\u56E0 WebUI \u4E2D\u65AD\u800C\u505C\u6B62",
+    "userConfigBackup.creatingSession": "\u6B63\u5728\u51C6\u5907\u4E0A\u4F20\u2026",
+    "userConfigBackup.uploading": "\u6B63\u5728\u4E0A\u4F20\u5907\u4EFD\u5305\u2026",
+    "userConfigBackup.validating": "\u6B63\u5728\u6821\u9A8C\u5907\u4EFD\u5305\u2026",
+    "userConfigBackup.validationReady": "\u6821\u9A8C\u5B8C\u6210\uFF0C\u8BF7\u9009\u62E9\u6062\u590D\u65B9\u5F0F",
+    "userConfigBackup.versionUnsupported": "\u6B64\u5907\u4EFD\u6765\u81EA\u66F4\u9AD8\u683C\u5F0F\u7248\u672C\uFF0C\u53EA\u80FD\u67E5\u770B\uFF0C\u4E0D\u80FD\u6062\u590D",
+    "userConfigBackup.previewCounts": "\u5305\u5185 {count} \u9879 \xB7 \u91CD\u590D {duplicate} \xB7 \u51B2\u7A81 {conflict}",
+    "userConfigBackup.previewSectionCounts": "\u5907\u4EFD {archive} \u9879 \xB7 \u5F53\u524D {current} \u9879",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5907\u4EFD {archive} / \u5F53\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5907\u4EFD\u4E3A\u7A7A\uFF0C\u5F53\u524D\u6709 {current} \u9879",
+    "userConfigBackup.emptyReplaceBlocked": "\u65E0\u6CD5\u66FF\u6362\uFF1A\u5907\u4EFD\u4E2D\u7684{groups}\u4E3A\u7A7A\uFF0C\u4F46\u5F53\u524D\u4ECD\u6709\u6570\u636E\u3002\u8BF7\u53D6\u6D88\u9009\u62E9\u6216\u6539\u7528\u589E\u91CF\u6062\u590D\u3002",
+    "userConfigBackup.archiveMeta": "{count} \u7C7B \xB7 \u683C\u5F0F v{version}",
+    "userConfigBackup.replaceImpact": "{section}\uFF1A\u6E05\u9664\u5F53\u524D {current} \u9879\uFF0C\u518D\u5BFC\u5165\u5907\u4EFD {archive} \u9879",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u4E2A\u5386\u53F2\u4EFB\u52A1\u5C06\u5931\u53BB\u516C\u7528\u56FE\u5F15\u7528",
+    "userConfigBackup.providerRetention": "{count} \u4E2A\u5E26\u51ED\u636E\u4F9B\u5E94\u5546\u5C06\u6309\u5B89\u5168\u89C4\u5219\u4FDD\u7559",
+    "userConfigBackup.restoring": "\u6B63\u5728\u6062\u590D\uFF0C\u8BF7\u52FF\u5173\u95ED WebUI\u2026",
+    "userConfigBackup.restoreComplete": "\u6062\u590D\u5B8C\u6210",
+    "userConfigBackup.resultCounts": "{section}\uFF1A\u65B0\u589E {added} \xB7 \u66FF\u6362 {replaced} \xB7 \u8DF3\u8FC7 {skipped} \xB7 \u6062\u590D\u526F\u672C {copies}",
+    "userConfigBackup.restartRequired": "\u5B58\u50A8\u8DEF\u5F84\u5DF2\u7ECF\u6062\u590D\uFF1B\u5F53\u524D\u8FDB\u7A0B\u4ECD\u4F7F\u7528\u539F\u8DEF\u5F84\uFF0C\u8BF7\u91CD\u542F WebUI\u3002",
+    "userConfigBackup.restoreContinues": "\u6062\u590D\u5199\u5165\u5DF2\u7ECF\u5F00\u59CB\uFF0C\u5173\u95ED\u9762\u677F\u4E0D\u4F1A\u53D6\u6D88\u64CD\u4F5C\u3002\u7A0D\u540E\u91CD\u65B0\u6253\u5F00\u53EF\u67E5\u770B\u7ED3\u679C\u3002",
+    "userConfigBackup.closeActiveConfirm": "\u4E0A\u4F20\u6216\u5907\u4EFD\u4ECD\u5728\u8FDB\u884C\u3002\u5173\u95ED\u5E76\u53D6\u6D88\u5417\uFF1F",
+    "userConfigBackup.discardReadyConfirm": "\u5173\u95ED\u4F1A\u5220\u9664\u670D\u52A1\u7AEF\u4E34\u65F6\u5907\u4EFD\uFF1B\u5DF2\u7ECF\u4FDD\u5B58\u5230\u672C\u673A\u7684\u6587\u4EF6\u4E0D\u53D7\u5F71\u54CD\u3002\u786E\u5B9A\u5417\uFF1F",
+    "user_config_restore_system_notification_permission_missing": "\u6D4F\u89C8\u5668\u672A\u6388\u4E88\u7CFB\u7EDF\u901A\u77E5\u6743\u9650\uFF0C\u8BE5\u504F\u597D\u672A\u542F\u7528\u3002",
+    "user_config_backup_failed": "\u5907\u4EFD\u6570\u636E\u65E0\u6CD5\u8BFB\u53D6\u6216\u6253\u5305\uFF0C\u8BF7\u68C0\u67E5\u6240\u9009\u5185\u5BB9\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_gallery_invalid": "\u516C\u7528\u56FE\u5E93\u4E2D\u6709\u56FE\u7247\u6587\u4EF6\u4E0E\u8BB0\u5F55\u4E0D\u4E00\u81F4\u3002\u8BF7\u91CD\u65B0\u4FDD\u5B58\u6216\u79FB\u9664\u5F02\u5E38\u56FE\u7247\u540E\u518D\u8BD5\u3002",
+    "user_config_backup_source_changed": "\u914D\u7F6E\u5728\u5907\u4EFD\u8FC7\u7A0B\u4E2D\u53D1\u751F\u53D8\u5316\uFF0C\u8BF7\u505C\u6B62\u7F16\u8F91\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_source_unreadable": "\u5907\u4EFD\u65E0\u6CD5\u8BFB\u53D6\u914D\u7F6E\u6587\u4EF6\uFF0C\u8BF7\u68C0\u67E5\u6587\u4EF6\u6743\u9650\u540E\u91CD\u8BD5\u3002",
+    "user_config_backup_insufficient_space": "\u78C1\u76D8\u53EF\u7528\u7A7A\u95F4\u4E0D\u8DB3\uFF0C\u65E0\u6CD5\u521B\u5EFA\u5907\u4EFD\u3002",
+    "user_config_backup_io_error": "\u5907\u4EFD\u6587\u4EF6\u8BFB\u5199\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u78C1\u76D8\u548C\u76EE\u5F55\u6743\u9650\u3002",
+    "user_config_backup_internal_error": "\u5907\u4EFD\u670D\u52A1\u53D1\u751F\u5185\u90E8\u9519\u8BEF\uFF0C\u8BF7\u91CD\u542F WebUI \u540E\u91CD\u8BD5\uFF1B\u82E5\u4ECD\u5931\u8D25\uFF0C\u8BF7\u67E5\u770B\u542F\u52A8\u65E5\u5FD7\u3002",
+    "user_config_restore_failed": "\u6062\u590D\u5931\u8D25\uFF0C\u73B0\u6709\u914D\u7F6E\u5DF2\u4FDD\u7559",
+    "user_config_restore_active_tasks": "\u4ECD\u6709\u6D3B\u52A8\u4EFB\u52A1\uFF0C\u8BF7\u7B49\u5F85\u4EFB\u52A1\u7ED3\u675F\u540E\u518D\u66FF\u6362",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u5907\u4EFD\u5185\u5BB9\u4E0D\u80FD\u66FF\u6362\u73B0\u6709\u6570\u636E\u3002\u8BF7\u53D6\u6D88\u9009\u62E9\u6216\u6539\u7528\u589E\u91CF\u6062\u590D\u3002",
+    "user_config_restore_preview_unavailable": "\u65E0\u6CD5\u5B89\u5168\u8BFB\u53D6\u5F53\u524D\u6570\u636E\u3002\u8BF7\u68C0\u67E5\u672C\u5730\u6587\u4EF6\u540E\u91CD\u65B0\u6821\u9A8C\u5907\u4EFD\u5305\u3002",
+    "user_config_restore_preview_stale": "\u5F53\u524D\u914D\u7F6E\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u6821\u9A8C\u5907\u4EFD\u5305",
+    "user_config_restore_version_unsupported": "\u5907\u4EFD\u683C\u5F0F\u7248\u672C\u8FC7\u9AD8\uFF0C\u4E0D\u80FD\u6062\u590D",
     "systemSettings.tabsLabel": "\u7CFB\u7EDF\u8BBE\u7F6E\u9009\u9879",
     "systemSettings.apiTab": "API \u8BBE\u7F6E",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -14592,6 +15236,13 @@
     "apiSettings.save": "\u4FDD\u5B58 API \u8BBE\u7F6E",
     "apiSettings.loadFailed": "API \u8BBE\u7F6E\u8BFB\u53D6\u5931\u8D25",
     "apiSettings.savedKeyPlaceholder": "\u540E\u7AEF\u5DF2\u4FDD\u5B58 API Key\uFF0C\u8F93\u5165\u65B0 key \u53EF\u8986\u76D6",
+    "apiSettings.apiKeyRequired": "\u8BF7\u586B\u5199 API Key \u540E\u518D\u4FDD\u5B58\u4F9B\u5E94\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u57DF\u540D\u5DF2\u66F4\u6539",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u540E\uFF0C\u5B83\u4F1A\u968F\u8BF7\u6C42\u53D1\u9001\u5230\u65B0\u5730\u5740\u3002\u82E5\u65B0\u5730\u5740\u586B\u5199\u9519\u8BEF\uFF0CKey \u53EF\u80FD\u6CC4\u9732\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u5730\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u5730\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5199\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u5E76\u4FDD\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u57DF\u540D\u5DF2\u66F4\u6539\uFF0C\u8BF7\u786E\u8BA4\u4FDD\u7559\u539F Key \u6216\u586B\u5199\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u5E94\u5546",
     "apiSettings.saving": "\u4FDD\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...",
@@ -15691,6 +16342,36 @@
     "settings.saved": "\u5DF2\u5132\u5B58",
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u6A21\u677F\u53CA\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.backupTab": "\u5099\u4EFD",
+    "userConfigBackup.restoreTab": "\u9084\u539F",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u5171\u7528\u5716\u7247",
+    "userConfigBackup.sectionTemplates": "\u6A21\u677F",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u984F\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u5716",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8A5E\u7BC4\u672C",
+    "userConfigBackup.groupSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u5099\u4EFD {archive} \xB7 \u76EE\u524D {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5099\u4EFD {archive} / \u76EE\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5099\u4EFD\u70BA\u7A7A\uFF0C\u73FE\u6709 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7121\u6CD5\u53D6\u4EE3\uFF1A\u5099\u4EFD\u4E2D\u7684 {groups} \u70BA\u7A7A\uFF0C\u4F46\u76EE\u524D\u4ECD\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u64C7\u6216\u6539\u7528\u589E\u91CF\u6062\u5FA9\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u767D\u5099\u4EFD\u5167\u5BB9\u4E0D\u80FD\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u64C7\u6216\u6539\u7528\u589E\u91CF\u6062\u5FA9\u3002",
+    "user_config_restore_preview_unavailable": "\u7121\u6CD5\u5B89\u5168\u8B80\u53D6\u76EE\u524D\u8CC7\u6599\u3002\u8ACB\u6AA2\u67E5\u672C\u6A5F\u6A94\u6848\u5F8C\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u3002",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5099\u4EFD\u6A94\u672A\u7D93\u52A0\u5BC6\uFF0C\u8ACB\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u53D6\u4EE3",
+    "userConfigBackup.replaceCopy": "\u4EE5\u5099\u4EFD\u5167\u5BB9\u53D6\u4EE3\u6240\u9078\u985E\u5225\u7684\u73FE\u6709\u8CC7\u6599\uFF0C\u9700\u8981\u518D\u6B21\u78BA\u8A8D\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u78BA\u8A8D\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u660E\u767D\u73FE\u6709\u8CC7\u6599\u5C07\u88AB\u53D6\u4EE3",
+    "userConfigBackup.confirmReplace": "\u78BA\u8A8D\u53D6\u4EE3\u4E26\u9084\u539F",
+    "userConfigBackup.restoreComplete": "\u9084\u539F\u5B8C\u6210",
     "systemSettings.tabsLabel": "\u7CFB\u7D71\u8A2D\u5B9A\u9078\u9805",
     "systemSettings.apiTab": "API \u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -15788,6 +16469,13 @@
     "apiSettings.save": "\u5132\u5B58API\u8A2D\u5B9A",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u8B80\u53D6\u5931\u6557",
     "apiSettings.savedKeyPlaceholder": "\u5F8C\u7AEF\u5DF2\u5132\u5B58API Key\uFF0C\u8F38\u5165\u65B0 key \u53EF\u8986\u84CB",
+    "apiSettings.apiKeyRequired": "\u8ACB\u586B\u5BEB API Key \u5F8C\u518D\u5132\u5B58\u4F9B\u61C9\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u5F8C\uFF0C\u5B83\u6703\u96A8\u8ACB\u6C42\u50B3\u9001\u5230\u65B0\u5730\u5740\u3002\u82E5\u65B0\u5730\u5740\u586B\u5BEB\u932F\u8AA4\uFF0CKey \u53EF\u80FD\u6D29\u6F0F\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u5730\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u5730\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5BEB\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u4E26\u5132\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u78BA\u8A8D\u4FDD\u7559\u539F Key \u6216\u586B\u5BEB\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u61C9\u5546",
     "apiSettings.saving": "\u5132\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
@@ -16887,6 +17575,36 @@
     "settings.saved": "\u5DF2\u5132\u5B58",
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
+    "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u7BC4\u672C\u8207\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.backupTab": "\u5099\u4EFD",
+    "userConfigBackup.restoreTab": "\u9084\u539F",
+    "userConfigBackup.sectionChips": "Chip",
+    "userConfigBackup.sectionGallery": "\u5171\u7528\u5716\u7247",
+    "userConfigBackup.sectionTemplates": "\u7BC4\u672C",
+    "userConfigBackup.sectionSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.groupColors": "\u984F\u8272",
+    "userConfigBackup.groupPromptSnippets": "\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "userConfigBackup.groupGalleryItems": "\u516C\u7528\u5716",
+    "userConfigBackup.groupPromptTemplates": "\u63D0\u793A\u8A5E\u7BC4\u672C",
+    "userConfigBackup.groupSettings": "\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.previewSectionCounts": "\u5099\u4EFD {archive} \xB7 \u76EE\u524D {current}",
+    "userConfigBackup.previewGroupCounts": "{group}\uFF1A\u5099\u4EFD {archive} / \u76EE\u524D {current}",
+    "userConfigBackup.emptyReplaceGroup": "{group}\uFF1A\u5099\u4EFD\u70BA\u7A7A\uFF0C\u73FE\u6709 {current}",
+    "userConfigBackup.emptyReplaceBlocked": "\u7121\u6CD5\u53D6\u4EE3\uFF1A\u5099\u4EFD\u4E2D\u7684 {groups} \u70BA\u7A7A\uFF0C\u4F46\u76EE\u524D\u4ECD\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u53D6\u6216\u6539\u7528\u589E\u91CF\u9084\u539F\u3002",
+    "user_config_restore_empty_replace_blocked": "\u7A7A\u767D\u5099\u4EFD\u5167\u5BB9\u4E0D\u80FD\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599\u3002\u8ACB\u53D6\u6D88\u9078\u53D6\u6216\u6539\u7528\u589E\u91CF\u9084\u539F\u3002",
+    "user_config_restore_preview_unavailable": "\u7121\u6CD5\u5B89\u5168\u8B80\u53D6\u76EE\u524D\u8CC7\u6599\u3002\u8ACB\u6AA2\u67E5\u672C\u6A5F\u6A94\u6848\u5F8C\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u3002",
+    "userConfigBackup.includeApiKeys": "\u5305\u542B API Key\uFF08\u654F\u611F\uFF09",
+    "userConfigBackup.apiKeyWarning": "\u5099\u4EFD\u6A94\u672A\u52A0\u5BC6\uFF0C\u8ACB\u59A5\u5584\u4FDD\u5B58\u3002",
+    "userConfigBackup.incremental": "\u589E\u91CF",
+    "userConfigBackup.replace": "\u53D6\u4EE3",
+    "userConfigBackup.replaceCopy": "\u4EE5\u5099\u4EFD\u5167\u5BB9\u53D6\u4EE3\u6240\u9078\u985E\u5225\u7684\u73FE\u6709\u8CC7\u6599\uFF0C\u9700\u8981\u518D\u6B21\u78BA\u8A8D\u3002",
+    "userConfigBackup.replaceConfirmTitle": "\u78BA\u8A8D\u53D6\u4EE3\u73FE\u6709\u8CC7\u6599",
+    "userConfigBackup.replaceAcknowledge": "\u6211\u5DF2\u77AD\u89E3\u73FE\u6709\u8CC7\u6599\u5C07\u88AB\u53D6\u4EE3",
+    "userConfigBackup.confirmReplace": "\u78BA\u8A8D\u53D6\u4EE3\u4E26\u9084\u539F",
+    "userConfigBackup.restoreComplete": "\u9084\u539F\u5B8C\u6210",
     "systemSettings.tabsLabel": "\u7CFB\u7D71\u8A2D\u5B9A\u9078\u9805",
     "systemSettings.apiTab": "API \u8A2D\u5B9A",
     "systemSettings.codexTab": "Codex \u901A\u9053",
@@ -16984,6 +17702,13 @@
     "apiSettings.save": "\u5132\u5B58API\u8A2D\u5B9A",
     "apiSettings.loadFailed": "API\u8A2D\u5B9A\u8B80\u53D6\u5931\u6557",
     "apiSettings.savedKeyPlaceholder": "\u5F8C\u7AEF\u5DF2\u5132\u5B58API Key\uFF0C\u8F38\u5165\u65B0 key \u53EF\u8986\u84CB",
+    "apiSettings.apiKeyRequired": "\u8ACB\u586B\u5BEB API Key \u5F8C\u518D\u5132\u5B58\u4F9B\u61C9\u5546\u3002",
+    "apiSettings.originChangeTitle": "\u26A0\uFE0F Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4",
+    "apiSettings.originChangeMessage": "\u4FDD\u7559\u539F Key \u5F8C\uFF0C\u5B83\u6703\u96A8\u8ACB\u6C42\u50B3\u9001\u5230\u65B0\u4F4D\u5740\u3002\u82E5\u65B0\u4F4D\u5740\u586B\u5BEB\u932F\u8AA4\uFF0CKey \u53EF\u80FD\u5916\u6D29\u3002",
+    "apiSettings.originChangeDetail": "\u539F\u4F4D\u5740\uFF1A{previousOrigin}\uFF1B\u65B0\u4F4D\u5740\uFF1A{nextOrigin}",
+    "apiSettings.enterNewKey": "\u8FD4\u56DE\u586B\u5BEB\u65B0 Key",
+    "apiSettings.keepKeyAndSave": "\u4FDD\u7559\u539F Key \u4E26\u5132\u5B58",
+    "apiSettings.originChangeConfirmationRequired": "Base URL \u7DB2\u57DF\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u78BA\u8A8D\u4FDD\u7559\u539F Key \u6216\u586B\u5BEB\u65B0 Key\u3002",
     "apiSettings.newProvider": "\u65B0\u4F9B\u61C9\u5546",
     "apiSettings.saving": "\u5132\u5B58\u4E2D...",
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
@@ -17560,7 +18285,7 @@
     return DEFAULT_LOCALE;
   }
   function translate(key, locale = currentLocale) {
-    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES.en[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
   }
   function currentLocaleCode() {
     return currentLocale;
@@ -17919,20 +18644,18 @@
     renderPreview(task);
   }
   function startRunFeedback(task, actionLabel = null) {
-    const { state: state33, els: els44 } = getLegacyBridge();
+    const { state: state33 } = getLegacyBridge();
     stopRunFeedback();
     state33.runFeedbackAction = actionLabel;
     state33.runStartedAt = timestampMs(task.started_at || task.created_at) || Date.now();
     state33.runTimerId = window.setInterval(updateRunFeedback, 100);
-    els44.runButton?.classList.add("running");
     updateRunFeedback();
   }
   function updateRunFeedback() {
-    const { state: state33, els: els44 } = getLegacyBridge();
+    const { state: state33 } = getLegacyBridge();
     if (!state33.runStartedAt) return;
     const elapsed = formatDurationTenths(elapsedMillisecondsSince(state33.runStartedAt));
     const action = state33.runFeedbackAction || (state33.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
-    if (els44.runButton) els44.runButton.textContent = `${action} ${elapsed}`;
     setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
     updateElapsedDisplays();
     if (state33.selectedTaskId === state33.pendingTaskId) {
@@ -17940,14 +18663,13 @@
     }
   }
   function stopRunFeedback() {
-    const { state: state33, els: els44 } = getLegacyBridge();
+    const { state: state33 } = getLegacyBridge();
     if (state33.runTimerId) {
       window.clearInterval(state33.runTimerId);
     }
     state33.runTimerId = null;
     state33.runStartedAt = null;
     state33.runFeedbackAction = null;
-    els44.runButton?.classList.remove("running");
     syncRunButtonLabel();
   }
 
@@ -36687,6 +37409,9 @@ ${hint}` : hint;
   var systemSettingsHeightAnimationToken = 0;
   var systemSettingsHeightAnimationTimer;
   var systemSettingsReturnFocus = null;
+  var userConfigBackupOpen = false;
+  var userConfigBackupTrigger = null;
+  var storagePanelScrollTop = 0;
   var MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
   var VALID_TABS = /* @__PURE__ */ new Set(["api", "network", "language", "storage"]);
   function normalizedTab(tab) {
@@ -36695,7 +37420,8 @@ ${hint}` : hint;
   }
   function maybeCall(name, ...args) {
     const method = getLegacyBridge().methods[name];
-    if (typeof method === "function") method(...args);
+    if (typeof method === "function") return method(...args);
+    return void 0;
   }
   function systemSettingsPanel() {
     const { els: els44 } = getLegacyBridge();
@@ -36764,6 +37490,7 @@ ${hint}` : hint;
     systemSettingsHeightAnimationTimer = window.setTimeout(() => cleanup(), 320);
   }
   function setSystemSettingsTab(tab, options = {}) {
+    if (userConfigBackupOpen) closeUserConfigBackupView({ restoreFocus: false, force: true });
     const selected = normalizedTab(tab);
     const { els: els44 } = getLegacyBridge();
     const panel = systemSettingsPanel();
@@ -36799,6 +37526,98 @@ ${hint}` : hint;
     refreshSegmentedIndicators();
     if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
   }
+  function userConfigBackupViewIsOpen() {
+    return userConfigBackupOpen;
+  }
+  function openUserConfigBackupView(trigger) {
+    const { els: els44 } = getLegacyBridge();
+    if (userConfigBackupOpen) return;
+    setSystemSettingsTab("storage");
+    userConfigBackupOpen = true;
+    userConfigBackupTrigger = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    storagePanelScrollTop = Number(els44.systemSettingsStoragePanel?.scrollTop || 0);
+    const panel = systemSettingsPanel();
+    const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+    const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+    if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+    if (els44.systemSettingsTabs instanceof HTMLElement) {
+      els44.systemSettingsTabs.hidden = true;
+      els44.systemSettingsTabs.inert = true;
+      els44.systemSettingsTabs.setAttribute("aria-hidden", "true");
+    }
+    [
+      els44.systemSettingsApiPanel,
+      els44.systemSettingsNetworkPanel,
+      els44.systemSettingsLanguagePanel,
+      els44.systemSettingsStoragePanel
+    ].forEach((settingsPanel) => {
+      if (!settingsPanel) return;
+      settingsPanel.hidden = true;
+      settingsPanel.inert = true;
+      settingsPanel.setAttribute("aria-hidden", "true");
+    });
+    if (els44.userConfigBackupView instanceof HTMLElement) {
+      els44.userConfigBackupView.hidden = false;
+      els44.userConfigBackupView.inert = false;
+      els44.userConfigBackupView.setAttribute("aria-hidden", "false");
+    }
+    els44.userConfigBackupBackButton?.classList.remove("hidden");
+    if (els44.systemSettingsTitle) {
+      els44.systemSettingsTitle.dataset.i18n = "userConfigBackup.title";
+      els44.systemSettingsTitle.textContent = translate("userConfigBackup.title");
+    }
+    maybeCall("openUserConfigBackupController");
+    refreshSegmentedIndicators();
+    if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+    els44.userConfigBackupBackButton?.focus({ preventScroll: true });
+  }
+  function closeUserConfigBackupView(options = {}) {
+    if (!userConfigBackupOpen) return true;
+    if (!options.force && maybeCall("guardUserConfigBackupClose", options.closeModal === true) === false) return false;
+    const { els: els44 } = getLegacyBridge();
+    const panel = systemSettingsPanel();
+    const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
+    const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
+    if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+    userConfigBackupOpen = false;
+    if (els44.userConfigBackupView instanceof HTMLElement) {
+      els44.userConfigBackupView.hidden = true;
+      els44.userConfigBackupView.inert = true;
+      els44.userConfigBackupView.setAttribute("aria-hidden", "true");
+    }
+    if (els44.systemSettingsTabs instanceof HTMLElement) {
+      els44.systemSettingsTabs.hidden = false;
+      els44.systemSettingsTabs.inert = false;
+      els44.systemSettingsTabs.setAttribute("aria-hidden", "false");
+    }
+    els44.userConfigBackupBackButton?.classList.add("hidden");
+    if (els44.systemSettingsTitle) {
+      els44.systemSettingsTitle.dataset.i18n = "systemSettings.title";
+      els44.systemSettingsTitle.textContent = translate("systemSettings.title");
+    }
+    [
+      ["api", els44.systemSettingsApiPanel],
+      ["network", els44.systemSettingsNetworkPanel],
+      ["language", els44.systemSettingsLanguagePanel],
+      ["storage", els44.systemSettingsStoragePanel]
+    ].forEach(([name, settingsPanel]) => {
+      if (!(settingsPanel instanceof HTMLElement)) return;
+      settingsPanel.inert = false;
+      const active = name === "storage";
+      settingsPanel.hidden = !active;
+      settingsPanel.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+    setSystemSettingsTab("storage", { refresh: false });
+    if (els44.systemSettingsStoragePanel) els44.systemSettingsStoragePanel.scrollTop = storagePanelScrollTop;
+    maybeCall("closeUserConfigBackupController");
+    refreshSegmentedIndicators();
+    if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
+    if (options.restoreFocus !== false && userConfigBackupTrigger?.isConnected) {
+      userConfigBackupTrigger.focus({ preventScroll: true });
+    }
+    userConfigBackupTrigger = null;
+    return true;
+  }
   function openSystemSettingsModal(tab = "api") {
     const { els: els44 } = getLegacyBridge();
     const modal = els44.systemSettingsModal;
@@ -36813,7 +37632,12 @@ ${hint}` : hint;
     if (wasHidden) positionSystemSettingsModal();
     refreshSegmentedIndicators();
   }
-  function closeSystemSettingsModal() {
+  function closeSystemSettingsModal(options = {}) {
+    if (userConfigBackupOpen && !closeUserConfigBackupView({
+      restoreFocus: false,
+      force: options.force === true,
+      closeModal: true
+    })) return;
     const { els: els44 } = getLegacyBridge();
     const modal = els44.systemSettingsModal;
     const activeElement = document.activeElement;
@@ -36851,17 +37675,33 @@ ${hint}` : hint;
   function handleSystemSettingsResize() {
     positionSystemSettingsModal();
   }
+  function handleUserConfigBackupEntry(event) {
+    const trigger = event.currentTarget;
+    openUserConfigBackupView(trigger instanceof HTMLElement ? trigger : void 0);
+  }
+  function handleSystemSettingsKeydown(event) {
+    if (event.key !== "Escape" || !userConfigBackupOpen) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeUserConfigBackupView();
+  }
   function initSystemSettingsFeature() {
     if (systemSettingsFeatureInitialized) return;
     systemSettingsFeatureInitialized = true;
     const { els: els44 } = getLegacyBridge();
     els44.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
+    els44.openUserConfigBackupButton?.addEventListener("click", handleUserConfigBackupEntry);
+    els44.userConfigBackupBackButton?.addEventListener("click", () => closeUserConfigBackupView());
     window.addEventListener("resize", handleSystemSettingsResize);
+    document.addEventListener("keydown", handleSystemSettingsKeydown, true);
     Object.assign(getLegacyBridge().methods, {
       setSystemSettingsTab,
       openSystemSettingsModal,
       openSystemSettingsFromUrl,
-      closeSystemSettingsModal
+      closeSystemSettingsModal,
+      openUserConfigBackupView,
+      closeUserConfigBackupView,
+      userConfigBackupViewIsOpen
     });
   }
 
@@ -37574,6 +38414,50 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/api-provider-credentials.ts
+  function providerUrlOrigin(value) {
+    try {
+      return new URL(String(value || "").trim()).origin;
+    } catch {
+      return "";
+    }
+  }
+  function evaluateProviderCredentialSave(draft, savedProviders) {
+    if (String(draft?.api_key || "").trim()) return { kind: "allow" };
+    const providers = Array.isArray(savedProviders) ? savedProviders : [];
+    const nextOrigin = providerUrlOrigin(draft?.base_url);
+    const existing = providers.find((provider) => provider?.id === draft?.id);
+    if (existing && Boolean(existing.api_key_set || existing.api_key)) {
+      const previousOrigin = providerUrlOrigin(existing.base_url);
+      if (previousOrigin && previousOrigin === nextOrigin) return { kind: "allow" };
+      return {
+        kind: "confirm_origin_change",
+        providerId: String(draft.id || ""),
+        previousOrigin,
+        nextOrigin
+      };
+    }
+    const sourceId = String(draft?.api_key_source_provider_id || "").trim();
+    const source = providers.find((provider) => provider?.id === sourceId);
+    if (source && Boolean(source.api_key_set || source.api_key) && providerUrlOrigin(source.base_url) === nextOrigin) {
+      return { kind: "allow" };
+    }
+    return { kind: "key_required" };
+  }
+  function isConfirmedProviderOriginChange(decision, confirmation2) {
+    return decision.kind === "confirm_origin_change" && Boolean(confirmation2) && decision.providerId === confirmation2?.providerId && decision.previousOrigin === confirmation2?.previousOrigin && decision.nextOrigin === confirmation2?.nextOrigin;
+  }
+  function clearProviderApiKeyInputs(settings) {
+    return {
+      ...settings,
+      providers: Array.isArray(settings?.providers) ? settings.providers.map((provider) => ({
+        ...provider,
+        api_key: "",
+        api_key_source_provider_id: ""
+      })) : []
+    };
+  }
+
   // codex_image/webui/frontend/src/api-provider-settings.ts
   var bridge9 = getLegacyBridge();
   var state9 = bridge9.state;
@@ -37735,6 +38619,7 @@ ${hint}` : hint;
   function updateApiKeyRevealButton() {
     if (!els10.apiKeyRevealButton) return;
     const canReveal = Boolean(els10.apiKey?.value);
+    if (canReveal) els10.apiKey?.removeAttribute("aria-invalid");
     if (!canReveal) hideApiKeyReveal();
     els10.apiKeyRevealButton.disabled = !canReveal;
     const label = translate("apiSettings.showApiKey");
@@ -38569,6 +39454,7 @@ ${hint}` : hint;
     const previousEditingId = state9.apiProviderEditingId;
     const previousDraft = state9.apiProviderDraft ? structuredClone(state9.apiProviderDraft) : null;
     const previousDraftIsNew = state9.apiProviderDraftIsNew;
+    let confirmedOriginChange = null;
     if (!autoSave && apiProviderEditorActive()) {
       const bindings = readProviderBindingCards(els10.apiProviderBindings);
       if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id || !binding.remote_model_id || !binding.operations.length)) {
@@ -38584,6 +39470,44 @@ ${hint}` : hint;
         els10.apiProviderBindings?.querySelector(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
         return false;
       }
+      const providerDraft = draftProviderFromForm();
+      const credentialDecision = evaluateProviderCredentialSave(
+        providerDraft,
+        previousSettings.providers
+      );
+      if (credentialDecision.kind === "key_required") {
+        els10.apiKey?.setAttribute("aria-invalid", "true");
+        setApiSettingsFeedback(translate("apiSettings.apiKeyRequired"), "error");
+        els10.apiKey?.focus();
+        return false;
+      }
+      const requestedConfirmation = options.originChangeConfirmation || null;
+      if (credentialDecision.kind === "confirm_origin_change") {
+        if (!isConfirmedProviderOriginChange(credentialDecision, requestedConfirmation)) {
+          openConfirmPopover4(els10.saveApiProviderEditButton, {
+            title: translate("apiSettings.originChangeTitle"),
+            message: translate("apiSettings.originChangeMessage"),
+            detail: formatTranslation("apiSettings.originChangeDetail", {
+              previousOrigin: credentialDecision.previousOrigin,
+              nextOrigin: credentialDecision.nextOrigin
+            }),
+            cancelText: translate("apiSettings.enterNewKey"),
+            confirmText: translate("apiSettings.keepKeyAndSave"),
+            focusCancel: true,
+            onCancel: () => els10.apiKey?.focus(),
+            onConfirm: () => saveApiSettings({
+              originChangeConfirmation: {
+                providerId: credentialDecision.providerId,
+                previousOrigin: credentialDecision.previousOrigin,
+                nextOrigin: credentialDecision.nextOrigin
+              }
+            })
+          });
+          return false;
+        }
+        confirmedOriginChange = requestedConfirmation;
+      }
+      els10.apiKey?.removeAttribute("aria-invalid");
     }
     const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
     persistApiSettings();
@@ -38605,6 +39529,9 @@ ${hint}` : hint;
         if (!provider.api_key && provider.api_key_source_provider_id) {
           item.api_key_source_provider_id = provider.api_key_source_provider_id;
         }
+        if (provider.id === confirmedOriginChange?.providerId) {
+          item.preserve_api_key_on_origin_change = true;
+        }
         return item;
       })
     };
@@ -38620,8 +39547,15 @@ ${hint}` : hint;
         body: JSON.stringify(payload2)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || translate("apiSettings.saveFailed"));
-      state9.apiSettings = mergeApiProviderKeys(data.settings || {});
+      if (!response.ok) {
+        const detail = String(data.detail || "");
+        if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+        if (detail === "api_key_origin_change_confirmation_required") {
+          throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
+        }
+        throw new Error(detail || translate("apiSettings.saveFailed"));
+      }
+      state9.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
       state9.apiProviderEditingId = null;
       state9.apiProviderDraft = null;
       state9.apiProviderDraftIsNew = false;
@@ -39130,6 +40064,1595 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/user-config-backup-api.ts
+  var USER_CONFIG_SECTIONS = ["chips", "gallery", "templates", "settings"];
+  var USER_CONFIG_RESTORE_CHUNK_BYTES = 8 * 1024 * 1024;
+  var USER_CONFIG_TRANSFER_STORAGE_KEY = "ilab-user-config-transfer";
+  var UserConfigTransferApiError = class extends Error {
+    constructor(code, status) {
+      super(code);
+      __publicField(this, "code");
+      __publicField(this, "status");
+      this.name = "UserConfigTransferApiError";
+      this.code = code;
+      this.status = status;
+    }
+  };
+  function userConfigBackupStatusMessageKey(job) {
+    if (job.status === "failed" && job.error_code) return job.error_code;
+    return `userConfigBackup.status.${job.status}`;
+  }
+  function userConfigBackupActionPriority(status) {
+    if (status === "ready") {
+      return { create: "secondary", download: "primary" };
+    }
+    return { create: "primary", download: "secondary" };
+  }
+  function emptyUserConfigReplacementGroups(preview, sections) {
+    const selected = new Set(sections);
+    return preview.sections.flatMap((section) => {
+      if (!selected.has(section.section)) return [];
+      return section.groups.filter((group) => group.archive_count === 0 && group.current_count > 0).map((group) => ({
+        section: section.section,
+        group: group.group,
+        archiveCount: group.archive_count,
+        currentCount: group.current_count
+      }));
+    });
+  }
+  function currentFetch() {
+    if (typeof globalThis.fetch !== "function") throw new Error("user_config_transfer_fetch_unavailable");
+    return globalThis.fetch.bind(globalThis);
+  }
+  function currentStorage() {
+    try {
+      return globalThis.sessionStorage;
+    } catch {
+      return null;
+    }
+  }
+  function currentDocument() {
+    try {
+      return typeof document === "undefined" ? null : document;
+    } catch {
+      return null;
+    }
+  }
+  function normalizeSections(sections) {
+    const unique = [];
+    for (const section of sections) {
+      if (!USER_CONFIG_SECTIONS.includes(section) || unique.includes(section)) continue;
+      unique.push(section);
+    }
+    if (!unique.length || sections.some((section) => !USER_CONFIG_SECTIONS.includes(section))) {
+      throw new Error("user_config_backup_sections_invalid");
+    }
+    return unique;
+  }
+  function buildUserConfigBackupRequest(sections, includeApiKeys, clientPreferences) {
+    const normalized = normalizeSections(sections);
+    const settingsSelected = normalized.includes("settings");
+    return {
+      sections: normalized,
+      include_api_keys: settingsSelected && includeApiKeys,
+      client_preferences: settingsSelected ? clientPreferences : null
+    };
+  }
+  function createReplacementConfirmation(archiveSha256, sections, mode) {
+    return { archiveSha256, sections: normalizeSections(sections), mode, acknowledged: false };
+  }
+  function updateReplacementConfirmation(current, patch) {
+    const sections = patch.sections ? normalizeSections(patch.sections) : [...current.sections];
+    const archiveSha256 = patch.archiveSha256 ?? current.archiveSha256;
+    const mode = patch.mode ?? current.mode;
+    const contractChanged = archiveSha256 !== current.archiveSha256 || mode !== current.mode || sections.join("\0") !== current.sections.join("\0");
+    return {
+      archiveSha256,
+      sections,
+      mode,
+      acknowledged: contractChanged ? false : patch.acknowledged ?? current.acknowledged
+    };
+  }
+  function buildUserConfigRestoreRequest(confirmation2, previewRevision) {
+    if (confirmation2.mode === "replace" && !confirmation2.acknowledged) return null;
+    return {
+      sections: normalizeSections(confirmation2.sections),
+      mode: confirmation2.mode,
+      archive_sha256: confirmation2.archiveSha256,
+      preview_revision: previewRevision,
+      confirm_replace: confirmation2.mode === "replace" && confirmation2.acknowledged
+    };
+  }
+  async function safeApiError(response) {
+    let code = "user_config_transfer_request_failed";
+    try {
+      const payload2 = await response.json();
+      const detail = payload2 && typeof payload2 === "object" ? payload2.detail : null;
+      const candidate = detail && typeof detail === "object" ? detail.code : null;
+      if (typeof candidate === "string" && /^user_config_(?:backup|restore)_[a-z0-9_]{1,96}$/.test(candidate)) {
+        code = candidate;
+      }
+    } catch {
+    }
+    return new UserConfigTransferApiError(code, response.status);
+  }
+  async function requestJson(url, init, fetchFn) {
+    const response = await fetchFn(url, init);
+    if (!response.ok) throw await safeApiError(response);
+    return await response.json();
+  }
+  function withSignal(init, signal) {
+    return signal ? { ...init, signal } : init;
+  }
+  async function readUserConfigSummary(options = {}) {
+    const payload2 = await requestJson(
+      "/api/user-config-backups/summary",
+      withSignal({ method: "GET" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.sections;
+  }
+  async function createUserConfigBackup(request, options = {}) {
+    const payload2 = await requestJson(
+      "/api/user-config-backups",
+      withSignal({
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(request)
+      }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.job;
+  }
+  async function getUserConfigBackup(jobId, options = {}) {
+    const payload2 = await requestJson(
+      `/api/user-config-backups/${encodeURIComponent(jobId)}`,
+      withSignal({ method: "GET" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.job;
+  }
+  async function cancelUserConfigBackup(jobId, options = {}) {
+    const payload2 = await requestJson(
+      `/api/user-config-backups/${encodeURIComponent(jobId)}`,
+      withSignal({ method: "DELETE" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.job;
+  }
+  function directDownloadUserConfigBackup(downloadUrl, documentLike = currentDocument()) {
+    if (!documentLike) throw new Error("user_config_backup_document_unavailable");
+    const anchor = documentLike.createElement("a");
+    anchor.href = downloadUrl;
+    anchor.hidden = true;
+    documentLike.body?.appendChild(anchor);
+    try {
+      anchor.click();
+    } finally {
+      anchor.remove();
+    }
+  }
+  async function createUserConfigRestore(file, options = {}) {
+    return requestJson(
+      "/api/user-config-restores",
+      withSignal({
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ filename: file.name, size_bytes: file.size })
+      }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+  }
+  async function sha256Hex(blob) {
+    const digest = await globalThis.crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+    return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
+  }
+  async function uploadUserConfigRestore(file, upload, options = {}) {
+    const fetchFn = options.fetch ?? currentFetch();
+    const chunkBytes = upload.upload_chunk_bytes ?? USER_CONFIG_RESTORE_CHUNK_BYTES;
+    let current = null;
+    for (let offset = 0; offset < file.size; offset += chunkBytes) {
+      const chunk = file.slice(offset, Math.min(file.size, offset + chunkBytes));
+      const payload2 = await requestJson(
+        `/api/user-config-restores/${encodeURIComponent(upload.session_id)}/chunks`,
+        withSignal({
+          method: "PUT",
+          headers: {
+            "content-type": "application/octet-stream",
+            "x-upload-offset": String(offset),
+            "x-chunk-sha256": await sha256Hex(chunk)
+          },
+          body: chunk
+        }, options.signal),
+        fetchFn
+      );
+      current = payload2.session;
+      options.onProgress?.(current.uploaded_bytes, file.size);
+    }
+    if (!current) throw new Error("user_config_restore_empty_file");
+    return current;
+  }
+  async function validateUserConfigRestore(sessionId, options = {}) {
+    const payload2 = await requestJson(
+      `/api/user-config-restores/${encodeURIComponent(sessionId)}/validate`,
+      withSignal({ method: "POST" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.preview;
+  }
+  async function startUserConfigRestore(sessionId, request, options = {}) {
+    const payload2 = await requestJson(
+      `/api/user-config-restores/${encodeURIComponent(sessionId)}/restore`,
+      withSignal({
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(request)
+      }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.result;
+  }
+  async function getUserConfigRestore(sessionId, options = {}) {
+    return requestJson(
+      `/api/user-config-restores/${encodeURIComponent(sessionId)}`,
+      withSignal({ method: "GET" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+  }
+  async function cancelUserConfigRestore(sessionId, options = {}) {
+    const payload2 = await requestJson(
+      `/api/user-config-restores/${encodeURIComponent(sessionId)}`,
+      withSignal({ method: "DELETE" }, options.signal),
+      options.fetch ?? currentFetch()
+    );
+    return payload2.cancelled;
+  }
+  var BACKUP_TERMINAL = /* @__PURE__ */ new Set(["ready", "failed", "cancelled", "expired", "interrupted"]);
+  var RESTORE_TERMINAL = /* @__PURE__ */ new Set(["restored", "failed", "cancelled", "interrupted"]);
+  function writeStoredIds(storage, backupJobId, restoreSessionId) {
+    try {
+      storage?.setItem(USER_CONFIG_TRANSFER_STORAGE_KEY, JSON.stringify({ version: 1, backupJobId, restoreSessionId }));
+    } catch {
+    }
+  }
+  function readStoredIds(storage) {
+    if (!storage) return { backupJobId: null, restoreSessionId: null };
+    try {
+      const raw = storage.getItem(USER_CONFIG_TRANSFER_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (!parsed || typeof parsed !== "object") throw new Error("invalid");
+      const record5 = parsed;
+      const validId = (value) => value === null || typeof value === "string" && /^[0-9a-f]{32}$/.test(value);
+      if (record5.version !== 1 || !validId(record5.backupJobId) || !validId(record5.restoreSessionId)) throw new Error("invalid");
+      return {
+        backupJobId: record5.backupJobId,
+        restoreSessionId: record5.restoreSessionId
+      };
+    } catch {
+      try {
+        storage.removeItem(USER_CONFIG_TRANSFER_STORAGE_KEY);
+      } catch {
+      }
+      return { backupJobId: null, restoreSessionId: null };
+    }
+  }
+  function createUserConfigTransferController(options = {}) {
+    const fetchFn = options.fetch ?? currentFetch();
+    const storage = options.storage === void 0 ? currentStorage() : options.storage;
+    const setTimeoutFn = options.setTimeout ?? ((callback, delay2) => globalThis.setTimeout(callback, delay2));
+    const clearTimeoutFn = options.clearTimeout ?? ((handle) => globalThis.clearTimeout(handle));
+    let backupJobId = null;
+    let restoreSessionId = null;
+    let timer = null;
+    let disposed = false;
+    let generation = 0;
+    let delay = 750;
+    const persist = () => writeStoredIds(storage, backupJobId, restoreSessionId);
+    const clearTimer = () => {
+      if (timer !== null) clearTimeoutFn(timer);
+      timer = null;
+    };
+    const stableError = (error) => error instanceof UserConfigTransferApiError ? error : new UserConfigTransferApiError("user_config_transfer_network_error", 0);
+    const schedule = (token, poll) => {
+      if (disposed || token !== generation || timer !== null) return;
+      timer = setTimeoutFn(async () => {
+        timer = null;
+        if (!disposed && token === generation) await poll();
+      }, delay);
+      delay = Math.min(2500, Math.round(delay * 1.5));
+    };
+    const pollBackup = async (token) => {
+      if (!backupJobId || disposed || token !== generation) return;
+      try {
+        const job = await getUserConfigBackup(backupJobId, { fetch: fetchFn });
+        if (disposed || token !== generation) return;
+        options.onBackupStatus?.(job);
+        if (!BACKUP_TERMINAL.has(job.status)) schedule(token, () => pollBackup(token));
+      } catch (error) {
+        options.onError?.(stableError(error));
+        if (!disposed && token === generation) schedule(token, () => pollBackup(token));
+      }
+    };
+    const pollRestore = async (token) => {
+      if (!restoreSessionId || disposed || token !== generation) return;
+      try {
+        const snapshot = await getUserConfigRestore(restoreSessionId, { fetch: fetchFn });
+        if (disposed || token !== generation) return;
+        options.onRestoreStatus?.(snapshot);
+        if (!RESTORE_TERMINAL.has(snapshot.session.status)) schedule(token, () => pollRestore(token));
+      } catch (error) {
+        options.onError?.(stableError(error));
+        if (!disposed && token === generation) schedule(token, () => pollRestore(token));
+      }
+    };
+    return {
+      async resume() {
+        generation += 1;
+        disposed = false;
+        clearTimer();
+        delay = 750;
+        const stored = readStoredIds(storage);
+        backupJobId = stored.backupJobId;
+        restoreSessionId = stored.restoreSessionId;
+        const token = generation;
+        if (restoreSessionId) await pollRestore(token);
+        else if (backupJobId) await pollBackup(token);
+      },
+      async startBackup(request) {
+        generation += 1;
+        disposed = false;
+        clearTimer();
+        delay = 750;
+        const token = generation;
+        const job = await createUserConfigBackup(request, { fetch: fetchFn });
+        if (token !== generation || disposed) return job;
+        backupJobId = job.job_id;
+        persist();
+        options.onBackupStatus?.(job);
+        if (!BACKUP_TERMINAL.has(job.status)) schedule(token, () => pollBackup(token));
+        return job;
+      },
+      trackRestore(sessionId) {
+        generation += 1;
+        disposed = false;
+        clearTimer();
+        delay = 750;
+        restoreSessionId = sessionId;
+        persist();
+        const token = generation;
+        schedule(token, () => pollRestore(token));
+      },
+      clearBackup() {
+        backupJobId = null;
+        if (!restoreSessionId) clearTimer();
+        persist();
+      },
+      clearRestore() {
+        restoreSessionId = null;
+        if (!backupJobId) clearTimer();
+        persist();
+      },
+      activeBackupJobId: () => backupJobId,
+      activeRestoreSessionId: () => restoreSessionId,
+      dispose() {
+        disposed = true;
+        generation += 1;
+        clearTimer();
+      }
+    };
+  }
+
+  // codex_image/webui/frontend/src/theme-preference.ts
+  var THEME_STORAGE_KEY = "codex-image-theme-preference";
+  var themeTransitionFrame = null;
+  function normalizeThemePreference(value) {
+    return value === "light" || value === "dark" ? value : "system";
+  }
+  function readThemePreference(storage = localStorage) {
+    try {
+      return normalizeThemePreference(
+        storage.getItem(THEME_STORAGE_KEY)
+      );
+    } catch {
+      return "system";
+    }
+  }
+  function persistThemePreference(preference, storage = localStorage) {
+    try {
+      storage.setItem(THEME_STORAGE_KEY, preference);
+    } catch {
+    }
+  }
+  function resolveEffectiveTheme(preference, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
+    if (preference === "light" || preference === "dark") {
+      return preference;
+    }
+    return systemDark ? "dark" : "light";
+  }
+  function lockThemeTransitions(root) {
+    root.classList.add("theme-transition-lock");
+    const requestFrame = window.requestAnimationFrame?.bind(window);
+    if (!requestFrame) {
+      root.classList.remove("theme-transition-lock");
+      return;
+    }
+    if (themeTransitionFrame !== null) {
+      window.cancelAnimationFrame?.(themeTransitionFrame);
+    }
+    themeTransitionFrame = requestFrame(() => {
+      themeTransitionFrame = requestFrame(() => {
+        root.classList.remove("theme-transition-lock");
+        themeTransitionFrame = null;
+      });
+    });
+  }
+  function applyDocumentTheme(preference, root = document.documentElement, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
+    const normalized = normalizeThemePreference(preference);
+    const effective = resolveEffectiveTheme(
+      normalized,
+      systemDark
+    );
+    if (root.dataset.theme !== effective) {
+      lockThemeTransitions(root);
+    }
+    root.dataset.theme = effective;
+    root.dataset.themePreference = normalized;
+    return effective;
+  }
+  function syncThemeSwitcher(root, preference) {
+    root?.querySelectorAll("[data-theme-option]").forEach((button) => {
+      const active = button.dataset.themeOption === preference;
+      button.classList.toggle("active", active);
+      button.setAttribute(
+        "aria-pressed",
+        active ? "true" : "false"
+      );
+    });
+  }
+  function bindThemeSwitcher(root, onSelect) {
+    if (!root) return () => void 0;
+    const handleClick = (event) => {
+      const target = event.target;
+      const button = target?.closest(
+        "[data-theme-option]"
+      );
+      if (!button || !root.contains(button)) return;
+      const value = button.dataset.themeOption;
+      if (value !== "system" && value !== "light" && value !== "dark") {
+        return;
+      }
+      onSelect(value);
+    };
+    root.addEventListener("click", handleClick);
+    return () => root.removeEventListener("click", handleClick);
+  }
+  function bindSystemThemePreference(onChange) {
+    const media = window.matchMedia?.(
+      "(prefers-color-scheme: dark)"
+    );
+    if (!media) return () => void 0;
+    const handleChange = (event) => {
+      onChange(event.matches);
+    };
+    if (media.addEventListener) {
+      media.addEventListener("change", handleChange);
+      return () => media.removeEventListener("change", handleChange);
+    }
+    media.addListener?.(handleChange);
+    return () => media.removeListener?.(handleChange);
+  }
+
+  // codex_image/webui/frontend/src/task-notifications.ts
+  var TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
+  var TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
+  var MAX_TASK_NOTIFICATIONS = 30;
+  var MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
+  var TASK_NOTIFICATION_TOAST_MS = 5200;
+  var TRANSIENT_NOTICE_MS = 4200;
+  function readUserConfigClientPreferences(storage = localStorage) {
+    let notifications = { in_app: true, system: false };
+    try {
+      const stored = JSON.parse(storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
+      notifications = { in_app: stored.inApp !== false, system: stored.system === true };
+    } catch {
+    }
+    return {
+      theme: normalizeThemePreference(storage.getItem(THEME_STORAGE_KEY)),
+      notifications
+    };
+  }
+  function applyUserConfigClientPreferences(preferences, mode, environment = {}) {
+    const storage = environment.storage ?? localStorage;
+    const permission = environment.notificationPermission ?? (typeof Notification === "undefined" ? "unsupported" : Notification.permission);
+    const warnings = [];
+    const shouldApplyTheme = mode === "replace" || storage.getItem(THEME_STORAGE_KEY) === null;
+    if (shouldApplyTheme) {
+      persistThemePreference(preferences.theme, storage);
+      (environment.applyTheme ?? ((preference) => applyDocumentTheme(preference)))(preferences.theme);
+    }
+    const settingsMissing = storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) === null;
+    let appliedNotifications = readUserConfigClientPreferences(storage).notifications;
+    if (mode === "replace" || settingsMissing) {
+      const system = preferences.notifications.system && permission === "granted";
+      if (preferences.notifications.system && !system) {
+        warnings.push("user_config_restore_system_notification_permission_missing");
+      }
+      appliedNotifications = { in_app: preferences.notifications.in_app, system };
+      try {
+        storage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify({
+          inApp: appliedNotifications.in_app,
+          system: appliedNotifications.system
+        }));
+      } catch {
+      }
+    }
+    return {
+      applied: {
+        theme: shouldApplyTheme ? preferences.theme : readUserConfigClientPreferences(storage).theme,
+        notifications: appliedNotifications
+      },
+      warnings
+    };
+  }
+  var taskNotificationsFeatureInitialized = false;
+  function initTaskNotificationsFeature() {
+    if (taskNotificationsFeatureInitialized) return;
+    taskNotificationsFeatureInitialized = true;
+    restoreTaskNotificationSettings();
+    restoreTaskNotificationSeenKeys();
+    bindTaskNotificationEvents();
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
+    renderTaskNotifications();
+    Object.assign(getLegacyBridge().methods, {
+      notifyTaskUpdate,
+      openTaskNotificationCenter,
+      renderTaskNotifications,
+      requestSystemNotificationPermission,
+      showTransientNotice
+    });
+  }
+  function showTransientNotice(message) {
+    const region = getLegacyBridge().els.taskNotificationToastRegion;
+    if (!region || !message) return;
+    const toast = document.createElement("div");
+    toast.className = "transient-notice-toast";
+    toast.setAttribute("role", "status");
+    const icon = document.createElement("span");
+    icon.className = "transient-notice-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "\u2713";
+    const text = document.createElement("span");
+    text.textContent = message;
+    toast.append(icon, text);
+    region.prepend(toast);
+    window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
+  }
+  function notifyTaskUpdate(previousTask, nextTask) {
+    if (taskWasCancelled(nextTask)) return;
+    const status = terminalTaskStatus(nextTask?.status);
+    if (!nextTask || !status || !shouldNotifyTerminalTask(previousTask, nextTask)) return;
+    getLegacyBridge().methods.notifyLatestTaskAvailable?.(nextTask);
+    const notification = buildTaskNotification(nextTask, status);
+    rememberTaskNotification(nextTask, status);
+    if (getLegacyBridge().state.taskNotificationSettings.inApp) {
+      addTaskNotification(notification);
+      showTaskNotificationToast(notification);
+    }
+    sendSystemTaskNotification(notification);
+  }
+  function shouldNotifyTerminalTask(previousTask, nextTask) {
+    const status = terminalTaskStatus(nextTask?.status);
+    if (!previousTask || !nextTask?.task_id || !status) return false;
+    if (terminalTaskStatus(previousTask.status)) return false;
+    return !getLegacyBridge().state.taskNotificationSeenKeys.has(taskNotificationSeenKey(nextTask, status));
+  }
+  function openTaskNotificationCenter() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationCenterOpen = true;
+    state33.taskNotifications = state33.taskNotifications.map((notification) => ({
+      ...notification,
+      unread: false
+    }));
+    renderTaskNotifications();
+  }
+  function closeTaskNotificationCenter() {
+    const state33 = getLegacyBridge().state;
+    if (!state33.taskNotificationCenterOpen) return;
+    state33.taskNotificationCenterOpen = false;
+    renderTaskNotifications();
+  }
+  function toggleTaskNotificationCenter() {
+    if (getLegacyBridge().state.taskNotificationCenterOpen) {
+      closeTaskNotificationCenter();
+      return;
+    }
+    openTaskNotificationCenter();
+  }
+  function renderTaskNotifications() {
+    const bridge40 = getLegacyBridge();
+    const state33 = bridge40.state;
+    const els44 = bridge40.els;
+    const unreadCount = state33.taskNotifications.filter((notification) => notification.unread).length;
+    state33.taskNotificationUnreadCount = unreadCount;
+    const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
+    if (els44.taskNotificationBadge) {
+      els44.taskNotificationBadge.textContent = "";
+      els44.taskNotificationBadge.setAttribute("aria-hidden", "true");
+      els44.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
+    }
+    if (els44.taskNotificationButton) {
+      els44.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
+      els44.taskNotificationButton.setAttribute("aria-label", unreadLabel);
+      els44.taskNotificationButton.title = unreadLabel;
+      els44.taskNotificationButton.setAttribute("aria-expanded", state33.taskNotificationCenterOpen ? "true" : "false");
+    }
+    if (els44.taskNotificationUnreadSummary) {
+      els44.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
+      els44.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
+    }
+    if (els44.taskNotificationCenter) {
+      els44.taskNotificationCenter.classList.toggle("hidden", !state33.taskNotificationCenterOpen);
+      els44.taskNotificationCenter.setAttribute("aria-hidden", state33.taskNotificationCenterOpen ? "false" : "true");
+    }
+    if (!els44.taskNotificationList) return;
+    if (!state33.taskNotifications.length) {
+      els44.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
+      return;
+    }
+    els44.taskNotificationList.innerHTML = state33.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
+  }
+  async function requestSystemNotificationPermission() {
+    if (typeof Notification === "undefined") {
+      setStatus10(translate("notifications.systemUnsupported"), "error");
+      return false;
+    }
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") {
+      setStatus10(translate("notifications.systemBlocked"), "error");
+      return false;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      setStatus10(translate("notifications.systemDenied"), "error");
+      return false;
+    }
+    setStatus10(translate("notifications.systemEnabled"), "ok");
+    return true;
+  }
+  function bindTaskNotificationEvents() {
+    const els44 = getLegacyBridge().els;
+    els44.taskNotificationButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleTaskNotificationCenter();
+    });
+    els44.taskNotificationClearButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      clearTaskNotifications();
+    });
+    els44.taskNotificationList?.addEventListener("click", (event) => {
+      const item = eventTargetElement(event)?.closest("[data-task-notification-id]");
+      if (!(item instanceof HTMLElement)) return;
+      const notification = notificationById(item.dataset.taskNotificationId);
+      if (notification) void openNotificationTask(notification);
+    });
+    els44.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
+    els44.taskNotificationSystem?.addEventListener("change", (event) => {
+      void handleTaskNotificationSystemChange(event);
+    });
+    document.addEventListener("click", handleTaskNotificationDocumentClick);
+    document.addEventListener("keydown", handleTaskNotificationKeydown);
+  }
+  function handleTaskNotificationInAppChange(event) {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement)) return;
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSettings = {
+      ...state33.taskNotificationSettings,
+      inApp: input.checked
+    };
+    persistTaskNotificationSettings();
+  }
+  async function handleTaskNotificationSystemChange(event) {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement)) return;
+    const state33 = getLegacyBridge().state;
+    if (!input.checked) {
+      state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: false };
+      persistTaskNotificationSettings();
+      return;
+    }
+    const granted = await requestSystemNotificationPermission();
+    state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: granted };
+    input.checked = granted;
+    persistTaskNotificationSettings();
+  }
+  function handleTaskNotificationDocumentClick(event) {
+    const target = event.target;
+    const els44 = getLegacyBridge().els;
+    if (!(target instanceof Node)) return;
+    if (els44.taskNotificationCenter?.contains(target) || els44.taskNotificationButton?.contains(target)) return;
+    closeTaskNotificationCenter();
+  }
+  function handleTaskNotificationKeydown(event) {
+    if (event.key === "Escape") closeTaskNotificationCenter();
+  }
+  function addTaskNotification(notification) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = [notification, ...state33.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
+    renderTaskNotifications();
+  }
+  function clearTaskNotifications() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = [];
+    renderTaskNotifications();
+  }
+  function showTaskNotificationToast(notification) {
+    const bridge40 = getLegacyBridge();
+    const region = bridge40.els.taskNotificationToastRegion;
+    if (!region) return;
+    const toast = document.createElement("button");
+    toast.type = "button";
+    toast.className = "task-notification-item task-notification-toast";
+    toast.dataset.taskNotificationId = notification.id;
+    toast.innerHTML = taskNotificationInnerHtml(notification);
+    toast.addEventListener("click", () => {
+      toast.remove();
+      void openNotificationTask(notification);
+    });
+    region.prepend(toast);
+    const timerId = window.setTimeout(() => {
+      toast.remove();
+      bridge40.state.taskNotificationToastTimerIds = bridge40.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
+    }, TASK_NOTIFICATION_TOAST_MS);
+    bridge40.state.taskNotificationToastTimerIds.push(timerId);
+  }
+  function sendSystemTaskNotification(notification) {
+    const settings = getLegacyBridge().state.taskNotificationSettings;
+    if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const options = { body: taskNotificationDisplayMessage(notification) };
+    if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
+    const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
+    systemNotification.onclick = () => {
+      window.focus();
+      void openNotificationTask(notification);
+      systemNotification.close();
+    };
+  }
+  async function openNotificationTask(notification) {
+    const bridge40 = getLegacyBridge();
+    const task = bridge40.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
+    markTaskNotificationRead(notification.id);
+    closeTaskNotificationCenter();
+    if (!task) {
+      setStatus10(translate("notifications.taskMissing"), "error");
+      return;
+    }
+    window.focus();
+    try {
+      const selectTask3 = bridge40.methods.selectTask;
+      if (typeof selectTask3 !== "function") throw new Error("selectTask is unavailable");
+      await selectTask3(task.task_id);
+    } catch {
+      setStatus10(translate("notifications.taskMissing"), "error");
+    }
+  }
+  function markTaskNotificationRead(notificationId) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = state33.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
+    renderTaskNotifications();
+  }
+  function notificationById(notificationId) {
+    if (!notificationId) return null;
+    return getLegacyBridge().state.taskNotifications.find((notification) => notification.id === notificationId) || null;
+  }
+  function buildTaskNotification(task, status) {
+    const thumbnailUrl = firstTaskThumbnailUrl(task);
+    const successCount = completedOutputCount(task);
+    const failedCount = positiveNumber(task.failed_count);
+    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
+    const errorMessage7 = String(task.last_error || task.error || "");
+    return {
+      id: taskNotificationSeenKey(task, status),
+      task_id: task.task_id,
+      status,
+      title: taskNotificationTitle(status),
+      message: taskNotificationMessageFromParts(status, {
+        successCount,
+        failedCount,
+        prompt,
+        errorMessage: errorMessage7
+      }),
+      success_count: successCount,
+      failed_count: failedCount,
+      prompt_snippet: prompt,
+      error_message: errorMessage7,
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      ...thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {},
+      unread: true
+    };
+  }
+  function taskNotificationTitle(status) {
+    if (status === "failed") return translate("notifications.taskFailed");
+    if (status === "partial_failed") return translate("notifications.taskPartial");
+    return translate("notifications.taskCompleted");
+  }
+  function taskNotificationMessageFromParts(status, parts) {
+    if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
+    const countText = parts.successCount ? formatTranslation("notifications.successCount", { count: parts.successCount }) : translate("notifications.resultAvailable");
+    const failureText = status === "partial_failed" && parts.failedCount ? formatTranslation("notifications.failedCount", { count: parts.failedCount }) : "";
+    return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" \xB7 ");
+  }
+  function taskNotificationDisplayTitle(notification) {
+    return taskNotificationTitle(notification.status);
+  }
+  function taskNotificationDisplayMessage(notification) {
+    if (notification.success_count !== void 0 || notification.failed_count !== void 0 || notification.prompt_snippet !== void 0 || notification.error_message !== void 0) {
+      return taskNotificationMessageFromParts(notification.status, {
+        successCount: positiveNumber(notification.success_count),
+        failedCount: positiveNumber(notification.failed_count),
+        prompt: notification.prompt_snippet || "",
+        errorMessage: notification.error_message || notification.message
+      });
+    }
+    return notification.message;
+  }
+  function firstTaskThumbnailUrl(task) {
+    const bridge40 = getLegacyBridge();
+    const urls = bridge40.methods.taskThumbnailUrls?.(task);
+    if (Array.isArray(urls) && urls[0]) return String(urls[0]);
+    if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
+    const output = Array.isArray(task.outputs) ? task.outputs.find((record5) => record5?.status === "completed") : null;
+    if (output?.thumbnail_url) return String(output.thumbnail_url);
+    if (output?.thumbnail_file) return outputFileUrl(output.thumbnail_file);
+    if (output?.url || output?.file) {
+      const index = positiveNumber(output.index) || 1;
+      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/${index}/thumbnail`;
+    }
+    if (Array.isArray(task.output_urls) && task.output_urls.some(Boolean)) {
+      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/1/thumbnail`;
+    }
+    return void 0;
+  }
+  function taskNotificationItemHtml(notification) {
+    const unreadClass = notification.unread ? " unread" : "";
+    return `<button class="task-notification-item${unreadClass}" type="button" data-task-notification-id="${escapeHtml8(notification.id)}">
+    ${taskNotificationInnerHtml(notification)}
+  </button>`;
+  }
+  function taskNotificationInnerHtml(notification) {
+    const thumbnail = notification.thumbnail_url ? `<img class="task-notification-thumb" src="${escapeHtml8(notification.thumbnail_url)}" alt="">` : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml8(statusGlyph(notification.status))}</span>`;
+    return `${thumbnail}
+    <span class="task-notification-body">
+      <span class="task-notification-title">${escapeHtml8(taskNotificationDisplayTitle(notification))}</span>
+      <span class="task-notification-message">${escapeHtml8(taskNotificationDisplayMessage(notification))}</span>
+      <span class="task-notification-time">${escapeHtml8(formatNotificationTime(notification.created_at))}</span>
+    </span>`;
+  }
+  function statusGlyph(status) {
+    if (status === "failed") return "!";
+    if (status === "partial_failed") return "~";
+    return "\u2713";
+  }
+  function formatNotificationTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  function terminalTaskStatus(status) {
+    if (status === "completed" || status === "failed" || status === "partial_failed") return status;
+    return null;
+  }
+  function taskNotificationSeenKey(task, status) {
+    const revision = task.completed_at || task.updated_at || task.last_error || task.error || "";
+    return `${task.task_id}:${status}:${revision}`;
+  }
+  function rememberTaskNotification(task, status) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
+    while (state33.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
+      const firstKey = state33.taskNotificationSeenKeys.values().next().value;
+      if (typeof firstKey !== "string") break;
+      state33.taskNotificationSeenKeys.delete(firstKey);
+    }
+    persistTaskNotificationSeenKeys();
+  }
+  function restoreTaskNotificationSettings() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSettings = defaultTaskNotificationSettings();
+    try {
+      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
+      state33.taskNotificationSettings = {
+        inApp: stored.inApp !== false,
+        system: stored.system === true && typeof Notification !== "undefined" && Notification.permission === "granted"
+      };
+    } catch {
+      state33.taskNotificationSettings = defaultTaskNotificationSettings();
+    }
+    persistTaskNotificationSettings();
+    syncTaskNotificationSettingsInputs();
+  }
+  function defaultTaskNotificationSettings() {
+    return { inApp: true, system: false };
+  }
+  function persistTaskNotificationSettings() {
+    try {
+      localStorage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify(getLegacyBridge().state.taskNotificationSettings));
+    } catch {
+    }
+    syncTaskNotificationSettingsInputs();
+  }
+  function syncTaskNotificationSettingsInputs() {
+    const bridge40 = getLegacyBridge();
+    const settings = bridge40.state.taskNotificationSettings;
+    if (bridge40.els.taskNotificationInApp instanceof HTMLInputElement) {
+      bridge40.els.taskNotificationInApp.checked = settings.inApp;
+    }
+    if (bridge40.els.taskNotificationSystem instanceof HTMLInputElement) {
+      bridge40.els.taskNotificationSystem.checked = settings.system;
+    }
+  }
+  function restoreTaskNotificationSeenKeys() {
+    const state33 = getLegacyBridge().state;
+    try {
+      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
+      state33.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key) => typeof key === "string") : []);
+    } catch {
+      state33.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
+    }
+  }
+  function persistTaskNotificationSeenKeys() {
+    try {
+      const keys = Array.from(getLegacyBridge().state.taskNotificationSeenKeys).slice(-MAX_SEEN_TASK_NOTIFICATION_KEYS);
+      localStorage.setItem(TASK_NOTIFICATION_SEEN_KEY, JSON.stringify(keys));
+    } catch {
+    }
+  }
+  function outputFileUrl(filename) {
+    if (filename.startsWith("/outputs/")) return filename;
+    const clean = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+    return clean ? `/outputs/${clean}` : "";
+  }
+  function completedOutputCount(task) {
+    if (Array.isArray(task.outputs)) {
+      return task.outputs.filter((record5) => record5?.status === "completed").length;
+    }
+    if (Array.isArray(task.output_urls)) return task.output_urls.filter(Boolean).length;
+    return positiveNumber(task.generated_count);
+  }
+  function positiveNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+  }
+  function promptSnippet(value) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+    return text.length > 48 ? `${text.slice(0, 48)}...` : text;
+  }
+  function escapeHtml8(value) {
+    return getLegacyBridge().methods.escapeHtml(value);
+  }
+  function setStatus10(message, type) {
+    getLegacyBridge().methods.setStatus(message, type);
+  }
+  function eventTargetElement(event) {
+    return event.target instanceof Element ? event.target : null;
+  }
+
+  // codex_image/webui/frontend/src/user-config-backup.ts
+  var ACTIVE_BACKUP_STATUSES = /* @__PURE__ */ new Set(["queued", "planning", "packing"]);
+  var SECTION_KEYS = {
+    chips: "userConfigBackup.sectionChips",
+    gallery: "userConfigBackup.sectionGallery",
+    templates: "userConfigBackup.sectionTemplates",
+    settings: "userConfigBackup.sectionSettings"
+  };
+  var GROUP_KEYS = {
+    colors: "userConfigBackup.groupColors",
+    prompt_snippets: "userConfigBackup.groupPromptSnippets",
+    gallery_items: "userConfigBackup.groupGalleryItems",
+    prompt_templates: "userConfigBackup.groupPromptTemplates",
+    settings: "userConfigBackup.groupSettings"
+  };
+  var initialized3 = false;
+  var currentBackupJob = null;
+  var currentRestoreSessionId = null;
+  var currentPreview = null;
+  var confirmation = null;
+  var restoreMode = "incremental";
+  var activeUpload = null;
+  var restoreApplying = false;
+  function bridgeElement(name) {
+    const value = getLegacyBridge().els[name];
+    return value instanceof HTMLElement ? value : null;
+  }
+  function inputElement(name) {
+    const value = getLegacyBridge().els[name];
+    return value instanceof HTMLInputElement ? value : null;
+  }
+  function setHidden(element2, hidden) {
+    if (!element2) return;
+    element2.classList.toggle("hidden", hidden);
+    element2.hidden = hidden;
+    element2.setAttribute("aria-hidden", hidden ? "true" : "false");
+  }
+  function setStatus11(name, message, state33 = "") {
+    const element2 = bridgeElement(name);
+    if (!element2) return;
+    element2.textContent = message;
+    element2.classList.toggle("ok", state33 === "ok");
+    element2.classList.toggle("error", state33 === "error");
+    element2.classList.toggle("running", state33 === "running");
+  }
+  function setProgress(name, value) {
+    const element2 = bridgeElement(name);
+    if (!element2) return;
+    const visible = value !== null;
+    element2.classList.toggle("hidden", !visible);
+    element2.classList.toggle("is-indeterminate", value === -1);
+    if (!visible) return;
+    const percent = value === -1 ? 0 : Math.max(0, Math.min(100, Math.round(value)));
+    element2.style.setProperty("--user-config-progress", `${percent}%`);
+    element2.setAttribute("aria-valuenow", String(percent));
+    element2.setAttribute("aria-busy", value === -1 ? "true" : "false");
+  }
+  function setActionPriority(button, priority) {
+    if (!button) return;
+    button.classList.toggle("run-button", priority === "primary");
+    button.classList.toggle("ghost-button", priority === "secondary");
+  }
+  function syncBackupActionPriority(status) {
+    const priority = userConfigBackupActionPriority(status);
+    setActionPriority(bridgeElement("createUserConfigBackupButton"), priority.create);
+    setActionPriority(bridgeElement("downloadUserConfigBackupButton"), priority.download);
+  }
+  function selectedBackupSections() {
+    return Array.from(document.querySelectorAll(
+      '#userConfigBackupSectionList input[name="userConfigBackupSection"]:checked'
+    )).map((input) => input.value);
+  }
+  function selectedRestoreSections() {
+    return Array.from(document.querySelectorAll(
+      '#userConfigRestoreSectionList input[name="userConfigRestoreSection"]:checked'
+    )).map((input) => input.value);
+  }
+  function formatBytes(value) {
+    if (!Number.isFinite(value) || value <= 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB"];
+    const index = Math.min(units.length - 1, Math.floor(Math.log(value) / Math.log(1024)));
+    const amount = value / 1024 ** index;
+    return `${amount >= 10 || index === 0 ? amount.toFixed(0) : amount.toFixed(1)} ${units[index]}`;
+  }
+  function syncBackupSelection() {
+    const sections = selectedBackupSections();
+    const settingsSelected = sections.includes("settings");
+    const sensitiveRow = bridgeElement("userConfigIncludeApiKeysRow");
+    if (sensitiveRow) sensitiveRow.hidden = !settingsSelected;
+    if (!settingsSelected) {
+      const includeKeys = inputElement("userConfigIncludeApiKeys");
+      if (includeKeys) includeKeys.checked = false;
+    }
+    const createButton = bridgeElement("createUserConfigBackupButton");
+    if (createButton) createButton.disabled = sections.length === 0 || Boolean(currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status));
+  }
+  async function loadBackupSummary() {
+    setStatus11("userConfigBackupStatus", translate("userConfigBackup.summaryLoading"), "running");
+    try {
+      const summaries = await readUserConfigSummary();
+      for (const summary of summaries) {
+        const target = document.querySelector(`[data-user-config-summary="${summary.section}"]`);
+        if (!target) continue;
+        const warningSuffix = summary.warnings.length ? ` \xB7 ${formatTranslation("userConfigBackup.warningCount", { count: summary.warnings.length })}` : "";
+        target.textContent = `${formatTranslation("userConfigBackup.itemCount", { count: summary.item_count })} \xB7 ${formatBytes(summary.size_bytes)}${warningSuffix}`;
+      }
+      setStatus11("userConfigBackupStatus", "");
+    } catch {
+      setStatus11("userConfigBackupStatus", translate("userConfigBackup.summaryFailed"), "error");
+    }
+  }
+  function renderBackupJob(job) {
+    currentBackupJob = job;
+    const active = ACTIVE_BACKUP_STATUSES.has(job.status);
+    const ready = job.status === "ready";
+    const createButton = bridgeElement("createUserConfigBackupButton");
+    if (createButton) createButton.disabled = active;
+    syncBackupActionPriority(job.status);
+    setHidden(bridgeElement("cancelUserConfigBackupButton"), !active && !ready);
+    setHidden(bridgeElement("downloadUserConfigBackupButton"), !ready);
+    if (job.status === "packing") {
+      const progress = job.total_bytes > 0 ? job.completed_bytes * 100 / job.total_bytes : -1;
+      setProgress("userConfigBackupProgress", progress);
+    } else if (active) {
+      setProgress("userConfigBackupProgress", -1);
+    } else {
+      setProgress("userConfigBackupProgress", null);
+    }
+    const key = userConfigBackupStatusMessageKey(job);
+    setStatus11("userConfigBackupStatus", translate(key), active ? "running" : ready ? "ok" : "error");
+    syncBackupSelection();
+  }
+  function openWebConfirm(anchor, options) {
+    const open = getLegacyBridge().methods.openConfirmPopover;
+    if (typeof open === "function" && anchor) open(anchor, options);
+  }
+  var transferController = createUserConfigTransferController({
+    onBackupStatus: renderBackupJob,
+    onRestoreStatus: (snapshot) => {
+      currentRestoreSessionId = snapshot.session.session_id;
+      if (snapshot.result) {
+        transferController.clearRestore();
+        renderRestoreResult(snapshot.result);
+        refreshRestoredSections(snapshot.result);
+        return;
+      }
+      if (snapshot.preview && !currentPreview) renderRestorePreview(snapshot.preview);
+    },
+    onError: (error) => {
+      setStatus11("userConfigBackupStatus", translate(error.code), "error");
+      setStatus11("userConfigRestoreStatus", translate(error.code), "error");
+    }
+  });
+  async function createBackup() {
+    const sections = selectedBackupSections();
+    if (!sections.length) {
+      setStatus11("userConfigBackupStatus", translate("userConfigBackup.selectAtLeastOne"), "error");
+      return;
+    }
+    const includeApiKeys = inputElement("userConfigIncludeApiKeys")?.checked === true;
+    if (includeApiKeys) {
+      openWebConfirm(bridgeElement("createUserConfigBackupButton"), {
+        title: translate("userConfigBackup.includeApiKeys"),
+        message: translate("userConfigBackup.apiKeyConfirm"),
+        confirmText: translate("userConfigBackup.create"),
+        danger: false,
+        onConfirm: () => performCreateBackup(sections, includeApiKeys)
+      });
+      return;
+    }
+    await performCreateBackup(sections, includeApiKeys);
+  }
+  async function performCreateBackup(sections, includeApiKeys) {
+    try {
+      const request = buildUserConfigBackupRequest(
+        sections,
+        includeApiKeys,
+        readUserConfigClientPreferences(localStorage)
+      );
+      await transferController.startBackup(request);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "user_config_backup_failed";
+      setStatus11("userConfigBackupStatus", translate(code), "error");
+    }
+  }
+  async function cancelBackup() {
+    if (!currentBackupJob) return;
+    try {
+      await cancelUserConfigBackup(currentBackupJob.job_id);
+    } catch {
+    }
+    transferController.clearBackup();
+    currentBackupJob = null;
+    syncBackupActionPriority(null);
+    setProgress("userConfigBackupProgress", null);
+    setHidden(bridgeElement("cancelUserConfigBackupButton"), true);
+    setHidden(bridgeElement("downloadUserConfigBackupButton"), true);
+    setStatus11("userConfigBackupStatus", translate("userConfigBackup.cancelled"));
+    syncBackupSelection();
+  }
+  function downloadBackup() {
+    if (!currentBackupJob?.download_url) return;
+    directDownloadUserConfigBackup(currentBackupJob.download_url);
+    syncBackupActionPriority("ready");
+    setHidden(bridgeElement("downloadUserConfigBackupButton"), false);
+    setHidden(bridgeElement("cancelUserConfigBackupButton"), false);
+    setStatus11("userConfigBackupStatus", translate("userConfigBackup.downloaded"), "ok");
+    syncBackupSelection();
+  }
+  function setTransferView(mode) {
+    bridgeElement("userConfigTransferMode")?.querySelectorAll("[data-user-config-view-mode]").forEach((button) => {
+      const active = button.dataset.userConfigViewMode === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    const backupPane = bridgeElement("userConfigBackupPane");
+    const restorePane = bridgeElement("userConfigRestorePane");
+    if (backupPane) {
+      backupPane.hidden = mode !== "backup";
+      backupPane.setAttribute("aria-hidden", mode === "backup" ? "false" : "true");
+    }
+    if (restorePane) {
+      restorePane.hidden = mode !== "restore";
+      restorePane.setAttribute("aria-hidden", mode === "restore" ? "false" : "true");
+    }
+  }
+  function renderRestorePreview(preview) {
+    currentPreview = preview;
+    restoreMode = "incremental";
+    confirmation = createReplacementConfirmation(
+      preview.archive_sha256,
+      preview.sections.map((section) => section.section),
+      restoreMode
+    );
+    const list = bridgeElement("userConfigRestoreSectionList");
+    list?.replaceChildren();
+    for (const section of preview.sections) {
+      const label = document.createElement("label");
+      label.className = "user-config-section-row";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.name = "userConfigRestoreSection";
+      input.value = section.section;
+      input.checked = true;
+      const copy = document.createElement("span");
+      const title = document.createElement("strong");
+      title.textContent = translate(SECTION_KEYS[section.section]);
+      const detail = document.createElement("small");
+      detail.textContent = formatTranslation("userConfigBackup.previewSectionCounts", {
+        archive: section.archive_count,
+        current: section.replace_existing_count
+      });
+      const groups = document.createElement("small");
+      groups.className = "user-config-group-counts";
+      groups.textContent = section.groups.map((group) => formatTranslation(
+        "userConfigBackup.previewGroupCounts",
+        {
+          group: translate(GROUP_KEYS[group.group]),
+          archive: group.archive_count,
+          current: group.current_count
+        }
+      )).join(" \xB7 ");
+      const blocked = section.groups.filter(
+        (group) => group.archive_count === 0 && group.current_count > 0
+      );
+      copy.append(title, detail, groups);
+      if (blocked.length) {
+        const warning = document.createElement("small");
+        warning.className = "user-config-empty-replace-warning";
+        warning.textContent = blocked.map((group) => formatTranslation(
+          "userConfigBackup.emptyReplaceGroup",
+          {
+            group: translate(GROUP_KEYS[group.group]),
+            current: group.current_count
+          }
+        )).join(" \xB7 ");
+        copy.append(warning);
+      }
+      label.append(input, copy);
+      list?.append(label);
+    }
+    const meta = bridgeElement("userConfigRestoreArchiveMeta");
+    if (meta) meta.textContent = formatTranslation("userConfigBackup.archiveMeta", {
+      count: preview.sections.length,
+      version: preview.format_version
+    });
+    setRestoreMode("incremental");
+    setHidden(bridgeElement("userConfigRestorePreview"), false);
+    setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+    setHidden(bridgeElement("userConfigRestoreResult"), true);
+    setStatus11("userConfigRestoreStatus", preview.restorable ? translate("userConfigBackup.validationReady") : translate("userConfigBackup.versionUnsupported"), preview.restorable ? "ok" : "error");
+    const start = bridgeElement("startUserConfigRestoreButton");
+    if (start) start.disabled = !preview.restorable;
+  }
+  async function chooseRestoreFile(event) {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) return;
+    const file = input.files[0];
+    await transferController.resume();
+    if (currentRestoreSessionId) {
+      await cancelUserConfigRestore(currentRestoreSessionId).catch(() => false);
+      transferController.clearRestore();
+      currentRestoreSessionId = null;
+    }
+    activeUpload?.abort();
+    activeUpload = new AbortController();
+    currentPreview = null;
+    setHidden(bridgeElement("userConfigRestorePreview"), true);
+    setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+    setHidden(bridgeElement("userConfigRestoreResult"), true);
+    try {
+      setStatus11("userConfigRestoreStatus", translate("userConfigBackup.creatingSession"), "running");
+      const created = await createUserConfigRestore(file, { signal: activeUpload.signal });
+      currentRestoreSessionId = created.session.session_id;
+      transferController.trackRestore(created.session.session_id);
+      setProgress("userConfigRestoreProgress", 0);
+      setStatus11("userConfigRestoreStatus", translate("userConfigBackup.uploading"), "running");
+      await uploadUserConfigRestore(file, {
+        session_id: created.session.session_id,
+        upload_chunk_bytes: created.upload_chunk_bytes
+      }, {
+        signal: activeUpload.signal,
+        onProgress: (uploaded, total) => setProgress("userConfigRestoreProgress", total > 0 ? uploaded * 100 / total : 0)
+      });
+      setProgress("userConfigRestoreProgress", -1);
+      setStatus11("userConfigRestoreStatus", translate("userConfigBackup.validating"), "running");
+      renderRestorePreview(await validateUserConfigRestore(created.session.session_id, { signal: activeUpload.signal }));
+      setProgress("userConfigRestoreProgress", null);
+    } catch (error) {
+      if (activeUpload.signal.aborted) return;
+      const code = error instanceof Error ? error.message : "user_config_restore_failed";
+      setStatus11("userConfigRestoreStatus", translate(code), "error");
+      setProgress("userConfigRestoreProgress", null);
+    } finally {
+      activeUpload = null;
+    }
+  }
+  function setRestoreMode(mode) {
+    restoreMode = mode;
+    bridgeElement("userConfigRestoreMode")?.querySelectorAll("[data-user-config-restore-mode]").forEach((button) => {
+      const active = button.dataset.userConfigRestoreMode === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    const copy = bridgeElement("userConfigRestoreModeCopy");
+    if (copy) {
+      const key = mode === "replace" ? "userConfigBackup.replaceCopy" : "userConfigBackup.incrementalCopy";
+      copy.dataset.i18n = key;
+      copy.textContent = translate(key);
+    }
+    if (confirmation) confirmation = updateReplacementConfirmation(confirmation, { mode });
+    setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+    setHidden(bridgeElement("userConfigRestorePreview"), false);
+    updateRestoreSelection();
+  }
+  function updateRestoreSelection() {
+    if (!confirmation || !currentPreview) return;
+    const sections = selectedRestoreSections();
+    if (sections.length) confirmation = updateReplacementConfirmation(confirmation, { sections });
+    const blocked = restoreMode === "replace" ? emptyUserConfigReplacementGroups(currentPreview, sections) : [];
+    const button = bridgeElement("startUserConfigRestoreButton");
+    if (button) button.disabled = !sections.length || !currentPreview.restorable || blocked.length > 0;
+    if (blocked.length) {
+      const labels = blocked.map((item) => translate(GROUP_KEYS[item.group])).join("\u3001");
+      setStatus11("userConfigRestoreStatus", formatTranslation(
+        "userConfigBackup.emptyReplaceBlocked",
+        { groups: labels }
+      ), "error");
+    } else {
+      setStatus11("userConfigRestoreStatus", currentPreview.restorable ? translate("userConfigBackup.validationReady") : translate("userConfigBackup.versionUnsupported"), currentPreview.restorable ? "ok" : "error");
+    }
+  }
+  function renderReplaceConfirmation() {
+    if (!currentPreview || !confirmation) return;
+    const sections = selectedRestoreSections();
+    if (!sections.length) return;
+    const blocked = emptyUserConfigReplacementGroups(currentPreview, sections);
+    if (blocked.length) {
+      updateRestoreSelection();
+      return;
+    }
+    confirmation = updateReplacementConfirmation(confirmation, { sections, mode: "replace", acknowledged: false });
+    const list = bridgeElement("userConfigReplaceImpactList");
+    list?.replaceChildren();
+    for (const section of currentPreview.sections.filter((item) => sections.includes(item.section))) {
+      for (const group of section.groups) {
+        const item = document.createElement("li");
+        const subject = section.groups.length > 1 ? `${translate(SECTION_KEYS[section.section])} \xB7 ${translate(GROUP_KEYS[group.group])}` : translate(SECTION_KEYS[section.section]);
+        item.textContent = formatTranslation("userConfigBackup.replaceImpact", {
+          section: subject,
+          current: group.current_count,
+          archive: group.archive_count
+        });
+        list?.append(item);
+      }
+    }
+    if (currentPreview.gallery_history_reference_impact > 0) {
+      const item = document.createElement("li");
+      item.textContent = formatTranslation("userConfigBackup.galleryReferenceImpact", {
+        count: currentPreview.gallery_history_reference_impact
+      });
+      list?.append(item);
+    }
+    if (currentPreview.keyed_provider_retention_count > 0) {
+      const item = document.createElement("li");
+      item.textContent = formatTranslation("userConfigBackup.providerRetention", {
+        count: currentPreview.keyed_provider_retention_count
+      });
+      list?.append(item);
+    }
+    const acknowledge = inputElement("userConfigReplaceAcknowledge");
+    if (acknowledge) acknowledge.checked = false;
+    const confirmButton = bridgeElement("confirmUserConfigReplaceButton");
+    if (confirmButton) confirmButton.disabled = true;
+    setHidden(bridgeElement("userConfigRestorePreview"), true);
+    setHidden(bridgeElement("userConfigReplaceConfirmation"), false);
+    acknowledge?.focus({ preventScroll: true });
+  }
+  async function startRestore() {
+    if (!currentPreview || !currentRestoreSessionId) return;
+    if (restoreMode === "replace") {
+      renderReplaceConfirmation();
+      return;
+    }
+    await applyRestore();
+  }
+  async function applyRestore() {
+    if (!currentPreview || !currentRestoreSessionId || !confirmation) return;
+    const request = buildUserConfigRestoreRequest(confirmation, currentPreview.preview_revision);
+    if (!request) return;
+    restoreApplying = true;
+    transferController.trackRestore(currentRestoreSessionId);
+    setProgress("userConfigRestoreProgress", -1);
+    setStatus11("userConfigRestoreStatus", translate("userConfigBackup.restoring"), "running");
+    setHidden(bridgeElement("userConfigRestorePreview"), true);
+    setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+    try {
+      const result = await startUserConfigRestore(currentRestoreSessionId, request);
+      transferController.clearRestore();
+      renderRestoreResult(result);
+      refreshRestoredSections(result);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "user_config_restore_failed";
+      setStatus11("userConfigRestoreStatus", translate(code), "error");
+      setHidden(bridgeElement("userConfigRestorePreview"), false);
+    } finally {
+      restoreApplying = false;
+      setProgress("userConfigRestoreProgress", null);
+    }
+  }
+  function renderRestoreResult(result) {
+    const root = bridgeElement("userConfigRestoreResult");
+    root?.replaceChildren();
+    const title = document.createElement("strong");
+    title.textContent = translate("userConfigBackup.restoreComplete");
+    root?.append(title);
+    for (const section of result.sections) {
+      const stats = result.section_stats[section];
+      if (!stats) continue;
+      const row = document.createElement("p");
+      row.textContent = formatTranslation("userConfigBackup.resultCounts", {
+        section: translate(SECTION_KEYS[section]),
+        added: stats.added,
+        replaced: stats.replaced,
+        skipped: stats.skipped,
+        copies: stats.recovery_copies
+      });
+      root?.append(row);
+    }
+    if (result.restart_required) {
+      const restart = document.createElement("p");
+      restart.textContent = translate("userConfigBackup.restartRequired");
+      root?.append(restart);
+    }
+    if (result.client_preferences) {
+      const applied = applyUserConfigClientPreferences(result.client_preferences, result.mode);
+      const bridge40 = getLegacyBridge();
+      bridge40.state.taskNotificationSettings = {
+        inApp: applied.applied.notifications.in_app,
+        system: applied.applied.notifications.system
+      };
+      const inApp = bridge40.els.taskNotificationInApp;
+      const system = bridge40.els.taskNotificationSystem;
+      if (inApp) inApp.checked = applied.applied.notifications.in_app;
+      if (system) system.checked = applied.applied.notifications.system;
+      for (const warning of applied.warnings) {
+        const copy = document.createElement("p");
+        copy.textContent = translate(warning);
+        root?.append(copy);
+      }
+    }
+    setStatus11("userConfigRestoreStatus", translate("userConfigBackup.restoreComplete"), "ok");
+    setHidden(root, false);
+    currentPreview = null;
+    confirmation = null;
+  }
+  function refreshRestoredSections(result) {
+    const methods = getLegacyBridge().methods;
+    const call3 = (name) => {
+      const method = methods[name];
+      if (typeof method === "function") void method();
+    };
+    if (result.sections.includes("chips")) {
+      call3("refreshColorPalette");
+      call3("refreshPromptSnippets");
+    }
+    if (result.sections.includes("gallery")) call3("refreshGallery");
+    if (result.sections.includes("templates")) call3("refreshPromptTemplates");
+    if (result.sections.includes("settings")) {
+      call3("refreshSettings");
+      call3("refreshNetworkEgress");
+      call3("populateApiSettingsForm");
+    }
+  }
+  function openUserConfigBackupController() {
+    void transferController.resume();
+    void loadBackupSummary();
+    syncBackupSelection();
+  }
+  function guardUserConfigBackupClose(closeModal = false) {
+    if (restoreApplying) {
+      window.alert(translate("userConfigBackup.restoreContinues"));
+      return true;
+    }
+    if (activeUpload || currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status)) {
+      openWebConfirm(
+        closeModal ? bridgeElement("systemSettingsModalClose") : bridgeElement("userConfigBackupBackButton"),
+        {
+          title: translate("action.confirmQuestion"),
+          message: translate("userConfigBackup.closeActiveConfirm"),
+          confirmText: translate("action.cancel"),
+          onConfirm: async () => {
+            activeUpload?.abort();
+            activeUpload = null;
+            if (currentRestoreSessionId) await cancelUserConfigRestore(currentRestoreSessionId).catch(() => false);
+            if (currentBackupJob) await cancelBackup();
+            const methods = getLegacyBridge().methods;
+            if (closeModal) methods.closeSystemSettingsModal?.({ force: true });
+            else methods.closeUserConfigBackupView?.({ force: true });
+          }
+        }
+      );
+      return false;
+    }
+    if (currentBackupJob?.status === "ready") {
+      openWebConfirm(
+        closeModal ? bridgeElement("systemSettingsModalClose") : bridgeElement("userConfigBackupBackButton"),
+        {
+          title: translate("action.confirmQuestion"),
+          message: translate("userConfigBackup.discardReadyConfirm"),
+          confirmText: translate("action.cancel"),
+          onConfirm: async () => {
+            await cancelBackup();
+            const methods = getLegacyBridge().methods;
+            if (closeModal) methods.closeSystemSettingsModal?.({ force: true });
+            else methods.closeUserConfigBackupView?.({ force: true });
+          }
+        }
+      );
+      return false;
+    }
+    return true;
+  }
+  function closeUserConfigBackupController() {
+    if (!restoreApplying) transferController.dispose();
+  }
+  function bindEvents() {
+    const els44 = getLegacyBridge().els;
+    els44.userConfigTransferMode?.addEventListener("click", (event) => {
+      const target = event.target;
+      const button = target?.closest("[data-user-config-view-mode]");
+      const mode = button?.dataset.userConfigViewMode;
+      if (mode === "backup" || mode === "restore") setTransferView(mode);
+    });
+    els44.userConfigBackupSectionList?.addEventListener("change", syncBackupSelection);
+    els44.createUserConfigBackupButton?.addEventListener("click", () => void createBackup());
+    els44.cancelUserConfigBackupButton?.addEventListener("click", () => void cancelBackup());
+    els44.downloadUserConfigBackupButton?.addEventListener("click", downloadBackup);
+    els44.userConfigRestoreFile?.addEventListener("change", (event) => void chooseRestoreFile(event));
+    els44.userConfigRestoreMode?.addEventListener("click", (event) => {
+      const target = event.target;
+      const button = target?.closest("[data-user-config-restore-mode]");
+      const mode = button?.dataset.userConfigRestoreMode;
+      if (mode === "incremental" || mode === "replace") setRestoreMode(mode);
+    });
+    els44.userConfigRestoreSectionList?.addEventListener("change", updateRestoreSelection);
+    els44.startUserConfigRestoreButton?.addEventListener("click", () => void startRestore());
+    els44.backToUserConfigPreviewButton?.addEventListener("click", () => {
+      if (confirmation) confirmation = updateReplacementConfirmation(confirmation, { acknowledged: false });
+      const acknowledge = inputElement("userConfigReplaceAcknowledge");
+      if (acknowledge) acknowledge.checked = false;
+      const confirmButton = bridgeElement("confirmUserConfigReplaceButton");
+      if (confirmButton) confirmButton.disabled = true;
+      setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+      setHidden(bridgeElement("userConfigRestorePreview"), false);
+    });
+    els44.userConfigReplaceAcknowledge?.addEventListener("change", () => {
+      const checked = inputElement("userConfigReplaceAcknowledge")?.checked === true;
+      if (confirmation) confirmation = updateReplacementConfirmation(confirmation, { acknowledged: checked });
+      const button = bridgeElement("confirmUserConfigReplaceButton");
+      if (button) button.disabled = !checked;
+    });
+    els44.confirmUserConfigReplaceButton?.addEventListener("click", () => void applyRestore());
+  }
+  function initUserConfigBackupFeature() {
+    if (initialized3) return;
+    initialized3 = true;
+    bindEvents();
+    Object.assign(getLegacyBridge().methods, {
+      openUserConfigBackupController,
+      closeUserConfigBackupController,
+      guardUserConfigBackupClose
+    });
+  }
+
   // codex_image/webui/frontend/src/color-palette.ts
   var DEFAULT_COLOR_CODE = "#FFFFFF";
   var DEFAULT_COLOR_SWATCHES = ["#FFFFFF", "#111111", "#F6E8D8", "#E6F0EC", "#457B66", "#F4B183", "#B7D7F0", "#F8D7DA"];
@@ -39156,7 +41679,7 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function setStatus10(message, type) {
+  function setStatus12(message, type) {
     legacyMethod16("setStatus", message, type);
   }
   function renderColorSuggest(...args) {
@@ -39245,7 +41768,7 @@ ${hint}` : hint;
     renderColorSuggest({ query: state10.selectedColorCode.slice(1), range: state10.activeColorRange });
     els12.colorSuggest?.classList.remove("hidden");
     els12.promptEditor?.focus({ preventScroll: true });
-    setStatus10(formatTranslation("colors.importedCount", { count: data.imported || 0 }), "ok");
+    setStatus12(formatTranslation("colors.importedCount", { count: data.imported || 0 }), "ok");
   }
   function toggleColorPaletteManageMode() {
     state10.colorPaletteManageMode = !state10.colorPaletteManageMode;
@@ -39400,10 +41923,10 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function escapeHtml8(value) {
+  function escapeHtml9(value) {
     return legacyMethod17("escapeHtml", value);
   }
-  function setStatus11(message, type) {
+  function setStatus13(message, type) {
     legacyMethod17("setStatus", message, type);
   }
   function normalizeHexColor2(value) {
@@ -39512,33 +42035,33 @@ ${hint}` : hint;
       ...recentColors.map((color) => colorSwatchButton(color, translate("colors.recentLabel")))
     ].join("");
     els13.colorSuggest.innerHTML = `
-    <div class="color-suggest-main" data-color-original="${escapeHtml8(editingColor)}">
+    <div class="color-suggest-main" data-color-original="${escapeHtml9(editingColor)}">
       <div class="color-value-control${isEditingDirty ? " is-dirty" : ""}" data-color-value-control>
-        <label class="color-picker-control" title="${escapeHtml8(translate("colors.pick"))}" aria-label="${escapeHtml8(translate("colors.pick"))}">
-          <input class="color-picker-input" type="color" value="${escapeHtml8(selected)}" data-color-picker>
-          <span class="color-picker-swatch" style="--active-color: ${escapeHtml8(selected)}">
+        <label class="color-picker-control" title="${escapeHtml9(translate("colors.pick"))}" aria-label="${escapeHtml9(translate("colors.pick"))}">
+          <input class="color-picker-input" type="color" value="${escapeHtml9(selected)}" data-color-picker>
+          <span class="color-picker-swatch" style="--active-color: ${escapeHtml9(selected)}">
             <svg class="color-picker-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M14.5 4.5l5 5-8.8 8.8H6.5v-4.2l8-9.6z"></path>
               <path d="M12.7 6.4l4.9 4.9"></path>
             </svg>
-            <span class="color-picker-label">${escapeHtml8(translate("colors.pickShort"))}</span>
+            <span class="color-picker-label">${escapeHtml9(translate("colors.pickShort"))}</span>
           </span>
         </label>
-        <input class="color-hex-input" type="text" value="${escapeHtml8(typedValue)}" maxlength="7" spellcheck="false" aria-label="${escapeHtml8(translate("colors.hexValue"))}" data-color-hex-input>
+        <input class="color-hex-input" type="text" value="${escapeHtml9(typedValue)}" maxlength="7" spellcheck="false" aria-label="${escapeHtml9(translate("colors.hexValue"))}" data-color-hex-input>
       </div>
       <button class="ghost-button text-sm color-insert-button${isEditingDirty ? " is-dirty" : ""}" type="button" data-insert-color${editingColor && !isEditingDirty ? " disabled" : ""}>${actionLabel}</button>
       <div class="color-suggest-actions">
-        <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml8(translate("colors.save"))}</button>
-        <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml8(translate("colors.exportPs"))}</a>
+        <button class="ghost-button text-sm" type="button" data-save-favorite-color>${escapeHtml9(translate("colors.save"))}</button>
+        <a class="ghost-button text-sm color-export-link" href="${COLOR_PALETTE_EXPORT_CSS_ENDPOINT}" target="_blank" rel="noopener" data-color-palette-export>${escapeHtml9(translate("colors.exportPs"))}</a>
         <label class="ghost-button text-sm color-import-label" data-color-palette-import>
-          ${escapeHtml8(translate("colors.importPs"))}
+          ${escapeHtml9(translate("colors.importPs"))}
           <input class="color-import-input" type="file" accept=".aco,.css,.html,.htm,.svg,.txt" data-color-palette-import-input>
         </label>
-        <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml8(state11.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
+        <button class="ghost-button text-sm color-manage-button" type="button" aria-pressed="${state11.colorPaletteManageMode ? "true" : "false"}" data-color-palette-manage>${escapeHtml9(state11.colorPaletteManageMode ? translate("colors.done") : translate("colors.manage"))}</button>
       </div>
-      <div class="color-update-hint${isEditingDirty ? "" : " hidden"}" role="status" aria-live="polite" data-color-update-hint>${escapeHtml8(translate("colors.pendingUpdate"))}</div>
+      <div class="color-update-hint${isEditingDirty ? "" : " hidden"}" role="status" aria-live="polite" data-color-update-hint>${escapeHtml9(translate("colors.pendingUpdate"))}</div>
     </div>
-    <div class="${swatchRowClass}" aria-label="${escapeHtml8(translate("colors.favorites"))}">
+    <div class="${swatchRowClass}" aria-label="${escapeHtml9(translate("colors.favorites"))}">
       ${swatchButtons}
     </div>
   `;
@@ -39551,13 +42074,13 @@ ${hint}` : hint;
   }
   function colorSwatchButton(color, label = "", { removable = false } = {}) {
     const normalized = normalizeHexColor2(color) || DEFAULT_COLOR_CODE2;
-    const deleteLabel = escapeHtml8(formatTranslation("colors.deleteFavorite", { name: label || normalized }));
+    const deleteLabel = escapeHtml9(formatTranslation("colors.deleteFavorite", { name: label || normalized }));
     return `
     <span class="color-swatch-item">
-      <button class="color-swatch-button" type="button" title="${escapeHtml8(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml8(normalized)}" style="--swatch-color: ${escapeHtml8(normalized)}">
-        <span>${escapeHtml8(label ? `${label} ${normalized}` : normalized)}</span>
+      <button class="color-swatch-button" type="button" title="${escapeHtml9(label ? `${label} ${normalized}` : normalized)}" data-color-swatch="${escapeHtml9(normalized)}" style="--swatch-color: ${escapeHtml9(normalized)}">
+        <span>${escapeHtml9(label ? `${label} ${normalized}` : normalized)}</span>
       </button>
-      ${removable ? `<button class="color-swatch-remove" type="button" title="${deleteLabel}" aria-label="${deleteLabel}" data-remove-favorite-color="${escapeHtml8(normalized)}">
+      ${removable ? `<button class="color-swatch-remove" type="button" title="${deleteLabel}" aria-label="${deleteLabel}" data-remove-favorite-color="${escapeHtml9(normalized)}">
         <svg class="color-swatch-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M7 7L17 17M17 7L7 17"></path>
         </svg>
@@ -39640,7 +42163,7 @@ ${hint}` : hint;
       try {
         await importColorPalette2(file);
       } catch (error) {
-        setStatus11(error.message || translate("colors.importFailed"), "error");
+        setStatus13(error.message || translate("colors.importFailed"), "error");
         console.warn(error.message || translate("colors.importFailed"));
       } finally {
         importInput.value = "";
@@ -39890,10 +42413,10 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function escapeHtml9(value) {
+  function escapeHtml10(value) {
     return legacyMethod18("escapeHtml", value);
   }
-  function setStatus12(message, type) {
+  function setStatus14(message, type) {
     legacyMethod18("setStatus", message, type);
   }
   function getPromptText3() {
@@ -40038,13 +42561,13 @@ ${hint}` : hint;
     }
     state12.activePromptSnippetRange = match.range.cloneRange();
     suggest.innerHTML = snippets.map((snippet) => `
-    <button type="button" class="prompt-snippet-option" data-prompt-snippet-id="${escapeHtml9(snippet.id)}">
-      <span class="prompt-snippet-option-tag">~${escapeHtml9(snippet.tag)}</span>
+    <button type="button" class="prompt-snippet-option" data-prompt-snippet-id="${escapeHtml10(snippet.id)}">
+      <span class="prompt-snippet-option-tag">~${escapeHtml10(snippet.tag)}</span>
       <span class="prompt-snippet-option-main">
-        <span>${escapeHtml9(snippet.title)}</span>
-        <small>${escapeHtml9(promptSnippetPreview(snippet.content))}</small>
+        <span>${escapeHtml10(snippet.title)}</span>
+        <small>${escapeHtml10(promptSnippetPreview(snippet.content))}</small>
       </span>
-      <small>${escapeHtml9(snippet.category)}</small>
+      <small>${escapeHtml10(snippet.category)}</small>
     </button>
   `).join("");
     suggest.querySelectorAll("[data-prompt-snippet-id]").forEach((button) => {
@@ -40318,13 +42841,13 @@ ${hint}` : hint;
     promptSnippetPopoverState.chip = chip;
     promptSnippetPopoverState.snippetId = snippet.id;
     popover.innerHTML = `
-    <div class="prompt-snippet-popover-title">~${escapeHtml9(snippet.tag)}</div>
-    <div class="prompt-snippet-popover-meta">${escapeHtml9(snippet.title)} \xB7 ${escapeHtml9(snippet.category)}</div>
-    <div class="prompt-snippet-popover-preview">${escapeHtml9(snippet.content)}</div>
+    <div class="prompt-snippet-popover-title">~${escapeHtml10(snippet.tag)}</div>
+    <div class="prompt-snippet-popover-meta">${escapeHtml10(snippet.title)} \xB7 ${escapeHtml10(snippet.category)}</div>
+    <div class="prompt-snippet-popover-preview">${escapeHtml10(snippet.content)}</div>
     <div class="prompt-snippet-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>${escapeHtml9(translate("snippets.expand"))}</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>${escapeHtml9(translate("snippets.edit"))}</button>
-      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>${escapeHtml9(translate("snippets.close"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-expand>${escapeHtml10(translate("snippets.expand"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-edit>${escapeHtml10(translate("snippets.edit"))}</button>
+      <button class="ghost-button text-sm" type="button" data-prompt-snippet-close>${escapeHtml10(translate("snippets.close"))}</button>
     </div>
   `;
     function handlePopoverActionClick(event, action) {
@@ -40346,26 +42869,26 @@ ${hint}` : hint;
     promptSnippetPopoverState.snippetId = snippet.id || null;
     popover.innerHTML = `
     <form class="prompt-snippet-form">
-      <div class="prompt-snippet-popover-title">${escapeHtml9(mode === "edit" ? translate("snippets.editTitle") : translate("snippets.saveTitle"))}</div>
+      <div class="prompt-snippet-popover-title">${escapeHtml10(mode === "edit" ? translate("snippets.editTitle") : translate("snippets.saveTitle"))}</div>
       <label class="prompt-snippet-field">
-        <span>${escapeHtml9(translate("snippets.shortTag"))}</span>
-        <input class="prompt-snippet-input" type="text" maxlength="24" value="${escapeHtml9(snippet.tag || "")}" data-prompt-snippet-tag>
+        <span>${escapeHtml10(translate("snippets.shortTag"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="24" value="${escapeHtml10(snippet.tag || "")}" data-prompt-snippet-tag>
       </label>
       <label class="prompt-snippet-field">
-        <span>${escapeHtml9(translate("snippets.title"))}</span>
-        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml9(snippet.title || "")}" placeholder="${escapeHtml9(translate("snippets.titlePlaceholder"))}" data-prompt-snippet-title>
+        <span>${escapeHtml10(translate("snippets.title"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="80" value="${escapeHtml10(snippet.title || "")}" placeholder="${escapeHtml10(translate("snippets.titlePlaceholder"))}" data-prompt-snippet-title>
       </label>
       <label class="prompt-snippet-field">
-        <span>${escapeHtml9(translate("snippets.category"))}</span>
-        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml9(snippet.category || DEFAULT_PROMPT_SNIPPET_CATEGORY)}" data-prompt-snippet-category>
+        <span>${escapeHtml10(translate("snippets.category"))}</span>
+        <input class="prompt-snippet-input" type="text" maxlength="32" value="${escapeHtml10(snippet.category || DEFAULT_PROMPT_SNIPPET_CATEGORY)}" data-prompt-snippet-category>
       </label>
       <label class="prompt-snippet-field">
-        <span>${escapeHtml9(translate("snippets.content"))}</span>
-        <textarea class="prompt-snippet-input prompt-snippet-textarea" maxlength="4000" data-prompt-snippet-content>${escapeHtml9(snippet.content || "")}</textarea>
+        <span>${escapeHtml10(translate("snippets.content"))}</span>
+        <textarea class="prompt-snippet-input prompt-snippet-textarea" maxlength="4000" data-prompt-snippet-content>${escapeHtml10(snippet.content || "")}</textarea>
       </label>
       <div class="prompt-snippet-popover-actions">
-        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>${escapeHtml9(translate("snippets.cancel"))}</button>
-        <button class="ghost-button text-sm" type="submit">${escapeHtml9(mode === "edit" ? translate("snippets.save") : translate("snippets.saveSelection"))}</button>
+        <button class="ghost-button text-sm" type="button" data-prompt-snippet-cancel>${escapeHtml10(translate("snippets.cancel"))}</button>
+        <button class="ghost-button text-sm" type="submit">${escapeHtml10(mode === "edit" ? translate("snippets.save") : translate("snippets.saveSelection"))}</button>
       </div>
     </form>
   `;
@@ -40405,9 +42928,9 @@ ${hint}` : hint;
       }
       closePromptSnippetPopover();
       hidePromptSnippetSelectionButton();
-      setStatus12(translate("snippets.saved"), "ok");
+      setStatus14(translate("snippets.saved"), "ok");
     } catch (error) {
-      setStatus12(error.message || translate("snippets.saveFailed"), "error");
+      setStatus14(error.message || translate("snippets.saveFailed"), "error");
     }
   }
   function replacePromptSelectionWithSnippet(snippet) {
@@ -40615,10 +43138,10 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function escapeHtml10(value) {
+  function escapeHtml11(value) {
     return legacyMethod19("escapeHtml", value);
   }
-  function setStatus13(message, type) {
+  function setStatus15(message, type) {
     legacyMethod19("setStatus", message, type);
   }
   function getPromptText4() {
@@ -40816,8 +43339,8 @@ ${hint}` : hint;
     els15.promptTemplateCategoryList.innerHTML = [
       `<button class="prompt-template-category ${state13.promptTemplateCategory ? "" : "active"}" data-prompt-template-category="" type="button">${translate("templates.all")}</button>`,
       ...categories.map((category) => `
-      <button class="prompt-template-category ${state13.promptTemplateCategory === category.id ? "active" : ""}" data-prompt-template-category="${escapeHtml10(category.id)}" type="button">
-        ${escapeHtml10(promptTemplateCategoryLabel(category.name))}
+      <button class="prompt-template-category ${state13.promptTemplateCategory === category.id ? "active" : ""}" data-prompt-template-category="${escapeHtml11(category.id)}" type="button">
+        ${escapeHtml11(promptTemplateCategoryLabel(category.name))}
       </button>
     `)
     ].join("");
@@ -40832,15 +43355,15 @@ ${hint}` : hint;
     const categories = normalizePromptTemplateCategoryList(state13.promptTemplateCategories);
     els15.promptTemplateCategoryPanel.innerHTML = `
     <div class="prompt-template-category-create">
-      <input class="control" type="text" maxlength="32" placeholder="${escapeHtml10(translate("templates.newCategory"))}" data-prompt-template-category-new>
-      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>${escapeHtml10(translate("action.add"))}</button>
+      <input class="control" type="text" maxlength="32" placeholder="${escapeHtml11(translate("templates.newCategory"))}" data-prompt-template-category-new>
+      <button class="ghost-button text-sm" type="button" data-prompt-template-category-create>${escapeHtml11(translate("action.add"))}</button>
     </div>
     <div class="prompt-template-category-manage-list">
       ${categories.map((category) => `
-        <div class="prompt-template-category-manage-row" data-prompt-template-category-row="${escapeHtml10(category.id)}">
-          <input class="control" type="text" maxlength="32" value="${escapeHtml10(category.name)}" data-prompt-template-category-name>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>${escapeHtml10(translate("action.save"))}</button>
-          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === PROMPT_TEMPLATE_CATEGORY_COMMON ? "disabled" : ""}>${escapeHtml10(translate("action.delete"))}</button>
+        <div class="prompt-template-category-manage-row" data-prompt-template-category-row="${escapeHtml11(category.id)}">
+          <input class="control" type="text" maxlength="32" value="${escapeHtml11(category.name)}" data-prompt-template-category-name>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-category-rename>${escapeHtml11(translate("action.save"))}</button>
+          <button class="ghost-button text-sm quiet-danger-button" type="button" data-prompt-template-category-delete ${category.id === PROMPT_TEMPLATE_CATEGORY_COMMON ? "disabled" : ""}>${escapeHtml11(translate("action.delete"))}</button>
         </div>
       `).join("")}
     </div>
@@ -40882,9 +43405,9 @@ ${hint}` : hint;
   function renderPromptTemplateList() {
     if (!els15.promptTemplateList) return;
     const templates = promptTemplatesForDisplay();
-    const statusHtml = promptTemplateLoading ? `<div class="prompt-template-load-state is-loading" role="status">${escapeHtml10(translate("history.loading"))}</div>` : promptTemplateLoadError ? `<div class="prompt-template-load-state is-error" role="alert">
-          <span>${escapeHtml10(promptTemplateLoadError)}</span>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-retry>${escapeHtml10(translate("action.refresh"))}</button>
+    const statusHtml = promptTemplateLoading ? `<div class="prompt-template-load-state is-loading" role="status">${escapeHtml11(translate("history.loading"))}</div>` : promptTemplateLoadError ? `<div class="prompt-template-load-state is-error" role="alert">
+          <span>${escapeHtml11(promptTemplateLoadError)}</span>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-retry>${escapeHtml11(translate("action.refresh"))}</button>
         </div>` : "";
     if (els15.promptTemplateSummary) {
       els15.promptTemplateSummary.className = `prompt-template-summary${promptTemplateLoadError ? " is-error" : ""}`;
@@ -40895,13 +43418,13 @@ ${hint}` : hint;
       return;
     }
     els15.promptTemplateList.innerHTML = statusHtml + templates.map((template) => `
-    <button class="prompt-template-card" type="button" data-prompt-template-id="${escapeHtml10(template.id)}">
-      ${template.thumbnail_url ? `<span class="prompt-template-card-thumb"><img src="${escapeHtml10(template.thumbnail_url)}" alt="" loading="lazy" decoding="async"></span>` : ""}
-      <span class="prompt-template-card-title">${escapeHtml10(promptTemplateCardTitle(template))}</span>
-      ${promptTemplateCardSubtitle(template) ? `<span class="prompt-template-card-subtitle">${escapeHtml10(promptTemplateCardSubtitle(template))}</span>` : ""}
-      <span class="prompt-template-card-preview">${escapeHtml10(promptTemplatePreview(template.content, 64))}</span>
+    <button class="prompt-template-card" type="button" data-prompt-template-id="${escapeHtml11(template.id)}">
+      ${template.thumbnail_url ? `<span class="prompt-template-card-thumb"><img src="${escapeHtml11(template.thumbnail_url)}" alt="" loading="lazy" decoding="async"></span>` : ""}
+      <span class="prompt-template-card-title">${escapeHtml11(promptTemplateCardTitle(template))}</span>
+      ${promptTemplateCardSubtitle(template) ? `<span class="prompt-template-card-subtitle">${escapeHtml11(promptTemplateCardSubtitle(template))}</span>` : ""}
+      <span class="prompt-template-card-preview">${escapeHtml11(promptTemplatePreview(template.content, 64))}</span>
       <span class="prompt-template-card-meta">
-        <span>${escapeHtml10(promptTemplateCategoryLabel(template.category))}</span>
+        <span>${escapeHtml11(promptTemplateCategoryLabel(template.category))}</span>
         <span>${template.favorite ? translate("templates.favoriteBadge") : formatTranslation("templates.usageCount", { count: template.usage_count || 0 })}</span>
       </span>
     </button>
@@ -40925,8 +43448,8 @@ ${hint}` : hint;
       return;
     }
     els15.promptTemplateRecentDock.innerHTML = recent.map((template) => `
-    <button class="prompt-template-recent-chip" type="button" data-prompt-template-insert="${escapeHtml10(template.id)}">
-      ${escapeHtml10(template.short_title)}
+    <button class="prompt-template-recent-chip" type="button" data-prompt-template-insert="${escapeHtml11(template.id)}">
+      ${escapeHtml11(template.short_title)}
     </button>
   `).join("");
     els15.promptTemplateRecentDock.classList.remove("hidden");
@@ -40939,23 +43462,23 @@ ${hint}` : hint;
     els15.promptTemplateDetail.innerHTML = `
     <div class="prompt-template-detail-header">
       <button class="ghost-button prompt-template-detail-back" type="button" data-prompt-template-back>${translate("templates.back")}</button>
-      <button class="ghost-button prompt-template-detail-edit" type="button" data-prompt-template-edit="${escapeHtml10(template.id)}">${translate("templates.edit")}</button>
+      <button class="ghost-button prompt-template-detail-edit" type="button" data-prompt-template-edit="${escapeHtml11(template.id)}">${translate("templates.edit")}</button>
     </div>
-    ${template.thumbnail_url ? `<img class="prompt-template-detail-thumb" src="${escapeHtml10(template.thumbnail_url)}" alt="" loading="lazy" decoding="async">` : ""}
-    <h3>${escapeHtml10(template.title)}</h3>
+    ${template.thumbnail_url ? `<img class="prompt-template-detail-thumb" src="${escapeHtml11(template.thumbnail_url)}" alt="" loading="lazy" decoding="async">` : ""}
+    <h3>${escapeHtml11(template.title)}</h3>
     <div class="prompt-template-detail-meta">
-      <span>${escapeHtml10(promptTemplateCategoryLabel(template.category))}</span>
-      <span>${escapeHtml10(template.model_hint)}</span>
+      <span>${escapeHtml11(promptTemplateCategoryLabel(template.category))}</span>
+      <span>${escapeHtml11(template.model_hint)}</span>
       ${template.favorite ? `<span>${translate("templates.favoriteBadge")}</span>` : ""}
     </div>
-    <div class="prompt-template-detail-content">${escapeHtml10(template.content)}</div>
-    ${template.notes ? `<p class="prompt-template-detail-notes">${escapeHtml10(template.notes)}</p>` : ""}
+    <div class="prompt-template-detail-content">${escapeHtml11(template.content)}</div>
+    ${template.notes ? `<p class="prompt-template-detail-notes">${escapeHtml11(template.notes)}</p>` : ""}
     <div class="prompt-template-detail-actions">
       <div class="prompt-template-detail-secondary-actions">
-        <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml10(template.id)}">${translate("templates.copy")}</button>
-        <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml10(template.id)}">${translate("templates.insert")}</button>
+        <button class="ghost-button text-sm" type="button" data-prompt-template-copy="${escapeHtml11(template.id)}">${translate("templates.copy")}</button>
+        <button class="ghost-button text-sm" type="button" data-prompt-template-insert="${escapeHtml11(template.id)}">${translate("templates.insert")}</button>
       </div>
-      <button class="ghost-button text-sm prompt-template-detail-replace" type="button" data-prompt-template-replace="${escapeHtml10(template.id)}">${translate("action.replace")}</button>
+      <button class="ghost-button text-sm prompt-template-detail-replace" type="button" data-prompt-template-replace="${escapeHtml11(template.id)}">${translate("action.replace")}</button>
     </div>
   `;
     els15.promptTemplateList?.classList.add("hidden");
@@ -40992,9 +43515,9 @@ ${hint}` : hint;
     if (!template) return;
     try {
       await navigator.clipboard.writeText(template.content);
-      setStatus13(translate("templates.copied"), "ok");
+      setStatus15(translate("templates.copied"), "ok");
     } catch {
-      setStatus13(translate("templates.copyFailed"), "error");
+      setStatus15(translate("templates.copyFailed"), "error");
     }
   }
   function renderPromptTemplateForm(template = null) {
@@ -41014,51 +43537,51 @@ ${hint}` : hint;
     els15.promptTemplateList?.classList.add("hidden");
     const categories = promptTemplateCategoriesForSelect(value.category);
     els15.promptTemplateForm.innerHTML = `
-    <form class="prompt-template-form" data-prompt-template-form-id="${escapeHtml10(value.id || "")}">
+    <form class="prompt-template-form" data-prompt-template-form-id="${escapeHtml11(value.id || "")}">
       <div class="prompt-template-form-header">
-        <button class="ghost-button text-sm" type="button" data-prompt-template-back>${escapeHtml10(translate("templates.back"))}</button>
-        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml10(value.id)}">${escapeHtml10(translate("action.delete"))}</button>` : ""}
+        <button class="ghost-button text-sm" type="button" data-prompt-template-back>${escapeHtml11(translate("templates.back"))}</button>
+        ${value.id ? `<button class="ghost-button text-sm danger-button" type="button" data-prompt-template-delete="${escapeHtml11(value.id)}">${escapeHtml11(translate("action.delete"))}</button>` : ""}
       </div>
       <label class="prompt-template-field">
-        <span>${escapeHtml10(translate("templates.formTitle"))}</span>
-        <input class="control" type="text" maxlength="80" value="${escapeHtml10(value.title || "")}" data-prompt-template-title>
+        <span>${escapeHtml11(translate("templates.formTitle"))}</span>
+        <input class="control" type="text" maxlength="80" value="${escapeHtml11(value.title || "")}" data-prompt-template-title>
       </label>
       <label class="prompt-template-field">
-        <span>${escapeHtml10(translate("templates.formShortTitle"))}</span>
-        <input class="control" type="text" maxlength="12" value="${escapeHtml10(value.short_title || "")}" data-prompt-template-short-title>
+        <span>${escapeHtml11(translate("templates.formShortTitle"))}</span>
+        <input class="control" type="text" maxlength="12" value="${escapeHtml11(value.short_title || "")}" data-prompt-template-short-title>
       </label>
       <label class="prompt-template-field">
-        <span>${escapeHtml10(translate("templates.formCategory"))}</span>
+        <span>${escapeHtml11(translate("templates.formCategory"))}</span>
         <select class="control" data-prompt-template-category-input>
-          ${categories.map((category) => `<option value="${escapeHtml10(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml10(promptTemplateCategoryLabel(category.name))}</option>`).join("")}
+          ${categories.map((category) => `<option value="${escapeHtml11(category.id)}" ${category.id === value.category ? "selected" : ""}>${escapeHtml11(promptTemplateCategoryLabel(category.name))}</option>`).join("")}
         </select>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>${escapeHtml10(translate("templates.formTags"))}</span>
-        <input class="control" type="text" value="${escapeHtml10((value.tags || []).join("\uFF0C"))}" data-prompt-template-tags>
+        <span>${escapeHtml11(translate("templates.formTags"))}</span>
+        <input class="control" type="text" value="${escapeHtml11((value.tags || []).join("\uFF0C"))}" data-prompt-template-tags>
       </label>
       <div class="prompt-template-field prompt-template-field-full prompt-template-thumbnail-field">
-        <span>${escapeHtml10(translate("templates.formThumbnail"))}</span>
-        <input type="hidden" value="${escapeHtml10(value.thumbnail_url || "")}" data-prompt-template-thumbnail-url>
+        <span>${escapeHtml11(translate("templates.formThumbnail"))}</span>
+        <input type="hidden" value="${escapeHtml11(value.thumbnail_url || "")}" data-prompt-template-thumbnail-url>
         <div class="prompt-template-thumbnail-row">
           <div class="prompt-template-thumbnail-preview" data-prompt-template-thumbnail-preview></div>
-          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>${escapeHtml10(translate("templates.thumbnailClear"))}</button>
+          <button class="ghost-button text-sm" type="button" data-prompt-template-thumbnail-clear>${escapeHtml11(translate("templates.thumbnailClear"))}</button>
         </div>
         <div class="prompt-template-thumbnail-picker" data-prompt-template-thumbnail-picker></div>
       </div>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>${escapeHtml10(translate("templates.formContent"))}</span>
-        <textarea class="control prompt-template-textarea" maxlength="8000" data-prompt-template-content>${escapeHtml10(value.content || "")}</textarea>
+        <span>${escapeHtml11(translate("templates.formContent"))}</span>
+        <textarea class="control prompt-template-textarea" maxlength="8000" data-prompt-template-content>${escapeHtml11(value.content || "")}</textarea>
       </label>
       <label class="prompt-template-field prompt-template-field-full">
-        <span>${escapeHtml10(translate("templates.formNotes"))}</span>
-        <textarea class="control prompt-template-notes" maxlength="500" data-prompt-template-notes>${escapeHtml10(value.notes || "")}</textarea>
+        <span>${escapeHtml11(translate("templates.formNotes"))}</span>
+        <textarea class="control prompt-template-notes" maxlength="500" data-prompt-template-notes>${escapeHtml11(value.notes || "")}</textarea>
       </label>
       <label class="prompt-template-check">
         <input type="checkbox" ${value.favorite ? "checked" : ""} data-prompt-template-favorite>
-        <span>${escapeHtml10(translate("templates.formFavorite"))}</span>
+        <span>${escapeHtml11(translate("templates.formFavorite"))}</span>
       </label>
-      <button class="run-button prompt-template-save" type="submit">${escapeHtml10(translate("action.save"))}</button>
+      <button class="run-button prompt-template-save" type="submit">${escapeHtml11(translate("action.save"))}</button>
     </form>
   `;
     els15.promptTemplateForm.classList.remove("hidden");
@@ -41103,17 +43626,17 @@ ${hint}` : hint;
     const input = form.querySelector("[data-prompt-template-thumbnail-url]");
     if (input) input.value = selectedUrl;
     if (preview) {
-      preview.innerHTML = selectedUrl ? `<img src="${escapeHtml10(selectedUrl)}" alt=""><span>${escapeHtml10(promptTemplatePreview(selectedUrl, 30))}</span>` : `<span>${escapeHtml10(translate("templates.thumbnailNone"))}</span>`;
+      preview.innerHTML = selectedUrl ? `<img src="${escapeHtml11(selectedUrl)}" alt=""><span>${escapeHtml11(promptTemplatePreview(selectedUrl, 30))}</span>` : `<span>${escapeHtml11(translate("templates.thumbnailNone"))}</span>`;
     }
     if (!picker) return;
     const thumbnails = historyTemplateThumbnails();
     if (!thumbnails.length) {
-      picker.innerHTML = `<div class="prompt-template-thumbnail-empty">${escapeHtml10(translate("templates.thumbnailEmpty"))}</div>`;
+      picker.innerHTML = `<div class="prompt-template-thumbnail-empty">${escapeHtml11(translate("templates.thumbnailEmpty"))}</div>`;
       return;
     }
     picker.innerHTML = thumbnails.map((item) => `
-    <button class="prompt-template-thumbnail-option ${item.url === selectedUrl ? "active" : ""}" type="button" data-prompt-template-thumbnail-select="${escapeHtml10(item.url)}" title="${escapeHtml10(item.label)}">
-      <img src="${escapeHtml10(item.url)}" alt="">
+    <button class="prompt-template-thumbnail-option ${item.url === selectedUrl ? "active" : ""}" type="button" data-prompt-template-thumbnail-select="${escapeHtml11(item.url)}" title="${escapeHtml11(item.label)}">
+      <img src="${escapeHtml11(item.url)}" alt="">
     </button>
   `).join("");
   }
@@ -41150,9 +43673,9 @@ ${hint}` : hint;
       if (!response.ok) throw new Error(data.detail || translate("templates.saveFailed"));
       applyPromptTemplateSettingsResponse(data);
       hidePromptTemplateForm();
-      setStatus13(translate("templates.saved"), "ok");
+      setStatus15(translate("templates.saved"), "ok");
     } catch (error) {
-      setStatus13(error.message || translate("templates.saveFailed"), "error");
+      setStatus15(error.message || translate("templates.saveFailed"), "error");
     }
   }
   async function deletePromptTemplate(template) {
@@ -41164,9 +43687,9 @@ ${hint}` : hint;
       applyPromptTemplateSettingsResponse(data);
       hidePromptTemplateForm();
       hidePromptTemplateDetail();
-      setStatus13(translate("templates.deleted"), "ok");
+      setStatus15(translate("templates.deleted"), "ok");
     } catch (error) {
-      setStatus13(error.message || translate("templates.deleteFailed"), "error");
+      setStatus15(error.message || translate("templates.deleteFailed"), "error");
     }
   }
   async function createPromptTemplateCategory(name) {
@@ -41182,9 +43705,9 @@ ${hint}` : hint;
       if (!response.ok) throw new Error(data.detail || translate("templates.categoryAddFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13(translate("templates.categoryAdded"), "ok");
+      setStatus15(translate("templates.categoryAdded"), "ok");
     } catch (error) {
-      setStatus13(error.message || translate("templates.categoryAddFailed"), "error");
+      setStatus15(error.message || translate("templates.categoryAddFailed"), "error");
     }
   }
   async function updatePromptTemplateCategory(categoryId, name) {
@@ -41200,9 +43723,9 @@ ${hint}` : hint;
       if (!response.ok) throw new Error(data.detail || translate("templates.categorySaveFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13(translate("templates.categorySaved"), "ok");
+      setStatus15(translate("templates.categorySaved"), "ok");
     } catch (error) {
-      setStatus13(error.message || translate("templates.categorySaveFailed"), "error");
+      setStatus15(error.message || translate("templates.categorySaveFailed"), "error");
     }
   }
   async function deletePromptTemplateCategory(categoryId) {
@@ -41213,9 +43736,9 @@ ${hint}` : hint;
       if (!response.ok) throw new Error(data.detail || translate("templates.categoryDeleteFailed"));
       applyPromptTemplateSettingsResponse(data);
       renderPromptTemplateCategoryPanel();
-      setStatus13(translate("templates.categoryDeleted"), "ok");
+      setStatus15(translate("templates.categoryDeleted"), "ok");
     } catch (error) {
-      setStatus13(error.message || translate("templates.categoryDeleteFailed"), "error");
+      setStatus15(error.message || translate("templates.categoryDeleteFailed"), "error");
     }
   }
   async function importPromptTemplatePack(file) {
@@ -41229,11 +43752,11 @@ ${hint}` : hint;
       applyPromptTemplateSettingsResponse(data);
       const message = formatTranslation("templates.importedCount", { count: data.imported || 0 });
       setPromptTemplateSummary(message, "ok");
-      setStatus13(message, "ok");
+      setStatus15(message, "ok");
     } catch (error) {
       const message = error.message || translate("templates.importFailed");
       setPromptTemplateSummary(message, "error");
-      setStatus13(message, "error");
+      setStatus15(message, "error");
     }
   }
   async function exportPromptTemplatePack() {
@@ -41266,11 +43789,11 @@ ${hint}` : hint;
         link.remove();
       }, 0);
       setPromptTemplateSummary(translate("templates.exported"), "ok");
-      setStatus13(translate("templates.exported"), "ok");
+      setStatus15(translate("templates.exported"), "ok");
     } catch (error) {
       const message = error.message || translate("templates.exportFailed");
       setPromptTemplateSummary(message, "error");
-      setStatus13(message, "error");
+      setStatus15(message, "error");
     } finally {
       if (button) button.disabled = false;
     }
@@ -41749,7 +44272,7 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function escapeHtml11(value) {
+  function escapeHtml12(value) {
     return legacyMethod21("escapeHtml", value);
   }
   function categoryLabel5(category) {
@@ -41832,10 +44355,10 @@ ${hint}` : hint;
       return;
     }
     els17.mentionSuggest.innerHTML = items.map((item) => `
-    <button type="button" class="mention-option" data-mention-id="${escapeHtml11(item.id)}">
-      <img src="${escapeHtml11(item.image_url)}" alt="">
-      <span>@${escapeHtml11(item.name)}</span>
-      <small>${escapeHtml11(categoryLabel5(item.category))}</small>
+    <button type="button" class="mention-option" data-mention-id="${escapeHtml12(item.id)}">
+      <img src="${escapeHtml12(item.image_url)}" alt="">
+      <span>@${escapeHtml12(item.name)}</span>
+      <small>${escapeHtml12(categoryLabel5(item.category))}</small>
     </button>
   `).join("");
     els17.mentionSuggest.querySelectorAll("[data-mention-id]").forEach((button) => {
@@ -43197,7 +45720,7 @@ ${galleryText}`;
     }
     return method(...args);
   }
-  function escapeHtml12(value) {
+  function escapeHtml13(value) {
     return legacyMethod28("escapeHtml", value);
   }
   function mainModelOptionsForQuery(query) {
@@ -43233,7 +45756,7 @@ ${galleryText}`;
     const options = mainModelOptionsForQuery(query);
     state16.mainModelOptionIndex = Math.min(Math.max(0, state16.mainModelOptionIndex), Math.max(0, options.length - 1));
     if (!options.length) {
-      els24.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">${escapeHtml12(translate("output.mainModelCustomForInput"))}</div>`;
+      els24.mainModelOptions.innerHTML = `<div class="model-combobox-empty" role="option" aria-disabled="true">${escapeHtml13(translate("output.mainModelCustomForInput"))}</div>`;
       els24.mainModel.removeAttribute("aria-activedescendant");
       return;
     }
@@ -43247,8 +45770,8 @@ ${galleryText}`;
         type="button"
         role="option"
         aria-selected="${selected ? "true" : "false"}"
-        data-main-model-option="${escapeHtml12(model)}"
-      >${escapeHtml12(model)}</button>
+        data-main-model-option="${escapeHtml13(model)}"
+      >${escapeHtml13(model)}</button>
     `;
     }).join("");
     els24.mainModel.setAttribute("aria-activedescendant", `mainModelOption-${state16.mainModelOptionIndex}`);
@@ -44148,7 +46671,7 @@ ${galleryText}`;
 
   // codex_image/webui/frontend/src/output-settings-lock.ts
   var STORAGE_KEY = "codex-image-output-settings-lock-v1";
-  var initialized3 = false;
+  var initialized4 = false;
   var locked = false;
   var lockedSnapshot = null;
   var taskSnapshot = null;
@@ -44540,8 +47063,8 @@ ${galleryText}`;
     updateLockButton();
   }
   function initOutputSettingsLockFeature() {
-    if (initialized3) return;
-    initialized3 = true;
+    if (initialized4) return;
+    initialized4 = true;
     Object.assign(getLegacyBridge().methods, {
       isOutputSettingsLocked,
       restoreOutputSettingsLock,
@@ -44999,7 +47522,7 @@ ${galleryText}`;
     }
     return method(...args);
   }
-  function escapeHtml13(...args) {
+  function escapeHtml14(...args) {
     return legacyMethod31("escapeHtml", ...args);
   }
   function updateDocumentTitle(...args) {
@@ -45126,7 +47649,7 @@ ${galleryText}`;
     if (!tasks.length) {
       expandedTaskGroupRenderToken += 1;
       renderExpandedTaskGroupHeader(null);
-      els28.taskList.innerHTML = `<div class="task-meta">${escapeHtml13(translate("taskList.empty"))}</div>`;
+      els28.taskList.innerHTML = `<div class="task-meta">${escapeHtml14(translate("taskList.empty"))}</div>`;
       updateDocumentTitle();
       restoreTaskListScrollAnchors(scrollAnchors);
       scheduleLatestTaskNavigationRefresh();
@@ -45508,7 +48031,7 @@ ${galleryText}`;
     }
   }
   function expandedTaskGroupHeaderHtml(group, options = {}) {
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     const startExpanded = options.startExpanded !== false;
     return `
     <button
@@ -45517,11 +48040,11 @@ ${galleryText}`;
       data-task-group-toggle-key="${groupKey}"
       data-task-group-expanded="true"
       aria-expanded="${startExpanded ? "true" : "false"}"
-      aria-label="${escapeHtml13(formatTranslation("taskGroup.collapse", { label: group.label }))}"
+      aria-label="${escapeHtml14(formatTranslation("taskGroup.collapse", { label: group.label }))}"
     >
       <span class="task-group-label-button">
         <span class="task-group-title">
-          <span class="task-group-label">${escapeHtml13(group.label)}</span>
+          <span class="task-group-label">${escapeHtml14(group.label)}</span>
           <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
           <span class="task-group-count">${taskGroupCount(group)}</span>
         </span>
@@ -45546,7 +48069,7 @@ ${galleryText}`;
     els28.taskHistoryCurrentAnchor.classList.toggle("hidden", !html);
   }
   function renderExpandedTaskGroupBodyShellHtml(group) {
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     return `
     <section class="task-group task-group-expanded" data-task-group="${groupKey}">
       <div class="task-group-items task-group-items-expanded" data-expanded-task-group-items-key="${groupKey}"></div>
@@ -45554,7 +48077,7 @@ ${galleryText}`;
   `;
   }
   function renderExpandedTaskGroupShellHtml(group, options = {}) {
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     return `
     <section class="task-group task-group-expanded" data-task-group="${groupKey}">
       ${expandedTaskGroupHeaderHtml(group, options)}
@@ -45586,7 +48109,7 @@ ${galleryText}`;
     <div ${sectionClass} ${sectionData}>
       <div class="task-active-section-title">
         <span class="task-active-section-heading">
-          <span>${escapeHtml13(label)}</span>
+          <span>${escapeHtml14(label)}</span>
           <span class="task-active-section-count-separator" aria-hidden="true">\xB7</span>
           <span class="task-active-section-count">${tasks.length}</span>
         </span>
@@ -45618,7 +48141,7 @@ ${galleryText}`;
     };
   }
   function activeTaskGroupHtml(group) {
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     const sections = activeTaskSections(group.tasks || []);
     const dispatchPending = Boolean(legacyMethod31("isQueueDispatchPending"));
     const collapsed = Boolean(state19.activeTaskGroupCollapsed);
@@ -45627,9 +48150,9 @@ ${galleryText}`;
       activeTaskSectionHtml("waiting", translate("taskGroup.waiting"), sections.waiting),
       !sections.running.length && !sections.waiting.length && dispatchPending ? activeTaskDispatchPendingHtml() : ""
     ].join("");
-    const activeLabel = escapeHtml13(group.label);
+    const activeLabel = escapeHtml14(group.label);
     const activeCount = group.tasks.length;
-    const toggleLabel = escapeHtml13(formatTranslation(collapsed ? "taskGroup.expand" : "taskGroup.collapse", { label: group.label }));
+    const toggleLabel = escapeHtml14(formatTranslation(collapsed ? "taskGroup.expand" : "taskGroup.collapse", { label: group.label }));
     return `
     <section class="task-group task-group-expanded task-group-active${collapsed ? " task-active-collapsed" : ""}" data-task-group="${groupKey}">
       <button
@@ -45661,7 +48184,7 @@ ${galleryText}`;
   `;
   }
   function expandedTaskGroupHtml(group) {
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     return `
     <section class="task-group task-group-expanded" data-task-group="${groupKey}">
       ${expandedTaskGroupHeaderHtml(group)}
@@ -45698,7 +48221,7 @@ ${galleryText}`;
   }
   function taskQueueReorderHintHtml(waitingCount) {
     if (!taskQueueReorderHintVisible(waitingCount)) return "";
-    return `<span class="task-queue-reorder-hint">${escapeHtml13(translate("queue.dragWaiting"))}</span>`;
+    return `<span class="task-queue-reorder-hint">${escapeHtml14(translate("queue.dragWaiting"))}</span>`;
   }
   function taskCardSwipeActionLabel(action) {
     if (action === "archive") return translate("action.archive");
@@ -45715,13 +48238,13 @@ ${galleryText}`;
   }
   function taskCardSwipeActionHtml(action) {
     if (!action) return "";
-    const label = escapeHtml13(taskCardSwipeActionLabel(action));
-    const title = escapeHtml13(taskCardSwipeActionTitle(action));
+    const label = escapeHtml14(taskCardSwipeActionLabel(action));
+    const title = escapeHtml14(taskCardSwipeActionTitle(action));
     return `<button class="task-card-swipe-action task-card-swipe-${action}" type="button" data-task-card-action="${action}" aria-label="${title}" title="${title}" tabindex="-1" disabled>${label}</button>`;
   }
   function taskCardSwipeActionsHtml(actions) {
     if (!actions.positive && !actions.negative) return "";
-    const actionGroupLabel = escapeHtml13(translate("taskActions.group"));
+    const actionGroupLabel = escapeHtml14(translate("taskActions.group"));
     return `
       <div class="task-card-swipe-actions" role="group" aria-label="${actionGroupLabel}" aria-hidden="true" inert>
         ${taskCardSwipeActionHtml(actions.positive)}
@@ -45742,43 +48265,43 @@ ${galleryText}`;
     const activeCurrent = active ? ' aria-current="true"' : "";
     const unread = taskHasUnreadUpdate(task);
     const unreadClass = unread ? " unread" : "";
-    const statusClass = task.status ? ` ${escapeHtml13(task.status)}` : "";
-    const title = escapeHtml13(task.prompt || task.mode || "Untitled");
-    const taskId = escapeHtml13(task.task_id);
+    const statusClass = task.status ? ` ${escapeHtml14(task.status)}` : "";
+    const title = escapeHtml14(task.prompt || task.mode || "Untitled");
+    const taskId = escapeHtml14(task.task_id);
     const showImageSummary = taskImageSummaryVisible(task);
     const imageBlocks = showImageSummary ? taskImageBlocksHtml(task) : "";
-    const imageSummary = showImageSummary ? escapeHtml13(taskImageSummaryText(task)) : "";
+    const imageSummary = showImageSummary ? escapeHtml14(taskImageSummaryText(task)) : "";
     const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";
     const groundingCount = groundingSourceCount(task);
-    const groundingHtml = groundingCount > 0 ? `<span class="task-grounding-badge">${escapeHtml13(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>` : "";
+    const groundingHtml = groundingCount > 0 ? `<span class="task-grounding-badge">${escapeHtml14(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>` : "";
     const retryFullText = taskRetryStateText2(task);
     const retryText = taskCardRetryStateText(task) || retryFullText;
     const runningTimerHtml = taskCardRunningTimerHtml(task, taskId);
     const statusLabel = taskStatusLabelHtml(task);
     const modelFamilyIcon = taskModelFamilyIconHtml(task);
     const statusMetaText = retryText ? taskMetaDetailsWithCompletionText(task) : taskMetaDetailsText2(task);
-    const statusMeta = escapeHtml13(statusMetaText);
+    const statusMeta = escapeHtml14(statusMetaText);
     const taskTime = taskCardCompletionTimeText(task);
     const runtime = taskCardRuntimeText2(task);
     const runtimeFullText = taskRuntimeText(task);
     const completionTitle = taskCompletionTimestampTitle(task);
     const runtimeTitleText = [runtimeFullText, completionTitle].filter(Boolean).join(" \xB7 ");
-    const runtimeTitle = runtimeTitleText ? ` title="${escapeHtml13(runtimeTitleText)}"` : "";
-    const runtimeHtml = runtime ? `<span class="task-runtime" data-task-runtime-id="${taskId}" data-task-completed-at-id="${taskId}"${runtimeTitle}>${escapeHtml13(runtime)}</span>` : "";
+    const runtimeTitle = runtimeTitleText ? ` title="${escapeHtml14(runtimeTitleText)}"` : "";
+    const runtimeHtml = runtime ? `<span class="task-runtime" data-task-runtime-id="${taskId}" data-task-completed-at-id="${taskId}"${runtimeTitle}>${escapeHtml14(runtime)}</span>` : "";
     const topTimeHtml = runningTimerHtml || runtimeHtml;
     const imageRow = showImageSummary ? `
           <span class="task-image-row">
             ${imageBlocks}
-            <span class="task-status-row task-status-inline" aria-label="${escapeHtml13(taskStatusAccessibleLabel2(task))}">
+            <span class="task-status-row task-status-inline" aria-label="${escapeHtml14(taskStatusAccessibleLabel2(task))}">
               ${statusLabel}
               ${modelFamilyIcon}
             </span>
             ${imageSummaryHtml}
           </span>
     ` : "";
-    const retryTitle = retryFullText && retryFullText !== retryText ? ` title="${escapeHtml13(retryFullText)}"` : "";
-    const retryHtml = retryText ? `<span class="task-retry-state" data-task-retry-id="${taskId}"${retryTitle}>${escapeHtml13(retryText)}</span>` : "";
-    const timeHtml = !retryText && taskTime ? `<span class="task-card-time">${escapeHtml13(taskTime)}</span>` : "";
+    const retryTitle = retryFullText && retryFullText !== retryText ? ` title="${escapeHtml14(retryFullText)}"` : "";
+    const retryHtml = retryText ? `<span class="task-retry-state" data-task-retry-id="${taskId}"${retryTitle}>${escapeHtml14(retryText)}</span>` : "";
+    const timeHtml = !retryText && taskTime ? `<span class="task-card-time">${escapeHtml14(taskTime)}</span>` : "";
     const detailRightHtml = retryHtml || timeHtml;
     const detailRowClass = detailRightHtml ? "task-detail-row" : "task-detail-row task-detail-row-meta-only";
     const detailRow = statusMeta || detailRightHtml ? `
@@ -45792,10 +48315,10 @@ ${galleryText}`;
     const batchSelectedClass = batchSelected ? " batch-selected" : "";
     const queueIds = queueTaskIdsBySection();
     const queueSection = taskQueueSection(task, queueIds);
-    const queueClass = queueSection ? ` queue-${escapeHtml13(queueSection)}` : "";
+    const queueClass = queueSection ? ` queue-${escapeHtml14(queueSection)}` : "";
     const waitingIndexValue = waitingQueueIndex(task.task_id, queueIds);
     const queueReorderable = queueSection === "waiting" && waitingIndexValue >= 0 && (state19.queue.waiting || []).length > 1;
-    const queueReorderDescription = queueReorderable ? escapeHtml13(translate("queue.dragWaiting")) : "";
+    const queueReorderDescription = queueReorderable ? escapeHtml14(translate("queue.dragWaiting")) : "";
     const queueReorderData = queueReorderable ? ` data-queue-reorderable="true" aria-description="${queueReorderDescription}"` : "";
     const queueTaskData = queueSection === "waiting" ? ` data-queue-task-id="${taskId}"${queueReorderData}` : "";
     const swipeActions = taskCardSwipeActionsForState(
@@ -45805,16 +48328,16 @@ ${galleryText}`;
     );
     const swipeEnabled = Boolean(swipeActions.positive || swipeActions.negative);
     const swipeActionsHtml = taskCardSwipeActionsHtml(swipeActions);
-    const swipeKeyboardShortcuts = escapeHtml13(taskCardSwipeKeyboardShortcuts(swipeActions, queueReorderable));
+    const swipeKeyboardShortcuts = escapeHtml14(taskCardSwipeKeyboardShortcuts(swipeActions, queueReorderable));
     const batchSelect = state19.batchMode ? `
-      <button class="task-select-button" type="button" role="checkbox" data-batch-select-task-id="${taskId}" aria-checked="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml13(translate("taskList.selectSession"))}">
+      <button class="task-select-button" type="button" role="checkbox" data-batch-select-task-id="${taskId}" aria-checked="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml14(translate("taskList.selectSession"))}">
         <span></span>
       </button>
     ` : "";
-    const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml13(translate("taskList.unreadUpdate"))}"></span>` : "";
-    const activeLabel = escapeHtml13(translate("taskList.viewing"));
+    const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml14(translate("taskList.unreadUpdate"))}"></span>` : "";
+    const activeLabel = escapeHtml14(translate("taskList.viewing"));
     return `
-    <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}" data-task-swipe-enabled="${swipeEnabled ? "true" : "false"}" data-task-swipe-positive-action="${escapeHtml13(swipeActions.positive || "")}" data-task-swipe-negative-action="${escapeHtml13(swipeActions.negative || "")}" data-active-label="${activeLabel}" aria-keyshortcuts="${swipeKeyboardShortcuts}"${activeCurrent}${queueTaskData}>
+    <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}" data-task-swipe-enabled="${swipeEnabled ? "true" : "false"}" data-task-swipe-positive-action="${escapeHtml14(swipeActions.positive || "")}" data-task-swipe-negative-action="${escapeHtml14(swipeActions.negative || "")}" data-active-label="${activeLabel}" aria-keyshortcuts="${swipeKeyboardShortcuts}"${activeCurrent}${queueTaskData}>
       ${swipeActionsHtml}
       <div class="task-card-swipe-surface">
         ${batchSelect}
@@ -45912,8 +48435,8 @@ ${galleryText}`;
     if (!tasks.some((task) => !isAlwaysVisibleTask(task))) return "";
     return `
     <a class="task-history-library-card" href="/history">
-      <span>${escapeHtml13(translate("footer.historyLibrary"))}</span>
-      <small>${escapeHtml13(translate("historyLibrary.openFull"))}</small>
+      <span>${escapeHtml14(translate("footer.historyLibrary"))}</span>
+      <small>${escapeHtml14(translate("historyLibrary.openFull"))}</small>
     </a>
   `;
   }
@@ -45967,7 +48490,7 @@ ${galleryText}`;
     if (!group?.key || loadedCount >= totalCount) return "";
     const loading = String(state19.taskSidebarGroupLoading || "") === String(group.key);
     const failed = String(state19.taskSidebarGroupLoadError || "") === String(group.key);
-    const groupKey = escapeHtml13(group.key);
+    const groupKey = escapeHtml14(group.key);
     if (loading) {
       return `
       <div
@@ -45986,7 +48509,7 @@ ${galleryText}`;
         class="ghost-button text-sm task-group-load-more task-group-load-more-error"
         type="button"
         data-load-more-task-group="${groupKey}"
-      >${escapeHtml13(translate("taskGroup.loadFailedRetry"))}</button>
+      >${escapeHtml14(translate("taskGroup.loadFailedRetry"))}</button>
     `;
     }
     return `
@@ -46078,54 +48601,54 @@ ${galleryText}`;
     const loading = taskThumbShowsLoading(task);
     const outputImageUrl = outputThumbnailUrl || outputUrl || (!loading ? task.preview_url : "");
     const imageUrl = outputImageUrl || inputPreviewUrl || task.preview_url;
-    const safeClassName = escapeHtml13(className);
+    const safeClassName = escapeHtml14(className);
     const loadingSpinner = loading ? `<span class="task-thumb-stack-spinner" aria-hidden="true"${taskThumbSpinnerStyle(task)}></span>` : "";
     if (outputImageUrl && inputPreviewUrl && outputImageUrl !== inputPreviewUrl) {
-      const imageToImageLabel = escapeHtml13(translate("taskCard.imageToImageThumb"));
+      const imageToImageLabel = escapeHtml14(translate("taskCard.imageToImageThumb"));
       return `
       <div class="${safeClassName} task-thumb-stack" aria-label="${imageToImageLabel}">
-        <img class="task-thumb-output" src="${escapeHtml13(outputImageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        <img class="task-thumb-output" src="${escapeHtml14(outputImageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
         <span class="task-thumb-reference-badge" aria-hidden="true">
-          <img class="task-thumb-reference" src="${escapeHtml13(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+          <img class="task-thumb-reference" src="${escapeHtml14(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
         </span>
         ${loadingSpinner}
       </div>
     `;
     }
     if (inputPreviewUrl && loading) {
-      const imageToImageLabel = escapeHtml13(translate("taskCard.imageToImageThumb"));
+      const imageToImageLabel = escapeHtml14(translate("taskCard.imageToImageThumb"));
       return `
       <div class="${safeClassName} task-thumb-single task-thumb-loading-reference" aria-label="${imageToImageLabel}">
-        <img class="task-thumb-single-image" src="${escapeHtml13(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        <img class="task-thumb-single-image" src="${escapeHtml14(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
         ${loadingSpinner}
       </div>
     `;
     }
     if (imageUrl) {
-      const thumbnailLabel = escapeHtml13(translate(inputPreviewUrl ? "taskCard.imageToImageThumb" : "taskCard.textToImageThumb"));
+      const thumbnailLabel = escapeHtml14(translate(inputPreviewUrl ? "taskCard.imageToImageThumb" : "taskCard.textToImageThumb"));
       return `
       <div class="${safeClassName} task-thumb-single" aria-label="${thumbnailLabel}">
-        <img class="task-thumb-single-image" src="${escapeHtml13(imageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        <img class="task-thumb-single-image" src="${escapeHtml14(imageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
       </div>
     `;
     }
     if (taskWasCancelled(task)) {
-      return `<div class="${safeClassName} failed-thumb task-cancelled-thumb" aria-label="${escapeHtml13(translate("queue.runningCancelled"))}"><span>\xD7</span></div>`;
+      return `<div class="${safeClassName} failed-thumb task-cancelled-thumb" aria-label="${escapeHtml14(translate("queue.runningCancelled"))}"><span>\xD7</span></div>`;
     }
     if (task.status === "failed") {
-      return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml13(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
+      return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml14(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
     }
     return `<div class="${safeClassName} running-thumb"><span${taskThumbSpinnerStyle(task)}></span></div>`;
   }
   function taskStatusLabelHtml(task) {
-    const label = escapeHtml13(formatTaskCardStatus2(task) || translate("taskStatus.unknown"));
-    const taskId = escapeHtml13(task?.task_id || "");
+    const label = escapeHtml14(formatTaskCardStatus2(task) || translate("taskStatus.unknown"));
+    const taskId = escapeHtml14(task?.task_id || "");
     return `<span class="task-status-label" data-task-status-id="${taskId}">${label}</span>`;
   }
   function taskModelFamilyIconHtml(task) {
     const familyId = taskModelFamilyId(task, state19.generationCatalog);
     const modelName = taskModelDisplayName(task, state19.generationCatalog);
-    return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml13(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
+    return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml14(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
   }
   function taskStatusAccessibleLabel2(task) {
     return [
@@ -46150,7 +48673,7 @@ ${galleryText}`;
   }
   function taskCardElapsedLineHtml(key, values, elapsedHtml) {
     const marker = "__TASK_CARD_ELAPSED_TIMER__";
-    return formatTranslation(key, { ...values, elapsed: marker }).split(marker).map((part) => escapeHtml13(part)).join(elapsedHtml);
+    return formatTranslation(key, { ...values, elapsed: marker }).split(marker).map((part) => escapeHtml14(part)).join(elapsedHtml);
   }
   function taskCardRunningTimerHtml(task, taskId) {
     if (!["running", "cancelling"].includes(String(task?.status || ""))) return "";
@@ -46275,7 +48798,7 @@ ${galleryText}`;
     }
     return method(...args);
   }
-  function escapeHtml14(...args) {
+  function escapeHtml15(...args) {
     return legacyMethod32("escapeHtml", ...args);
   }
   function taskGroupCount2(...args) {
@@ -46556,7 +49079,7 @@ ${galleryText}`;
     });
   }
   function anchorRowHtml(group) {
-    const key = escapeHtml14(group.key);
+    const key = escapeHtml15(group.key);
     return `
     <button
       class="task-history-anchor-row"
@@ -46564,11 +49087,11 @@ ${galleryText}`;
       data-task-group-anchor-key="${key}"
       data-task-group-toggle-key="${key}"
       aria-expanded="false"
-      aria-label="${escapeHtml14(formatTranslation("taskGroup.expand", { label: group.label }))}"
+      aria-label="${escapeHtml15(formatTranslation("taskGroup.expand", { label: group.label }))}"
     >
       <span class="task-history-anchor-label">
         <span class="task-group-title">
-          <span class="task-group-label">${escapeHtml14(group.label)}</span>
+          <span class="task-group-label">${escapeHtml15(group.label)}</span>
           <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
           <span class="task-group-count">${taskGroupCount2(group)}</span>
         </span>
@@ -46713,7 +49236,7 @@ ${galleryText}`;
   function errorMessage(error, fallback) {
     return error instanceof Error ? error.message || fallback : fallback;
   }
-  function setStatus14(...args) {
+  function setStatus16(...args) {
     return legacyMethod33("setStatus", ...args);
   }
   function renderTasks3(...args) {
@@ -46725,7 +49248,7 @@ ${galleryText}`;
   function taskThumbHtml2(...args) {
     return legacyMethod33("taskThumbHtml", ...args);
   }
-  function escapeHtml15(...args) {
+  function escapeHtml16(...args) {
     return legacyMethod33("escapeHtml", ...args);
   }
   function formatTaskStatus3(...args) {
@@ -46814,9 +49337,9 @@ ${galleryText}`;
       renderTasks3();
       renderArchiveButton();
       renderArchiveModal();
-      setStatus14(translate("archive.restored"), "ok");
+      setStatus16(translate("archive.restored"), "ok");
     } catch (error) {
-      setStatus14(errorMessage(error, translate("archive.restoreFailed")), "error");
+      setStatus16(errorMessage(error, translate("archive.restoreFailed")), "error");
     }
   }
   function openArchiveModal() {
@@ -46839,12 +49362,12 @@ ${galleryText}`;
     }
     els30.archiveList.innerHTML = archivedTasks.map((task) => {
       const image = taskThumbHtml2(task, "archive-thumb");
-      const title = escapeHtml15(task.prompt || task.mode || "Untitled");
-      const status = escapeHtml15(formatTaskStatus3(task));
-      const size = escapeHtml15(task.output_size || task.params?.size || "");
-      const provider = escapeHtml15(legacyMethod33("taskCardProviderLabel", task) || "");
+      const title = escapeHtml16(task.prompt || task.mode || "Untitled");
+      const status = escapeHtml16(formatTaskStatus3(task));
+      const size = escapeHtml16(task.output_size || task.params?.size || "");
+      const provider = escapeHtml16(legacyMethod33("taskCardProviderLabel", task) || "");
       const meta = [status, size, provider].filter(Boolean).join(" \xB7 ");
-      const taskId = escapeHtml15(task.task_id);
+      const taskId = escapeHtml16(task.task_id);
       return `
       <article class="archive-card" data-archive-select-task-id="${taskId}">
         ${image}
@@ -46922,7 +49445,7 @@ ${galleryText}`;
   function errorMessage2(error, fallback) {
     return error instanceof Error ? error.message || fallback : fallback;
   }
-  function setStatus15(...args) {
+  function setStatus17(...args) {
     return legacyMethod34("setStatus", ...args);
   }
   function isTaskArchived3(...args) {
@@ -47112,7 +49635,7 @@ ${galleryText}`;
       state22.batchSelectionIncludesUnloaded = true;
       applyBatchTaskSelection(taskIds, taskIds[0] || null);
     } catch (error) {
-      setStatus15(errorMessage2(error, formatTranslation("batch.deleteFailed")), "error");
+      setStatus17(errorMessage2(error, formatTranslation("batch.deleteFailed")), "error");
     }
   }
   function selectActiveTasksForBatchCancel() {
@@ -47134,7 +49657,7 @@ ${galleryText}`;
     const runningCount = selectedActiveIds.filter((taskId) => runningIds.has(String(taskId))).length;
     const waitingCount = selectedActiveIds.filter((taskId) => waitingIds.has(String(taskId))).length;
     if (!selectedActiveIds.length) {
-      setStatus15(formatTranslation("batch.noActiveSelected"), "error");
+      setStatus17(formatTranslation("batch.noActiveSelected"), "error");
       return;
     }
     openConfirmPopover5(els31.batchCancelSelectedButton, {
@@ -47165,7 +49688,7 @@ ${galleryText}`;
       renderPreview2();
       const summary = data.summary || {};
       const statusType = Number(summary.failed || 0) > 0 ? "error" : "ok";
-      setStatus15(formatTranslation("batch.cancelResult", {
+      setStatus17(formatTranslation("batch.cancelResult", {
         cancelled: Number(summary.cancelled || 0),
         requested: Number(summary.cancellation_requested || 0),
         skipped: Number(summary.skipped || 0),
@@ -47173,7 +49696,7 @@ ${galleryText}`;
       }), statusType);
     } catch (error) {
       renderTasks4({ preserveScroll: true });
-      setStatus15(errorMessage2(error, formatTranslation("batch.cancelFailed")), "error");
+      setStatus17(errorMessage2(error, formatTranslation("batch.cancelFailed")), "error");
     }
   }
   async function archiveSelectedTasks() {
@@ -47197,14 +49720,14 @@ ${galleryText}`;
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(formatTranslation("batch.archivedCount", { count: ids.length }), "ok");
+      setStatus17(formatTranslation("batch.archivedCount", { count: ids.length }), "ok");
     } catch (error) {
       updatedTasks.forEach(replaceTask2);
       renderTasks4();
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(errorMessage2(error, formatTranslation("batch.archiveFailed")), "error");
+      setStatus17(errorMessage2(error, formatTranslation("batch.archiveFailed")), "error");
     }
   }
   function openBatchDeleteConfirm() {
@@ -47215,7 +49738,7 @@ ${galleryText}`;
     const deletableTaskIds = state22.batchSelectedTaskIds.map(String).filter((taskId) => !activeIds.has(taskId) && !localPendingIds.has(taskId));
     const skippedCount = state22.batchSelectedTaskIds.length - deletableTaskIds.length;
     if (!deletableTaskIds.length) {
-      setStatus15(formatTranslation("batch.runningCannotDeleteSelected"), "error");
+      setStatus17(formatTranslation("batch.runningCannotDeleteSelected"), "error");
       return;
     }
     openConfirmPopover5(els31.batchDeleteButton, {
@@ -47254,7 +49777,7 @@ ${galleryText}`;
       renderArchiveModal2();
       renderPreview2();
       const skippedText = skippedCount ? formatTranslation("batch.deleteSkippedSuffix", { count: skippedCount }) : "";
-      setStatus15(formatTranslation("batch.deletedCount", { count: deletedTaskIds.length, skipped: skippedText }), "ok");
+      setStatus17(formatTranslation("batch.deletedCount", { count: deletedTaskIds.length, skipped: skippedText }), "ok");
     } catch (error) {
       if (deletedTaskIds.length) {
         await runTaskCardRemovalTransition(deletedTaskIds, renderTasks4);
@@ -47264,7 +49787,7 @@ ${galleryText}`;
       renderArchiveButton2();
       renderArchiveModal2();
       renderPreview2();
-      setStatus15(errorMessage2(error, formatTranslation("batch.deleteFailed")), "error");
+      setStatus17(errorMessage2(error, formatTranslation("batch.deleteFailed")), "error");
     }
   }
   function handleTaskListPointerDown(event) {
@@ -47435,7 +49958,7 @@ ${galleryText}`;
   function isTaskActionConflict(error) {
     return error instanceof TaskActionHttpError && error.status === 409;
   }
-  function setStatus16(...args) {
+  function setStatus18(...args) {
     return legacyMethod35("setStatus", ...args);
   }
   function closePromptPopover5(...args) {
@@ -47603,7 +50126,7 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3(updatedTask);
-      setStatus16(translate("taskActions.updated"), "ok");
+      setStatus18(translate("taskActions.updated"), "ok");
       return true;
     } catch (error) {
       console.warn(error);
@@ -47624,10 +50147,10 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3();
-      setStatus16(translate("taskActions.archived"), "ok");
+      setStatus18(translate("taskActions.archived"), "ok");
       return true;
     } catch (error) {
-      setStatus16(errorMessage3(error, translate("taskActions.archiveFailed")), "error");
+      setStatus18(errorMessage3(error, translate("taskActions.archiveFailed")), "error");
       return false;
     }
   }
@@ -47640,10 +50163,10 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3();
-      setStatus16(translate("taskActions.deleted"), "ok");
+      setStatus18(translate("taskActions.deleted"), "ok");
       return true;
     } catch (error) {
-      setStatus16(errorMessage3(error, translate("taskActions.deleteFailed")), "error");
+      setStatus18(errorMessage3(error, translate("taskActions.deleteFailed")), "error");
       return false;
     }
   }
@@ -47666,7 +50189,7 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task || !canRetryFailedTask(task)) {
       if (await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(translate("taskActions.noRetryableFailedImages"), "error");
+      setStatus18(translate("taskActions.noRetryableFailedImages"), "error");
       return;
     }
     try {
@@ -47683,10 +50206,10 @@ ${galleryText}`;
       renderTasks5();
       renderPreview3(updatedTask);
       await window.refreshQueue?.();
-      setStatus16(translate("taskActions.requeuedFailedImages"), "ok");
+      setStatus18(translate("taskActions.requeuedFailedImages"), "ok");
     } catch (error) {
       if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(errorMessage3(error, translate("taskActions.retryFailedOutputsFailed")), "error");
+      setStatus18(errorMessage3(error, translate("taskActions.retryFailedOutputsFailed")), "error");
     }
   }
   async function acceptTaskSuccesses(taskId) {
@@ -47694,7 +50217,7 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task || !canAcceptTaskSuccesses(task)) {
       if (await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(translate("taskActions.noAcceptableSuccessImages"), "error");
+      setStatus18(translate("taskActions.noAcceptableSuccessImages"), "error");
       return;
     }
     try {
@@ -47711,10 +50234,10 @@ ${galleryText}`;
       renderArchiveButton3();
       renderArchiveModal3();
       renderPreview3(updatedTask);
-      setStatus16(translate("taskActions.acceptedSuccesses"), "ok");
+      setStatus18(translate("taskActions.acceptedSuccesses"), "ok");
     } catch (error) {
       if (isTaskActionConflict(error) && await refreshTaskAfterActionConflict(taskId)) return;
-      setStatus16(errorMessage3(error, translate("taskActions.acceptSuccessesFailed")), "error");
+      setStatus18(errorMessage3(error, translate("taskActions.acceptSuccessesFailed")), "error");
     }
   }
   async function markTaskViewed(taskId) {
@@ -47757,7 +50280,7 @@ ${galleryText}`;
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task) return;
     if (task.status === "running" || task.status === "cancelling" || task.local_pending) {
-      setStatus16(translate("taskActions.runningCannotDelete"), "error");
+      setStatus18(translate("taskActions.runningCannotDelete"), "error");
       return;
     }
     const title = task.prompt || task.mode || taskId;
@@ -47828,10 +50351,11 @@ ${galleryText}`;
     return method(...args);
   }
   var SUBMIT_TASK_TIMEOUT_MS = 45e3;
+  var taskSubmissionPending = false;
   function errorMessage4(error, fallback) {
     return error instanceof Error ? error.message || fallback : fallback;
   }
-  function setStatus17(...args) {
+  function setStatus19(...args) {
     return legacyMethod36("setStatus", ...args);
   }
   function setMode5(...args) {
@@ -48114,6 +50638,7 @@ ${galleryText}`;
     replacePendingTask2(state24.pendingTaskId || task.task_id, task);
   }
   async function runTask() {
+    if (taskSubmissionPending) return;
     syncPromptFromEditor6();
     syncGalleryInputsFromPrompt3();
     const prompt = getPromptText9();
@@ -48124,34 +50649,34 @@ ${galleryText}`;
     const fileUploads = referenceFileUploads2();
     const storedFiles = storedReferenceFileInputs2();
     if (missingGalleryInputs2().length) {
-      setStatus17(translate("status.missingGalleryReference"), "error");
+      setStatus19(translate("status.missingGalleryReference"), "error");
       return;
     }
     if (missingReferenceAssetInputs2().length) {
-      setStatus17(translate("status.missingRecentReference"), "error");
+      setStatus19(translate("status.missingRecentReference"), "error");
       return;
     }
     if (missingReferenceFileInputs2().length) {
-      setStatus17(translate("referenceFiles.errorMissing"), "error");
+      setStatus19(translate("referenceFiles.errorMissing"), "error");
       return;
     }
     if (!prompt) {
-      setStatus17(translate("status.emptyPrompt"), "error");
+      setStatus19(translate("status.emptyPrompt"), "error");
       return;
     }
     if (!state24.selectedModelId || !state24.selectedProviderId || !state24.authAvailable) {
-      setStatus17(translate("modelSelection.providerUnavailable"), "error");
+      setStatus19(translate("modelSelection.providerUnavailable"), "error");
       return;
     }
     if (state24.mode === "edit" && !uploads.length && !assets.length && !galleries.length) {
-      setStatus17(translate("status.editNeedsImage"), "error");
+      setStatus19(translate("status.editNeedsImage"), "error");
       return;
     }
     const customSizeError = els33.size?.value === "custom" ? customSizeValidationMessage2() : "";
     if (customSizeError) {
       updateCustomSize2();
       updatePixelPreview2("custom");
-      setStatus17(customSizeError, "error");
+      setStatus19(customSizeError, "error");
       return;
     }
     const form = new FormData();
@@ -48178,7 +50703,7 @@ ${galleryText}`;
       els33.requestJson.textContent = JSON.stringify(pendingTask.request, null, 2);
     }
     startRunFeedback2(pendingTask, translate("taskStatus.submitting"));
-    els33.runButton.disabled = true;
+    taskSubmissionPending = true;
     const controller = new AbortController();
     const submitTimeoutId = window.setTimeout(() => controller.abort(), SUBMIT_TASK_TIMEOUT_MS);
     try {
@@ -48196,7 +50721,7 @@ ${galleryText}`;
         els33.requestJson.textContent = JSON.stringify(data.request || {}, null, 2);
       }
       stopRunFeedback2();
-      setStatus17(translate("taskSubmit.queued"), "ok");
+      setStatus19(translate("taskSubmit.queued"), "ok");
       await window.refreshQueue?.();
       await refreshRecentAssets2();
       renderPreview4(data.task);
@@ -48204,11 +50729,11 @@ ${galleryText}`;
       stopRunFeedback2();
       const message = error instanceof DOMException && error.name === "AbortError" ? translate("taskSubmit.timeout") : errorMessage4(error, translate("taskSubmit.failed"));
       markPendingTaskFailed2(pendingTask.task_id, message);
-      setStatus17(message, "error");
+      setStatus19(message, "error");
     } finally {
       window.clearTimeout(submitTimeoutId);
+      taskSubmissionPending = false;
       stopRunFeedback2();
-      els33.runButton.disabled = !state24.authAvailable;
     }
   }
   function initTaskSubmitFeature() {
@@ -49094,7 +51619,7 @@ ${galleryText}`;
   function taskCardSwipeRoot() {
     return els35.taskHistoryShell || els35.sidebarContent || els35.taskList;
   }
-  function eventTargetElement(event) {
+  function eventTargetElement2(event) {
     return event.target instanceof Element ? event.target : null;
   }
   var TASK_CARD_SWIPE_ACTIONS = /* @__PURE__ */ new Set([
@@ -49300,7 +51825,7 @@ ${galleryText}`;
     if (state26.batchMode) return;
     if (!event.isPrimary) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    const target = eventTargetElement(event);
+    const target = eventTargetElement2(event);
     if (!target || target.closest("button, input, select, textarea, a")) return;
     const root = taskCardSwipeRoot();
     const card = target.closest('.task-card[data-task-swipe-enabled="true"]');
@@ -49395,7 +51920,7 @@ ${galleryText}`;
     handleTaskCardSwipeWindowBlur();
   }
   function handleTaskCardSwipeClick(event) {
-    const target = eventTargetElement(event);
+    const target = eventTargetElement2(event);
     const button = target?.closest("[data-task-card-action]");
     if (!button) return;
     const root = taskCardSwipeRoot();
@@ -49408,7 +51933,7 @@ ${galleryText}`;
     void performTaskCardAction(card, action, button);
   }
   function handleTaskCardSwipeKeydown(event) {
-    const target = eventTargetElement(event);
+    const target = eventTargetElement2(event);
     const card = target?.closest('.task-card[data-task-swipe-enabled="true"]');
     if (!card) return;
     if (event.key === "Escape" && card.classList.contains("task-card-swipe-open")) {
@@ -49434,7 +51959,7 @@ ${galleryText}`;
   }
   function handleTaskCardSwipeDocumentPointerDown(event) {
     if (!openTaskCard) return;
-    const target = eventTargetElement(event);
+    const target = eventTargetElement2(event);
     if (target && openTaskCard.contains(target)) return;
     closeOpenTaskCardDrawer2();
   }
@@ -49476,7 +52001,7 @@ ${galleryText}`;
   var taskListQueueControlsInitialized = false;
   var taskListQueueControlsBound = false;
   var activeQueueReorderPointer = null;
-  function eventTargetElement2(event) {
+  function eventTargetElement3(event) {
     return event.target instanceof Element ? event.target : null;
   }
   function taskListQueueControlRoots() {
@@ -49592,7 +52117,7 @@ ${galleryText}`;
   function queueReorderCardFromEvent(event) {
     if (state27.batchMode || !event.isPrimary) return null;
     if (event.pointerType === "mouse" && event.button !== 0) return null;
-    const target = eventTargetElement2(event);
+    const target = eventTargetElement3(event);
     if (!target || target.closest("button, input, select, textarea, a")) return null;
     const card = target.closest('[data-queue-reorderable="true"]');
     return card instanceof HTMLElement ? card : null;
@@ -49854,7 +52379,7 @@ ${galleryText}`;
   }
   function handleTaskQueueReorderKeydown(event) {
     if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
-    const target = eventTargetElement2(event);
+    const target = eventTargetElement3(event);
     const card = target?.closest('[data-queue-reorderable="true"]');
     if (!(card instanceof HTMLElement)) return;
     event.preventDefault();
@@ -49891,10 +52416,10 @@ ${galleryText}`;
     }
     return method(...args);
   }
-  function escapeHtml16(...args) {
+  function escapeHtml17(...args) {
     return legacyMethod39("escapeHtml", ...args);
   }
-  function setStatus18(...args) {
+  function setStatus20(...args) {
     return legacyMethod39("setStatus", ...args);
   }
   function closePromptPopover6(...args) {
@@ -49929,7 +52454,7 @@ ${galleryText}`;
     return taskContextMenuRoots().some((root) => root.contains(card));
   }
   function handleTaskListContextMenu(event) {
-    const target = eventTargetElement3(event);
+    const target = eventTargetElement4(event);
     const card = target?.closest(".task-card[data-task-id]");
     if (!card || !taskContextMenuContains(card)) return;
     event.preventDefault();
@@ -49939,7 +52464,7 @@ ${galleryText}`;
   }
   function handleTaskListContextMenuKeydown(event) {
     if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
-    const target = eventTargetElement3(event);
+    const target = eventTargetElement4(event);
     const card = target?.closest(".task-card[data-task-id]");
     if (!card || !taskContextMenuContains(card)) return;
     event.preventDefault();
@@ -49948,7 +52473,7 @@ ${galleryText}`;
   }
   function handleTaskContextDocumentClick(event) {
     if (!taskContextMenuEl || taskContextMenuEl.classList.contains("hidden")) return;
-    const target = eventTargetElement3(event);
+    const target = eventTargetElement4(event);
     if (target && taskContextMenuEl.contains(target)) return;
     closeTaskContextMenu();
   }
@@ -50036,7 +52561,7 @@ ${galleryText}`;
   function taskContextButton(action, label, disabled = false, danger = false) {
     const disabledAttr = disabled ? " disabled" : "";
     const dangerClass = danger ? " danger" : "";
-    return `<button class="task-context-menu-button${dangerClass}" type="button" role="menuitem" data-task-context-action="${action}"${disabledAttr}>${escapeHtml16(label)}</button>`;
+    return `<button class="task-context-menu-button${dangerClass}" type="button" role="menuitem" data-task-context-action="${action}"${disabledAttr}>${escapeHtml17(label)}</button>`;
   }
   function bindTaskContextMenuActionEvents(menu) {
     menu.querySelectorAll("[data-task-context-action]").forEach((button) => {
@@ -50072,18 +52597,18 @@ ${galleryText}`;
         await selectTask(taskId);
       } else if (action === "copy-id") {
         await copyText(taskId);
-        setStatus18(translate("taskContext.idCopied"), "ok");
+        setStatus20(translate("taskContext.idCopied"), "ok");
       } else if (action === "copy-prompt") {
         const detailedTask = await ensureTaskContextTaskDetail(taskId, task);
         const prompt = taskPromptText(detailedTask);
         if (!prompt) throw new Error(translate("taskContext.noPrompt"));
         await copyText(prompt);
-        setStatus18(translate("taskContext.promptCopied"), "ok");
+        setStatus20(translate("taskContext.promptCopied"), "ok");
       } else if (action === "reveal-output") {
         await revealTaskOutputDirectory(taskId);
       }
     } catch (error) {
-      setStatus18(errorMessage6(error, translate("taskContext.actionFailed")), "error");
+      setStatus20(errorMessage6(error, translate("taskContext.actionFailed")), "error");
     }
   }
   async function revealTaskOutputDirectory(taskId) {
@@ -50093,7 +52618,7 @@ ${galleryText}`;
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.detail || translate("taskContext.revealFailed"));
-    setStatus18(translate("taskContext.revealOpened"), "ok");
+    setStatus20(translate("taskContext.revealOpened"), "ok");
   }
   async function copyText(text) {
     if (navigator.clipboard?.writeText) {
@@ -50158,7 +52683,7 @@ ${galleryText}`;
   function clamp2(value, min, max) {
     return Math.min(Math.max(value, min), max);
   }
-  function eventTargetElement3(event) {
+  function eventTargetElement4(event) {
     return event.target instanceof Element ? event.target : null;
   }
   function errorMessage6(error, fallback) {
@@ -50173,457 +52698,6 @@ ${galleryText}`;
       openTaskContextMenu,
       closeTaskContextMenu
     });
-  }
-
-  // codex_image/webui/frontend/src/task-notifications.ts
-  var TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
-  var TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
-  var MAX_TASK_NOTIFICATIONS = 30;
-  var MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
-  var TASK_NOTIFICATION_TOAST_MS = 5200;
-  var TRANSIENT_NOTICE_MS = 4200;
-  var taskNotificationsFeatureInitialized = false;
-  function initTaskNotificationsFeature() {
-    if (taskNotificationsFeatureInitialized) return;
-    taskNotificationsFeatureInitialized = true;
-    restoreTaskNotificationSettings();
-    restoreTaskNotificationSeenKeys();
-    bindTaskNotificationEvents();
-    document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
-    renderTaskNotifications();
-    Object.assign(getLegacyBridge().methods, {
-      notifyTaskUpdate,
-      openTaskNotificationCenter,
-      renderTaskNotifications,
-      requestSystemNotificationPermission,
-      showTransientNotice
-    });
-  }
-  function showTransientNotice(message) {
-    const region = getLegacyBridge().els.taskNotificationToastRegion;
-    if (!region || !message) return;
-    const toast = document.createElement("div");
-    toast.className = "transient-notice-toast";
-    toast.setAttribute("role", "status");
-    const icon = document.createElement("span");
-    icon.className = "transient-notice-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "\u2713";
-    const text = document.createElement("span");
-    text.textContent = message;
-    toast.append(icon, text);
-    region.prepend(toast);
-    window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
-  }
-  function notifyTaskUpdate(previousTask, nextTask) {
-    if (taskWasCancelled(nextTask)) return;
-    const status = terminalTaskStatus(nextTask?.status);
-    if (!nextTask || !status || !shouldNotifyTerminalTask(previousTask, nextTask)) return;
-    getLegacyBridge().methods.notifyLatestTaskAvailable?.(nextTask);
-    const notification = buildTaskNotification(nextTask, status);
-    rememberTaskNotification(nextTask, status);
-    if (getLegacyBridge().state.taskNotificationSettings.inApp) {
-      addTaskNotification(notification);
-      showTaskNotificationToast(notification);
-    }
-    sendSystemTaskNotification(notification);
-  }
-  function shouldNotifyTerminalTask(previousTask, nextTask) {
-    const status = terminalTaskStatus(nextTask?.status);
-    if (!previousTask || !nextTask?.task_id || !status) return false;
-    if (terminalTaskStatus(previousTask.status)) return false;
-    return !getLegacyBridge().state.taskNotificationSeenKeys.has(taskNotificationSeenKey(nextTask, status));
-  }
-  function openTaskNotificationCenter() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationCenterOpen = true;
-    state33.taskNotifications = state33.taskNotifications.map((notification) => ({
-      ...notification,
-      unread: false
-    }));
-    renderTaskNotifications();
-  }
-  function closeTaskNotificationCenter() {
-    const state33 = getLegacyBridge().state;
-    if (!state33.taskNotificationCenterOpen) return;
-    state33.taskNotificationCenterOpen = false;
-    renderTaskNotifications();
-  }
-  function toggleTaskNotificationCenter() {
-    if (getLegacyBridge().state.taskNotificationCenterOpen) {
-      closeTaskNotificationCenter();
-      return;
-    }
-    openTaskNotificationCenter();
-  }
-  function renderTaskNotifications() {
-    const bridge40 = getLegacyBridge();
-    const state33 = bridge40.state;
-    const els44 = bridge40.els;
-    const unreadCount = state33.taskNotifications.filter((notification) => notification.unread).length;
-    state33.taskNotificationUnreadCount = unreadCount;
-    const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
-    if (els44.taskNotificationBadge) {
-      els44.taskNotificationBadge.textContent = "";
-      els44.taskNotificationBadge.setAttribute("aria-hidden", "true");
-      els44.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
-    }
-    if (els44.taskNotificationButton) {
-      els44.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
-      els44.taskNotificationButton.setAttribute("aria-label", unreadLabel);
-      els44.taskNotificationButton.title = unreadLabel;
-      els44.taskNotificationButton.setAttribute("aria-expanded", state33.taskNotificationCenterOpen ? "true" : "false");
-    }
-    if (els44.taskNotificationUnreadSummary) {
-      els44.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
-      els44.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
-    }
-    if (els44.taskNotificationCenter) {
-      els44.taskNotificationCenter.classList.toggle("hidden", !state33.taskNotificationCenterOpen);
-      els44.taskNotificationCenter.setAttribute("aria-hidden", state33.taskNotificationCenterOpen ? "false" : "true");
-    }
-    if (!els44.taskNotificationList) return;
-    if (!state33.taskNotifications.length) {
-      els44.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
-      return;
-    }
-    els44.taskNotificationList.innerHTML = state33.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
-  }
-  async function requestSystemNotificationPermission() {
-    if (typeof Notification === "undefined") {
-      setStatus19(translate("notifications.systemUnsupported"), "error");
-      return false;
-    }
-    if (Notification.permission === "granted") return true;
-    if (Notification.permission === "denied") {
-      setStatus19(translate("notifications.systemBlocked"), "error");
-      return false;
-    }
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      setStatus19(translate("notifications.systemDenied"), "error");
-      return false;
-    }
-    setStatus19(translate("notifications.systemEnabled"), "ok");
-    return true;
-  }
-  function bindTaskNotificationEvents() {
-    const els44 = getLegacyBridge().els;
-    els44.taskNotificationButton?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      toggleTaskNotificationCenter();
-    });
-    els44.taskNotificationClearButton?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      clearTaskNotifications();
-    });
-    els44.taskNotificationList?.addEventListener("click", (event) => {
-      const item = eventTargetElement4(event)?.closest("[data-task-notification-id]");
-      if (!(item instanceof HTMLElement)) return;
-      const notification = notificationById(item.dataset.taskNotificationId);
-      if (notification) void openNotificationTask(notification);
-    });
-    els44.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
-    els44.taskNotificationSystem?.addEventListener("change", (event) => {
-      void handleTaskNotificationSystemChange(event);
-    });
-    document.addEventListener("click", handleTaskNotificationDocumentClick);
-    document.addEventListener("keydown", handleTaskNotificationKeydown);
-  }
-  function handleTaskNotificationInAppChange(event) {
-    const input = event.currentTarget;
-    if (!(input instanceof HTMLInputElement)) return;
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSettings = {
-      ...state33.taskNotificationSettings,
-      inApp: input.checked
-    };
-    persistTaskNotificationSettings();
-  }
-  async function handleTaskNotificationSystemChange(event) {
-    const input = event.currentTarget;
-    if (!(input instanceof HTMLInputElement)) return;
-    const state33 = getLegacyBridge().state;
-    if (!input.checked) {
-      state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: false };
-      persistTaskNotificationSettings();
-      return;
-    }
-    const granted = await requestSystemNotificationPermission();
-    state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: granted };
-    input.checked = granted;
-    persistTaskNotificationSettings();
-  }
-  function handleTaskNotificationDocumentClick(event) {
-    const target = event.target;
-    const els44 = getLegacyBridge().els;
-    if (!(target instanceof Node)) return;
-    if (els44.taskNotificationCenter?.contains(target) || els44.taskNotificationButton?.contains(target)) return;
-    closeTaskNotificationCenter();
-  }
-  function handleTaskNotificationKeydown(event) {
-    if (event.key === "Escape") closeTaskNotificationCenter();
-  }
-  function addTaskNotification(notification) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = [notification, ...state33.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
-    renderTaskNotifications();
-  }
-  function clearTaskNotifications() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = [];
-    renderTaskNotifications();
-  }
-  function showTaskNotificationToast(notification) {
-    const bridge40 = getLegacyBridge();
-    const region = bridge40.els.taskNotificationToastRegion;
-    if (!region) return;
-    const toast = document.createElement("button");
-    toast.type = "button";
-    toast.className = "task-notification-item task-notification-toast";
-    toast.dataset.taskNotificationId = notification.id;
-    toast.innerHTML = taskNotificationInnerHtml(notification);
-    toast.addEventListener("click", () => {
-      toast.remove();
-      void openNotificationTask(notification);
-    });
-    region.prepend(toast);
-    const timerId = window.setTimeout(() => {
-      toast.remove();
-      bridge40.state.taskNotificationToastTimerIds = bridge40.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
-    }, TASK_NOTIFICATION_TOAST_MS);
-    bridge40.state.taskNotificationToastTimerIds.push(timerId);
-  }
-  function sendSystemTaskNotification(notification) {
-    const settings = getLegacyBridge().state.taskNotificationSettings;
-    if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
-    const options = { body: taskNotificationDisplayMessage(notification) };
-    if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
-    const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
-    systemNotification.onclick = () => {
-      window.focus();
-      void openNotificationTask(notification);
-      systemNotification.close();
-    };
-  }
-  async function openNotificationTask(notification) {
-    const bridge40 = getLegacyBridge();
-    const task = bridge40.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
-    markTaskNotificationRead(notification.id);
-    closeTaskNotificationCenter();
-    if (!task) {
-      setStatus19(translate("notifications.taskMissing"), "error");
-      return;
-    }
-    window.focus();
-    try {
-      const selectTask3 = bridge40.methods.selectTask;
-      if (typeof selectTask3 !== "function") throw new Error("selectTask is unavailable");
-      await selectTask3(task.task_id);
-    } catch {
-      setStatus19(translate("notifications.taskMissing"), "error");
-    }
-  }
-  function markTaskNotificationRead(notificationId) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = state33.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
-    renderTaskNotifications();
-  }
-  function notificationById(notificationId) {
-    if (!notificationId) return null;
-    return getLegacyBridge().state.taskNotifications.find((notification) => notification.id === notificationId) || null;
-  }
-  function buildTaskNotification(task, status) {
-    const thumbnailUrl = firstTaskThumbnailUrl(task);
-    const successCount = completedOutputCount(task);
-    const failedCount = positiveNumber(task.failed_count);
-    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
-    const errorMessage7 = String(task.last_error || task.error || "");
-    return {
-      id: taskNotificationSeenKey(task, status),
-      task_id: task.task_id,
-      status,
-      title: taskNotificationTitle(status),
-      message: taskNotificationMessageFromParts(status, {
-        successCount,
-        failedCount,
-        prompt,
-        errorMessage: errorMessage7
-      }),
-      success_count: successCount,
-      failed_count: failedCount,
-      prompt_snippet: prompt,
-      error_message: errorMessage7,
-      created_at: (/* @__PURE__ */ new Date()).toISOString(),
-      ...thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {},
-      unread: true
-    };
-  }
-  function taskNotificationTitle(status) {
-    if (status === "failed") return translate("notifications.taskFailed");
-    if (status === "partial_failed") return translate("notifications.taskPartial");
-    return translate("notifications.taskCompleted");
-  }
-  function taskNotificationMessageFromParts(status, parts) {
-    if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
-    const countText = parts.successCount ? formatTranslation("notifications.successCount", { count: parts.successCount }) : translate("notifications.resultAvailable");
-    const failureText = status === "partial_failed" && parts.failedCount ? formatTranslation("notifications.failedCount", { count: parts.failedCount }) : "";
-    return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" \xB7 ");
-  }
-  function taskNotificationDisplayTitle(notification) {
-    return taskNotificationTitle(notification.status);
-  }
-  function taskNotificationDisplayMessage(notification) {
-    if (notification.success_count !== void 0 || notification.failed_count !== void 0 || notification.prompt_snippet !== void 0 || notification.error_message !== void 0) {
-      return taskNotificationMessageFromParts(notification.status, {
-        successCount: positiveNumber(notification.success_count),
-        failedCount: positiveNumber(notification.failed_count),
-        prompt: notification.prompt_snippet || "",
-        errorMessage: notification.error_message || notification.message
-      });
-    }
-    return notification.message;
-  }
-  function firstTaskThumbnailUrl(task) {
-    const bridge40 = getLegacyBridge();
-    const urls = bridge40.methods.taskThumbnailUrls?.(task);
-    if (Array.isArray(urls) && urls[0]) return String(urls[0]);
-    if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
-    const output = Array.isArray(task.outputs) ? task.outputs.find((record5) => record5?.status === "completed") : null;
-    if (output?.thumbnail_url) return String(output.thumbnail_url);
-    if (output?.thumbnail_file) return outputFileUrl(output.thumbnail_file);
-    if (output?.url || output?.file) {
-      const index = positiveNumber(output.index) || 1;
-      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/${index}/thumbnail`;
-    }
-    if (Array.isArray(task.output_urls) && task.output_urls.some(Boolean)) {
-      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/1/thumbnail`;
-    }
-    return void 0;
-  }
-  function taskNotificationItemHtml(notification) {
-    const unreadClass = notification.unread ? " unread" : "";
-    return `<button class="task-notification-item${unreadClass}" type="button" data-task-notification-id="${escapeHtml17(notification.id)}">
-    ${taskNotificationInnerHtml(notification)}
-  </button>`;
-  }
-  function taskNotificationInnerHtml(notification) {
-    const thumbnail = notification.thumbnail_url ? `<img class="task-notification-thumb" src="${escapeHtml17(notification.thumbnail_url)}" alt="">` : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml17(statusGlyph(notification.status))}</span>`;
-    return `${thumbnail}
-    <span class="task-notification-body">
-      <span class="task-notification-title">${escapeHtml17(taskNotificationDisplayTitle(notification))}</span>
-      <span class="task-notification-message">${escapeHtml17(taskNotificationDisplayMessage(notification))}</span>
-      <span class="task-notification-time">${escapeHtml17(formatNotificationTime(notification.created_at))}</span>
-    </span>`;
-  }
-  function statusGlyph(status) {
-    if (status === "failed") return "!";
-    if (status === "partial_failed") return "~";
-    return "\u2713";
-  }
-  function formatNotificationTime(value) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-  function terminalTaskStatus(status) {
-    if (status === "completed" || status === "failed" || status === "partial_failed") return status;
-    return null;
-  }
-  function taskNotificationSeenKey(task, status) {
-    const revision = task.completed_at || task.updated_at || task.last_error || task.error || "";
-    return `${task.task_id}:${status}:${revision}`;
-  }
-  function rememberTaskNotification(task, status) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
-    while (state33.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
-      const firstKey = state33.taskNotificationSeenKeys.values().next().value;
-      if (typeof firstKey !== "string") break;
-      state33.taskNotificationSeenKeys.delete(firstKey);
-    }
-    persistTaskNotificationSeenKeys();
-  }
-  function restoreTaskNotificationSettings() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSettings = defaultTaskNotificationSettings();
-    try {
-      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
-      state33.taskNotificationSettings = {
-        inApp: stored.inApp !== false,
-        system: stored.system === true && typeof Notification !== "undefined" && Notification.permission === "granted"
-      };
-    } catch {
-      state33.taskNotificationSettings = defaultTaskNotificationSettings();
-    }
-    persistTaskNotificationSettings();
-    syncTaskNotificationSettingsInputs();
-  }
-  function defaultTaskNotificationSettings() {
-    return { inApp: true, system: false };
-  }
-  function persistTaskNotificationSettings() {
-    try {
-      localStorage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify(getLegacyBridge().state.taskNotificationSettings));
-    } catch {
-    }
-    syncTaskNotificationSettingsInputs();
-  }
-  function syncTaskNotificationSettingsInputs() {
-    const bridge40 = getLegacyBridge();
-    const settings = bridge40.state.taskNotificationSettings;
-    if (bridge40.els.taskNotificationInApp instanceof HTMLInputElement) {
-      bridge40.els.taskNotificationInApp.checked = settings.inApp;
-    }
-    if (bridge40.els.taskNotificationSystem instanceof HTMLInputElement) {
-      bridge40.els.taskNotificationSystem.checked = settings.system;
-    }
-  }
-  function restoreTaskNotificationSeenKeys() {
-    const state33 = getLegacyBridge().state;
-    try {
-      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
-      state33.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key) => typeof key === "string") : []);
-    } catch {
-      state33.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
-    }
-  }
-  function persistTaskNotificationSeenKeys() {
-    try {
-      const keys = Array.from(getLegacyBridge().state.taskNotificationSeenKeys).slice(-MAX_SEEN_TASK_NOTIFICATION_KEYS);
-      localStorage.setItem(TASK_NOTIFICATION_SEEN_KEY, JSON.stringify(keys));
-    } catch {
-    }
-  }
-  function outputFileUrl(filename) {
-    if (filename.startsWith("/outputs/")) return filename;
-    const clean = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
-    return clean ? `/outputs/${clean}` : "";
-  }
-  function completedOutputCount(task) {
-    if (Array.isArray(task.outputs)) {
-      return task.outputs.filter((record5) => record5?.status === "completed").length;
-    }
-    if (Array.isArray(task.output_urls)) return task.output_urls.filter(Boolean).length;
-    return positiveNumber(task.generated_count);
-  }
-  function positiveNumber(value) {
-    const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
-  }
-  function promptSnippet(value) {
-    const text = String(value || "").replace(/\s+/g, " ").trim();
-    if (!text) return "";
-    return text.length > 48 ? `${text.slice(0, 48)}...` : text;
-  }
-  function escapeHtml17(value) {
-    return getLegacyBridge().methods.escapeHtml(value);
-  }
-  function setStatus19(message, type) {
-    getLegacyBridge().methods.setStatus(message, type);
-  }
-  function eventTargetElement4(event) {
-    return event.target instanceof Element ? event.target : null;
   }
 
   // codex_image/webui/frontend/src/task-derived.ts
@@ -51395,7 +53469,7 @@ ${galleryText}`;
   function openConfirmPopover7(...args) {
     return legacyMethod41("openConfirmPopover", ...args);
   }
-  function setStatus20(...args) {
+  function setStatus21(...args) {
     return legacyMethod41("setStatus", ...args);
   }
   function updateTaskInState3(...args) {
@@ -51970,9 +54044,9 @@ ${galleryText}`;
       const updatedTask = data.task;
       updateTaskInState3(updatedTask);
       renderPreview5(updatedTask);
-      setStatus20(selected ? translate("preview.selectionAdded") : translate("preview.selectionRemoved"), "ok");
+      setStatus21(selected ? translate("preview.selectionAdded") : translate("preview.selectionRemoved"), "ok");
     } catch (error) {
-      setStatus20(error instanceof Error ? error.message : translate("preview.selectionUpdateFailed"), "error");
+      setStatus21(error instanceof Error ? error.message : translate("preview.selectionUpdateFailed"), "error");
     }
   }
   function openDeleteUnselectedOutputsConfirm(button) {
@@ -51982,7 +54056,7 @@ ${galleryText}`;
     const totalCount = taskOutputUrls3(task).length;
     const deleteCount = Math.max(0, totalCount - selectedCount);
     if (!task?.task_id || selectedCount <= 0 || deleteCount <= 0) {
-      setStatus20(translate("preview.noUnselectedOutputs"), "error");
+      setStatus21(translate("preview.noUnselectedOutputs"), "error");
       return;
     }
     openConfirmPopover7(button, {
@@ -52009,9 +54083,9 @@ ${galleryText}`;
       state29.selectedTaskId = updatedTask.task_id;
       renderTasks7();
       renderPreview5(updatedTask);
-      setStatus20(translate("preview.deleteUnselectedDone"), "ok");
+      setStatus21(translate("preview.deleteUnselectedDone"), "ok");
     } catch (error) {
-      setStatus20(error instanceof Error ? error.message : translate("preview.deleteUnselectedFailed"), "error");
+      setStatus21(error instanceof Error ? error.message : translate("preview.deleteUnselectedFailed"), "error");
     }
   }
   function outputDownloadFilename(task, url, index) {
@@ -52694,7 +54768,7 @@ ${galleryText}`;
     }
     return method(...args);
   }
-  function setStatus21(message, type) {
+  function setStatus22(message, type) {
     legacyMethod43("setStatus", message, type);
   }
   function closePromptPopover8() {
@@ -52799,9 +54873,9 @@ ${galleryText}`;
     updateTaskSelectionVisuals3(taskId);
     renderPreview7(task);
     if (task.status === "failed") {
-      setStatus21(taskFailureMessage3(task) || translate("taskActions.failedFallback"), "error");
+      setStatus22(taskFailureMessage3(task) || translate("taskActions.failedFallback"), "error");
     } else if (!["running", "cancelling"].includes(String(task.status || ""))) {
-      setStatus21(formatTranslation("status.loadedTask", { taskId }), "ok");
+      setStatus22(formatTranslation("status.loadedTask", { taskId }), "ok");
     }
   }
   function isLegacyOutputInputUrl2(url) {
@@ -52895,7 +54969,7 @@ ${galleryText}`;
       let uploadInputIndex = 0;
       const uploadSources = task.input_sources.filter((source) => source?.kind === "upload" && source.image_url);
       if (uploadSources.length && selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-        setStatus21(translate("status.loadingHistoryInputs"), "");
+        setStatus22(translate("status.loadingHistoryInputs"), "");
       }
       try {
         for (const [index, source] of task.input_sources.entries()) {
@@ -52931,7 +55005,7 @@ ${galleryText}`;
       return applyTaskInputRestoreSources(gallerySources, taskId, restoreSeq);
     }
     if (selectedTaskInputRestoreCurrent(taskId, restoreSeq)) {
-      setStatus21(translate("status.loadingHistoryInputs"), "");
+      setStatus22(translate("status.loadingHistoryInputs"), "");
     }
     const inputNames = Array.isArray(task.input_files) ? task.input_files : [];
     const files = [];
@@ -52972,14 +55046,14 @@ ${galleryText}`;
     if (task.summary_only) {
       const detailSeq = ++state31.taskInputRestoreSeq;
       updateTaskSelectionVisuals3(taskId);
-      setStatus21(translate("status.loadingHistoryInputs"), "");
+      setStatus22(translate("status.loadingHistoryInputs"), "");
       try {
         const fullTask = await loadFullTaskDetail(taskId);
         if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
         task = replaceSelectedTaskDetail(taskId, fullTask);
       } catch (error) {
         if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
-        setStatus21(error.message || translate("notifications.taskMissing"), "error");
+        setStatus22(error.message || translate("notifications.taskMissing"), "error");
         return;
       }
     }
@@ -52996,7 +55070,7 @@ ${galleryText}`;
       revokeUploadPreviewUrls2(state31.images);
       state31.images = [];
       renderImageStrip6();
-      setStatus21(error.message, "error");
+      setStatus22(error.message, "error");
       return;
     }
     if (!selectedTaskInputRestoreCurrent(taskId, restoreSeq)) return;
@@ -53063,16 +55137,16 @@ ${galleryText}`;
         revokeUploadPreviewUrls2(state31.images);
         state31.images = [];
         renderImageStrip6();
-        setStatus21(error.message || translate("referenceCollector.addFailed"), "error");
+        setStatus22(error.message || translate("referenceCollector.addFailed"), "error");
         return;
       }
       if (!selectedTaskInputRestoreCurrent(taskId, restoreSeq)) return;
       applySelectedTaskRequestPreview(task);
       renderSelectedTask(task, taskId);
-      setStatus21(formatTranslation("status.reusedTask", { taskId }), "ok");
+      setStatus22(formatTranslation("status.reusedTask", { taskId }), "ok");
     } catch (error) {
       localStorage.removeItem(HISTORY_TASK_REUSE_HANDOFF_KEY);
-      setStatus21(error.message || translate("taskContext.actionFailed"), "error");
+      setStatus22(error.message || translate("taskContext.actionFailed"), "error");
     }
   }
   function initTaskSelectionFeature() {
@@ -53187,17 +55261,21 @@ ${galleryText}`;
     const message = options.message ? `<p class="confirm-popover-message">${escapeHtml20(options.message)}</p>` : "";
     const detail = options.detail ? `<div class="confirm-popover-detail">${escapeHtml20(options.detail)}</div>` : "";
     const confirmText = options.confirmText || translate("action.confirm");
+    const cancelText = options.cancelText || translate("action.cancel");
     const confirmClass = options.danger === false ? "ghost-button text-sm confirm-popover-confirm" : "ghost-button text-sm danger-button confirm-popover-confirm";
     popover.innerHTML = `
     <div class="confirm-popover-title">${escapeHtml20(options.title || translate("action.confirmQuestion"))}</div>
     ${message}
     ${detail}
     <div class="confirm-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml20(translate("action.cancel"))}</button>
+      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml20(cancelText)}</button>
       <button class="${confirmClass}" type="button" data-confirm-popover-confirm>${escapeHtml20(confirmText)}</button>
     </div>
   `;
-    popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", closeConfirmPopover4);
+    popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", () => {
+      closeConfirmPopover4();
+      if (typeof options.onCancel === "function") options.onCancel();
+    });
     popover.querySelector("[data-confirm-popover-confirm]")?.addEventListener("click", async () => {
       const onConfirm = confirmPopoverState.onConfirm;
       closeConfirmPopover4();
@@ -53205,7 +55283,9 @@ ${galleryText}`;
     });
     popover.classList.remove("hidden");
     positionConfirmPopover(anchor, popover);
-    popover.querySelector("[data-confirm-popover-confirm]")?.focus({ preventScroll: true });
+    popover.querySelector(
+      options.focusCancel ? "[data-confirm-popover-cancel]" : "[data-confirm-popover-confirm]"
+    )?.focus({ preventScroll: true });
   }
   function closeConfirmPopover4() {
     if (!confirmPopoverEl) return;
@@ -53473,106 +55553,6 @@ ${galleryText}`;
     return isStandaloneWebApp() ? standaloneTitle : fullTitle;
   }
 
-  // codex_image/webui/frontend/src/theme-preference.ts
-  var THEME_STORAGE_KEY = "codex-image-theme-preference";
-  var themeTransitionFrame = null;
-  function normalizeThemePreference(value) {
-    return value === "light" || value === "dark" ? value : "system";
-  }
-  function readThemePreference(storage = localStorage) {
-    try {
-      return normalizeThemePreference(
-        storage.getItem(THEME_STORAGE_KEY)
-      );
-    } catch {
-      return "system";
-    }
-  }
-  function persistThemePreference(preference, storage = localStorage) {
-    try {
-      storage.setItem(THEME_STORAGE_KEY, preference);
-    } catch {
-    }
-  }
-  function resolveEffectiveTheme(preference, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
-    if (preference === "light" || preference === "dark") {
-      return preference;
-    }
-    return systemDark ? "dark" : "light";
-  }
-  function lockThemeTransitions(root) {
-    root.classList.add("theme-transition-lock");
-    const requestFrame = window.requestAnimationFrame?.bind(window);
-    if (!requestFrame) {
-      root.classList.remove("theme-transition-lock");
-      return;
-    }
-    if (themeTransitionFrame !== null) {
-      window.cancelAnimationFrame?.(themeTransitionFrame);
-    }
-    themeTransitionFrame = requestFrame(() => {
-      themeTransitionFrame = requestFrame(() => {
-        root.classList.remove("theme-transition-lock");
-        themeTransitionFrame = null;
-      });
-    });
-  }
-  function applyDocumentTheme(preference, root = document.documentElement, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
-    const normalized = normalizeThemePreference(preference);
-    const effective = resolveEffectiveTheme(
-      normalized,
-      systemDark
-    );
-    if (root.dataset.theme !== effective) {
-      lockThemeTransitions(root);
-    }
-    root.dataset.theme = effective;
-    root.dataset.themePreference = normalized;
-    return effective;
-  }
-  function syncThemeSwitcher(root, preference) {
-    root?.querySelectorAll("[data-theme-option]").forEach((button) => {
-      const active = button.dataset.themeOption === preference;
-      button.classList.toggle("active", active);
-      button.setAttribute(
-        "aria-pressed",
-        active ? "true" : "false"
-      );
-    });
-  }
-  function bindThemeSwitcher(root, onSelect) {
-    if (!root) return () => void 0;
-    const handleClick = (event) => {
-      const target = event.target;
-      const button = target?.closest(
-        "[data-theme-option]"
-      );
-      if (!button || !root.contains(button)) return;
-      const value = button.dataset.themeOption;
-      if (value !== "system" && value !== "light" && value !== "dark") {
-        return;
-      }
-      onSelect(value);
-    };
-    root.addEventListener("click", handleClick);
-    return () => root.removeEventListener("click", handleClick);
-  }
-  function bindSystemThemePreference(onChange) {
-    const media = window.matchMedia?.(
-      "(prefers-color-scheme: dark)"
-    );
-    if (!media) return () => void 0;
-    const handleChange = (event) => {
-      onChange(event.matches);
-    };
-    if (media.addEventListener) {
-      media.addEventListener("change", handleChange);
-      return () => media.removeEventListener("change", handleChange);
-    }
-    media.addListener?.(handleChange);
-    return () => media.removeListener?.(handleChange);
-  }
-
   // codex_image/webui/frontend/src/shell-ui.ts
   var SIDEBAR_WIDTH_STORAGE_KEY = "codex-image-sidebar-width";
   var SIDEBAR_MIN_WIDTH = 280;
@@ -53655,7 +55635,7 @@ ${galleryText}`;
     const current = String(els42.statusText.textContent || "").trim();
     const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
     if (waitingLabels.includes(current)) {
-      setStatus22(translate("status.waiting"), "");
+      setStatus23(translate("status.waiting"), "");
     }
   }
   function bindShellUiEvents() {
@@ -53856,7 +55836,7 @@ ${galleryText}`;
     const fullTitle = status ? `${status} \xB7 ${defaultTitle}` : defaultTitle;
     document.title = webAppDocumentTitle(status, fullTitle);
   }
-  function setStatus22(message, type) {
+  function setStatus23(message, type) {
     if (!els42.statusText) return;
     els42.statusText.textContent = message;
     els42.statusText.className = `status-text ${type || ""}`;
@@ -53908,12 +55888,12 @@ ${galleryText}`;
     renderPreview8();
     updateRequestPreview13();
     if (outputSettingsLocked) legacyMethod45("showLockedOutputSettings");
-    setStatus22(translate("status.waiting"), "");
+    setStatus23(translate("status.waiting"), "");
   }
   async function copyJson() {
     if (!els42.requestJson) return;
     await navigator.clipboard.writeText(els42.requestJson.textContent);
-    setStatus22(translate("status.jsonCopied"), "ok");
+    setStatus23(translate("status.jsonCopied"), "ok");
   }
   function initShellUiFeature() {
     if (shellUiInitialized) return;
@@ -53937,7 +55917,7 @@ ${galleryText}`;
       finishSidebarResize,
       handleSidebarResizeKeydown,
       updateDocumentTitle: updateDocumentTitle2,
-      setStatus: setStatus22,
+      setStatus: setStatus23,
       resetForm,
       copyJson
     });
@@ -55045,6 +57025,7 @@ ${galleryText}`;
   initApiAdvancedSettingsFeature();
   initStorageSettingsFeature();
   initNetworkEgressSettingsFeature();
+  initUserConfigBackupFeature();
   initSystemSettingsFeature();
   initColorPaletteFeature();
   initPromptColorsFeature();

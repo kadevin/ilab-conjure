@@ -7,6 +7,7 @@ from pathlib import Path
 DEFAULT_WEBUI_INPUT_ROOT = Path("output") / "webui-inputs"
 DEFAULT_WEBUI_OUTPUT_ROOT = Path("output") / "webui-outputs"
 DEFAULT_WEBUI_GALLERY_SUBDIR = "gallery"
+DEFAULT_WEBUI_PROMPT_TEMPLATE_ASSET_SUBDIR = "prompt-template-assets"
 DEFAULT_WEBUI_REFERENCE_ASSET_SUBDIR = "reference-assets"
 DEFAULT_WEBUI_REFERENCE_FILE_SUBDIR = "reference-files"
 DEFAULT_WEBUI_SOURCE_DATA_SUBDIR = "source-data"

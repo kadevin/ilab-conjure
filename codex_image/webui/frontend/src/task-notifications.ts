@@ -2,13 +2,90 @@ import { getLegacyBridge } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import type { TaskNotification, TaskNotificationSettings, TaskStatus, WebUITask } from "./types";
 import { taskWasCancelled } from "./task-cancellation";
+import {
+  applyDocumentTheme,
+  normalizeThemePreference,
+  persistThemePreference,
+  THEME_STORAGE_KEY,
+} from "./theme-preference";
+import type { UserConfigClientPreferences, UserConfigRestoreMode } from "./user-config-backup-api";
 
-const TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
+export const TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
 const TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
 const MAX_TASK_NOTIFICATIONS = 30;
 const MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
 const TASK_NOTIFICATION_TOAST_MS = 5200;
 const TRANSIENT_NOTICE_MS = 4200;
+
+type ClientPreferenceStorage = Pick<Storage, "getItem" | "setItem">;
+
+export interface ClientPreferenceApplyEnvironment {
+  storage?: ClientPreferenceStorage;
+  notificationPermission?: NotificationPermission | "unsupported";
+  applyTheme?: (preference: "system" | "light" | "dark") => void;
+}
+
+export interface ClientPreferenceApplyResult {
+  applied: UserConfigClientPreferences;
+  warnings: string[];
+}
+
+export function readUserConfigClientPreferences(
+  storage: Pick<Storage, "getItem"> = localStorage,
+): UserConfigClientPreferences {
+  let notifications = { in_app: true, system: false };
+  try {
+    const stored = JSON.parse(storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}") as Record<string, unknown>;
+    notifications = { in_app: stored.inApp !== false, system: stored.system === true };
+  } catch {
+    // Invalid settings fall back to the same defaults as the notification feature.
+  }
+  return {
+    theme: normalizeThemePreference(storage.getItem(THEME_STORAGE_KEY)),
+    notifications,
+  };
+}
+
+export function applyUserConfigClientPreferences(
+  preferences: UserConfigClientPreferences,
+  mode: UserConfigRestoreMode,
+  environment: ClientPreferenceApplyEnvironment = {},
+): ClientPreferenceApplyResult {
+  const storage = environment.storage ?? localStorage;
+  const permission = environment.notificationPermission ?? (
+    typeof Notification === "undefined" ? "unsupported" : Notification.permission
+  );
+  const warnings: string[] = [];
+  const shouldApplyTheme = mode === "replace" || storage.getItem(THEME_STORAGE_KEY) === null;
+  if (shouldApplyTheme) {
+    persistThemePreference(preferences.theme, storage);
+    (environment.applyTheme ?? ((preference) => applyDocumentTheme(preference)))(preferences.theme);
+  }
+  const settingsMissing = storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) === null;
+  let appliedNotifications = readUserConfigClientPreferences(storage).notifications;
+  if (mode === "replace" || settingsMissing) {
+    const system = preferences.notifications.system && permission === "granted";
+    if (preferences.notifications.system && !system) {
+      warnings.push("user_config_restore_system_notification_permission_missing");
+    }
+    appliedNotifications = { in_app: preferences.notifications.in_app, system };
+    try {
+      storage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify({
+        inApp: appliedNotifications.in_app,
+        system: appliedNotifications.system,
+      }));
+    } catch {
+      // Browser preference application must not invalidate server restore success.
+    }
+  }
+  return {
+    applied: {
+      theme: shouldApplyTheme ? preferences.theme : readUserConfigClientPreferences(storage).theme,
+      notifications: appliedNotifications,
+    },
+    warnings,
+  };
+}
 
 type TerminalTaskStatus = Extract<TaskStatus, "completed" | "failed" | "partial_failed">;
 

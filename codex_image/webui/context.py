@@ -14,8 +14,15 @@ from .history_backup_export import HistoryBackupExportService
 from .history_backup_import import HistoryBackupImportService
 from .history_backup_plan import TaskBackupPlanner
 from .instance_lock import WebUIInstanceLock
+from .user_config_backup_components import UserConfigBackupPlanner
+from .user_config_backup_export import UserConfigBackupExportService
+from .user_config_backup_import import UserConfigBackupImportService
 from .network_egress import NetworkEgressManager, NetworkEgressSettings
 from .provider_settings import ProviderSettings
+from .prompt_template_assets import (
+    PromptTemplateAssetStorage,
+    PromptTemplateThumbnailResolver,
+)
 from .queue import QueueManager
 from .reference_files import ReferenceFileStorage
 from .settings_store import AuthSettings, ColorPaletteSettings, PromptSnippetSettings, PromptTemplateSettings, WebUISettings
@@ -122,11 +129,17 @@ class WebUIContext:
     color_settings: ColorPaletteSettings
     prompt_snippet_settings: PromptSnippetSettings
     prompt_template_settings: PromptTemplateSettings
+    prompt_template_asset_storage: PromptTemplateAssetStorage
+    prompt_template_thumbnail_resolver: PromptTemplateThumbnailResolver
     history_export_service: HistoryExportService
     history_backup_planner: TaskBackupPlanner
     history_backup_export_service: HistoryBackupExportService
     history_backup_import_service: HistoryBackupImportService
     history_backup_temp_root: Path
+    user_config_backup_planner: UserConfigBackupPlanner
+    user_config_backup_export_service: UserConfigBackupExportService
+    user_config_backup_import_service: UserConfigBackupImportService
+    user_config_backup_temp_root: Path
     client_factory: ClientFactory
     auth_checker: AuthChecker
     input_root: Path
@@ -134,9 +147,11 @@ class WebUIContext:
     gallery_root: Path
     reference_asset_root: Path
     reference_file_root: Path
+    prompt_template_asset_root: Path
     source_data_root: Path
     auto_start_queue: bool
     history_backup_owner_lock: WebUIInstanceLock | None = None
+    user_config_backup_owner_lock: WebUIInstanceLock | None = None
     instance_lock: WebUIInstanceLock | None = None
     queue_manager: QueueManager | None = None
     queue_worker_health: QueueWorkerHealth = field(default_factory=QueueWorkerHealth)
@@ -147,6 +162,7 @@ class WebUIContext:
     responses_file_unsupported_keys: set[tuple[str, str, str, str]] = field(default_factory=set)
     route_helpers: dict[str, Any] = field(default_factory=dict)
     history_backup_accepting_jobs: bool = False
+    user_config_backup_accepting_jobs: bool = False
 
     def install_on_app_state(self) -> None:
         self.app.state.ctx = self
@@ -161,6 +177,7 @@ class WebUIContext:
         self.app.state.gallery_root = self.gallery_root
         self.app.state.reference_asset_root = self.reference_asset_root
         self.app.state.reference_file_root = self.reference_file_root
+        self.app.state.prompt_template_asset_root = self.prompt_template_asset_root
         self.app.state.source_data_root = self.source_data_root
         self.app.state.auto_start_queue = self.auto_start_queue
         self.app.state.webui_instance_lock = self.instance_lock
@@ -169,6 +186,8 @@ class WebUIContext:
         self.app.state.network_egress_settings = self.network_egress_settings
         self.app.state.network_egress_manager = self.network_egress_manager
         self.app.state.prompt_template_settings = self.prompt_template_settings
+        self.app.state.prompt_template_asset_storage = self.prompt_template_asset_storage
+        self.app.state.prompt_template_thumbnail_resolver = self.prompt_template_thumbnail_resolver
         self.app.state.history_export_service = self.history_export_service
         self.app.state.history_backup_planner = self.history_backup_planner
         self.app.state.history_backup_export_service = self.history_backup_export_service
@@ -176,6 +195,12 @@ class WebUIContext:
         self.app.state.history_backup_temp_root = self.history_backup_temp_root
         self.app.state.history_backup_owner_lock = self.history_backup_owner_lock
         self.app.state.history_backup_accepting_jobs = self.history_backup_accepting_jobs
+        self.app.state.user_config_backup_planner = self.user_config_backup_planner
+        self.app.state.user_config_backup_export_service = self.user_config_backup_export_service
+        self.app.state.user_config_backup_import_service = self.user_config_backup_import_service
+        self.app.state.user_config_backup_temp_root = self.user_config_backup_temp_root
+        self.app.state.user_config_backup_owner_lock = self.user_config_backup_owner_lock
+        self.app.state.user_config_backup_accepting_jobs = self.user_config_backup_accepting_jobs
         self.app.state.client_factory = self.client_factory
         self.app.state.auth_checker = self.auth_checker
         self.app.state.active_task_ids = self.active_task_ids

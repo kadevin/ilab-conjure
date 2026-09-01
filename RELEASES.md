@@ -1,39 +1,44 @@
 # 下载 / Releases
 
-当前正式版本：[v0.8.3](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.3)
+当前正式版本：[v0.8.4](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.4)
 
 ## 版本说明
 
-当前版本：`v0.8.3`。这是面向任务执行可靠性和高频浏览体验的修复更新。建议遇到提示词 chip 未展开、队列把任务失败误报为通道故障、启动器无法恢复损坏的虚拟环境、搜索栏被浏览器自动填充，或历史大图与侧栏加载出现跳闪的用户更新；其他 `v0.8.2` 用户可以按需升级。
+当前版本：`v0.8.4`。这是面向用户配置迁移和 API 凭据安全的功能更新。建议需要迁移或保护 chip、公用图、提示词模板与系统设置，曾因修改供应商 Base URL 丢失已保存 Key，或在点击生成后看到按钮短暂不可用闪烁的用户更新；其他 `v0.8.3` 用户可以按需升级。
 
 受影响平台：macOS 与 Windows 的标准版和 portable 一键包。升级前请退出旧实例；Windows 标准版仍需手动解压替换，portable 可使用现有更新入口，支持更新助手的 macOS 标准版可按界面提示更新。
 
-必要操作与数据迁移：无需迁移或重置数据。已有设置、任务数据库、历史图库、输入图和输出图会保留，本次更新不会改写既有任务或图片数据。
+必要操作与数据迁移：无需迁移或重置数据。已有设置、任务数据库、历史图库、输入图和输出图会保留，本次更新不会自动改写既有用户配置。备份包默认不含 API Key；如明确勾选包含 Key，ZIP 不加密，请妥善保存。`v0.8.3` 及更早版本不能导入新的用户配置备份包。
 
-本版重点：修复任务级生成失败的分类与队列日志语义，恢复提示词 chip 在原始提示模式下的展开，并让任务侧栏分页和历史大图切换在连续浏览时保持无缝稳定。
+本版重点：系统设置新增可选择类别的用户配置备份与恢复，支持安全的增量或二次确认替换；API 供应商编辑不再因 Base URL 变更静默清除 Key，并保留后台防重提交而不改变生成按钮外观。
 
 本版详情：
 
 ### P1 · 重要
 
+#### 新增
+
+- “系统设置 → 存储与通知”新增“配置备份与恢复”：可单独或组合备份 chip、公用图、提示词模板和系统设置，并在导入前预览包内与当前数据数量。
+- 恢复支持“增量”和“替换”两种模式。增量恢复保留现有数据并跳过重复项；替换只作用于明确选择的类别，先展示清除与导入数量，再要求独立勾选和第二次确认。
+- 备份可按需包含 API Key，但默认排除且持续提示 ZIP 未加密；Codex / ChatGPT OAuth 登录态、任务历史、输入图与输出图始终不进入用户配置包。已完成的临时包在 24 小时内可重复下载。
+
 #### 修复
 
-- 修复普通生成失败被记录为“Queue channel worker failure”的问题；更新后任务错误与真正的通道工作线程故障分别统计和记录，单个任务失败不会污染通道健康状态，队列仍按错误是否可重试执行既有故障转移。
-- 修复供应商响应正文、提示词或任务标识中的 `400`、`401`、`403`、`422`、`429` 等数字被误判为 HTTP 状态码的问题；更新后只识别异常的显式状态字段或明确的 HTTP/status 表达，错误类型和重试判断不再被普通文本干扰。
-- 修复 macOS 启动脚本遇到虚拟环境 Python 链接损坏时无法自愈的问题；启动器现在会清理并重建该虚拟环境，再继续依赖校验和启动。
+- 替换恢复不能再用“备份为空、当前非空”的受保护子类别隐式清空颜色、提示词片段、公用图或模板；恢复写入采用事务快照和回滚，启动时也会恢复被中断的事务，避免失败后留下半恢复状态。
+- 备份会核验公用图文件身份与摘要，模板本地缩略图迁移到专用受管素材目录；源文件在打包期间变化、路径越界、伪造图片或摘要不符时安全失败，并返回可操作的原因。
 
 ### P2 · 常规
 
 #### 修复
 
-- 修复提示词 chip 在“原始提示”模式提交后未展开的问题，并支持相邻 chip 连续展开；chip 仍作为用户编写的宏，不会被当作应用附加提示词。
-- 左侧任务列表改为接近组尾时自动加载下一页，并只追加新任务卡；加载中的旧卡、滚动位置和节点保持不变，不再闪一下或整组重绘，失败时才显示可点击的重试入口。
-- 修复浏览器刷新后把历史地址或其他自动完成内容注入任务搜索栏的问题；搜索状态现在只接受明确的键盘、粘贴或拖放输入。
-- 修复历史大图左右切换动画完成后中央图片再次轻微缩放、阴影闪烁和视口边缘出现细描边的问题；动画与真实图片按最终几何交接，中央收尾只保留一层稳定阴影。
+- 新建或实际未保存 Key 的 API 供应商不再允许保存；同一 origin 内修改 Base URL 会继续安全复用隐藏 Key，修改协议、域名或端口时会显示原、新 origin 风险提示，由用户选择返回填写新 Key，或明确保留原 Key 并保存，不再静默清空导致供应商不可用。
+- API 设置保存成功后立即从浏览器状态清除明文 Key；复制供应商只允许在相同 origin 复用隐藏 Key，跨 origin 复制继续拒绝。
+- 点击生成后仍在后台锁定重复提交，但按钮不再短暂变灰、切换“提交中”文字或闪烁；原有生成快捷键提示保持可见，同一次服务端响应到达前的重复点击只提交一个任务。
+- 备份失败状态会显示稳定、可定位的原因；备份就绪后“下载备份”提升为带下载图标的主操作，创建新备份降为次级操作。
 
 #### 兼容性/安装/打包/更新
 
-- 本版不新增依赖或数据库迁移。已有设置、请求策略、任务数据库和图片数据格式不变；如需回退到 `v0.8.2`，无需转换本地数据。
+- 本版不新增运行时依赖或数据库迁移。现有用户配置存储、请求策略、任务数据库和图片数据格式保持兼容；如未使用新备份恢复模板缩略图，回退到 `v0.8.3` 无需转换本地数据。
 
 #### 已知问题
 
@@ -43,15 +48,15 @@
 
 #### 工程与文档
 
-- 同步全部 `14` 种界面的分页失败重试文案、设计合同和缓存版本，并补充提示词、供应商错误分类、队列恢复、启动器、大图交接、浏览器自动填充及侧栏无缝分页的自动验证。
+- 同步全部 `14` 种界面的备份恢复安全文案、用户文档、设计合同和缓存版本，并补充备份格式、分块上传、事务恢复、数据锁、图库与模板素材、API 凭据以及生成按钮防重提交的自动验证。
 
 ## 推荐下载
 
 | 平台 | 推荐给 | 下载 | SHA256 |
 | --- | --- | --- | --- |
-| macOS Apple Silicon | 新用户，M1/M2/M3/M4 | [iLab-GPT-CONJURE-macos-arm64-0.8.3.dmg](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-macos-arm64-0.8.3.dmg) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-macos-arm64-0.8.3.dmg.sha256.txt) |
-| macOS Intel | 新用户，Intel x64 | [iLab-GPT-CONJURE-macos-x64-0.8.3.dmg](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-macos-x64-0.8.3.dmg) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-macos-x64-0.8.3.dmg.sha256.txt) |
-| Windows x64 | 新用户，Windows 10/11 x64 | [iLab-GPT-CONJURE-windows-x64_0.8.3.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-windows-x64_0.8.3.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/iLab-GPT-CONJURE-windows-x64_0.8.3.zip.sha256.txt) |
+| macOS Apple Silicon | 新用户，M1/M2/M3/M4 | [iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg.sha256.txt) |
+| macOS Intel | 新用户，Intel x64 | [iLab-GPT-CONJURE-macos-x64-0.8.4.dmg](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-macos-x64-0.8.4.dmg) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-macos-x64-0.8.4.dmg.sha256.txt) |
+| Windows x64 | 新用户，Windows 10/11 x64 | [iLab-GPT-CONJURE-windows-x64_0.8.4.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-windows-x64_0.8.4.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/iLab-GPT-CONJURE-windows-x64_0.8.4.zip.sha256.txt) |
 
 标准包数据目录：
 
@@ -64,13 +69,13 @@
 
 | 平台 | 适用设备 | 下载 | SHA256 |
 | --- | --- | --- | --- |
-| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.8.3.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_windows_portable_x64_0.8.3.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_windows_portable_x64_0.8.3.zip.sha256.txt) |
-| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.8.3.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_macos_portable_arm64_0.8.3.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_macos_portable_arm64_0.8.3.zip.sha256.txt) |
-| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.8.3.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_macos_portable_x64_0.8.3.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/ilab-gpt-conjure_macos_portable_x64_0.8.3.zip.sha256.txt) |
+| Windows x64 | Windows 10/11 x64 | [ilab-gpt-conjure_windows_portable_x64_0.8.4.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_windows_portable_x64_0.8.4.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_windows_portable_x64_0.8.4.zip.sha256.txt) |
+| macOS Apple Silicon | M1/M2/M3/M4 | [ilab-gpt-conjure_macos_portable_arm64_0.8.4.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_macos_portable_arm64_0.8.4.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_macos_portable_arm64_0.8.4.zip.sha256.txt) |
+| macOS Intel | Intel x64 | [ilab-gpt-conjure_macos_portable_x64_0.8.4.zip](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_macos_portable_x64_0.8.4.zip) | [sha256](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/ilab-gpt-conjure_macos_portable_x64_0.8.4.zip.sha256.txt) |
 
 portable 自动更新 manifest：
 
-- [latest.json](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.3/latest.json)
+- [latest.json](https://github.com/kadevin/ilab-conjure/releases/download/v0.8.4/latest.json)
 
 使用方式：
 

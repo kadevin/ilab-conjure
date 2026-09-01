@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import uuid
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,8 @@ from urllib.parse import urlsplit
 
 from codex_image.client import DEFAULT_IMAGE_MODEL
 
+from .atomic_files import atomic_write_text
+from .store_locks import StoreLockMixin, store_locked
 from .storage_utils import utc_now
 
 
@@ -34,10 +37,12 @@ DEFAULT_PROMPT_TEMPLATE_CATEGORIES = [
 ]
 
 
-class PromptTemplateSettings:
+class PromptTemplateSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -50,12 +55,15 @@ class PromptTemplateSettings:
         except ValueError:
             return self.default_settings()
 
+    @store_locked
     def list(self) -> list[dict[str, Any]]:
         return self.read()["templates"]
 
+    @store_locked
     def list_categories(self) -> list[dict[str, Any]]:
         return self.read()["categories"]
 
+    @store_locked
     def create(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt template payload must be an object")
@@ -87,6 +95,7 @@ class PromptTemplateSettings:
         self.write({**current, "templates": [*templates, template], "categories": categories})
         return template
 
+    @store_locked
     def update(self, template_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt template payload must be an object")
@@ -104,6 +113,7 @@ class PromptTemplateSettings:
             return template
         raise ValueError("Prompt template not found")
 
+    @store_locked
     def mark_used(self, template_id: str) -> dict[str, Any]:
         current = self.read()
         templates = current["templates"]
@@ -124,6 +134,7 @@ class PromptTemplateSettings:
             return updated_template
         raise ValueError("Prompt template not found")
 
+    @store_locked
     def delete(self, template_id: str) -> None:
         current = self.read()
         templates = current["templates"]
@@ -132,6 +143,7 @@ class PromptTemplateSettings:
             raise ValueError("Prompt template not found")
         self.write({**current, "templates": updated})
 
+    @store_locked
     def create_category(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt template category payload must be an object")
@@ -145,6 +157,7 @@ class PromptTemplateSettings:
         self.write({**current, "categories": categories})
         return category
 
+    @store_locked
     def update_category(self, category_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt template category payload must be an object")
@@ -173,6 +186,7 @@ class PromptTemplateSettings:
         self.write({**current, "templates": templates, "categories": categories})
         return new_category
 
+    @store_locked
     def delete_category(self, category_id: str) -> dict[str, Any]:
         current = self.read()
         clean_id = _clean_prompt_template_category(category_id)
@@ -188,6 +202,7 @@ class PromptTemplateSettings:
         settings = self.write({**current, "templates": templates, "categories": categories})
         return settings
 
+    @store_locked
     def export_pack(self) -> dict[str, Any]:
         settings = self.read()
         return {
@@ -199,6 +214,7 @@ class PromptTemplateSettings:
             "templates": settings["templates"],
         }
 
+    @store_locked
     def import_pack(self, filename: str, payload: bytes, content_type: str | None = None) -> tuple[dict[str, Any], int, int]:
         imported_categories, template_payloads = _parse_prompt_template_import(filename, payload, content_type)
         current = self.read()
@@ -234,10 +250,14 @@ class PromptTemplateSettings:
         settings = self.write({**current, "templates": templates, "categories": categories})
         return settings, imported, skipped
 
+    @store_locked
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         settings = _normalize_prompt_templates_payload(payload, default_when_missing=False)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(settings, indent=2, ensure_ascii=False), encoding="utf-8")
+        atomic_write_text(
+            self.path,
+            json.dumps(settings, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
         return settings
 
     @staticmethod

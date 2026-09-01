@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -87,6 +88,7 @@ from .schemas import (
     DEFAULT_WEBUI_SOURCE_DATA_ROOT,
 )
 from .startup_auth import AUTH_SOURCES, detect_startup_auth_source
+from .store_locks import StoreLockMixin, store_locked
 
 SUPPORTED_LOCALES = ("zh-CN", "zh-TW", "zh-HK", "ja", "ko", "en", "vi", "es", "pt", "fr", "de", "ru", "it", "hi")
 _SUPPORTED_LOCALE_BY_LOWER = {locale.lower(): locale for locale in SUPPORTED_LOCALES}
@@ -96,10 +98,12 @@ def _default_auth_source() -> str:
     return detect_startup_auth_source()
 
 
-class WebUISettings:
+class WebUISettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def _read_payload(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -107,6 +111,7 @@ class WebUISettings:
             return {}
         return payload if isinstance(payload, dict) else {}
 
+    @store_locked
     def read_paths(self) -> dict[str, Path]:
         defaults = {
             "input_root": DEFAULT_WEBUI_INPUT_ROOT,
@@ -127,9 +132,11 @@ class WebUISettings:
             return defaults
         return paths
 
+    @store_locked
     def read_locale(self) -> str | None:
         return _settings_locale(self._read_payload().get("locale"), allow_empty=True)
 
+    @store_locked
     def write_paths(self, payload: dict[str, Any]) -> dict[str, Path]:
         current = self.read_paths()
         paths = {
@@ -150,6 +157,7 @@ class WebUISettings:
         )
         return paths
 
+    @store_locked
     def write_locale(self, locale: Any) -> str:
         normalized = _settings_locale(locale)
         payload = self._read_payload()
@@ -160,6 +168,25 @@ class WebUISettings:
             mode=0o600,
         )
         return normalized
+
+    @store_locked
+    def snapshot(self) -> dict[str, Any]:
+        payload = self._read_payload()
+        values: dict[str, Any] = {
+            **{key: str(value) for key, value in self.read_paths().items()},
+            "locale": self.read_locale(),
+        }
+        field_order = (
+            "input_root",
+            "output_root",
+            "gallery_root",
+            "source_data_root",
+            "locale",
+        )
+        return {
+            "values": values,
+            "present_fields": [field for field in field_order if field in payload],
+        }
 
 
 def _settings_path(value: Any, default: Path) -> Path:
@@ -223,10 +250,12 @@ def _mask_api_key(api_key: str) -> str:
     return f"{clean[:3]}...{clean[-4:]}"
 
 
-class AuthSettings:
+class AuthSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read_source(self) -> str:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -235,6 +264,7 @@ class AuthSettings:
         source = str(payload.get("source") or "").strip().lower()
         return source if source in AUTH_SOURCES else _default_auth_source()
 
+    @store_locked
     def write_source(self, source: str) -> None:
         if source not in AUTH_SOURCES:
             raise ValueError(f"Unsupported auth source: {source}")
@@ -243,6 +273,18 @@ class AuthSettings:
             json.dumps({"source": source}, indent=2),
             mode=0o600,
         )
+
+    @store_locked
+    def snapshot(self) -> dict[str, Any]:
+        present = False
+        try:
+            payload = json.loads(self.path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            payload = {}
+        if isinstance(payload, dict):
+            source = str(payload.get("source") or "").strip().lower()
+            present = source in AUTH_SOURCES
+        return {"source": self.read_source(), "present": present}
 
 
 ApiSettings = ProviderSettings

@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import uuid
 from pathlib import Path
 from typing import Any
 
+from .atomic_files import atomic_write_text
+from .store_locks import StoreLockMixin, store_locked
 from .storage_utils import utc_now
 
 
@@ -22,10 +25,12 @@ _PROMPT_SNIPPET_TOKEN_PATTERN = re.compile(
 )
 
 
-class PromptSnippetSettings:
+class PromptSnippetSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -38,9 +43,11 @@ class PromptSnippetSettings:
         except ValueError:
             return self.default_settings()
 
+    @store_locked
     def list(self) -> list[dict[str, Any]]:
         return self.read()["snippets"]
 
+    @store_locked
     def create(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt snippet payload must be an object")
@@ -64,6 +71,7 @@ class PromptSnippetSettings:
         self.write({**current, "snippets": [*snippets, snippet]})
         return snippet
 
+    @store_locked
     def update(self, snippet_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt snippet payload must be an object")
@@ -89,6 +97,7 @@ class PromptSnippetSettings:
             return snippet
         raise ValueError("Prompt snippet not found")
 
+    @store_locked
     def delete(self, snippet_id: str) -> None:
         current = self.read()
         snippets = current["snippets"]
@@ -97,10 +106,14 @@ class PromptSnippetSettings:
             raise ValueError("Prompt snippet not found")
         self.write({**current, "snippets": updated})
 
+    @store_locked
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         settings = _normalize_prompt_snippets_payload(payload, default_when_missing=False)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(settings, indent=2, ensure_ascii=False), encoding="utf-8")
+        atomic_write_text(
+            self.path,
+            json.dumps(settings, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
         return settings
 
     @staticmethod

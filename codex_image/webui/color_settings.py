@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 from pathlib import Path
 from typing import Any
+
+from .atomic_files import atomic_write_text
+from .store_locks import StoreLockMixin, store_locked
 
 
 DEFAULT_COLOR_RECENT_LIMIT = 6
@@ -23,10 +27,12 @@ DEFAULT_COLOR_FAVORITES = [
 ]
 
 
-class ColorPaletteSettings:
+class ColorPaletteSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -39,6 +45,7 @@ class ColorPaletteSettings:
         except ValueError:
             return self.default_settings()
 
+    @store_locked
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Color palette payload must be an object")
@@ -50,10 +57,14 @@ class ColorPaletteSettings:
             "recent_limit": payload.get("recent_limit", current["recent_limit"]),
         }
         settings = _normalize_color_palette_payload(merged, default_when_missing=False)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(settings, indent=2, ensure_ascii=False), encoding="utf-8")
+        atomic_write_text(
+            self.path,
+            json.dumps(settings, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
         return settings
 
+    @store_locked
     def import_favorites(self, items: list[dict[str, Any]]) -> tuple[dict[str, Any], int, int]:
         if not items:
             raise ValueError("No importable colors found in palette file")

@@ -68,7 +68,10 @@ export function detectPreferredLocale(languages?: readonly string[]): Locale {
 }
 
 export function translate(key: string, locale: Locale = currentLocale): string {
-  return DICTIONARIES[locale]?.[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+  return DICTIONARIES[locale]?.[key]
+    ?? DICTIONARIES.en[key]
+    ?? DICTIONARIES[DEFAULT_LOCALE][key]
+    ?? key;
 }
 
 export function currentLocaleCode(): Locale {

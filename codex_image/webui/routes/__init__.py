@@ -15,6 +15,7 @@ from .queue import register_queue_routes
 from .reference_files import register_reference_file_routes
 from .settings import register_settings_routes
 from .tasks import register_task_routes
+from .user_config_backup import register_user_config_backup_routes
 
 
 def register_webui_routes(app: FastAPI, ctx: WebUIContext) -> None:
@@ -24,6 +25,7 @@ def register_webui_routes(app: FastAPI, ctx: WebUIContext) -> None:
     register_task_routes(app, ctx)
     register_history_routes(app, ctx)
     register_history_backup_routes(app, ctx)
+    register_user_config_backup_routes(app, ctx)
     register_queue_routes(app, ctx)
     register_gallery_routes(app, ctx)
     register_reference_file_routes(app, ctx)
