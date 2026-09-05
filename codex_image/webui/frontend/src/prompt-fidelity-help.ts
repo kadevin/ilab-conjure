@@ -23,7 +23,7 @@ function promptTransport(): PromptTransport {
 
 function currentPromptFidelity(): PromptFidelity {
   const value = (document.querySelector("#promptFidelity") as HTMLSelectElement | null)?.value;
-  return value === "original" || value === "off" ? value : "strict";
+  return value === "original" || value === "strict" ? value : "off";
 }
 
 function ensurePromptFidelityHelpPopover(): HTMLElement {

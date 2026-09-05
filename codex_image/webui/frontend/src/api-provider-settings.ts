@@ -41,6 +41,14 @@ import {
 } from "./provider-model-bindings";
 import type { BindingProtocol } from "./provider-model-bindings";
 import type { BindingCompatibility } from "./provider-model-bindings";
+import {
+  clearProviderApiKeyInputs,
+  evaluateProviderCredentialSave,
+  isConfirmedProviderOriginChange,
+} from "./api-provider-credentials";
+import type {
+  ProviderOriginChangeConfirmation,
+} from "./api-provider-credentials";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -226,6 +234,7 @@ export function hideApiKeyReveal(): void {
 export function updateApiKeyRevealButton(): void {
   if (!els.apiKeyRevealButton) return;
   const canReveal = Boolean(els.apiKey?.value);
+  if (canReveal) els.apiKey?.removeAttribute("aria-invalid");
   if (!canReveal) hideApiKeyReveal();
   els.apiKeyRevealButton.disabled = !canReveal;
   const label = translate("apiSettings.showApiKey");
@@ -1143,6 +1152,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
   const previousEditingId = state.apiProviderEditingId;
   const previousDraft = state.apiProviderDraft ? structuredClone(state.apiProviderDraft) : null;
   const previousDraftIsNew = state.apiProviderDraftIsNew;
+  let confirmedOriginChange: ProviderOriginChangeConfirmation | null = null;
   if (!autoSave && apiProviderEditorActive()) {
     const bindings = readProviderBindingCards(els.apiProviderBindings);
     if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id
@@ -1159,6 +1169,44 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
       (els.apiProviderBindings as HTMLElement | null)?.querySelector<HTMLElement>(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
       return false;
     }
+    const providerDraft = draftProviderFromForm();
+    const credentialDecision = evaluateProviderCredentialSave(
+      providerDraft,
+      previousSettings.providers,
+    );
+    if (credentialDecision.kind === "key_required") {
+      els.apiKey?.setAttribute("aria-invalid", "true");
+      setApiSettingsFeedback(translate("apiSettings.apiKeyRequired"), "error");
+      els.apiKey?.focus();
+      return false;
+    }
+    const requestedConfirmation = options.originChangeConfirmation || null;
+    if (credentialDecision.kind === "confirm_origin_change") {
+      if (!isConfirmedProviderOriginChange(credentialDecision, requestedConfirmation)) {
+        openConfirmPopover(els.saveApiProviderEditButton, {
+          title: translate("apiSettings.originChangeTitle"),
+          message: translate("apiSettings.originChangeMessage"),
+          detail: formatTranslation("apiSettings.originChangeDetail", {
+            previousOrigin: credentialDecision.previousOrigin,
+            nextOrigin: credentialDecision.nextOrigin,
+          }),
+          cancelText: translate("apiSettings.enterNewKey"),
+          confirmText: translate("apiSettings.keepKeyAndSave"),
+          focusCancel: true,
+          onCancel: () => els.apiKey?.focus(),
+          onConfirm: () => saveApiSettings({
+            originChangeConfirmation: {
+              providerId: credentialDecision.providerId,
+              previousOrigin: credentialDecision.previousOrigin,
+              nextOrigin: credentialDecision.nextOrigin,
+            },
+          }),
+        });
+        return false;
+      }
+      confirmedOriginChange = requestedConfirmation;
+    }
+    els.apiKey?.removeAttribute("aria-invalid");
   }
   const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
   persistApiSettings();
@@ -1180,6 +1228,9 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
       if (!provider.api_key && provider.api_key_source_provider_id) {
         item.api_key_source_provider_id = provider.api_key_source_provider_id;
       }
+      if (provider.id === confirmedOriginChange?.providerId) {
+        item.preserve_api_key_on_origin_change = true;
+      }
       return item;
     }),
   };
@@ -1195,8 +1246,15 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || translate("apiSettings.saveFailed"));
-    state.apiSettings = mergeApiProviderKeys(data.settings || {});
+    if (!response.ok) {
+      const detail = String(data.detail || "");
+      if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+      if (detail === "api_key_origin_change_confirmation_required") {
+        throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
+      }
+      throw new Error(detail || translate("apiSettings.saveFailed"));
+    }
+    state.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
     state.apiProviderEditingId = null;
     state.apiProviderDraft = null;
     state.apiProviderDraftIsNew = false;

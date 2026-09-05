@@ -47,7 +47,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-110', history_html)
+        self.assertIn('/static/history.js?v=history-114', history_html)
         self.assertIn('fetch("/api/task-history/summary")', history_source)
         self.assertIn('new URLSearchParams', history_source)
         self.assertIn('/api/task-history/tasks?', history_source)
@@ -144,7 +144,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("prefersReducedMotion", anchor_source)
         self.assertIn("expandedTaskGroupAnimationPending: false", state_defaults)
         self.assertIn("function finalizeExpandedTaskGroupBody(", render_source)
-        self.assertIn("const shouldAnimateExpand = state.expandedTaskGroupAnimationPending === true;", render_source)
+        self.assertIn("const shouldAnimateExpand = !preserveExisting && state.expandedTaskGroupAnimationPending === true;", render_source)
         self.assertIn("state.expandedTaskGroupAnimationPending = false;", render_source)
         self.assertIn('renderTaskHistoryAnchors: proxy("renderTaskHistoryAnchors")', bootstrap_source)
         self.assertIn('restoreExpandedTaskGroupKey: proxy("restoreExpandedTaskGroupKey")', bootstrap_source)
@@ -400,7 +400,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 
         for marker in [
             "export function initTaskListRenderFeature",
-            "function renderTasks(options: { preserveScroll?: boolean } = {})",
+            "function renderTasks(options: { preserveScroll?: boolean; appendGroupKey?: string } = {})",
             "function taskSearchQuery()",
             "function filteredVisibleTasks(",
             "function taskCardHtml(",
@@ -458,6 +458,42 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
             "function renderArchiveModal()",
         ]:
             self.assertIn(marker, archive_source)
+
+    def test_task_search_rejects_browser_restored_values_until_manual_input(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        state_defaults = Path("codex_image/webui/frontend/src/state-defaults.ts").read_text(encoding="utf-8")
+        controls_source = self._task_list_controls_source()
+        render_source = self._task_list_render_source()
+        tasks_source = Path("codex_image/webui/frontend/src/tasks.ts").read_text(encoding="utf-8")
+        task_search = re.search(r'<input\b[^>]*\bid="taskSearch"[^>]*>', html)
+
+        self.assertIsNotNone(task_search)
+        task_search_markup = task_search.group(0)
+        self.assertIn('name="task-history-search"', task_search_markup)
+        self.assertIn('inputmode="search"', task_search_markup)
+        self.assertIn('autocomplete="new-password"', task_search_markup)
+        self.assertIn('autocapitalize="off"', task_search_markup)
+        self.assertIn('spellcheck="false"', task_search_markup)
+        self.assertRegex(task_search_markup, r"\sreadonly(?:\s|>)")
+
+        self.assertIn('taskSearchQuery: ""', state_defaults)
+        self.assertIn("let taskSearchAcceptManualInput = false;", controls_source)
+        self.assertIn("function syncTaskSearchInput()", controls_source)
+        self.assertIn("function setTaskSearchLocked(locked: boolean)", controls_source)
+        self.assertIn("function guardTaskSearchInput(", controls_source)
+        self.assertIn('els.taskSearch?.addEventListener("pointerdown"', controls_source)
+        self.assertIn('els.taskSearch?.addEventListener("keydown"', controls_source)
+        self.assertIn('els.taskSearch?.addEventListener("paste"', controls_source)
+        self.assertIn('els.taskSearch?.addEventListener("drop"', controls_source)
+        self.assertRegex(
+            controls_source,
+            r"function handleTaskSearchInput\(\)\s*\{\s*if \(!taskSearchAcceptManualInput\) \{[\s\S]*syncTaskSearchInput\(\);[\s\S]*return;[\s\S]*state\.taskSearchQuery =",
+        )
+        self.assertIn('return String(state.taskSearchQuery || "").trim().toLowerCase();', render_source)
+        self.assertIn('return String(state.taskSearchQuery || "").trim();', tasks_source)
+        self.assertNotIn('return els.taskSearch.value.trim().toLowerCase();', render_source)
+        self.assertNotIn('return String(els.taskSearch?.value || "").trim();', tasks_source)
+
     def test_task_search_lives_in_sidebar_only(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -882,7 +918,8 @@ console.log(JSON.stringify({{
         self.assertIn("scheduleExpandedTaskGroupItemsRender(group, layout.expandedKey || group?.key || null)", render_source)
         self.assertIn("requestAnimationFrame(renderChunk)", render_source)
         self.assertNotIn("taskHistoryCollapseTimerId", controls_source)
-        self.assertNotIn("window.setTimeout", controls_source)
+        self.assertEqual(controls_source.count("window.setTimeout"), 1)
+        self.assertIn("window.setTimeout(syncTaskSearchInput, delay)", controls_source)
         self.assertRegex(styles, r"\.sidebar-search\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.sidebar-search input\s*\{[^}]*padding:\s*0\s+82px\s+0\s+32px")
         self.assertRegex(styles, r"\.task-search-clear-button\s*\{[^}]*top:\s*18px")
@@ -2762,7 +2799,7 @@ console.log(JSON.stringify({{
         queue_source = Path("codex_image/webui/frontend/src/queue.ts").read_text(encoding="utf-8")
         tasks_source = Path("codex_image/webui/frontend/src/tasks.ts").read_text(encoding="utf-8")
 
-        self.assertIn("function renderTasks(options: { preserveScroll?: boolean } = {})", render_source)
+        self.assertIn("function renderTasks(options: { preserveScroll?: boolean; appendGroupKey?: string } = {})", render_source)
         self.assertIn("function captureTaskListScrollAnchors()", render_source)
         self.assertIn("function captureTaskListScrollAnchor(", render_source)
         self.assertIn("function restoreTaskListScrollAnchor(anchor", render_source)
@@ -3284,7 +3321,7 @@ console.log(JSON.stringify({{
 
         self.assertIn("tasksRenderKey", script)
         self.assertIn("function taskListRenderKey", render_source)
-        self.assertIn("if (state.tasksRenderKey === nextRenderKey)", script)
+        self.assertIn("if (!appendGroupKey && state.tasksRenderKey === nextRenderKey)", script)
         self.assertNotIn("selectedTaskId: state.selectedTaskId", render_source)
         self.assertIn("function updateTaskSelectionVisuals", render_source)
         self.assertIn("function taskCardRoot()", render_source)

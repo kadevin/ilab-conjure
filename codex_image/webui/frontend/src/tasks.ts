@@ -108,6 +108,7 @@ async function applyTasksSnapshot(
   const pendingTask = state.pendingTaskId ? state.tasks.find((task: any) => task.task_id === state.pendingTaskId) : null;
   state.tasks = mergeActiveQueueTaskDetails(Array.isArray(tasks) ? tasks : []);
   if (Array.isArray(taskGroups)) {
+    state.taskSidebarGroupLoadError = null;
     state.taskSidebarGroupCounts = Object.fromEntries(
       taskGroups.map((group: any) => [String(group?.key || ""), Math.max(0, Number(group?.count || 0))]),
     );
@@ -157,13 +158,13 @@ function mergeActiveQueueTaskDetails(tasks: any[]) {
   return merged;
 }
 
-async function loadMoreSidebarTaskGroup(groupKey: any) {
+async function loadMoreSidebarTaskGroup(groupKey: any, { manual = false }: any = {}) {
   const key = String(groupKey || "");
-  if (!key || state.taskSidebarGroupLoading) return;
+  if (!key || state.taskSidebarGroupLoading) return false;
+  if (!manual && String(state.taskSidebarGroupLoadError || "") === key) return false;
   const offset = Math.max(0, Number(state.taskSidebarGroupLoadedCounts?.[key] || 0));
   state.taskSidebarGroupLoading = key;
-  state.tasksRenderKey = null;
-  renderTasks({ preserveScroll: true });
+  state.taskSidebarGroupLoadError = null;
   try {
     const response = await fetch(
       `/api/tasks/sidebar/groups/${encodeURIComponent(key)}?offset=${offset}&limit=${TASK_SIDEBAR_GROUP_PAGE_SIZE}`,
@@ -182,10 +183,13 @@ async function loadMoreSidebarTaskGroup(groupKey: any) {
     });
     state.taskSidebarGroupCounts[key] = Math.max(0, Number(data.count || 0));
     state.taskSidebarGroupLoadedCounts[key] = Math.max(offset, Number(data.next_offset || offset + incoming.length));
+    return true;
+  } catch (_error) {
+    state.taskSidebarGroupLoadError = key;
+    return false;
   } finally {
     state.taskSidebarGroupLoading = null;
-    state.tasksRenderKey = null;
-    renderTasks({ preserveScroll: true });
+    renderTasks({ preserveScroll: true, appendGroupKey: key });
   }
 }
 
@@ -349,7 +353,7 @@ async function applyTaskUpdate(task: any) {
 }
 
 function currentTaskSearchQuery(): string {
-  return String(els.taskSearch?.value || "").trim();
+  return String(state.taskSearchQuery || "").trim();
 }
 
 function activeOrSelectedTask(task: any): boolean {

@@ -56,7 +56,13 @@ from .executor_transport import (
     _normalize_prompt_fidelity,
     _prompt_for_transport,
 )
-from .queue import NonRetryableTaskError, QueueChannel, QueueManager
+from .queue import (
+    NonRetryableTaskError,
+    QueueChannel,
+    QueueManager,
+    QueueTaskError,
+    RetryableTaskError,
+)
 from .reference_file_capabilities import (
     CapabilityKey,
     effective_reference_file_main_model,
@@ -95,6 +101,10 @@ def _queue_channel_by_id(app_instance: FastAPI, channel_id: str) -> QueueChannel
     )
 
 
+def _safe_log_field(value: Any, *, limit: int = 160) -> str:
+    return str(value or "").replace("\r", "_").replace("\n", "_")[:limit]
+
+
 async def _queue_channel_worker_loop(
     app_instance: FastAPI,
     channel_id: str,
@@ -105,6 +115,7 @@ async def _queue_channel_worker_loop(
     if not isinstance(health, QueueWorkerHealth):
         health = QueueWorkerHealth()
         app_instance.state.queue_worker_health = health
+    task_failure_count = 0
     while True:
         channel = _queue_channel_by_id(app_instance, channel_id)
         if channel is None:
@@ -114,13 +125,28 @@ async def _queue_channel_worker_loop(
             started = await app_instance.state.queue_manager.run_channel_once(channel)
         except asyncio.CancelledError:
             raise
+        except QueueTaskError as exc:
+            health.record_success(channel_id=channel_id)
+            task_failure_count += 1
+            logger.warning(
+                "Queue task failure channel_id=%s task_id=%s error_code=%s retryable=%s",
+                _safe_log_field(channel_id),
+                _safe_log_field(exc.task_id),
+                _safe_log_field(exc.error_code, limit=80) or "task_execution_failed",
+                str(exc.retryable).lower(),
+            )
+            delay = _QUEUE_WORKER_BACKOFF_SECONDS[
+                min(task_failure_count - 1, len(_QUEUE_WORKER_BACKOFF_SECONDS) - 1)
+            ]
+            await sleeper(delay)
+            continue
         except Exception as exc:
+            task_failure_count = 0
             failure_count = health.record_failure(exc, channel_id=channel_id)
             error_type = health.last_error_type or "Exception"
-            safe_channel_id = str(channel_id).replace("\r", "_").replace("\n", "_")[:160]
             logger.error(
                 "Queue channel worker failure channel_id=%s error_type=%s",
-                safe_channel_id,
+                _safe_log_field(channel_id),
                 error_type,
             )
             delay = _QUEUE_WORKER_BACKOFF_SECONDS[
@@ -129,6 +155,7 @@ async def _queue_channel_worker_loop(
             await sleeper(delay)
             continue
         health.record_success(channel_id=channel_id)
+        task_failure_count = 0
         if not started:
             return
         await sleeper(0)
@@ -921,6 +948,11 @@ async def execute_task(
             ctx.responses_file_unsupported_keys.add(execution_contract.reference_file_capability_key)
             exc = RuntimeError("provider_reference_files_unsupported")
         structured_error, safe_error = _structured_task_error(ctx, metadata, exc)
+        error_code = (
+            structured_error.detail.code
+            if structured_error is not None
+            else "task_execution_failed"
+        )
         provider_non_retryable = isinstance(exc, GenerationProviderError) and not exc.detail.retryable
         non_retryable = reference_file_missing or explicit_file_rejection or provider_non_retryable or _is_non_retryable_error(exc) or local_usage_limit_error
         metadata["status"] = "failed" if is_final_attempt or non_retryable else "queued"
@@ -931,8 +963,16 @@ async def execute_task(
             metadata["generation_error"] = structured_error.detail.to_dict()
         ctx.storage.write_metadata(task_id, metadata)
         if non_retryable:
-            raise NonRetryableTaskError(str(exc)) from exc
-        raise
+            raise NonRetryableTaskError(
+                safe_error,
+                task_id=task_id,
+                error_code=error_code,
+            ) from exc
+        raise RetryableTaskError(
+            safe_error,
+            task_id=task_id,
+            error_code=error_code,
+        ) from exc
     finally:
         ctx.api_task_slot_reservations.pop(task_id, None)
         if ctx.running_worker_tasks.get(task_id) is current_task:

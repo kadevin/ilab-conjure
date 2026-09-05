@@ -23,7 +23,6 @@ const state = bridge.state;
 const els = bridge.els;
 const EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT = 24;
 const EXPANDED_TASK_GROUP_CHUNK_SIZE = 48;
-const TASK_SIDEBAR_GROUP_PAGE_SIZE = 50;
 const EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS = 320;
 const TASK_THUMB_OUTER_SPIN_DURATION_MS = 1300;
 const TASK_THUMB_INNER_SPIN_DURATION_MS = 950;
@@ -68,6 +67,10 @@ function scrollExpandedTaskGroupToTop(...args: any[]) { return legacyMethod("scr
 function captureTaskHistoryLayout(...args: any[]) { return legacyMethod("captureTaskHistoryLayout", ...args); }
 function animateTaskHistoryLayout(...args: any[]) { return legacyMethod("animateTaskHistoryLayout", ...args); }
 function scheduleLatestTaskNavigationRefresh(...args: any[]) { return legacyMethod("scheduleLatestTaskNavigationRefresh", ...args); }
+function scheduleSidebarTaskGroupAutoLoad(...args: any[]) {
+  const method = getLegacyBridge().methods.scheduleSidebarTaskGroupAutoLoad;
+  return typeof method === "function" ? method(...args) : undefined;
+}
 function consumeLatestTaskNavigationScrollAnchor(...args: any[]) { return legacyMethod("consumeLatestTaskNavigationScrollAnchor", ...args); }
 function rememberLatestTaskNavigationBeforeRender(...args: any[]) { return legacyMethod("rememberLatestTaskNavigationBeforeRender", ...args); }
 const taskRatio = (...args: any[]) => legacyMethod("taskRatio", ...args);
@@ -90,7 +93,7 @@ const taskCompletionTimestampText = (...args: any[]) => legacyMethod("taskComple
 const taskCompletionTimestampTitle = (...args: any[]) => legacyMethod("taskCompletionTimestampTitle", ...args);
 const timestampMs = (...args: any[]) => legacyMethod("timestampMs", ...args);
 
-function renderTasks(options: { preserveScroll?: boolean } = {}) {
+function renderTasks(options: { preserveScroll?: boolean; appendGroupKey?: string } = {}) {
   if (options.preserveScroll) rememberLatestTaskNavigationBeforeRender();
   const scrollAnchors = options.preserveScroll ? captureTaskListScrollAnchors() : [];
   const query = taskSearchQuery();
@@ -118,7 +121,21 @@ function renderTasks(options: { preserveScroll?: boolean } = {}) {
   const expandedGroup = ensureExpandedTaskGroupKey(groups);
   const layout = taskAnchorLayout(groups, expandedGroup?.key || null, query);
   const nextRenderKey = taskListRenderKey(tasks, query, layout, filters, activeGroup);
-  if (state.tasksRenderKey === nextRenderKey) {
+  const appendGroupKey = String(options.appendGroupKey || "");
+  if (
+    appendGroupKey
+    && appendExpandedTaskGroupPage(layout.expandedGroup, appendGroupKey, layout.expandedKey)
+  ) {
+    state.tasksRenderKey = nextRenderKey;
+    updateExpandedTaskGroupCount(layout.expandedGroup);
+    updateTaskElapsedDisplays();
+    updateTaskSelectionVisuals();
+    updateDocumentTitle();
+    restoreTaskListScrollAnchors(scrollAnchors);
+    scheduleLatestTaskNavigationRefresh();
+    return;
+  }
+  if (!appendGroupKey && state.tasksRenderKey === nextRenderKey) {
     updateTaskElapsedDisplays();
     restoreTaskListScrollAnchors(scrollAnchors);
     scheduleLatestTaskNavigationRefresh();
@@ -362,32 +379,75 @@ function expandedTaskGroupItemsContainer(groupKey: string) {
   ) as HTMLElement | null;
 }
 
-function scheduleExpandedTaskGroupItemsRender(group: any, activeGroupKey: string | null = null) {
+function updateExpandedTaskGroupCount(group: any) {
+  if (!group || !els.taskHistoryCurrentAnchor) return;
+  const count = els.taskHistoryCurrentAnchor.querySelector(".task-group-count");
+  if (count) count.textContent = String(taskGroupCount(group));
+}
+
+function appendExpandedTaskGroupPage(
+  group: any,
+  requestedGroupKey: string,
+  activeGroupKey: string | null = null,
+) {
+  const groupKey = String(group?.key || "");
+  const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
+  if (!groupKey || groupKey !== requestedGroupKey || normalizedActiveGroupKey !== groupKey) return false;
+  const body = expandedTaskGroupItemsContainer(groupKey);
+  if (!body || body.dataset.renderComplete !== "true") return false;
+  const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
+  const existingCards = Array.from(body.querySelectorAll(".task-card[data-task-id]")) as HTMLElement[];
+  if (existingCards.length > tasks.length) return false;
+  const existingCardsMatch = existingCards.every((card, index) => (
+    String(card.dataset.taskId || "") === String(tasks[index]?.task_id || "")
+  ));
+  if (!existingCardsMatch) return false;
+
+  body.querySelectorAll("[data-load-more-task-group]").forEach((element) => element.remove());
+  body.dataset.renderComplete = "false";
+  scheduleExpandedTaskGroupItemsRender(group, normalizedActiveGroupKey, {
+    startIndex: existingCards.length,
+    preserveExisting: true,
+  });
+  return true;
+}
+
+function scheduleExpandedTaskGroupItemsRender(
+  group: any,
+  activeGroupKey: string | null = null,
+  options: { startIndex?: number; preserveExisting?: boolean } = {},
+) {
   const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
   const groupKey = String(group?.key || "");
   if (!groupKey) return;
   const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
-  const shouldAnimateExpand = state.expandedTaskGroupAnimationPending === true;
+  const preserveExisting = options.preserveExisting === true;
+  const startIndex = Math.min(tasks.length, Math.max(0, Number(options.startIndex || 0)));
+  const shouldAnimateExpand = !preserveExisting && state.expandedTaskGroupAnimationPending === true;
   state.expandedTaskGroupAnimationPending = false;
   const token = ++expandedTaskGroupRenderToken;
-  let index = 0;
+  let index = startIndex;
   const renderChunk = () => {
     if (token !== expandedTaskGroupRenderToken) return;
     if (normalizedActiveGroupKey !== groupKey) return;
     const body = expandedTaskGroupItemsContainer(groupKey);
     if (!body) return;
-    const chunkSize = index === 0 ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT : EXPANDED_TASK_GROUP_CHUNK_SIZE;
+    const firstChunk = index === startIndex;
+    const chunkSize = !preserveExisting && firstChunk
+      ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT
+      : EXPANDED_TASK_GROUP_CHUNK_SIZE;
     const nextTasks = tasks.slice(index, index + chunkSize);
     if (!nextTasks.length) {
       body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
       finalizeExpandedTaskGroupBody(groupKey);
       body.dataset.renderComplete = "true";
       scheduleLatestTaskNavigationRefresh();
+      scheduleSidebarTaskGroupAutoLoad();
       return;
     }
     body.insertAdjacentHTML("beforeend", nextTasks.map((task: any) => taskCardHtml(task)).join(""));
     index += nextTasks.length;
-    if (index === nextTasks.length) {
+    if (firstChunk) {
       if (shouldAnimateExpand) {
         animateExpandedTaskGroupBody(groupKey);
       } else {
@@ -401,6 +461,7 @@ function scheduleExpandedTaskGroupItemsRender(group: any, activeGroupKey: string
     } else {
       body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
       body.dataset.renderComplete = "true";
+      scheduleSidebarTaskGroupAutoLoad();
     }
     scheduleLatestTaskNavigationRefresh();
   };
@@ -440,7 +501,7 @@ function updateTaskSelectionVisuals(taskId: any = state.selectedTaskId) {
 }
 
 function taskSearchQuery() {
-  return els.taskSearch.value.trim().toLowerCase();
+  return String(state.taskSearchQuery || "").trim().toLowerCase();
 }
 
 function taskFilterValues() {
@@ -1040,19 +1101,45 @@ function taskGroupCount(group: any) {
 }
 
 function taskGroupLoadMoreHtml(group: any) {
-  const loadedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+  const renderedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+  const loadedCount = Math.max(
+    renderedCount,
+    Math.max(0, Number(state.taskSidebarGroupLoadedCounts?.[String(group?.key || "")] || 0)),
+  );
   const totalCount = Math.max(0, Number(group?.count || 0));
   if (!group?.key || loadedCount >= totalCount) return "";
   const loading = String(state.taskSidebarGroupLoading || "") === String(group.key);
-  const remaining = Math.min(TASK_SIDEBAR_GROUP_PAGE_SIZE, totalCount - loadedCount);
+  const failed = String(state.taskSidebarGroupLoadError || "") === String(group.key);
+  const groupKey = escapeHtml(group.key);
+  if (loading) {
+    return `
+      <div
+        class="task-group-load-more task-group-load-more-sentinel"
+        data-auto-load-task-group="${groupKey}"
+        data-load-more-task-group="${groupKey}"
+        aria-busy="true"
+        aria-hidden="true"
+        hidden
+      ></div>
+    `;
+  }
+  if (failed) {
+    return `
+      <button
+        class="ghost-button text-sm task-group-load-more task-group-load-more-error"
+        type="button"
+        data-load-more-task-group="${groupKey}"
+      >${escapeHtml(translate("taskGroup.loadFailedRetry"))}</button>
+    `;
+  }
   return `
-    <button
-      class="ghost-button text-sm task-group-load-more"
-      type="button"
-      data-load-more-task-group="${escapeHtml(group.key)}"
-      aria-busy="${loading ? "true" : "false"}"
-      ${loading ? "disabled" : ""}
-    >${escapeHtml(formatTranslation("taskGroup.loadMore", { count: remaining }))}</button>
+    <div
+      class="task-group-load-more task-group-load-more-sentinel"
+      data-auto-load-task-group="${groupKey}"
+      data-load-more-task-group="${groupKey}"
+      aria-hidden="true"
+      hidden
+    ></div>
   `;
 }
 

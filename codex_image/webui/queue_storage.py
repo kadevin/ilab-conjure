@@ -13,11 +13,12 @@ from pathlib import Path
 from typing import Any, Callable, TypeVar
 
 from .storage_utils import utc_now
+from .store_locks import StoreLockMixin
 
 _T = TypeVar("_T")
 
 
-class QueueStorage:
+class QueueStorage(StoreLockMixin):
     def __init__(self, path: Path | str) -> None:
         self.path = Path(path)
         self._lock = threading.RLock()
@@ -191,7 +192,7 @@ class QueueStorage:
         return {"version": 1, "waiting": [], "running": {}, "updated_at": utc_now()}
 
 
-class SQLiteQueueStorage:
+class SQLiteQueueStorage(StoreLockMixin):
     def __init__(self, path: Path | str, *, legacy_json_path: Path | str | None = None) -> None:
         self.path = Path(path)
         self.legacy_json_path = Path(legacy_json_path) if legacy_json_path is not None else None

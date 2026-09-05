@@ -10,6 +10,60 @@ from tests.webui_helpers import WebUIStaticTestCase
 
 
 class WebUIStaticI18nTests(WebUIStaticTestCase):
+    def test_user_config_backup_safety_copy_exists_in_every_locale(self) -> None:
+        required_keys = (
+            "userConfigBackup.title",
+            "userConfigBackup.back",
+            "userConfigBackup.entryTitle",
+            "userConfigBackup.entryCopy",
+            "userConfigBackup.backupTab",
+            "userConfigBackup.restoreTab",
+            "userConfigBackup.sectionChips",
+            "userConfigBackup.sectionGallery",
+            "userConfigBackup.sectionTemplates",
+            "userConfigBackup.sectionSettings",
+            "userConfigBackup.includeApiKeys",
+            "userConfigBackup.apiKeyWarning",
+            "userConfigBackup.incremental",
+            "userConfigBackup.replace",
+            "userConfigBackup.replaceCopy",
+            "userConfigBackup.replaceConfirmTitle",
+            "userConfigBackup.replaceAcknowledge",
+            "userConfigBackup.confirmReplace",
+            "userConfigBackup.groupColors",
+            "userConfigBackup.groupPromptSnippets",
+            "userConfigBackup.groupGalleryItems",
+            "userConfigBackup.groupPromptTemplates",
+            "userConfigBackup.groupSettings",
+            "userConfigBackup.previewSectionCounts",
+            "userConfigBackup.previewGroupCounts",
+            "userConfigBackup.emptyReplaceBlocked",
+            "user_config_restore_empty_replace_blocked",
+            "userConfigBackup.restoreComplete",
+        )
+        paths = sorted(
+            path
+            for path in Path("codex_image/webui/frontend/src/i18n").glob("*.ts")
+            if path.name not in {"dictionaries.ts", "types.ts"}
+        )
+        self.assertEqual(len(paths), 14)
+        titles: dict[str, str] = {}
+        for path in paths:
+            source = path.read_text(encoding="utf-8")
+            with self.subTest(locale=path.stem):
+                for key in required_keys:
+                    match = re.search(rf'"{re.escape(key)}":\s*"([^"]+)"', source)
+                    self.assertIsNotNone(match, f"{path.name} misses {key}")
+                    self.assertTrue(match.group(1).strip())
+                title = re.search(
+                    r'"userConfigBackup\.title":\s*"([^"]+)"', source
+                )
+                assert title is not None
+                titles[path.stem] = title.group(1)
+        self.assertNotEqual(titles["ja"], titles["en"])
+        self.assertNotEqual(titles["de"], titles["en"])
+        self.assertNotEqual(titles["hi"], titles["en"])
+
     def test_history_backup_restore_copy_exists_in_every_locale(self) -> None:
         required_keys = (
             "historyBackup.open", "historyBackup.importOpen", "historyBackup.mode",

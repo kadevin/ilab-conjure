@@ -255,21 +255,19 @@ export function markPendingTaskFailed(pendingTaskId: string, message: string): v
 }
 
 export function startRunFeedback(task: WebUITask, actionLabel: string | null = null): void {
-  const { state, els } = getLegacyBridge();
+  const { state } = getLegacyBridge();
   stopRunFeedback();
   state.runFeedbackAction = actionLabel;
   state.runStartedAt = timestampMs(task.started_at || task.created_at) || Date.now();
   state.runTimerId = window.setInterval(updateRunFeedback, 100);
-  els.runButton?.classList.add("running");
   updateRunFeedback();
 }
 
 export function updateRunFeedback(): void {
-  const { state, els } = getLegacyBridge();
+  const { state } = getLegacyBridge();
   if (!state.runStartedAt) return;
   const elapsed = formatDurationTenths(elapsedMillisecondsSince(state.runStartedAt));
   const action = state.runFeedbackAction || (state.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
-  if (els.runButton) els.runButton.textContent = `${action} ${elapsed}`;
   setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
   updateElapsedDisplays();
   if (state.selectedTaskId === state.pendingTaskId) {
@@ -278,13 +276,12 @@ export function updateRunFeedback(): void {
 }
 
 export function stopRunFeedback(): void {
-  const { state, els } = getLegacyBridge();
+  const { state } = getLegacyBridge();
   if (state.runTimerId) {
     window.clearInterval(state.runTimerId);
   }
   state.runTimerId = null;
   state.runStartedAt = null;
   state.runFeedbackAction = null;
-  els.runButton?.classList.remove("running");
   syncRunButtonLabel();
 }

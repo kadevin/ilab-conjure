@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-770" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-789" />
   </head>
   <body>
     <div class="layout-container">
@@ -168,7 +168,7 @@
             data-i18n-attr="aria-label:modelSelection.family"
           ></div>
           <div class="sidebar-search">
-            <input id="taskSearch" type="search" placeholder="搜索对话..." data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
+            <input id="taskSearch" type="search" name="task-history-search" inputmode="search" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="搜索对话..." readonly data-i18n-attr="placeholder:sidebar.searchPlaceholder" />
             <button
               id="taskSearchClearButton"
               class="task-search-clear-button"
@@ -685,13 +685,13 @@
                       </div>
                       <div class="radio-group" id="promptFidelityGroup" role="group" aria-label="提示词处理模式" data-i18n-attr="aria-label:output.promptMode">
                         <button class="radio-btn" data-val="original" type="button" data-i18n="output.modeOriginal">原文</button>
-                        <button class="radio-btn active" data-val="strict" type="button" data-i18n="output.modeStrict">保真</button>
-                        <button class="radio-btn" data-val="off" type="button" data-i18n="output.modeCreative">自动</button>
+                        <button class="radio-btn" data-val="strict" type="button" data-i18n="output.modeStrict">保真</button>
+                        <button class="radio-btn active" data-val="off" type="button" data-i18n="output.modeCreative">自动</button>
                       </div>
                       <select id="promptFidelity" class="hidden">
                         <option value="original" data-i18n="output.modeOriginal">原文</option>
-                        <option value="strict" selected data-i18n="output.modeStrict">保真</option>
-                        <option value="off" data-i18n="output.modeCreative">自动</option>
+                        <option value="strict" data-i18n="output.modeStrict">保真</option>
+                        <option value="off" selected data-i18n="output.modeCreative">自动</option>
                       </select>
                     </div>
                   </div>
@@ -1016,8 +1016,13 @@
     <div id="systemSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="系统设置" data-i18n-attr="aria-label:systemSettings.title">
       <div class="modal-panel system-settings-modal-panel">
         <div class="modal-heading">
+          <button id="userConfigBackupBackButton" class="ghost-button drawer-close-button user-config-back-button hidden" type="button" aria-label="返回系统设置" title="返回系统设置" data-i18n-attr="aria-label:userConfigBackup.back;title:userConfigBackup.back">
+            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15 6L9 12L15 18" />
+            </svg>
+          </button>
           <div>
-            <h2 data-i18n="systemSettings.title">系统设置</h2>
+            <h2 id="systemSettingsTitle" data-i18n="systemSettings.title">系统设置</h2>
           </div>
           <button id="systemSettingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭系统设置面板" title="关闭" data-i18n-attr="aria-label:close.systemSettings;title:action.close">
             <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -1245,6 +1250,12 @@
               <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
             </label>
           </div>
+          <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
+          <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
+            <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
+            <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
+            <dl id="settingsPreviousPathsList"></dl>
+          </details>
           <div class="notification-options-panel" aria-label="任务通知设置">
             <div class="notification-options-copy">
               <strong data-i18n="notifications.title">任务通知</strong>
@@ -1259,9 +1270,87 @@
               <input id="taskNotificationSystem" type="checkbox" />
             </label>
           </div>
+          <button id="openUserConfigBackupButton" class="user-config-backup-entry" type="button">
+            <span class="user-config-backup-entry-copy">
+              <strong data-i18n="userConfigBackup.entryTitle">配置备份与恢复</strong>
+              <span data-i18n="userConfigBackup.entryCopy">迁移 chip、公用图、模板和系统设置</span>
+            </span>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6L15 12L9 18" /></svg>
+          </button>
           <div class="settings-modal-actions">
             <p id="settingsStatus" class="settings-action-status" data-i18n="settings.status" aria-live="polite">保存存储路径后重启 WebUI 生效</p>
             <button id="saveSettingsButton" class="run-button" type="button" data-i18n="settings.save">保存设置</button>
+          </div>
+        </section>
+        <section id="userConfigBackupView" class="user-config-backup-view" hidden inert aria-hidden="true">
+          <div id="userConfigTransferMode" class="user-config-segmented" role="group" aria-label="备份或恢复" data-i18n-attr="aria-label:userConfigBackup.modeLabel">
+            <button class="active" type="button" aria-pressed="true" data-user-config-view-mode="backup" data-i18n="userConfigBackup.backupTab">备份</button>
+            <button type="button" aria-pressed="false" data-user-config-view-mode="restore" data-i18n="userConfigBackup.restoreTab">恢复</button>
+          </div>
+
+          <div id="userConfigBackupPane" class="user-config-transfer-pane">
+            <p class="user-config-intro" data-i18n="userConfigBackup.backupCopy">选择要写入备份包的配置。生成任务和 OAuth 登录态不会包含在内。</p>
+            <fieldset class="user-config-section-fieldset">
+              <legend data-i18n="userConfigBackup.selectSections">选择数据</legend>
+              <div id="userConfigBackupSectionList" class="user-config-section-list">
+                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="chips" checked /><span><strong data-i18n="userConfigBackup.sectionChips">Chip</strong><small data-user-config-summary="chips">—</small></span></label>
+                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="gallery" checked /><span><strong data-i18n="userConfigBackup.sectionGallery">公用图</strong><small data-user-config-summary="gallery">—</small></span></label>
+                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="templates" checked /><span><strong data-i18n="userConfigBackup.sectionTemplates">模板</strong><small data-user-config-summary="templates">—</small></span></label>
+                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="settings" checked /><span><strong data-i18n="userConfigBackup.sectionSettings">系统设置</strong><small data-user-config-summary="settings">—</small></span></label>
+              </div>
+            </fieldset>
+            <label id="userConfigIncludeApiKeysRow" class="user-config-sensitive-row">
+              <input id="userConfigIncludeApiKeys" type="checkbox" />
+              <span><strong data-i18n="userConfigBackup.includeApiKeys">包含 API Key（敏感）</strong><small data-i18n="userConfigBackup.apiKeyWarning">备份包不加密，请妥善保存。</small></span>
+            </label>
+            <div id="userConfigBackupProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="备份进度" data-i18n-attr="aria-label:userConfigBackup.backupProgress">
+              <span></span>
+            </div>
+            <p id="userConfigBackupStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
+            <div class="user-config-actions">
+              <button id="cancelUserConfigBackupButton" class="ghost-button hidden" type="button" data-i18n="action.cancel">取消</button>
+              <button id="createUserConfigBackupButton" class="run-button" type="button" data-i18n="userConfigBackup.create">创建备份</button>
+              <button id="downloadUserConfigBackupButton" class="ghost-button hidden" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3V15M7 10L12 15L17 10M5 20H19" /></svg>
+                <span data-i18n="userConfigBackup.download">下载备份</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="userConfigRestorePane" class="user-config-transfer-pane" hidden aria-hidden="true">
+            <div id="userConfigRestoreChoose" class="user-config-restore-stage">
+              <label class="user-config-file-picker" for="userConfigRestoreFile">
+                <strong data-i18n="userConfigBackup.chooseArchive">选择备份 ZIP</strong>
+                <span data-i18n="userConfigBackup.chooseArchiveCopy">文件会先上传并校验，预览不会修改现有数据。</span>
+              </label>
+              <input id="userConfigRestoreFile" type="file" accept=".zip,application/zip" />
+            </div>
+            <div id="userConfigRestoreProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="恢复上传进度" data-i18n-attr="aria-label:userConfigBackup.restoreProgress"><span></span></div>
+            <p id="userConfigRestoreStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
+
+            <div id="userConfigRestorePreview" class="user-config-restore-stage hidden" aria-hidden="true">
+              <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.previewTitle">恢复预览</strong><span id="userConfigRestoreArchiveMeta"></span></div>
+              <div id="userConfigRestoreSectionList" class="user-config-section-list"></div>
+              <div id="userConfigRestoreMode" class="user-config-segmented" role="group" aria-label="恢复模式" data-i18n-attr="aria-label:userConfigBackup.restoreModeLabel">
+                <button class="active" type="button" aria-pressed="true" data-user-config-restore-mode="incremental" data-i18n="userConfigBackup.incremental">增量</button>
+                <button type="button" aria-pressed="false" data-user-config-restore-mode="replace" data-i18n="userConfigBackup.replace">替换</button>
+              </div>
+              <p id="userConfigRestoreModeCopy" class="user-config-intro" data-i18n="userConfigBackup.incrementalCopy">保留现有数据，重复内容跳过，冲突项创建恢复副本。</p>
+              <div class="user-config-actions"><button id="startUserConfigRestoreButton" class="run-button" type="button" data-i18n="userConfigBackup.restoreSelected">恢复所选内容</button></div>
+            </div>
+
+            <div id="userConfigReplaceConfirmation" class="user-config-restore-stage user-config-danger-stage hidden" aria-hidden="true">
+              <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.replaceConfirmTitle">确认替换现有数据</strong></div>
+              <p data-i18n="userConfigBackup.replaceConfirmCopy">替换只影响所选类别，但会删除这些类别的现有内容。此操作完成后不能撤销。</p>
+              <ul id="userConfigReplaceImpactList" class="user-config-impact-list"></ul>
+              <label class="user-config-replace-ack"><input id="userConfigReplaceAcknowledge" type="checkbox" /><span data-i18n="userConfigBackup.replaceAcknowledge">我已了解现有数据将被替换</span></label>
+              <div class="user-config-actions">
+                <button id="backToUserConfigPreviewButton" class="ghost-button" type="button" data-i18n="userConfigBackup.backToPreview">返回预览</button>
+                <button id="confirmUserConfigReplaceButton" class="run-button danger" type="button" disabled data-i18n="userConfigBackup.confirmReplace">确认替换并恢复</button>
+              </div>
+            </div>
+
+            <div id="userConfigRestoreResult" class="user-config-restore-stage hidden" aria-live="polite" aria-hidden="true"></div>
           </div>
         </section>
       </div>
@@ -1518,7 +1607,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-770"></script>
+  <script src="/static/app.js?v=runtime-788"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

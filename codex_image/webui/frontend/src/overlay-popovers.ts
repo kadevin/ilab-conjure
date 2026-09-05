@@ -78,6 +78,7 @@ function openConfirmPopover(anchor, options = {}) {
   const message = options.message ? `<p class="confirm-popover-message">${escapeHtml(options.message)}</p>` : "";
   const detail = options.detail ? `<div class="confirm-popover-detail">${escapeHtml(options.detail)}</div>` : "";
   const confirmText = options.confirmText || translate("action.confirm");
+  const cancelText = options.cancelText || translate("action.cancel");
   const confirmClass = options.danger === false
     ? "ghost-button text-sm confirm-popover-confirm"
     : "ghost-button text-sm danger-button confirm-popover-confirm";
@@ -86,11 +87,14 @@ function openConfirmPopover(anchor, options = {}) {
     ${message}
     ${detail}
     <div class="confirm-popover-actions">
-      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml(translate("action.cancel"))}</button>
+      <button class="ghost-button text-sm" type="button" data-confirm-popover-cancel>${escapeHtml(cancelText)}</button>
       <button class="${confirmClass}" type="button" data-confirm-popover-confirm>${escapeHtml(confirmText)}</button>
     </div>
   `;
-  popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", closeConfirmPopover);
+  popover.querySelector("[data-confirm-popover-cancel]")?.addEventListener("click", () => {
+    closeConfirmPopover();
+    if (typeof options.onCancel === "function") options.onCancel();
+  });
   popover.querySelector("[data-confirm-popover-confirm]")?.addEventListener("click", async () => {
     const onConfirm = confirmPopoverState.onConfirm;
     closeConfirmPopover();
@@ -98,7 +102,9 @@ function openConfirmPopover(anchor, options = {}) {
   });
   popover.classList.remove("hidden");
   positionConfirmPopover(anchor, popover);
-  popover.querySelector("[data-confirm-popover-confirm]")?.focus({ preventScroll: true });
+  popover.querySelector(
+    options.focusCancel ? "[data-confirm-popover-cancel]" : "[data-confirm-popover-confirm]",
+  )?.focus({ preventScroll: true });
 }
 
 function closeConfirmPopover() {

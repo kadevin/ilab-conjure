@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import uuid
 from pathlib import Path
 from typing import Any
 
+from .atomic_files import atomic_write_text
+from .store_locks import StoreLockMixin, store_locked
 from .storage_utils import utc_now
 
 
@@ -14,12 +17,20 @@ MAX_PROMPT_SNIPPET_TAG_LENGTH = 24
 MAX_PROMPT_SNIPPET_TITLE_LENGTH = 80
 MAX_PROMPT_SNIPPET_CATEGORY_LENGTH = 32
 MAX_PROMPT_SNIPPET_CONTENT_LENGTH = 4000
+PROMPT_SNIPPET_TRIGGER_CHARS = "~～〜∼˜"
+PROMPT_SNIPPET_BOUNDARY_CHARS = "，。,.；;：:！？!?、（）()[]【】\"'“”‘’"
+_PROMPT_SNIPPET_TOKEN_PATTERN = re.compile(
+    rf"([{re.escape(PROMPT_SNIPPET_TRIGGER_CHARS)}]+)"
+    rf"([^\s{re.escape(PROMPT_SNIPPET_TRIGGER_CHARS + '@#' + PROMPT_SNIPPET_BOUNDARY_CHARS)}]+)"
+)
 
 
-class PromptSnippetSettings:
+class PromptSnippetSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -32,9 +43,11 @@ class PromptSnippetSettings:
         except ValueError:
             return self.default_settings()
 
+    @store_locked
     def list(self) -> list[dict[str, Any]]:
         return self.read()["snippets"]
 
+    @store_locked
     def create(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt snippet payload must be an object")
@@ -58,6 +71,7 @@ class PromptSnippetSettings:
         self.write({**current, "snippets": [*snippets, snippet]})
         return snippet
 
+    @store_locked
     def update(self, snippet_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("Prompt snippet payload must be an object")
@@ -83,6 +97,7 @@ class PromptSnippetSettings:
             return snippet
         raise ValueError("Prompt snippet not found")
 
+    @store_locked
     def delete(self, snippet_id: str) -> None:
         current = self.read()
         snippets = current["snippets"]
@@ -91,15 +106,45 @@ class PromptSnippetSettings:
             raise ValueError("Prompt snippet not found")
         self.write({**current, "snippets": updated})
 
+    @store_locked
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         settings = _normalize_prompt_snippets_payload(payload, default_when_missing=False)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(settings, indent=2, ensure_ascii=False), encoding="utf-8")
+        atomic_write_text(
+            self.path,
+            json.dumps(settings, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
         return settings
 
     @staticmethod
     def default_settings() -> dict[str, Any]:
         return {"version": 1, "snippets": []}
+
+
+def expand_prompt_snippets(prompt: Any, snippets: list[dict[str, Any]]) -> str:
+    text = str(prompt or "")
+    content_by_tag = {
+        str(snippet.get("tag") or "").lower(): str(snippet.get("content") or "")
+        for snippet in snippets
+        if isinstance(snippet, dict) and snippet.get("tag") and snippet.get("content")
+    }
+    previous_snippet_end = -1
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal previous_snippet_end
+        previous = text[match.start() - 1] if match.start() > 0 else ""
+        follows_snippet = match.start() == previous_snippet_end
+        if previous and not previous.isspace() and previous not in PROMPT_SNIPPET_BOUNDARY_CHARS and not follows_snippet:
+            previous_snippet_end = -1
+            return match.group(0)
+        content = content_by_tag.get(match.group(2).lower())
+        if not content:
+            previous_snippet_end = -1
+            return match.group(0)
+        previous_snippet_end = match.end()
+        return content
+
+    return _PROMPT_SNIPPET_TOKEN_PATTERN.sub(replace, text)
 
 
 def _normalize_prompt_snippets_payload(payload: dict[str, Any], *, default_when_missing: bool) -> dict[str, Any]:

@@ -12,6 +12,70 @@ from fastapi.testclient import TestClient
 
 
 class WebUIFrontendBehaviorTests(unittest.TestCase):
+    def test_task_submission_behavior(self) -> None:
+        node = shutil.which("node")
+        esbuild = Path("node_modules/.bin/esbuild")
+        if node is None or not esbuild.exists():
+            self.skipTest("node and npm install are required for frontend behavior tests")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "task-submission-behavior.test.mjs"
+            build = subprocess.run(
+                [
+                    str(esbuild),
+                    "tests/frontend/task_submission_behavior.test.ts",
+                    "--bundle",
+                    "--platform=node",
+                    "--format=esm",
+                    "--target=node20",
+                    f"--outfile={output}",
+                    "--log-level=warning",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+            result = subprocess.run(
+                [node, "--test", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_user_config_backup_behavior(self) -> None:
+        node = shutil.which("node")
+        esbuild = Path("node_modules/.bin/esbuild")
+        if node is None or not esbuild.exists():
+            self.skipTest("node and npm install are required for frontend behavior tests")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "user-config-backup.test.mjs"
+            build = subprocess.run(
+                [
+                    str(esbuild),
+                    "tests/frontend/user_config_backup.test.ts",
+                    "--bundle",
+                    "--platform=node",
+                    "--format=esm",
+                    "--target=node20",
+                    f"--outfile={output}",
+                    "--log-level=warning",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+            result = subprocess.run(
+                [node, "--test", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_history_selection_shortcuts_behavior(self) -> None:
         node = shutil.which("node")
         esbuild = Path("node_modules/.bin/esbuild")
@@ -120,6 +184,38 @@ class WebUIFrontendBehaviorTests(unittest.TestCase):
                 [
                     str(esbuild),
                     "tests/frontend/api_provider_sort.test.ts",
+                    "--bundle",
+                    "--platform=node",
+                    "--format=esm",
+                    "--target=node20",
+                    f"--outfile={output}",
+                    "--log-level=warning",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+            result = subprocess.run(
+                [node, "--test", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_api_provider_credentials_behavior(self) -> None:
+        node = shutil.which("node")
+        esbuild = Path("node_modules/.bin/esbuild")
+        if node is None or not esbuild.exists():
+            self.skipTest("node and npm install are required for frontend behavior tests")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "api-provider-credentials.test.mjs"
+            build = subprocess.run(
+                [
+                    str(esbuild),
+                    "tests/frontend/api_provider_credentials.test.ts",
                     "--bundle",
                     "--platform=node",
                     "--format=esm",
@@ -440,6 +536,38 @@ class WebUIFrontendBehaviorTests(unittest.TestCase):
                 [
                     str(esbuild),
                     "tests/frontend/task_snapshot_reconcile.test.ts",
+                    "--bundle",
+                    "--platform=node",
+                    "--format=esm",
+                    "--target=node20",
+                    f"--outfile={output}",
+                    "--log-level=warning",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+            result = subprocess.run(
+                [node, "--test", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_task_sidebar_auto_load_behavior(self) -> None:
+        node = shutil.which("node")
+        esbuild = Path("node_modules/.bin/esbuild")
+        if node is None or not esbuild.exists():
+            self.skipTest("node and npm install are required for frontend behavior tests")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "task-sidebar-auto-load.test.mjs"
+            build = subprocess.run(
+                [
+                    str(esbuild),
+                    "tests/frontend/task_sidebar_auto_load.test.ts",
                     "--bundle",
                     "--platform=node",
                     "--format=esm",

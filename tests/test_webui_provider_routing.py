@@ -982,6 +982,32 @@ class WebUIProviderRoutingTests(unittest.TestCase):
             "request_timeout",
         )
 
+    def test_structured_error_uses_explicit_http_status_not_digits_in_response_body(self) -> None:
+        from codex_image.generation.errors import provider_error_from_exception
+
+        messages = (
+            (
+                "OpenAI-compatible images request failed: HTTP 502: "
+                '{"error":"origin bad gateway","ray_id":"a2da4403aa5ddb48"}'
+            ),
+            (
+                "OpenAI-compatible images request failed: HTTP 502: "
+                '{"error":"authentication backend returned an incomplete response"}'
+            ),
+        )
+        for message in messages:
+            with self.subTest(message=message):
+                error = provider_error_from_exception(
+                    RuntimeError(message),
+                    provider_id="relay",
+                    canonical_model_id="gpt-image-2",
+                    protocol_profile="openai_images",
+                )
+
+                self.assertEqual(error.detail.code, "upstream_error")
+                self.assertTrue(error.detail.retryable)
+                self.assertEqual(error.status_code, 502)
+
     def test_persisted_worker_error_removes_controls_auth_tokens_and_prompt(self) -> None:
         import asyncio
 

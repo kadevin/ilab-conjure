@@ -14,6 +14,8 @@ from typing import Any
 from .schemas import DEFAULT_WEBUI_GALLERY_ROOT
 from .storage_utils import _guess_mime_type, _safe_filename, utc_now
 from .atomic_files import _fsync_parent, atomic_write_bytes, atomic_write_text
+from .image_uploads import InvalidRasterImage, validate_raster_image
+from .store_locks import StoreLockMixin
 
 
 DEFAULT_GALLERY_CATEGORIES = [
@@ -33,11 +35,136 @@ class GalleryRestore:
     restore_token: str | None = None
 
 
-class GalleryStorage:
+@dataclass(frozen=True)
+class GallerySnapshotItem:
+    metadata: dict[str, Any]
+    image_path: Path
+    mime_type: str
+    size_bytes: int
+    sha256: str
+
+
+@dataclass(frozen=True)
+class GallerySnapshot:
+    categories: tuple[dict[str, Any], ...]
+    items: tuple[GallerySnapshotItem, ...]
+
+
+class GalleryStorage(StoreLockMixin):
     def __init__(self, root: Path | str = DEFAULT_WEBUI_GALLERY_ROOT) -> None:
         self.root = Path(root)
         self._lock = threading.RLock()
         self._restore_versions: dict[str, int] = {}
+
+    def snapshot(self) -> GallerySnapshot:
+        with self._lock:
+            categories = tuple(dict(item) for item in self.list_categories())
+            items: list[GallerySnapshotItem] = []
+            for item in self.list_items():
+                metadata = {
+                    key: value
+                    for key, value in item.items()
+                    if key not in _GALLERY_DERIVED_ITEM_FIELDS
+                }
+                item_id = _clean_gallery_item_id(metadata.get("id"))
+                image_path = self.image_path(item_id)
+                try:
+                    image_path.resolve(strict=True).relative_to(
+                        self.root.resolve(strict=True)
+                    )
+                except (FileNotFoundError, OSError, ValueError) as exc:
+                    raise ValueError("Gallery snapshot image is not owned") from exc
+                asset = _validated_gallery_snapshot_asset(metadata, image_path)
+                items.append(asset)
+            return GallerySnapshot(categories=categories, items=tuple(items))
+
+    def managed_paths(self) -> tuple[Path, ...]:
+        with self._lock:
+            paths: list[Path] = []
+            categories_path = self._categories_path()
+            if categories_path.is_file() and not categories_path.is_symlink():
+                paths.append(categories_path)
+            for item in self.snapshot().items:
+                metadata_path = self._item_path(
+                    str(item.metadata["id"])
+                ) / "metadata.json"
+                paths.extend((metadata_path, item.image_path))
+            return tuple(dict.fromkeys(paths))
+
+    def write_snapshot(self, snapshot: GallerySnapshot) -> None:
+        if not isinstance(snapshot, GallerySnapshot):
+            raise ValueError("Invalid gallery snapshot")
+        with self._lock:
+            categories = [_normalize_gallery_category(dict(item)) for item in snapshot.categories]
+            category_ids = [str(item["id"]) for item in categories]
+            if not categories or len(category_ids) != len(set(category_ids)):
+                raise ValueError("Invalid gallery snapshot categories")
+            prepared: list[tuple[dict[str, Any], bytes]] = []
+            item_ids: set[str] = set()
+            for item in snapshot.items:
+                if not isinstance(item, GallerySnapshotItem):
+                    raise ValueError("Invalid gallery snapshot item")
+                metadata = dict(item.metadata)
+                item_id = _clean_gallery_item_id(metadata.get("id"))
+                if (
+                    re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}", item_id)
+                    is None
+                    or item_id in item_ids
+                ):
+                    raise ValueError("Invalid gallery snapshot item id")
+                item_ids.add(item_id)
+                if str(metadata.get("category") or "") not in category_ids:
+                    raise ValueError("Gallery snapshot category reference is invalid")
+                filename = str(metadata.get("filename") or "")
+                if not filename or _safe_filename(filename) != filename:
+                    raise ValueError("Gallery snapshot filename is invalid")
+                try:
+                    data = item.image_path.read_bytes()
+                except OSError as exc:
+                    raise ValueError("Gallery snapshot image is invalid") from exc
+                validated = _validated_gallery_snapshot_asset(
+                    metadata,
+                    item.image_path,
+                    data=data,
+                )
+                if (
+                    item.sha256 != validated.sha256
+                    or item.size_bytes != validated.size_bytes
+                    or item.mime_type != validated.mime_type
+                ):
+                    raise ValueError("Gallery snapshot image digest or identity mismatch")
+                clean_metadata = {
+                    key: value
+                    for key, value in metadata.items()
+                    if key not in _GALLERY_DERIVED_ITEM_FIELDS
+                }
+                clean_metadata["id"] = item_id
+                clean_metadata["name"] = _clean_gallery_name(metadata.get("name"))
+                clean_metadata["name_key"] = _gallery_name_key(clean_metadata["name"])
+                clean_metadata["category"] = str(metadata["category"])
+                clean_metadata["filename"] = filename
+                clean_metadata["mime_type"] = validated.mime_type
+                clean_metadata["size_bytes"] = validated.size_bytes
+                clean_metadata["sha256"] = validated.sha256
+                clean_metadata["prompt_note"] = _clean_gallery_prompt_note(
+                    metadata.get("prompt_note")
+                )
+                clean_metadata["order"] = _clean_gallery_item_order(
+                    metadata.get("order"),
+                    fallback=0,
+                )
+                prepared.append((clean_metadata, data))
+
+            self._write_categories(categories)
+            for metadata, data in prepared:
+                item_path = self._item_path(str(metadata["id"]))
+                atomic_write_bytes(
+                    item_path / str(metadata["filename"]),
+                    data,
+                    mode=0o600,
+                )
+                self._write_item_metadata(str(metadata["id"]), metadata)
+                self._bump_restore_version(str(metadata["id"]))
 
     def list_categories(self) -> list[dict[str, Any]]:
         categories = self._read_categories()
@@ -486,8 +613,11 @@ class GalleryStorage:
 
     def _write_categories(self, categories: list[dict[str, Any]]) -> None:
         clean = [_normalize_gallery_category(category) for category in categories]
-        self.root.mkdir(parents=True, exist_ok=True)
-        self._categories_path().write_text(json.dumps(clean, indent=2, ensure_ascii=False), encoding="utf-8")
+        atomic_write_text(
+            self._categories_path(),
+            json.dumps(clean, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
 
     def _new_category_id(self, categories: list[dict[str, Any]]) -> str:
         existing = {str(category.get("id") or "") for category in categories}
@@ -679,3 +809,45 @@ def _sha256_file(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _validated_gallery_snapshot_asset(
+    metadata: dict[str, Any],
+    image_path: Path,
+    *,
+    data: bytes | None = None,
+) -> GallerySnapshotItem:
+    path = Path(image_path)
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("Gallery snapshot image is not a regular file")
+    try:
+        image_bytes = path.read_bytes() if data is None else data
+        validated = validate_raster_image(
+            image_bytes,
+            filename=str(metadata.get("filename") or path.name),
+        )
+    except (InvalidRasterImage, OSError) as exc:
+        raise ValueError("Gallery snapshot image is invalid") from exc
+    expected_sha256 = str(metadata.get("sha256") or "")
+    expected_size = metadata.get("size_bytes")
+    expected_mime = str(metadata.get("mime_type") or "")
+    legacy_identity = not expected_sha256 and expected_size is None
+    if not legacy_identity and (
+        expected_sha256 != validated.sha256
+        or isinstance(expected_size, bool)
+        or not isinstance(expected_size, int)
+        or expected_size != len(image_bytes)
+        or expected_mime != validated.mime_type
+    ):
+        raise ValueError("Gallery snapshot image digest or identity mismatch")
+    normalized_metadata = dict(metadata)
+    normalized_metadata["sha256"] = validated.sha256
+    normalized_metadata["size_bytes"] = len(image_bytes)
+    normalized_metadata["mime_type"] = validated.mime_type
+    return GallerySnapshotItem(
+        metadata=normalized_metadata,
+        image_path=path,
+        mime_type=validated.mime_type,
+        size_bytes=len(image_bytes),
+        sha256=validated.sha256,
+    )

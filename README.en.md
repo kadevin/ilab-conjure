@@ -94,6 +94,9 @@ Download standard app packages and portable transition packages from
 - Centered System Settings with API Settings, Network, Language, and Storage &
   Notifications tabs; Codex Image and Codex Responses are chosen in the
   generation-page provider menu.
+- Configuration backup and restore under Storage & Notifications, with
+  selectable chips, public gallery, prompt templates, and system settings,
+  plus additive restore or separately confirmed replacement restore.
 - Explicit system, direct, or custom HTTP(S) network routing, plus global
   per-request image timeouts (1–30 minutes, default 10) and retries after
   retryable transient failures (0–5, default 2). The settings are persisted in
@@ -204,15 +207,15 @@ http://127.0.0.1:8787/
 ## App packages
 
 Download the current packages from [Downloads / Releases](RELEASES.md), or open
-[GitHub Release v0.8.2](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.2)
+[GitHub Release v0.8.5](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.5)
 directly.
 
 New users should choose the standard packages:
 
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.2.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.2.dmg`
+1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.5.dmg`
+   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.5.dmg`
    for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.2.zip`,
+2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.5.zip`,
    extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
 
 Standard packages store user data in `~/Library/Application Support/iLab GPT
@@ -299,13 +302,58 @@ commit that already passed CI, the same workflow can also be run manually with
 3. Add reference images by upload, drag-and-drop, paste, recent uploads, or the
    public gallery.
 4. Write the prompt directly, insert gallery/color/snippet chips when useful,
-   and choose the prompt mode: original, fidelity, or creative.
+   and choose the prompt processing mode: original, fidelity, or automatic (the default).
 5. Set image count, size, orientation, quality, output format, and compression.
    Selected aspect ratios are also appended to the model prompt as an explicit
    instruction, for example `将宽高比设为 16:9`, so Responses-channel or API
    proxies that ignore size parameters can still receive the intended ratio.
 6. Start generation, track running and queued tasks in the left task list, then
    review, select, retry, download, or archive results from the preview area.
+
+### Storage paths and existing data
+
+Saved storage paths take effect after restarting WebUI. Changing paths does not
+move existing images, assets, or task history. If history appears empty, open
+**System Settings → Storage & Notifications**, expand the original default
+folders, restore the corresponding paths, and restart. To relocate data, back up
+and quit the app first, then copy the complete input and output directories,
+including the gallery, reference assets, and source-data directory. Do not copy
+only the images or a single database file, or overwrite existing destination data.
+
+The macOS standard app honors saved custom paths. When portable data has been
+copied into a standard installation, its migration record is used to rebase paths
+inside the old `data/` directory onto the copied directories. External custom paths
+are preserved. This also handles installations migrated by earlier versions. The
+original path configuration is retained under the application data directory at
+`.migration/webui-settings-before-path-rebase.json`; the original portable data
+is left unchanged.
+
+### User configuration backup and restore
+
+Open **System Settings → Storage & Notifications → Configuration backup and
+restore** to select one or more of chips, public gallery, prompt templates, and
+system settings. Every backup is a complete snapshot of the selected sections,
+and the completed ZIP can be downloaded repeatedly for 24 hours. Closing and
+discarding it, or reaching expiry, removes the temporary server copy.
+
+Restore first uploads and validates the ZIP and shows each available section,
+including backup and current counts for its resource groups. Then choose one mode:
+
+- **Additive restore** keeps current data, skips duplicates, and creates
+  recovered copies for ordinary resource conflicts.
+- **Replacement restore** affects only explicitly selected sections. It shows
+  deletion and reference impact first and runs only after a separate
+  acknowledgement. If colors, prompt snippets, shared images, or templates are
+  empty in the backup while the matching current group still contains data,
+  replacement is refused; deselect that section or use additive restore.
+  Running or queued tasks may block gallery or settings replacement.
+
+API keys are excluded by default. If explicitly included, the ZIP is **not
+encrypted**. Codex / ChatGPT OAuth state is never backed up. Local prompt-template
+thumbnails migrate with templates, while external HTTP(S) thumbnails remain
+URLs; missing assets and invalid paths are skipped with warnings. Restored
+storage-path changes require a WebUI restart. Generated tasks and historical
+images remain in the separate task-backup workflow in the History Library.
 
 ## Public gallery
 

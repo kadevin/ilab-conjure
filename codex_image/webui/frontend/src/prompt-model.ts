@@ -55,8 +55,8 @@ export function currentPromptForModel(): string {
 
 export function currentPromptFidelity(): string {
   if (!supportsGptPromptProcessing()) return "off";
-  const value = els.promptFidelity?.value || "strict";
-  return ["strict", "original", "off"].includes(value) ? value : "strict";
+  const value = els.promptFidelity?.value || "off";
+  return ["strict", "original", "off"].includes(value) ? value : "off";
 }
 
 export function supportsGptPromptProcessing(): boolean {

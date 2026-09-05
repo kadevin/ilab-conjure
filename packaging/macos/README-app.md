@@ -14,6 +14,14 @@ before copying it into the standard app data directory. Migration copies portabl
 data only; it does not move or delete the old `data/` folder, and it will not
 overwrite an existing standard data directory.
 
+Saved custom storage paths take effect after a restart. For copied portable data,
+paths inside the old `data/` directory are adjusted once to the standard app copy,
+including on installations migrated by earlier versions. External custom paths
+remain unchanged, and the original configuration is preserved under
+`.migration/webui-settings-before-path-rebase.json` in the standard data directory.
+Changing storage paths separately does not move existing data; back up and quit
+the app before copying complete directories, and do not overwrite destination data.
+
 The app is not notarized. If Gatekeeper blocks first launch, right-click
 or Control-click iLab GPT CONJURE.app, choose Open, and confirm the system
 prompt.

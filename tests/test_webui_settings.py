@@ -1020,7 +1020,7 @@ class WebUISettingsTests(unittest.TestCase):
 
             response = client.post(
                 "/api/generate",
-                data={"prompt": "文案标题设计偏儿童Q版卡通化", "main_model": "gpt-5.5", "size": "1024x1024", "quality": "low"},
+                data={"prompt": "文案标题设计偏儿童Q版卡通化", "main_model": "gpt-5.5", "size": "1024x1024", "quality": "low", "prompt_fidelity": "strict"},
             )
             body = response.json()
 
@@ -1106,8 +1106,8 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertNotIn("web_search", body["task"]["params"])
         self.assertEqual(body["request"]["webui_requested_backend"], "codex_images")
         self.assertEqual(body["request"]["endpoint"], "/images/generations")
-        self.assertIn("提示词保真规则", body["request"]["prompt"])
-        self.assertIn("用户原始提示词：\ncodex images default", body["request"]["prompt"])
+        self.assertEqual(body["task"]["params"]["prompt_fidelity"], "off")
+        self.assertEqual(body["request"]["prompt"], "codex images default")
         self.assertNotIn("tools", body["request"])
         self.assertNotIn("instructions", body["request"])
         self.assertNotIn(sentinel_api_key, response_text)

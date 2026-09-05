@@ -23,8 +23,57 @@ TaskClaimRelease = Callable[[str, QueueChannel], None]
 CancelledTaskRequeue = Callable[[str], bool]
 
 
-class NonRetryableTaskError(RuntimeError):
+class QueueTaskError(RuntimeError):
+    """A task execution failure that must not be treated as a worker fault."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        task_id: str = "",
+        error_code: str = "task_execution_failed",
+        retryable: bool,
+    ) -> None:
+        super().__init__(message)
+        self.task_id = str(task_id or "")
+        self.error_code = str(error_code or "task_execution_failed")
+        self.retryable = bool(retryable)
+
+
+class NonRetryableTaskError(QueueTaskError):
     """Raised when retrying the task on another channel cannot change the result."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        task_id: str = "",
+        error_code: str = "task_execution_failed",
+    ) -> None:
+        super().__init__(
+            message,
+            task_id=task_id,
+            error_code=error_code,
+            retryable=False,
+        )
+
+
+class RetryableTaskError(QueueTaskError):
+    """Raised when a task failed but may succeed on a later attempt."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        task_id: str = "",
+        error_code: str = "task_execution_failed",
+    ) -> None:
+        super().__init__(
+            message,
+            task_id=task_id,
+            error_code=error_code,
+            retryable=True,
+        )
 
 
 @dataclass
@@ -143,14 +192,23 @@ class QueueManager:
             else:
                 self.attempts.pop(task_id, None)
             raise
-        except NonRetryableTaskError:
+        except NonRetryableTaskError as exc:
             self.failed_channels.pop(task_id, None)
             self.attempts.pop(task_id, None)
+            if not exc.task_id:
+                exc.task_id = task_id
             raise
-        except Exception:
+        except Exception as exc:
             self.failed_channels.setdefault(task_id, set()).add(channel.channel_id)
             if self.auto_retry and not is_final_attempt:
                 self.queue_storage.enqueue(task_id)
-            raise
+            if isinstance(exc, QueueTaskError):
+                if not exc.task_id:
+                    exc.task_id = task_id
+                raise
+            raise RetryableTaskError(
+                str(exc),
+                task_id=task_id,
+            ) from exc
         finally:
             self.queue_storage.clear_running(channel.channel_id)

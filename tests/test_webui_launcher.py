@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import socket
 import subprocess
@@ -64,6 +65,72 @@ class WebUILauncherTests(unittest.TestCase):
 
         self.assertIn(".venv", text)
         self.assertIn("requirements-webui.txt", text)
+
+    def test_macos_launchers_replace_broken_venv_links_before_bootstrap(self) -> None:
+        zsh = shutil.which("zsh")
+        python3 = shutil.which("python3")
+        if zsh is None or python3 is None:
+            self.skipTest("zsh and python3 are required to exercise macOS launchers")
+
+        marker = "startup auth reached with repaired venv"
+        launchers = (Path("Start WebUI.command"), Path("Start WebUI Debug.command"))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_root = Path(tmpdir)
+            for launcher in launchers:
+                with self.subTest(launcher=launcher.name):
+                    project_dir = temp_root / launcher.stem
+                    project_dir.mkdir()
+                    copied_launcher = project_dir / launcher.name
+                    shutil.copy2(launcher, copied_launcher)
+
+                    package_dir = project_dir / "codex_image"
+                    webui_dir = package_dir / "webui"
+                    webui_dir.mkdir(parents=True)
+                    (package_dir / "__init__.py").write_text("", encoding="utf-8")
+                    (webui_dir / "__init__.py").write_text("", encoding="utf-8")
+                    (package_dir / "dependency_check.py").write_text(
+                        "raise SystemExit(0)\n",
+                        encoding="utf-8",
+                    )
+                    (webui_dir / "startup_auth.py").write_text(
+                        "import sys\n"
+                        f"print({marker!r}, file=sys.stderr)\n"
+                        "raise SystemExit(23)\n",
+                        encoding="utf-8",
+                    )
+
+                    stale_bin = project_dir / ".venv" / "bin"
+                    stale_bin.mkdir(parents=True)
+                    (stale_bin / "python").symlink_to("python3")
+                    (stale_bin / "python3").symlink_to(
+                        "/missing/previous-system/python3"
+                    )
+
+                    env = os.environ.copy()
+                    env["PATH"] = f"{Path(python3).parent}{os.pathsep}{env['PATH']}"
+                    result = subprocess.run(
+                        [zsh, str(copied_launcher)],
+                        cwd=project_dir,
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        timeout=20,
+                        check=False,
+                    )
+
+                    self.assertEqual(result.returncode, 23, result.stderr)
+                    self.assertIn(marker, result.stderr)
+                    repaired_python = project_dir / ".venv" / "bin" / "python"
+                    self.assertTrue(os.access(repaired_python, os.X_OK))
+                    version = subprocess.run(
+                        [str(repaired_python), "--version"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                        check=False,
+                    )
+                    self.assertEqual(version.returncode, 0, version.stderr)
 
     def test_macos_launchers_wait_for_health_before_opening_browser(self) -> None:
         for launcher in (Path("Start WebUI.command"), Path("Start WebUI Debug.command")):

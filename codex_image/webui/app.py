@@ -101,6 +101,7 @@ from .schemas import (
     DEFAULT_WEBUI_GALLERY_SUBDIR,
     DEFAULT_WEBUI_NETWORK_EGRESS_SETTINGS_PATH,
     DEFAULT_WEBUI_OUTPUT_ROOT,
+    DEFAULT_WEBUI_PROMPT_TEMPLATE_ASSET_SUBDIR,
     DEFAULT_WEBUI_PROMPT_SNIPPETS_PATH,
     DEFAULT_WEBUI_PROMPT_TEMPLATES_PATH,
     DEFAULT_WEBUI_REFERENCE_ASSET_SUBDIR,
@@ -110,6 +111,11 @@ from .schemas import (
 )
 from .shutdown_control import ShutdownCoordinator
 from .network_egress import NetworkEgressManager, NetworkEgressSettings
+from .prompt_snippets import expand_prompt_snippets
+from .prompt_template_assets import (
+    PromptTemplateAssetStorage,
+    PromptTemplateThumbnailResolver,
+)
 from .storage import GalleryStorage, QueueStorage, ReferenceAssetStorage, SQLiteQueueStorage, TaskStorage, _guess_mime_type, utc_now
 from .reference_files import ReferenceFileStorage
 from .settings_store import (
@@ -131,6 +137,9 @@ from .history_export import HistoryExportService
 from .history_backup_export import HistoryBackupExportService
 from .history_backup_import import HistoryBackupImportService
 from .history_backup_plan import TaskBackupPlanner
+from .user_config_backup_components import UserConfigBackupPlanner
+from .user_config_backup_export import UserConfigBackupExportService
+from .user_config_backup_import import UserConfigBackupImportService
 from .image_uploads import InvalidRasterImage, read_validated_raster_upload
 from .instance_lock import (
     WebUIInstanceLock,
@@ -197,7 +206,7 @@ AuthChecker = Callable[[], bool]
 DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS = 600.0
 EVENT_STREAM_CHECK_INTERVAL_SECONDS = 1.0
 PROMPT_FIDELITY_MODES = {"strict", "original", "off"}
-DEFAULT_PROMPT_FIDELITY = "strict"
+DEFAULT_PROMPT_FIDELITY = "off"
 
 
 class NoCacheStaticFiles(StaticFiles):
@@ -255,6 +264,7 @@ def create_app(
     gallery_root: Path | str | None = None,
     reference_asset_root: Path | str | None = None,
     reference_file_root: Path | str | None = None,
+    prompt_template_asset_root: Path | str | None = None,
     source_data_root: Path | str | None = None,
     client_factory: ClientFactory | None = None,
     auth_checker: AuthChecker | None = None,
@@ -270,6 +280,7 @@ def create_app(
     queue_path: Path | str | None = None,
     history_export_temp_root: Path | str | None = None,
     history_backup_temp_root: Path | str | None = None,
+    user_config_backup_temp_root: Path | str | None = None,
     auto_start_queue: bool = True,
     auto_retry: bool = False,
     enforce_single_instance: bool = False,
@@ -282,6 +293,11 @@ def create_app(
     gallery_path = Path(gallery_root) if gallery_root is not None else (input_path / DEFAULT_WEBUI_GALLERY_SUBDIR if custom_output else configured_paths["gallery_root"])
     reference_asset_path = Path(reference_asset_root) if reference_asset_root is not None else input_path / DEFAULT_WEBUI_REFERENCE_ASSET_SUBDIR
     reference_file_path = Path(reference_file_root) if reference_file_root is not None else input_path / DEFAULT_WEBUI_REFERENCE_FILE_SUBDIR
+    prompt_template_asset_path = (
+        Path(prompt_template_asset_root)
+        if prompt_template_asset_root is not None
+        else input_path / DEFAULT_WEBUI_PROMPT_TEMPLATE_ASSET_SUBDIR
+    )
     source_data_path = (
         Path(source_data_root)
         if source_data_root is not None
@@ -301,6 +317,13 @@ def create_app(
         reference_counts_provider=storage.reference_asset_reference_counts,
     )
     reference_file_storage = ReferenceFileStorage(reference_file_path)
+    prompt_template_asset_storage = PromptTemplateAssetStorage(
+        prompt_template_asset_path
+    )
+    prompt_template_thumbnail_resolver = PromptTemplateThumbnailResolver(
+        storage,
+        prompt_template_asset_storage,
+    )
     queue_storage = (
         QueueStorage(Path(queue_path))
         if queue_path is not None
@@ -342,6 +365,34 @@ def create_app(
         history_backup_path,
         recover_on_init=False,
     )
+    user_config_backup_path = (
+        Path(user_config_backup_temp_root)
+        if user_config_backup_temp_root is not None
+        else source_data_path / "user-config-backup"
+    )
+    user_config_backup_planner = UserConfigBackupPlanner(
+        color_settings=color_settings,
+        prompt_snippet_settings=prompt_snippet_settings,
+        gallery_storage=gallery_storage,
+        prompt_template_settings=prompt_template_settings,
+        prompt_template_asset_storage=prompt_template_asset_storage,
+        prompt_template_thumbnail_resolver=prompt_template_thumbnail_resolver,
+        webui_settings=settings,
+        auth_settings=auth_settings,
+        provider_settings=api_settings,
+        network_egress_settings=network_egress_settings,
+    )
+    user_config_backup_export_service = UserConfigBackupExportService(
+        user_config_backup_planner,
+        user_config_backup_path,
+        recover_on_init=False,
+    )
+    user_config_backup_import_service = UserConfigBackupImportService(
+        user_config_backup_planner,
+        user_config_backup_path,
+        queue_storage=queue_storage,
+        recover_on_init=False,
+    )
     static_path = Path(static_dir) if static_dir is not None else Path(__file__).parent / "static"
     make_client = client_factory or (lambda: _client_for_auth_source(auth_settings.read_source(), api_settings=api_settings))
     check_auth = auth_checker or (lambda: bool(_auth_status(auth_settings.read_source(), api_settings=api_settings)["auth_available"]))
@@ -370,11 +421,17 @@ def create_app(
         color_settings=color_settings,
         prompt_snippet_settings=prompt_snippet_settings,
         prompt_template_settings=prompt_template_settings,
+        prompt_template_asset_storage=prompt_template_asset_storage,
+        prompt_template_thumbnail_resolver=prompt_template_thumbnail_resolver,
         history_export_service=history_export_service,
         history_backup_planner=history_backup_planner,
         history_backup_export_service=history_backup_export_service,
         history_backup_import_service=history_backup_import_service,
         history_backup_temp_root=history_backup_path,
+        user_config_backup_planner=user_config_backup_planner,
+        user_config_backup_export_service=user_config_backup_export_service,
+        user_config_backup_import_service=user_config_backup_import_service,
+        user_config_backup_temp_root=user_config_backup_path,
         client_factory=make_client,
         auth_checker=check_auth,
         input_root=input_path,
@@ -382,6 +439,7 @@ def create_app(
         gallery_root=gallery_path,
         reference_asset_root=reference_asset_path,
         reference_file_root=reference_file_path,
+        prompt_template_asset_root=prompt_template_asset_path,
         source_data_root=source_data_path,
         auto_start_queue=auto_start_queue,
     )
@@ -479,7 +537,10 @@ def create_app(
                 ui_language,
             ),
             "model_prompt_for_fidelity": lambda prompt, prompt_for_model, prompt_fidelity: _model_prompt_for_fidelity(
-                prompt, prompt_for_model, prompt_fidelity
+                prompt,
+                prompt_for_model,
+                prompt_fidelity,
+                prompt_snippets=prompt_snippet_settings.list(),
             ),
             "backend_for_submit": _backend_for_submit,
             "request_api_provider_id": lambda auth_source, api_provider_id: _request_api_provider_id(
@@ -512,17 +573,46 @@ async def _webui_lifespan(app_instance: FastAPI):
         owner_lock = WebUIInstanceLock.acquire(ctx.history_backup_temp_root)
         ctx.history_backup_owner_lock = owner_lock
         app_instance.state.history_backup_owner_lock = owner_lock
+        try:
+            user_config_owner_lock = WebUIInstanceLock.acquire(
+                ctx.user_config_backup_temp_root
+            )
+        except BaseException:
+            owner_lock.release()
+            ctx.history_backup_owner_lock = None
+            app_instance.state.history_backup_owner_lock = None
+            raise
+        ctx.user_config_backup_owner_lock = user_config_owner_lock
+        app_instance.state.user_config_backup_owner_lock = user_config_owner_lock
         cleanup_stop: asyncio.Event | None = None
         cleanup_task: asyncio.Task[None] | None = None
+        user_config_cleanup_task: asyncio.Task[None] | None = None
+        user_config_import_cleanup_task: asyncio.Task[None] | None = None
         try:
             ctx.history_backup_export_service.recover_startup()
             ctx.history_backup_import_service.recover_startup()
+            ctx.user_config_backup_export_service.recover_startup()
+            ctx.user_config_backup_import_service.recover_startup()
             ctx.history_backup_accepting_jobs = True
             app_instance.state.history_backup_accepting_jobs = True
+            ctx.user_config_backup_accepting_jobs = True
+            app_instance.state.user_config_backup_accepting_jobs = True
             cleanup_stop = asyncio.Event()
             cleanup_task = asyncio.create_task(
                 _history_backup_cleanup_loop(
                     ctx.history_backup_export_service,
+                    cleanup_stop,
+                )
+            )
+            user_config_cleanup_task = asyncio.create_task(
+                _history_backup_cleanup_loop(
+                    ctx.user_config_backup_export_service,
+                    cleanup_stop,
+                )
+            )
+            user_config_import_cleanup_task = asyncio.create_task(
+                _history_backup_cleanup_loop(
+                    ctx.user_config_backup_import_service,
                     cleanup_stop,
                 )
             )
@@ -531,12 +621,23 @@ async def _webui_lifespan(app_instance: FastAPI):
             try:
                 ctx.history_backup_accepting_jobs = False
                 app_instance.state.history_backup_accepting_jobs = False
+                ctx.user_config_backup_accepting_jobs = False
+                app_instance.state.user_config_backup_accepting_jobs = False
                 if cleanup_stop is not None:
                     cleanup_stop.set()
                 if cleanup_task is not None:
                     await cleanup_task
+                if user_config_cleanup_task is not None:
+                    await user_config_cleanup_task
+                if user_config_import_cleanup_task is not None:
+                    await user_config_import_cleanup_task
+                ctx.user_config_backup_export_service.close()
+                ctx.user_config_backup_import_service.close()
                 shutdown_history_backup_services(ctx)
             finally:
+                user_config_owner_lock.release()
+                ctx.user_config_backup_owner_lock = None
+                app_instance.state.user_config_backup_owner_lock = None
                 owner_lock.release()
                 ctx.history_backup_owner_lock = None
                 app_instance.state.history_backup_owner_lock = None
@@ -619,9 +720,16 @@ def _prompt_guard_context(
     )
 
 
-def _model_prompt_for_fidelity(prompt: str, prompt_for_model: str | None, prompt_fidelity: str) -> str:
+def _model_prompt_for_fidelity(
+    prompt: str,
+    prompt_for_model: str | None,
+    prompt_fidelity: str,
+    *,
+    prompt_snippets: list[dict[str, Any]] | None = None,
+) -> str:
     if _normalize_prompt_fidelity(prompt_fidelity) == "original":
-        return prompt
+        # Snippet chips are user-authored macros, not app-added prompt guidance.
+        return expand_prompt_snippets(prompt, prompt_snippets or [])
     return prompt_for_model or prompt
 
 

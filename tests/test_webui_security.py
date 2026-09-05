@@ -64,6 +64,10 @@ class WebUISecurityTests(unittest.TestCase):
             storage = app.state.storage
             task = storage.create_task("edit")
             image_bytes = self._png_bytes()
+            template_asset = app.state.prompt_template_asset_storage.store(
+                image_bytes,
+                filename="template.png",
+            )
             input_path = storage.write_input(task.task_id, "source.png", image_bytes)
             output_path = storage.write_output(task.task_id, image_bytes, "png", index=1)
             output_file = storage.output_file(output_path)
@@ -97,6 +101,10 @@ class WebUISecurityTests(unittest.TestCase):
             private_source = storage.source_data_root / "private.json"
             private_source.parent.mkdir(parents=True, exist_ok=True)
             private_source.write_text('{"secret": true}', encoding="utf-8")
+            unowned_template_asset = (
+                app.state.prompt_template_asset_root / ("f" * 64 + ".png")
+            )
+            unowned_template_asset.write_bytes(image_bytes)
 
             client = TestClient(app)
             task_response = client.get(f"/api/tasks/{task.task_id}")
@@ -108,6 +116,15 @@ class WebUISecurityTests(unittest.TestCase):
             hidden_input = client.get("/inputs/unowned.png")
             hidden_output = client.get("/outputs/unowned.png")
             hidden_source = client.get("/outputs/source-data/private.json")
+            template_image = client.get(
+                f"/api/prompt-template-assets/{template_asset.asset_id}/image"
+            )
+            hidden_template = client.get(
+                "/api/prompt-template-assets/" + "f" * 64 + "/image"
+            )
+            escaped_template = client.get(
+                "/api/prompt-template-assets/%2e%2e/image"
+            )
 
         self.assertEqual(task_response.status_code, 200)
         self.assertEqual(input_image.status_code, 200)
@@ -121,6 +138,10 @@ class WebUISecurityTests(unittest.TestCase):
         self.assertEqual(hidden_input.status_code, 404)
         self.assertEqual(hidden_output.status_code, 404)
         self.assertEqual(hidden_source.status_code, 404)
+        self.assertEqual(template_image.status_code, 200)
+        self.assertEqual(template_image.content, image_bytes)
+        self.assertEqual(hidden_template.status_code, 404)
+        self.assertEqual(escaped_template.status_code, 404)
 
     def test_legacy_output_route_accepts_owned_file_after_output_reindex(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

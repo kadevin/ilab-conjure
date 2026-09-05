@@ -141,7 +141,7 @@ class ProviderSettingsV2Tests(unittest.TestCase):
         self.assertEqual(written["providers"][0]["base_url"], "https://relay.example/v2")
         self.assertEqual(written["providers"][0]["api_key"], "original-secret")
 
-    def test_origin_change_without_new_api_key_clears_existing_key(self) -> None:
+    def test_origin_change_without_new_api_key_requires_confirmation_without_rewriting(self) -> None:
         self.settings.write(
             self.v2_payload(
                 providers=[
@@ -158,22 +158,74 @@ class ProviderSettingsV2Tests(unittest.TestCase):
             "https://relay.example:8443/v1",
         ):
             with self.subTest(base_url=base_url):
+                before = self.path.read_text(encoding="utf-8")
                 provider = self.provider(base_url=base_url)
                 provider.pop("api_key")
 
-                written = self.settings.write(self.v2_payload(providers=[provider]))
+                with self.assertRaisesRegex(
+                    ValueError, "api_key_origin_change_confirmation_required"
+                ):
+                    self.settings.write(self.v2_payload(providers=[provider]))
 
-                self.assertEqual(written["providers"][0]["api_key"], "")
-                self.settings.write(
-                    self.v2_payload(
-                        providers=[
-                            self.provider(
-                                base_url="https://relay.example/v1",
-                                api_key="original-secret",
-                            )
-                        ]
+                self.assertEqual(self.path.read_text(encoding="utf-8"), before)
+
+    def test_origin_change_with_explicit_confirmation_preserves_existing_api_key(self) -> None:
+        self.settings.write(
+            self.v2_payload(
+                providers=[
+                    self.provider(
+                        base_url="https://relay.example/v1",
+                        api_key="original-secret",
                     )
+                ]
+            )
+        )
+        provider = self.provider(base_url="https://other.example/v1")
+        provider.pop("api_key")
+        provider["preserve_api_key_on_origin_change"] = True
+
+        written = self.settings.write(self.v2_payload(providers=[provider]))
+        persisted = json.loads(self.path.read_text(encoding="utf-8"))
+
+        self.assertEqual(written["providers"][0]["base_url"], "https://other.example/v1")
+        self.assertEqual(written["providers"][0]["api_key"], "original-secret")
+        self.assertEqual(persisted["providers"][0]["api_key"], "original-secret")
+        self.assertNotIn("preserve_api_key_on_origin_change", persisted["providers"][0])
+
+    def test_new_provider_without_api_key_is_rejected_without_rewriting(self) -> None:
+        self.settings.write(self.v2_payload())
+        before = self.path.read_text(encoding="utf-8")
+        existing = self.provider()
+        existing.pop("api_key")
+        keyless = self.provider(
+            id="keyless",
+            name="Keyless",
+            base_url="https://keyless.example/v1",
+        )
+        keyless.pop("api_key")
+
+        with self.assertRaisesRegex(ValueError, "api_key_required"):
+            self.settings.write(
+                self.v2_payload(
+                    providers=[existing, keyless],
                 )
+            )
+
+        self.assertEqual(self.path.read_text(encoding="utf-8"), before)
+
+    def test_existing_keyless_provider_must_receive_key_before_edited_save(self) -> None:
+        self.write_json(
+            self.v2_payload(
+                providers=[self.provider(api_key="")],
+            )
+        )
+        before = self.path.read_text(encoding="utf-8")
+        edited = self.provider(name="Renamed Keyless", api_key="")
+
+        with self.assertRaisesRegex(ValueError, "api_key_required"):
+            self.settings.write(self.v2_payload(providers=[edited]))
+
+        self.assertEqual(self.path.read_text(encoding="utf-8"), before)
 
     def test_origin_change_with_explicit_new_api_key_stores_new_key(self) -> None:
         self.settings.write(
@@ -205,7 +257,6 @@ class ProviderSettingsV2Tests(unittest.TestCase):
         donor = self.provider(
             id="donor",
             name="Donor",
-            base_url="https://donor.example/v1",
             api_key="donor-secret",
         )
         self.settings.write(
@@ -472,6 +523,7 @@ class ProviderSettingsV2Tests(unittest.TestCase):
         donor = self.provider(
             id="donor",
             name="Donor",
+            base_url="https://relay.example/v1",
             api_key="donor-secret",
             bindings=[{**gpt_binding, "id": "donor-gpt"}],
         )
@@ -492,7 +544,7 @@ class ProviderSettingsV2Tests(unittest.TestCase):
                     {
                         "id": "donor",
                         "name": "Donor",
-                        "base_url": "https://donor.example/v1",
+                        "base_url": "https://relay.example/v1",
                         "image_model": "donor-gpt",
                         "api_mode": "images",
                         "images_concurrency": 4,

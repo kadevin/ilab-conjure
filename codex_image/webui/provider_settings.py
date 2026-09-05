@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from copy import deepcopy
 from pathlib import Path
+import threading
 from typing import Any, Mapping
 
 from codex_image.client_types import (
@@ -20,6 +21,7 @@ from .provider_validation import (
     provider_url_origin,
     validate_v2_payload,
 )
+from .store_locks import StoreLockMixin, store_locked
 
 
 _CODEX_MODES = frozenset({"images", "responses"})
@@ -101,10 +103,12 @@ def _without_api_keys(value: Any) -> Any:
     return value
 
 
-class ProviderSettings:
+class ProviderSettings(StoreLockMixin):
     def __init__(self, path: Path) -> None:
         self.path = path
+        self._lock = threading.RLock()
 
+    @store_locked
     def read(self) -> dict[str, Any]:
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -118,6 +122,7 @@ class ProviderSettings:
             raise ValueError("unsupported_schema_version")
         return self._validate_v2(self._migrate_v1(payload))
 
+    @store_locked
     def write(self, payload: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(payload, dict):
             raise ValueError("API settings payload must be an object")
@@ -129,6 +134,7 @@ class ProviderSettings:
         else:
             candidate = self._prepare_legacy_active_write(payload, current)
         settings = self._validate_v2(candidate)
+        self._enforce_api_key_write_contract(settings, current)
         persisted = self._persisted(settings)
         atomic_write_text(
             self.path,
@@ -137,6 +143,7 @@ class ProviderSettings:
         )
         return self.read()
 
+    @store_locked
     def public_settings(self) -> dict[str, Any]:
         settings = deepcopy(self.read())
         for provider in settings["providers"]:
@@ -148,6 +155,23 @@ class ProviderSettings:
         settings["api_key_set"] = bool(api_key)
         settings["api_key_masked"] = _mask_api_key(api_key) if api_key else ""
         return _without_api_keys(settings)
+
+    @store_locked
+    def backup_snapshot(self, *, include_api_keys: bool) -> dict[str, Any]:
+        snapshot = validate_v2_payload(self.read())
+        if not include_api_keys:
+            snapshot = _without_api_keys(snapshot)
+        return deepcopy(snapshot)
+
+    @store_locked
+    def replace_snapshot(self, payload: Mapping[str, Any]) -> dict[str, Any]:
+        settings = self._validate_v2(payload)
+        atomic_write_text(
+            self.path,
+            json.dumps(self._persisted(settings), indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
+        return self.read()
 
     def read_connections(self) -> list[ProviderConnection]:
         settings = self.read()
@@ -473,7 +497,12 @@ class ProviderSettings:
     ) -> list[Any]:
         prepared = deepcopy(providers)
         for provider in prepared:
-            if not isinstance(provider, dict) or "api_key" in provider:
+            if not isinstance(provider, dict):
+                continue
+            preserve_on_origin_change = (
+                provider.pop("preserve_api_key_on_origin_change", False) is True
+            )
+            if "api_key" in provider:
                 continue
             provider_id = _normalize_slug(provider.get("id"), fallback="default")
             raw_source_id = provider.pop("api_key_source_provider_id", None)
@@ -494,8 +523,46 @@ class ProviderSettings:
             )
             if explicit_source and not same_origin:
                 raise ValueError("api_key_origin_mismatch")
-            provider["api_key"] = str(source.get("api_key") or "") if same_origin else ""
+            source_api_key = str(source.get("api_key") or "")
+            if same_origin:
+                provider["api_key"] = source_api_key
+                continue
+            if source_api_key and not explicit_source:
+                if not preserve_on_origin_change:
+                    raise ValueError("api_key_origin_change_confirmation_required")
+                provider["api_key"] = source_api_key
+                continue
+            provider["api_key"] = ""
         return prepared
+
+    @staticmethod
+    def _provider_edit_fingerprint(provider: Mapping[str, Any]) -> dict[str, Any]:
+        return {
+            "id": provider.get("id"),
+            "name": provider.get("name"),
+            "icon_emoji": provider.get("icon_emoji", ""),
+            "base_url": provider.get("base_url"),
+            "concurrency": provider.get("concurrency"),
+            "bindings": deepcopy(provider.get("bindings") or []),
+        }
+
+    @classmethod
+    def _enforce_api_key_write_contract(
+        cls,
+        settings: Mapping[str, Any],
+        current: Mapping[str, Any],
+    ) -> None:
+        current_by_id = {provider["id"]: provider for provider in current["providers"]}
+        for provider in settings["providers"]:
+            if str(provider.get("api_key") or "").strip():
+                continue
+            existing = current_by_id.get(provider["id"])
+            if existing is None or str(existing.get("api_key") or "").strip():
+                raise ValueError("api_key_required")
+            if cls._provider_edit_fingerprint(provider) != cls._provider_edit_fingerprint(
+                existing
+            ):
+                raise ValueError("api_key_required")
 
     @classmethod
     def _validate_v2(cls, payload: Mapping[str, Any]) -> dict[str, Any]:

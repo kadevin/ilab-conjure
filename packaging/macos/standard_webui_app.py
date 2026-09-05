@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from codex_image.webui.app import create_app
+from codex_image.webui.standard_storage import load_standard_storage_paths
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -12,17 +13,13 @@ DATA_DIR = Path(
     or Path.home() / "Library" / "Application Support" / "iLab GPT CONJURE"
 ).resolve()
 
-INPUT_ROOT = DATA_DIR / "webui-inputs"
-OUTPUT_ROOT = DATA_DIR / "webui-outputs"
+paths = load_standard_storage_paths(DATA_DIR)
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 app = create_app(
-    input_root=INPUT_ROOT,
-    output_root=OUTPUT_ROOT,
-    gallery_root=INPUT_ROOT / "gallery",
-    reference_asset_root=INPUT_ROOT / "reference-assets",
-    source_data_root=OUTPUT_ROOT / "source-data",
+    **paths,
+    reference_asset_root=paths["input_root"] / "reference-assets",
     webui_settings_path=DATA_DIR / "webui-settings.json",
     auth_settings_path=DATA_DIR / "webui-auth-settings.json",
     api_settings_path=DATA_DIR / "webui-api-settings.json",

@@ -36,9 +36,12 @@ const selectAllMatchingTasksInExpandedGroup = (...args: any[]) => legacyMethod("
 const handleTaskListPointerDown = (...args: any[]) => legacyMethod("handleTaskListPointerDown", ...args);
 const loadMoreSidebarTaskGroup = (...args: any[]) => legacyMethod("loadMoreSidebarTaskGroup", ...args);
 const closeArchiveModal = (...args: any[]) => legacyMethod("closeArchiveModal", ...args);
+const TASK_SIDEBAR_AUTO_LOAD_THRESHOLD_PX = 320;
 
 let taskListControlsInitialized = false;
 let taskListControlEventsBound = false;
+let taskSearchAcceptManualInput = false;
+let sidebarTaskGroupAutoLoadScheduled = false;
 
 function taskFilterControls() {
   return [els.taskStatusFilter, els.taskRatioFilter, els.taskOrientationFilter, els.taskPromptFidelityFilter, els.taskResolutionFilter].filter(Boolean);
@@ -49,7 +52,7 @@ function activeTaskFilterCount() {
 }
 
 function taskSearchHasValue() {
-  return Boolean(String(els.taskSearch?.value || "").trim());
+  return Boolean(String(state.taskSearchQuery || "").trim());
 }
 
 function updateTaskSearchClearButton() {
@@ -58,12 +61,45 @@ function updateTaskSearchClearButton() {
 }
 
 function clearTaskSearch() {
-  if (!els.taskSearch?.value) return;
-  els.taskSearch.value = "";
-  updateTaskSearchClearButton();
+  if (!taskSearchHasValue()) {
+    syncTaskSearchInput();
+    return;
+  }
+  state.taskSearchQuery = "";
+  taskSearchAcceptManualInput = false;
+  setTaskSearchLocked(false);
+  syncTaskSearchInput();
   renderTasks();
   void syncTaskSearchHistoryResults();
-  els.taskSearch.focus({ preventScroll: true });
+  els.taskSearch?.focus({ preventScroll: true });
+}
+
+function syncTaskSearchInput() {
+  const input = els.taskSearch as HTMLInputElement | null;
+  if (!input) {
+    updateTaskSearchClearButton();
+    return;
+  }
+  const nextValue = String(state.taskSearchQuery || "");
+  if (input.value !== nextValue) input.value = nextValue;
+  updateTaskSearchClearButton();
+}
+
+function setTaskSearchLocked(locked: boolean) {
+  const input = els.taskSearch as HTMLInputElement | null;
+  if (!input) return;
+  input.readOnly = locked;
+  if (locked) {
+    input.setAttribute("readonly", "");
+  } else {
+    input.removeAttribute("readonly");
+  }
+}
+
+function guardTaskSearchInput(delays = [0, 120, 360, 900, 1800]) {
+  delays.forEach((delay) => {
+    window.setTimeout(syncTaskSearchInput, delay);
+  });
 }
 
 function setTaskFilterPopoverOpen(open: boolean) {
@@ -125,7 +161,52 @@ function bindTaskListControlEvents() {
   els.batchArchiveButton?.addEventListener("click", archiveSelectedTasks);
   els.batchCancelSelectedButton?.addEventListener("click", openBatchCancelConfirm);
   els.batchDeleteButton?.addEventListener("click", openBatchDeleteConfirm);
+  els.taskSearch?.addEventListener("pointerdown", (event: Event) => {
+    const input = els.taskSearch as HTMLInputElement | null;
+    if (!input?.readOnly) return;
+    event.preventDefault();
+    setTaskSearchLocked(false);
+    syncTaskSearchInput();
+    input.focus({ preventScroll: true });
+  });
+  els.taskSearch?.addEventListener("keydown", (event: KeyboardEvent) => {
+    const input = els.taskSearch as HTMLInputElement | null;
+    if (input?.readOnly && !event.metaKey && !event.ctrlKey && !event.altKey) {
+      const key = event.key || "";
+      const isPrintable = key.length === 1;
+      const isClearKey = key === "Backspace" || key === "Delete";
+      if (isPrintable || isClearKey) {
+        event.preventDefault();
+        setTaskSearchLocked(false);
+        taskSearchAcceptManualInput = true;
+        const nextValue = isClearKey ? "" : key;
+        input.value = nextValue;
+        state.taskSearchQuery = nextValue;
+        updateTaskSearchClearButton();
+        renderTasks();
+        void syncTaskSearchHistoryResults();
+      }
+      return;
+    }
+    taskSearchAcceptManualInput = true;
+  });
+  els.taskSearch?.addEventListener("paste", () => {
+    taskSearchAcceptManualInput = true;
+    setTaskSearchLocked(false);
+  });
+  els.taskSearch?.addEventListener("drop", () => {
+    taskSearchAcceptManualInput = true;
+    setTaskSearchLocked(false);
+  });
+  els.taskSearch?.addEventListener("blur", () => {
+    taskSearchAcceptManualInput = false;
+    setTaskSearchLocked(true);
+  });
   els.taskSearch.addEventListener("input", handleTaskSearchInput);
+  els.taskSearch?.addEventListener("focus", () => {
+    taskSearchAcceptManualInput = false;
+    guardTaskSearchInput();
+  });
   els.taskSearchClearButton?.addEventListener("click", clearTaskSearch);
   els.taskFilterButton?.addEventListener("click", toggleTaskFilterPopover);
   els.taskFilterClearButton?.addEventListener("click", () => clearTaskFilters());
@@ -136,12 +217,23 @@ function bindTaskListControlEvents() {
       renderTasks();
     });
   });
-  updateTaskSearchClearButton();
+  state.taskSearchQuery = "";
+  taskSearchAcceptManualInput = false;
+  setTaskSearchLocked(true);
+  syncTaskSearchInput();
+  guardTaskSearchInput();
+  window.addEventListener("pageshow", () => guardTaskSearchInput());
   updateTaskFilterSummary();
   bindTaskListEvents();
 }
 
 function handleTaskSearchInput() {
+  if (!taskSearchAcceptManualInput) {
+    syncTaskSearchInput();
+    guardTaskSearchInput([120, 360, 900, 1800]);
+    return;
+  }
+  state.taskSearchQuery = els.taskSearch?.value || "";
   updateTaskSearchClearButton();
   renderTasks();
   void syncTaskSearchHistoryResults();
@@ -159,6 +251,30 @@ function bindTaskListEvents() {
   interactiveRoot?.addEventListener("click", handleTaskListClick);
   interactiveRoot?.addEventListener("keydown", handleTaskListKeydown);
   els.taskList?.addEventListener("pointerdown", handleTaskListPointerDown);
+  els.sidebarContent?.addEventListener("scroll", scheduleSidebarTaskGroupAutoLoad, { passive: true });
+}
+
+function maybeAutoLoadSidebarTaskGroup(): boolean {
+  const scroller = els.sidebarContent;
+  if (!scroller || state.taskSidebarGroupLoading) return false;
+  const loadMore = els.taskList?.querySelector?.("[data-load-more-task-group]");
+  const groupKey = String(loadMore?.dataset?.loadMoreTaskGroup || "");
+  if (!groupKey || String(state.taskSidebarGroupLoadError || "") === groupKey) return false;
+  const remaining = Number(scroller.scrollHeight || 0)
+    - Number(scroller.scrollTop || 0)
+    - Number(scroller.clientHeight || 0);
+  if (remaining > TASK_SIDEBAR_AUTO_LOAD_THRESHOLD_PX) return false;
+  void loadMoreSidebarTaskGroup(groupKey);
+  return true;
+}
+
+function scheduleSidebarTaskGroupAutoLoad(): void {
+  if (sidebarTaskGroupAutoLoadScheduled) return;
+  sidebarTaskGroupAutoLoadScheduled = true;
+  window.requestAnimationFrame(() => {
+    sidebarTaskGroupAutoLoadScheduled = false;
+    maybeAutoLoadSidebarTaskGroup();
+  });
 }
 
 function taskHistoryInteractiveRoot() {
@@ -228,7 +344,7 @@ function handleTaskListClick(event: any) {
   const loadMoreButton = event.target.closest("[data-load-more-task-group]");
   if (loadMoreButton) {
     event.stopPropagation();
-    void loadMoreSidebarTaskGroup(loadMoreButton.dataset.loadMoreTaskGroup);
+    void loadMoreSidebarTaskGroup(loadMoreButton.dataset.loadMoreTaskGroup, { manual: true });
     return;
   }
 
@@ -314,6 +430,8 @@ export function initTaskListControlsFeature() {
     clearTaskFilters,
     bindTaskListControlEvents,
     bindTaskListEvents,
+    maybeAutoLoadSidebarTaskGroup,
+    scheduleSidebarTaskGroupAutoLoad,
     handleTaskCardArrowNavigation,
     handleTaskListClick,
     handleTaskListKeydown,
