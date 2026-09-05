@@ -1295,6 +1295,41 @@ body.api-provider-sort-dragging * {
   display: none;
 }
 
+.storage-path-hint {
+  display: block;
+  margin: 8px 0 0;
+}
+
+.storage-previous-paths {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.storage-previous-paths summary {
+  cursor: pointer;
+}
+
+.storage-previous-paths summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.storage-previous-paths dl {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+}
+
+.storage-previous-paths dt {
+  font-weight: 600;
+}
+
+.storage-previous-paths dd {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
 .settings-modal-actions .run-button {
   flex: 0 0 auto;
   margin-left: auto;

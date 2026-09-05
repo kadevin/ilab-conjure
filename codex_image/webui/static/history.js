@@ -912,6 +912,10 @@
     "archive.restoredCount": "Restored {count} tasks",
     "settings.title": "Storage",
     "settings.status": "Restart WebUI after saving storage paths",
+    "settings.pathChangeHint": "Changing paths does not move existing data. Before relocating files, back up and quit the app, then copy the complete directories.",
+    "settings.previousPaths": "Missing old data? Check the original default folders",
+    "settings.previousPathsHelp": "These folders still exist. To view their history, restore the corresponding paths and restart. Do not overwrite existing destination data.",
+    "settings.previousPathsNotice": "Custom storage paths are active. If history is missing, check the original default folders in Storage settings.",
     "settings.inputRoot": "Input folder",
     "settings.outputRoot": "Output folder",
     "settings.galleryRoot": "Gallery folder",
@@ -2194,6 +2198,10 @@
     "archive.restoredCount": "{count}-Aufgaben wiederhergestellt",
     "settings.title": "Lagerung",
     "settings.status": "Starten Sie WebUI neu, nachdem Sie die Speicherpfade gespeichert haben",
+    "settings.pathChangeHint": "Ge\xE4nderte Pfade verschieben keine vorhandenen Daten. Vor dem Umzug eine Sicherung erstellen, die App beenden und die vollst\xE4ndigen Ordner kopieren.",
+    "settings.previousPaths": "Alte Daten fehlen? Urspr\xFCngliche Standardordner pr\xFCfen",
+    "settings.previousPathsHelp": "Diese Ordner sind noch vorhanden. Zum Anzeigen des Verlaufs die entsprechenden Pfade wiederherstellen und neu starten. Vorhandene Zieldaten nicht \xFCberschreiben.",
+    "settings.previousPathsNotice": "Benutzerdefinierte Speicherpfade sind aktiv. Bei fehlendem Verlauf die urspr\xFCnglichen Standardordner in den Speichereinstellungen pr\xFCfen.",
     "settings.inputRoot": "Eingabeordner",
     "settings.outputRoot": "Ausgabeordner",
     "settings.galleryRoot": "Galerieordner",
@@ -3417,6 +3425,10 @@
     "archive.restoredCount": "Tareas {count} restauradas",
     "settings.title": "Almacenamiento",
     "settings.status": "Reinicie WebUI despu\xE9s de guardar las rutas de almacenamiento",
+    "settings.pathChangeHint": "Cambiar las rutas no mueve los datos existentes. Antes de trasladarlos, haz una copia de seguridad, cierra la aplicaci\xF3n y copia las carpetas completas.",
+    "settings.previousPaths": "\xBFFaltan datos antiguos? Consulta las carpetas predeterminadas originales",
+    "settings.previousPathsHelp": "Estas carpetas siguen existiendo. Para ver su historial, restaura las rutas correspondientes y reinicia. No sobrescribas los datos existentes en el destino.",
+    "settings.previousPathsNotice": "Se usan rutas personalizadas. Si falta el historial, consulta las carpetas predeterminadas originales en los ajustes de almacenamiento.",
     "settings.inputRoot": "Carpeta de entrada",
     "settings.outputRoot": "Carpeta de salida",
     "settings.galleryRoot": "Carpeta de galer\xEDa",
@@ -4640,6 +4652,10 @@
     "archive.restoredCount": "T\xE2ches {count} restaur\xE9es",
     "settings.title": "Stockage",
     "settings.status": "Red\xE9marrez WebUI apr\xE8s avoir enregistr\xE9 les chemins de stockage",
+    "settings.pathChangeHint": "Changer les chemins ne d\xE9place pas les donn\xE9es existantes. Avant de les d\xE9placer, faites une sauvegarde, quittez l\u2019application et copiez les dossiers complets.",
+    "settings.previousPaths": "Donn\xE9es anciennes introuvables ? Voir les dossiers par d\xE9faut d\u2019origine",
+    "settings.previousPathsHelp": "Ces dossiers existent toujours. Pour retrouver leur historique, r\xE9tablissez les chemins correspondants et red\xE9marrez. N\u2019\xE9crasez pas les donn\xE9es d\xE9j\xE0 pr\xE9sentes \xE0 destination.",
+    "settings.previousPathsNotice": "Des chemins personnalis\xE9s sont utilis\xE9s. Si l\u2019historique manque, consultez les dossiers par d\xE9faut d\u2019origine dans les param\xE8tres de stockage.",
     "settings.inputRoot": "Dossier d'entr\xE9e",
     "settings.outputRoot": "Dossier de sortie",
     "settings.galleryRoot": "Dossier Galerie",
@@ -5863,6 +5879,10 @@
     "archive.restoredCount": "{count}\u30BF\u30B9\u30AF\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F",
     "settings.title": "\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A",
     "settings.status": "\u30B9\u30C8\u30EC\u30FC\u30B8\u30D1\u30B9\u306E\u4FDD\u5B58\u5F8C\u3001WebUI \u306E\u518D\u8D77\u52D5\u3067\u53CD\u6620\u3055\u308C\u307E\u3059",
+    "settings.pathChangeHint": "\u30D1\u30B9\u3092\u5909\u66F4\u3057\u3066\u3082\u65E2\u5B58\u306E\u30C7\u30FC\u30BF\u306F\u79FB\u52D5\u3057\u307E\u305B\u3093\u3002\u79FB\u884C\u3059\u308B\u524D\u306B\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3057\u3066\u30A2\u30D7\u30EA\u3092\u7D42\u4E86\u3057\u3001\u95A2\u9023\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u4E38\u3054\u3068\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "settings.previousPaths": "\u4EE5\u524D\u306E\u30C7\u30FC\u30BF\u304C\u898B\u3064\u304B\u3089\u306A\u3044\u5834\u5408\uFF1A\u5143\u306E\u65E2\u5B9A\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u78BA\u8A8D",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u306E\u30D5\u30A9\u30EB\u30C0\u30FC\u306F\u6B8B\u3063\u3066\u3044\u307E\u3059\u3002\u5C65\u6B74\u3092\u8868\u793A\u3059\u308B\u306B\u306F\u5BFE\u5FDC\u3059\u308B\u30D1\u30B9\u3092\u5143\u306B\u623B\u3057\u3001\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u79FB\u884C\u5148\u306E\u65E2\u5B58\u30C7\u30FC\u30BF\u306F\u4E0A\u66F8\u304D\u3057\u306A\u3044\u3067\u304F\u3060\u3055\u3044\u3002",
+    "settings.previousPathsNotice": "\u30AB\u30B9\u30BF\u30E0\u4FDD\u5B58\u5148\u3092\u4F7F\u7528\u4E2D\u3067\u3059\u3002\u5C65\u6B74\u304C\u898B\u3064\u304B\u3089\u306A\u3044\u5834\u5408\u306F\u3001\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3067\u5143\u306E\u65E2\u5B9A\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "settings.inputRoot": "\u5165\u529B\u30D5\u30A9\u30EB\u30C0\u30FC",
     "settings.outputRoot": "\u51FA\u529B\u30D5\u30A9\u30EB\u30C0\u30FC",
     "settings.galleryRoot": "\u5171\u6709\u30AE\u30E3\u30E9\u30EA\u30FC\u30D5\u30A9\u30EB\u30C0\u30FC",
@@ -7086,6 +7106,10 @@
     "archive.restoredCount": "\uC791\uC5C5 {count}\uAC1C\uC744 \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4.",
     "settings.title": "\uC800\uC7A5\uC18C \uC124\uC815",
     "settings.status": "\uC800\uC7A5\uC18C \uACBD\uB85C\uB97C \uC800\uC7A5\uD55C \uB4A4 WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uC801\uC6A9\uB429\uB2C8\uB2E4",
+    "settings.pathChangeHint": "\uACBD\uB85C\uB97C \uBCC0\uACBD\uD574\uB3C4 \uAE30\uC874 \uB370\uC774\uD130\uB294 \uC774\uB3D9\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC774\uC804\uD558\uB824\uBA74 \uBC31\uC5C5 \uD6C4 \uC571\uC744 \uC885\uB8CC\uD558\uACE0 \uAD00\uB828 \uD3F4\uB354 \uC804\uCCB4\uB97C \uBCF5\uC0AC\uD558\uC138\uC694.",
+    "settings.previousPaths": "\uC774\uC804 \uB370\uC774\uD130\uAC00 \uC5C6\uB098\uC694? \uC6D0\uB798 \uAE30\uBCF8 \uD3F4\uB354 \uD655\uC778",
+    "settings.previousPathsHelp": "\uC774 \uD3F4\uB354\uB4E4\uC740 \uC544\uC9C1 \uC874\uC7AC\uD569\uB2C8\uB2E4. \uAE30\uB85D\uC744 \uBCF4\uB824\uBA74 \uD574\uB2F9 \uACBD\uB85C\uB97C \uC6D0\uB798\uB300\uB85C \uBCC0\uACBD\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uC791\uD558\uC138\uC694. \uB300\uC0C1 \uD3F4\uB354\uC758 \uAE30\uC874 \uB370\uC774\uD130\uB97C \uB36E\uC5B4\uC4F0\uC9C0 \uB9C8\uC138\uC694.",
+    "settings.previousPathsNotice": "\uC0AC\uC6A9\uC790 \uC9C0\uC815 \uC800\uC7A5 \uACBD\uB85C\uB97C \uC0AC\uC6A9 \uC911\uC785\uB2C8\uB2E4. \uAE30\uB85D\uC774 \uC5C6\uB2E4\uBA74 \uC800\uC7A5\uC18C \uC124\uC815\uC5D0\uC11C \uC6D0\uB798 \uAE30\uBCF8 \uD3F4\uB354\uB97C \uD655\uC778\uD558\uC138\uC694.",
     "settings.inputRoot": "\uC785\uB825 \uD3F4\uB354",
     "settings.outputRoot": "\uCD9C\uB825 \uD3F4\uB354",
     "settings.galleryRoot": "\uACF5\uC6A9 \uAC24\uB7EC\uB9AC \uD3F4\uB354",
@@ -8309,6 +8333,10 @@
     "archive.restoredCount": "Tarefas {count} restauradas",
     "settings.title": "Armazenamento",
     "settings.status": "Reinicie WebUI ap\xF3s salvar os caminhos de armazenamento",
+    "settings.pathChangeHint": "Alterar os caminhos n\xE3o move os dados existentes. Antes de transferi-los, fa\xE7a um backup, feche o aplicativo e copie as pastas completas.",
+    "settings.previousPaths": "N\xE3o encontra os dados antigos? Veja as pastas padr\xE3o originais",
+    "settings.previousPathsHelp": "Estas pastas ainda existem. Para ver o hist\xF3rico, restaure os caminhos correspondentes e reinicie. N\xE3o sobrescreva os dados existentes no destino.",
+    "settings.previousPathsNotice": "Os caminhos de armazenamento s\xE3o personalizados. Se faltar hist\xF3rico, veja as pastas padr\xE3o originais nas configura\xE7\xF5es de armazenamento.",
     "settings.inputRoot": "Pasta de entrada",
     "settings.outputRoot": "Pasta de sa\xEDda",
     "settings.galleryRoot": "Pasta da galeria",
@@ -9532,6 +9560,10 @@
     "archive.restoredCount": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B \u0437\u0430\u0434\u0430\u0447\u0438 {count}.",
     "settings.title": "\u0425\u0440\u0430\u043D\u0435\u043D\u0438\u0435",
     "settings.status": "\u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI \u043F\u043E\u0441\u043B\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u043F\u0443\u0442\u0435\u0439 \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F.",
+    "settings.pathChangeHint": "\u0418\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u043F\u0443\u0442\u0435\u0439 \u043D\u0435 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u0438\u0442 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u041F\u0435\u0440\u0435\u0434 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u043E\u043C \u0441\u043E\u0437\u0434\u0430\u0439\u0442\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0438 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439\u0442\u0435 \u043F\u0430\u043F\u043A\u0438 \u0446\u0435\u043B\u0438\u043A\u043E\u043C.",
+    "settings.previousPaths": "\u041D\u0435 \u0432\u0438\u0434\u043D\u044B \u0441\u0442\u0430\u0440\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435? \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0430\u043F\u043A\u0438 \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E",
+    "settings.previousPathsHelp": "\u042D\u0442\u0438 \u043F\u0430\u043F\u043A\u0438 \u0435\u0449\u0451 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0442. \u0414\u043B\u044F \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u0438\u0441\u0442\u043E\u0440\u0438\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u043F\u0443\u0442\u0438 \u0438 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435. \u041D\u0435 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0438\u0441\u044B\u0432\u0430\u0439\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u043F\u0430\u043F\u043A\u0435.",
+    "settings.previousPathsNotice": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0435 \u043F\u0443\u0442\u0438. \u0415\u0441\u043B\u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442, \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0430\u043F\u043A\u0438 \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430.",
     "settings.inputRoot": "\u0412\u0445\u043E\u0434\u043D\u0430\u044F \u043F\u0430\u043F\u043A\u0430",
     "settings.outputRoot": "\u0412\u044B\u0445\u043E\u0434\u043D\u0430\u044F \u043F\u0430\u043F\u043A\u0430",
     "settings.galleryRoot": "\u041F\u0430\u043F\u043A\u0430 \u0433\u0430\u043B\u0435\u0440\u0435\u0438",
@@ -10755,6 +10787,10 @@
     "archive.restoredCount": "Attivit\xE0 {count} ripristinate",
     "settings.title": "Stoccaggio",
     "settings.status": "Riavvia WebUI dopo aver salvato i percorsi di archiviazione",
+    "settings.pathChangeHint": "Cambiare i percorsi non sposta i dati esistenti. Prima di trasferirli, crea un backup, chiudi l\u2019app e copia le cartelle complete.",
+    "settings.previousPaths": "Non trovi i vecchi dati? Controlla le cartelle predefinite originali",
+    "settings.previousPathsHelp": "Queste cartelle esistono ancora. Per visualizzare la cronologia, ripristina i percorsi corrispondenti e riavvia. Non sovrascrivere i dati gi\xE0 presenti nella destinazione.",
+    "settings.previousPathsNotice": "Sono attivi percorsi personalizzati. Se manca la cronologia, controlla le cartelle predefinite originali nelle impostazioni di archiviazione.",
     "settings.inputRoot": "Cartella di input",
     "settings.outputRoot": "Cartella di output",
     "settings.galleryRoot": "Cartella Galleria",
@@ -11978,6 +12014,10 @@
     "archive.restoredCount": "{count} \u0915\u093E\u0930\u094D\u092F\u094B\u0902 \u0915\u094B \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u093F\u092F\u093E \u0917\u092F\u093E",
     "settings.title": "\u092D\u0902\u0921\u093E\u0930\u0923",
     "settings.status": "\u092D\u0902\u0921\u093E\u0930\u0923 \u092A\u0925 \u0938\u0939\u0947\u091C\u0928\u0947 \u0915\u0947 \u092C\u093E\u0926 WebUI \u0915\u094B \u092A\u0941\u0928\u0903 \u0906\u0930\u0902\u092D \u0915\u0930\u0947\u0902",
+    "settings.pathChangeHint": "\u092A\u0925 \u092C\u0926\u0932\u0928\u0947 \u0938\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0928\u0939\u0940\u0902 \u0939\u094B\u0924\u093E\u0964 \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0915\u0930\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 \u092C\u0948\u0915\u0905\u092A \u0932\u0947\u0902, \u0910\u092A \u092C\u0902\u0926 \u0915\u0930\u0947\u0902 \u0914\u0930 \u0938\u0902\u092C\u0902\u0927\u093F\u0924 \u092B\u093C\u094B\u0932\u094D\u0921\u0930\u094B\u0902 \u0915\u0940 \u092A\u0942\u0930\u0940 \u092A\u094D\u0930\u0924\u093F\u0932\u093F\u092A\u093F \u092C\u0928\u093E\u090F\u0901\u0964",
+    "settings.previousPaths": "\u092A\u0941\u0930\u093E\u0928\u093E \u0921\u0947\u091F\u093E \u0928\u0939\u0940\u0902 \u0926\u093F\u0916 \u0930\u0939\u093E? \u092E\u0942\u0932 \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0926\u0947\u0916\u0947\u0902",
+    "settings.previousPathsHelp": "\u092F\u0947 \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0905\u092D\u0940 \u092E\u094C\u091C\u0942\u0926 \u0939\u0948\u0902\u0964 \u0909\u0928\u0915\u093E \u0907\u0924\u093F\u0939\u093E\u0938 \u0926\u0947\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0938\u0902\u092C\u0902\u0927\u093F\u0924 \u092A\u0925 \u0935\u093E\u092A\u0938 \u0938\u0947\u091F \u0915\u0930\u0947\u0902 \u0914\u0930 \u0910\u092A \u092B\u093F\u0930 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0964 \u0917\u0902\u0924\u0935\u094D\u092F \u0915\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0915\u094B \u0905\u0927\u093F\u0932\u0947\u0916\u093F\u0924 \u0928 \u0915\u0930\u0947\u0902\u0964",
+    "settings.previousPathsNotice": "\u0915\u0938\u094D\u091F\u092E \u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u092A\u0925 \u0938\u0915\u094D\u0930\u093F\u092F \u0939\u0948\u0902\u0964 \u0907\u0924\u093F\u0939\u093E\u0938 \u0928\u0939\u0940\u0902 \u0926\u093F\u0916\u0928\u0947 \u092A\u0930 \u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u0938\u0947\u091F\u093F\u0902\u0917 \u092E\u0947\u0902 \u092E\u0942\u0932 \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0926\u0947\u0916\u0947\u0902\u0964",
     "settings.inputRoot": "\u0907\u0928\u092A\u0941\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
     "settings.outputRoot": "\u0906\u0909\u091F\u092A\u0941\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
     "settings.galleryRoot": "\u0917\u0948\u0932\u0930\u0940 \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
@@ -13211,6 +13251,10 @@
     "archive.restoredCount": "\u0110\xE3 kh\xF4i ph\u1EE5c c\xE1c t\xE1c v\u1EE5 {count}",
     "settings.title": "L\u01B0u tr\u1EEF",
     "settings.status": "Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI sau khi l\u01B0u \u0111\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF",
+    "settings.pathChangeHint": "\u0110\u1ED5i \u0111\u01B0\u1EDDng d\u1EABn kh\xF4ng di chuy\u1EC3n d\u1EEF li\u1EC7u c\u0169. Tr\u01B0\u1EDBc khi di chuy\u1EC3n, h\xE3y sao l\u01B0u, tho\xE1t \u1EE9ng d\u1EE5ng r\u1ED3i sao ch\xE9p to\xE0n b\u1ED9 th\u01B0 m\u1EE5c li\xEAn quan.",
+    "settings.previousPaths": "Kh\xF4ng th\u1EA5y d\u1EEF li\u1EC7u c\u0169? Ki\u1EC3m tra th\u01B0 m\u1EE5c m\u1EB7c \u0111\u1ECBnh ban \u0111\u1EA7u",
+    "settings.previousPathsHelp": "C\xE1c th\u01B0 m\u1EE5c n\xE0y v\u1EABn c\xF2n. \u0110\u1EC3 xem l\u1ECBch s\u1EED, kh\xF4i ph\u1EE5c c\xE1c \u0111\u01B0\u1EDDng d\u1EABn t\u01B0\u01A1ng \u1EE9ng r\u1ED3i kh\u1EDFi \u0111\u1ED9ng l\u1EA1i. Kh\xF4ng ghi \u0111\xE8 d\u1EEF li\u1EC7u \u0111\xE3 c\xF3 \u1EDF \u0111\xEDch.",
+    "settings.previousPathsNotice": "\u0110ang d\xF9ng \u0111\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF t\xF9y ch\u1EC9nh. N\u1EBFu thi\u1EBFu l\u1ECBch s\u1EED, h\xE3y ki\u1EC3m tra th\u01B0 m\u1EE5c m\u1EB7c \u0111\u1ECBnh ban \u0111\u1EA7u trong c\xE0i \u0111\u1EB7t l\u01B0u tr\u1EEF.",
     "settings.inputRoot": "Th\u01B0 m\u1EE5c \u0111\u1EA7u v\xE0o",
     "settings.outputRoot": "Th\u01B0 m\u1EE5c \u0111\u1EA7u ra",
     "settings.galleryRoot": "Th\u01B0 m\u1EE5c th\u01B0 vi\u1EC7n",
@@ -14503,6 +14547,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u590D {count} \u4E2A\u4EFB\u52A1",
     "settings.title": "\u5B58\u50A8\u8BBE\u7F6E",
     "settings.status": "\u4FDD\u5B58\u5B58\u50A8\u8DEF\u5F84\u540E\u91CD\u542F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u66F4\u6539\u8DEF\u5F84\u4E0D\u4F1A\u642C\u8FC1\u65E7\u6570\u636E\u3002\u642C\u8FC1\u524D\u8BF7\u5907\u4EFD\u5E76\u9000\u51FA\u5E94\u7528\uFF0C\u518D\u5B8C\u6574\u590D\u5236\u76F8\u5173\u76EE\u5F55\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u65E7\u6570\u636E\uFF1F\u67E5\u770B\u539F\u9ED8\u8BA4\u76EE\u5F55",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u5F55\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u5386\u53F2\uFF0C\u8BF7\u5C06\u5BF9\u5E94\u8DEF\u5F84\u6539\u56DE\u539F\u76EE\u5F55\u5E76\u91CD\u542F\uFF1B\u4E0D\u8981\u8986\u76D6\u5DF2\u6709\u76EE\u6807\u6570\u636E\u3002",
+    "settings.previousPathsNotice": "\u5F53\u524D\u4F7F\u7528\u81EA\u5B9A\u4E49\u5B58\u50A8\u8DEF\u5F84\u3002\u5982\u7F3A\u5C11\u5386\u53F2\uFF0C\u8BF7\u5728\u5B58\u50A8\u8BBE\u7F6E\u67E5\u770B\u539F\u9ED8\u8BA4\u76EE\u5F55\u3002",
     "settings.inputRoot": "\u8F93\u5165\u76EE\u5F55",
     "settings.outputRoot": "\u8F93\u51FA\u76EE\u5F55",
     "settings.galleryRoot": "\u516C\u7528\u56FE\u5E93\u76EE\u5F55",
@@ -15795,6 +15843,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u5FA9{count}\u500B\u4EFB\u52D9",
     "settings.title": "\u5132\u5B58\u8A2D\u5B9A",
     "settings.status": "\u5132\u5B58\u8DEF\u5F91\u8A2D\u5B9A\u5F8C\u91CD\u555F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u66F4\u6539\u8DEF\u5F91\u4E0D\u6703\u642C\u79FB\u820A\u8CC7\u6599\u3002\u642C\u79FB\u524D\u8ACB\u5099\u4EFD\u4E26\u7D50\u675F\u61C9\u7528\u7A0B\u5F0F\uFF0C\u518D\u5B8C\u6574\u8907\u88FD\u76F8\u95DC\u76EE\u9304\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u820A\u8CC7\u6599\uFF1F\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u9304\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u6B77\u53F2\uFF0C\u8ACB\u5C07\u5C0D\u61C9\u8DEF\u5F91\u6539\u56DE\u539F\u76EE\u9304\u4E26\u91CD\u65B0\u555F\u52D5\uFF1B\u4E0D\u8981\u8986\u5BEB\u76EE\u6A19\u5DF2\u6709\u8CC7\u6599\u3002",
+    "settings.previousPathsNotice": "\u76EE\u524D\u4F7F\u7528\u81EA\u8A02\u5132\u5B58\u8DEF\u5F91\u3002\u5982\u7F3A\u5C11\u6B77\u53F2\uFF0C\u8ACB\u5728\u5132\u5B58\u8A2D\u5B9A\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304\u3002",
     "settings.inputRoot": "\u8F38\u5165\u76EE\u9304",
     "settings.outputRoot": "\u8F38\u51FA\u76EE\u9304",
     "settings.galleryRoot": "\u516C\u7528\u5716\u5EAB\u76EE\u9304",
@@ -17028,6 +17080,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u5FA9{count}\u500B\u4EFB\u52D9",
     "settings.title": "\u5132\u5B58\u8A2D\u5B9A",
     "settings.status": "\u5132\u5B58\u8DEF\u5F91\u8A2D\u5B9A\u5F8C\u91CD\u555F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u8B8A\u66F4\u8DEF\u5F91\u4E0D\u6703\u642C\u79FB\u820A\u8CC7\u6599\u3002\u642C\u79FB\u524D\u8ACB\u5099\u4EFD\u4E26\u7D50\u675F\u61C9\u7528\u7A0B\u5F0F\uFF0C\u518D\u5B8C\u6574\u8907\u88FD\u76F8\u95DC\u76EE\u9304\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u820A\u8CC7\u6599\uFF1F\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u9304\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u6B77\u53F2\uFF0C\u8ACB\u5C07\u5C0D\u61C9\u8DEF\u5F91\u6539\u56DE\u539F\u76EE\u9304\u4E26\u91CD\u65B0\u555F\u52D5\uFF1B\u4E0D\u8981\u8986\u5BEB\u76EE\u6A19\u65E2\u6709\u8CC7\u6599\u3002",
+    "settings.previousPathsNotice": "\u76EE\u524D\u4F7F\u7528\u81EA\u8A02\u5132\u5B58\u8DEF\u5F91\u3002\u5982\u7F3A\u5C11\u6B77\u53F2\uFF0C\u8ACB\u5728\u5132\u5B58\u8A2D\u5B9A\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304\u3002",
     "settings.inputRoot": "\u8F38\u5165\u76EE\u9304",
     "settings.outputRoot": "\u8F38\u51FA\u76EE\u9304",
     "settings.galleryRoot": "\u516C\u7528\u5716\u5EAB\u76EE\u9304",
@@ -18178,6 +18234,8 @@
       settingsOutputRoot: document.querySelector("#settingsOutputRoot"),
       settingsGalleryRoot: document.querySelector("#settingsGalleryRoot"),
       settingsSourceDataRoot: document.querySelector("#settingsSourceDataRoot"),
+      settingsPreviousPaths: document.querySelector("#settingsPreviousPaths"),
+      settingsPreviousPathsList: document.querySelector("#settingsPreviousPathsList"),
       saveSettingsButton: document.querySelector("#saveSettingsButton"),
       apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
       apiSettingsActions: document.querySelector("#apiSettingsActions"),
@@ -24508,94 +24566,6 @@
     });
   }
 
-  // codex_image/webui/frontend/src/storage-settings.ts
-  var bridge6 = getLegacyBridge();
-  var els7 = bridge6.els;
-  var storageSettingsFeatureInitialized = false;
-  function legacyMethod7(name, ...args) {
-    const method = getLegacyBridge().methods[name];
-    if (typeof method !== "function") {
-      throw new Error("Legacy method " + name + " is not initialized");
-    }
-    return method(...args);
-  }
-  function setStatus5(message, type) {
-    legacyMethod7("setStatus", message, type);
-  }
-  function closePromptPopover4() {
-    legacyMethod7("closePromptPopover");
-  }
-  async function refreshSettings() {
-    if (!els7.settingsInputRoot) return;
-    try {
-      const response = await fetch("/api/settings");
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
-      populateSettingsForm(data.settings || {});
-    } catch (error) {
-      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.loadFailed");
-    }
-  }
-  function populateSettingsForm(settings) {
-    if (els7.settingsInputRoot) els7.settingsInputRoot.value = settings.input_root || "";
-    if (els7.settingsOutputRoot) els7.settingsOutputRoot.value = settings.output_root || "";
-    if (els7.settingsGalleryRoot) els7.settingsGalleryRoot.value = settings.gallery_root || "";
-    if (els7.settingsSourceDataRoot) els7.settingsSourceDataRoot.value = settings.source_data_root || "";
-  }
-  function openSettingsModal() {
-    closePromptPopover4();
-    refreshSettings();
-    if (els7.settingsStatus) els7.settingsStatus.textContent = translate("settings.status");
-    openSystemSettingsModal("storage");
-  }
-  function closeSettingsModal() {
-    closeSystemSettingsModal();
-  }
-  async function saveSettings() {
-    if (!els7.saveSettingsButton) return;
-    els7.saveSettingsButton.disabled = true;
-    try {
-      const response = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input_root: els7.settingsInputRoot?.value || "",
-          output_root: els7.settingsOutputRoot?.value || "",
-          gallery_root: els7.settingsGalleryRoot?.value || "",
-          source_data_root: els7.settingsSourceDataRoot?.value || ""
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || translate("settings.saveFailed"));
-      populateSettingsForm(data.settings || {});
-      if (els7.settingsStatus) {
-        els7.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
-      }
-      setStatus5(translate("settings.savedRestartStatus"), "ok");
-    } catch (error) {
-      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.saveFailed");
-      setStatus5(error.message || translate("settings.saveFailed"), "error");
-    } finally {
-      els7.saveSettingsButton.disabled = false;
-    }
-  }
-  function initStorageSettingsFeature() {
-    if (storageSettingsFeatureInitialized) return;
-    storageSettingsFeatureInitialized = true;
-    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
-      if (!els7.systemSettingsModal?.classList.contains("hidden") && !els7.systemSettingsStoragePanel?.hidden && els7.settingsStatus) {
-        els7.settingsStatus.textContent = translate("settings.status");
-      }
-    });
-    Object.assign(getLegacyBridge().methods, {
-      refreshSettings,
-      populateSettingsForm,
-      openSettingsModal,
-      closeSettingsModal,
-      saveSettings
-    });
-  }
-
   // codex_image/webui/frontend/src/task-notifications.ts
   var TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
   var TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
@@ -24712,20 +24682,20 @@
   }
   async function requestSystemNotificationPermission() {
     if (typeof Notification === "undefined") {
-      setStatus6(translate("notifications.systemUnsupported"), "error");
+      setStatus5(translate("notifications.systemUnsupported"), "error");
       return false;
     }
     if (Notification.permission === "granted") return true;
     if (Notification.permission === "denied") {
-      setStatus6(translate("notifications.systemBlocked"), "error");
+      setStatus5(translate("notifications.systemBlocked"), "error");
       return false;
     }
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      setStatus6(translate("notifications.systemDenied"), "error");
+      setStatus5(translate("notifications.systemDenied"), "error");
       return false;
     }
-    setStatus6(translate("notifications.systemEnabled"), "ok");
+    setStatus5(translate("notifications.systemEnabled"), "ok");
     return true;
   }
   function bindTaskNotificationEvents() {
@@ -24833,7 +24803,7 @@
     markTaskNotificationRead(notification.id);
     closeTaskNotificationCenter();
     if (!task) {
-      setStatus6(translate("notifications.taskMissing"), "error");
+      setStatus5(translate("notifications.taskMissing"), "error");
       return;
     }
     window.focus();
@@ -24842,7 +24812,7 @@
       if (typeof selectTask !== "function") throw new Error("selectTask is unavailable");
       await selectTask(task.task_id);
     } catch {
-      setStatus6(translate("notifications.taskMissing"), "error");
+      setStatus5(translate("notifications.taskMissing"), "error");
     }
   }
   function markTaskNotificationRead(notificationId) {
@@ -25040,11 +25010,131 @@
   function escapeHtml3(value) {
     return getLegacyBridge().methods.escapeHtml(value);
   }
-  function setStatus6(message, type) {
+  function setStatus5(message, type) {
     getLegacyBridge().methods.setStatus(message, type);
   }
   function eventTargetElement(event) {
     return event.target instanceof Element ? event.target : null;
+  }
+
+  // codex_image/webui/frontend/src/storage-settings.ts
+  var bridge6 = getLegacyBridge();
+  var els7 = bridge6.els;
+  var storageSettingsFeatureInitialized = false;
+  var previousPaths = {};
+  var previousPathsAnnounced = false;
+  var pathLabels = {
+    input_root: "settings.inputRoot",
+    output_root: "settings.outputRoot",
+    gallery_root: "settings.galleryRoot",
+    source_data_root: "settings.sourceDataRoot"
+  };
+  function renderPreviousPaths() {
+    const details = els7.settingsPreviousPaths;
+    const list = els7.settingsPreviousPathsList;
+    if (!details || !list) return;
+    list.replaceChildren();
+    for (const [key, label] of Object.entries(pathLabels)) {
+      const path = previousPaths[key];
+      if (typeof path !== "string" || !path) continue;
+      const term = document.createElement("dt");
+      term.textContent = translate(label);
+      const value = document.createElement("dd");
+      value.textContent = path;
+      list.append(term, value);
+    }
+    details.hidden = !list.childElementCount;
+    if (details.hidden) details.open = false;
+  }
+  function legacyMethod7(name, ...args) {
+    const method = getLegacyBridge().methods[name];
+    if (typeof method !== "function") {
+      throw new Error("Legacy method " + name + " is not initialized");
+    }
+    return method(...args);
+  }
+  function setStatus6(message, type) {
+    legacyMethod7("setStatus", message, type);
+  }
+  function closePromptPopover4() {
+    legacyMethod7("closePromptPopover");
+  }
+  async function refreshSettings() {
+    if (!els7.settingsInputRoot) return;
+    try {
+      const response = await fetch("/api/settings");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
+      populateSettingsForm(data.settings || {});
+      previousPaths = data.previous_paths || {};
+      renderPreviousPaths();
+      if (Object.keys(previousPaths).length && !previousPathsAnnounced) {
+        previousPathsAnnounced = true;
+        showTransientNotice(translate("settings.previousPathsNotice"));
+      }
+    } catch (error) {
+      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.loadFailed");
+    }
+  }
+  function populateSettingsForm(settings) {
+    if (els7.settingsInputRoot) els7.settingsInputRoot.value = settings.input_root || "";
+    if (els7.settingsOutputRoot) els7.settingsOutputRoot.value = settings.output_root || "";
+    if (els7.settingsGalleryRoot) els7.settingsGalleryRoot.value = settings.gallery_root || "";
+    if (els7.settingsSourceDataRoot) els7.settingsSourceDataRoot.value = settings.source_data_root || "";
+  }
+  function openSettingsModal() {
+    closePromptPopover4();
+    refreshSettings();
+    if (els7.settingsStatus) els7.settingsStatus.textContent = translate("settings.status");
+    openSystemSettingsModal("storage");
+  }
+  function closeSettingsModal() {
+    closeSystemSettingsModal();
+  }
+  async function saveSettings() {
+    if (!els7.saveSettingsButton) return;
+    els7.saveSettingsButton.disabled = true;
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input_root: els7.settingsInputRoot?.value || "",
+          output_root: els7.settingsOutputRoot?.value || "",
+          gallery_root: els7.settingsGalleryRoot?.value || "",
+          source_data_root: els7.settingsSourceDataRoot?.value || ""
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || translate("settings.saveFailed"));
+      populateSettingsForm(data.settings || {});
+      if (els7.settingsStatus) {
+        els7.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
+      }
+      setStatus6(translate("settings.savedRestartStatus"), "ok");
+    } catch (error) {
+      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.saveFailed");
+      setStatus6(error.message || translate("settings.saveFailed"), "error");
+    } finally {
+      els7.saveSettingsButton.disabled = false;
+    }
+  }
+  function initStorageSettingsFeature() {
+    if (storageSettingsFeatureInitialized) return;
+    storageSettingsFeatureInitialized = true;
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderPreviousPaths();
+      if (!els7.systemSettingsModal?.classList.contains("hidden") && !els7.systemSettingsStoragePanel?.hidden && els7.settingsStatus) {
+        els7.settingsStatus.textContent = translate("settings.status");
+      }
+    });
+    Object.assign(getLegacyBridge().methods, {
+      refreshSettings,
+      populateSettingsForm,
+      openSettingsModal,
+      closeSettingsModal,
+      saveSettings
+    });
   }
 
   // codex_image/webui/frontend/src/history-shell.ts

@@ -2,11 +2,39 @@
 import { getLegacyBridge } from "./state";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { closeSystemSettingsModal, openSystemSettingsModal } from "./system-settings";
+import { showTransientNotice } from "./task-notifications";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
 
 let storageSettingsFeatureInitialized = false;
+let previousPaths: Record<string, string> = {};
+let previousPathsAnnounced = false;
+
+const pathLabels: Record<string, string> = {
+  input_root: "settings.inputRoot",
+  output_root: "settings.outputRoot",
+  gallery_root: "settings.galleryRoot",
+  source_data_root: "settings.sourceDataRoot",
+};
+
+function renderPreviousPaths(): void {
+  const details = els.settingsPreviousPaths;
+  const list = els.settingsPreviousPathsList;
+  if (!details || !list) return;
+  list.replaceChildren();
+  for (const [key, label] of Object.entries(pathLabels)) {
+    const path = previousPaths[key];
+    if (typeof path !== "string" || !path) continue;
+    const term = document.createElement("dt");
+    term.textContent = translate(label);
+    const value = document.createElement("dd");
+    value.textContent = path;
+    list.append(term, value);
+  }
+  details.hidden = !list.childElementCount;
+  if (details.hidden) details.open = false;
+}
 
 function legacyMethod(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
@@ -26,6 +54,12 @@ async function refreshSettings() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
     populateSettingsForm(data.settings || {});
+    previousPaths = data.previous_paths || {};
+    renderPreviousPaths();
+    if (Object.keys(previousPaths).length && !previousPathsAnnounced) {
+      previousPathsAnnounced = true;
+      showTransientNotice(translate("settings.previousPathsNotice"));
+    }
   } catch (error: any) {
     if (els.settingsStatus) els.settingsStatus.textContent = error.message || translate("settings.loadFailed");
   }
@@ -82,6 +116,7 @@ export function initStorageSettingsFeature() {
   if (storageSettingsFeatureInitialized) return;
   storageSettingsFeatureInitialized = true;
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderPreviousPaths();
     if (!els.systemSettingsModal?.classList.contains("hidden") && !els.systemSettingsStoragePanel?.hidden && els.settingsStatus) {
       els.settingsStatus.textContent = translate("settings.status");
     }

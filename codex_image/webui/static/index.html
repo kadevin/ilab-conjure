@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-784" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-785" />
   </head>
   <body>
     <div class="layout-container">
@@ -1250,6 +1250,12 @@
               <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
             </label>
           </div>
+          <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
+          <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
+            <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
+            <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
+            <dl id="settingsPreviousPathsList"></dl>
+          </details>
           <div class="notification-options-panel" aria-label="任务通知设置">
             <div class="notification-options-copy">
               <strong data-i18n="notifications.title">任务通知</strong>
@@ -1601,7 +1607,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-785"></script>
+  <script src="/static/app.js?v=runtime-786"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {
