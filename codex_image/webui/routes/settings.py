@@ -15,6 +15,7 @@ from codex_image.webui.settings_store import (
     _parse_color_palette_import,
 )
 from codex_image.webui.startup_auth import AUTH_SOURCES
+from codex_image.webui.standard_storage import previous_default_storage_paths
 
 
 def register_settings_routes(app: FastAPI, ctx: WebUIContext) -> None:
@@ -62,14 +63,18 @@ def register_settings_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.get("/api/settings")
     def get_settings() -> dict[str, Any]:
+        paths = {
+            "input_root": ctx.input_root,
+            "output_root": ctx.output_root,
+            "gallery_root": ctx.gallery_root,
+            "source_data_root": ctx.source_data_root,
+        }
         return {
             "settings": {
-                "input_root": str(ctx.input_root),
-                "output_root": str(ctx.output_root),
-                "gallery_root": str(ctx.gallery_root),
-                "source_data_root": str(ctx.source_data_root),
+                **{key: str(path) for key, path in paths.items()},
                 "locale": ctx.webui_settings.read_locale(),
             },
+            "previous_paths": previous_default_storage_paths(ctx.webui_settings.path, paths),
             "restart_required": False,
         }
 

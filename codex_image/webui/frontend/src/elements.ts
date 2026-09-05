@@ -142,6 +142,8 @@ export function createWebUIElements(): WebUIElements {
   settingsOutputRoot: document.querySelector("#settingsOutputRoot"),
   settingsGalleryRoot: document.querySelector("#settingsGalleryRoot"),
   settingsSourceDataRoot: document.querySelector("#settingsSourceDataRoot"),
+  settingsPreviousPaths: document.querySelector("#settingsPreviousPaths"),
+  settingsPreviousPathsList: document.querySelector("#settingsPreviousPathsList"),
   saveSettingsButton: document.querySelector("#saveSettingsButton"),
   apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
   apiSettingsActions: document.querySelector("#apiSettingsActions"),

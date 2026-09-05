@@ -303,6 +303,8 @@
       settingsOutputRoot: document.querySelector("#settingsOutputRoot"),
       settingsGalleryRoot: document.querySelector("#settingsGalleryRoot"),
       settingsSourceDataRoot: document.querySelector("#settingsSourceDataRoot"),
+      settingsPreviousPaths: document.querySelector("#settingsPreviousPaths"),
+      settingsPreviousPathsList: document.querySelector("#settingsPreviousPathsList"),
       saveSettingsButton: document.querySelector("#saveSettingsButton"),
       apiSettingsStatus: document.querySelector("#apiSettingsStatus"),
       apiSettingsActions: document.querySelector("#apiSettingsActions"),
@@ -1443,6 +1445,10 @@
     "archive.restoredCount": "Restored {count} tasks",
     "settings.title": "Storage",
     "settings.status": "Restart WebUI after saving storage paths",
+    "settings.pathChangeHint": "Changing paths does not move existing data. Before relocating files, back up and quit the app, then copy the complete directories.",
+    "settings.previousPaths": "Missing old data? Check the original default folders",
+    "settings.previousPathsHelp": "These folders still exist. To view their history, restore the corresponding paths and restart. Do not overwrite existing destination data.",
+    "settings.previousPathsNotice": "Custom storage paths are active. If history is missing, check the original default folders in Storage settings.",
     "settings.inputRoot": "Input folder",
     "settings.outputRoot": "Output folder",
     "settings.galleryRoot": "Gallery folder",
@@ -2725,6 +2731,10 @@
     "archive.restoredCount": "{count}-Aufgaben wiederhergestellt",
     "settings.title": "Lagerung",
     "settings.status": "Starten Sie WebUI neu, nachdem Sie die Speicherpfade gespeichert haben",
+    "settings.pathChangeHint": "Ge\xE4nderte Pfade verschieben keine vorhandenen Daten. Vor dem Umzug eine Sicherung erstellen, die App beenden und die vollst\xE4ndigen Ordner kopieren.",
+    "settings.previousPaths": "Alte Daten fehlen? Urspr\xFCngliche Standardordner pr\xFCfen",
+    "settings.previousPathsHelp": "Diese Ordner sind noch vorhanden. Zum Anzeigen des Verlaufs die entsprechenden Pfade wiederherstellen und neu starten. Vorhandene Zieldaten nicht \xFCberschreiben.",
+    "settings.previousPathsNotice": "Benutzerdefinierte Speicherpfade sind aktiv. Bei fehlendem Verlauf die urspr\xFCnglichen Standardordner in den Speichereinstellungen pr\xFCfen.",
     "settings.inputRoot": "Eingabeordner",
     "settings.outputRoot": "Ausgabeordner",
     "settings.galleryRoot": "Galerieordner",
@@ -3948,6 +3958,10 @@
     "archive.restoredCount": "Tareas {count} restauradas",
     "settings.title": "Almacenamiento",
     "settings.status": "Reinicie WebUI despu\xE9s de guardar las rutas de almacenamiento",
+    "settings.pathChangeHint": "Cambiar las rutas no mueve los datos existentes. Antes de trasladarlos, haz una copia de seguridad, cierra la aplicaci\xF3n y copia las carpetas completas.",
+    "settings.previousPaths": "\xBFFaltan datos antiguos? Consulta las carpetas predeterminadas originales",
+    "settings.previousPathsHelp": "Estas carpetas siguen existiendo. Para ver su historial, restaura las rutas correspondientes y reinicia. No sobrescribas los datos existentes en el destino.",
+    "settings.previousPathsNotice": "Se usan rutas personalizadas. Si falta el historial, consulta las carpetas predeterminadas originales en los ajustes de almacenamiento.",
     "settings.inputRoot": "Carpeta de entrada",
     "settings.outputRoot": "Carpeta de salida",
     "settings.galleryRoot": "Carpeta de galer\xEDa",
@@ -5171,6 +5185,10 @@
     "archive.restoredCount": "T\xE2ches {count} restaur\xE9es",
     "settings.title": "Stockage",
     "settings.status": "Red\xE9marrez WebUI apr\xE8s avoir enregistr\xE9 les chemins de stockage",
+    "settings.pathChangeHint": "Changer les chemins ne d\xE9place pas les donn\xE9es existantes. Avant de les d\xE9placer, faites une sauvegarde, quittez l\u2019application et copiez les dossiers complets.",
+    "settings.previousPaths": "Donn\xE9es anciennes introuvables ? Voir les dossiers par d\xE9faut d\u2019origine",
+    "settings.previousPathsHelp": "Ces dossiers existent toujours. Pour retrouver leur historique, r\xE9tablissez les chemins correspondants et red\xE9marrez. N\u2019\xE9crasez pas les donn\xE9es d\xE9j\xE0 pr\xE9sentes \xE0 destination.",
+    "settings.previousPathsNotice": "Des chemins personnalis\xE9s sont utilis\xE9s. Si l\u2019historique manque, consultez les dossiers par d\xE9faut d\u2019origine dans les param\xE8tres de stockage.",
     "settings.inputRoot": "Dossier d'entr\xE9e",
     "settings.outputRoot": "Dossier de sortie",
     "settings.galleryRoot": "Dossier Galerie",
@@ -6394,6 +6412,10 @@
     "archive.restoredCount": "{count}\u30BF\u30B9\u30AF\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F",
     "settings.title": "\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A",
     "settings.status": "\u30B9\u30C8\u30EC\u30FC\u30B8\u30D1\u30B9\u306E\u4FDD\u5B58\u5F8C\u3001WebUI \u306E\u518D\u8D77\u52D5\u3067\u53CD\u6620\u3055\u308C\u307E\u3059",
+    "settings.pathChangeHint": "\u30D1\u30B9\u3092\u5909\u66F4\u3057\u3066\u3082\u65E2\u5B58\u306E\u30C7\u30FC\u30BF\u306F\u79FB\u52D5\u3057\u307E\u305B\u3093\u3002\u79FB\u884C\u3059\u308B\u524D\u306B\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3057\u3066\u30A2\u30D7\u30EA\u3092\u7D42\u4E86\u3057\u3001\u95A2\u9023\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u4E38\u3054\u3068\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "settings.previousPaths": "\u4EE5\u524D\u306E\u30C7\u30FC\u30BF\u304C\u898B\u3064\u304B\u3089\u306A\u3044\u5834\u5408\uFF1A\u5143\u306E\u65E2\u5B9A\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u78BA\u8A8D",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u306E\u30D5\u30A9\u30EB\u30C0\u30FC\u306F\u6B8B\u3063\u3066\u3044\u307E\u3059\u3002\u5C65\u6B74\u3092\u8868\u793A\u3059\u308B\u306B\u306F\u5BFE\u5FDC\u3059\u308B\u30D1\u30B9\u3092\u5143\u306B\u623B\u3057\u3001\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u79FB\u884C\u5148\u306E\u65E2\u5B58\u30C7\u30FC\u30BF\u306F\u4E0A\u66F8\u304D\u3057\u306A\u3044\u3067\u304F\u3060\u3055\u3044\u3002",
+    "settings.previousPathsNotice": "\u30AB\u30B9\u30BF\u30E0\u4FDD\u5B58\u5148\u3092\u4F7F\u7528\u4E2D\u3067\u3059\u3002\u5C65\u6B74\u304C\u898B\u3064\u304B\u3089\u306A\u3044\u5834\u5408\u306F\u3001\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3067\u5143\u306E\u65E2\u5B9A\u30D5\u30A9\u30EB\u30C0\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "settings.inputRoot": "\u5165\u529B\u30D5\u30A9\u30EB\u30C0\u30FC",
     "settings.outputRoot": "\u51FA\u529B\u30D5\u30A9\u30EB\u30C0\u30FC",
     "settings.galleryRoot": "\u5171\u6709\u30AE\u30E3\u30E9\u30EA\u30FC\u30D5\u30A9\u30EB\u30C0\u30FC",
@@ -7617,6 +7639,10 @@
     "archive.restoredCount": "\uC791\uC5C5 {count}\uAC1C\uC744 \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4.",
     "settings.title": "\uC800\uC7A5\uC18C \uC124\uC815",
     "settings.status": "\uC800\uC7A5\uC18C \uACBD\uB85C\uB97C \uC800\uC7A5\uD55C \uB4A4 WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uC801\uC6A9\uB429\uB2C8\uB2E4",
+    "settings.pathChangeHint": "\uACBD\uB85C\uB97C \uBCC0\uACBD\uD574\uB3C4 \uAE30\uC874 \uB370\uC774\uD130\uB294 \uC774\uB3D9\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC774\uC804\uD558\uB824\uBA74 \uBC31\uC5C5 \uD6C4 \uC571\uC744 \uC885\uB8CC\uD558\uACE0 \uAD00\uB828 \uD3F4\uB354 \uC804\uCCB4\uB97C \uBCF5\uC0AC\uD558\uC138\uC694.",
+    "settings.previousPaths": "\uC774\uC804 \uB370\uC774\uD130\uAC00 \uC5C6\uB098\uC694? \uC6D0\uB798 \uAE30\uBCF8 \uD3F4\uB354 \uD655\uC778",
+    "settings.previousPathsHelp": "\uC774 \uD3F4\uB354\uB4E4\uC740 \uC544\uC9C1 \uC874\uC7AC\uD569\uB2C8\uB2E4. \uAE30\uB85D\uC744 \uBCF4\uB824\uBA74 \uD574\uB2F9 \uACBD\uB85C\uB97C \uC6D0\uB798\uB300\uB85C \uBCC0\uACBD\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uC791\uD558\uC138\uC694. \uB300\uC0C1 \uD3F4\uB354\uC758 \uAE30\uC874 \uB370\uC774\uD130\uB97C \uB36E\uC5B4\uC4F0\uC9C0 \uB9C8\uC138\uC694.",
+    "settings.previousPathsNotice": "\uC0AC\uC6A9\uC790 \uC9C0\uC815 \uC800\uC7A5 \uACBD\uB85C\uB97C \uC0AC\uC6A9 \uC911\uC785\uB2C8\uB2E4. \uAE30\uB85D\uC774 \uC5C6\uB2E4\uBA74 \uC800\uC7A5\uC18C \uC124\uC815\uC5D0\uC11C \uC6D0\uB798 \uAE30\uBCF8 \uD3F4\uB354\uB97C \uD655\uC778\uD558\uC138\uC694.",
     "settings.inputRoot": "\uC785\uB825 \uD3F4\uB354",
     "settings.outputRoot": "\uCD9C\uB825 \uD3F4\uB354",
     "settings.galleryRoot": "\uACF5\uC6A9 \uAC24\uB7EC\uB9AC \uD3F4\uB354",
@@ -8840,6 +8866,10 @@
     "archive.restoredCount": "Tarefas {count} restauradas",
     "settings.title": "Armazenamento",
     "settings.status": "Reinicie WebUI ap\xF3s salvar os caminhos de armazenamento",
+    "settings.pathChangeHint": "Alterar os caminhos n\xE3o move os dados existentes. Antes de transferi-los, fa\xE7a um backup, feche o aplicativo e copie as pastas completas.",
+    "settings.previousPaths": "N\xE3o encontra os dados antigos? Veja as pastas padr\xE3o originais",
+    "settings.previousPathsHelp": "Estas pastas ainda existem. Para ver o hist\xF3rico, restaure os caminhos correspondentes e reinicie. N\xE3o sobrescreva os dados existentes no destino.",
+    "settings.previousPathsNotice": "Os caminhos de armazenamento s\xE3o personalizados. Se faltar hist\xF3rico, veja as pastas padr\xE3o originais nas configura\xE7\xF5es de armazenamento.",
     "settings.inputRoot": "Pasta de entrada",
     "settings.outputRoot": "Pasta de sa\xEDda",
     "settings.galleryRoot": "Pasta da galeria",
@@ -10063,6 +10093,10 @@
     "archive.restoredCount": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B \u0437\u0430\u0434\u0430\u0447\u0438 {count}.",
     "settings.title": "\u0425\u0440\u0430\u043D\u0435\u043D\u0438\u0435",
     "settings.status": "\u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI \u043F\u043E\u0441\u043B\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u043F\u0443\u0442\u0435\u0439 \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F.",
+    "settings.pathChangeHint": "\u0418\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u043F\u0443\u0442\u0435\u0439 \u043D\u0435 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u0438\u0442 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u041F\u0435\u0440\u0435\u0434 \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u043E\u043C \u0441\u043E\u0437\u0434\u0430\u0439\u0442\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0438 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439\u0442\u0435 \u043F\u0430\u043F\u043A\u0438 \u0446\u0435\u043B\u0438\u043A\u043E\u043C.",
+    "settings.previousPaths": "\u041D\u0435 \u0432\u0438\u0434\u043D\u044B \u0441\u0442\u0430\u0440\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435? \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0430\u043F\u043A\u0438 \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E",
+    "settings.previousPathsHelp": "\u042D\u0442\u0438 \u043F\u0430\u043F\u043A\u0438 \u0435\u0449\u0451 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0442. \u0414\u043B\u044F \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u0438\u0441\u0442\u043E\u0440\u0438\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u043F\u0443\u0442\u0438 \u0438 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435. \u041D\u0435 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0438\u0441\u044B\u0432\u0430\u0439\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u043F\u0430\u043F\u043A\u0435.",
+    "settings.previousPathsNotice": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0435 \u043F\u0443\u0442\u0438. \u0415\u0441\u043B\u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442, \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0430\u043F\u043A\u0438 \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0432 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430.",
     "settings.inputRoot": "\u0412\u0445\u043E\u0434\u043D\u0430\u044F \u043F\u0430\u043F\u043A\u0430",
     "settings.outputRoot": "\u0412\u044B\u0445\u043E\u0434\u043D\u0430\u044F \u043F\u0430\u043F\u043A\u0430",
     "settings.galleryRoot": "\u041F\u0430\u043F\u043A\u0430 \u0433\u0430\u043B\u0435\u0440\u0435\u0438",
@@ -11286,6 +11320,10 @@
     "archive.restoredCount": "Attivit\xE0 {count} ripristinate",
     "settings.title": "Stoccaggio",
     "settings.status": "Riavvia WebUI dopo aver salvato i percorsi di archiviazione",
+    "settings.pathChangeHint": "Cambiare i percorsi non sposta i dati esistenti. Prima di trasferirli, crea un backup, chiudi l\u2019app e copia le cartelle complete.",
+    "settings.previousPaths": "Non trovi i vecchi dati? Controlla le cartelle predefinite originali",
+    "settings.previousPathsHelp": "Queste cartelle esistono ancora. Per visualizzare la cronologia, ripristina i percorsi corrispondenti e riavvia. Non sovrascrivere i dati gi\xE0 presenti nella destinazione.",
+    "settings.previousPathsNotice": "Sono attivi percorsi personalizzati. Se manca la cronologia, controlla le cartelle predefinite originali nelle impostazioni di archiviazione.",
     "settings.inputRoot": "Cartella di input",
     "settings.outputRoot": "Cartella di output",
     "settings.galleryRoot": "Cartella Galleria",
@@ -12509,6 +12547,10 @@
     "archive.restoredCount": "{count} \u0915\u093E\u0930\u094D\u092F\u094B\u0902 \u0915\u094B \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u093F\u092F\u093E \u0917\u092F\u093E",
     "settings.title": "\u092D\u0902\u0921\u093E\u0930\u0923",
     "settings.status": "\u092D\u0902\u0921\u093E\u0930\u0923 \u092A\u0925 \u0938\u0939\u0947\u091C\u0928\u0947 \u0915\u0947 \u092C\u093E\u0926 WebUI \u0915\u094B \u092A\u0941\u0928\u0903 \u0906\u0930\u0902\u092D \u0915\u0930\u0947\u0902",
+    "settings.pathChangeHint": "\u092A\u0925 \u092C\u0926\u0932\u0928\u0947 \u0938\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0928\u0939\u0940\u0902 \u0939\u094B\u0924\u093E\u0964 \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0915\u0930\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 \u092C\u0948\u0915\u0905\u092A \u0932\u0947\u0902, \u0910\u092A \u092C\u0902\u0926 \u0915\u0930\u0947\u0902 \u0914\u0930 \u0938\u0902\u092C\u0902\u0927\u093F\u0924 \u092B\u093C\u094B\u0932\u094D\u0921\u0930\u094B\u0902 \u0915\u0940 \u092A\u0942\u0930\u0940 \u092A\u094D\u0930\u0924\u093F\u0932\u093F\u092A\u093F \u092C\u0928\u093E\u090F\u0901\u0964",
+    "settings.previousPaths": "\u092A\u0941\u0930\u093E\u0928\u093E \u0921\u0947\u091F\u093E \u0928\u0939\u0940\u0902 \u0926\u093F\u0916 \u0930\u0939\u093E? \u092E\u0942\u0932 \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0926\u0947\u0916\u0947\u0902",
+    "settings.previousPathsHelp": "\u092F\u0947 \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0905\u092D\u0940 \u092E\u094C\u091C\u0942\u0926 \u0939\u0948\u0902\u0964 \u0909\u0928\u0915\u093E \u0907\u0924\u093F\u0939\u093E\u0938 \u0926\u0947\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0938\u0902\u092C\u0902\u0927\u093F\u0924 \u092A\u0925 \u0935\u093E\u092A\u0938 \u0938\u0947\u091F \u0915\u0930\u0947\u0902 \u0914\u0930 \u0910\u092A \u092B\u093F\u0930 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0964 \u0917\u0902\u0924\u0935\u094D\u092F \u0915\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0915\u094B \u0905\u0927\u093F\u0932\u0947\u0916\u093F\u0924 \u0928 \u0915\u0930\u0947\u0902\u0964",
+    "settings.previousPathsNotice": "\u0915\u0938\u094D\u091F\u092E \u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u092A\u0925 \u0938\u0915\u094D\u0930\u093F\u092F \u0939\u0948\u0902\u0964 \u0907\u0924\u093F\u0939\u093E\u0938 \u0928\u0939\u0940\u0902 \u0926\u093F\u0916\u0928\u0947 \u092A\u0930 \u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u0938\u0947\u091F\u093F\u0902\u0917 \u092E\u0947\u0902 \u092E\u0942\u0932 \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0926\u0947\u0916\u0947\u0902\u0964",
     "settings.inputRoot": "\u0907\u0928\u092A\u0941\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
     "settings.outputRoot": "\u0906\u0909\u091F\u092A\u0941\u091F \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
     "settings.galleryRoot": "\u0917\u0948\u0932\u0930\u0940 \u092B\u093C\u094B\u0932\u094D\u0921\u0930",
@@ -13742,6 +13784,10 @@
     "archive.restoredCount": "\u0110\xE3 kh\xF4i ph\u1EE5c c\xE1c t\xE1c v\u1EE5 {count}",
     "settings.title": "L\u01B0u tr\u1EEF",
     "settings.status": "Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI sau khi l\u01B0u \u0111\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF",
+    "settings.pathChangeHint": "\u0110\u1ED5i \u0111\u01B0\u1EDDng d\u1EABn kh\xF4ng di chuy\u1EC3n d\u1EEF li\u1EC7u c\u0169. Tr\u01B0\u1EDBc khi di chuy\u1EC3n, h\xE3y sao l\u01B0u, tho\xE1t \u1EE9ng d\u1EE5ng r\u1ED3i sao ch\xE9p to\xE0n b\u1ED9 th\u01B0 m\u1EE5c li\xEAn quan.",
+    "settings.previousPaths": "Kh\xF4ng th\u1EA5y d\u1EEF li\u1EC7u c\u0169? Ki\u1EC3m tra th\u01B0 m\u1EE5c m\u1EB7c \u0111\u1ECBnh ban \u0111\u1EA7u",
+    "settings.previousPathsHelp": "C\xE1c th\u01B0 m\u1EE5c n\xE0y v\u1EABn c\xF2n. \u0110\u1EC3 xem l\u1ECBch s\u1EED, kh\xF4i ph\u1EE5c c\xE1c \u0111\u01B0\u1EDDng d\u1EABn t\u01B0\u01A1ng \u1EE9ng r\u1ED3i kh\u1EDFi \u0111\u1ED9ng l\u1EA1i. Kh\xF4ng ghi \u0111\xE8 d\u1EEF li\u1EC7u \u0111\xE3 c\xF3 \u1EDF \u0111\xEDch.",
+    "settings.previousPathsNotice": "\u0110ang d\xF9ng \u0111\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF t\xF9y ch\u1EC9nh. N\u1EBFu thi\u1EBFu l\u1ECBch s\u1EED, h\xE3y ki\u1EC3m tra th\u01B0 m\u1EE5c m\u1EB7c \u0111\u1ECBnh ban \u0111\u1EA7u trong c\xE0i \u0111\u1EB7t l\u01B0u tr\u1EEF.",
     "settings.inputRoot": "Th\u01B0 m\u1EE5c \u0111\u1EA7u v\xE0o",
     "settings.outputRoot": "Th\u01B0 m\u1EE5c \u0111\u1EA7u ra",
     "settings.galleryRoot": "Th\u01B0 m\u1EE5c th\u01B0 vi\u1EC7n",
@@ -15034,6 +15080,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u590D {count} \u4E2A\u4EFB\u52A1",
     "settings.title": "\u5B58\u50A8\u8BBE\u7F6E",
     "settings.status": "\u4FDD\u5B58\u5B58\u50A8\u8DEF\u5F84\u540E\u91CD\u542F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u66F4\u6539\u8DEF\u5F84\u4E0D\u4F1A\u642C\u8FC1\u65E7\u6570\u636E\u3002\u642C\u8FC1\u524D\u8BF7\u5907\u4EFD\u5E76\u9000\u51FA\u5E94\u7528\uFF0C\u518D\u5B8C\u6574\u590D\u5236\u76F8\u5173\u76EE\u5F55\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u65E7\u6570\u636E\uFF1F\u67E5\u770B\u539F\u9ED8\u8BA4\u76EE\u5F55",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u5F55\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u5386\u53F2\uFF0C\u8BF7\u5C06\u5BF9\u5E94\u8DEF\u5F84\u6539\u56DE\u539F\u76EE\u5F55\u5E76\u91CD\u542F\uFF1B\u4E0D\u8981\u8986\u76D6\u5DF2\u6709\u76EE\u6807\u6570\u636E\u3002",
+    "settings.previousPathsNotice": "\u5F53\u524D\u4F7F\u7528\u81EA\u5B9A\u4E49\u5B58\u50A8\u8DEF\u5F84\u3002\u5982\u7F3A\u5C11\u5386\u53F2\uFF0C\u8BF7\u5728\u5B58\u50A8\u8BBE\u7F6E\u67E5\u770B\u539F\u9ED8\u8BA4\u76EE\u5F55\u3002",
     "settings.inputRoot": "\u8F93\u5165\u76EE\u5F55",
     "settings.outputRoot": "\u8F93\u51FA\u76EE\u5F55",
     "settings.galleryRoot": "\u516C\u7528\u56FE\u5E93\u76EE\u5F55",
@@ -16326,6 +16376,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u5FA9{count}\u500B\u4EFB\u52D9",
     "settings.title": "\u5132\u5B58\u8A2D\u5B9A",
     "settings.status": "\u5132\u5B58\u8DEF\u5F91\u8A2D\u5B9A\u5F8C\u91CD\u555F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u66F4\u6539\u8DEF\u5F91\u4E0D\u6703\u642C\u79FB\u820A\u8CC7\u6599\u3002\u642C\u79FB\u524D\u8ACB\u5099\u4EFD\u4E26\u7D50\u675F\u61C9\u7528\u7A0B\u5F0F\uFF0C\u518D\u5B8C\u6574\u8907\u88FD\u76F8\u95DC\u76EE\u9304\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u820A\u8CC7\u6599\uFF1F\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u9304\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u6B77\u53F2\uFF0C\u8ACB\u5C07\u5C0D\u61C9\u8DEF\u5F91\u6539\u56DE\u539F\u76EE\u9304\u4E26\u91CD\u65B0\u555F\u52D5\uFF1B\u4E0D\u8981\u8986\u5BEB\u76EE\u6A19\u5DF2\u6709\u8CC7\u6599\u3002",
+    "settings.previousPathsNotice": "\u76EE\u524D\u4F7F\u7528\u81EA\u8A02\u5132\u5B58\u8DEF\u5F91\u3002\u5982\u7F3A\u5C11\u6B77\u53F2\uFF0C\u8ACB\u5728\u5132\u5B58\u8A2D\u5B9A\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304\u3002",
     "settings.inputRoot": "\u8F38\u5165\u76EE\u9304",
     "settings.outputRoot": "\u8F38\u51FA\u76EE\u9304",
     "settings.galleryRoot": "\u516C\u7528\u5716\u5EAB\u76EE\u9304",
@@ -17559,6 +17613,10 @@
     "archive.restoredCount": "\u5DF2\u6062\u5FA9{count}\u500B\u4EFB\u52D9",
     "settings.title": "\u5132\u5B58\u8A2D\u5B9A",
     "settings.status": "\u5132\u5B58\u8DEF\u5F91\u8A2D\u5B9A\u5F8C\u91CD\u555F WebUI \u751F\u6548",
+    "settings.pathChangeHint": "\u8B8A\u66F4\u8DEF\u5F91\u4E0D\u6703\u642C\u79FB\u820A\u8CC7\u6599\u3002\u642C\u79FB\u524D\u8ACB\u5099\u4EFD\u4E26\u7D50\u675F\u61C9\u7528\u7A0B\u5F0F\uFF0C\u518D\u5B8C\u6574\u8907\u88FD\u76F8\u95DC\u76EE\u9304\u3002",
+    "settings.previousPaths": "\u627E\u4E0D\u5230\u820A\u8CC7\u6599\uFF1F\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304",
+    "settings.previousPathsHelp": "\u4EE5\u4E0B\u76EE\u9304\u4ECD\u7136\u5B58\u5728\u3002\u5982\u9700\u67E5\u770B\u5176\u4E2D\u7684\u6B77\u53F2\uFF0C\u8ACB\u5C07\u5C0D\u61C9\u8DEF\u5F91\u6539\u56DE\u539F\u76EE\u9304\u4E26\u91CD\u65B0\u555F\u52D5\uFF1B\u4E0D\u8981\u8986\u5BEB\u76EE\u6A19\u65E2\u6709\u8CC7\u6599\u3002",
+    "settings.previousPathsNotice": "\u76EE\u524D\u4F7F\u7528\u81EA\u8A02\u5132\u5B58\u8DEF\u5F91\u3002\u5982\u7F3A\u5C11\u6B77\u53F2\uFF0C\u8ACB\u5728\u5132\u5B58\u8A2D\u5B9A\u67E5\u770B\u539F\u9810\u8A2D\u76EE\u9304\u3002",
     "settings.inputRoot": "\u8F38\u5165\u76EE\u9304",
     "settings.outputRoot": "\u8F38\u51FA\u76EE\u9304",
     "settings.galleryRoot": "\u516C\u7528\u5716\u5EAB\u76EE\u9304",
@@ -39681,10 +39739,631 @@ ${hint}` : hint;
     initApiProviderSortFeature();
   }
 
+  // codex_image/webui/frontend/src/theme-preference.ts
+  var THEME_STORAGE_KEY = "codex-image-theme-preference";
+  var themeTransitionFrame = null;
+  function normalizeThemePreference(value) {
+    return value === "light" || value === "dark" ? value : "system";
+  }
+  function readThemePreference(storage = localStorage) {
+    try {
+      return normalizeThemePreference(
+        storage.getItem(THEME_STORAGE_KEY)
+      );
+    } catch {
+      return "system";
+    }
+  }
+  function persistThemePreference(preference, storage = localStorage) {
+    try {
+      storage.setItem(THEME_STORAGE_KEY, preference);
+    } catch {
+    }
+  }
+  function resolveEffectiveTheme(preference, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
+    if (preference === "light" || preference === "dark") {
+      return preference;
+    }
+    return systemDark ? "dark" : "light";
+  }
+  function lockThemeTransitions(root) {
+    root.classList.add("theme-transition-lock");
+    const requestFrame = window.requestAnimationFrame?.bind(window);
+    if (!requestFrame) {
+      root.classList.remove("theme-transition-lock");
+      return;
+    }
+    if (themeTransitionFrame !== null) {
+      window.cancelAnimationFrame?.(themeTransitionFrame);
+    }
+    themeTransitionFrame = requestFrame(() => {
+      themeTransitionFrame = requestFrame(() => {
+        root.classList.remove("theme-transition-lock");
+        themeTransitionFrame = null;
+      });
+    });
+  }
+  function applyDocumentTheme(preference, root = document.documentElement, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
+    const normalized = normalizeThemePreference(preference);
+    const effective = resolveEffectiveTheme(
+      normalized,
+      systemDark
+    );
+    if (root.dataset.theme !== effective) {
+      lockThemeTransitions(root);
+    }
+    root.dataset.theme = effective;
+    root.dataset.themePreference = normalized;
+    return effective;
+  }
+  function syncThemeSwitcher(root, preference) {
+    root?.querySelectorAll("[data-theme-option]").forEach((button) => {
+      const active = button.dataset.themeOption === preference;
+      button.classList.toggle("active", active);
+      button.setAttribute(
+        "aria-pressed",
+        active ? "true" : "false"
+      );
+    });
+  }
+  function bindThemeSwitcher(root, onSelect) {
+    if (!root) return () => void 0;
+    const handleClick = (event) => {
+      const target = event.target;
+      const button = target?.closest(
+        "[data-theme-option]"
+      );
+      if (!button || !root.contains(button)) return;
+      const value = button.dataset.themeOption;
+      if (value !== "system" && value !== "light" && value !== "dark") {
+        return;
+      }
+      onSelect(value);
+    };
+    root.addEventListener("click", handleClick);
+    return () => root.removeEventListener("click", handleClick);
+  }
+  function bindSystemThemePreference(onChange) {
+    const media = window.matchMedia?.(
+      "(prefers-color-scheme: dark)"
+    );
+    if (!media) return () => void 0;
+    const handleChange = (event) => {
+      onChange(event.matches);
+    };
+    if (media.addEventListener) {
+      media.addEventListener("change", handleChange);
+      return () => media.removeEventListener("change", handleChange);
+    }
+    media.addListener?.(handleChange);
+    return () => media.removeListener?.(handleChange);
+  }
+
+  // codex_image/webui/frontend/src/task-notifications.ts
+  var TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
+  var TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
+  var MAX_TASK_NOTIFICATIONS = 30;
+  var MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
+  var TASK_NOTIFICATION_TOAST_MS = 5200;
+  var TRANSIENT_NOTICE_MS = 4200;
+  function readUserConfigClientPreferences(storage = localStorage) {
+    let notifications = { in_app: true, system: false };
+    try {
+      const stored = JSON.parse(storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
+      notifications = { in_app: stored.inApp !== false, system: stored.system === true };
+    } catch {
+    }
+    return {
+      theme: normalizeThemePreference(storage.getItem(THEME_STORAGE_KEY)),
+      notifications
+    };
+  }
+  function applyUserConfigClientPreferences(preferences, mode, environment = {}) {
+    const storage = environment.storage ?? localStorage;
+    const permission = environment.notificationPermission ?? (typeof Notification === "undefined" ? "unsupported" : Notification.permission);
+    const warnings = [];
+    const shouldApplyTheme = mode === "replace" || storage.getItem(THEME_STORAGE_KEY) === null;
+    if (shouldApplyTheme) {
+      persistThemePreference(preferences.theme, storage);
+      (environment.applyTheme ?? ((preference) => applyDocumentTheme(preference)))(preferences.theme);
+    }
+    const settingsMissing = storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) === null;
+    let appliedNotifications = readUserConfigClientPreferences(storage).notifications;
+    if (mode === "replace" || settingsMissing) {
+      const system = preferences.notifications.system && permission === "granted";
+      if (preferences.notifications.system && !system) {
+        warnings.push("user_config_restore_system_notification_permission_missing");
+      }
+      appliedNotifications = { in_app: preferences.notifications.in_app, system };
+      try {
+        storage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify({
+          inApp: appliedNotifications.in_app,
+          system: appliedNotifications.system
+        }));
+      } catch {
+      }
+    }
+    return {
+      applied: {
+        theme: shouldApplyTheme ? preferences.theme : readUserConfigClientPreferences(storage).theme,
+        notifications: appliedNotifications
+      },
+      warnings
+    };
+  }
+  var taskNotificationsFeatureInitialized = false;
+  function initTaskNotificationsFeature() {
+    if (taskNotificationsFeatureInitialized) return;
+    taskNotificationsFeatureInitialized = true;
+    restoreTaskNotificationSettings();
+    restoreTaskNotificationSeenKeys();
+    bindTaskNotificationEvents();
+    document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
+    renderTaskNotifications();
+    Object.assign(getLegacyBridge().methods, {
+      notifyTaskUpdate,
+      openTaskNotificationCenter,
+      renderTaskNotifications,
+      requestSystemNotificationPermission,
+      showTransientNotice
+    });
+  }
+  function showTransientNotice(message) {
+    const region = getLegacyBridge().els.taskNotificationToastRegion;
+    if (!region || !message) return;
+    const toast = document.createElement("div");
+    toast.className = "transient-notice-toast";
+    toast.setAttribute("role", "status");
+    const icon = document.createElement("span");
+    icon.className = "transient-notice-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "\u2713";
+    const text = document.createElement("span");
+    text.textContent = message;
+    toast.append(icon, text);
+    region.prepend(toast);
+    window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
+  }
+  function notifyTaskUpdate(previousTask, nextTask) {
+    if (taskWasCancelled(nextTask)) return;
+    const status = terminalTaskStatus(nextTask?.status);
+    if (!nextTask || !status || !shouldNotifyTerminalTask(previousTask, nextTask)) return;
+    getLegacyBridge().methods.notifyLatestTaskAvailable?.(nextTask);
+    const notification = buildTaskNotification(nextTask, status);
+    rememberTaskNotification(nextTask, status);
+    if (getLegacyBridge().state.taskNotificationSettings.inApp) {
+      addTaskNotification(notification);
+      showTaskNotificationToast(notification);
+    }
+    sendSystemTaskNotification(notification);
+  }
+  function shouldNotifyTerminalTask(previousTask, nextTask) {
+    const status = terminalTaskStatus(nextTask?.status);
+    if (!previousTask || !nextTask?.task_id || !status) return false;
+    if (terminalTaskStatus(previousTask.status)) return false;
+    return !getLegacyBridge().state.taskNotificationSeenKeys.has(taskNotificationSeenKey(nextTask, status));
+  }
+  function openTaskNotificationCenter() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationCenterOpen = true;
+    state33.taskNotifications = state33.taskNotifications.map((notification) => ({
+      ...notification,
+      unread: false
+    }));
+    renderTaskNotifications();
+  }
+  function closeTaskNotificationCenter() {
+    const state33 = getLegacyBridge().state;
+    if (!state33.taskNotificationCenterOpen) return;
+    state33.taskNotificationCenterOpen = false;
+    renderTaskNotifications();
+  }
+  function toggleTaskNotificationCenter() {
+    if (getLegacyBridge().state.taskNotificationCenterOpen) {
+      closeTaskNotificationCenter();
+      return;
+    }
+    openTaskNotificationCenter();
+  }
+  function renderTaskNotifications() {
+    const bridge40 = getLegacyBridge();
+    const state33 = bridge40.state;
+    const els44 = bridge40.els;
+    const unreadCount = state33.taskNotifications.filter((notification) => notification.unread).length;
+    state33.taskNotificationUnreadCount = unreadCount;
+    const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
+    if (els44.taskNotificationBadge) {
+      els44.taskNotificationBadge.textContent = "";
+      els44.taskNotificationBadge.setAttribute("aria-hidden", "true");
+      els44.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
+    }
+    if (els44.taskNotificationButton) {
+      els44.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
+      els44.taskNotificationButton.setAttribute("aria-label", unreadLabel);
+      els44.taskNotificationButton.title = unreadLabel;
+      els44.taskNotificationButton.setAttribute("aria-expanded", state33.taskNotificationCenterOpen ? "true" : "false");
+    }
+    if (els44.taskNotificationUnreadSummary) {
+      els44.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
+      els44.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
+    }
+    if (els44.taskNotificationCenter) {
+      els44.taskNotificationCenter.classList.toggle("hidden", !state33.taskNotificationCenterOpen);
+      els44.taskNotificationCenter.setAttribute("aria-hidden", state33.taskNotificationCenterOpen ? "false" : "true");
+    }
+    if (!els44.taskNotificationList) return;
+    if (!state33.taskNotifications.length) {
+      els44.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
+      return;
+    }
+    els44.taskNotificationList.innerHTML = state33.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
+  }
+  async function requestSystemNotificationPermission() {
+    if (typeof Notification === "undefined") {
+      setStatus9(translate("notifications.systemUnsupported"), "error");
+      return false;
+    }
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") {
+      setStatus9(translate("notifications.systemBlocked"), "error");
+      return false;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      setStatus9(translate("notifications.systemDenied"), "error");
+      return false;
+    }
+    setStatus9(translate("notifications.systemEnabled"), "ok");
+    return true;
+  }
+  function bindTaskNotificationEvents() {
+    const els44 = getLegacyBridge().els;
+    els44.taskNotificationButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleTaskNotificationCenter();
+    });
+    els44.taskNotificationClearButton?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      clearTaskNotifications();
+    });
+    els44.taskNotificationList?.addEventListener("click", (event) => {
+      const item = eventTargetElement(event)?.closest("[data-task-notification-id]");
+      if (!(item instanceof HTMLElement)) return;
+      const notification = notificationById(item.dataset.taskNotificationId);
+      if (notification) void openNotificationTask(notification);
+    });
+    els44.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
+    els44.taskNotificationSystem?.addEventListener("change", (event) => {
+      void handleTaskNotificationSystemChange(event);
+    });
+    document.addEventListener("click", handleTaskNotificationDocumentClick);
+    document.addEventListener("keydown", handleTaskNotificationKeydown);
+  }
+  function handleTaskNotificationInAppChange(event) {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement)) return;
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSettings = {
+      ...state33.taskNotificationSettings,
+      inApp: input.checked
+    };
+    persistTaskNotificationSettings();
+  }
+  async function handleTaskNotificationSystemChange(event) {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement)) return;
+    const state33 = getLegacyBridge().state;
+    if (!input.checked) {
+      state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: false };
+      persistTaskNotificationSettings();
+      return;
+    }
+    const granted = await requestSystemNotificationPermission();
+    state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: granted };
+    input.checked = granted;
+    persistTaskNotificationSettings();
+  }
+  function handleTaskNotificationDocumentClick(event) {
+    const target = event.target;
+    const els44 = getLegacyBridge().els;
+    if (!(target instanceof Node)) return;
+    if (els44.taskNotificationCenter?.contains(target) || els44.taskNotificationButton?.contains(target)) return;
+    closeTaskNotificationCenter();
+  }
+  function handleTaskNotificationKeydown(event) {
+    if (event.key === "Escape") closeTaskNotificationCenter();
+  }
+  function addTaskNotification(notification) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = [notification, ...state33.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
+    renderTaskNotifications();
+  }
+  function clearTaskNotifications() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = [];
+    renderTaskNotifications();
+  }
+  function showTaskNotificationToast(notification) {
+    const bridge40 = getLegacyBridge();
+    const region = bridge40.els.taskNotificationToastRegion;
+    if (!region) return;
+    const toast = document.createElement("button");
+    toast.type = "button";
+    toast.className = "task-notification-item task-notification-toast";
+    toast.dataset.taskNotificationId = notification.id;
+    toast.innerHTML = taskNotificationInnerHtml(notification);
+    toast.addEventListener("click", () => {
+      toast.remove();
+      void openNotificationTask(notification);
+    });
+    region.prepend(toast);
+    const timerId = window.setTimeout(() => {
+      toast.remove();
+      bridge40.state.taskNotificationToastTimerIds = bridge40.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
+    }, TASK_NOTIFICATION_TOAST_MS);
+    bridge40.state.taskNotificationToastTimerIds.push(timerId);
+  }
+  function sendSystemTaskNotification(notification) {
+    const settings = getLegacyBridge().state.taskNotificationSettings;
+    if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const options = { body: taskNotificationDisplayMessage(notification) };
+    if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
+    const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
+    systemNotification.onclick = () => {
+      window.focus();
+      void openNotificationTask(notification);
+      systemNotification.close();
+    };
+  }
+  async function openNotificationTask(notification) {
+    const bridge40 = getLegacyBridge();
+    const task = bridge40.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
+    markTaskNotificationRead(notification.id);
+    closeTaskNotificationCenter();
+    if (!task) {
+      setStatus9(translate("notifications.taskMissing"), "error");
+      return;
+    }
+    window.focus();
+    try {
+      const selectTask3 = bridge40.methods.selectTask;
+      if (typeof selectTask3 !== "function") throw new Error("selectTask is unavailable");
+      await selectTask3(task.task_id);
+    } catch {
+      setStatus9(translate("notifications.taskMissing"), "error");
+    }
+  }
+  function markTaskNotificationRead(notificationId) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotifications = state33.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
+    renderTaskNotifications();
+  }
+  function notificationById(notificationId) {
+    if (!notificationId) return null;
+    return getLegacyBridge().state.taskNotifications.find((notification) => notification.id === notificationId) || null;
+  }
+  function buildTaskNotification(task, status) {
+    const thumbnailUrl = firstTaskThumbnailUrl(task);
+    const successCount = completedOutputCount(task);
+    const failedCount = positiveNumber(task.failed_count);
+    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
+    const errorMessage7 = String(task.last_error || task.error || "");
+    return {
+      id: taskNotificationSeenKey(task, status),
+      task_id: task.task_id,
+      status,
+      title: taskNotificationTitle(status),
+      message: taskNotificationMessageFromParts(status, {
+        successCount,
+        failedCount,
+        prompt,
+        errorMessage: errorMessage7
+      }),
+      success_count: successCount,
+      failed_count: failedCount,
+      prompt_snippet: prompt,
+      error_message: errorMessage7,
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      ...thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {},
+      unread: true
+    };
+  }
+  function taskNotificationTitle(status) {
+    if (status === "failed") return translate("notifications.taskFailed");
+    if (status === "partial_failed") return translate("notifications.taskPartial");
+    return translate("notifications.taskCompleted");
+  }
+  function taskNotificationMessageFromParts(status, parts) {
+    if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
+    const countText = parts.successCount ? formatTranslation("notifications.successCount", { count: parts.successCount }) : translate("notifications.resultAvailable");
+    const failureText = status === "partial_failed" && parts.failedCount ? formatTranslation("notifications.failedCount", { count: parts.failedCount }) : "";
+    return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" \xB7 ");
+  }
+  function taskNotificationDisplayTitle(notification) {
+    return taskNotificationTitle(notification.status);
+  }
+  function taskNotificationDisplayMessage(notification) {
+    if (notification.success_count !== void 0 || notification.failed_count !== void 0 || notification.prompt_snippet !== void 0 || notification.error_message !== void 0) {
+      return taskNotificationMessageFromParts(notification.status, {
+        successCount: positiveNumber(notification.success_count),
+        failedCount: positiveNumber(notification.failed_count),
+        prompt: notification.prompt_snippet || "",
+        errorMessage: notification.error_message || notification.message
+      });
+    }
+    return notification.message;
+  }
+  function firstTaskThumbnailUrl(task) {
+    const bridge40 = getLegacyBridge();
+    const urls = bridge40.methods.taskThumbnailUrls?.(task);
+    if (Array.isArray(urls) && urls[0]) return String(urls[0]);
+    if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
+    const output = Array.isArray(task.outputs) ? task.outputs.find((record5) => record5?.status === "completed") : null;
+    if (output?.thumbnail_url) return String(output.thumbnail_url);
+    if (output?.thumbnail_file) return outputFileUrl(output.thumbnail_file);
+    if (output?.url || output?.file) {
+      const index = positiveNumber(output.index) || 1;
+      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/${index}/thumbnail`;
+    }
+    if (Array.isArray(task.output_urls) && task.output_urls.some(Boolean)) {
+      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/1/thumbnail`;
+    }
+    return void 0;
+  }
+  function taskNotificationItemHtml(notification) {
+    const unreadClass = notification.unread ? " unread" : "";
+    return `<button class="task-notification-item${unreadClass}" type="button" data-task-notification-id="${escapeHtml8(notification.id)}">
+    ${taskNotificationInnerHtml(notification)}
+  </button>`;
+  }
+  function taskNotificationInnerHtml(notification) {
+    const thumbnail = notification.thumbnail_url ? `<img class="task-notification-thumb" src="${escapeHtml8(notification.thumbnail_url)}" alt="">` : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml8(statusGlyph(notification.status))}</span>`;
+    return `${thumbnail}
+    <span class="task-notification-body">
+      <span class="task-notification-title">${escapeHtml8(taskNotificationDisplayTitle(notification))}</span>
+      <span class="task-notification-message">${escapeHtml8(taskNotificationDisplayMessage(notification))}</span>
+      <span class="task-notification-time">${escapeHtml8(formatNotificationTime(notification.created_at))}</span>
+    </span>`;
+  }
+  function statusGlyph(status) {
+    if (status === "failed") return "!";
+    if (status === "partial_failed") return "~";
+    return "\u2713";
+  }
+  function formatNotificationTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  function terminalTaskStatus(status) {
+    if (status === "completed" || status === "failed" || status === "partial_failed") return status;
+    return null;
+  }
+  function taskNotificationSeenKey(task, status) {
+    const revision = task.completed_at || task.updated_at || task.last_error || task.error || "";
+    return `${task.task_id}:${status}:${revision}`;
+  }
+  function rememberTaskNotification(task, status) {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
+    while (state33.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
+      const firstKey = state33.taskNotificationSeenKeys.values().next().value;
+      if (typeof firstKey !== "string") break;
+      state33.taskNotificationSeenKeys.delete(firstKey);
+    }
+    persistTaskNotificationSeenKeys();
+  }
+  function restoreTaskNotificationSettings() {
+    const state33 = getLegacyBridge().state;
+    state33.taskNotificationSettings = defaultTaskNotificationSettings();
+    try {
+      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
+      state33.taskNotificationSettings = {
+        inApp: stored.inApp !== false,
+        system: stored.system === true && typeof Notification !== "undefined" && Notification.permission === "granted"
+      };
+    } catch {
+      state33.taskNotificationSettings = defaultTaskNotificationSettings();
+    }
+    persistTaskNotificationSettings();
+    syncTaskNotificationSettingsInputs();
+  }
+  function defaultTaskNotificationSettings() {
+    return { inApp: true, system: false };
+  }
+  function persistTaskNotificationSettings() {
+    try {
+      localStorage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify(getLegacyBridge().state.taskNotificationSettings));
+    } catch {
+    }
+    syncTaskNotificationSettingsInputs();
+  }
+  function syncTaskNotificationSettingsInputs() {
+    const bridge40 = getLegacyBridge();
+    const settings = bridge40.state.taskNotificationSettings;
+    if (bridge40.els.taskNotificationInApp instanceof HTMLInputElement) {
+      bridge40.els.taskNotificationInApp.checked = settings.inApp;
+    }
+    if (bridge40.els.taskNotificationSystem instanceof HTMLInputElement) {
+      bridge40.els.taskNotificationSystem.checked = settings.system;
+    }
+  }
+  function restoreTaskNotificationSeenKeys() {
+    const state33 = getLegacyBridge().state;
+    try {
+      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
+      state33.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key) => typeof key === "string") : []);
+    } catch {
+      state33.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
+    }
+  }
+  function persistTaskNotificationSeenKeys() {
+    try {
+      const keys = Array.from(getLegacyBridge().state.taskNotificationSeenKeys).slice(-MAX_SEEN_TASK_NOTIFICATION_KEYS);
+      localStorage.setItem(TASK_NOTIFICATION_SEEN_KEY, JSON.stringify(keys));
+    } catch {
+    }
+  }
+  function outputFileUrl(filename) {
+    if (filename.startsWith("/outputs/")) return filename;
+    const clean = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+    return clean ? `/outputs/${clean}` : "";
+  }
+  function completedOutputCount(task) {
+    if (Array.isArray(task.outputs)) {
+      return task.outputs.filter((record5) => record5?.status === "completed").length;
+    }
+    if (Array.isArray(task.output_urls)) return task.output_urls.filter(Boolean).length;
+    return positiveNumber(task.generated_count);
+  }
+  function positiveNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+  }
+  function promptSnippet(value) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+    return text.length > 48 ? `${text.slice(0, 48)}...` : text;
+  }
+  function escapeHtml8(value) {
+    return getLegacyBridge().methods.escapeHtml(value);
+  }
+  function setStatus9(message, type) {
+    getLegacyBridge().methods.setStatus(message, type);
+  }
+  function eventTargetElement(event) {
+    return event.target instanceof Element ? event.target : null;
+  }
+
   // codex_image/webui/frontend/src/storage-settings.ts
   var bridge10 = getLegacyBridge();
   var els11 = bridge10.els;
   var storageSettingsFeatureInitialized = false;
+  var previousPaths = {};
+  var previousPathsAnnounced = false;
+  var pathLabels = {
+    input_root: "settings.inputRoot",
+    output_root: "settings.outputRoot",
+    gallery_root: "settings.galleryRoot",
+    source_data_root: "settings.sourceDataRoot"
+  };
+  function renderPreviousPaths() {
+    const details = els11.settingsPreviousPaths;
+    const list = els11.settingsPreviousPathsList;
+    if (!details || !list) return;
+    list.replaceChildren();
+    for (const [key, label] of Object.entries(pathLabels)) {
+      const path = previousPaths[key];
+      if (typeof path !== "string" || !path) continue;
+      const term = document.createElement("dt");
+      term.textContent = translate(label);
+      const value = document.createElement("dd");
+      value.textContent = path;
+      list.append(term, value);
+    }
+    details.hidden = !list.childElementCount;
+    if (details.hidden) details.open = false;
+  }
   function legacyMethod15(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -39692,7 +40371,7 @@ ${hint}` : hint;
     }
     return method(...args);
   }
-  function setStatus9(message, type) {
+  function setStatus10(message, type) {
     legacyMethod15("setStatus", message, type);
   }
   function closePromptPopover3() {
@@ -39705,6 +40384,12 @@ ${hint}` : hint;
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
       populateSettingsForm(data.settings || {});
+      previousPaths = data.previous_paths || {};
+      renderPreviousPaths();
+      if (Object.keys(previousPaths).length && !previousPathsAnnounced) {
+        previousPathsAnnounced = true;
+        showTransientNotice(translate("settings.previousPathsNotice"));
+      }
     } catch (error) {
       if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || translate("settings.loadFailed");
     }
@@ -39744,10 +40429,10 @@ ${hint}` : hint;
       if (els11.settingsStatus) {
         els11.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
       }
-      setStatus9(translate("settings.savedRestartStatus"), "ok");
+      setStatus10(translate("settings.savedRestartStatus"), "ok");
     } catch (error) {
       if (els11.settingsStatus) els11.settingsStatus.textContent = error.message || translate("settings.saveFailed");
-      setStatus9(error.message || translate("settings.saveFailed"), "error");
+      setStatus10(error.message || translate("settings.saveFailed"), "error");
     } finally {
       els11.saveSettingsButton.disabled = false;
     }
@@ -39756,6 +40441,7 @@ ${hint}` : hint;
     if (storageSettingsFeatureInitialized) return;
     storageSettingsFeatureInitialized = true;
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      renderPreviousPaths();
       if (!els11.systemSettingsModal?.classList.contains("hidden") && !els11.systemSettingsStoragePanel?.hidden && els11.settingsStatus) {
         els11.settingsStatus.textContent = translate("settings.status");
       }
@@ -40440,602 +41126,6 @@ ${hint}` : hint;
         clearTimer();
       }
     };
-  }
-
-  // codex_image/webui/frontend/src/theme-preference.ts
-  var THEME_STORAGE_KEY = "codex-image-theme-preference";
-  var themeTransitionFrame = null;
-  function normalizeThemePreference(value) {
-    return value === "light" || value === "dark" ? value : "system";
-  }
-  function readThemePreference(storage = localStorage) {
-    try {
-      return normalizeThemePreference(
-        storage.getItem(THEME_STORAGE_KEY)
-      );
-    } catch {
-      return "system";
-    }
-  }
-  function persistThemePreference(preference, storage = localStorage) {
-    try {
-      storage.setItem(THEME_STORAGE_KEY, preference);
-    } catch {
-    }
-  }
-  function resolveEffectiveTheme(preference, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
-    if (preference === "light" || preference === "dark") {
-      return preference;
-    }
-    return systemDark ? "dark" : "light";
-  }
-  function lockThemeTransitions(root) {
-    root.classList.add("theme-transition-lock");
-    const requestFrame = window.requestAnimationFrame?.bind(window);
-    if (!requestFrame) {
-      root.classList.remove("theme-transition-lock");
-      return;
-    }
-    if (themeTransitionFrame !== null) {
-      window.cancelAnimationFrame?.(themeTransitionFrame);
-    }
-    themeTransitionFrame = requestFrame(() => {
-      themeTransitionFrame = requestFrame(() => {
-        root.classList.remove("theme-transition-lock");
-        themeTransitionFrame = null;
-      });
-    });
-  }
-  function applyDocumentTheme(preference, root = document.documentElement, systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches === true) {
-    const normalized = normalizeThemePreference(preference);
-    const effective = resolveEffectiveTheme(
-      normalized,
-      systemDark
-    );
-    if (root.dataset.theme !== effective) {
-      lockThemeTransitions(root);
-    }
-    root.dataset.theme = effective;
-    root.dataset.themePreference = normalized;
-    return effective;
-  }
-  function syncThemeSwitcher(root, preference) {
-    root?.querySelectorAll("[data-theme-option]").forEach((button) => {
-      const active = button.dataset.themeOption === preference;
-      button.classList.toggle("active", active);
-      button.setAttribute(
-        "aria-pressed",
-        active ? "true" : "false"
-      );
-    });
-  }
-  function bindThemeSwitcher(root, onSelect) {
-    if (!root) return () => void 0;
-    const handleClick = (event) => {
-      const target = event.target;
-      const button = target?.closest(
-        "[data-theme-option]"
-      );
-      if (!button || !root.contains(button)) return;
-      const value = button.dataset.themeOption;
-      if (value !== "system" && value !== "light" && value !== "dark") {
-        return;
-      }
-      onSelect(value);
-    };
-    root.addEventListener("click", handleClick);
-    return () => root.removeEventListener("click", handleClick);
-  }
-  function bindSystemThemePreference(onChange) {
-    const media = window.matchMedia?.(
-      "(prefers-color-scheme: dark)"
-    );
-    if (!media) return () => void 0;
-    const handleChange = (event) => {
-      onChange(event.matches);
-    };
-    if (media.addEventListener) {
-      media.addEventListener("change", handleChange);
-      return () => media.removeEventListener("change", handleChange);
-    }
-    media.addListener?.(handleChange);
-    return () => media.removeListener?.(handleChange);
-  }
-
-  // codex_image/webui/frontend/src/task-notifications.ts
-  var TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
-  var TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
-  var MAX_TASK_NOTIFICATIONS = 30;
-  var MAX_SEEN_TASK_NOTIFICATION_KEYS = 400;
-  var TASK_NOTIFICATION_TOAST_MS = 5200;
-  var TRANSIENT_NOTICE_MS = 4200;
-  function readUserConfigClientPreferences(storage = localStorage) {
-    let notifications = { in_app: true, system: false };
-    try {
-      const stored = JSON.parse(storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
-      notifications = { in_app: stored.inApp !== false, system: stored.system === true };
-    } catch {
-    }
-    return {
-      theme: normalizeThemePreference(storage.getItem(THEME_STORAGE_KEY)),
-      notifications
-    };
-  }
-  function applyUserConfigClientPreferences(preferences, mode, environment = {}) {
-    const storage = environment.storage ?? localStorage;
-    const permission = environment.notificationPermission ?? (typeof Notification === "undefined" ? "unsupported" : Notification.permission);
-    const warnings = [];
-    const shouldApplyTheme = mode === "replace" || storage.getItem(THEME_STORAGE_KEY) === null;
-    if (shouldApplyTheme) {
-      persistThemePreference(preferences.theme, storage);
-      (environment.applyTheme ?? ((preference) => applyDocumentTheme(preference)))(preferences.theme);
-    }
-    const settingsMissing = storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) === null;
-    let appliedNotifications = readUserConfigClientPreferences(storage).notifications;
-    if (mode === "replace" || settingsMissing) {
-      const system = preferences.notifications.system && permission === "granted";
-      if (preferences.notifications.system && !system) {
-        warnings.push("user_config_restore_system_notification_permission_missing");
-      }
-      appliedNotifications = { in_app: preferences.notifications.in_app, system };
-      try {
-        storage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify({
-          inApp: appliedNotifications.in_app,
-          system: appliedNotifications.system
-        }));
-      } catch {
-      }
-    }
-    return {
-      applied: {
-        theme: shouldApplyTheme ? preferences.theme : readUserConfigClientPreferences(storage).theme,
-        notifications: appliedNotifications
-      },
-      warnings
-    };
-  }
-  var taskNotificationsFeatureInitialized = false;
-  function initTaskNotificationsFeature() {
-    if (taskNotificationsFeatureInitialized) return;
-    taskNotificationsFeatureInitialized = true;
-    restoreTaskNotificationSettings();
-    restoreTaskNotificationSeenKeys();
-    bindTaskNotificationEvents();
-    document.addEventListener(LOCALE_CHANGE_EVENT, renderTaskNotifications);
-    renderTaskNotifications();
-    Object.assign(getLegacyBridge().methods, {
-      notifyTaskUpdate,
-      openTaskNotificationCenter,
-      renderTaskNotifications,
-      requestSystemNotificationPermission,
-      showTransientNotice
-    });
-  }
-  function showTransientNotice(message) {
-    const region = getLegacyBridge().els.taskNotificationToastRegion;
-    if (!region || !message) return;
-    const toast = document.createElement("div");
-    toast.className = "transient-notice-toast";
-    toast.setAttribute("role", "status");
-    const icon = document.createElement("span");
-    icon.className = "transient-notice-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "\u2713";
-    const text = document.createElement("span");
-    text.textContent = message;
-    toast.append(icon, text);
-    region.prepend(toast);
-    window.setTimeout(() => toast.remove(), TRANSIENT_NOTICE_MS);
-  }
-  function notifyTaskUpdate(previousTask, nextTask) {
-    if (taskWasCancelled(nextTask)) return;
-    const status = terminalTaskStatus(nextTask?.status);
-    if (!nextTask || !status || !shouldNotifyTerminalTask(previousTask, nextTask)) return;
-    getLegacyBridge().methods.notifyLatestTaskAvailable?.(nextTask);
-    const notification = buildTaskNotification(nextTask, status);
-    rememberTaskNotification(nextTask, status);
-    if (getLegacyBridge().state.taskNotificationSettings.inApp) {
-      addTaskNotification(notification);
-      showTaskNotificationToast(notification);
-    }
-    sendSystemTaskNotification(notification);
-  }
-  function shouldNotifyTerminalTask(previousTask, nextTask) {
-    const status = terminalTaskStatus(nextTask?.status);
-    if (!previousTask || !nextTask?.task_id || !status) return false;
-    if (terminalTaskStatus(previousTask.status)) return false;
-    return !getLegacyBridge().state.taskNotificationSeenKeys.has(taskNotificationSeenKey(nextTask, status));
-  }
-  function openTaskNotificationCenter() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationCenterOpen = true;
-    state33.taskNotifications = state33.taskNotifications.map((notification) => ({
-      ...notification,
-      unread: false
-    }));
-    renderTaskNotifications();
-  }
-  function closeTaskNotificationCenter() {
-    const state33 = getLegacyBridge().state;
-    if (!state33.taskNotificationCenterOpen) return;
-    state33.taskNotificationCenterOpen = false;
-    renderTaskNotifications();
-  }
-  function toggleTaskNotificationCenter() {
-    if (getLegacyBridge().state.taskNotificationCenterOpen) {
-      closeTaskNotificationCenter();
-      return;
-    }
-    openTaskNotificationCenter();
-  }
-  function renderTaskNotifications() {
-    const bridge40 = getLegacyBridge();
-    const state33 = bridge40.state;
-    const els44 = bridge40.els;
-    const unreadCount = state33.taskNotifications.filter((notification) => notification.unread).length;
-    state33.taskNotificationUnreadCount = unreadCount;
-    const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
-    if (els44.taskNotificationBadge) {
-      els44.taskNotificationBadge.textContent = "";
-      els44.taskNotificationBadge.setAttribute("aria-hidden", "true");
-      els44.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
-    }
-    if (els44.taskNotificationButton) {
-      els44.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
-      els44.taskNotificationButton.setAttribute("aria-label", unreadLabel);
-      els44.taskNotificationButton.title = unreadLabel;
-      els44.taskNotificationButton.setAttribute("aria-expanded", state33.taskNotificationCenterOpen ? "true" : "false");
-    }
-    if (els44.taskNotificationUnreadSummary) {
-      els44.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
-      els44.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
-    }
-    if (els44.taskNotificationCenter) {
-      els44.taskNotificationCenter.classList.toggle("hidden", !state33.taskNotificationCenterOpen);
-      els44.taskNotificationCenter.setAttribute("aria-hidden", state33.taskNotificationCenterOpen ? "false" : "true");
-    }
-    if (!els44.taskNotificationList) return;
-    if (!state33.taskNotifications.length) {
-      els44.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
-      return;
-    }
-    els44.taskNotificationList.innerHTML = state33.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
-  }
-  async function requestSystemNotificationPermission() {
-    if (typeof Notification === "undefined") {
-      setStatus10(translate("notifications.systemUnsupported"), "error");
-      return false;
-    }
-    if (Notification.permission === "granted") return true;
-    if (Notification.permission === "denied") {
-      setStatus10(translate("notifications.systemBlocked"), "error");
-      return false;
-    }
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      setStatus10(translate("notifications.systemDenied"), "error");
-      return false;
-    }
-    setStatus10(translate("notifications.systemEnabled"), "ok");
-    return true;
-  }
-  function bindTaskNotificationEvents() {
-    const els44 = getLegacyBridge().els;
-    els44.taskNotificationButton?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      toggleTaskNotificationCenter();
-    });
-    els44.taskNotificationClearButton?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      clearTaskNotifications();
-    });
-    els44.taskNotificationList?.addEventListener("click", (event) => {
-      const item = eventTargetElement(event)?.closest("[data-task-notification-id]");
-      if (!(item instanceof HTMLElement)) return;
-      const notification = notificationById(item.dataset.taskNotificationId);
-      if (notification) void openNotificationTask(notification);
-    });
-    els44.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
-    els44.taskNotificationSystem?.addEventListener("change", (event) => {
-      void handleTaskNotificationSystemChange(event);
-    });
-    document.addEventListener("click", handleTaskNotificationDocumentClick);
-    document.addEventListener("keydown", handleTaskNotificationKeydown);
-  }
-  function handleTaskNotificationInAppChange(event) {
-    const input = event.currentTarget;
-    if (!(input instanceof HTMLInputElement)) return;
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSettings = {
-      ...state33.taskNotificationSettings,
-      inApp: input.checked
-    };
-    persistTaskNotificationSettings();
-  }
-  async function handleTaskNotificationSystemChange(event) {
-    const input = event.currentTarget;
-    if (!(input instanceof HTMLInputElement)) return;
-    const state33 = getLegacyBridge().state;
-    if (!input.checked) {
-      state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: false };
-      persistTaskNotificationSettings();
-      return;
-    }
-    const granted = await requestSystemNotificationPermission();
-    state33.taskNotificationSettings = { ...state33.taskNotificationSettings, system: granted };
-    input.checked = granted;
-    persistTaskNotificationSettings();
-  }
-  function handleTaskNotificationDocumentClick(event) {
-    const target = event.target;
-    const els44 = getLegacyBridge().els;
-    if (!(target instanceof Node)) return;
-    if (els44.taskNotificationCenter?.contains(target) || els44.taskNotificationButton?.contains(target)) return;
-    closeTaskNotificationCenter();
-  }
-  function handleTaskNotificationKeydown(event) {
-    if (event.key === "Escape") closeTaskNotificationCenter();
-  }
-  function addTaskNotification(notification) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = [notification, ...state33.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
-    renderTaskNotifications();
-  }
-  function clearTaskNotifications() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = [];
-    renderTaskNotifications();
-  }
-  function showTaskNotificationToast(notification) {
-    const bridge40 = getLegacyBridge();
-    const region = bridge40.els.taskNotificationToastRegion;
-    if (!region) return;
-    const toast = document.createElement("button");
-    toast.type = "button";
-    toast.className = "task-notification-item task-notification-toast";
-    toast.dataset.taskNotificationId = notification.id;
-    toast.innerHTML = taskNotificationInnerHtml(notification);
-    toast.addEventListener("click", () => {
-      toast.remove();
-      void openNotificationTask(notification);
-    });
-    region.prepend(toast);
-    const timerId = window.setTimeout(() => {
-      toast.remove();
-      bridge40.state.taskNotificationToastTimerIds = bridge40.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
-    }, TASK_NOTIFICATION_TOAST_MS);
-    bridge40.state.taskNotificationToastTimerIds.push(timerId);
-  }
-  function sendSystemTaskNotification(notification) {
-    const settings = getLegacyBridge().state.taskNotificationSettings;
-    if (!settings.system || typeof Notification === "undefined" || Notification.permission !== "granted") return;
-    const options = { body: taskNotificationDisplayMessage(notification) };
-    if (notification.thumbnail_url) options.icon = notification.thumbnail_url;
-    const systemNotification = new Notification(taskNotificationDisplayTitle(notification), options);
-    systemNotification.onclick = () => {
-      window.focus();
-      void openNotificationTask(notification);
-      systemNotification.close();
-    };
-  }
-  async function openNotificationTask(notification) {
-    const bridge40 = getLegacyBridge();
-    const task = bridge40.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
-    markTaskNotificationRead(notification.id);
-    closeTaskNotificationCenter();
-    if (!task) {
-      setStatus10(translate("notifications.taskMissing"), "error");
-      return;
-    }
-    window.focus();
-    try {
-      const selectTask3 = bridge40.methods.selectTask;
-      if (typeof selectTask3 !== "function") throw new Error("selectTask is unavailable");
-      await selectTask3(task.task_id);
-    } catch {
-      setStatus10(translate("notifications.taskMissing"), "error");
-    }
-  }
-  function markTaskNotificationRead(notificationId) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotifications = state33.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
-    renderTaskNotifications();
-  }
-  function notificationById(notificationId) {
-    if (!notificationId) return null;
-    return getLegacyBridge().state.taskNotifications.find((notification) => notification.id === notificationId) || null;
-  }
-  function buildTaskNotification(task, status) {
-    const thumbnailUrl = firstTaskThumbnailUrl(task);
-    const successCount = completedOutputCount(task);
-    const failedCount = positiveNumber(task.failed_count);
-    const prompt = promptSnippet(task.prompt || task.prompt_for_model || "");
-    const errorMessage7 = String(task.last_error || task.error || "");
-    return {
-      id: taskNotificationSeenKey(task, status),
-      task_id: task.task_id,
-      status,
-      title: taskNotificationTitle(status),
-      message: taskNotificationMessageFromParts(status, {
-        successCount,
-        failedCount,
-        prompt,
-        errorMessage: errorMessage7
-      }),
-      success_count: successCount,
-      failed_count: failedCount,
-      prompt_snippet: prompt,
-      error_message: errorMessage7,
-      created_at: (/* @__PURE__ */ new Date()).toISOString(),
-      ...thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {},
-      unread: true
-    };
-  }
-  function taskNotificationTitle(status) {
-    if (status === "failed") return translate("notifications.taskFailed");
-    if (status === "partial_failed") return translate("notifications.taskPartial");
-    return translate("notifications.taskCompleted");
-  }
-  function taskNotificationMessageFromParts(status, parts) {
-    if (status === "failed") return String(parts.errorMessage || translate("notifications.generationFailed"));
-    const countText = parts.successCount ? formatTranslation("notifications.successCount", { count: parts.successCount }) : translate("notifications.resultAvailable");
-    const failureText = status === "partial_failed" && parts.failedCount ? formatTranslation("notifications.failedCount", { count: parts.failedCount }) : "";
-    return [countText, failureText, parts.prompt || ""].filter(Boolean).join(" \xB7 ");
-  }
-  function taskNotificationDisplayTitle(notification) {
-    return taskNotificationTitle(notification.status);
-  }
-  function taskNotificationDisplayMessage(notification) {
-    if (notification.success_count !== void 0 || notification.failed_count !== void 0 || notification.prompt_snippet !== void 0 || notification.error_message !== void 0) {
-      return taskNotificationMessageFromParts(notification.status, {
-        successCount: positiveNumber(notification.success_count),
-        failedCount: positiveNumber(notification.failed_count),
-        prompt: notification.prompt_snippet || "",
-        errorMessage: notification.error_message || notification.message
-      });
-    }
-    return notification.message;
-  }
-  function firstTaskThumbnailUrl(task) {
-    const bridge40 = getLegacyBridge();
-    const urls = bridge40.methods.taskThumbnailUrls?.(task);
-    if (Array.isArray(urls) && urls[0]) return String(urls[0]);
-    if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
-    const output = Array.isArray(task.outputs) ? task.outputs.find((record5) => record5?.status === "completed") : null;
-    if (output?.thumbnail_url) return String(output.thumbnail_url);
-    if (output?.thumbnail_file) return outputFileUrl(output.thumbnail_file);
-    if (output?.url || output?.file) {
-      const index = positiveNumber(output.index) || 1;
-      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/${index}/thumbnail`;
-    }
-    if (Array.isArray(task.output_urls) && task.output_urls.some(Boolean)) {
-      return `/api/tasks/${encodeURIComponent(task.task_id)}/outputs/1/thumbnail`;
-    }
-    return void 0;
-  }
-  function taskNotificationItemHtml(notification) {
-    const unreadClass = notification.unread ? " unread" : "";
-    return `<button class="task-notification-item${unreadClass}" type="button" data-task-notification-id="${escapeHtml8(notification.id)}">
-    ${taskNotificationInnerHtml(notification)}
-  </button>`;
-  }
-  function taskNotificationInnerHtml(notification) {
-    const thumbnail = notification.thumbnail_url ? `<img class="task-notification-thumb" src="${escapeHtml8(notification.thumbnail_url)}" alt="">` : `<span class="task-notification-thumb task-notification-thumb-placeholder" aria-hidden="true">${escapeHtml8(statusGlyph(notification.status))}</span>`;
-    return `${thumbnail}
-    <span class="task-notification-body">
-      <span class="task-notification-title">${escapeHtml8(taskNotificationDisplayTitle(notification))}</span>
-      <span class="task-notification-message">${escapeHtml8(taskNotificationDisplayMessage(notification))}</span>
-      <span class="task-notification-time">${escapeHtml8(formatNotificationTime(notification.created_at))}</span>
-    </span>`;
-  }
-  function statusGlyph(status) {
-    if (status === "failed") return "!";
-    if (status === "partial_failed") return "~";
-    return "\u2713";
-  }
-  function formatNotificationTime(value) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-  function terminalTaskStatus(status) {
-    if (status === "completed" || status === "failed" || status === "partial_failed") return status;
-    return null;
-  }
-  function taskNotificationSeenKey(task, status) {
-    const revision = task.completed_at || task.updated_at || task.last_error || task.error || "";
-    return `${task.task_id}:${status}:${revision}`;
-  }
-  function rememberTaskNotification(task, status) {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
-    while (state33.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
-      const firstKey = state33.taskNotificationSeenKeys.values().next().value;
-      if (typeof firstKey !== "string") break;
-      state33.taskNotificationSeenKeys.delete(firstKey);
-    }
-    persistTaskNotificationSeenKeys();
-  }
-  function restoreTaskNotificationSettings() {
-    const state33 = getLegacyBridge().state;
-    state33.taskNotificationSettings = defaultTaskNotificationSettings();
-    try {
-      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
-      state33.taskNotificationSettings = {
-        inApp: stored.inApp !== false,
-        system: stored.system === true && typeof Notification !== "undefined" && Notification.permission === "granted"
-      };
-    } catch {
-      state33.taskNotificationSettings = defaultTaskNotificationSettings();
-    }
-    persistTaskNotificationSettings();
-    syncTaskNotificationSettingsInputs();
-  }
-  function defaultTaskNotificationSettings() {
-    return { inApp: true, system: false };
-  }
-  function persistTaskNotificationSettings() {
-    try {
-      localStorage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify(getLegacyBridge().state.taskNotificationSettings));
-    } catch {
-    }
-    syncTaskNotificationSettingsInputs();
-  }
-  function syncTaskNotificationSettingsInputs() {
-    const bridge40 = getLegacyBridge();
-    const settings = bridge40.state.taskNotificationSettings;
-    if (bridge40.els.taskNotificationInApp instanceof HTMLInputElement) {
-      bridge40.els.taskNotificationInApp.checked = settings.inApp;
-    }
-    if (bridge40.els.taskNotificationSystem instanceof HTMLInputElement) {
-      bridge40.els.taskNotificationSystem.checked = settings.system;
-    }
-  }
-  function restoreTaskNotificationSeenKeys() {
-    const state33 = getLegacyBridge().state;
-    try {
-      const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
-      state33.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key) => typeof key === "string") : []);
-    } catch {
-      state33.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
-    }
-  }
-  function persistTaskNotificationSeenKeys() {
-    try {
-      const keys = Array.from(getLegacyBridge().state.taskNotificationSeenKeys).slice(-MAX_SEEN_TASK_NOTIFICATION_KEYS);
-      localStorage.setItem(TASK_NOTIFICATION_SEEN_KEY, JSON.stringify(keys));
-    } catch {
-    }
-  }
-  function outputFileUrl(filename) {
-    if (filename.startsWith("/outputs/")) return filename;
-    const clean = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
-    return clean ? `/outputs/${clean}` : "";
-  }
-  function completedOutputCount(task) {
-    if (Array.isArray(task.outputs)) {
-      return task.outputs.filter((record5) => record5?.status === "completed").length;
-    }
-    if (Array.isArray(task.output_urls)) return task.output_urls.filter(Boolean).length;
-    return positiveNumber(task.generated_count);
-  }
-  function positiveNumber(value) {
-    const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
-  }
-  function promptSnippet(value) {
-    const text = String(value || "").replace(/\s+/g, " ").trim();
-    if (!text) return "";
-    return text.length > 48 ? `${text.slice(0, 48)}...` : text;
-  }
-  function escapeHtml8(value) {
-    return getLegacyBridge().methods.escapeHtml(value);
-  }
-  function setStatus10(message, type) {
-    getLegacyBridge().methods.setStatus(message, type);
-  }
-  function eventTargetElement(event) {
-    return event.target instanceof Element ? event.target : null;
   }
 
   // codex_image/webui/frontend/src/user-config-backup.ts

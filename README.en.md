@@ -303,6 +303,24 @@ commit that already passed CI, the same workflow can also be run manually with
 6. Start generation, track running and queued tasks in the left task list, then
    review, select, retry, download, or archive results from the preview area.
 
+### Storage paths and existing data
+
+Saved storage paths take effect after restarting WebUI. Changing paths does not
+move existing images, assets, or task history. If history appears empty, open
+**System Settings → Storage & Notifications**, expand the original default
+folders, restore the corresponding paths, and restart. To relocate data, back up
+and quit the app first, then copy the complete input and output directories,
+including the gallery, reference assets, and source-data directory. Do not copy
+only the images or a single database file, or overwrite existing destination data.
+
+The macOS standard app honors saved custom paths. When portable data has been
+copied into a standard installation, its migration record is used to rebase paths
+inside the old `data/` directory onto the copied directories. External custom paths
+are preserved. This also handles installations migrated by earlier versions. The
+original path configuration is retained under the application data directory at
+`.migration/webui-settings-before-path-rebase.json`; the original portable data
+is left unchanged.
+
 ### User configuration backup and restore
 
 Open **System Settings → Storage & Notifications → Configuration backup and
