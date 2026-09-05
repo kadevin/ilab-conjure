@@ -64,7 +64,7 @@ from codex_image.webui.reference_files import (
 from codex_image.webui.storage import utc_now
 from codex_image.webui.task_metadata import _dedupe_preserve_order, _params, _with_file_urls, _write_queued_metadata
 
-DEFAULT_PROMPT_FIDELITY = "strict"
+DEFAULT_PROMPT_FIDELITY = "off"
 
 REFERENCE_FILE_ERROR_MESSAGES = {
     "reference_file_empty": "Reference files cannot be empty.",

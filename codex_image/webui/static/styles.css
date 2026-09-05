@@ -14066,6 +14066,47 @@ button:disabled {
   }
 }
 
+@media (max-width: 640px) {
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .sidebar-header {
+    padding-inline: 12px;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+    gap: 8px;
+  }
+
+  .sidebar .brand-new-button {
+    min-width: 34px;
+    width: 34px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+
+  .brand-new-label {
+    display: none;
+  }
+
+  .model-family-segments {
+    width: 80px;
+    flex-basis: 80px;
+  }
+
+  .task-history-shell {
+    padding: 0 12px 0 0;
+  }
+
+  .task-history-tools .status-text {
+    width: clamp(48px, 16vw, 80px);
+    max-width: 100%;
+  }
+}
+
 @container workspace (max-width: 1100px) {
   .dashboard {
     grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
@@ -14140,6 +14181,11 @@ button:disabled {
     overflow: visible;
   }
 
+  .controls-col .image-panel {
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+
   .preview-col {
     height: auto;
     min-height: 260px;
@@ -14178,6 +14224,52 @@ button:disabled {
   .controls-col .image-input-workspace {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
+  }
+
+  .model-tool-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .web-search-field {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .api-direct-settings-control {
+    height: auto;
+    min-height: 36px;
+    padding-block: 4px;
+  }
+
+  .api-direct-settings-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .api-direct-settings-header strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 24px;
+  }
+
+  .custom-size-row {
+    grid-template-columns: max-content minmax(0, 1fr) 30px max-content minmax(0, 1fr);
+    column-gap: 6px;
+    width: 100%;
+  }
+
+  .custom-ratio-control {
+    grid-template-columns: max-content minmax(0, 1fr) 18px max-content minmax(0, 1fr) 30px;
+    column-gap: 4px;
+    width: 100%;
+  }
+
+  .custom-size-input,
+  .custom-ratio-digit {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 4px;
   }
 }
 

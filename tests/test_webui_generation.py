@@ -367,7 +367,7 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertEqual(metadata["status"], "queued")
         self.assertEqual(queue_state["waiting"], [task["task_id"]])
         self.assertEqual(fake.generate_calls, [])
-    def test_generate_route_defaults_to_strict_prompt_fidelity(self) -> None:
+    def test_generate_route_strict_prompt_fidelity_adds_guidance(self) -> None:
         from codex_image.webui.app import create_app
 
         prompt = "产品目标人群是宝妈为主，文案标题设计偏儿童Q版卡通化，色彩偏淡彩"
@@ -375,7 +375,7 @@ class WebUIGenerationTests(unittest.TestCase):
             app = create_app(output_root=Path(tmp), client_factory=lambda: FakeImageClient(), auth_checker=lambda: True, auto_start_queue=False)
             response = TestClient(app).post(
                 "/api/generate",
-                data={"prompt": prompt, "model": "gpt-image-2", "size": "1024x1024", "quality": "low", "output_format": "png", "codex_mode": "responses"},
+                data={"prompt": prompt, "model": "gpt-image-2", "size": "1024x1024", "quality": "low", "output_format": "png", "codex_mode": "responses", "prompt_fidelity": "strict"},
             )
             body = response.json()
             task = body["task"]
@@ -387,31 +387,41 @@ class WebUIGenerationTests(unittest.TestCase):
         self.assertIn("标题字体/标题设计：文案标题设计偏儿童Q版卡通化", metadata["prompt_constraints"])
         self.assertIn("只能扩写用户提示词", body["request"]["instructions"])
         self.assertEqual(body["request"]["input"][0]["content"][0]["text"], prompt)
-    def test_generate_route_prompt_fidelity_off_keeps_plain_request(self) -> None:
+    def test_generate_and_edit_routes_default_to_automatic_prompt_fidelity(self) -> None:
         from codex_image.webui.app import create_app
 
         prompt = "文案标题设计偏儿童Q版卡通化"
         with tempfile.TemporaryDirectory() as tmp:
             app = create_app(output_root=Path(tmp), client_factory=lambda: FakeImageClient(), auth_checker=lambda: True, auto_start_queue=False)
-            response = TestClient(app).post(
-                "/api/generate",
-                data={
-                    "prompt": prompt,
-                    "model": "gpt-image-2",
-                    "size": "1024x1024",
-                    "quality": "low",
-                    "output_format": "png",
-                    "prompt_fidelity": "off",
-                    "codex_mode": "responses",
-                },
-            )
-            body = response.json()
-            task = body["task"]
+            client = TestClient(app)
+            for endpoint in ("generate", "edit"):
+                for mode in ("images", "responses"):
+                    for fidelity in (None, "off"):
+                        with self.subTest(endpoint=endpoint, mode=mode, fidelity=fidelity):
+                            data = {
+                                "prompt": prompt,
+                                "model": "gpt-image-2",
+                                "size": "1024x1024",
+                                "quality": "low",
+                                "output_format": "png",
+                                "codex_mode": mode,
+                            }
+                            if fidelity is not None:
+                                data["prompt_fidelity"] = fidelity
+                            files = {"images": ("input.png", self._png_bytes(), "image/png")} if endpoint == "edit" else None
+                            response = client.post(f"/api/{endpoint}", data=data, files=files)
+                            self.assertEqual(response.status_code, 200)
+                            body = response.json()
+                            task = body["task"]
+                            metadata = json.loads(metadata_path(Path(tmp), task["task_id"]).read_text(encoding="utf-8"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(task["params"]["prompt_fidelity"], "off")
-        self.assertNotIn("prompt_constraints", task)
-        self.assertEqual(body["request"]["instructions"], "")
+                            self.assertEqual(task["params"]["prompt_fidelity"], "off")
+                            self.assertEqual(metadata["params"]["prompt_fidelity"], "off")
+                            self.assertNotIn("prompt_constraints", task)
+                            self.assertNotIn("prompt_constraints", metadata)
+                            self.assertFalse(body["request"].get("instructions"))
+                            request_prompt = body["request"]["prompt"] if mode == "images" else body["request"]["input"][0]["content"][0]["text"]
+                            self.assertEqual(request_prompt, prompt)
     def test_generate_route_appends_ratio_instruction_to_model_prompt(self) -> None:
         from codex_image.webui.app import create_app
 

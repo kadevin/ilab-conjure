@@ -4,6 +4,7 @@ import { translate } from "./i18n";
 
 export const DEFAULT_MAIN_MODEL = "gpt-5.4-mini";
 export const MAIN_MODEL_OPTIONS = [
+  "gpt-6-astra",
   "gpt-5.6-sol",
   "gpt-5.6-terra",
   "gpt-5.6-luna",

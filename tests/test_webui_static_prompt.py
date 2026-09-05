@@ -59,9 +59,11 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn('id="promptFidelity"', html)
         self.assertRegex(
             html,
-            r'data-val="original" type="button"[^>]*>原文</button>\s*<button class="radio-btn active" data-val="strict" type="button"[^>]*>保真</button>',
+            r'data-val="original" type="button"[^>]*>原文</button>\s*<button class="radio-btn" data-val="strict" type="button"[^>]*>保真</button>',
         )
-        self.assertIn('value="strict" selected', html)
+        self.assertIn('value="off" selected', html)
+        self.assertIn('class="radio-btn active" data-val="off"', html)
+        self.assertIn('if (els.promptFidelity) els.promptFidelity.value = "off";', script)
         self.assertIn('value="original"', html)
         self.assertIn('data-val="original"', html)
         self.assertRegex(html, r'data-val="off" type="button"[^>]*>自动</button>')
@@ -1226,13 +1228,15 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-786', html)
-        self.assertIn('/static/styles.css?v=runtime-785', html)
+        self.assertIn('/static/app.js?v=runtime-788', html)
+        self.assertIn('/static/styles.css?v=runtime-789', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)
         self.assertIn("mainModelOptions: document.querySelector", script)
         self.assertIn("mainModelShowAllOptions: false", script)
+        self.assertIn('"gpt-6-astra",', script)
+        self.assertLess(script.index('"gpt-6-astra"'), script.index('"gpt-5.6-sol"'))
         self.assertIn('"gpt-5.6-sol",', script)
         self.assertIn('"gpt-5.6-terra",', script)
         self.assertIn('"gpt-5.6-luna",', script)
@@ -1266,14 +1270,22 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         if node is None:
             self.skipTest("node is required for frontend behavior checks")
         script = Path("codex_image/webui/frontend/src/main-model-combobox.ts").read_text(encoding="utf-8")
+        options = re.search(r"export const MAIN_MODEL_OPTIONS = (\[[\s\S]*?\]);", script)
+        self.assertIsNotNone(options)
         harness = "\n".join(
             [
-                'const MAIN_MODEL_OPTIONS = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.2"];',
+                f"const MAIN_MODEL_OPTIONS = {options.group(1)};",
                 self._extract_javascript_function(script, "mainModelOptionsForQuery"),
                 """
                 const codexMatches = mainModelOptionsForQuery("codex");
                 const gpt56Matches = mainModelOptionsForQuery("gpt-5.6");
                 const customMatches = mainModelOptionsForQuery("future-model-x");
+                for (const query of ["  ASTRA ", "gpt-6"]) {
+                  const matches = mainModelOptionsForQuery(query);
+                  if (JSON.stringify(matches) !== JSON.stringify(["gpt-6-astra"])) {
+                    throw new Error(`expected Astra for ${query}, got ${matches.join(",")}`);
+                  }
+                }
                 const expectedGpt56 = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"];
                 if (JSON.stringify(gpt56Matches) !== JSON.stringify(expectedGpt56)) {
                   throw new Error(`expected GPT-5.6 model family, got ${gpt56Matches.join(",")}`);
@@ -1324,6 +1336,11 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
                 }
                 if (renderCount !== 1) {
                   throw new Error(`expected options render once, got ${renderCount}`);
+                }
+                storedValues[MAIN_MODEL_STORAGE_KEY] = "gpt-6-astra";
+                restoreMainModel();
+                if (els.mainModel.value !== "gpt-6-astra") {
+                  throw new Error(`expected saved Astra selection to survive reload, got ${els.mainModel.value}`);
                 }
                 """,
             ]
@@ -1390,7 +1407,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertNotIn('if (isDirectApiMode()) return "off";', script)
         self.assertNotIn("if (isDirectApiMode()) return buildPromptForModel();", script)
         self.assertIn('return !state.generationCatalog || state.selectedModelId === "gpt-image-2";', script)
-        self.assertIn('const value = els.promptFidelity?.value || "strict";', script)
+        self.assertIn('const value = els.promptFidelity?.value || "off";', script)
         self.assertIn("updateModeSpecificSettings();", script)
         self.assertRegex(styles, r"\.api-direct-settings-notice\s*\{[^}]*min-height:\s*60px")
         self.assertRegex(styles, r"\.api-direct-settings-control\s*\{[^}]*height:\s*36px")

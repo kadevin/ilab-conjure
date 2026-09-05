@@ -24515,7 +24515,7 @@
       els6.outputFormat.value = "png";
       els6.moderation.value = "auto";
       els6.compression.value = "80";
-      if (els6.promptFidelity) els6.promptFidelity.value = "strict";
+      if (els6.promptFidelity) els6.promptFidelity.value = "off";
       if (els6.webSearch) els6.webSearch.checked = false;
       [els6.nInput, els6.resolution, els6.ratio, els6.orientation, els6.quality, els6.outputFormat, els6.moderation, els6.promptFidelity, els6.webSearch].forEach((sel) => {
         if (sel) sel.dispatchEvent(new Event("change"));

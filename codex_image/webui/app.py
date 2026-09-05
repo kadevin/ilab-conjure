@@ -206,7 +206,7 @@ AuthChecker = Callable[[], bool]
 DEFAULT_IMAGE_REQUEST_TIMEOUT_SECONDS = 600.0
 EVENT_STREAM_CHECK_INTERVAL_SECONDS = 1.0
 PROMPT_FIDELITY_MODES = {"strict", "original", "off"}
-DEFAULT_PROMPT_FIDELITY = "strict"
+DEFAULT_PROMPT_FIDELITY = "off"
 
 
 class NoCacheStaticFiles(StaticFiles):

@@ -147,14 +147,14 @@ http://127.0.0.1:8787/
 ## 应用包下载
 
 当前可用的标准包和一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.8.4](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.4)。
+[GitHub Release v0.8.5](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.5)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.4.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.5.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.5.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.4.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.5.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的
@@ -222,8 +222,8 @@ GitHub Release。对于已经通过 CI 的 tag，也可以手动运行同一个 
    稳定或共享使用建议选择 `API`，也就是 OpenAI-compatible API 模式。
 2. 打开系统设置维护 API 供应商卡片、网络出口、界面语言、存储目录和通知偏好。
 3. 添加参考图：支持上传、拖拽、粘贴、最近上传和公用图库。
-4. 编写提示词：可直接输入文本，也可插入图库、颜色和片段 chip，并选择原始、
-   保真或创意提示词模式。
+4. 编写提示词：可直接输入文本，也可插入图库、颜色和片段 chip，并选择原文、
+   保真或自动提示词处理模式，默认为自动。
 5. 设置数量、尺寸、方向、质量、输出格式和压缩率。
 6. 点击开始生成后，在左侧任务列表查看运行中和排队任务，在右侧预览区查看、
    精选、重试、下载、打包或归档结果；完整历史在 `/history` 中搜索和筛选。

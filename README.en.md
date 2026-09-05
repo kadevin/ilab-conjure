@@ -200,15 +200,15 @@ http://127.0.0.1:8787/
 ## App packages
 
 Download the current packages from [Downloads / Releases](RELEASES.md), or open
-[GitHub Release v0.8.4](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.4)
+[GitHub Release v0.8.5](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.5)
 directly.
 
 New users should choose the standard packages:
 
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.4.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.4.dmg`
+1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.8.5.dmg`
+   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.8.5.dmg`
    for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.4.zip`,
+2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.8.5.zip`,
    extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
 
 Standard packages store user data in `~/Library/Application Support/iLab GPT
@@ -295,7 +295,7 @@ commit that already passed CI, the same workflow can also be run manually with
 3. Add reference images by upload, drag-and-drop, paste, recent uploads, or the
    public gallery.
 4. Write the prompt directly, insert gallery/color/snippet chips when useful,
-   and choose the prompt mode: original, fidelity, or creative.
+   and choose the prompt processing mode: original, fidelity, or automatic (the default).
 5. Set image count, size, orientation, quality, output format, and compression.
    Selected aspect ratios are also appended to the model prompt as an explicit
    instruction, for example `将宽高比设为 16:9`, so Responses-channel or API

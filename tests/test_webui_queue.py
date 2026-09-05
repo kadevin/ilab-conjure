@@ -929,7 +929,7 @@ raise SystemExit(1)
                 auto_start_queue=False,
             )
             client = TestClient(app)
-            client.post("/api/generate", data={"prompt": prompt, "size": "1024x1024", "quality": "low", "codex_mode": "responses"})
+            client.post("/api/generate", data={"prompt": prompt, "size": "1024x1024", "quality": "low", "codex_mode": "responses", "prompt_fidelity": "strict"})
 
             asyncio.run(app.state.queue_manager.run_available_once())
 

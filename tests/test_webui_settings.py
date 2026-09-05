@@ -1020,7 +1020,7 @@ class WebUISettingsTests(unittest.TestCase):
 
             response = client.post(
                 "/api/generate",
-                data={"prompt": "文案标题设计偏儿童Q版卡通化", "main_model": "gpt-5.5", "size": "1024x1024", "quality": "low"},
+                data={"prompt": "文案标题设计偏儿童Q版卡通化", "main_model": "gpt-5.5", "size": "1024x1024", "quality": "low", "prompt_fidelity": "strict"},
             )
             body = response.json()
 

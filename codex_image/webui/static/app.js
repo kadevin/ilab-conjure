@@ -45328,8 +45328,8 @@ ${galleryText}`;
   }
   function currentPromptFidelity() {
     if (!supportsGptPromptProcessing()) return "off";
-    const value = els20.promptFidelity?.value || "strict";
-    return ["strict", "original", "off"].includes(value) ? value : "strict";
+    const value = els20.promptFidelity?.value || "off";
+    return ["strict", "original", "off"].includes(value) ? value : "off";
   }
   function supportsGptPromptProcessing() {
     const { state: state33 } = getLegacyBridge();
@@ -45403,7 +45403,7 @@ ${galleryText}`;
   }
   function currentPromptFidelity2() {
     const value = document.querySelector("#promptFidelity")?.value;
-    return value === "original" || value === "off" ? value : "strict";
+    return value === "original" || value === "strict" ? value : "off";
   }
   function ensurePromptFidelityHelpPopover() {
     if (promptFidelityHelpPopover?.isConnected) return promptFidelityHelpPopover;
@@ -45789,6 +45789,7 @@ ${galleryText}`;
   // codex_image/webui/frontend/src/main-model-combobox.ts
   var DEFAULT_MAIN_MODEL = "gpt-5.4-mini";
   var MAIN_MODEL_OPTIONS = [
+    "gpt-6-astra",
     "gpt-5.6-sol",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
@@ -55962,7 +55963,7 @@ ${galleryText}`;
       els42.outputFormat.value = "png";
       els42.moderation.value = "auto";
       els42.compression.value = "80";
-      if (els42.promptFidelity) els42.promptFidelity.value = "strict";
+      if (els42.promptFidelity) els42.promptFidelity.value = "off";
       if (els42.webSearch) els42.webSearch.checked = false;
       [els42.nInput, els42.resolution, els42.ratio, els42.orientation, els42.quality, els42.outputFormat, els42.moderation, els42.promptFidelity, els42.webSearch].forEach((sel) => {
         if (sel) sel.dispatchEvent(new Event("change"));
