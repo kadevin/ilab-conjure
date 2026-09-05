@@ -85,6 +85,11 @@ Images API 或 Responses API 形态。
 稳定集成、团队使用、共享工作站或可能公开提供服务的场景，应使用 API 模式。
 你可以在 WebUI 中配置 Base URL、API Key、模型名和调用方式。
 
+Atlas Cloud 使用异步图片任务接口，并非 OpenAI Images 原始报文格式。使用 GPT Image 2
+时，新增 API 供应商，将 Base URL 设置为 `https://api.atlascloud.ai`，协议选择
+`OpenAI Images`、兼容层选择 `Atlas Cloud`，远端模型填写 `openai/gpt-image-2`。
+适配器会根据生成或编辑操作自动选择模型，并轮询 Atlas 任务直至图片就绪。
+
 ### 高级本机模式：Codex / ChatGPT OAuth
 
 本项目可选复用本机 Codex / ChatGPT OAuth 登录态，调用 ChatGPT 内部后端接口。

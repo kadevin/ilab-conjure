@@ -133,6 +133,13 @@ Use this mode for stable integrations, shared workstations, team deployments, or
 anything that may become a public service. Configure the provider in the WebUI
 with a base URL, API key, model name, and API mode.
 
+Atlas Cloud uses an asynchronous image API rather than the OpenAI Images wire
+format. To use it with GPT Image 2, add an API provider with base URL
+`https://api.atlascloud.ai`, choose `OpenAI Images` plus the `Atlas Cloud`
+compatibility layer, and set the remote model to `openai/gpt-image-2`. The
+adapter selects the generation or edit model automatically and polls the Atlas
+prediction until the image is ready.
+
 ### Advanced local mode: Codex / ChatGPT OAuth
 
 This project can optionally reuse a local Codex / ChatGPT OAuth session to call

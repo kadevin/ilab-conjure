@@ -22,6 +22,7 @@ CODEC_CAPABILITIES = {
         CodecCapability("gpt_codex_responses", frozenset({"codex_responses"}), GPT_PARAMETER_IDS),
         CodecCapability("gpt_openai_images", frozenset({"openai_images"}), GPT_PARAMETER_IDS),
         CodecCapability("gpt_openai_responses", frozenset({"openai_responses"}), GPT_PARAMETER_IDS),
+        CodecCapability("gpt_atlascloud_images", frozenset({"atlascloud_images"}), GPT_PARAMETER_IDS),
         CodecCapability(
             "gemini_interactions_image", frozenset({"gemini_interactions"}), _GEMINI_PARAMETERS
         ),

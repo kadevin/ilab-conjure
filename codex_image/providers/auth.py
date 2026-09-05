@@ -15,6 +15,7 @@ _AUTH_BY_PROTOCOL: dict[str, AuthScheme] = {
     "gemini_change2pro_generate_content": "x-goog-api-key",
     "t8_images": "bearer",
     "openrouter_images": "bearer",
+    "atlascloud_images": "bearer",
 }
 
 

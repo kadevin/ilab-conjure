@@ -36,6 +36,7 @@ def default_registry(
 ) -> ProviderRegistry:
     from .codex import CodexImagesAdapter, CodexResponsesAdapter
     from .codecs import (
+        GptAtlasCloudImagesCodec,
         GeminiGenerateContentImageCodec,
         GeminiGenerateContentImageConfigCodec,
         GeminiOpenAIImagesCodec,
@@ -47,6 +48,7 @@ def default_registry(
         GptOpenAIResponsesCodec,
     )
     from .gemini import Change2ProGeminiAdapter, GeminiGenerateContentAdapter
+    from .atlascloud import AtlasCloudImagesAdapter
     from .openai import OpenAIImagesAdapter, OpenAIResponsesAdapter
     from .t8 import T8ImagesAdapter
 
@@ -68,6 +70,7 @@ def default_registry(
             "gemini_change2pro_generate_content": Change2ProGeminiAdapter(transport=transport),
             "t8_images": T8ImagesAdapter(transport=transport),
             "openrouter_images": OpenAIImagesAdapter(transport=transport),
+            "atlascloud_images": AtlasCloudImagesAdapter(transport=transport),
         },
         codecs={
             "gpt_codex_images": GptCodexImagesCodec(),
@@ -79,6 +82,7 @@ def default_registry(
             "gemini_openai_images": GeminiOpenAIImagesCodec(),
             "gemini_t8_images": GeminiT8ImagesCodec(),
             "gemini_openrouter_images": GeminiOpenRouterImagesCodec(),
+            "gpt_atlascloud_images": GptAtlasCloudImagesCodec(),
         },
     )
 

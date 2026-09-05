@@ -163,3 +163,68 @@ class GptOpenAIResponsesCodec(_GptCodec):
             json_body=payload,
             repeat_count=int(command.parameters.get("output.count", 1)),
         )
+
+
+class GptAtlasCloudImagesCodec(_GptCodec):
+    def encode(
+        self,
+        command: GenerationCommand,
+        model: ModelManifest,
+        binding: ProviderModelBinding,
+    ) -> ProtocolRequest:
+        del model
+        params = gpt_image_parameters(command)
+        if command.mask_image:
+            raise ValueError("Atlas Cloud GPT Image does not support mask inputs")
+        if command.reference_files:
+            raise ValueError("Atlas Cloud GPT Image does not support reference files")
+        if params["background"] == "transparent":
+            raise ValueError(
+                "Atlas Cloud GPT Image does not support transparent backgrounds"
+            )
+        if params["output_format"] == "webp":
+            raise ValueError("Atlas Cloud GPT Image supports PNG or JPEG output")
+        if params["output_compression"] not in (None, 80):
+            raise ValueError(
+                "Atlas Cloud GPT Image does not support output compression"
+            )
+        if params["input_fidelity"] not in (None, "low"):
+            raise ValueError(
+                "Atlas Cloud GPT Image does not support input fidelity controls"
+            )
+        if params["web_search"]:
+            raise ValueError("Atlas Cloud GPT Image does not support web search")
+
+        model_id = binding.remote_model_id
+        for suffix in ("/text-to-image", "/edit"):
+            if model_id.endswith(suffix):
+                model_id = model_id[: -len(suffix)]
+                break
+        model_id += "/edit" if command.operation == "edit" else "/text-to-image"
+        body: dict[str, Any] = {
+            "model": model_id,
+            "prompt": command.prompt,
+            "size": params["size"],
+            "output_format": params["output_format"],
+        }
+        if params["quality"] not in (None, "auto"):
+            body["quality"] = params["quality"]
+        if params["moderation"] not in (None, "auto"):
+            body["moderation"] = params["moderation"]
+        if command.operation == "edit":
+            if not command.image_inputs:
+                raise ValueError(
+                    "Atlas Cloud GPT Image edit requires at least one input image"
+                )
+            if len(command.image_inputs) > 10:
+                raise ValueError(
+                    "Atlas Cloud GPT Image edit supports at most 10 input images"
+                )
+            body["images"] = [image.data_url for image in command.image_inputs]
+        return ProtocolRequest(
+            method="POST",
+            path="/api/v1/model/generateImage",
+            content_type="application/json",
+            json_body=body,
+            repeat_count=int(params["n"] or 1),
+        )

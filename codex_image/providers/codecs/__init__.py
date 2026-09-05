@@ -1,4 +1,5 @@
 from .gpt_image import (
+    GptAtlasCloudImagesCodec,
     GptCodexImagesCodec,
     GptCodexResponsesCodec,
     GptOpenAIImagesCodec,
@@ -14,6 +15,7 @@ from .gemini_image import (
 )
 
 __all__ = (
+    "GptAtlasCloudImagesCodec",
     "GptCodexImagesCodec",
     "GptCodexResponsesCodec",
     "GptOpenAIImagesCodec",
