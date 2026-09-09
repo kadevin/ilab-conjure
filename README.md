@@ -50,6 +50,8 @@ Images API 或 Responses API 形态。
 
 标准包和过渡期免安装一键包下载见 [下载 / Releases](RELEASES.md)。
 
+Codex Responses 的默认主模型为 `gpt-5.6-luna`；已保存的主模型选择继续保留。若仍保存了已退役的 `gpt-5.4-mini`，请在主模型输入框中切换为 `gpt-5.6-luna`。Image 直连通道不使用主模型。
+
 ## 功能
 
 - 在同一模型目录中使用 GPT Image 与 Gemini，覆盖文生图及模型支持的参考图生成、图像编辑工作流。

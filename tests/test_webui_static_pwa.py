@@ -86,11 +86,11 @@ class WebUIPWATests(unittest.TestCase):
         self.assertTrue(worker_path.exists())
         source = worker_path.read_text(encoding="utf-8")
 
-        self.assertIn('const CACHE_NAME = "ilab-conjure-shell-v268";', source)
+        self.assertIn('const CACHE_NAME = "ilab-conjure-shell-v270";', source)
         self.assertIn('"/"', source)
         self.assertIn('"/history"', source)
         self.assertIn('"/manifest.webmanifest"', source)
-        self.assertIn('"/static/app.js?v=runtime-788"', source)
+        self.assertIn('"/static/app.js?v=runtime-791"', source)
         self.assertIn('"/static/history.js?v=history-114"', source)
         self.assertIn('"/static/styles.css?v=runtime-789"', source)
         self.assertIn("request.mode === \"navigate\"", source)

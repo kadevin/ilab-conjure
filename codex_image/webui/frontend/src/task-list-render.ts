@@ -143,7 +143,6 @@ function renderTasks(options: { preserveScroll?: boolean; appendGroupKey?: strin
   }
   state.tasksRenderKey = nextRenderKey;
   renderTaskHistoryAnchors(layout);
-  renderHistoryLibraryGroup(tasks, query);
   const activeHtml = activeGroup ? activeTaskGroupHtml(activeGroup) : "";
   renderActiveTaskGroup(activeHtml);
 
@@ -241,13 +240,6 @@ function restoreTaskListScrollAnchor(anchor: TaskListScrollAnchor | null): void 
     anchor.scroller.scrollTop = anchor.scrollTop;
   };
   restore();
-}
-
-function renderHistoryLibraryGroup(tasks: any[], query: string) {
-  if (!els.taskHistoryLibrarySlot) return;
-  const html = historyLibraryGroup(tasks, query);
-  els.taskHistoryLibrarySlot.innerHTML = html;
-  els.taskHistoryLibrarySlot.classList.toggle("hidden", !html);
 }
 
 function applyActiveTaskGroupHtml(activeHtml: string) {
@@ -1037,17 +1029,6 @@ function taskHistoryGroups(tasks: any, query: any) {
   });
 
   return groups;
-}
-
-function historyLibraryGroup(tasks: any[], query: string) {
-  if (query) return "";
-  if (!tasks.some((task: any) => !isAlwaysVisibleTask(task))) return "";
-  return `
-    <a class="task-history-library-card" href="/history">
-      <span>${escapeHtml(translate("footer.historyLibrary"))}</span>
-      <small>${escapeHtml(translate("historyLibrary.openFull"))}</small>
-    </a>
-  `;
 }
 
 function isAlwaysVisibleTask(task: any) {

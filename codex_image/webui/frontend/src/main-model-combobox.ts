@@ -2,7 +2,7 @@ import { getLegacyBridge } from "./state";
 import { updateRequestPreview } from "./output-controls";
 import { translate } from "./i18n";
 
-export const DEFAULT_MAIN_MODEL = "gpt-5.4-mini";
+export const DEFAULT_MAIN_MODEL = "gpt-5.6-luna";
 export const MAIN_MODEL_OPTIONS = [
   "gpt-6-astra",
   "gpt-5.6-sol",

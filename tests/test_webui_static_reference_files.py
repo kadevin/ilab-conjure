@@ -354,8 +354,8 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         self.assertIn("runtime-789", index)
         self.assertIn("runtime-789", history)
         self.assertIn("history-114", history)
-        self.assertIn('ilab-conjure-shell-v268', worker)
-        self.assertIn('/static/app.js?v=runtime-788', worker)
+        self.assertIn('ilab-conjure-shell-v270', worker)
+        self.assertIn('/static/app.js?v=runtime-791', worker)
         self.assertIn('/static/styles.css?v=runtime-789', worker)
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:

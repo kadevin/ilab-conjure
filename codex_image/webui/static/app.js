@@ -45787,7 +45787,7 @@ ${galleryText}`;
   }
 
   // codex_image/webui/frontend/src/main-model-combobox.ts
-  var DEFAULT_MAIN_MODEL = "gpt-5.4-mini";
+  var DEFAULT_MAIN_MODEL = "gpt-5.6-luna";
   var MAIN_MODEL_OPTIONS = [
     "gpt-6-astra",
     "gpt-5.6-sol",
@@ -46672,12 +46672,12 @@ ${galleryText}`;
       closeMainModelCombobox();
     });
     [els27.resolution, els27.ratio, els27.orientation].filter(Boolean).forEach((element2) => {
-      element2.addEventListener("input", () => {
-        updateSizeFromPreset();
+      element2.addEventListener("input", (event) => {
+        updateSizeFromPreset(event);
         saveCurrentModelParameterDraft();
       });
-      element2.addEventListener("change", () => {
-        updateSizeFromPreset();
+      element2.addEventListener("change", (event) => {
+        updateSizeFromPreset(event);
         saveCurrentModelParameterDraft();
       });
     });
@@ -47734,7 +47734,6 @@ ${galleryText}`;
     }
     state19.tasksRenderKey = nextRenderKey;
     renderTaskHistoryAnchors(layout);
-    renderHistoryLibraryGroup(tasks, query);
     const activeHtml = activeGroup ? activeTaskGroupHtml(activeGroup) : "";
     renderActiveTaskGroup(activeHtml);
     if (!tasks.length) {
@@ -47822,12 +47821,6 @@ ${galleryText}`;
       anchor.scroller.scrollTop = anchor.scrollTop;
     };
     restore();
-  }
-  function renderHistoryLibraryGroup(tasks, query) {
-    if (!els28.taskHistoryLibrarySlot) return;
-    const html = historyLibraryGroup(tasks, query);
-    els28.taskHistoryLibrarySlot.innerHTML = html;
-    els28.taskHistoryLibrarySlot.classList.toggle("hidden", !html);
   }
   function applyActiveTaskGroupHtml(activeHtml) {
     if (!els28.taskActiveList) return;
@@ -48520,16 +48513,6 @@ ${galleryText}`;
       );
     });
     return groups;
-  }
-  function historyLibraryGroup(tasks, query) {
-    if (query) return "";
-    if (!tasks.some((task) => !isAlwaysVisibleTask(task))) return "";
-    return `
-    <a class="task-history-library-card" href="/history">
-      <span>${escapeHtml14(translate("footer.historyLibrary"))}</span>
-      <small>${escapeHtml14(translate("historyLibrary.openFull"))}</small>
-    </a>
-  `;
   }
   function isAlwaysVisibleTask(task) {
     const status = String(task?.status || "");

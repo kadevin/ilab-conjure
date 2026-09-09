@@ -1228,7 +1228,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-788', html)
+        self.assertIn('/static/app.js?v=runtime-791', html)
         self.assertIn('/static/styles.css?v=runtime-789', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
@@ -1236,13 +1236,13 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn("mainModelOptions: document.querySelector", script)
         self.assertIn("mainModelShowAllOptions: false", script)
         self.assertIn('"gpt-6-astra",', script)
-        self.assertLess(script.index('"gpt-6-astra"'), script.index('"gpt-5.6-sol"'))
+        self.assertLess(script.index('"gpt-6-astra",'), script.index('"gpt-5.6-sol",'))
         self.assertIn('"gpt-5.6-sol",', script)
         self.assertIn('"gpt-5.6-terra",', script)
         self.assertIn('"gpt-5.6-luna",', script)
-        self.assertLess(script.index('"gpt-5.6-sol"'), script.index('"gpt-5.6-terra"'))
-        self.assertLess(script.index('"gpt-5.6-terra"'), script.index('"gpt-5.6-luna"'))
-        self.assertLess(script.index('"gpt-5.6-luna"'), script.index('"gpt-5.5"'))
+        self.assertLess(script.index('"gpt-5.6-sol",'), script.index('"gpt-5.6-terra",'))
+        self.assertLess(script.index('"gpt-5.6-terra",'), script.index('"gpt-5.6-luna",'))
+        self.assertLess(script.index('"gpt-5.6-luna",'), script.index('"gpt-5.5",'))
         self.assertIn('const RETIRED_MAIN_MODEL_OPTIONS = new Set(["gpt-5.3-codex-spark"]);', script)
         self.assertIn("function mainModelOptionsForQuery", script)
         self.assertIn("function openMainModelCombobox", script)
@@ -1312,7 +1312,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         script = Path("codex_image/webui/frontend/src/main-model-combobox.ts").read_text(encoding="utf-8")
         harness = "\n".join(
             [
-                'const DEFAULT_MAIN_MODEL = "gpt-5.4-mini";',
+                re.search(r'export (const DEFAULT_MAIN_MODEL = [^;]+;)', script).group(1),
                 'const MAIN_MODEL_STORAGE_KEY = "codex-image-main-model";',
                 'const RETIRED_MAIN_MODEL_OPTIONS = new Set(["gpt-5.3-codex-spark"]);',
                 """
@@ -1336,6 +1336,16 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
                 }
                 if (renderCount !== 1) {
                   throw new Error(`expected options render once, got ${renderCount}`);
+                }
+                delete storedValues[MAIN_MODEL_STORAGE_KEY];
+                restoreMainModel();
+                if (els.mainModel.value !== "gpt-5.6-luna") {
+                  throw new Error("new users must default to Luna");
+                }
+                for (const model of ["gpt-5.4-mini", "provider-custom-model"]) {
+                  storedValues[MAIN_MODEL_STORAGE_KEY] = model;
+                  restoreMainModel();
+                  if (els.mainModel.value !== model) throw new Error("saved model must survive");
                 }
                 storedValues[MAIN_MODEL_STORAGE_KEY] = "gpt-6-astra";
                 restoreMainModel();
