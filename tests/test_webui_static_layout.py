@@ -704,7 +704,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-788', html)
+        self.assertIn('/static/app.js?v=runtime-793', html)
         self.assertIn('/static/styles.css?v=runtime-789', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
@@ -2882,6 +2882,51 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         for label_html in re.findall(r"<label\b[\s\S]*?</label>", html):
             self.assertNotIn('class="radio-group"', label_html)
             self.assertNotIn('class="radio-btn"', label_html)
+    def test_orientation_events_preserve_requested_direction(self) -> None:
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("node is required")
+        controls = Path("codex_image/webui/frontend/src/form-controls.ts").read_text()
+        start = controls.index("  [els.resolution, els.ratio, els.orientation]")
+        end = controls.index("  [els.customRatioWidth", start)
+        listeners = controls[start:end].replace(": any", "").replace(": Event", "")
+        source = Path("codex_image/webui/frontend/src/custom-size-controls.ts").read_text()
+        functions = [self._extract_javascript_function(source, name) for name in (
+            "updateSizeFromPreset", "sizeControlName", "syncRatioAndOrientation",
+            "syncOrientationFromRatio", "syncRatioFromOrientation", "setSizeControlValue",
+        )]
+        harness = """
+        class Control extends EventTarget { constructor(value) { super(); this.value = value; } }
+        const els = {resolution:new Control('1K'), ratio:new Control('9:16'),
+          orientation:new Control('portrait'), size:new Control('864x1536')};
+        const DEFAULT_RESOLUTION='1K', DEFAULT_RATIO='1:1', DEFAULT_ORIENTATION='square';
+        const GPT_IMAGE_2_SIZE_PRESETS={'1K':{},'2K':{}};
+        const RATIO_ORIENTATION={'1:1':'square','9:16':'portrait','16:9':'landscape'};
+        const RATIO_COUNTERPARTS={'9:16':'16:9','16:9':'9:16'};
+        const ORIENTATION_DEFAULT_RATIOS={square:'1:1',portrait:'9:16',landscape:'16:9'};
+        function sizeForPreset(res,ratio) { return res + '/' + ratio; }
+        function updatePixelPreview() {} function updateCustomSize() {}
+        function updateRequestPreview() {} function saveCurrentModelParameterDraft() {}
+        """ + "\n".join(functions) + listeners + """
+        for (const type of ['input','change']) {
+          for (const direction of ['landscape','portrait','square','landscape']) {
+            els.orientation.value=direction;
+            els.orientation.dispatchEvent(new Event(type));
+            if (els.orientation.value !== direction || RATIO_ORIENTATION[els.ratio.value] !== direction)
+              throw new Error(type + ': orientation reverted from ' + direction);
+            if (els.size.value !== sizeForPreset(els.resolution.value,els.ratio.value))
+              throw new Error('size is stale');
+          }
+          els.ratio.value='9:16'; els.ratio.dispatchEvent(new Event(type));
+          if (els.orientation.value !== 'portrait') throw new Error('ratio must set orientation');
+          els.resolution.value='2K'; els.resolution.dispatchEvent(new Event(type));
+          if (els.orientation.value !== 'portrait' || els.ratio.value !== '9:16')
+            throw new Error('resolution must preserve direction and ratio');
+        }
+        """
+        result = subprocess.run([node, "-e", harness], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_resolution_and_orientation_use_button_groups(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
@@ -3738,7 +3783,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-788', html)
+        self.assertIn('/static/app.js?v=runtime-793', html)
         self.assertIn('/static/styles.css?v=runtime-789', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
@@ -4190,7 +4235,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-788", html)
+        self.assertIn("/static/app.js?v=runtime-793", html)
         self.assertIn("/static/styles.css?v=runtime-789", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 class FakeEventTarget {
@@ -129,6 +130,10 @@ function flushAnimationFrames(): void {
 const { initTaskListControlsFeature } = await import(
   "../../codex_image/webui/frontend/src/task-list-controls"
 );
+const { isQueueDispatchPending } = await import(
+  "../../codex_image/webui/frontend/src/queue"
+);
+bridge.methods.isQueueDispatchPending = isQueueDispatchPending;
 initTaskListControlsFeature();
 bridge.methods.bindTaskListEvents();
 
@@ -483,3 +488,60 @@ test("a fully loaded group stays terminal when filters hide most loaded tasks", 
 
   assert.equal(insertedHtml.join(""), "");
 });
+
+for (const scenario of [
+  { name: "there are no recent tasks", tasks: [], query: "", status: "" },
+  {
+    name: "only running and queued tasks remain",
+    tasks: [
+      { task_id: "running-task", status: "running" },
+      { task_id: "queued-task", status: "queued" },
+    ],
+    query: "",
+    status: "",
+  },
+  {
+    name: "search has no results",
+    tasks: [{ task_id: "completed-task", status: "completed" }],
+    query: "no matching task",
+    status: "",
+  },
+  {
+    name: "filters hide every recent task",
+    tasks: [{ task_id: "completed-task", status: "completed" }],
+    query: "",
+    status: "failed",
+  },
+]) {
+  test(`the history library link remains available when ${scenario.name}`, () => {
+    const html = readFileSync("codex_image/webui/static/index.html", "utf8");
+    const slot = html.match(/<div id="taskHistoryLibrarySlot" class="([^"]*)">([\s\S]*?)<\/div>/);
+    assert.ok(slot, "the sidebar provides a history navigation slot");
+    const classes = new Set(slot[1].split(/\s+/));
+    const historySlot = {
+      innerHTML: slot[2],
+      classList: {
+        toggle(name: string, force: boolean) {
+          if (force) classes.add(name);
+          else classes.delete(name);
+        },
+      },
+    };
+    bridge.els.taskHistoryLibrarySlot = historySlot;
+    bridge.els.taskStatusFilter = { value: scenario.status };
+    taskList.expandedBody = null;
+    Object.assign(state, {
+      tasks: scenario.tasks,
+      taskSearchQuery: scenario.query,
+      taskSidebarGroupCounts: {},
+      taskSidebarGroupLoadedCounts: {},
+      tasksRenderKey: null,
+    });
+
+    bridge.methods.renderTasks();
+    flushAnimationFrames();
+
+    assert.match(historySlot.innerHTML, /<a\b[^>]*href="\/history"/);
+    assert.equal(classes.has("hidden"), false);
+  });
+}

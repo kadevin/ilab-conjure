@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 
@@ -163,7 +164,7 @@ export function buildOutputSettingsSummaryModel(
   snapshot: OutputSettingsSnapshot,
   context: OutputSettingsSummaryContext,
 ): OutputSettingsSummaryModel {
-  const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+  const gptImage = isGptImageModel(snapshot.canonical_model_id);
   const geminiImage = snapshot.canonical_model_id.startsWith("nano-banana");
   const details: SummaryDetail[] = [];
   if (gptImage) {
@@ -274,7 +275,7 @@ function snapshotFromCurrentSelection(): OutputSettingsSnapshot {
   const bridge = getLegacyBridge();
   const legacy = legacyMethod("currentTaskParams");
   const model = bridge.state.generationCatalog?.models.find((item: any) => item.id === bridge.state.selectedModelId);
-    const parameters = model && model.id !== "gpt-image-2" && typeof bridge.methods.activeParameterValues === "function"
+    const parameters = model && !isGptImageModel(model.id) && typeof bridge.methods.activeParameterValues === "function"
     ? bridge.methods.activeParameterValues(model)
     : typeof bridge.methods.currentCanonicalParameters === "function"
       ? bridge.methods.currentCanonicalParameters()

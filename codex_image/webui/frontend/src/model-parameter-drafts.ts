@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 import type { CatalogModel, CatalogParameterDefinition, GenerationOperation } from "./types";
 import { selectedProviderBinding } from "./provider-selection";
 import { getLegacyBridge } from "./state";
@@ -106,7 +107,7 @@ export function saveCurrentModelParameterDraft(): void {
   const { state, methods } = getLegacyBridge();
   const model = state.generationCatalog?.models.find((item) => item.id === state.selectedModelId);
   if (!model || typeof methods.currentTaskParams !== "function") return;
-  if (model.id !== "gpt-image-2") {
+  if (!isGptImageModel(model.id)) {
     methods.persistModelSelection?.();
     return;
   }
@@ -124,7 +125,7 @@ export function restoreCurrentModelParameterDraft(): void {
   const modelId = state.selectedModelId || "";
   const model = state.generationCatalog?.models.find((item) => item.id === modelId);
   if (!model) return;
-  if (model.id !== "gpt-image-2") {
+  if (!isGptImageModel(model.id)) {
     renderCurrentModelParameters();
     return;
   }

@@ -315,7 +315,12 @@
             aria-label="底部时间导航"
             data-i18n-attr="aria-label:sidebar.bottomAnchors"
           ></div>
-          <div id="taskHistoryLibrarySlot" class="task-history-library-slot hidden"></div>
+          <div id="taskHistoryLibrarySlot" class="task-history-library-slot">
+            <a class="task-history-library-card" href="/history">
+              <span data-i18n="footer.historyLibrary">历史库</span>
+              <small data-i18n="historyLibrary.openFull">打开完整历史库</small>
+            </a>
+          </div>
         </div>
 
         <div class="sidebar-footer">
@@ -623,7 +628,7 @@
                             id="mainModel"
                             class="control model-combobox-input"
                             type="text"
-                            value="gpt-5.4-mini"
+                            value="gpt-5.6-luna"
                             autocomplete="off"
                             aria-autocomplete="list"
                             aria-controls="mainModelOptions"
@@ -1607,7 +1612,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-788"></script>
+  <script src="/static/app.js?v=runtime-793"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

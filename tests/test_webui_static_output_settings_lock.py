@@ -39,6 +39,14 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
             vm.runInNewContext(code, {{
               module, exports: module.exports, console,
               require(name) {{
+                if (name === "./gpt-image-models") {{
+                  const helper = {{ exports: {{}} }};
+                  const helperCode = ts.transpileModule(fs.readFileSync({str(module_path.parent / "gpt-image-models.ts")!r}, "utf8"), {{
+                    compilerOptions: {{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }},
+                  }}).outputText;
+                  vm.runInNewContext(helperCode, {{ module: helper, exports: helper.exports }});
+                  return helper.exports;
+                }}
                 if (name === "./i18n") return {{ LOCALE_CHANGE_EVENT: "locale-change", translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => {{ throw new Error("bridge must not be used by pure model tests"); }} }};
                 throw new Error(`unexpected require: ${{name}}`);
@@ -164,7 +172,7 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertIn("export function buildOutputSettingsSummaryModel", source)
         self.assertIn("currentCodexMode", source)
         self.assertIn("currentApiMode", source)
-        self.assertIn('model && model.id !== "gpt-image-2"', source)
+        self.assertIn('model && !isGptImageModel(model.id)', source)
         self.assertIn("bridge.methods.activeParameterValues(model)", source)
         self.assertIn("codex-image-output-settings-lock-v1", source)
         self.assertNotIn("data-output-settings-channel", source)

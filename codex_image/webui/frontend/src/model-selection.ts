@@ -142,9 +142,16 @@ export function renderModelSelectors(): void {
     });
   }
   if (modelSelect && selectedFamily) {
-    const familyModels = modelsForFamily(catalog, selectedFamily.id);
-    const expanded = usesExpandedConcreteModelOptions(familyModels);
-    modelField?.classList.toggle("hidden", !expanded);
+    const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => (
+      selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2"
+      || model.id === state.selectedModelId
+      || catalog.providers.some((provider) => provider.bindings.some((binding) => (
+        binding.canonical_model_id === model.id && binding.operations.includes(state.mode)
+      )))
+    ));
+    const gptVersions = selectedFamily.id === "gpt-image";
+    const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
+    modelField?.classList.toggle("hidden", gptVersions ? familyModels.length < 2 : !expanded);
     modelSelect.replaceChildren();
     familyModels.forEach((model) => {
       const option = document.createElement("option");

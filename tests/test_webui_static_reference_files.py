@@ -353,9 +353,9 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         worker = (ROOT / "codex_image/webui/static/service-worker.js").read_text(encoding="utf-8")
         self.assertIn("runtime-789", index)
         self.assertIn("runtime-789", history)
-        self.assertIn("history-114", history)
-        self.assertIn('ilab-conjure-shell-v268', worker)
-        self.assertIn('/static/app.js?v=runtime-788', worker)
+        self.assertIn("history-116", history)
+        self.assertIn('ilab-conjure-shell-v272', worker)
+        self.assertIn('/static/app.js?v=runtime-793', worker)
         self.assertIn('/static/styles.css?v=runtime-789', worker)
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:
