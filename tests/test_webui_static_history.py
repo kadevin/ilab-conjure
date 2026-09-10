@@ -1710,7 +1710,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('data-i18n-attr="aria-label:history.resizeFilters"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeDetail"', html)
         self.assertIn('/static/styles.css?v=runtime-789', html)
-        self.assertIn('/static/history.js?v=history-114', html)
+        self.assertIn('/static/history.js?v=history-116', html)
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*height:\s*100dvh")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*--history-sidebar-width:\s*280px")

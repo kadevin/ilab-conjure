@@ -50,7 +50,9 @@ Images API 或 Responses API 形态。
 
 标准包和过渡期免安装一键包下载见 [下载 / Releases](RELEASES.md)。
 
-Codex Responses 的默认主模型为 `gpt-5.6-luna`；已保存的主模型选择继续保留。若仍保存了已退役的 `gpt-5.4-mini`，请在主模型输入框中切换为 `gpt-5.6-luna`。Image 直连通道不使用主模型。
+Codex Responses 的默认主模型为 `gpt-5.6-luna`；已保存的主模型选择继续保留。若仍保存了`gpt-5.4-mini`，请在主模型输入框中切换为 `gpt-5.6-luna`。Image 直连通道不使用主模型。
+
+API 中转站可分别绑定 GPT Image 2、GPT Image 2.5 Flare 和 Sunburst，并自定义远端模型名。各版本共用 GPT Image 输出参数；配置多个版本后，生成页显示紧凑的版本选择框。现有 Image 2 绑定不会自动升级，Codex 通道仍保持 Image 2；历史任务保留所选版本、供应商和远端模型名。
 
 ## 功能
 
@@ -149,14 +151,14 @@ http://127.0.0.1:8787/
 ## 应用包下载
 
 当前可用的标准包和一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.8.5](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.5)。
+[GitHub Release v0.8.6](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.6)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.5.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.5.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.6.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.6.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.5.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.6.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的

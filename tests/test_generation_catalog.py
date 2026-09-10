@@ -21,11 +21,52 @@ class GenerationCatalogTests(unittest.TestCase):
             {model.id for model in list_model_manifests()},
             {
                 "gpt-image-2",
+                "gpt-image-2.5-flare",
+                "gpt-image-2.5-sunburst",
                 "nano-banana-pro",
                 "nano-banana-2",
                 "nano-banana-2-lite",
             },
         )
+
+    def test_gpt_image_versions_share_parameters_without_changing_legacy_model(self) -> None:
+        original = get_model_manifest("gpt-image-2")
+        for model_id in ("gpt-image-2.5-flare", "gpt-image-2.5-sunburst"):
+            model = get_model_manifest(model_id)
+            self.assertIs(model.parameters, original.parameters)
+            self.assertEqual(model.family_id, "gpt-image")
+            self.assertEqual(model.official_model_id, model_id)
+            self.assertEqual(model.input_constraints, original.input_constraints)
+        self.assertEqual(original.official_model_id, "gpt-image-2")
+
+    def test_image_25_protocols_keep_remote_mapping_and_snapshot_identity(self) -> None:
+        from codex_image.generation.types import GenerationCommand
+        from codex_image.generation.snapshot import generation_snapshot
+        from codex_image.providers.contracts import ProviderConnection, ProviderModelBinding
+        from codex_image.webui.generation_request import preview_generation_command
+        for model_id in ("gpt-image-2.5-flare", "gpt-image-2.5-sunburst"):
+            for protocol in ("openai_images", "openai_responses"):
+                with self.subTest(model=model_id, protocol=protocol):
+                    binding = ProviderModelBinding("b", "relay", model_id, "vendor/custom-25",
+                        protocol, "gpt_" + protocol, frozenset({"generate", "edit"}))
+                    provider = ProviderConnection("relay", "Relay", "https://relay.example/v1",
+                        "test", 1, (binding,))
+                    command = GenerationCommand("generate", model_id, "relay", "draw a rabbit",
+                        {"canvas.size": "1536x1024", "gpt.quality": "high"}, main_model="gpt-5.6-luna")
+                    plan = preview_generation_command(command, codex_mode="images", provider_connections=(provider,))
+                    body = plan.protocol_request.json_body
+                    image = body if protocol == "openai_images" else next(
+                        tool for tool in body["tools"] if tool["type"] == "image_generation")
+                    self.assertEqual(image["model"], "vendor/custom-25")
+                    self.assertEqual(image["size"], "1536x1024")
+                    self.assertEqual(image["quality"], "high")
+                    snapshot = generation_snapshot(plan)
+                    self.assertEqual(snapshot["canonical_model_id"], model_id)
+                    self.assertEqual(snapshot["remote_model_id"], "vendor/custom-25")
+                    self.assertEqual(snapshot["provider_id"], "relay")
+            with self.assertRaises(ValueError):
+                preview_generation_command(GenerationCommand("generate", model_id, "codex",
+                    "draw a rabbit", {}), codex_mode="images", provider_connections=())
 
     def test_nano_banana_models_have_model_specific_resolutions(self) -> None:
         pro = get_model_manifest("nano-banana-pro")

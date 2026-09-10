@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 import { formatTranslation, translate } from "./i18n";
 import { migrateParameterValues, renderParameterDefinitionsInto, renderCurrentModelParameters } from "./model-parameters";
 import { selectConcreteModel } from "./model-selection";
@@ -133,7 +134,7 @@ export function taskParameterInspectorModel(
   model: CatalogModel | undefined,
 ): CatalogModel | undefined {
   if (!model) return undefined;
-  const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+  const gptImage = isGptImageModel(snapshot.canonical_model_id);
   const parameters = model.parameters
     .filter((definition) => taskParameterVisibleInInspector(snapshot, definition.id))
     .map((definition) => {

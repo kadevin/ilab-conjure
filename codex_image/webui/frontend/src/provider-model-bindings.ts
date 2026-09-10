@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 import type {
   CatalogModel,
   GenerationOperation,
@@ -5,6 +6,10 @@ import type {
 } from "./types";
 import { translate } from "./i18n";
 import { destroyThemedSelects, mountThemedSelect } from "./themed-select";
+
+export function remoteModelAfterSelection(current: string, previousDefault: string, nextDefault: string): string {
+  return !current.trim() || current.trim() === previousDefault ? nextDefault : current;
+}
 
 export type BindingTemplateId = keyof typeof BINDING_TEMPLATES;
 export type BindingProtocol = "gemini" | "openai_images" | "openai_responses";
@@ -93,7 +98,7 @@ export function resolvedBindingOperations(
 
 export function availableProtocolsForModel(modelId: string): BindingProtocol[] {
   if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
-  if (modelId === "gpt-image-2") return ["openai_images", "openai_responses"];
+  if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
   return [];
 }
 
@@ -137,7 +142,7 @@ export function bindingTemplateForProtocol(
   if (modelId.startsWith("nano-banana")) {
     return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
   }
-  if (modelId === "gpt-image-2") {
+  if (isGptImageModel(modelId)) {
     return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
   }
   throw new Error("unsupported_binding_protocol");
@@ -454,6 +459,7 @@ export function renderProviderBindingCards(
     footer.append(footerSettings, remove);
 
     card.dataset.bindingOriginalModelId = binding.canonical_model_id;
+    card.dataset.bindingPreviousModelId = binding.canonical_model_id;
     card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
     card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
     card.dataset.bindingProtocolChanged = "false";

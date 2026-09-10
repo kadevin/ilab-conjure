@@ -37,6 +37,7 @@ import {
   normalizeProviderBindings,
   readProviderBindingCards,
   renderProviderBindingCards,
+  remoteModelAfterSelection,
   validateProviderBindingOverlaps,
 } from "./provider-model-bindings";
 import type { BindingProtocol } from "./provider-model-bindings";
@@ -921,7 +922,14 @@ export function handleProviderBindingEditorChange(event: Event): void {
     }
     const remoteInput = card.querySelector<HTMLInputElement>("[data-binding-remote-model]");
     const model = state.generationCatalog?.models.find((item: any) => item.id === modelId);
-    if (remoteInput && !remoteInput.value.trim()) remoteInput.value = model?.official_model_id || modelId;
+    const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
+    const previousModel = state.generationCatalog?.models.find((item: any) => item.id === previousModelId);
+    if (remoteInput) remoteInput.value = remoteModelAfterSelection(
+      remoteInput.value,
+      previousModel?.official_model_id || previousModelId,
+      model?.official_model_id || modelId,
+    );
+    card.dataset.bindingPreviousModelId = modelId;
     const existingOperations = String(card.dataset.bindingModelOperations || "")
       .split(",")
       .filter(Boolean);

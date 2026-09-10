@@ -13,6 +13,7 @@ import {
   protocolForBinding,
   readProviderBindingCards,
   resolvedBindingOperations,
+  remoteModelAfterSelection,
   validateProviderBindingOverlaps,
 } from "../../codex_image/webui/frontend/src/provider-model-bindings";
 
@@ -262,4 +263,27 @@ test("binding cards preserve legacy split operations while single bindings adopt
   const edit = bindingFromProtocol("edit", "gpt-image-2", "relay/edit", "openai_images", ["edit"]);
   assert.deepEqual(resolvedBindingOperations(generate, [generate, edit], model), ["generate"]);
   assert.deepEqual(resolvedBindingOperations(edit, [generate, edit], model), ["edit"]);
+});
+
+for (const modelId of ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+  test(`${modelId} shares GPT protocols while retaining its identity and custom remote name`, () => {
+    assert.deepEqual(availableProtocolsForModel(modelId), ["openai_images", "openai_responses"]);
+    for (const protocol of ["openai_images", "openai_responses"] as const) {
+      const binding = bindingFromProtocol("version-binding", modelId, "vendor/custom-25", protocol);
+      assert.equal(binding.canonical_model_id, modelId);
+      assert.equal(binding.remote_model_id, "vendor/custom-25");
+      assert.equal(binding.parameter_codec, `gpt_${protocol}`);
+    }
+  });
+}
+
+test("model changes follow defaults across consecutive selections while preserving custom mappings", () => {
+  let remote = "gpt-image-2";
+  remote = remoteModelAfterSelection(remote, "gpt-image-2", "gpt-image-2.5-flare");
+  assert.equal(remote, "gpt-image-2.5-flare");
+  remote = remoteModelAfterSelection(remote, "gpt-image-2.5-flare", "gpt-image-2.5-sunburst");
+  assert.equal(remote, "gpt-image-2.5-sunburst");
+  assert.equal(remoteModelAfterSelection(remote, remote, "gpt-image-2"), "gpt-image-2");
+  assert.equal(remoteModelAfterSelection("  ", "gpt-image-2", "gpt-image-2.5-flare"), "gpt-image-2.5-flare");
+  assert.equal(remoteModelAfterSelection("vendor/custom", "gpt-image-2", "gpt-image-2.5-flare"), "vendor/custom");
 });

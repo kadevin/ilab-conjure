@@ -19278,6 +19278,11 @@
     });
   }
 
+  // codex_image/webui/frontend/src/gpt-image-models.ts
+  function isGptImageModel(modelId) {
+    return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].includes(String(modelId || ""));
+  }
+
   // codex_image/webui/frontend/src/mode-settings-visibility.ts
   function resolveModeSettingsVisibility({
     catalogAvailable,
@@ -19292,7 +19297,7 @@
         showPromptFidelity: true
       };
     }
-    if (modelId !== "gpt-image-2") {
+    if (!isGptImageModel(modelId)) {
       return {
         showMainModel: false,
         showApiDirectNotice: false,
@@ -20235,7 +20240,7 @@
     return readOnly || model.expand_advanced_parameters === true;
   }
   function legacyParameterVisibility(modelId, sizeMode) {
-    const legacyGpt = modelId === "gpt-image-2";
+    const legacyGpt = isGptImageModel(modelId);
     return {
       legacyGpt,
       customSize: legacyGpt && sizeMode === "custom"
@@ -20452,7 +20457,7 @@
     const { state: state5, methods } = getLegacyBridge();
     const model = state5.generationCatalog?.models.find((item) => item.id === state5.selectedModelId);
     if (!model || typeof methods.currentTaskParams !== "function") return;
-    if (model.id !== "gpt-image-2") {
+    if (!isGptImageModel(model.id)) {
       methods.persistModelSelection?.();
       return;
     }
@@ -20469,7 +20474,7 @@
     const modelId = state5.selectedModelId || "";
     const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
     if (!model) return;
-    if (model.id !== "gpt-image-2") {
+    if (!isGptImageModel(model.id)) {
       renderCurrentModelParameters();
       return;
     }
@@ -20613,9 +20618,10 @@
       });
     }
     if (modelSelect && selectedFamily) {
-      const familyModels = modelsForFamily(catalog, selectedFamily.id);
-      const expanded = usesExpandedConcreteModelOptions(familyModels);
-      modelField?.classList.toggle("hidden", !expanded);
+      const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2" || model.id === state5.selectedModelId || catalog.providers.some((provider) => provider.bindings.some((binding) => binding.canonical_model_id === model.id && binding.operations.includes(state5.mode))));
+      const gptVersions = selectedFamily.id === "gpt-image";
+      const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
+      modelField?.classList.toggle("hidden", gptVersions ? familyModels.length < 2 : !expanded);
       modelSelect.replaceChildren();
       familyModels.forEach((model) => {
         const option2 = document.createElement("option");
@@ -21424,6 +21430,9 @@
   }
 
   // codex_image/webui/frontend/src/provider-model-bindings.ts
+  function remoteModelAfterSelection(current, previousDefault, nextDefault) {
+    return !current.trim() || current.trim() === previousDefault ? nextDefault : current;
+  }
   var BINDING_TEMPLATES = {
     gpt_openai_images: {
       protocol_profile: "openai_images",
@@ -21494,7 +21503,7 @@
   }
   function availableProtocolsForModel(modelId) {
     if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
-    if (modelId === "gpt-image-2") return ["openai_images", "openai_responses"];
+    if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
     return [];
   }
   function availableCompatibilityLayers(modelId, protocol) {
@@ -21526,7 +21535,7 @@
     if (modelId.startsWith("nano-banana")) {
       return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
     }
-    if (modelId === "gpt-image-2") {
+    if (isGptImageModel(modelId)) {
       return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
     }
     throw new Error("unsupported_binding_protocol");
@@ -21745,6 +21754,7 @@
       footerSettings.append(ratioPromptField, defaultField);
       footer.append(footerSettings, remove);
       card.dataset.bindingOriginalModelId = binding.canonical_model_id;
+      card.dataset.bindingPreviousModelId = binding.canonical_model_id;
       card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
       card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
       card.dataset.bindingProtocolChanged = "false";
@@ -22637,7 +22647,14 @@
       }
       const remoteInput = card.querySelector("[data-binding-remote-model]");
       const model = state3.generationCatalog?.models.find((item) => item.id === modelId);
-      if (remoteInput && !remoteInput.value.trim()) remoteInput.value = model?.official_model_id || modelId;
+      const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
+      const previousModel = state3.generationCatalog?.models.find((item) => item.id === previousModelId);
+      if (remoteInput) remoteInput.value = remoteModelAfterSelection(
+        remoteInput.value,
+        previousModel?.official_model_id || previousModelId,
+        model?.official_model_id || modelId
+      );
+      card.dataset.bindingPreviousModelId = modelId;
       const existingOperations = String(card.dataset.bindingModelOperations || "").split(",").filter(Boolean);
       card.dataset.bindingModelOperations = (model?.operations || existingOperations).join(",");
     }

@@ -35820,6 +35820,11 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/gpt-image-models.ts
+  function isGptImageModel(modelId) {
+    return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].includes(String(modelId || ""));
+  }
+
   // codex_image/webui/frontend/src/mode-settings-visibility.ts
   function resolveModeSettingsVisibility({
     catalogAvailable,
@@ -35834,7 +35839,7 @@ ${hint}` : hint;
         showPromptFidelity: true
       };
     }
-    if (modelId !== "gpt-image-2") {
+    if (!isGptImageModel(modelId)) {
       return {
         showMainModel: false,
         showApiDirectNotice: false,
@@ -36810,7 +36815,7 @@ ${hint}` : hint;
     return readOnly || model.expand_advanced_parameters === true;
   }
   function legacyParameterVisibility(modelId, sizeMode) {
-    const legacyGpt = modelId === "gpt-image-2";
+    const legacyGpt = isGptImageModel(modelId);
     return {
       legacyGpt,
       customSize: legacyGpt && sizeMode === "custom"
@@ -37036,7 +37041,7 @@ ${hint}` : hint;
     const { state: state33, methods } = getLegacyBridge();
     const model = state33.generationCatalog?.models.find((item) => item.id === state33.selectedModelId);
     if (!model || typeof methods.currentTaskParams !== "function") return;
-    if (model.id !== "gpt-image-2") {
+    if (!isGptImageModel(model.id)) {
       methods.persistModelSelection?.();
       return;
     }
@@ -37053,7 +37058,7 @@ ${hint}` : hint;
     const modelId = state33.selectedModelId || "";
     const model = state33.generationCatalog?.models.find((item) => item.id === modelId);
     if (!model) return;
-    if (model.id !== "gpt-image-2") {
+    if (!isGptImageModel(model.id)) {
       renderCurrentModelParameters();
       return;
     }
@@ -37235,9 +37240,10 @@ ${hint}` : hint;
       });
     }
     if (modelSelect && selectedFamily) {
-      const familyModels = modelsForFamily(catalog, selectedFamily.id);
-      const expanded = usesExpandedConcreteModelOptions(familyModels);
-      modelField?.classList.toggle("hidden", !expanded);
+      const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2" || model.id === state33.selectedModelId || catalog.providers.some((provider) => provider.bindings.some((binding) => binding.canonical_model_id === model.id && binding.operations.includes(state33.mode))));
+      const gptVersions = selectedFamily.id === "gpt-image";
+      const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
+      modelField?.classList.toggle("hidden", gptVersions ? familyModels.length < 2 : !expanded);
       modelSelect.replaceChildren();
       familyModels.forEach((model) => {
         const option2 = document.createElement("option");
@@ -38104,6 +38110,9 @@ ${hint}` : hint;
   }
 
   // codex_image/webui/frontend/src/provider-model-bindings.ts
+  function remoteModelAfterSelection(current, previousDefault, nextDefault) {
+    return !current.trim() || current.trim() === previousDefault ? nextDefault : current;
+  }
   var BINDING_TEMPLATES = {
     gpt_openai_images: {
       protocol_profile: "openai_images",
@@ -38174,7 +38183,7 @@ ${hint}` : hint;
   }
   function availableProtocolsForModel(modelId) {
     if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
-    if (modelId === "gpt-image-2") return ["openai_images", "openai_responses"];
+    if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
     return [];
   }
   function availableCompatibilityLayers(modelId, protocol) {
@@ -38206,7 +38215,7 @@ ${hint}` : hint;
     if (modelId.startsWith("nano-banana")) {
       return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
     }
-    if (modelId === "gpt-image-2") {
+    if (isGptImageModel(modelId)) {
       return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
     }
     throw new Error("unsupported_binding_protocol");
@@ -38425,6 +38434,7 @@ ${hint}` : hint;
       footerSettings.append(ratioPromptField, defaultField);
       footer.append(footerSettings, remove);
       card.dataset.bindingOriginalModelId = binding.canonical_model_id;
+      card.dataset.bindingPreviousModelId = binding.canonical_model_id;
       card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
       card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
       card.dataset.bindingProtocolChanged = "false";
@@ -39317,7 +39327,14 @@ ${hint}` : hint;
       }
       const remoteInput = card.querySelector("[data-binding-remote-model]");
       const model = state9.generationCatalog?.models.find((item) => item.id === modelId);
-      if (remoteInput && !remoteInput.value.trim()) remoteInput.value = model?.official_model_id || modelId;
+      const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
+      const previousModel = state9.generationCatalog?.models.find((item) => item.id === previousModelId);
+      if (remoteInput) remoteInput.value = remoteModelAfterSelection(
+        remoteInput.value,
+        previousModel?.official_model_id || previousModelId,
+        model?.official_model_id || modelId
+      );
+      card.dataset.bindingPreviousModelId = modelId;
       const existingOperations = String(card.dataset.bindingModelOperations || "").split(",").filter(Boolean);
       card.dataset.bindingModelOperations = (model?.operations || existingOperations).join(",");
     }
@@ -45333,7 +45350,7 @@ ${galleryText}`;
   }
   function supportsGptPromptProcessing() {
     const { state: state33 } = getLegacyBridge();
-    return !state33.generationCatalog || state33.selectedModelId === "gpt-image-2";
+    return !state33.generationCatalog || isGptImageModel(state33.selectedModelId);
   }
   function initPromptModelFeature() {
     Object.assign(getLegacyBridge().methods, {
@@ -46846,7 +46863,7 @@ ${galleryText}`;
     return count === 4 && outputCountCardRatio(ratioValue) >= 16 / 9;
   }
   function buildOutputSettingsSummaryModel(snapshot, context) {
-    const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+    const gptImage = isGptImageModel(snapshot.canonical_model_id);
     const geminiImage = snapshot.canonical_model_id.startsWith("nano-banana");
     const details = [];
     if (gptImage) {
@@ -46935,7 +46952,7 @@ ${galleryText}`;
     const bridge40 = getLegacyBridge();
     const legacy = legacyMethod30("currentTaskParams");
     const model = bridge40.state.generationCatalog?.models.find((item) => item.id === bridge40.state.selectedModelId);
-    const parameters = model && model.id !== "gpt-image-2" && typeof bridge40.methods.activeParameterValues === "function" ? bridge40.methods.activeParameterValues(model) : typeof bridge40.methods.currentCanonicalParameters === "function" ? bridge40.methods.currentCanonicalParameters() : {};
+    const parameters = model && !isGptImageModel(model.id) && typeof bridge40.methods.activeParameterValues === "function" ? bridge40.methods.activeParameterValues(model) : typeof bridge40.methods.currentCanonicalParameters === "function" ? bridge40.methods.currentCanonicalParameters() : {};
     return normalizeOutputSettingsSnapshot({
       ...legacy,
       canonical_model_id: model?.id || "gpt-image-2",
@@ -47377,7 +47394,7 @@ ${galleryText}`;
     const modelId = taskCanonicalModelId(task);
     const familyId = catalog?.models.find((model) => model.id === modelId)?.family_id;
     if (familyId === "gpt-image" || familyId === "gemini-image") return familyId;
-    if (modelId === "gpt-image-2") return "gpt-image";
+    if (isGptImageModel(modelId)) return "gpt-image";
     if (modelId.startsWith("nano-banana")) return "gemini-image";
     return "unknown";
   }
@@ -47415,7 +47432,7 @@ ${galleryText}`;
     const explicitRatio = String(parameters["canvas.aspect_ratio"] || params.ratio || "").trim();
     const ratio = explicitRatio || (size ? `${size[0] / greatestCommonDivisor2(size[0], size[1])}:${size[1] / greatestCommonDivisor2(size[0], size[1])}` : "");
     const explicitResolution = String(parameters["canvas.resolution"] || params.resolution || "").trim();
-    const resolution = taskCanonicalModelId(task) === "gpt-image-2" ? normalizedGptResolution(explicitResolution) : explicitResolution;
+    const resolution = isGptImageModel(taskCanonicalModelId(task)) ? normalizedGptResolution(explicitResolution) : explicitResolution;
     const honestResolution = resolution && resolution.toLowerCase() !== "custom" ? resolution : compactDimensions(size);
     return [ratio, honestResolution].filter(Boolean);
   }
@@ -50392,7 +50409,7 @@ ${galleryText}`;
       return { canonicalModelId: "", providerId: "", bindingId: "", parameters: {} };
     }
     let draft = state33.parameterDraftsByModel[model.id] || {};
-    if (model.id === "gpt-image-2" && typeof methods.currentTaskParams === "function") {
+    if (isGptImageModel(model.id) && typeof methods.currentTaskParams === "function") {
       draft = {
         ...draft,
         ...canonicalControlValues(methods.currentTaskParams(), selectedProviderBinding()?.protocol_profile || "")
@@ -50663,7 +50680,7 @@ ${galleryText}`;
       reference_files: fileUploads.map((source) => source.filename),
       reference_file_ids: storedFiles.map((source) => source.id)
     };
-    const usesGptPromptProcessing = !state24.generationCatalog || state24.selectedModelId === "gpt-image-2";
+    const usesGptPromptProcessing = !state24.generationCatalog || isGptImageModel(state24.selectedModelId);
     if (usesGptPromptProcessing) payload2.prompt_fidelity = currentPromptFidelity4();
     if (isApi) {
       payload2.api_provider_id = state24.selectedProviderId;
@@ -50758,7 +50775,7 @@ ${galleryText}`;
     form.append("prompt_for_model", promptForModel);
     form.append("ui_language", currentLocaleCode());
     appendCanonicalGenerationFields(form, currentGenerationSelection());
-    if (!state24.generationCatalog || state24.selectedModelId === "gpt-image-2") {
+    if (!state24.generationCatalog || isGptImageModel(state24.selectedModelId)) {
       form.append("main_model", currentMainModel2());
       form.append("prompt_fidelity", currentPromptFidelity4());
     }
@@ -56945,7 +56962,7 @@ ${galleryText}`;
   }
   function taskParameterInspectorModel(snapshot, model) {
     if (!model) return void 0;
-    const gptImage = snapshot.canonical_model_id === "gpt-image-2";
+    const gptImage = isGptImageModel(snapshot.canonical_model_id);
     const parameters = model.parameters.filter((definition) => taskParameterVisibleInInspector(snapshot, definition.id)).map((definition) => {
       if (gptImage && definition.id === "gpt.moderation") {
         return { ...definition, group: "generation" };

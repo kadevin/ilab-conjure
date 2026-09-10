@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from .types import (
     InputConstraints,
     ModelFamily,
@@ -350,6 +352,16 @@ MODEL_MANIFESTS = (
         expand_advanced_parameters=True,
     ),
 )
+
+# GPT Image versions share the same parameter contract and codecs.
+GPT_IMAGE_MODEL_IDS = frozenset({"gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"})
+MODEL_MANIFESTS = (MODEL_MANIFESTS[0], *(
+    replace(MODEL_MANIFESTS[0], id=model_id, official_model_id=model_id, display_name=name)
+    for model_id, name in (
+        ("gpt-image-2.5-flare", "GPT Image 2.5 Flare"),
+        ("gpt-image-2.5-sunburst", "GPT Image 2.5 Sunburst"),
+    )
+), *MODEL_MANIFESTS[1:])
 
 MODEL_MANIFESTS_BY_ID = {model.id: model for model in MODEL_MANIFESTS}
 

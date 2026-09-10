@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 export interface ModeSettingsVisibilityInput {
   catalogAvailable: boolean;
   modelId: string | null;
@@ -25,7 +26,7 @@ export function resolveModeSettingsVisibility({
     };
   }
 
-  if (modelId !== "gpt-image-2") {
+  if (!isGptImageModel(modelId)) {
     return {
       showMainModel: false,
       showApiDirectNotice: false,

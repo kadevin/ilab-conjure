@@ -1,3 +1,4 @@
+import { isGptImageModel } from "./gpt-image-models";
 import { getLegacyBridge } from "./state";
 import { currentLocaleCode, translate } from "./i18n";
 import { selectedProviderBinding } from "./provider-selection";
@@ -206,7 +207,7 @@ function buildPreviewRequest() {
     reference_files: fileUploads.map((source: any) => source.filename),
     reference_file_ids: storedFiles.map((source: any) => source.id),
   };
-  const usesGptPromptProcessing = !state.generationCatalog || state.selectedModelId === "gpt-image-2";
+  const usesGptPromptProcessing = !state.generationCatalog || isGptImageModel(state.selectedModelId);
   if (usesGptPromptProcessing) payload.prompt_fidelity = currentPromptFidelity();
   if (isApi) {
     payload.api_provider_id = state.selectedProviderId;
@@ -305,7 +306,7 @@ async function runTask() {
   form.append("prompt_for_model", promptForModel);
   form.append("ui_language", currentLocaleCode());
   appendCanonicalGenerationFields(form, currentGenerationSelection());
-  if (!state.generationCatalog || state.selectedModelId === "gpt-image-2") {
+  if (!state.generationCatalog || isGptImageModel(state.selectedModelId)) {
     form.append("main_model", currentMainModel());
     form.append("prompt_fidelity", currentPromptFidelity());
   }

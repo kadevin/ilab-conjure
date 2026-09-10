@@ -8,6 +8,8 @@ from math import gcd
 from pathlib import Path
 from typing import Any, Iterator
 
+from codex_image.generation.catalog import GPT_IMAGE_MODEL_IDS
+
 from .history_organizer import HistoryOrganizer
 from .history_query import (
     HistoryFilter,
@@ -754,7 +756,7 @@ def safe_task_canvas_parameters(generation_snapshot: object) -> dict[str, str]:
         value = requested_parameters.get(key)
         if isinstance(value, str) and value.strip():
             safe[key] = value.strip()
-    if str(generation_snapshot.get("canonical_model_id") or "").strip() == "gpt-image-2":
+    if str(generation_snapshot.get("canonical_model_id") or "").strip() in GPT_IMAGE_MODEL_IDS:
         for key, value in _gpt_image_2_card_canvas_parameters(requested_parameters).items():
             safe.setdefault(key, value)
     return safe
