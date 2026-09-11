@@ -199,6 +199,9 @@ export function renderProviderSelection(): void {
     select.setAttribute("aria-invalid", resolved ? "false" : "true");
     syncThemedSelect(select);
   }
+  if (catalog && els.statusText?.dataset.statusSource === "codex-health") {
+    getLegacyBridge().methods.setStatus?.("", "");
+  }
   if (els.runButton) els.runButton.disabled = !resolved;
 }
 

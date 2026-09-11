@@ -1,10 +1,61 @@
 (() => {
   var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  var __defNormalProp = (obj, key2, value) => key2 in obj ? __defProp(obj, key2, { enumerable: true, configurable: true, writable: true, value }) : obj[key2] = value;
+  var __publicField = (obj, key2, value) => __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value);
 
   // codex_image/webui/frontend/src/i18n/en.ts
   var EN_DICTIONARY = {
+    "mobile.taskActions": "Task actions",
+    "mobile.photos": "Photos",
+    "mobile.files": "Files",
+    "mobile.more": "More",
+    "mobile.parameters": "Parameters",
+    "mobile.backToEditor": "Back to edit",
+    "mobile.pickFiles": "Choose photos or files",
+    "mobile.pasteHint": "Touch and hold the input to paste, or choose photos or files.",
+    "mobile.manualCopy": "Touch and hold to copy",
+    "mobile.copyHint": "Automatic copying is unavailable. Select the text below to copy it.",
+    "mobile.gestureHint": "Pinch to zoom \xB7 Swipe to switch images",
+    "lanAccess.label": "Allow LAN access",
+    "lanAccess.help": "No sign-in. People on the same network share tasks, the gallery and providers, including changing settings and deleting tasks.",
+    "lanAccess.loading": "Loading access settings\u2026",
+    "lanAccess.saving": "Saving\u2026",
+    "lanAccess.localOnly": "Only this device can access WebUI.",
+    "lanAccess.active": "LAN access is active.",
+    "lanAccess.pendingEnable": "Saved. Restart the WebUI service to allow LAN access.",
+    "lanAccess.pendingDisable": "Saved. LAN access remains active until the WebUI service restarts.",
+    "lanAccess.hostOverride": "The startup host override restricts access to this device. Remove --host and restart.",
+    "lanAccess.noAddress": "No LAN IPv4 address found. Check your network connection.",
+    "lanAccess.failed": "Access settings could not be read or saved. Try again.",
+    "lanAccess.address": "LAN address",
+    "lanAccess.copyAddress": "Copy {address}",
+    "lanAccess.copied": "Address copied.",
+    "lanAccess.copyManually": "Address selected. Copy it manually.",
+    "ux.restoreDraft": "Restore draft",
+    "ux.draftRestored": "Prompt and references restored; generation settings keep the current selection.",
+    "ux.discardEdits": "Discard changes",
+    "ux.imageUnsaved": "This image has unsaved changes. Discarding cannot be undone; cancel to keep editing.",
+    "ux.addingReference": "Adding reference\u2026",
+    "ux.referenceAdded": "Added to this task\u2019s references",
+    "ux.referenceFailed": "Reference could not be added. Please retry.",
+    "ux.execution": "Next generation",
+    "ux.imageCount": "{count} image(s)",
+    "ux.tasks": "Tasks",
+    "ux.addReference": "Add reference",
+    "ux.collapseReference": "Collapse",
+    "ux.selectedResult": "Selected task",
+    "ux.previousResult": "Previous task result",
+    "ux.recovery.credentials": "Authentication failed. Check the task provider\u2019s API key or local sign-in before generating again.",
+    "ux.recovery.quota": "Check the task provider\u2019s quota or account balance.",
+    "ux.recovery.input": "Check the prompt, reference files and generation settings for unsupported inputs.",
+    "ux.recovery.temporary": "Generation did not complete. Successful images are retained; retry failed images when available.",
+    "ux.checkProvider": "Check provider settings",
+    "ux.acceptDetail": "Keep successful images and finish the task without filling the failed slots.",
+    "ux.errorDetails": "Error details",
+    "ux.openRecovery": "Resolve on generation page",
+    "ux.useSize": "Use {width} \xD7 {height}",
+    "ux.moderationAuto": "Automatic",
+    "ux.moderationLow": "Less restrictive",
     "app.newTask": "New",
     "app.newTaskAria": "New chat",
     "sidebar.searchPlaceholder": "Search prompts or task ID",
@@ -20,6 +71,9 @@
     "sidebar.resize": "Resize sidebar",
     "batch.selected": "0 selected",
     "batch.selectedCount": "{count} selected",
+    "batch.deselectCurrentGroup": "Deselect all",
+    "batch.deselectWaiting": "Deselect waiting",
+    "batch.selectFailed": "Could not select tasks. Please try again.",
     "batch.selectCurrentGroup": "Select all in group",
     "batch.selectWaiting": "Select all waiting",
     "batch.archivedCount": "Archived {count} chats",
@@ -350,6 +404,7 @@
     "history.untitled": "Untitled",
     "history.promptCompare": "Prompt comparison",
     "history.promptOriginal": "Original prompt",
+    "history.promptSubmittedActual": "Actual submitted prompt",
     "history.promptSubmitted": "Optimized prompt",
     "history.promptRevised": "Revised result",
     "history.outputRevisedPromptTitle": "Image {index} revised prompt",
@@ -606,6 +661,15 @@
     "output.apiDirect": "API Direct",
     "output.apiToolModel": "Using API image generation model",
     "output.mainModelUnused": "Main model is not used for this request",
+    "output.transparencyFidelityHint": "Transparent background is an output requirement you selected. It is also added in Original and Faithful modes.",
+    "output.transparentBackground": "Transparent background",
+    "output.transparencyFormat": "Transparent output requires PNG or WebP.",
+    "apiSettings.transparencyMode": "Transparent background method",
+    "apiSettings.transparencyNative": "Native parameter",
+    "apiSettings.transparencyPrompt": "Prompt compatibility",
+    "preview.transparencyDetected": "Transparent pixels detected",
+    "preview.transparencyMissing": "No transparent pixels detected",
+    "preview.transparencyRetryHint": "Try prompt compatibility or another model. Retrying starts a new generation.",
     "output.webSearch": "Web search",
     "output.webSearchToggle": "On",
     "output.webSearchTitle": "Search the web first, then use it for this generation; Codex and API Responses only",
@@ -1068,7 +1132,7 @@
     "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
     "apiSettings.addModelBinding": "Add model binding",
     "apiSettings.appendRatioPrompt": "Add ratio prompt",
-    "apiSettings.defaultProviderForModel": "Default provider",
+    "apiSettings.defaultProviderForModel": "Default provider for this model",
     "apiSettings.removeBinding": "Remove binding",
     "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
     "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
@@ -1104,7 +1168,8 @@
     "apiSettings.hideApiKey": "Hide API key",
     "apiSettings.editProvider": "Edit provider",
     "apiSettings.newProviderTitle": "New provider",
-    "apiSettings.editHint": "Save provider writes this edit to the backend. Cancel discards it.",
+    "ux.viewPreview": "View preview",
+    "apiSettings.editHint": "Save to apply your changes; cancel to discard them.",
     "apiSettings.finishEditFirst": "Save or cancel the current provider edit first",
     "apiSettings.newDraftStatus": "Creating provider. Save provider to apply.",
     "apiSettings.editDraftStatus": "Editing provider. Save provider to apply.",
@@ -12344,6 +12409,57 @@
 
   // codex_image/webui/frontend/src/i18n/vi.ts
   var VI_DICTIONARY = {
+    "mobile.taskActions": "Thao t\xE1c t\xE1c v\u1EE5",
+    "mobile.photos": "\u1EA2nh",
+    "mobile.files": "T\u1EC7p",
+    "mobile.more": "Th\xEAm",
+    "mobile.parameters": "Th\xF4ng s\u1ED1",
+    "mobile.backToEditor": "Quay l\u1EA1i ch\u1EC9nh s\u1EEDa",
+    "mobile.pickFiles": "Ch\u1ECDn \u1EA3nh ho\u1EB7c t\u1EC7p",
+    "mobile.pasteHint": "Nh\u1EA5n gi\u1EEF v\xF9ng nh\u1EADp \u0111\u1EC3 d\xE1n, ho\u1EB7c ch\u1ECDn \u1EA3nh hay t\u1EC7p.",
+    "mobile.manualCopy": "Nh\u1EA5n gi\u1EEF \u0111\u1EC3 sao ch\xE9p",
+    "mobile.copyHint": "Kh\xF4ng th\u1EC3 t\u1EF1 \u0111\u1ED9ng sao ch\xE9p. Ch\u1ECDn v\u0103n b\u1EA3n b\xEAn d\u01B0\u1EDBi \u0111\u1EC3 sao ch\xE9p.",
+    "mobile.gestureHint": "Ch\u1EE5m \u0111\u1EC3 thu ph\xF3ng \xB7 Vu\u1ED1t \u0111\u1EC3 chuy\u1EC3n \u1EA3nh",
+    "lanAccess.label": "Cho ph\xE9p truy c\u1EADp m\u1EA1ng LAN",
+    "lanAccess.help": "Kh\xF4ng c\u1EA7n \u0111\u0103ng nh\u1EADp. Ng\u01B0\u1EDDi d\xF9ng trong c\xF9ng m\u1EA1ng d\xF9ng chung t\xE1c v\u1EE5, th\u01B0 vi\u1EC7n v\xE0 nh\xE0 cung c\u1EA5p, \u0111\u1ED3ng th\u1EDDi c\xF3 th\u1EC3 s\u1EEDa c\xE0i \u0111\u1EB7t v\xE0 x\xF3a t\xE1c v\u1EE5.",
+    "lanAccess.loading": "\u0110ang \u0111\u1ECDc c\xE0i \u0111\u1EB7t truy c\u1EADp\u2026",
+    "lanAccess.saving": "\u0110ang l\u01B0u\u2026",
+    "lanAccess.localOnly": "Ch\u1EC9 thi\u1EBFt b\u1ECB n\xE0y c\xF3 th\u1EC3 truy c\u1EADp WebUI.",
+    "lanAccess.active": "Truy c\u1EADp m\u1EA1ng LAN \u0111\xE3 c\xF3 hi\u1EC7u l\u1EF1c.",
+    "lanAccess.pendingEnable": "\u0110\xE3 l\u01B0u. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i d\u1ECBch v\u1EE5 WebUI \u0111\u1EC3 cho ph\xE9p truy c\u1EADp m\u1EA1ng LAN.",
+    "lanAccess.pendingDisable": "\u0110\xE3 l\u01B0u. Truy c\u1EADp m\u1EA1ng LAN v\u1EABn ho\u1EA1t \u0111\u1ED9ng cho \u0111\u1EBFn khi kh\u1EDFi \u0111\u1ED9ng l\u1EA1i d\u1ECBch v\u1EE5 WebUI.",
+    "lanAccess.hostOverride": "Tham s\u1ED1 kh\u1EDFi \u0111\u1ED9ng gi\u1EDBi h\u1EA1n truy c\u1EADp tr\xEAn thi\u1EBFt b\u1ECB n\xE0y. X\xF3a tham s\u1ED1 --host v\xE0 kh\u1EDFi \u0111\u1ED9ng l\u1EA1i.",
+    "lanAccess.noAddress": "Kh\xF4ng t\xECm th\u1EA5y \u0111\u1ECBa ch\u1EC9 IPv4 m\u1EA1ng LAN. H\xE3y ki\u1EC3m tra k\u1EBFt n\u1ED1i m\u1EA1ng.",
+    "lanAccess.failed": "Kh\xF4ng th\u1EC3 \u0111\u1ECDc ho\u1EB7c l\u01B0u c\xE0i \u0111\u1EB7t truy c\u1EADp. Vui l\xF2ng th\u1EED l\u1EA1i.",
+    "lanAccess.address": "\u0110\u1ECBa ch\u1EC9 m\u1EA1ng LAN",
+    "lanAccess.copyAddress": "Sao ch\xE9p {address}",
+    "lanAccess.copied": "\u0110\xE3 sao ch\xE9p \u0111\u1ECBa ch\u1EC9.",
+    "lanAccess.copyManually": "\u0110\xE3 ch\u1ECDn \u0111\u1ECBa ch\u1EC9. H\xE3y sao ch\xE9p th\u1EE7 c\xF4ng.",
+    "ux.restoreDraft": "Kh\xF4i ph\u1EE5c b\u1EA3n nh\xE1p",
+    "ux.draftRestored": "\u0110\xE3 kh\xF4i ph\u1EE5c l\u1EDDi nh\u1EAFc v\xE0 t\xE0i li\u1EC7u tham chi\u1EBFu; gi\u1EEF nguy\xEAn thi\u1EBFt l\u1EADp t\u1EA1o \u1EA3nh hi\u1EC7n t\u1EA1i.",
+    "ux.discardEdits": "B\u1ECF thay \u0111\u1ED5i",
+    "ux.imageUnsaved": "\u1EA2nh c\xF3 thay \u0111\u1ED5i ch\u01B0a l\u01B0u. B\u1ECF thay \u0111\u1ED5i s\u1EBD kh\xF4ng th\u1EC3 kh\xF4i ph\u1EE5c; h\u1EE7y \u0111\u1EC3 ti\u1EBFp t\u1EE5c ch\u1EC9nh s\u1EEDa.",
+    "ux.addingReference": "\u0110ang th\xEAm \u1EA3nh tham chi\u1EBFu\u2026",
+    "ux.referenceAdded": "\u0110\xE3 th\xEAm v\xE0o tham chi\u1EBFu c\u1EE7a t\xE1c v\u1EE5 n\xE0y",
+    "ux.referenceFailed": "Kh\xF4ng th\u1EC3 th\xEAm \u1EA3nh tham chi\u1EBFu. Vui l\xF2ng th\u1EED l\u1EA1i.",
+    "ux.execution": "L\u1EA7n t\u1EA1o ti\u1EBFp theo",
+    "ux.imageCount": "{count} \u1EA3nh",
+    "ux.tasks": "T\xE1c v\u1EE5",
+    "ux.addReference": "Th\xEAm tham chi\u1EBFu",
+    "ux.collapseReference": "Thu g\u1ECDn",
+    "ux.selectedResult": "T\xE1c v\u1EE5 \u0111\xE3 ch\u1ECDn",
+    "ux.previousResult": "K\u1EBFt qu\u1EA3 t\xE1c v\u1EE5 tr\u01B0\u1EDBc",
+    "ux.recovery.credentials": "X\xE1c th\u1EF1c th\u1EA5t b\u1EA1i. Ki\u1EC3m tra kh\xF3a API c\u1EE7a nh\xE0 cung c\u1EA5p ho\u1EB7c tr\u1EA1ng th\xE1i \u0111\u0103ng nh\u1EADp tr\u01B0\u1EDBc khi t\u1EA1o l\u1EA1i.",
+    "ux.recovery.quota": "Ki\u1EC3m tra h\u1EA1n m\u1EE9c ho\u1EB7c s\u1ED1 d\u01B0 t\xE0i kho\u1EA3n c\u1EE7a nh\xE0 cung c\u1EA5p.",
+    "ux.recovery.input": "Ki\u1EC3m tra l\u1EDDi nh\u1EAFc, t\u1EC7p tham chi\u1EBFu v\xE0 th\xF4ng s\u1ED1 t\u1EA1o \u1EA3nh.",
+    "ux.recovery.temporary": "T\u1EA1o \u1EA3nh ch\u01B0a ho\xE0n t\u1EA5t. \u1EA2nh th\xE0nh c\xF4ng \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i; c\xF3 th\u1EC3 th\u1EED l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
+    "ux.checkProvider": "Ki\u1EC3m tra nh\xE0 cung c\u1EA5p",
+    "ux.acceptDetail": "Gi\u1EEF \u1EA3nh th\xE0nh c\xF4ng v\xE0 k\u1EBFt th\xFAc t\xE1c v\u1EE5 m\xE0 kh\xF4ng t\u1EA1o l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
+    "ux.errorDetails": "Chi ti\u1EBFt l\u1ED7i",
+    "ux.openRecovery": "X\u1EED l\xFD tr\xEAn trang t\u1EA1o \u1EA3nh",
+    "ux.useSize": "D\xF9ng {width} \xD7 {height}",
+    "ux.moderationAuto": "T\u1EF1 \u0111\u1ED9ng",
+    "ux.moderationLow": "\xCDt h\u1EA1n ch\u1EBF h\u01A1n",
     "app.newTask": "M\u1EDBi",
     "app.newTaskAria": "Tr\xF2 chuy\u1EC7n m\u1EDBi",
     "sidebar.searchPlaceholder": "T\xECm ki\u1EBFm l\u1EDDi nh\u1EAFc ho\u1EB7c Task ID",
@@ -12359,6 +12475,9 @@
     "sidebar.resize": "Thay \u0111\u1ED5i k\xEDch th\u01B0\u1EDBc thanh b\xEAn",
     "batch.selected": "0 \u0111\xE3 ch\u1ECDn",
     "batch.selectedCount": "{count} \u0111\xE3 ch\u1ECDn",
+    "batch.deselectCurrentGroup": "B\u1ECF ch\u1ECDn t\u1EA5t c\u1EA3",
+    "batch.deselectWaiting": "B\u1ECF ch\u1ECDn t\xE1c v\u1EE5 \u0111ang ch\u1EDD",
+    "batch.selectFailed": "Kh\xF4ng th\u1EC3 ch\u1ECDn t\xE1c v\u1EE5. Vui l\xF2ng th\u1EED l\u1EA1i.",
     "batch.selectCurrentGroup": "Ch\u1ECDn t\u1EA5t c\u1EA3 trong nh\xF3m",
     "batch.selectWaiting": "Ch\u1ECDn t\u1EA5t c\u1EA3 t\xE1c v\u1EE5 \u0111ang ch\u1EDD",
     "batch.archivedCount": "\u0110\xE3 l\u01B0u tr\u1EEF {count} cu\u1ED9c tr\xF2 chuy\u1EC7n",
@@ -12689,6 +12808,7 @@
     "history.untitled": "Kh\xF4ng c\xF3 ti\xEAu \u0111\u1EC1",
     "history.promptCompare": "So s\xE1nh l\u1EDDi nh\u1EAFc",
     "history.promptOriginal": "L\u1EDDi nh\u1EAFc ban \u0111\u1EA7u",
+    "history.promptSubmittedActual": "L\u1EDDi nh\u1EAFc th\u1EF1c t\u1EBF \u0111\xE3 g\u1EEDi",
     "history.promptSubmitted": "L\u1EDDi nh\u1EAFc \u0111\u01B0\u1EE3c t\u1ED1i \u01B0u h\xF3a",
     "history.promptRevised": "K\u1EBFt qu\u1EA3 s\u1EEDa \u0111\u1ED5i",
     "history.outputRevisedPromptTitle": "H\xECnh \u1EA3nh {index} \u0111\xE3 s\u1EEDa l\u1EA1i l\u1EDDi nh\u1EAFc",
@@ -12945,6 +13065,15 @@
     "output.apiDirect": "API tr\u1EF1c ti\u1EBFp",
     "output.apiToolModel": "S\u1EED d\u1EE5ng m\xF4 h\xECnh h\xECnh \u1EA3nh API",
     "output.mainModelUnused": "M\xF4 h\xECnh ch\xEDnh kh\xF4ng \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng cho y\xEAu c\u1EA7u n\xE0y",
+    "output.transparencyFidelityHint": "N\u1EC1n trong su\u1ED1t l\xE0 y\xEAu c\u1EA7u \u0111\u1EA7u ra b\u1EA1n \u0111\xE3 ch\u1ECDn, \u0111\u01B0\u1EE3c b\u1ED5 sung c\u1EA3 \u1EDF ch\u1EBF \u0111\u1ED9 Nguy\xEAn v\u0103n v\xE0 Gi\u1EEF nguy\xEAn \xFD.",
+    "output.transparentBackground": "N\u1EC1n trong su\u1ED1t",
+    "output.transparencyFormat": "N\u1EC1n trong su\u1ED1t c\u1EA7n PNG ho\u1EB7c WebP.",
+    "apiSettings.transparencyMode": "C\xE1ch t\u1EA1o n\u1EC1n trong su\u1ED1t",
+    "apiSettings.transparencyNative": "Tham s\u1ED1 g\u1ED1c",
+    "apiSettings.transparencyPrompt": "T\u01B0\u01A1ng th\xEDch l\u1EDDi nh\u1EAFc",
+    "preview.transparencyDetected": "\u0110\xE3 ph\xE1t hi\u1EC7n \u0111i\u1EC3m \u1EA3nh trong su\u1ED1t",
+    "preview.transparencyMissing": "Kh\xF4ng ph\xE1t hi\u1EC7n \u0111i\u1EC3m \u1EA3nh trong su\u1ED1t",
+    "preview.transparencyRetryHint": "Th\u1EED ch\u1EBF \u0111\u1ED9 l\u1EDDi nh\u1EAFc ho\u1EB7c m\xF4 h\xECnh kh\xE1c. Th\u1EED l\u1EA1i s\u1EBD t\u1EA1o \u1EA3nh m\u1EDBi.",
     "output.webSearch": "T\xECm ki\u1EBFm tr\xEAn web",
     "output.webSearchToggle": "B\u1EADt",
     "output.webSearchTitle": "T\xECm ki\u1EBFm web tr\u01B0\u1EDBc, r\u1ED3i d\xF9ng k\u1EBFt qu\u1EA3 cho l\u1EA7n t\u1EA1o n\xE0y; ch\u1EC9 h\u1ED7 tr\u1EE3 Codex v\xE0 API Responses",
@@ -13443,7 +13572,8 @@
     "apiSettings.hideApiKey": "\u1EA8n kh\xF3a API",
     "apiSettings.editProvider": "Ch\u1EC9nh s\u1EEDa provider",
     "apiSettings.newProviderTitle": "Provider m\u1EDBi",
-    "apiSettings.editHint": "B\u1EA5m l\u01B0u provider \u0111\u1EC3 ghi thay \u0111\u1ED5i v\xE0o backend; h\u1EE7y s\u1EBD b\u1ECF thay \u0111\u1ED5i l\u1EA7n n\xE0y.",
+    "ux.viewPreview": "Xem tr\u01B0\u1EDBc",
+    "apiSettings.editHint": "L\u01B0u \u0111\u1EC3 \xE1p d\u1EE5ng thay \u0111\u1ED5i; h\u1EE7y \u0111\u1EC3 b\u1ECF thay \u0111\u1ED5i.",
     "apiSettings.finishEditFirst": "L\u01B0u ho\u1EB7c h\u1EE7y ch\u1EC9nh s\u1EEDa provider hi\u1EC7n t\u1EA1i tr\u01B0\u1EDBc",
     "apiSettings.newDraftStatus": "\u0110ang t\u1EA1o provider. L\u01B0u provider \u0111\u1EC3 \xE1p d\u1EE5ng.",
     "apiSettings.editDraftStatus": "\u0110ang ch\u1EC9nh s\u1EEDa provider. L\u01B0u provider \u0111\u1EC3 \xE1p d\u1EE5ng.",
@@ -13640,8 +13770,59 @@
 
   // codex_image/webui/frontend/src/i18n/zh-cn.ts
   var ZH_CN_DICTIONARY = {
+    "mobile.taskActions": "\u4EFB\u52A1\u64CD\u4F5C",
+    "mobile.photos": "\u7167\u7247",
+    "mobile.files": "\u6587\u4EF6",
+    "mobile.more": "\u66F4\u591A",
+    "mobile.parameters": "\u53C2\u6570",
+    "mobile.backToEditor": "\u8FD4\u56DE\u7F16\u8F91",
+    "mobile.pickFiles": "\u9009\u62E9\u7167\u7247\u6216\u6587\u4EF6",
+    "mobile.pasteHint": "\u8BF7\u957F\u6309\u8F93\u5165\u533A\u4F7F\u7528\u7CFB\u7EDF\u7C98\u8D34\uFF0C\u6216\u9009\u62E9\u7167\u7247\u3001\u6587\u4EF6\u6DFB\u52A0\u3002",
+    "mobile.manualCopy": "\u957F\u6309\u590D\u5236",
+    "mobile.copyHint": "\u6682\u65F6\u65E0\u6CD5\u81EA\u52A8\u590D\u5236\uFF0C\u8BF7\u957F\u6309\u4E0B\u65B9\u6587\u5B57\u590D\u5236\u3002",
+    "mobile.gestureHint": "\u53CC\u6307\u7F29\u653E \xB7 \u5DE6\u53F3\u6ED1\u52A8\u5207\u56FE",
+    "lanAccess.label": "\u5141\u8BB8\u5C40\u57DF\u7F51\u8BBF\u95EE",
+    "lanAccess.help": "\u65E0\u9700\u767B\u5F55\u3002\u540C\u4E00\u7F51\u7EDC\u4E2D\u7684\u7528\u6237\u5171\u7528\u4EFB\u52A1\u3001\u56FE\u5E93\u548C\u4F9B\u5E94\u5546\uFF0C\u4E5F\u53EF\u4EE5\u4FEE\u6539\u8BBE\u7F6E\u548C\u5220\u9664\u4EFB\u52A1\u3002",
+    "lanAccess.loading": "\u6B63\u5728\u8BFB\u53D6\u8BBF\u95EE\u8BBE\u7F6E\u2026",
+    "lanAccess.saving": "\u6B63\u5728\u4FDD\u5B58\u2026",
+    "lanAccess.localOnly": "\u5F53\u524D\u4EC5\u5141\u8BB8\u672C\u673A\u8BBF\u95EE\u3002",
+    "lanAccess.active": "\u5C40\u57DF\u7F51\u8BBF\u95EE\u5DF2\u751F\u6548\u3002",
+    "lanAccess.pendingEnable": "\u5DF2\u4FDD\u5B58\u3002\u91CD\u542F WebUI \u670D\u52A1\u540E\u5F00\u653E\u5C40\u57DF\u7F51\u8BBF\u95EE\u3002",
+    "lanAccess.pendingDisable": "\u5DF2\u4FDD\u5B58\u3002\u91CD\u542F WebUI \u670D\u52A1\u540E\u5173\u95ED\u5C40\u57DF\u7F51\u8BBF\u95EE\uFF0C\u5F53\u524D\u4ECD\u53EF\u8BBF\u95EE\u3002",
+    "lanAccess.hostOverride": "\u542F\u52A8\u53C2\u6570\u5C06\u76D1\u542C\u5730\u5740\u9650\u5B9A\u4E3A\u672C\u673A\uFF0C\u8BF7\u79FB\u9664 --host \u53C2\u6570\u540E\u91CD\u542F\u3002",
+    "lanAccess.noAddress": "\u672A\u68C0\u6D4B\u5230\u5C40\u57DF\u7F51 IPv4 \u5730\u5740\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u8FDE\u63A5\u3002",
+    "lanAccess.failed": "\u8BFB\u53D6\u6216\u4FDD\u5B58\u8BBF\u95EE\u8BBE\u7F6E\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002",
+    "lanAccess.address": "\u5C40\u57DF\u7F51\u8BBF\u95EE\u5730\u5740",
+    "lanAccess.copyAddress": "\u590D\u5236 {address}",
+    "lanAccess.copied": "\u5730\u5740\u5DF2\u590D\u5236\u3002",
+    "lanAccess.copyManually": "\u5DF2\u9009\u4E2D\u5730\u5740\uFF0C\u8BF7\u624B\u52A8\u590D\u5236\u3002",
+    "ux.restoreDraft": "\u6062\u590D\u8349\u7A3F",
+    "ux.draftRestored": "\u5DF2\u6062\u590D\u63D0\u793A\u8BCD\u4E0E\u53C2\u8003\u8F93\u5165\uFF1B\u751F\u6210\u53C2\u6570\u4FDD\u6301\u5F53\u524D\u9009\u62E9\u3002",
+    "ux.discardEdits": "\u653E\u5F03\u4FEE\u6539",
+    "ux.imageUnsaved": "\u56FE\u7247\u8FD8\u6709\u672A\u4FDD\u5B58\u7684\u4FEE\u6539\u3002\u653E\u5F03\u540E\u65E0\u6CD5\u6062\u590D\uFF1B\u53D6\u6D88\u53EF\u7EE7\u7EED\u7F16\u8F91\u3002",
+    "ux.addingReference": "\u6B63\u5728\u52A0\u5165\u53C2\u8003\u56FE\u2026",
+    "ux.referenceAdded": "\u5DF2\u52A0\u5165\u672C\u6B21\u53C2\u8003\u8F93\u5165",
+    "ux.referenceFailed": "\u672A\u80FD\u52A0\u5165\u53C2\u8003\u56FE\uFF0C\u8BF7\u91CD\u8BD5\u3002",
+    "ux.execution": "\u672C\u6B21\u751F\u6210",
+    "ux.imageCount": "{count} \u5F20",
+    "ux.tasks": "\u4EFB\u52A1",
+    "ux.addReference": "\u6DFB\u52A0\u53C2\u8003",
+    "ux.collapseReference": "\u6536\u8D77",
+    "ux.selectedResult": "\u6240\u9009\u4EFB\u52A1",
+    "ux.previousResult": "\u4E0A\u4E00\u4EFB\u52A1\u7ED3\u679C",
+    "ux.recovery.credentials": "\u51ED\u636E\u9A8C\u8BC1\u5931\u8D25\u3002\u8BF7\u6838\u5BF9\u4EFB\u52A1\u4F9B\u5E94\u5546\u7684 API Key \u6216\u672C\u673A\u767B\u5F55\u72B6\u6001\uFF0C\u4FEE\u6B63\u540E\u518D\u751F\u6210\u3002",
+    "ux.recovery.quota": "\u989D\u5EA6\u6216\u8D26\u6237\u4F59\u989D\u4E0D\u8DB3\u3002\u8BF7\u68C0\u67E5\u4EFB\u52A1\u4F9B\u5E94\u5546\u7684\u8D26\u6237\u9650\u5236\u3002",
+    "ux.recovery.input": "\u8BF7\u6C42\u8F93\u5165\u4E0D\u53D7\u652F\u6301\u3002\u8BF7\u68C0\u67E5\u63D0\u793A\u8BCD\u3001\u53C2\u8003\u6587\u4EF6\u548C\u751F\u6210\u53C2\u6570\u3002",
+    "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u56FE\u7247\u4F1A\u4FDD\u7559\uFF1B\u53EF\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u3002",
+    "ux.checkProvider": "\u68C0\u67E5\u4F9B\u5E94\u5546\u8BBE\u7F6E",
+    "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F\u4EFB\u52A1\uFF0C\u4E0D\u518D\u8865\u9F50\u5931\u8D25\u56FE\u7247\u3002",
+    "ux.errorDetails": "\u9519\u8BEF\u8BE6\u60C5",
+    "ux.openRecovery": "\u8FDB\u5165\u751F\u6210\u9875\u5904\u7406",
+    "ux.useSize": "\u91C7\u7528 {width} \xD7 {height}",
+    "ux.moderationAuto": "\u81EA\u52A8",
+    "ux.moderationLow": "\u8F83\u5BBD\u677E",
     "app.newTask": "\u65B0\u5EFA",
-    "app.newTaskAria": "\u65B0\u5EFA\u5BF9\u8BDD",
+    "app.newTaskAria": "\u65B0\u5EFA\u4EFB\u52A1",
     "sidebar.searchPlaceholder": "\u641C\u7D22\u63D0\u793A\u8BCD\u6216\u4EFB\u52A1 ID",
     "sidebar.filters": "\u4EFB\u52A1\u7B5B\u9009",
     "sidebar.allRatios": "\u5168\u90E8\u6BD4\u4F8B",
@@ -13655,13 +13836,16 @@
     "sidebar.resize": "\u8C03\u6574\u4FA7\u680F\u5BBD\u5EA6",
     "batch.selected": "\u5DF2\u9009\u62E9 0 \u4E2A",
     "batch.selectedCount": "\u5DF2\u9009\u62E9 {count} \u4E2A",
+    "batch.deselectCurrentGroup": "\u53D6\u6D88\u5168\u9009",
+    "batch.deselectWaiting": "\u53D6\u6D88\u7B49\u5F85\u5168\u9009",
+    "batch.selectFailed": "\u65E0\u6CD5\u5168\u9009\u4EFB\u52A1\uFF0C\u8BF7\u91CD\u8BD5\u3002",
     "batch.selectCurrentGroup": "\u5168\u9009\u672C\u7EC4",
     "batch.selectWaiting": "\u5168\u9009\u7B49\u5F85\u4E2D",
     "batch.archivedCount": "\u5DF2\u5F52\u6863 {count} \u4E2A\u4F1A\u8BDD",
     "batch.archiveFailed": "\u6279\u91CF\u5F52\u6863\u5931\u8D25",
     "batch.runningCannotDeleteSelected": "\u9009\u4E2D\u7684\u4F1A\u8BDD\u6B63\u5728\u8FD0\u884C\uFF0C\u4E0D\u80FD\u5220\u9664",
     "batch.deleteTitle": "\u5220\u9664 {count} \u4E2A\u4F1A\u8BDD\uFF1F",
-    "batch.deleteMessage": "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+    "batch.deleteMessage": "\u5C06\u6C38\u4E45\u5220\u9664\u4EFB\u52A1\u53CA\u672C\u5730\u56FE\u7247\u6587\u4EF6\uFF0C\u65E0\u6CD5\u64A4\u9500\u3002\u9700\u8981\u4FDD\u7559\u65F6\u8BF7\u4F7F\u7528\u5F52\u6863\u3002",
     "batch.deleteSkippedDetail": "{count} \u4E2A\u8FD0\u884C\u4E2D\u4EFB\u52A1\u4F1A\u4FDD\u7559",
     "batch.deleteSkippedSuffix": "\uFF0C{count} \u4E2A\u8FD0\u884C\u4E2D\u672A\u5220\u9664",
     "batch.deletedCount": "\u5DF2\u5220\u9664 {count} \u4E2A\u4F1A\u8BDD{skipped}",
@@ -13985,6 +14169,7 @@
     "history.untitled": "Untitled",
     "history.promptCompare": "\u63D0\u793A\u8BCD\u5BF9\u6BD4",
     "history.promptOriginal": "\u539F\u59CB\u63D0\u793A\u8BCD",
+    "history.promptSubmittedActual": "\u5B9E\u9645\u63D0\u4EA4\u63D0\u793A\u8BCD",
     "history.promptSubmitted": "\u4F18\u5316\u63D0\u793A\u8BCD",
     "history.promptRevised": "\u4F18\u5316\u7ED3\u679C",
     "history.outputRevisedPromptTitle": "\u56FE {index} \u4F18\u5316\u63D0\u793A\u8BCD",
@@ -14240,7 +14425,16 @@
     "output.mainModelCustomForInput": "\u6309\u5F53\u524D\u8F93\u5165\u4F7F\u7528\u81EA\u5B9A\u4E49\u6A21\u578B",
     "output.apiDirect": "API \u76F4\u8FDE",
     "output.apiToolModel": "\u4F7F\u7528 API \u56FE\u50CF\u751F\u6210\u6A21\u578B",
-    "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C2\u4E0E\u672C\u6B21\u8BF7\u6C42",
+    "output.mainModelUnused": "\u76F4\u63A5\u4F7F\u7528\u6240\u9009\u56FE\u50CF\u6A21\u578B\u751F\u6210",
+    "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9009\u62E9\u7684\u8F93\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u4F1A\u9644\u52A0\u6B64\u8981\u6C42\u3002",
+    "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
+    "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
+    "apiSettings.transparencyNative": "\u539F\u751F\u53C2\u6570",
+    "apiSettings.transparencyPrompt": "\u63D0\u793A\u8BCD\u517C\u5BB9",
+    "preview.transparencyDetected": "\u5DF2\u68C0\u6D4B\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyMissing": "\u672A\u68C0\u6D4B\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyRetryHint": "\u53EF\u5C1D\u8BD5\u63D0\u793A\u8BCD\u517C\u5BB9\u65B9\u5F0F\u6216\u5176\u4ED6\u6A21\u578B\uFF1B\u91CD\u8BD5\u4F1A\u91CD\u65B0\u751F\u6210\u3002",
     "output.webSearch": "\u8054\u7F51\u641C\u7D22",
     "output.webSearchToggle": "\u5F00\u542F",
     "output.webSearchTitle": "\u5148\u8054\u7F51\u641C\u7D22\uFF0C\u518D\u7528\u4E8E\u672C\u6B21\u751F\u6210\uFF1B\u4EC5 Codex \u548C API Responses \u652F\u6301",
@@ -14316,7 +14510,7 @@
     "preview.continueGenerating": "\u7EE7\u7EED\u751F\u6210\u4E2D",
     "preview.waitingContinue": "\u7B49\u5F85\u7EE7\u7EED\u751F\u6210",
     "preview.retryFailed": "\u4EC5\u91CD\u8BD5\u5931\u8D25\u56FE\u7247",
-    "preview.acceptSuccesses": "\u63A5\u53D7\u5DF2\u6210\u529F\u7ED3\u679C",
+    "preview.acceptSuccesses": "\u4FDD\u7559\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F",
     "preview.generateMode": "\u751F\u6210",
     "preview.editMode": "\u7F16\u8F91",
     "preview.runningTitle": "{mode}\u4EFB\u52A1\u8FD0\u884C\u4E2D",
@@ -14383,8 +14577,8 @@
     "taskContext.revealOpened": "\u5DF2\u6253\u5F00\u8F93\u51FA\u76EE\u5F55",
     "taskContext.actionFailed": "\u4EFB\u52A1\u64CD\u4F5C\u5931\u8D25",
     "taskActions.group": "\u4EFB\u52A1\u64CD\u4F5C",
-    "taskActions.deleteTitle": "\u5220\u9664\u4EFB\u52A1\uFF1F",
-    "taskActions.deleteMessage": "\u4F1A\u540C\u65F6\u5220\u9664\u672C\u5730\u56FE\u7247\u6587\u4EF6\u3002",
+    "taskActions.deleteTitle": "\u6C38\u4E45\u5220\u9664\u4EFB\u52A1\u53CA\u6587\u4EF6\uFF1F",
+    "taskActions.deleteMessage": "\u5C06\u6C38\u4E45\u5220\u9664\u4EFB\u52A1\u53CA\u672C\u5730\u56FE\u7247\u6587\u4EF6\uFF0C\u65E0\u6CD5\u64A4\u9500\u3002\u9700\u8981\u4FDD\u7559\u65F6\u8BF7\u4F7F\u7528\u5F52\u6863\u3002",
     "taskActions.runningCannotDelete": "\u8FD0\u884C\u4E2D\u7684\u4EFB\u52A1\u4E0D\u80FD\u5220\u9664",
     "taskActions.updated": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u66F4\u65B0",
     "taskActions.archived": "\u4F1A\u8BDD\u5DF2\u5F52\u6863",
@@ -14703,7 +14897,7 @@
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
     "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
     "apiSettings.appendRatioPrompt": "\u8FFD\u52A0\u6BD4\u4F8B\u63D0\u793A",
-    "apiSettings.defaultProviderForModel": "\u8BBE\u4E3A\u9ED8\u8BA4\u4F9B\u5E94\u5546",
+    "apiSettings.defaultProviderForModel": "\u8BBE\u4E3A\u8BE5\u578B\u53F7\u9ED8\u8BA4\u4F9B\u5E94\u5546",
     "apiSettings.removeBinding": "\u5220\u9664\u7ED1\u5B9A",
     "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
     "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
@@ -14739,7 +14933,8 @@
     "apiSettings.hideApiKey": "\u9690\u85CF API Key",
     "apiSettings.editProvider": "\u7F16\u8F91\u4F9B\u5E94\u5546",
     "apiSettings.newProviderTitle": "\u65B0\u589E\u4F9B\u5E94\u5546",
-    "apiSettings.editHint": "\u70B9\u51FB\u4FDD\u5B58\u4F9B\u5E94\u5546\u540E\u5199\u5165\u540E\u7AEF\uFF0C\u53D6\u6D88\u53EF\u653E\u5F03\u672C\u6B21\u7F16\u8F91\u3002",
+    "ux.viewPreview": "\u67E5\u770B\u9884\u89C8",
+    "apiSettings.editHint": "\u4FDD\u5B58\u540E\u751F\u6548\uFF1B\u53D6\u6D88\u7F16\u8F91\u4F1A\u653E\u5F03\u672C\u6B21\u4FEE\u6539\u3002",
     "apiSettings.finishEditFirst": "\u8BF7\u5148\u4FDD\u5B58\u6216\u53D6\u6D88\u5F53\u524D\u4F9B\u5E94\u5546\u7F16\u8F91",
     "apiSettings.newDraftStatus": "\u6B63\u5728\u65B0\u589E\u4F9B\u5E94\u5546\uFF0C\u4FDD\u5B58\u4F9B\u5E94\u5546\u540E\u751F\u6548",
     "apiSettings.editDraftStatus": "\u6B63\u5728\u7F16\u8F91\u4F9B\u5E94\u5546\uFF0C\u4FDD\u5B58\u4F9B\u5E94\u5546\u540E\u751F\u6548",
@@ -14936,6 +15131,32 @@
 
   // codex_image/webui/frontend/src/i18n/zh-hk.ts
   var ZH_HK_DICTIONARY = {
+    "mobile.taskActions": "\u4EFB\u52D9\u64CD\u4F5C",
+    "mobile.photos": "\u76F8\u7247",
+    "mobile.files": "\u6A94\u6848",
+    "mobile.more": "\u66F4\u591A",
+    "mobile.parameters": "\u53C3\u6578",
+    "mobile.backToEditor": "\u8FD4\u56DE\u7DE8\u8F2F",
+    "mobile.pickFiles": "\u9078\u64C7\u76F8\u7247\u6216\u6A94\u6848",
+    "mobile.pasteHint": "\u8ACB\u9577\u6309\u8F38\u5165\u5340\u4F7F\u7528\u7CFB\u7D71\u8CBC\u4E0A\uFF0C\u6216\u9078\u64C7\u76F8\u7247\u3001\u6A94\u6848\u52A0\u5165\u3002",
+    "mobile.manualCopy": "\u9577\u6309\u8907\u88FD",
+    "mobile.copyHint": "\u66AB\u6642\u7121\u6CD5\u81EA\u52D5\u8907\u88FD\uFF0C\u8ACB\u9577\u6309\u4E0B\u65B9\u6587\u5B57\u8907\u88FD\u3002",
+    "mobile.gestureHint": "\u96D9\u6307\u7E2E\u653E \xB7 \u5DE6\u53F3\u6ED1\u52D5\u5207\u5716",
+    "lanAccess.label": "\u5141\u8A31\u5340\u57DF\u7DB2\u7D61\u5B58\u53D6",
+    "lanAccess.help": "\u7121\u9700\u767B\u5165\u3002\u540C\u4E00\u7DB2\u7D61\u4E2D\u7684\u4F7F\u7528\u8005\u5171\u7528\u4EFB\u52D9\u3001\u5716\u5EAB\u548C\u4F9B\u61C9\u5546\uFF0C\u4E5F\u53EF\u4EE5\u4FEE\u6539\u8A2D\u5B9A\u548C\u522A\u9664\u4EFB\u52D9\u3002",
+    "lanAccess.loading": "\u6B63\u5728\u8B80\u53D6\u5B58\u53D6\u8A2D\u5B9A\u2026",
+    "lanAccess.saving": "\u6B63\u5728\u5132\u5B58\u2026",
+    "lanAccess.localOnly": "\u76EE\u524D\u50C5\u5141\u8A31\u672C\u6A5F\u5B58\u53D6\u3002",
+    "lanAccess.active": "\u5340\u57DF\u7DB2\u7D61\u5B58\u53D6\u5DF2\u751F\u6548\u3002",
+    "lanAccess.pendingEnable": "\u5DF2\u5132\u5B58\u3002\u91CD\u65B0\u555F\u52D5 WebUI \u670D\u52D9\u5F8C\u958B\u653E\u5340\u57DF\u7DB2\u7D61\u5B58\u53D6\u3002",
+    "lanAccess.pendingDisable": "\u5DF2\u5132\u5B58\u3002\u91CD\u65B0\u555F\u52D5 WebUI \u670D\u52D9\u5F8C\u95DC\u9589\u5340\u57DF\u7DB2\u7D61\u5B58\u53D6\uFF0C\u76EE\u524D\u4ECD\u53EF\u5B58\u53D6\u3002",
+    "lanAccess.hostOverride": "\u555F\u52D5\u53C3\u6578\u5C07\u76E3\u807D\u4F4D\u5740\u9650\u5B9A\u70BA\u672C\u6A5F\uFF0C\u8ACB\u79FB\u9664 --host \u53C3\u6578\u5F8C\u91CD\u65B0\u555F\u52D5\u3002",
+    "lanAccess.noAddress": "\u672A\u5075\u6E2C\u5230\u5340\u57DF\u7DB2\u7D61 IPv4 \u4F4D\u5740\uFF0C\u8ACB\u6AA2\u67E5\u7DB2\u7D61\u9023\u7DDA\u3002",
+    "lanAccess.failed": "\u8B80\u53D6\u6216\u5132\u5B58\u5B58\u53D6\u8A2D\u5B9A\u5931\u6557\uFF0C\u8ACB\u91CD\u8A66\u3002",
+    "lanAccess.address": "\u5340\u57DF\u7DB2\u7D61\u5B58\u53D6\u4F4D\u5740",
+    "lanAccess.copyAddress": "\u8907\u88FD {address}",
+    "lanAccess.copied": "\u4F4D\u5740\u5DF2\u8907\u88FD\u3002",
+    "lanAccess.copyManually": "\u5DF2\u9078\u53D6\u4F4D\u5740\uFF0C\u8ACB\u624B\u52D5\u8907\u88FD\u3002",
     "app.newTask": "\u65B0\u589E",
     "app.newTaskAria": "\u65B0\u5EFA\u5C0D\u8A71",
     "sidebar.searchPlaceholder": "\u641C\u5C0B\u63D0\u793A\u8A5E\u6216\u4EFB\u52D9ID",
@@ -14951,6 +15172,9 @@
     "sidebar.resize": "\u8ABF\u6574\u5074\u6B04\u5BEC\u5EA6",
     "batch.selected": "\u5DF2\u9078\u64C7 0 \u500B",
     "batch.selectedCount": "\u5DF2\u9078\u64C7{count}\u500B",
+    "batch.deselectCurrentGroup": "\u53D6\u6D88\u5168\u9078",
+    "batch.deselectWaiting": "\u53D6\u6D88\u7B49\u5F85\u5168\u9078",
+    "batch.selectFailed": "\u7121\u6CD5\u5168\u9078\u4EFB\u52D9\uFF0C\u8ACB\u91CD\u8A66\u3002",
     "batch.selectCurrentGroup": "\u5168\u9078\u672C\u7D44",
     "batch.selectWaiting": "\u5168\u9078\u7B49\u5F85\u4E2D",
     "batch.archivedCount": "\u5DF2\u6B78\u6A94{count}\u500B\u6703\u8A71",
@@ -15281,6 +15505,7 @@
     "history.untitled": "Untitled",
     "history.promptCompare": "\u63D0\u793A\u8A5E\u5C0D\u6BD4",
     "history.promptOriginal": "\u539F\u59CB\u63D0\u793A\u8A5E",
+    "history.promptSubmittedActual": "\u5BE6\u969B\u63D0\u4EA4\u63D0\u793A\u8A5E",
     "history.promptSubmitted": "\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
     "history.promptRevised": "\u6700\u4F73\u5316\u7D50\u679C",
     "history.outputRevisedPromptTitle": "\u5716{index}\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
@@ -15537,6 +15762,15 @@
     "output.apiDirect": "API\u76F4\u9023",
     "output.apiToolModel": "\u4F7F\u7528 API \u5F71\u50CF\u751F\u6210\u6A21\u578B",
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
+    "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
+    "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
+    "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
+    "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
+    "apiSettings.transparencyPrompt": "\u63D0\u793A\u8A5E\u517C\u5BB9",
+    "preview.transparencyDetected": "\u5DF2\u5075\u6E2C\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyMissing": "\u672A\u5075\u6E2C\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyRetryHint": "\u53EF\u5617\u8A66\u63D0\u793A\u8A5E\u517C\u5BB9\u65B9\u5F0F\u6216\u5176\u4ED6\u6A21\u578B\uFF1B\u91CD\u8A66\u6703\u91CD\u65B0\u751F\u6210\u3002",
     "output.webSearch": "\u806F\u7DB2\u641C\u5C0B",
     "output.webSearchToggle": "\u958B\u555F",
     "output.webSearchTitle": "\u5148\u806F\u7DB2\u641C\u5C0B\uFF0C\u518D\u7528\u65BC\u672C\u6B21\u751F\u6210\uFF1B\u50C5Codex\u548CAPIResponses \u652F\u6301",
@@ -15940,7 +16174,7 @@
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
     "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
     "apiSettings.appendRatioPrompt": "\u52A0\u5165\u6BD4\u4F8B\u63D0\u793A",
-    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u9810\u8A2D\u4F9B\u61C9\u5546",
+    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u6B64\u578B\u865F\u9810\u8A2D\u4F9B\u61C9\u5546",
     "apiSettings.removeBinding": "\u522A\u9664\u7D81\u5B9A",
     "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
     "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
@@ -15976,7 +16210,8 @@
     "apiSettings.hideApiKey": "\u96B1\u85CF API Key",
     "apiSettings.editProvider": "\u7DE8\u8F2F\u4F9B\u61C9\u5546",
     "apiSettings.newProviderTitle": "\u65B0\u589E\u4F9B\u61C9\u5546",
-    "apiSettings.editHint": "\u9EDE\u9078\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u5BEB\u5165\u5F8C\u7AEF\uFF0C\u53D6\u6D88\u53EF\u653E\u68C4\u672C\u6B21\u7DE8\u8F2F\u3002",
+    "ux.viewPreview": "\u67E5\u770B\u9810\u89BD",
+    "apiSettings.editHint": "\u5132\u5B58\u5F8C\u751F\u6548\uFF1B\u53D6\u6D88\u7DE8\u8F2F\u6703\u653E\u68C4\u672C\u6B21\u4FEE\u6539\u3002",
     "apiSettings.finishEditFirst": "\u8ACB\u5148\u5132\u5B58\u6216\u53D6\u6D88\u76EE\u524D\u4F9B\u61C9\u5546\u7DE8\u8F2F",
     "apiSettings.newDraftStatus": "\u6B63\u5728\u65B0\u589E\u4F9B\u61C9\u5546\uFF0C\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u751F\u6548",
     "apiSettings.editDraftStatus": "\u6B63\u5728\u7DE8\u8F2F\u4F9B\u61C9\u5546\uFF0C\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u751F\u6548",
@@ -16173,6 +16408,32 @@
 
   // codex_image/webui/frontend/src/i18n/zh-tw.ts
   var ZH_TW_DICTIONARY = {
+    "mobile.taskActions": "\u4EFB\u52D9\u64CD\u4F5C",
+    "mobile.photos": "\u7167\u7247",
+    "mobile.files": "\u6A94\u6848",
+    "mobile.more": "\u66F4\u591A",
+    "mobile.parameters": "\u53C3\u6578",
+    "mobile.backToEditor": "\u8FD4\u56DE\u7DE8\u8F2F",
+    "mobile.pickFiles": "\u9078\u64C7\u7167\u7247\u6216\u6A94\u6848",
+    "mobile.pasteHint": "\u8ACB\u9577\u6309\u8F38\u5165\u5340\u4F7F\u7528\u7CFB\u7D71\u8CBC\u4E0A\uFF0C\u6216\u9078\u64C7\u7167\u7247\u3001\u6A94\u6848\u52A0\u5165\u3002",
+    "mobile.manualCopy": "\u9577\u6309\u8907\u88FD",
+    "mobile.copyHint": "\u66AB\u6642\u7121\u6CD5\u81EA\u52D5\u8907\u88FD\uFF0C\u8ACB\u9577\u6309\u4E0B\u65B9\u6587\u5B57\u8907\u88FD\u3002",
+    "mobile.gestureHint": "\u96D9\u6307\u7E2E\u653E \xB7 \u5DE6\u53F3\u6ED1\u52D5\u5207\u5716",
+    "lanAccess.label": "\u5141\u8A31\u5340\u57DF\u7DB2\u8DEF\u5B58\u53D6",
+    "lanAccess.help": "\u7121\u9700\u767B\u5165\u3002\u540C\u4E00\u7DB2\u8DEF\u4E2D\u7684\u4F7F\u7528\u8005\u5171\u7528\u4EFB\u52D9\u3001\u5716\u5EAB\u548C\u4F9B\u61C9\u5546\uFF0C\u4E5F\u53EF\u4EE5\u4FEE\u6539\u8A2D\u5B9A\u548C\u522A\u9664\u4EFB\u52D9\u3002",
+    "lanAccess.loading": "\u6B63\u5728\u8B80\u53D6\u5B58\u53D6\u8A2D\u5B9A\u2026",
+    "lanAccess.saving": "\u6B63\u5728\u5132\u5B58\u2026",
+    "lanAccess.localOnly": "\u76EE\u524D\u50C5\u5141\u8A31\u672C\u6A5F\u5B58\u53D6\u3002",
+    "lanAccess.active": "\u5340\u57DF\u7DB2\u8DEF\u5B58\u53D6\u5DF2\u751F\u6548\u3002",
+    "lanAccess.pendingEnable": "\u5DF2\u5132\u5B58\u3002\u91CD\u65B0\u555F\u52D5 WebUI \u670D\u52D9\u5F8C\u958B\u653E\u5340\u57DF\u7DB2\u8DEF\u5B58\u53D6\u3002",
+    "lanAccess.pendingDisable": "\u5DF2\u5132\u5B58\u3002\u91CD\u65B0\u555F\u52D5 WebUI \u670D\u52D9\u5F8C\u95DC\u9589\u5340\u57DF\u7DB2\u8DEF\u5B58\u53D6\uFF0C\u76EE\u524D\u4ECD\u53EF\u5B58\u53D6\u3002",
+    "lanAccess.hostOverride": "\u555F\u52D5\u53C3\u6578\u5C07\u76E3\u807D\u4F4D\u5740\u9650\u5B9A\u70BA\u672C\u6A5F\uFF0C\u8ACB\u79FB\u9664 --host \u53C3\u6578\u5F8C\u91CD\u65B0\u555F\u52D5\u3002",
+    "lanAccess.noAddress": "\u672A\u5075\u6E2C\u5230\u5340\u57DF\u7DB2\u8DEF IPv4 \u4F4D\u5740\uFF0C\u8ACB\u6AA2\u67E5\u7DB2\u8DEF\u9023\u7DDA\u3002",
+    "lanAccess.failed": "\u8B80\u53D6\u6216\u5132\u5B58\u5B58\u53D6\u8A2D\u5B9A\u5931\u6557\uFF0C\u8ACB\u91CD\u8A66\u3002",
+    "lanAccess.address": "\u5340\u57DF\u7DB2\u8DEF\u5B58\u53D6\u4F4D\u5740",
+    "lanAccess.copyAddress": "\u8907\u88FD {address}",
+    "lanAccess.copied": "\u4F4D\u5740\u5DF2\u8907\u88FD\u3002",
+    "lanAccess.copyManually": "\u5DF2\u9078\u53D6\u4F4D\u5740\uFF0C\u8ACB\u624B\u52D5\u8907\u88FD\u3002",
     "app.newTask": "\u65B0\u589E",
     "app.newTaskAria": "\u65B0\u5EFA\u5C0D\u8A71",
     "sidebar.searchPlaceholder": "\u641C\u5C0B\u63D0\u793A\u8A5E\u6216\u4EFB\u52D9ID",
@@ -16188,6 +16449,9 @@
     "sidebar.resize": "\u8ABF\u6574\u5074\u6B04\u5BEC\u5EA6",
     "batch.selected": "\u5DF2\u9078\u64C7 0 \u500B",
     "batch.selectedCount": "\u5DF2\u9078\u64C7{count}\u500B",
+    "batch.deselectCurrentGroup": "\u53D6\u6D88\u5168\u9078",
+    "batch.deselectWaiting": "\u53D6\u6D88\u7B49\u5F85\u5168\u9078",
+    "batch.selectFailed": "\u7121\u6CD5\u5168\u9078\u4EFB\u52D9\uFF0C\u8ACB\u91CD\u8A66\u3002",
     "batch.selectCurrentGroup": "\u5168\u9078\u672C\u7D44",
     "batch.selectWaiting": "\u5168\u9078\u7B49\u5F85\u4E2D",
     "batch.archivedCount": "\u5DF2\u6B78\u6A94{count}\u500B\u6703\u8A71",
@@ -16518,6 +16782,7 @@
     "history.untitled": "Untitled",
     "history.promptCompare": "\u63D0\u793A\u8A5E\u5C0D\u6BD4",
     "history.promptOriginal": "\u539F\u59CB\u63D0\u793A\u8A5E",
+    "history.promptSubmittedActual": "\u5BE6\u969B\u63D0\u4EA4\u63D0\u793A\u8A5E",
     "history.promptSubmitted": "\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
     "history.promptRevised": "\u6700\u4F73\u5316\u7D50\u679C",
     "history.outputRevisedPromptTitle": "\u5716{index}\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
@@ -16774,6 +17039,15 @@
     "output.apiDirect": "API\u76F4\u9023",
     "output.apiToolModel": "\u4F7F\u7528 API \u5F71\u50CF\u751F\u6210\u6A21\u578B",
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
+    "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
+    "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
+    "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
+    "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
+    "apiSettings.transparencyPrompt": "\u63D0\u793A\u8A5E\u76F8\u5BB9",
+    "preview.transparencyDetected": "\u5DF2\u5075\u6E2C\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyMissing": "\u672A\u5075\u6E2C\u5230\u900F\u660E\u50CF\u7D20",
+    "preview.transparencyRetryHint": "\u53EF\u5617\u8A66\u63D0\u793A\u8A5E\u76F8\u5BB9\u65B9\u5F0F\u6216\u5176\u4ED6\u6A21\u578B\uFF1B\u91CD\u8A66\u6703\u91CD\u65B0\u751F\u6210\u3002",
     "output.webSearch": "\u806F\u7DB2\u641C\u5C0B",
     "output.webSearchToggle": "\u958B\u555F",
     "output.webSearchTitle": "\u5148\u806F\u7DB2\u641C\u5C0B\uFF0C\u518D\u7528\u65BC\u672C\u6B21\u751F\u6210\uFF1B\u50C5Codex\u548CAPIResponses \u652F\u6301",
@@ -17177,7 +17451,7 @@
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
     "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
     "apiSettings.appendRatioPrompt": "\u8FFD\u52A0\u6BD4\u4F8B\u63D0\u793A",
-    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u9810\u8A2D\u4F9B\u61C9\u5546",
+    "apiSettings.defaultProviderForModel": "\u8A2D\u70BA\u6B64\u578B\u865F\u9810\u8A2D\u4F9B\u61C9\u5546",
     "apiSettings.removeBinding": "\u522A\u9664\u7D81\u5B9A",
     "apiSettings.catalogRequiredForBinding": "\u6A21\u578B\u76EE\u5F55\u4E0D\u53EF\u7528\uFF0C\u6682\u65F6\u65E0\u6CD5\u6DFB\u52A0\u7ED1\u5B9A",
     "apiSettings.keepOneBinding": "\u6BCF\u4E2A\u4F9B\u5E94\u5546\u81F3\u5C11\u4FDD\u7559\u4E00\u6761\u6A21\u578B\u7ED1\u5B9A",
@@ -17213,7 +17487,8 @@
     "apiSettings.hideApiKey": "\u96B1\u85CF API Key",
     "apiSettings.editProvider": "\u7DE8\u8F2F\u4F9B\u61C9\u5546",
     "apiSettings.newProviderTitle": "\u65B0\u589E\u4F9B\u61C9\u5546",
-    "apiSettings.editHint": "\u9EDE\u9078\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u5BEB\u5165\u5F8C\u7AEF\uFF0C\u53D6\u6D88\u53EF\u653E\u68C4\u672C\u6B21\u7DE8\u8F2F\u3002",
+    "ux.viewPreview": "\u67E5\u770B\u9810\u89BD",
+    "apiSettings.editHint": "\u5132\u5B58\u5F8C\u751F\u6548\uFF1B\u53D6\u6D88\u7DE8\u8F2F\u6703\u653E\u68C4\u672C\u6B21\u4FEE\u6539\u3002",
     "apiSettings.finishEditFirst": "\u8ACB\u5148\u5132\u5B58\u6216\u53D6\u6D88\u76EE\u524D\u4F9B\u61C9\u5546\u7DE8\u8F2F",
     "apiSettings.newDraftStatus": "\u6B63\u5728\u65B0\u589E\u4F9B\u61C9\u5546\uFF0C\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u751F\u6548",
     "apiSettings.editDraftStatus": "\u6B63\u5728\u7DE8\u8F2F\u4F9B\u61C9\u5546\uFF0C\u5132\u5B58\u4F9B\u61C9\u5546\u5F8C\u751F\u6548",
@@ -17821,11 +18096,11 @@
     }
     return DEFAULT_LOCALE;
   }
-  function translate(key, locale = currentLocale) {
-    return DICTIONARIES[locale]?.[key] ?? DICTIONARIES.en[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+  function translate(key2, locale = currentLocale) {
+    return DICTIONARIES[locale]?.[key2] ?? DICTIONARIES.en[key2] ?? DICTIONARIES[DEFAULT_LOCALE][key2] ?? key2;
   }
-  function formatTranslation(key, values = {}, locale = currentLocale) {
-    return translate(key, locale).replace(/\{(\w+)\}/g, (match, name) => {
+  function formatTranslation(key2, values = {}, locale = currentLocale) {
+    return translate(key2, locale).replace(/\{(\w+)\}/g, (match, name) => {
       const value = values[name];
       return value === void 0 ? match : String(value);
     });
@@ -17833,8 +18108,8 @@
   function translationPairs(value) {
     const pairs = [];
     (value || "").split(";").map((item) => item.trim()).filter(Boolean).forEach((pair) => {
-      const [attribute, key] = pair.split(":").map((item) => item.trim());
-      if (attribute && key) pairs.push([attribute, key]);
+      const [attribute, key2] = pair.split(":").map((item) => item.trim());
+      if (attribute && key2) pairs.push([attribute, key2]);
     });
     return pairs;
   }
@@ -17857,8 +18132,8 @@
       element.textContent = translate(element.dataset.i18n || "");
     });
     document.querySelectorAll("[data-i18n-attr]").forEach((element) => {
-      translationPairs(element.dataset.i18nAttr).forEach(([attribute, key]) => {
-        element.setAttribute(attribute, translate(key));
+      translationPairs(element.dataset.i18nAttr).forEach(([attribute, key2]) => {
+        element.setAttribute(attribute, translate(key2));
       });
     });
     updateLanguageSelect();
@@ -17934,6 +18209,312 @@
     };
   }
 
+  // codex_image/webui/frontend/src/mobile-shell.ts
+  var MOBILE_WORKSPACE_QUERY = "(max-width: 600px), (max-width: 950px) and (max-height: 500px) and (pointer: coarse)";
+  function mobileKeyboardInset(mobile, layoutHeight, viewport) {
+    if (!mobile || !viewport || Math.abs(viewport.scale - 1) > 0.05 || layoutHeight - viewport.height <= 120) return 0;
+    return Math.max(0, layoutHeight - viewport.height - viewport.offsetTop);
+  }
+  function createMobileSheet(id, titleKey) {
+    const root = document.createElement("div");
+    root.id = id;
+    root.className = "mobile-sheet hidden";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
+    const frame = document.createElement("section");
+    frame.className = "mobile-sheet-frame";
+    const header = document.createElement("header");
+    header.className = "mobile-sheet-heading";
+    const title = document.createElement("strong");
+    title.id = `${id}Title`;
+    root.setAttribute("aria-labelledby", title.id);
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "ghost-button drawer-close-button";
+    const content = document.createElement("div");
+    content.className = "mobile-sheet-content";
+    const label = () => {
+      title.textContent = translate(titleKey);
+      closeButton.textContent = translate("action.close");
+    };
+    label();
+    document.addEventListener(LOCALE_CHANGE_EVENT, label);
+    header.append(title, closeButton);
+    frame.append(header, content);
+    root.append(frame);
+    document.body.append(root);
+    let trigger = null;
+    const close = () => {
+      root.classList.add("hidden");
+      trigger?.setAttribute("aria-expanded", "false");
+    };
+    const open = (source) => {
+      trigger = source || null;
+      root.classList.remove("hidden");
+      trigger?.setAttribute("aria-expanded", "true");
+    };
+    closeButton.addEventListener("click", close);
+    root.addEventListener("click", (event) => {
+      if (event.target === root) close();
+    });
+    return { root, content, open, close };
+  }
+  function initMobileShell() {
+    const nav = document.querySelector(".nav-actions");
+    if (!nav) return;
+    const query = window.matchMedia(MOBILE_WORKSPACE_QUERY);
+    const sheet = createMobileSheet("mobileMore", "mobile.more");
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "ghost-button mobile-more-button";
+    more.textContent = "\xB7\xB7\xB7";
+    more.setAttribute("aria-controls", sheet.root.id);
+    more.setAttribute("aria-expanded", "false");
+    const label = () => more.setAttribute("aria-label", translate("mobile.more"));
+    label();
+    document.addEventListener(LOCALE_CHANGE_EVENT, label);
+    nav.append(more);
+    more.addEventListener("click", () => sheet.open(more));
+    const origins = /* @__PURE__ */ new Map();
+    const move = (id, target) => {
+      const node = document.getElementById(id);
+      if (!node) return;
+      const marker = document.createComment(`mobile-${id}`);
+      node.before(marker);
+      origins.set(node, marker);
+      target.append(node);
+    };
+    const sync = () => {
+      sheet.close();
+      origins.forEach((marker, node) => marker.replaceWith(node));
+      origins.clear();
+      document.body.classList.toggle("mobile-ui", query.matches);
+      if (!query.matches) return;
+      move("compactTasksButton", nav);
+      move("newTaskButton", nav);
+      ["historyToolbarUtilities", "modelFamilyOptions", "queueButton", "taskNotificationButton", "taskNotificationCenter", "generationProviderSettingsButton", "themeSwitcher", "githubLink"].forEach((id) => move(id, sheet.content));
+    };
+    sheet.content.addEventListener("click", (event) => {
+      if (event.target.closest("#generationProviderSettingsButton, #queueButton, #historyManagementButton, #historyRefreshButton")) sheet.close();
+    }, true);
+    query.addEventListener("change", sync);
+    sync();
+    let frame = 0;
+    const updateViewport = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const viewport = window.visualViewport;
+        const bottom = mobileKeyboardInset(query.matches, window.innerHeight, viewport);
+        const keyboard = bottom > 0;
+        document.body.classList.toggle("mobile-keyboard-open", keyboard);
+        document.documentElement.style.setProperty("--mobile-keyboard-inset", `${bottom}px`);
+        document.documentElement.style.setProperty("--mobile-visible-height", keyboard && viewport ? `${viewport.height}px` : "100dvh");
+      });
+    };
+    window.visualViewport?.addEventListener("resize", updateViewport);
+    window.visualViewport?.addEventListener("scroll", updateViewport);
+    window.addEventListener("resize", updateViewport);
+    updateViewport();
+  }
+
+  // codex_image/webui/frontend/src/clipboard-text.ts
+  var manualSheet = null;
+  async function copyTextToClipboard(text) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+    }
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.readOnly = true;
+    field.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
+    const previous = document.activeElement;
+    (previous?.closest('[role="dialog"]') || document.body).append(field);
+    field.select();
+    let copied = false;
+    try {
+      copied = Boolean(document.execCommand?.("copy"));
+    } catch {
+    }
+    field.remove();
+    previous?.focus({ preventScroll: true });
+    if (copied) return true;
+    manualSheet || (manualSheet = createMobileSheet("manualClipboard", "mobile.manualCopy"));
+    const hint = document.createElement("p");
+    hint.textContent = translate("mobile.copyHint");
+    const selectable = document.createElement("textarea");
+    selectable.readOnly = true;
+    selectable.value = text;
+    selectable.className = "control manual-copy-text";
+    selectable.setAttribute("aria-label", translate("mobile.manualCopy"));
+    manualSheet.content.replaceChildren(hint, selectable);
+    manualSheet.open(previous || void 0);
+    requestAnimationFrame(() => {
+      selectable.focus();
+      selectable.select();
+    });
+    return false;
+  }
+
+  // codex_image/webui/frontend/src/task-recovery.ts
+  function taskRecoveryKind(task) {
+    const text = String(task?.error || task?.last_error || "").toLowerCase();
+    if (/\b401\b|invalid_api_key|authentication_error|unauthorized|incorrect api key/.test(text)) return "credentials";
+    if (/quota|usage limit|insufficient_quota|billing/.test(text)) return "quota";
+    if (/invalid_value|unsupported mime|base64-encoded data url/.test(text)) return "input";
+    return "temporary";
+  }
+  function taskRecoveryMessage(task) {
+    return translate(`ux.recovery.${taskRecoveryKind(task)}`);
+  }
+  function localizedTaskStatus(status) {
+    return translate(status === "partial_failed" ? "taskStatus.partialFailed" : `taskStatus.${status}`);
+  }
+
+  // codex_image/webui/frontend/src/webui-utils.ts
+  function escapeHtml(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+  function cssEscape(value) {
+    const text = String(value || "");
+    if (window.CSS?.escape) return window.CSS.escape(text);
+    return text.replace(/["\\]/g, "\\$&");
+  }
+
+  // codex_image/webui/frontend/src/transparency-status.ts
+  function submittedPromptForTask(task) {
+    return [task?.prompt_for_model || task?.prompt || "", task?.generation_snapshot?.transparency_instruction || ""].filter(Boolean).join("\n\n");
+  }
+  function requestedTransparentBackground(task) {
+    return (task?.generation_snapshot?.requested_parameters?.["gpt.background"] ?? task?.request?.parameters?.["gpt.background"] ?? task?.params?.background) === "transparent";
+  }
+  function transparencyStatus(hasTransparency, requested) {
+    if (hasTransparency === true) return { label: translate("preview.transparencyDetected"), hint: "" };
+    if (hasTransparency === false && requested) {
+      return { label: translate("preview.transparencyMissing"), hint: translate("preview.transparencyRetryHint") };
+    }
+    return null;
+  }
+  function transparencyStatusHtml(hasTransparency, requested) {
+    const status = transparencyStatus(hasTransparency, requested);
+    return status ? `<span class="output-transparency-status" title="${escapeHtml(status.hint || status.label)}">${escapeHtml(status.label)}</span>` : "";
+  }
+
+  // codex_image/webui/frontend/src/overlay-focus.ts
+  var layerSelector = ".modal-overlay, .resource-sheet, .confirm-popover, .history-lightbox, .task-context-menu, .mobile-sheet, #compactTaskDrawer";
+  var focusSelector = 'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+  function initOverlayFocus() {
+    const stack = [];
+    let previousFocus = document.activeElement;
+    let syncing = false;
+    const triggers = /* @__PURE__ */ new WeakMap();
+    const visible = (element) => !element.classList.contains("hidden") && !element.hidden && (!element.matches(".resource-sheet") || element.classList.contains("open"));
+    const ownedPopovers = (root) => Array.from(root.querySelectorAll('[aria-controls][aria-expanded="true"]')).flatMap((trigger) => (trigger.getAttribute("aria-controls") || "").split(/\s+/).map((id) => document.getElementById(id))).filter((popover) => Boolean(popover && !root.contains(popover) && visible(popover) && popover.getClientRects().length));
+    const containsFocus = (root, target) => root.contains(target) || ownedPopovers(root).some((popover) => popover.contains(target));
+    const focusables = (root) => [root, ...ownedPopovers(root)].flatMap((layer) => Array.from(layer.querySelectorAll(focusSelector))).filter((item) => !item.closest('[inert], [hidden], .hidden, [aria-hidden="true"]') && item.getClientRects().length > 0);
+    const focusFirst = (root) => {
+      root.tabIndex = -1;
+      (focusables(root)[0] || root).focus({ preventScroll: true });
+    };
+    const sync = () => {
+      if (syncing) return;
+      syncing = true;
+      document.querySelectorAll(layerSelector).forEach((layer) => {
+        const open = visible(layer);
+        layer.inert = !open;
+        if (open && !stack.includes(layer)) {
+          if (document.activeElement instanceof HTMLElement) triggers.set(layer, layer.contains(document.activeElement) ? previousFocus : document.activeElement);
+          stack.push(layer);
+          if (!layer.matches(".task-context-menu")) layer.setAttribute("aria-modal", "true");
+          if (!layer.hasAttribute("role")) layer.setAttribute("role", "dialog");
+          if (!layer.contains(document.activeElement)) focusFirst(layer);
+        }
+      });
+      const topVisible = [...stack].reverse().find((layer) => layer.isConnected && visible(layer));
+      document.querySelectorAll(".layout-container, .history-page").forEach((root) => {
+        root.inert = Boolean(topVisible && !root.contains(topVisible));
+      });
+      for (let index = stack.length - 1; index >= 0; index--) {
+        const layer = stack[index];
+        if (layer.isConnected && visible(layer)) continue;
+        const wasTop = index === stack.length - 1;
+        stack.splice(index, 1);
+        if (wasTop) {
+          const trigger = triggers.get(layer);
+          if (trigger?.isConnected && !trigger.closest("[inert], .hidden, [hidden]")) trigger.focus({ preventScroll: true });
+          else if (stack.length) focusFirst(stack[stack.length - 1]);
+        }
+      }
+      syncing = false;
+    };
+    new MutationObserver(sync).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
+    sync();
+    document.addEventListener("focusin", (event) => {
+      sync();
+      const top = stack[stack.length - 1];
+      if (top && visible(top) && !containsFocus(top, event.target)) focusFirst(top);
+      previousFocus = document.activeElement;
+    });
+    document.addEventListener("keydown", (event) => {
+      const top = stack[stack.length - 1];
+      if (!top || !visible(top)) return;
+      if (event.key === "Tab") {
+        const items = focusables(top);
+        const current = items.indexOf(document.activeElement);
+        if (!items.length || (event.shiftKey ? current <= 0 : current === items.length - 1 || current < 0)) {
+          event.preventDefault();
+          (items[event.shiftKey ? items.length - 1 : 0] || top).focus();
+        }
+      }
+      if (event.key === "Escape") {
+        const local = top.querySelector(".mention-suggest:not(.hidden), .prompt-snippet-popover:not(.hidden), .themed-select-menu:not(.hidden), #taskFilterPopover:not([hidden])");
+        if (local || ownedPopovers(top).length) return;
+        const close = Array.from(top.querySelectorAll('[data-confirm-popover-cancel], .drawer-close-button, [id$="Close"], [data-compact-task-close], [data-history-lightbox-close]')).find((button) => button.getClientRects().length && !button.closest(".hidden, [hidden], [inert]"));
+        if (close) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          close.click();
+        }
+      }
+    }, true);
+  }
+
+  // codex_image/webui/frontend/src/composer-draft.ts
+  var baseline = "";
+  var drafts = [];
+  function capture() {
+    const { state: state5, methods } = getLegacyBridge();
+    return { prompt: methods.getPromptText?.() || "", images: [...state5.images || []], files: [...state5.referenceFiles || []], mode: state5.mode };
+  }
+  function key(draft) {
+    return JSON.stringify([draft.prompt, draft.images.map((item) => [item.id, item.name, item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size]), draft.mode]);
+  }
+  function markComposerBaseline(prompt) {
+    const draft = capture();
+    if (prompt !== void 0) draft.prompt = prompt;
+    baseline = key(draft);
+  }
+  function composerHasChanges() {
+    const draft = capture();
+    return Boolean(draft.prompt || draft.images.length || draft.files.length) && key(draft) !== baseline;
+  }
+  function preserveComposerDraft() {
+    if (!composerHasChanges()) return;
+    const draft = capture();
+    if (key(drafts[drafts.length - 1] || { prompt: "", images: [], files: [], mode: "generate" }) !== key(draft)) drafts.push(draft);
+    renderRestoreButton();
+  }
+  function renderRestoreButton() {
+    const button = document.getElementById("restoreComposerDraft");
+    if (button) {
+      button.hidden = !drafts.length;
+      button.textContent = translate("ux.restoreDraft");
+    }
+  }
+
   // codex_image/webui/frontend/src/event-bindings.ts
   function call(methods, name, ...args) {
     return methods[name]?.(...args);
@@ -17971,7 +18552,6 @@
     });
     els9.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
     els9.authSourceGroup?.addEventListener("click", (event) => call(methods, "handleAuthSourceClick", event));
-    els9.apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
     els9.modelFamilyOptions?.addEventListener("click", (event) => {
       const item = event.target?.closest?.("[data-family-id]");
       if (item?.dataset.familyId) call(methods, "selectModelFamily", item.dataset.familyId);
@@ -18023,7 +18603,9 @@
     call(methods, "bindShellUiEvents");
     call(methods, "bindFormControlEvents");
     els9.clearPromptButton.addEventListener("click", () => {
+      preserveComposerDraft();
       call(methods, "setPromptText", "");
+      markComposerBaseline();
       call(methods, "syncGalleryInputsFromPrompt");
       call(methods, "updatePromptCount");
       call(methods, "updateRequestPreview");
@@ -18083,11 +18665,12 @@
     void call2(methods, "refreshGenerationCatalog");
     call2(methods, "refreshGallery");
     call2(methods, "refreshRecentAssets");
-    const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });
-    if (!realtimeStarted) {
-      void window.refreshQueue?.();
-      void call2(methods, "refreshTasks", { migrateLegacyArchives: true });
-    }
+    window.startRealtimeUpdates?.({ migrateLegacyArchives: true });
+    void window.refreshQueue?.();
+    void Promise.resolve(call2(methods, "refreshTasks", { migrateLegacyArchives: true })).catch((error) => {
+      console.error(error);
+      call2(methods, "setStatus", String(error?.message || error), "error");
+    });
     call2(methods, "startUiClock");
     call2(methods, "updateRequestPreview");
     call2(methods, "openSystemSettingsFromUrl");
@@ -18127,7 +18710,6 @@
       versionUpdateButton: document.querySelector("#versionUpdateButton"),
       versionContinuePortableButton: document.querySelector("#versionContinuePortableButton"),
       versionDismissOnboardingButton: document.querySelector("#versionDismissOnboardingButton"),
-      apiDirectSettingsButton: document.querySelector("#apiDirectSettingsButton"),
       queueButton: document.querySelector("#queueButton"),
       queueStatusText: document.querySelector("#queueStatusText"),
       taskNotificationButton: document.querySelector("#taskNotificationButton"),
@@ -18217,6 +18799,9 @@
       confirmUserConfigReplaceButton: document.querySelector("#confirmUserConfigReplaceButton"),
       userConfigRestoreResult: document.querySelector("#userConfigRestoreResult"),
       networkEgressMode: document.querySelector("#networkEgressMode"),
+      lanAccessEnabled: document.querySelector("#lanAccessEnabled"),
+      lanAccessStatus: document.querySelector("#lanAccessStatus"),
+      lanAccessAddresses: document.querySelector("#lanAccessAddresses"),
       networkEgressCustomProxyField: document.querySelector("#networkEgressCustomProxyField"),
       networkEgressCustomProxy: document.querySelector("#networkEgressCustomProxy"),
       networkEgressTimeoutMinutes: document.querySelector("#networkEgressTimeoutMinutes"),
@@ -18387,6 +18972,9 @@
       mainModelOptions: document.querySelector("#mainModelOptions"),
       webSearchField: document.querySelector("#webSearchField"),
       webSearch: document.querySelector("#webSearch"),
+      background: document.querySelector("#background"),
+      transparentBackground: document.querySelector("#transparentBackground"),
+      transparentBackgroundField: document.querySelector("#transparentBackgroundField"),
       promptFidelityField: document.querySelector("#promptFidelityField"),
       promptFidelity: document.querySelector("#promptFidelity"),
       apiDirectSettingsNotice: document.querySelector("#apiDirectSettingsNotice"),
@@ -18453,16 +19041,6 @@
       return method(...args);
     };
     return proxy2;
-  }
-
-  // codex_image/webui/frontend/src/webui-utils.ts
-  function escapeHtml(value) {
-    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  }
-  function cssEscape(value) {
-    const text = String(value || "");
-    if (window.CSS?.escape) return window.CSS.escape(text);
-    return text.replace(/["\\]/g, "\\$&");
   }
 
   // codex_image/webui/frontend/src/task-cancellation.ts
@@ -18658,7 +19236,16 @@
   function updatePromptCount() {
     const { els: els9 } = getLegacyBridge();
     if (!els9.charCount) return;
-    els9.charCount.textContent = `${getPromptText().length} / 4000`;
+    els9.charCount.textContent = `${getPromptText().length}`;
+    if (getPromptText().trim()) {
+      els9.promptEditor?.removeAttribute("aria-invalid");
+      const fieldError = document.getElementById("promptValidationError");
+      if (fieldError) fieldError.hidden = true;
+      if (els9.statusText?.textContent === translate("status.emptyPrompt")) {
+        els9.statusText.textContent = "";
+        els9.statusText.classList.remove("error");
+      }
+    }
   }
   function addPendingTask(task) {
     const state5 = getLegacyBridge().state;
@@ -19243,6 +19830,9 @@
       select.setAttribute("aria-invalid", resolved ? "false" : "true");
       syncThemedSelect(select);
     }
+    if (catalog && els9.statusText?.dataset.statusSource === "codex-health") {
+      getLegacyBridge().methods.setStatus?.("", "");
+    }
     if (els9.runButton) els9.runButton.disabled = !resolved;
   }
   function selectGenerationProvider(selectionOrProviderId) {
@@ -19281,6 +19871,34 @@
   // codex_image/webui/frontend/src/gpt-image-models.ts
   function isGptImageModel(modelId) {
     return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].includes(String(modelId || ""));
+  }
+
+  // codex_image/webui/frontend/src/background-controls.ts
+  function setBackgroundControl(value) {
+    const { els: els9 } = getLegacyBridge();
+    const background = value === "transparent" || value === "opaque" ? value : "auto";
+    if (els9.background) els9.background.value = background;
+    if (els9.transparentBackground) els9.transparentBackground.checked = background === "transparent";
+  }
+  function updateTransparencyControls() {
+    const { els: els9, state: state5 } = getLegacyBridge();
+    if (!els9.transparentBackground) return;
+    const supported = !state5.generationCatalog || isGptImageModel(state5.selectedModelId || "");
+    const enabled = supported && els9.background?.value === "transparent";
+    els9.transparentBackground.checked = els9.background?.value === "transparent";
+    els9.transparentBackground.disabled = !supported;
+    els9.transparentBackgroundField?.classList.toggle("hidden", !supported);
+    const jpegOption = els9.outputFormat?.querySelector('option[value="jpeg"]');
+    const jpegButton = els9.outputFormatGroup?.querySelector('[data-val="jpeg"]');
+    if (jpegOption) jpegOption.disabled = enabled;
+    if (jpegButton) {
+      jpegButton.disabled = enabled;
+      jpegButton.title = enabled ? translate("output.transparencyFormat") : "";
+    }
+    if (enabled && els9.outputFormat?.value === "jpeg") {
+      els9.outputFormat.value = "png";
+      els9.outputFormat.dispatchEvent(new Event("change"));
+    }
   }
 
   // codex_image/webui/frontend/src/mode-settings-visibility.ts
@@ -19396,6 +20014,7 @@
       legacyDirectApi: isDirectApi
     }));
     updateWebSearchAvailability(authSource);
+    updateTransparencyControls();
     legacyMethod2("syncReferenceFileAvailability");
     const refreshOutputSettingsLock = getLegacyBridge().methods.refreshOutputSettingsLock;
     if (typeof refreshOutputSettingsLock === "function") refreshOutputSettingsLock();
@@ -19445,6 +20064,7 @@
       els3.runButton.disabled = !state2.authAvailable;
       if (!state2.authAvailable && !state2.generationCatalog) {
         setStatus2(translate("auth.missingCodexSession"), "error");
+        if (els3.statusText) els3.statusText.dataset.statusSource = "codex-health";
       }
       updateRequestPreview();
     } catch (error) {
@@ -19746,7 +20366,7 @@
   function cloneValue(value) {
     if (Array.isArray(value)) return value.map(cloneValue);
     if (value && typeof value === "object") {
-      return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneValue(item)]));
+      return Object.fromEntries(Object.entries(value).map(([key2, item]) => [key2, cloneValue(item)]));
     }
     return value;
   }
@@ -19771,8 +20391,8 @@
     if (!typeValid) return false;
     if (definition.object_choices?.length && value && typeof value === "object" && !Array.isArray(value)) {
       const choices = new Map(definition.object_choices.map((row) => [row.key, row]));
-      for (const [key, item] of Object.entries(value)) {
-        const row = choices.get(key);
+      for (const [key2, item] of Object.entries(value)) {
+        const row = choices.get(key2);
         if (row && (typeof item !== "string" || !row.allowed_values.includes(item))) return false;
       }
     }
@@ -19788,12 +20408,12 @@
     }
     return true;
   }
-  function nextObjectChoiceValue(definition, value, key, next) {
-    const row = definition.object_choices?.find((item) => item.key === key);
+  function nextObjectChoiceValue(definition, value, key2, next) {
+    const row = definition.object_choices?.find((item) => item.key === key2);
     if (!row || !row.allowed_values.includes(next)) return { ...value };
     const updated = { ...value };
-    if (next === row.default) delete updated[key];
-    else updated[key] = next;
+    if (next === row.default) delete updated[key2];
+    else updated[key2] = next;
     return updated;
   }
   function managedPresetKeys(definition) {
@@ -19802,16 +20422,16 @@
   function matchingObjectPreset(definition, value) {
     const presets = definition.object_presets || [];
     const managedKeys = managedPresetKeys(definition);
-    const presentManagedKeys = [...managedKeys].filter((key) => key in value);
+    const presentManagedKeys = [...managedKeys].filter((key2) => key2 in value);
     if (presentManagedKeys.length === 0) {
       return presets.find((preset) => preset.matches_empty) || null;
     }
-    return presets.find((preset) => [...managedKeys].every((key) => key in value && key in preset.value && value[key] === preset.value[key])) || null;
+    return presets.find((preset) => [...managedKeys].every((key2) => key2 in value && key2 in preset.value && value[key2] === preset.value[key2])) || null;
   }
   function nextObjectPresetValue(definition, value, preset) {
     if (!definition.object_presets?.some((item) => item.id === preset.id)) return { ...value };
     const updated = { ...value };
-    managedPresetKeys(definition).forEach((key) => delete updated[key]);
+    managedPresetKeys(definition).forEach((key2) => delete updated[key2]);
     Object.assign(updated, cloneValue(preset.value));
     return updated;
   }
@@ -20136,7 +20756,7 @@
             item.setAttribute("aria-pressed", isActive ? "true" : "false");
           });
           const nextValue = nextObjectChoiceValue(definition, current, row.key, allowed);
-          Object.keys(current).forEach((key) => delete current[key]);
+          Object.keys(current).forEach((key2) => delete current[key2]);
           Object.assign(current, nextValue);
           commitValue(context, definition, nextValue);
         });
@@ -20251,7 +20871,7 @@
       translate(definition.label_key),
       ...(definition.object_choices || []).flatMap((choice) => [
         translate(choice.label_key),
-        ...choice.label_keys.map((key) => translate(key))
+        ...choice.label_keys.map((key2) => translate(key2))
       ]),
       ...(definition.object_presets || []).map((preset) => translate(preset.label_key))
     ];
@@ -20360,6 +20980,7 @@
     }
     els9.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
     els9.webSearchField?.classList.toggle("hidden", !legacyGpt);
+    els9.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
     root.classList.toggle("hidden", legacyGpt);
     if (legacyGpt) root.replaceChildren();
     else renderInteractiveParameterDefinitionsInto(
@@ -20401,7 +21022,7 @@
   function cloneValue2(value) {
     if (Array.isArray(value)) return value.map(cloneValue2);
     if (value && typeof value === "object") {
-      return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneValue2(item)]));
+      return Object.fromEntries(Object.entries(value).map(([key2, item]) => [key2, cloneValue2(item)]));
     }
     return value;
   }
@@ -20490,6 +21111,7 @@
     if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
     if (typeof draft["gpt.quality"] === "string" && els9.quality) els9.quality.value = draft["gpt.quality"];
     if (typeof draft["output.format"] === "string" && els9.outputFormat) els9.outputFormat.value = draft["output.format"];
+    setBackgroundControl(draft["gpt.background"]);
     if (typeof draft["gpt.moderation"] === "string" && els9.moderation) els9.moderation.value = draft["gpt.moderation"];
     if (typeof draft["gpt.output_compression"] === "number" && els9.compression) els9.compression.value = String(draft["gpt.output_compression"]);
     if (typeof draft["gpt.web_search"] === "boolean" && els9.webSearch) {
@@ -20670,10 +21292,10 @@
     if (Array.isArray(value)) return value.map((item) => safeDraftValue(item, depth + 1)).filter((item) => item !== void 0);
     if (!value || typeof value !== "object") return void 0;
     const output = {};
-    for (const [key, item] of Object.entries(value)) {
-      if (/api.?key|base.?url|remote.?model|secret|token|credential/i.test(key)) continue;
+    for (const [key2, item] of Object.entries(value)) {
+      if (/api.?key|base.?url|remote.?model|secret|token|credential/i.test(key2)) continue;
       const safe = safeDraftValue(item, depth + 1);
-      if (safe !== void 0) output[key] = safe;
+      if (safe !== void 0) output[key2] = safe;
     }
     return output;
   }
@@ -20812,6 +21434,9 @@
     }
     renderModelSelectors();
     renderProviderSelection();
+    if (state5.generationCatalog && !getLegacyBridge().methods.isOutputSettingsLocked?.()) {
+      getLegacyBridge().methods.restoreCurrentModelParameterDraft?.();
+    }
     getLegacyBridge().methods.renderCurrentModelParameters?.();
     getLegacyBridge().methods.updateModeSpecificSettings?.();
     getLegacyBridge().methods.updateRequestPreview?.();
@@ -20859,6 +21484,7 @@
       systemSettingsHeightAnimationTimer = void 0;
     }
     panel.classList.remove("is-height-animating");
+    panel.style.removeProperty("--system-settings-section-height");
     panel.style.height = "";
   }
   function positionSystemSettingsModal() {
@@ -20887,6 +21513,8 @@
     }
     systemSettingsHeightAnimationToken += 1;
     const token = systemSettingsHeightAnimationToken;
+    const section = panel.querySelector(".system-settings-section:not([hidden])");
+    if (section) panel.style.setProperty("--system-settings-section-height", `${section.getBoundingClientRect().height}px`);
     panel.classList.add("is-height-animating");
     panel.style.height = `${beforeHeight}px`;
     panel.getBoundingClientRect();
@@ -20904,6 +21532,7 @@
       }
       panel.removeEventListener("transitionend", cleanup);
       panel.classList.remove("is-height-animating");
+      panel.style.removeProperty("--system-settings-section-height");
       panel.style.height = "";
     };
     panel.addEventListener("transitionend", cleanup);
@@ -20937,10 +21566,13 @@
     });
     if (options.refresh === false) return;
     if (selected === "storage") maybeCall("refreshSettings");
-    if (selected === "network") maybeCall("refreshNetworkEgress");
+    if (selected === "network") {
+      maybeCall("refreshNetworkEgress");
+      maybeCall("refreshLanAccess");
+    }
     if (selected === "api") {
       maybeCall("setApiSettingsFeedback", "", "");
-      maybeCall("populateApiSettingsForm");
+      if (!getLegacyBridge().state.apiProviderEditingId) maybeCall("populateApiSettingsForm");
       maybeCall("updateModeSpecificSettings");
     }
     refreshSegmentedIndicators();
@@ -21153,26 +21785,16 @@
   function scrollActiveApiProviderCardIntoView(providerId, align = "center") {
     window.requestAnimationFrame(() => {
       const grid = providerChoiceGrid();
-      if (!grid?.classList.contains("is-long-list")) return;
+      const panel = grid?.closest(".system-settings-section");
+      if (!grid || !panel || panel.clientHeight === 0) return;
       const escapedId = CSS.escape(providerId);
       const card = grid.querySelector(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);
       if (!card) return;
-      const gridRect = grid.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
       const cardRect = card.getBoundingClientRect();
-      const cardTop = grid.scrollTop + cardRect.top - gridRect.top;
-      let targetTop = align === "center" ? cardTop - Math.max(0, (grid.clientHeight - card.offsetHeight) / 2) : Math.min(cardTop, Math.max(grid.scrollTop, cardTop + card.offsetHeight - grid.clientHeight));
-      if (align === "center") {
-        const rowGap = Number.parseFloat(window.getComputedStyle(grid).rowGap || "0") || 0;
-        const rowStep = card.offsetHeight + rowGap;
-        const maxScrollTop = Math.max(0, grid.scrollHeight - grid.clientHeight);
-        if (rowStep > 0) {
-          targetTop = Math.min(
-            Math.floor(Math.max(0, targetTop) / rowStep) * rowStep,
-            Math.floor(maxScrollTop / rowStep) * rowStep
-          );
-        }
-      }
-      grid.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+      const cardTop = panel.scrollTop + cardRect.top - panelRect.top;
+      const targetTop = align === "center" ? cardTop - Math.max(0, (panel.clientHeight - card.offsetHeight) / 2) : Math.min(cardTop, Math.max(panel.scrollTop, cardTop + card.offsetHeight - panel.clientHeight));
+      panel.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
     });
   }
 
@@ -21295,7 +21917,7 @@
     }
   }
   function scrollContainer() {
-    return providerList?.closest(".api-provider-choice-grid") || null;
+    return providerList?.closest(".system-settings-section") || null;
   }
   function autoScrollStep() {
     const session = dragSession;
@@ -21588,7 +22210,8 @@
         bindingTemplateForCompatibility(canonicalModelId, protocol, compatibility),
         operations
       ),
-      append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt)
+      append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt),
+      transparency_mode: isGptImageModel(canonicalModelId) ? original.transparency_mode || "native" : "native"
     };
   }
   function normalizeProviderBindings(bindings, providerId = "provider") {
@@ -21607,7 +22230,8 @@
         protocol_profile: String(item.protocol_profile || fallbackTemplate?.protocol_profile || "").trim(),
         parameter_codec: String(item.parameter_codec || fallbackTemplate?.parameter_codec || "").trim(),
         operations: normalizedOperations(item.operations),
-        append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt)
+        append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt),
+        transparency_mode: item.transparency_mode === "prompt" ? "prompt" : "native"
       };
     });
   }
@@ -21615,8 +22239,8 @@
     const claimed = /* @__PURE__ */ new Map();
     for (const binding of bindings) {
       for (const operation of binding.operations) {
-        const key = `${binding.canonical_model_id}\0${operation}`;
-        const firstBindingId = claimed.get(key);
+        const key2 = `${binding.canonical_model_id}\0${operation}`;
+        const firstBindingId = claimed.get(key2);
         if (firstBindingId) {
           return {
             firstBindingId,
@@ -21625,7 +22249,7 @@
             operation
           };
         }
-        claimed.set(key, binding.id);
+        claimed.set(key2, binding.id);
       }
     }
     return null;
@@ -21649,14 +22273,20 @@
   }
   function renderProviderBindingCards(container, bindings, models, providerId, defaults) {
     if (!container) return;
+    const disclosureState = new Map([...container.querySelectorAll("details[data-binding-id]")].map((card) => [card.dataset.bindingId, card.open]));
     destroyThemedSelects(container);
     const normalizedBindings = normalizeProviderBindings(bindings, providerId);
     const cards = normalizedBindings.map((binding, index) => {
-      const card = document.createElement("fieldset");
+      const card = document.createElement("details");
       card.className = "provider-binding-card";
       card.dataset.bindingId = binding.id;
-      const legend = document.createElement("legend");
-      legend.textContent = `\u6A21\u578B\u7ED1\u5B9A ${index + 1}`;
+      card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
+      const legend = document.createElement("summary");
+      legend.className = "provider-binding-summary";
+      const updateSummary = () => {
+        const model = models.find((item) => item.id === modelSelect.value);
+        legend.textContent = `${model?.display_name || modelSelect.value} \xB7 ${BINDING_PROTOCOL_LABELS[protocolSelect.value]} \xB7 ${remoteInput.value}`;
+      };
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "ghost-button danger-button provider-binding-remove";
@@ -21725,6 +22355,28 @@
         ));
       });
       compatibilityField.append(compatibilityLabel, compatibilitySelect);
+      const transparencyField = document.createElement("label");
+      transparencyField.className = "field provider-binding-transparency";
+      const transparencyLabel = document.createElement("span");
+      transparencyLabel.id = `provider-binding-${binding.id}-transparency-label`;
+      transparencyLabel.dataset.i18n = "apiSettings.transparencyMode";
+      transparencyLabel.textContent = translate("apiSettings.transparencyMode");
+      const transparencySelect = document.createElement("select");
+      transparencySelect.className = "control";
+      transparencySelect.dataset.bindingTransparency = "";
+      transparencySelect.setAttribute("aria-labelledby", transparencyLabel.id);
+      transparencySelect.append(
+        option("native", translate("apiSettings.transparencyNative"), binding.transparency_mode !== "prompt"),
+        option("prompt", translate("apiSettings.transparencyPrompt"), binding.transparency_mode === "prompt")
+      );
+      transparencyField.append(transparencyLabel, transparencySelect);
+      const syncTransparencyField = () => {
+        const supported = isGptImageModel(modelSelect.value);
+        transparencyField.classList.toggle("hidden", !supported);
+        transparencySelect.disabled = !supported;
+      };
+      syncTransparencyField();
+      modelSelect.addEventListener("change", syncTransparencyField);
       const ratioPromptField = document.createElement("label");
       ratioPromptField.className = "provider-binding-toggle provider-binding-ratio-prompt";
       ratioPromptField.dataset.i18nAttr = "title:apiSettings.appendRatioPrompt";
@@ -21759,12 +22411,18 @@
       card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
       card.dataset.bindingProtocolChanged = "false";
       card.dataset.bindingCompatibilityChanged = "false";
-      grid.append(modelField, protocolField, remoteField, compatibilityField, footer);
+      grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
       card.append(legend, grid);
+      updateSummary();
+      card.addEventListener("change", () => queueMicrotask(updateSummary));
+      remoteInput.addEventListener("input", updateSummary);
+      card.addEventListener("invalid", () => {
+        card.open = true;
+      }, true);
       return card;
     });
     container.replaceChildren(...cards);
-    container.querySelectorAll("[data-binding-model], [data-binding-protocol], [data-binding-compatibility]").forEach((select) => mountThemedSelect(select));
+    container.querySelectorAll("[data-binding-model], [data-binding-protocol], [data-binding-compatibility], [data-binding-transparency]").forEach((select) => mountThemedSelect(select));
   }
   function readProviderBindingCards(container) {
     if (!container) return [];
@@ -21785,7 +22443,8 @@
         operations,
         append_aspect_ratio_prompt: Boolean(
           card.querySelector("[data-binding-ratio-prompt]")?.checked
-        )
+        ),
+        transparency_mode: isGptImageModel(modelId) && card.querySelector("[data-binding-transparency]")?.value === "prompt" ? "prompt" : "native"
       };
       return {
         ...bindingForCompatibilitySelection(
@@ -22435,6 +23094,10 @@
     });
   }
   function openApiSettingsModal() {
+    if (apiProviderEditorActive()) {
+      openSystemSettingsModal("api");
+      return;
+    }
     closePromptPopover();
     state3.apiProviderEditingId = null;
     state3.apiProviderDraft = null;
@@ -22460,6 +23123,8 @@
     }
     if (state3.apiProviderSortMode) return;
     const provider = providerById(id);
+    const providerChanged = provider.id !== activeApiProvider().id;
+    if (!providerChanged && provider.id === currentApiProviderId()) return;
     const continueSwitch = () => {
       state3.apiSettings = normalizeApiSettings({
         ...state3.apiSettings,
@@ -22470,12 +23135,8 @@
       persistApiSettings();
       legacyMethod4("selectGenerationProvider", provider.id);
       renderAuthSourceAfterProviderChange();
-      queueApiSettingsAutosave();
+      if (providerChanged) queueApiSettingsAutosave({ silent: true });
     };
-    if (provider.id === currentApiProviderId()) {
-      continueSwitch();
-      return;
-    }
     void anchor;
     continueSwitch();
   }
@@ -22588,6 +23249,11 @@
       draft.id,
       defaultsForProviderDraft(draft)
     );
+    const added = [...els4.apiProviderBindings.querySelectorAll("details[data-binding-id]")].find((card) => card.dataset.bindingId === bindingId);
+    if (added) {
+      added.open = true;
+      added.querySelector("summary")?.focus();
+    }
     updateApiRequestEndpointPreview();
   }
   function removeProviderBinding(bindingId) {
@@ -22770,15 +23436,15 @@
     queueApiSettingsAutosave();
     return true;
   }
-  function queueApiSettingsAutosave() {
+  function queueApiSettingsAutosave(options = {}) {
     if (apiProviderEditorActive()) return;
     if (apiSettingsAutosaveTimerId !== null) {
       window.clearTimeout(apiSettingsAutosaveTimerId);
     }
-    setApiSettingsFeedback(translate("apiSettings.autoSaving"), "running");
+    setApiSettingsFeedback(options.silent ? "" : translate("apiSettings.autoSaving"), options.silent ? "" : "running");
     apiSettingsAutosaveTimerId = window.setTimeout(() => {
       apiSettingsAutosaveTimerId = null;
-      void saveApiSettings({ auto: true });
+      void saveApiSettings({ auto: true, silent: options.silent });
     }, 260);
   }
   function backendForAuthSource(authSource, apiMode = currentApiMode3(), codexMode = currentCodexMode3()) {
@@ -22839,6 +23505,7 @@
   }
   async function saveApiSettings(options = {}) {
     const autoSave = Boolean(options.auto);
+    const silent = autoSave && Boolean(options.silent);
     if (autoSave && apiProviderEditorActive()) return true;
     const sortFocusId = autoSave ? focusedApiProviderSortId() : "";
     if (state3.apiSettingsSaveTimerId) {
@@ -22934,7 +23601,7 @@
       setSaveButtonsDisabled(true);
       setSaveButtonText("saving");
     }
-    setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
+    if (!silent) setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
     try {
       const response = await fetch("/api/api-settings", {
         method: "PATCH",
@@ -22957,7 +23624,7 @@
       persistApiSettings();
       populateApiSettingsForm();
       focusApiProviderSortHandle(sortFocusId);
-      setApiSettingsFeedback(autoSave ? translate("apiSettings.autoSaved") : formatTranslation("apiSettings.savedSummary", {
+      if (!silent) setApiSettingsFeedback(autoSave ? translate("apiSettings.autoSaved") : formatTranslation("apiSettings.savedSummary", {
         codex: codexModeLabel2(currentCodexMode3()),
         provider: activeApiProvider().name,
         mode: apiModeLabel2(currentApiMode3()),
@@ -22969,7 +23636,7 @@
         if (!autoSave) setSaveButtonText("default");
         state3.apiSettingsSaveTimerId = null;
       }, 1600);
-      setStatus3(translate("apiSettings.savedStatus"), "ok");
+      if (!silent) setStatus3(translate("apiSettings.savedStatus"), "ok");
       await refreshGenerationCatalog();
       await refreshHealth();
       updateRequestPreview2();
@@ -23074,6 +23741,122 @@
       saveApiSettings
     });
     initApiProviderSortFeature();
+  }
+
+  // codex_image/webui/frontend/src/lan-access-settings.ts
+  var currentSettings = null;
+  var requestSequence = 0;
+  var saving = false;
+  var initialized2 = false;
+  function feedback(message, error = false) {
+    const { els: els9 } = getLegacyBridge();
+    if (!els9.lanAccessStatus) return;
+    els9.lanAccessStatus.textContent = message;
+    els9.lanAccessStatus.classList.toggle("error", error);
+  }
+  async function copyAddress(input, button) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(input.value);
+      } else {
+        input.focus();
+        input.select();
+        if (!document.execCommand("copy")) throw new Error("copy unavailable");
+      }
+      button.textContent = translate("lanAccess.copied");
+    } catch {
+      input.focus();
+      input.select();
+      button.textContent = translate("lanAccess.copyManually");
+    }
+  }
+  function render(settings) {
+    const { els: els9 } = getLegacyBridge();
+    currentSettings = settings;
+    if (els9.lanAccessEnabled) els9.lanAccessEnabled.checked = settings.enabled;
+    const key2 = settings.host_override ? "hostOverride" : settings.restart_required ? settings.enabled ? "pendingEnable" : "pendingDisable" : settings.active ? "active" : "localOnly";
+    feedback(translate(`lanAccess.${key2}`));
+    if (!els9.lanAccessAddresses) return;
+    els9.lanAccessAddresses.replaceChildren();
+    els9.lanAccessAddresses.hidden = !settings.enabled && !settings.active;
+    if (els9.lanAccessAddresses.hidden) return;
+    if (!settings.addresses.length) {
+      const note = document.createElement("p");
+      note.className = "lan-access-help";
+      note.textContent = translate("lanAccess.noAddress");
+      els9.lanAccessAddresses.append(note);
+    }
+    for (const address of settings.addresses) {
+      const row = document.createElement("div");
+      row.className = "lan-access-address";
+      const input = document.createElement("input");
+      input.className = "control";
+      input.value = address;
+      input.readOnly = true;
+      input.setAttribute("aria-label", translate("lanAccess.address"));
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "ghost-button";
+      button.textContent = translate("templates.copy");
+      button.setAttribute("aria-label", formatTranslation("lanAccess.copyAddress", { address }));
+      button.addEventListener("click", () => void copyAddress(input, button));
+      row.append(input, button);
+      els9.lanAccessAddresses.append(row);
+    }
+  }
+  async function refreshLanAccess() {
+    if (saving) return;
+    const sequence = ++requestSequence;
+    const { els: els9 } = getLegacyBridge();
+    if (els9.lanAccessEnabled) els9.lanAccessEnabled.disabled = true;
+    try {
+      const response = await fetch("/api/lan-access");
+      if (!response.ok) throw new Error("read failed");
+      const data = await response.json();
+      if (sequence === requestSequence) render(data);
+    } catch {
+      if (sequence === requestSequence) feedback(translate("lanAccess.failed"), true);
+    } finally {
+      if (sequence === requestSequence && els9.lanAccessEnabled) {
+        els9.lanAccessEnabled.disabled = currentSettings === null;
+      }
+    }
+  }
+  async function saveLanAccess() {
+    const { els: els9 } = getLegacyBridge();
+    if (saving || !els9.lanAccessEnabled || !currentSettings) return;
+    saving = true;
+    const restoreFocus = document.activeElement === els9.lanAccessEnabled;
+    ++requestSequence;
+    els9.lanAccessEnabled.disabled = true;
+    const enabled = els9.lanAccessEnabled.checked;
+    feedback(translate("lanAccess.saving"));
+    try {
+      const response = await fetch("/api/lan-access", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled })
+      });
+      if (!response.ok) throw new Error("save failed");
+      render(await response.json());
+    } catch {
+      els9.lanAccessEnabled.checked = currentSettings.enabled;
+      feedback(translate("lanAccess.failed"), true);
+    } finally {
+      saving = false;
+      els9.lanAccessEnabled.disabled = false;
+      if (restoreFocus && document.activeElement === document.body) els9.lanAccessEnabled.focus();
+    }
+  }
+  function initLanAccessSettingsFeature() {
+    if (initialized2) return;
+    initialized2 = true;
+    const { els: els9, methods } = getLegacyBridge();
+    els9.lanAccessEnabled?.addEventListener("change", () => void saveLanAccess());
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+      if (currentSettings && !saving) render(currentSettings);
+    });
+    Object.assign(methods, { refreshLanAccess });
   }
 
   // codex_image/webui/frontend/src/network-request-policy.ts
@@ -23675,7 +24458,7 @@
     if (!text) return;
     const defaultLabel = button.dataset.copyLabel || button.textContent || translate("templates.copy");
     button.dataset.copyLabel = defaultLabel;
-    await navigator.clipboard.writeText(text);
+    if (!await copyTextToClipboard(text)) return;
     button.textContent = translate("promptPopover.copied");
     clearPromptPopoverCopyTimer();
     promptPopoverState.copyTimerId = window.setTimeout(() => {
@@ -23713,6 +24496,26 @@
   function handleDocumentKeydown(event) {
     if (handleImageEditorHistoryShortcut(event)) return;
     if (event.key === "Escape") {
+      if (confirmPopoverEl && !confirmPopoverEl.classList.contains("hidden")) {
+        closeConfirmPopover();
+        return;
+      }
+      if (els5.imageEditorModal && !els5.imageEditorModal.classList.contains("hidden")) {
+        closeImageEditor();
+        return;
+      }
+      if (els5.systemSettingsModal && !els5.systemSettingsModal.classList.contains("hidden")) {
+        closeApiSettingsModal2();
+        return;
+      }
+      if (els5.promptTemplateDrawer?.classList.contains("open")) {
+        closePromptTemplateDrawer();
+        return;
+      }
+      if (els5.galleryDrawer?.classList.contains("open")) {
+        closeGallery();
+        return;
+      }
       hideMentionSuggest();
       hideColorSuggest();
       hidePromptSnippetSuggest();
@@ -23723,10 +24526,6 @@
       closeGalleryEditPopover();
       closeConfirmPopover();
       closeArchiveModal();
-      closeImageEditor();
-      closeGallery();
-      closeApiSettingsModal2();
-      closePromptTemplateDrawer();
     }
   }
   function initOverlayPopoversFeature() {
@@ -23756,6 +24555,39 @@
   // codex_image/webui/frontend/src/dom.ts
   function getEls() {
     return getLegacyBridge().els;
+  }
+
+  // codex_image/webui/frontend/src/state-sync.ts
+  var syncStates = /* @__PURE__ */ new WeakMap();
+  function versionState(state5, version) {
+    if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
+    let current = syncStates.get(state5);
+    if (current?.retired.has(version.instance)) return false;
+    if (!current || current.instance !== version.instance) {
+      const retired = current?.retired || /* @__PURE__ */ new Set();
+      if (current) retired.add(current.instance);
+      current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
+      syncStates.set(state5, current);
+    }
+    return current;
+  }
+  function acceptQueueSnapshot(state5, version) {
+    const current = versionState(state5, version);
+    if (current === false) return false;
+    if (!current || !version) return true;
+    if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
+    current.queue = version.revision;
+    return true;
+  }
+  function acceptTaskUpdate(state5, task, version) {
+    const current = versionState(state5, version);
+    if (current === false || !task?.task_id) return false;
+    if (!current || !version) return true;
+    const id = String(task.task_id);
+    if (version.revision < current.tasks || version.revision < (current.changes.get(id)?.revision || 0)) return false;
+    current.lastChange = Math.max(current.lastChange, version.revision);
+    current.changes.set(id, { revision: version.revision, task });
+    return true;
   }
 
   // codex_image/webui/frontend/src/queue.ts
@@ -23826,9 +24658,6 @@
     const state5 = bridge7.state;
     const shouldMigrateArchives = state5.realtimeSnapshotNeedsArchiveMigration;
     await Promise.all([refreshQueue(), bridge7.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives })]);
-    if (shouldMigrateArchives) {
-      state5.realtimeSnapshotNeedsArchiveMigration = false;
-    }
   }
   function requestRealtimeResync() {
     realtimeResyncRequested = true;
@@ -23866,33 +24695,34 @@
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
     if (payload?.type === "snapshot") {
-      applyQueueState(payload.queue);
+      applyQueueState(payload.queue, { sync: payload.sync });
       await bridge7.methods.applyTasksSnapshot(payload.tasks || [], {
         migrateLegacyArchives: state5.realtimeSnapshotNeedsArchiveMigration,
-        ...payload.task_groups ? { taskGroups: payload.task_groups } : {}
+        ...payload.task_groups ? { taskGroups: payload.task_groups } : {},
+        sync: payload.sync
       });
-      applyQueueTasks(payload.queue);
-      state5.realtimeSnapshotNeedsArchiveMigration = false;
+      if (acceptQueueSnapshot(state5, payload.sync)) applyQueueTasks(state5.queue);
       return;
     }
     if (payload?.type === "queue") {
       const updatedTasks = payload.tasks || [];
-      applyQueueState(payload.queue, { deferTaskListRender: true });
-      await applyRealtimeTaskPayloads(updatedTasks);
-      applyQueueTasks(payload.queue);
+      applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync });
+      await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
+      if (acceptQueueSnapshot(state5, payload.sync)) applyQueueTasks(state5.queue);
       if (!updatedTasks.length && !queueTaskCount(payload.queue)) {
         bridge7.methods.renderTasks?.({ preserveScroll: true });
       }
       return;
     }
     if (payload?.type === "task") {
-      await applyRealtimeTaskPayloads(payload.task ? [payload.task] : []);
+      await applyRealtimeTaskPayloads(payload.task ? [payload.task] : [], payload.sync);
     }
   }
-  async function applyRealtimeTaskPayloads(tasks) {
+  async function applyRealtimeTaskPayloads(tasks, sync) {
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
     for (const task of tasks) {
+      if (!acceptTaskUpdate(state5, task, sync)) continue;
       const previousTask = state5.tasks.find((item) => String(item.task_id) === String(task?.task_id));
       bridge7.methods.notifyTaskUpdate?.(previousTask, task);
       await bridge7.methods.applyTaskUpdate(task);
@@ -23909,6 +24739,7 @@
       if (!response.ok) {
         throw new Error(data.detail || translate("queue.readFailed"));
       }
+      if (!acceptQueueSnapshot(state5, data.sync)) return;
       state5.queue = normalizeQueueState(data);
       renderQueue();
     } catch (error) {
@@ -23929,9 +24760,10 @@
   function invalidateQueueRequests() {
     getState().queueRequestSeq += 1;
   }
-  function applyQueueState(queue, { deferTaskListRender = false } = {}) {
+  function applyQueueState(queue, { deferTaskListRender = false, sync } = {}) {
     const state5 = getState();
-    invalidateQueueRequests();
+    if (!acceptQueueSnapshot(state5, sync)) return;
+    if (!sync) invalidateQueueRequests();
     state5.queue = normalizeQueueState(queue);
     renderQueue({ deferTaskListRender });
   }
@@ -23997,6 +24829,7 @@
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
     const hasActiveTasks = Boolean((state5.queue.running || []).length || (state5.queue.waiting || []).length);
+    bridge7.methods.openCompactTasks?.();
     if (!hasActiveTasks) return;
     bridge7.methods.revealActiveTaskGroup?.();
   }
@@ -24295,6 +25128,7 @@
     const current = String(els6.statusText.textContent || "").trim();
     const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
     if (waitingLabels.includes(current)) {
+      markComposerBaseline();
       setStatus4(translate("status.waiting"), "");
     }
   }
@@ -24498,10 +25332,13 @@
   }
   function setStatus4(message, type) {
     if (!els6.statusText) return;
+    delete els6.statusText.dataset.statusSource;
     els6.statusText.textContent = message;
     els6.statusText.className = `status-text ${type || ""}`;
   }
   function resetForm() {
+    preserveComposerDraft();
+    state4.taskInputRestoreSeq += 1;
     const outputSettingsLocked = Boolean(legacyMethod6("isOutputSettingsLocked"));
     closePromptPopover3();
     closePromptSnippetPopover2();
@@ -24530,6 +25367,7 @@
       els6.size.value = "1024x1024";
       els6.quality.value = "auto";
       els6.outputFormat.value = "png";
+      setBackgroundControl("auto");
       els6.moderation.value = "auto";
       els6.compression.value = "80";
       if (els6.promptFidelity) els6.promptFidelity.value = "off";
@@ -24548,11 +25386,12 @@
     renderPreview2();
     updateRequestPreview3();
     if (outputSettingsLocked) legacyMethod6("showLockedOutputSettings");
+    markComposerBaseline();
     setStatus4(translate("status.waiting"), "");
   }
   async function copyJson() {
     if (!els6.requestJson) return;
-    await navigator.clipboard.writeText(els6.requestJson.textContent);
+    if (!await copyTextToClipboard(els6.requestJson.textContent)) return;
     setStatus4(translate("status.jsonCopied"), "ok");
   }
   function initShellUiFeature() {
@@ -24991,7 +25830,7 @@
     const state5 = getLegacyBridge().state;
     try {
       const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
-      state5.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key) => typeof key === "string") : []);
+      state5.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key2) => typeof key2 === "string") : []);
     } catch {
       state5.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
     }
@@ -25005,8 +25844,8 @@
   }
   function outputFileUrl(filename) {
     if (filename.startsWith("/outputs/")) return filename;
-    const clean = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
-    return clean ? `/outputs/${clean}` : "";
+    const clean2 = filename.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+    return clean2 ? `/outputs/${clean2}` : "";
   }
   function completedOutputCount(task) {
     if (Array.isArray(task.outputs)) {
@@ -25051,8 +25890,8 @@
     const list = els7.settingsPreviousPathsList;
     if (!details || !list) return;
     list.replaceChildren();
-    for (const [key, label] of Object.entries(pathLabels)) {
-      const path = previousPaths[key];
+    for (const [key2, label] of Object.entries(pathLabels)) {
+      const path = previousPaths[key2];
       if (typeof path !== "string" || !path) continue;
       const term = document.createElement("dt");
       term.textContent = translate(label);
@@ -25220,13 +26059,16 @@
     initApiAdvancedSettingsFeature();
     initStorageSettingsFeature();
     initNetworkEgressSettingsFeature();
+    initLanAccessSettingsFeature();
     initSystemSettingsFeature();
     initOverlayPopoversFeature();
+    initOverlayFocus();
     initTaskNotificationsFeature();
     initProviderSelectionFeature();
     initModelCatalogFeature();
     initializeQueueFeature();
     initSegmentedIndicatorFeature();
+    initMobileShell();
     methods.bindShellUiEvents?.();
     bindSharedTopNavSettingsEvents(bridge7.els, methods);
     methods.restoreThemePreference?.();
@@ -25250,7 +26092,7 @@
     backdrop
   }) {
     if (!page || !sidebar || !trigger || !backdrop) return;
-    const mobileQuery = window.matchMedia("(max-width: 760px)");
+    const mobileQuery = window.matchMedia("(max-width: 760px), (max-width: 950px) and (max-height: 500px) and (pointer: coarse)");
     const sync = () => {
       const open = mobileQuery.matches && page.classList.contains("history-filters-open");
       trigger.setAttribute("aria-expanded", String(open));
@@ -25272,6 +26114,7 @@
       setOpen(!page.classList.contains("history-filters-open"));
     });
     backdrop.addEventListener("click", () => setOpen(false, true));
+    sidebar.querySelector(".history-filters-close")?.addEventListener("click", () => setOpen(false, true));
     window.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !page.classList.contains("history-filters-open")) return;
       event.preventDefault();
@@ -25387,7 +26230,9 @@
         selected: selectedIndexes.has(outputIndex),
         revisedPrompt: String(output.revised_prompt || ""),
         width: size?.[0] || null,
-        height: size?.[1] || null
+        height: size?.[1] || null,
+        hasTransparency: output.has_transparency,
+        requestedTransparency: requestedTransparentBackground(task)
       });
     });
     if (records.length) return records;
@@ -25483,8 +26328,9 @@
           aria-label="${escapeHtml(translate("history.openPreview"))}"
         >
           ${outputBadge}
-          <img src="${escapeHtml(record2.url)}" alt="" loading="lazy" decoding="async">
+          <img class="${record2.hasTransparency ? "transparency-grid" : ""}" src="${escapeHtml(record2.url)}" alt="" loading="lazy" decoding="async">
         </button>
+        ${transparencyStatusHtml(record2.hasTransparency, Boolean(record2.requestedTransparency))}
         <div class="history-detail-image-actions" aria-label="${escapeHtml(translate("history.outputActions"))}">
           <button
             class="history-detail-overlay-button"
@@ -25618,8 +26464,8 @@
   function historyTaskCards(root) {
     return [...root.querySelectorAll(".history-task-card[data-history-task-card-id]")];
   }
-  function isHistoryTaskArrowKey(key) {
-    return HISTORY_TASK_ARROW_KEYS.has(key);
+  function isHistoryTaskArrowKey(key2) {
+    return HISTORY_TASK_ARROW_KEYS.has(key2);
   }
   function historyTaskCardCenter(card) {
     const rect = card.getBoundingClientRect();
@@ -25629,7 +26475,7 @@
       y: rect.top + rect.height / 2
     };
   }
-  function historyGridVerticalArrowTargetCard(cards, currentCard, key) {
+  function historyGridVerticalArrowTargetCard(cards, currentCard, key2) {
     const current = historyTaskCardCenter(currentCard);
     let bestCard = null;
     let bestScore = Number.POSITIVE_INFINITY;
@@ -25638,8 +26484,8 @@
       const candidate = historyTaskCardCenter(card);
       const dx = Math.abs(candidate.x - current.x);
       const dy = candidate.y - current.y;
-      if (key === "ArrowUp" && dy >= -1) return;
-      if (key === "ArrowDown" && dy <= 1) return;
+      if (key2 === "ArrowUp" && dy >= -1) return;
+      if (key2 === "ArrowDown" && dy <= 1) return;
       const primaryDistance = Math.abs(dy);
       const score = primaryDistance * 1e4 + dx;
       if (score >= bestScore) return;
@@ -25648,19 +26494,19 @@
     });
     return bestCard;
   }
-  function historyTaskArrowTargetCard(root, currentTaskId, key, view) {
+  function historyTaskArrowTargetCard(root, currentTaskId, key2, view) {
     const cards = historyTaskCards(root);
     const currentIndex = cards.findIndex((card) => String(card.dataset.historyTaskCardId || "") === currentTaskId);
     if (currentIndex < 0) return null;
     const currentCard = cards[currentIndex];
     if (!currentCard) return null;
     if (view === "list") {
-      if (key !== "ArrowUp" && key !== "ArrowDown") return null;
-      return cards[currentIndex + (key === "ArrowDown" ? 1 : -1)] ?? null;
+      if (key2 !== "ArrowUp" && key2 !== "ArrowDown") return null;
+      return cards[currentIndex + (key2 === "ArrowDown" ? 1 : -1)] ?? null;
     }
-    if (key === "ArrowLeft") return cards[currentIndex - 1] ?? null;
-    if (key === "ArrowRight") return cards[currentIndex + 1] ?? null;
-    return historyGridVerticalArrowTargetCard(cards, currentCard, key);
+    if (key2 === "ArrowLeft") return cards[currentIndex - 1] ?? null;
+    if (key2 === "ArrowRight") return cards[currentIndex + 1] ?? null;
+    return historyGridVerticalArrowTargetCard(cards, currentCard, key2);
   }
   function encodeHistoryCursor(createdAt, taskId) {
     const raw = JSON.stringify({ created_at: createdAt, task_id: taskId });
@@ -25826,25 +26672,25 @@
     return target ? removeHistoryLocationSnapshot(target) : false;
   }
   function historyUrlHasExplicitNavigation(params) {
-    return HISTORY_EXPLICIT_NAVIGATION_KEYS.some((key) => params.has(key));
+    return HISTORY_EXPLICIT_NAVIGATION_KEYS.some((key2) => params.has(key2));
   }
   function historySnapshotQuery(params) {
     const snapshot = new URLSearchParams();
-    for (const key of HISTORY_SNAPSHOT_QUERY_KEYS) {
-      if (!params.has(key)) continue;
-      if (key === "sort") {
-        if (params.get(key) === "oldest") snapshot.set(key, "oldest");
+    for (const key2 of HISTORY_SNAPSHOT_QUERY_KEYS) {
+      if (!params.has(key2)) continue;
+      if (key2 === "sort") {
+        if (params.get(key2) === "oldest") snapshot.set(key2, "oldest");
         continue;
       }
-      if (key === "view") {
-        if (params.get(key) === "list") snapshot.set(key, "list");
+      if (key2 === "view") {
+        if (params.get(key2) === "list") snapshot.set(key2, "list");
         continue;
       }
-      if (key === "tag") {
-        for (const value of params.getAll(key)) snapshot.append(key, value);
+      if (key2 === "tag") {
+        for (const value of params.getAll(key2)) snapshot.append(key2, value);
         continue;
       }
-      snapshot.append(key, params.get(key) ?? "");
+      snapshot.append(key2, params.get(key2) ?? "");
     }
     return snapshot.toString();
   }
@@ -25872,13 +26718,13 @@
     const items = [];
     const query = String(snapshot.q || "").trim();
     if (query) items.push({ id: "q", kind: "q", value: query });
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      const value = String(snapshot.filters[key] || "").trim();
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      const value = String(snapshot.filters[key2] || "").trim();
       if (!value) continue;
       items.push({
-        id: `filter:${key}`,
+        id: `filter:${key2}`,
         kind: "filter",
-        key,
+        key: key2,
         value
       });
     }
@@ -25929,7 +26775,7 @@
     return {
       q: "",
       filters: Object.fromEntries(
-        HISTORY_FILTER_QUERY_KEYS.map((key) => [key, ""])
+        HISTORY_FILTER_QUERY_KEYS.map((key2) => [key2, ""])
       ),
       organization: {
         favorite: false,
@@ -25957,9 +26803,9 @@
       }
     }
     if (input.q) params.set("q", input.q);
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      const value = input.filters?.[key];
-      if (value) params.set(key, value);
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      const value = input.filters?.[key2];
+      if (value) params.set(key2, value);
     }
     if (input.organization?.favorite) params.set("favorite", "true");
     if (input.organization?.untagged) {
@@ -26029,6 +26875,116 @@
     });
   }
 
+  // codex_image/webui/frontend/src/lightbox-touch.ts
+  function createImageTouchGesture(options) {
+    const points = /* @__PURE__ */ new Map();
+    let initial = options.read();
+    let start = { x: 0, y: 0 };
+    let distance = 0;
+    let multiTouch = false;
+    let moved = false;
+    const center = () => {
+      const [a, b] = [...points.values()];
+      return b ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : a;
+    };
+    const separation = () => {
+      const [a, b] = [...points.values()];
+      return b ? Math.hypot(b.x - a.x, b.y - a.y) : 0;
+    };
+    const rebase = () => {
+      initial = options.read();
+      start = center();
+      distance = separation();
+    };
+    return {
+      down(id, point) {
+        if (!points.size) {
+          moved = false;
+          multiTouch = false;
+        }
+        points.set(id, point);
+        if (points.size > 1) multiTouch = true;
+        rebase();
+      },
+      move(id, point) {
+        if (!points.has(id)) return;
+        points.set(id, point);
+        const current = center();
+        const dx = current.x - start.x, dy = current.y - start.y;
+        if (Math.hypot(dx, dy) > 8 || points.size > 1) moved = true;
+        if (points.size > 1 && distance > 0) {
+          const scale = Math.max(1, Math.min(5, initial.scale * separation() / distance));
+          const ratio = scale / initial.scale;
+          options.write({ scale, x: current.x - (start.x - initial.x) * ratio, y: current.y - (start.y - initial.y) * ratio });
+        } else if (initial.scale > 1.025) {
+          options.write({ scale: initial.scale, x: initial.x + dx, y: initial.y + dy });
+        }
+      },
+      up(id, cancelled = false) {
+        if (!points.has(id)) return false;
+        const end = points.get(id);
+        if (!cancelled && points.size === 1 && !multiTouch && initial.scale <= 1.025) {
+          const dx = end.x - start.x, dy = end.y - start.y;
+          if (Math.abs(dx) >= 48 && Math.abs(dx) > Math.abs(dy) * 1.4) options.navigate(dx < 0 ? "next" : "previous");
+        }
+        points.delete(id);
+        const suppressClick = moved || multiTouch || cancelled;
+        if (points.size) rebase();
+        return suppressClick;
+      },
+      reset() {
+        points.clear();
+        moved = false;
+        multiTouch = false;
+      }
+    };
+  }
+  function bindImageTouchGestures(root, image, options) {
+    const gesture = createImageTouchGesture(options);
+    const targets = /* @__PURE__ */ new Map();
+    let suppressUntil = 0;
+    const localPoint = (event) => {
+      const rect = image.getBoundingClientRect();
+      const current = options.read();
+      return { x: event.clientX - (rect.x + rect.width / 2 - current.x), y: event.clientY - (rect.y + rect.height / 2 - current.y) };
+    };
+    root.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" || event.target.closest("button, a, [role=toolbar]")) return;
+      event.preventDefault();
+      targets.set(event.pointerId, event.target);
+      gesture.down(event.pointerId, localPoint(event));
+      root.setPointerCapture(event.pointerId);
+    });
+    root.addEventListener("pointermove", (event) => {
+      if (event.pointerType === "mouse" || !root.hasPointerCapture(event.pointerId)) return;
+      gesture.move(event.pointerId, localPoint(event));
+    });
+    const finish = (event) => {
+      if (event.pointerType === "mouse" || !targets.has(event.pointerId)) return;
+      const target = targets.get(event.pointerId);
+      targets.delete(event.pointerId);
+      if (event.type === "pointerup") gesture.move(event.pointerId, localPoint(event));
+      const consumed = gesture.up(event.pointerId, event.type !== "pointerup");
+      if (root.hasPointerCapture(event.pointerId)) root.releasePointerCapture(event.pointerId);
+      if (!consumed && event.type === "pointerup") options.tap(target);
+      suppressUntil = Date.now() + 500;
+    };
+    root.addEventListener("pointerup", finish);
+    root.addEventListener("pointercancel", finish);
+    root.addEventListener("lostpointercapture", finish);
+    root.addEventListener("click", (event) => {
+      if (Date.now() < suppressUntil && !event.target.closest("button, a, [role=toolbar]")) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+    return () => {
+      gesture.reset();
+      targets.clear();
+      suppressUntil = 0;
+    };
+  }
+
   // codex_image/webui/frontend/src/lightbox-controls.ts
   var LIGHTBOX_FIT_SCALE = 1;
   var LIGHTBOX_MIN_SCALE = 0.1;
@@ -26067,15 +27023,15 @@
     const actual = Math.max(LIGHTBOX_MIN_SCALE, Number(actualSizeScale) || LIGHTBOX_FIT_SCALE);
     return Math.max(1, Math.round(normalizeLightboxScale(scale) / actual * 100));
   }
-  function lightboxActionForKey(key) {
-    if (key === "ArrowLeft") return "previous-image";
-    if (key === "ArrowRight") return "next-image";
-    if (key === "ArrowUp" || key === "PageUp") return "previous-task";
-    if (key === "ArrowDown" || key === "PageDown") return "next-task";
-    if (key === "+" || key === "=") return "zoom-in";
-    if (key === "-") return "zoom-out";
-    if (key === "0") return "fit";
-    if (key === "1") return "actual-size";
+  function lightboxActionForKey(key2) {
+    if (key2 === "ArrowLeft") return "previous-image";
+    if (key2 === "ArrowRight") return "next-image";
+    if (key2 === "ArrowUp" || key2 === "PageUp") return "previous-task";
+    if (key2 === "ArrowDown" || key2 === "PageDown") return "next-task";
+    if (key2 === "+" || key2 === "=") return "zoom-in";
+    if (key2 === "-") return "zoom-out";
+    if (key2 === "0") return "fit";
+    if (key2 === "1") return "actual-size";
     return null;
   }
   function shouldCloseLightboxFromClick(target, root) {
@@ -26174,6 +27130,8 @@
 
   // codex_image/webui/frontend/src/history-lightbox.ts
   var historyLightboxEl = null;
+  var resetTouchGesture = () => {
+  };
   var historyLightboxState = {
     urls: [],
     index: 0,
@@ -26506,6 +27464,7 @@
     </button>
     <button class="history-lightbox-peek history-lightbox-peek-previous" type="button" data-history-lightbox-slot="previous" aria-label="${escapeHtml(translate("lightbox.previous"))}">
       <img alt="" draggable="false">
+      <span class="history-lightbox-peek-icon" aria-hidden="true">\u2039</span>
     </button>
     <div class="history-lightbox-track" data-history-lightbox-track>
       <div class="history-lightbox-current-frame" data-history-lightbox-slot="current">
@@ -26514,6 +27473,7 @@
     </div>
     <button class="history-lightbox-peek history-lightbox-peek-next" type="button" data-history-lightbox-slot="next" aria-label="${escapeHtml(translate("lightbox.next"))}">
       <img alt="" draggable="false">
+      <span class="history-lightbox-peek-icon" aria-hidden="true">\u203A</span>
     </button>
     <div class="history-lightbox-counter" data-history-lightbox-counter aria-live="polite"></div>
     ${lightboxZoomChromeHtml()}
@@ -26537,6 +27497,24 @@
       if (shouldCloseLightboxFromClick(event.target, historyLightboxEl)) closeHistoryLightbox();
     });
     const image = historyLightboxImage();
+    if (image) resetTouchGesture = bindImageTouchGestures(historyLightboxEl, image, {
+      tap: (target) => {
+        if (shouldCloseLightboxFromClick(target, historyLightboxEl)) closeHistoryLightbox();
+      },
+      read: () => ({ scale: historyLightboxState.scale, x: historyLightboxState.pointX, y: historyLightboxState.pointY }),
+      write: ({ scale, x, y }) => {
+        const maxX = Math.max(0, (image.clientWidth * scale - window.innerWidth) / 2);
+        const maxY = Math.max(0, (image.clientHeight * scale - window.innerHeight) / 2);
+        historyLightboxState.scale = scale;
+        historyLightboxState.pointX = Math.max(-maxX, Math.min(maxX, x));
+        historyLightboxState.pointY = Math.max(-maxY, Math.min(maxY, y));
+        setHistoryLightboxTransform();
+      },
+      navigate: (direction) => {
+        if (direction === "next") showNextHistoryLightboxImage();
+        else showPreviousHistoryLightboxImage();
+      }
+    });
     image?.addEventListener("mousedown", (event) => {
       if (event.button !== 0) {
         stopHistoryLightboxPanning();
@@ -26628,7 +27606,9 @@
     lightbox.focus({ preventScroll: true });
     updateHistoryLightboxControls();
     if (!wasActive) {
-      showLightboxShortcutHint(lightbox, Boolean(historyLightboxState.onTaskNavigate));
+      if (!window.matchMedia("(pointer: coarse), (max-width: 600px)").matches) {
+        showLightboxShortcutHint(lightbox, Boolean(historyLightboxState.onTaskNavigate));
+      }
     }
   }
   function closeHistoryLightbox() {
@@ -26647,6 +27627,7 @@
     historyLightboxState.onTaskNavigate = null;
     historyLightboxState.isTransitioning = false;
     hideLightboxShortcutHint(historyLightboxEl);
+    resetTouchGesture();
     resetHistoryLightboxTransform();
     document.body.classList.remove("history-lightbox-open");
   }
@@ -26694,9 +27675,9 @@
         if (typeof sourceEntry.rendered_content === "string") {
           entry.rendered_content = sourceEntry.rendered_content;
         }
-        const key = JSON.stringify(entry);
-        if (seen.has(key)) return;
-        seen.add(key);
+        const key2 = JSON.stringify(entry);
+        if (seen.has(key2)) return;
+        seen.add(key2);
         entries.push(entry);
       });
     });
@@ -27572,6 +28553,387 @@
     };
   }
 
+  // node_modules/@noble/hashes/_u64.js
+  var fromNumH = (n) => n / 2 ** 32 | 0;
+  var fromNumL = (n) => n >>> 0;
+  function setU64FromNum(view, byteOffset, n, isLE) {
+    const h = fromNumH(n);
+    const l = fromNumL(n);
+    view.setUint32(byteOffset, isLE ? l : h, isLE);
+    view.setUint32(byteOffset + 4, isLE ? h : l, isLE);
+  }
+
+  // node_modules/@noble/hashes/utils.js
+  function isBytes(a) {
+    return a instanceof Uint8Array || ArrayBuffer.isView(a) && a.constructor.name === "Uint8Array" && "BYTES_PER_ELEMENT" in a && a.BYTES_PER_ELEMENT === 1;
+  }
+  var atitle = (title) => title ? `"${title}" ` : "";
+  function anumber(n, title = "") {
+    if (typeof n !== "number")
+      throw new TypeError(atitle(title) + "expected number, got " + typeof n);
+    if (!Number.isSafeInteger(n) || n < 0)
+      throw new RangeError(atitle(title) + "expected integer >= 0, got " + n);
+    return n;
+  }
+  function abytes(value, length, title = "") {
+    if (isBytes(value) && (length === void 0 || value.length === length))
+      return value;
+    if (length !== void 0)
+      anumber(length, "length");
+    const bytes = isBytes(value);
+    const ofLen = length !== void 0 ? ` of length ${length}` : "";
+    const got = bytes ? `length=${value.length}` : `type=${typeof value}`;
+    const message = atitle(title) + "expected Uint8Array" + ofLen + ", got " + got;
+    if (!bytes)
+      throw new TypeError(message);
+    throw new RangeError(message);
+  }
+  var aobject = (value, label) => {
+    if (value === null || typeof value !== "object" || Array.isArray(value))
+      throw new TypeError((label === "object" ? "" : `"${label}" `) + "expected object, got type=" + typeof value);
+  };
+  var aopts = (value, label) => {
+    aobject(value, label);
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null)
+      throw new TypeError(`"${label}" expected plain object`);
+    if (Object.hasOwn(value, "__proto__"))
+      throw new TypeError(`"${label}.__proto__" is not allowed`);
+  };
+  function aexists(instance, checkFinished = true) {
+    if (instance.destroyed)
+      throw new Error("hash was destroyed");
+    if (checkFinished && instance.finished)
+      throw new Error("digest() was already called");
+  }
+  function aoutput(out, instance) {
+    abytes(out, void 0, "output");
+    const min = instance.outputLen;
+    if (!(out.length >= min)) {
+      throw new RangeError('"output" expected length >= ' + min);
+    }
+  }
+  function clean(...arrays) {
+    for (let i = 0; i < arrays.length; i++) {
+      arrays[i].fill(0);
+    }
+  }
+  function createView(arr) {
+    return new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
+  }
+  function rotr(word, shift) {
+    return word << 32 - shift | word >>> shift;
+  }
+  function checkOpts(defaults, opts, title = "opts") {
+    aopts(defaults, "defaults");
+    if (opts !== void 0)
+      aopts(opts, title);
+    const merged = Object.assign(/* @__PURE__ */ Object.create(null), defaults, opts);
+    return merged;
+  }
+  function createHasher(hashCons, info = {}) {
+    if (typeof hashCons !== "function")
+      throw new TypeError('"hashCons" expected function, got type=' + typeof hashCons);
+    info = checkOpts({}, info, "info");
+    const hashC = (msg, opts) => hashCons(opts).update(msg).digest();
+    const tmp = hashCons(void 0);
+    hashC.outputLen = tmp.outputLen;
+    hashC.blockLen = tmp.blockLen;
+    hashC.canXOF = tmp.canXOF;
+    hashC.create = (opts) => hashCons(opts);
+    Object.assign(hashC, info);
+    return Object.freeze(hashC);
+  }
+  var oidNist = (suffix) => ({
+    // Current NIST hashAlgs suffixes used here fit in one DER subidentifier octet.
+    // Larger suffix values would need base-128 OID encoding and a different length byte.
+    oid: Uint8Array.from([6, 9, 96, 134, 72, 1, 101, 3, 4, 2, suffix])
+  });
+
+  // node_modules/@noble/hashes/_md.js
+  function Chi(a, b, c) {
+    return a & b ^ ~a & c;
+  }
+  function Maj(a, b, c) {
+    return a & b ^ a & c ^ b & c;
+  }
+  var HashMD = class {
+    constructor(blockLen, outputLen, padOffset, isLE) {
+      __publicField(this, "blockLen");
+      __publicField(this, "outputLen");
+      __publicField(this, "canXOF", false);
+      __publicField(this, "padOffset");
+      __publicField(this, "isLE");
+      // For partial updates less than block size
+      __publicField(this, "buffer");
+      __publicField(this, "view");
+      __publicField(this, "finished", false);
+      __publicField(this, "length", 0);
+      __publicField(this, "pos", 0);
+      __publicField(this, "destroyed", false);
+      this.blockLen = blockLen;
+      this.outputLen = outputLen;
+      this.padOffset = padOffset;
+      this.isLE = isLE;
+      this.buffer = new Uint8Array(blockLen);
+      this.view = createView(this.buffer);
+    }
+    update(data) {
+      aexists(this);
+      abytes(data);
+      const { view, buffer, blockLen } = this;
+      const len = data.length;
+      let processed = false;
+      for (let pos = 0; pos < len; ) {
+        const take = Math.min(blockLen - this.pos, len - pos);
+        if (take === blockLen) {
+          const dataView = createView(data);
+          for (; blockLen <= len - pos; pos += blockLen)
+            this.process(dataView, pos);
+          processed = true;
+          continue;
+        }
+        buffer.set(pos === 0 && take === len ? data : data.subarray(pos, pos + take), this.pos);
+        this.pos += take;
+        pos += take;
+        if (this.pos === blockLen) {
+          this.process(view, 0);
+          this.pos = 0;
+          processed = true;
+        }
+      }
+      this.length += data.length;
+      if (processed)
+        this.roundClean();
+      return this;
+    }
+    digestInto(out) {
+      aexists(this);
+      aoutput(out, this);
+      this.finished = true;
+      const { buffer, view, blockLen, isLE } = this;
+      let { pos } = this;
+      buffer[pos++] = 128;
+      buffer.fill(0, pos);
+      if (this.padOffset > blockLen - pos) {
+        this.process(view, 0);
+        buffer.fill(0);
+      }
+      setU64FromNum(view, blockLen - 8, this.length * 8, isLE);
+      this.process(view, 0);
+      this.roundClean();
+      const oview = out === buffer ? view : createView(out);
+      const len = this.outputLen;
+      const outLen = len / 4;
+      const state5 = this.get();
+      if (len % 4 || outLen > state5.length)
+        throw new Error("invalid outputLen");
+      for (let i = 0; i < outLen; i++)
+        oview.setUint32(4 * i, state5[i], isLE);
+    }
+    digest() {
+      const { buffer, outputLen } = this;
+      this.digestInto(buffer);
+      const res = buffer.slice(0, outputLen);
+      this.destroy();
+      return res;
+    }
+    _cloneIntoMeta(to) {
+      const { buffer, length, finished, destroyed, pos } = this;
+      to.destroyed = destroyed;
+      to.finished = finished;
+      to.length = length;
+      to.pos = pos;
+      if (pos)
+        to.buffer.set(buffer);
+      return to;
+    }
+    clone() {
+      return this._cloneInto();
+    }
+  };
+  var SHA256_IV = /* @__PURE__ */ Uint32Array.from([
+    1779033703,
+    3144134277,
+    1013904242,
+    2773480762,
+    1359893119,
+    2600822924,
+    528734635,
+    1541459225
+  ]);
+
+  // node_modules/@noble/hashes/sha2.js
+  var SHA256_K = /* @__PURE__ */ Uint32Array.from([
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ]);
+  var SHA256_W = /* @__PURE__ */ new Uint32Array(64);
+  var SHA2_32B = class extends HashMD {
+    constructor(outputLen, IV) {
+      super(64, outputLen, 8, false);
+      // We cannot use array here since array allows indexing by variable
+      // which means optimizer/compiler cannot use registers.
+      // Numeric initializers matter: starting the fields as `undefined` changes
+      // V8's field representation and makes sha256 3x slower (measured).
+      __publicField(this, "A", 0);
+      __publicField(this, "B", 0);
+      __publicField(this, "C", 0);
+      __publicField(this, "D", 0);
+      __publicField(this, "E", 0);
+      __publicField(this, "F", 0);
+      __publicField(this, "G", 0);
+      __publicField(this, "H", 0);
+      this.A = IV[0] | 0;
+      this.B = IV[1] | 0;
+      this.C = IV[2] | 0;
+      this.D = IV[3] | 0;
+      this.E = IV[4] | 0;
+      this.F = IV[5] | 0;
+      this.G = IV[6] | 0;
+      this.H = IV[7] | 0;
+    }
+    get() {
+      const { A, B, C, D, E, F, G, H } = this;
+      return [A, B, C, D, E, F, G, H];
+    }
+    // prettier-ignore
+    set(A, B, C, D, E, F, G, H) {
+      this.A = A | 0;
+      this.B = B | 0;
+      this.C = C | 0;
+      this.D = D | 0;
+      this.E = E | 0;
+      this.F = F | 0;
+      this.G = G | 0;
+      this.H = H | 0;
+    }
+    _cloneInto(to) {
+      (to || (to = new this.constructor())).set(...this.get());
+      return this._cloneIntoMeta(to);
+    }
+    process(view, offset) {
+      for (let i = 0; i < 16; i++, offset += 4)
+        SHA256_W[i] = view.getUint32(offset, false);
+      for (let i = 16; i < 64; i++) {
+        const W15 = SHA256_W[i - 15];
+        const W2 = SHA256_W[i - 2];
+        const s0 = rotr(W15, 7) ^ rotr(W15, 18) ^ W15 >>> 3;
+        const s1 = rotr(W2, 17) ^ rotr(W2, 19) ^ W2 >>> 10;
+        SHA256_W[i] = s1 + SHA256_W[i - 7] + s0 + SHA256_W[i - 16] | 0;
+      }
+      let { A, B, C, D, E, F, G, H } = this;
+      for (let i = 0; i < 64; i++) {
+        const sigma1 = rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25);
+        const T1 = H + sigma1 + Chi(E, F, G) + SHA256_K[i] + SHA256_W[i] | 0;
+        const sigma0 = rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22);
+        const T2 = sigma0 + Maj(A, B, C) | 0;
+        H = G;
+        G = F;
+        F = E;
+        E = D + T1 | 0;
+        D = C;
+        C = B;
+        B = A;
+        A = T1 + T2 | 0;
+      }
+      A = A + this.A | 0;
+      B = B + this.B | 0;
+      C = C + this.C | 0;
+      D = D + this.D | 0;
+      E = E + this.E | 0;
+      F = F + this.F | 0;
+      G = G + this.G | 0;
+      H = H + this.H | 0;
+      this.set(A, B, C, D, E, F, G, H);
+    }
+    roundClean() {
+      clean(SHA256_W);
+    }
+    destroy() {
+      this.destroyed = true;
+      this.set(0, 0, 0, 0, 0, 0, 0, 0);
+      clean(this.buffer);
+    }
+  };
+  var _SHA256 = class extends SHA2_32B {
+    constructor() {
+      super(32, SHA256_IV);
+    }
+  };
+  var sha256 = /* @__PURE__ */ createHasher(
+    () => new _SHA256(),
+    /* @__PURE__ */ oidNist(1)
+  );
+
+  // codex_image/webui/frontend/src/sha256.ts
+  async function sha256Hex(bytes, cryptoProvider = globalThis.crypto) {
+    const digest = cryptoProvider?.subtle ? new Uint8Array(await cryptoProvider.subtle.digest("SHA-256", bytes)) : sha256(new Uint8Array(bytes));
+    return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
   // codex_image/webui/frontend/src/history-import.ts
   var HISTORY_IMPORT_STORAGE_KEY = "ilab-history-backup-import";
   var DEFAULT_HISTORY_IMPORT_CHUNK_BYTES = 8 * 1024 * 1024;
@@ -27596,11 +28958,6 @@
     } catch {
       return null;
     }
-  }
-  function currentCrypto() {
-    const value = globalThis.crypto;
-    if (!value?.subtle) throw new Error("history_import_crypto_unavailable");
-    return value;
   }
   async function apiError2(response) {
     let code = "backup_request_failed";
@@ -27652,14 +29009,14 @@
     );
     return parseHistoryImportSnapshot(payload);
   }
-  async function appendHistoryImportChunk(sessionId, offset, bytes, sha256, options = {}) {
+  async function appendHistoryImportChunk(sessionId, offset, bytes, sha2562, options = {}) {
     return requestJson2(
       `/api/task-history/backup-imports/${encodeURIComponent(sessionId)}/chunks`,
       withSignal2({
         method: "PUT",
         headers: {
           "x-chunk-offset": String(offset),
-          "x-chunk-sha256": sha256
+          "x-chunk-sha256": sha2562
         },
         body: bytes
       }, options.signal),
@@ -27717,7 +29074,7 @@
     return value.map((item) => {
       if (!item || typeof item !== "object" || Array.isArray(item)) invalidResponse();
       const record2 = item;
-      if (!Object.keys(record2).every((key) => ["task_id", "classification", "reason"].includes(key))) invalidResponse();
+      if (!Object.keys(record2).every((key2) => ["task_id", "classification", "reason"].includes(key2))) invalidResponse();
       if (typeof record2.task_id !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(record2.task_id) || typeof record2.classification !== "string" || !IMPORT_CLASSIFICATIONS.has(record2.classification) || record2.reason !== void 0 && record2.reason !== null && (typeof record2.reason !== "string" || !/^[a-z][a-z0-9_]{2,127}$/.test(record2.reason))) invalidResponse();
       const parsed = {
         task_id: record2.task_id,
@@ -27740,7 +29097,7 @@
       "thumbnail_warnings",
       "cleanup_warnings"
     ];
-    if (Object.keys(record2).length !== keys.length || !keys.every((key) => key in record2)) invalidResponse();
+    if (Object.keys(record2).length !== keys.length || !keys.every((key2) => key2 in record2)) invalidResponse();
     return {
       restored: parseTaskResults(record2.restored),
       duplicates: parseTaskResults(record2.duplicates),
@@ -27775,15 +29132,12 @@
     if (!(error instanceof HistoryImportApiError)) return true;
     return error.status === 408 || error.status === 429 || error.status >= 500;
   }
-  function digestHex(digest) {
-    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  }
   async function uploadAndValidateHistoryImport(file, initialSession, options = {}) {
     if (file.size !== initialSession.size_bytes) {
       throw new HistoryImportApiError("backup_import_size_invalid", "backup_import_size_invalid", 422);
     }
     const fetchFn = options.fetch ?? currentFetch2();
-    const cryptoLike = options.crypto ?? currentCrypto();
+    const cryptoLike = options.crypto ?? globalThis.crypto;
     const chunkBytes = positiveChunkSize(initialSession.upload_chunk_bytes);
     let offset = initialSession.uploaded_bytes;
     if (!Number.isInteger(offset) || offset < 0 || offset > file.size) {
@@ -27794,7 +29148,7 @@
       const end = Math.min(file.size, offset + chunkBytes);
       const slice = file.slice(offset, end);
       const bytes = await slice.arrayBuffer();
-      const sha256 = digestHex(await cryptoLike.subtle.digest("SHA-256", bytes));
+      const sha2562 = await sha256Hex(bytes, cryptoLike);
       let uploaded = null;
       let lastError = null;
       for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -27804,7 +29158,7 @@
             initialSession.session_id,
             offset,
             bytes,
-            sha256,
+            sha2562,
             { fetch: fetchFn, signal: options.signal }
           );
           throwIfAborted(options.signal);
@@ -27870,7 +29224,7 @@
   function createHistoryImportController(options = {}) {
     const fetchFn = options.fetch ?? currentFetch2();
     const storage = options.storage === void 0 ? currentStorage2() : options.storage;
-    const cryptoLike = options.crypto ?? currentCrypto();
+    const cryptoLike = options.crypto ?? globalThis.crypto;
     let sessionId = null;
     let activeAbort = null;
     let generation = 0;
@@ -28592,8 +29946,8 @@
     return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`;
   }
   function historyBackupStatusText(job) {
-    const key = `historyBackup.${job.status}`;
-    return translate(key);
+    const key2 = `historyBackup.${job.status}`;
+    return translate(key2);
   }
   function historyBackupErrorText(code) {
     if (code.includes("space") || code.includes("disk")) return translate("historyBackup.errorDisk");
@@ -28855,13 +30209,13 @@
       thumbnail_warnings: result.thumbnail_warnings,
       cleanup_warnings: result.cleanup_warnings
     };
-    for (const [key, items] of Object.entries(values)) {
-      setText(els8.importResult.querySelector(`[data-history-import-result="${key}"] dd`), String(items?.length || 0));
+    for (const [key2, items] of Object.entries(values)) {
+      setText(els8.importResult.querySelector(`[data-history-import-result="${key2}"] dd`), String(items?.length || 0));
     }
   }
   function historyImportPhaseText(phase) {
-    const key = phase === "idle" ? "historyBackup.idle" : phase === "creating" ? "historyImport.uploading" : `historyImport.${phase}`;
-    return translate(key);
+    const key2 = phase === "idle" ? "historyBackup.idle" : phase === "creating" ? "historyImport.uploading" : `historyImport.${phase}`;
+    return translate(key2);
   }
   function renderHistoryImportPhase(phase) {
     currentImportPhase = phase;
@@ -29069,37 +30423,37 @@
     const text = String(value || "").replace(/\s+/g, " ").trim();
     return text.length <= limit ? text : text.slice(0, limit - 1).trimEnd() + "\u2026";
   }
-  function historyFilterAttribute(key) {
-    return key.replace(/_/g, "-");
+  function historyFilterAttribute(key2) {
+    return key2.replace(/_/g, "-");
   }
-  function facetDisplayValue(key, value) {
-    if (key === "mode") {
+  function facetDisplayValue(key2, value) {
+    if (key2 === "mode") {
       if (value === "generate") return translate("history.type.textToImage");
       if (value === "edit") return translate("history.type.imageToImage");
     }
-    if (key === "prompt_mode") {
+    if (key2 === "prompt_mode") {
       if (value === "strict") return translate("history.promptMode.strict");
       if (value === "original") return translate("history.promptMode.original");
       if (value === "off") return translate("history.promptMode.off");
     }
-    if (key === "quality") {
+    if (key2 === "quality") {
       if (value === "high") return translate("history.quality.high");
       if (value === "medium") return translate("history.quality.medium");
       if (value === "low") return translate("history.quality.low");
       if (value === "auto") return translate("history.quality.auto");
     }
-    if (key === "orientation") {
+    if (key2 === "orientation") {
       if (value === "portrait") return translate("output.portrait");
       if (value === "landscape") return translate("output.landscape");
       if (value === "square") return translate("output.square");
     }
-    if (key === "ratio" && value === HISTORY_RATIO_OTHER_VALUE) return translate("history.ratioOther");
+    if (key2 === "ratio" && value === HISTORY_RATIO_OTHER_VALUE) return translate("history.ratioOther");
     return value;
   }
   function currentHistoryActiveFilterSnapshot() {
     const filters = {};
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      filters[key] = historyState[key];
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      filters[key2] = historyState[key2];
     }
     return {
       q: historyState.q,
@@ -29111,7 +30465,7 @@
       }
     };
   }
-  function historyActiveFilterTitle(key) {
+  function historyActiveFilterTitle(key2) {
     const translationKeys = {
       mode: "history.type",
       month: "history.month",
@@ -29123,7 +30477,7 @@
       provider: "history.provider",
       archived: "history.archived"
     };
-    return translate(translationKeys[key]);
+    return translate(translationKeys[key2]);
   }
   function historyActiveFilterLabel(item) {
     if (item.kind === "q") {
@@ -29197,20 +30551,20 @@
     );
   }
   function syncHistoryFilterButtonsFromState() {
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      const attr = historyFilterAttribute(key);
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      const attr = historyFilterAttribute(key2);
       document.querySelectorAll(`[data-history-${attr}]`).forEach((button) => {
         button.classList.toggle(
           "active",
-          button.getAttribute(`data-history-${attr}`) === historyState[key]
+          button.getAttribute(`data-history-${attr}`) === historyState[key2]
         );
       });
     }
   }
   function applyHistoryActiveFilterSnapshot(snapshot) {
     historyState.q = snapshot.q;
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      historyState[key] = String(snapshot.filters[key] || "");
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      historyState[key2] = String(snapshot.filters[key2] || "");
     }
     historyOrganizationFilters = {
       favorite: snapshot.organization.favorite,
@@ -29266,8 +30620,8 @@
       <rect x="10.5" y="11.5" width="5" height="5" rx="1.4"></rect>
     </svg>`;
   }
-  function historyFilterButtonLabelHtml(key, label, value = "") {
-    if (key !== "orientation") return escapeHtml5(label);
+  function historyFilterButtonLabelHtml(key2, label, value = "") {
+    if (key2 !== "orientation") return escapeHtml5(label);
     return `${historyOrientationIconHtml(value)}<span class="history-filter-label">${escapeHtml5(label)}</span>`;
   }
   function syncStateFromUrl() {
@@ -29276,12 +30630,12 @@
     historyState.q = params.get("q") || "";
     historyState.sort = params.get("sort") === "oldest" ? "oldest" : "newest";
     historyState.view = params.get("view") === "list" ? "list" : "grid";
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      historyState[key] = params.get(key) || "";
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      historyState[key2] = params.get(key2) || "";
     }
-    for (const key of ["backend", "provider"]) {
-      const section = document.querySelector(`[data-history-filter-section="${key}"]`);
-      if (section && historyState[key]) section.open = true;
+    for (const key2 of ["backend", "provider"]) {
+      const section = document.querySelector(`[data-history-filter-section="${key2}"]`);
+      if (section && historyState[key2]) section.open = true;
     }
     historyState.selectedTaskId = params.get("task") || "";
     historyState.selectedTaskIds = historyState.selectedTaskId ? /* @__PURE__ */ new Set([historyState.selectedTaskId]) : /* @__PURE__ */ new Set();
@@ -29303,8 +30657,8 @@
     if (historyState.q) params.set("q", historyState.q);
     if (historyState.sort !== "newest") params.set("sort", historyState.sort);
     if (historyState.view !== "grid") params.set("view", historyState.view);
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      if (historyState[key]) params.set(key, historyState[key]);
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      if (historyState[key2]) params.set(key2, historyState[key2]);
     }
     writeHistoryOrganizationFilters(
       params,
@@ -29598,15 +30952,15 @@
       );
     }
   }
-  function renderFacetButtons(root, key, items, allLabel) {
+  function renderFacetButtons(root, key2, items, allLabel) {
     if (!root) return;
-    const current = String(historyState[key] || "");
-    const attr = historyFilterAttribute(key);
+    const current = String(historyState[key2] || "");
+    const attr = historyFilterAttribute(key2);
     root.innerHTML = [
-      `<button class="history-filter-button ${current ? "" : "active"}" type="button" data-history-filter-key="${key}" data-history-${attr}="">${historyFilterButtonLabelHtml(key, allLabel)}</button>`,
+      `<button class="history-filter-button ${current ? "" : "active"}" type="button" data-history-filter-key="${key2}" data-history-${attr}="">${historyFilterButtonLabelHtml(key2, allLabel)}</button>`,
       ...items.map((item) => {
         const active = current === item.value ? " active" : "";
-        return `<button class="history-filter-button${active}" type="button" data-history-filter-key="${key}" data-history-${attr}="${escapeHtml5(item.value)}">${historyFilterButtonLabelHtml(key, facetDisplayValue(key, item.value), item.value)}<span class="history-filter-count">${item.count}</span></button>`;
+        return `<button class="history-filter-button${active}" type="button" data-history-filter-key="${key2}" data-history-${attr}="${escapeHtml5(item.value)}">${historyFilterButtonLabelHtml(key2, facetDisplayValue(key2, item.value), item.value)}<span class="history-filter-count">${item.count}</span></button>`;
       })
     ].join("");
   }
@@ -29635,8 +30989,8 @@
   }
   function historyPageQueryInput(cursor, direction = "next", anchorTaskId = "") {
     const filters = {};
-    for (const key of HISTORY_FILTER_QUERY_KEYS) {
-      if (historyState[key]) filters[key] = historyState[key];
+    for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+      if (historyState[key2]) filters[key2] = historyState[key2];
     }
     return {
       limit: HISTORY_PAGE_LIMIT,
@@ -29672,6 +31026,9 @@
     updateHistoryUrl();
   }
   function historyGridLayoutSettings() {
+    if (window.matchMedia("(max-width: 600px)").matches) {
+      return { targetHeight: 220, minWidth: 132, maxWidth: 320, maxItems: 2 };
+    }
     if (window.matchMedia("(max-width: 760px)").matches) {
       return { targetHeight: 176, minWidth: 132, maxWidth: 320 };
     }
@@ -30012,7 +31369,7 @@
       row.push(item);
       rowRatioTotal += item.ratio;
       const projectedWidth = rowRatioTotal * settings.targetHeight + gap * Math.max(0, row.length - 1);
-      if (row.length > 1 && projectedWidth >= availableWidth) {
+      if (row.length > 1 && (projectedWidth >= availableWidth || row.length >= (settings.maxItems ?? Infinity))) {
         applyHistoryGridRowLayout(row, { fillRow: true, availableWidth, gap, settings });
         row = [];
         rowRatioTotal = 0;
@@ -30415,7 +31772,7 @@
     return [
       conciseTitle,
       formatDate(task.created_at),
-      String(task.status || "").trim()
+      localizedTaskStatus(task.status || "")
     ].filter(Boolean).join(" \xB7 ");
   }
   function taskCardHtml(task) {
@@ -30425,7 +31782,7 @@
     const imageCount = historyTaskGeneratedCount(task);
     const stackDepth = historyTaskStackDepth(imageCount);
     const stackLayers = historyTaskStackLayers(stackDepth);
-    const thumb = thumbnailUrl ? `<img src="${escapeHtml5(thumbnailUrl)}" alt="" loading="lazy" decoding="async" draggable="false">` : "";
+    const thumb = thumbnailUrl ? `<img class="transparency-grid" src="${escapeHtml5(thumbnailUrl)}" alt="" loading="lazy" decoding="async" draggable="false">` : "";
     const counts = `${task.generated_count || 0}/${task.total_count || 0}`;
     const selected = historyState.selectedTaskIds.has(task.task_id) || historyState.selectedTaskId === task.task_id;
     const active = historyState.selectedTaskId === task.task_id;
@@ -30906,7 +32263,7 @@
     </div>
     <div class="history-detail-meta">
       <span>${escapeHtml5(formatDate(task.created_at || ""))}</span>
-      <span>${escapeHtml5(task.status || "")}</span>
+      <span>${escapeHtml5(localizedTaskStatus(task.status || ""))}</span>
       <span>${escapeHtml5(task.params?.size || task.output_size || "")}</span>
       <span>${escapeHtml5(facetDisplayValue("prompt_mode", task.params?.prompt_fidelity || ""))}</span>
       <span>${escapeHtml5(facetDisplayValue("quality", task.params?.quality || task.quality || ""))}</span>
@@ -30923,6 +32280,7 @@
         ${hasSelectedOutputs ? `<button class="ghost-button text-sm danger-button" type="button" ${canDeleteUnselected && !deleteBlocked ? `data-history-delete-unselected="${escapeHtml5(taskId)}"` : "disabled"}>${escapeHtml5(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>` : `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml5(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml5(confirmingDeleteTask ? translate("history.confirmDelete") : translate("action.delete"))}</button>`}
       </div>
     </div>
+    ${["failed", "partial_failed"].includes(task.status) ? `<div class="history-recovery"><p>${escapeHtml5(taskRecoveryMessage(task))}</p><details><summary>${escapeHtml5(translate("ux.errorDetails"))}</summary><p>${escapeHtml5(String(task.error || task.last_error || ""))}</p></details><button type="button" class="ghost-button text-sm" data-history-reuse-task="${escapeHtml5(taskId)}">${escapeHtml5(translate("ux.openRecovery"))}</button></div>` : ""}
     <div class="history-detail-images${imageLayoutClass}">${images || `<div class="history-detail-empty">${escapeHtml5(translate("history.noPreview"))}</div>`}</div>
     ${inputReferences}
     ${referenceFiles}
@@ -30958,22 +32316,24 @@
   }
   function promptCompareHtml(task) {
     const originalPrompt = promptTextValue(task.prompt || "");
-    const submittedPrompt = promptTextValue(task.prompt_for_model || "");
+    const submittedPrompt = promptTextValue(submittedPromptForTask(task));
     const revisedPrompt = revisedPromptText(task);
     const hasDistinctOutputPrompts = hasDistinctOutputRevisedPrompts(task);
     const seen = /* @__PURE__ */ new Set();
     const panels = [];
     const addPanel = (kind, title, text) => {
       const value = promptTextValue(text);
-      const key = normalizePromptForCompare(value);
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
+      const key2 = normalizePromptForCompare(value);
+      if (!key2 || seen.has(key2)) return false;
+      seen.add(key2);
       panels.push(promptPanelHtml(kind, title, value));
       return true;
     };
     addPanel("original", translate("history.promptOriginal"), originalPrompt);
     const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised", translate("history.promptRevised"), revisedPrompt);
-    if (!hasRevisedPanel) {
+    if (task.generation_snapshot?.transparency_instruction) {
+      addPanel("submitted", translate("history.promptSubmittedActual"), submittedPrompt);
+    } else if (!hasRevisedPanel) {
       addPanel("submitted", translate("history.promptSubmitted"), submittedPrompt);
     }
     if (hasDistinctOutputPrompts) {
@@ -30992,9 +32352,9 @@
     const result = [];
     values.forEach((value) => {
       const text = promptTextValue(value);
-      const key = normalizePromptForCompare(text);
-      if (!key || seen.has(key)) return;
-      seen.add(key);
+      const key2 = normalizePromptForCompare(text);
+      if (!key2 || seen.has(key2)) return;
+      seen.add(key2);
       result.push(text);
     });
     return result;
@@ -31036,11 +32396,11 @@
     const parsed = Number.parseInt(String(value ?? ""), 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }
-  function applyFilter(key, value) {
-    historyState[key] = value;
+  function applyFilter(key2, value) {
+    historyState[key2] = value;
     resetHistoryTaskSelectionState();
     clearHistoryDeleteConfirmation();
-    const attr = historyFilterAttribute(key);
+    const attr = historyFilterAttribute(key2);
     document.querySelectorAll(`[data-history-${attr}]`).forEach((node) => {
       node.classList.toggle("active", node.getAttribute(`data-history-${attr}`) === value);
     });
@@ -31242,7 +32602,7 @@
   }
   function promptTextForKind(kind) {
     const task = historyState.detailTask || {};
-    if (kind === "submitted") return String(task.prompt_for_model || "").trim();
+    if (kind === "submitted") return submittedPromptForTask(task).trim();
     if (kind === "revised") {
       return revisedPromptText(task);
     }
@@ -31255,22 +32615,7 @@
     return String(record2?.revisedPrompt || "").trim();
   }
   async function writeClipboardText(text) {
-    if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return;
-      } catch {
-      }
-    }
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.append(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    textarea.remove();
+    return copyTextToClipboard(text);
   }
   function setPromptCopyButtonFeedback(button, message) {
     const original = button.dataset.historyOriginalLabel || button.textContent || translate("history.copyPromptShort");
@@ -31294,7 +32639,7 @@
       return;
     }
     try {
-      await writeClipboardText(text);
+      if (!await writeClipboardText(text)) return;
       if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
       setText(els8.resultSummary, translate("history.promptCopied"));
     } catch (error) {
@@ -31313,7 +32658,7 @@
       return;
     }
     try {
-      await writeClipboardText(text);
+      if (!await writeClipboardText(text)) return;
       if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
       setText(els8.resultSummary, translate("history.promptCopied"));
     } catch (error) {
@@ -31340,7 +32685,7 @@
     const ids = taskIds.filter(Boolean);
     if (!ids.length) return;
     try {
-      await writeClipboardText(ids.join("\n"));
+      if (!await writeClipboardText(ids.join("\n"))) return;
       setText(els8.resultSummary, ids.length > 1 ? formatTranslation("history.taskIdsCopied", { count: ids.length }) : translate("taskContext.idCopied"));
     } catch (error) {
       setText(els8.resultSummary, errorMessage2(error, translate("taskContext.actionFailed")));
@@ -31363,7 +32708,7 @@
       return;
     }
     try {
-      await writeClipboardText(prompts.join("\n\n---\n\n"));
+      if (!await writeClipboardText(prompts.join("\n\n---\n\n"))) return;
       setText(els8.resultSummary, taskIds.length > 1 ? formatTranslation("history.promptsCopied", { count: prompts.length }) : translate("history.promptCopied"));
     } catch (error) {
       setText(els8.resultSummary, errorMessage2(error, translate("history.promptCopyFailed")));
@@ -32502,11 +33847,11 @@
         closeDetail();
         return;
       }
-      for (const key of HISTORY_FILTER_QUERY_KEYS) {
-        const attr = historyFilterAttribute(key);
+      for (const key2 of HISTORY_FILTER_QUERY_KEYS) {
+        const attr = historyFilterAttribute(key2);
         const button = target?.closest(`[data-history-${attr}]`);
         if (button) {
-          applyFilter(key, button.getAttribute(`data-history-${attr}`) || "");
+          applyFilter(key2, button.getAttribute(`data-history-${attr}`) || "");
           return;
         }
       }

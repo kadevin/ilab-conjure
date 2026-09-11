@@ -1,3 +1,6 @@
+import { copyTextToClipboard } from "./clipboard-text";
+import { localizedTaskStatus, taskRecoveryMessage } from "./task-recovery";
+import { submittedPromptForTask } from "./transparency-status";
 import { LOCALE_CHANGE_EVENT, formatTranslation, translate } from "./i18n";
 import { initializeHistoryShell } from "./history-shell";
 import { initializeHistoryMobileFilters } from "./history-mobile-filters";
@@ -193,6 +196,7 @@ type HistoryGridLayoutSettings = {
   targetHeight: number;
   minWidth: number;
   maxWidth: number;
+  maxItems?: number;
 };
 type HistoryGridLayoutItem = {
   card: HTMLElement;
@@ -1739,6 +1743,9 @@ function setHistoryViewMode(view: string): void {
 }
 
 function historyGridLayoutSettings(): HistoryGridLayoutSettings {
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    return { targetHeight: 220, minWidth: 132, maxWidth: 320, maxItems: 2 };
+  }
   if (window.matchMedia("(max-width: 760px)").matches) {
     return { targetHeight: 176, minWidth: 132, maxWidth: 320 };
   }
@@ -2142,7 +2149,7 @@ function layoutJustifiedHistoryGrid(
     row.push(item);
     rowRatioTotal += item.ratio;
     const projectedWidth = (rowRatioTotal * settings.targetHeight) + (gap * Math.max(0, row.length - 1));
-    if (row.length > 1 && projectedWidth >= availableWidth) {
+    if (row.length > 1 && (projectedWidth >= availableWidth || row.length >= (settings.maxItems ?? Infinity))) {
       applyHistoryGridRowLayout(row, { fillRow: true, availableWidth, gap, settings });
       row = [];
       rowRatioTotal = 0;
@@ -2600,7 +2607,7 @@ function historyTaskAccessibleLabel(task: HistoryTask): string {
   return [
     conciseTitle,
     formatDate(task.created_at),
-    String(task.status || "").trim(),
+    localizedTaskStatus(task.status || ""),
   ].filter(Boolean).join(" · ");
 }
 
@@ -2612,7 +2619,7 @@ function taskCardHtml(task: HistoryTask): string {
   const stackDepth = historyTaskStackDepth(imageCount);
   const stackLayers = historyTaskStackLayers(stackDepth);
   const thumb = thumbnailUrl
-    ? `<img src="${escapeHtml(thumbnailUrl)}" alt="" loading="lazy" decoding="async" draggable="false">`
+    ? `<img class="transparency-grid" src="${escapeHtml(thumbnailUrl)}" alt="" loading="lazy" decoding="async" draggable="false">`
     : "";
   const counts = `${task.generated_count || 0}/${task.total_count || 0}`;
   const selected = historyState.selectedTaskIds.has(task.task_id)
@@ -3168,7 +3175,7 @@ function renderTaskDetail(task: any): void {
     </div>
     <div class="history-detail-meta">
       <span>${escapeHtml(formatDate(task.created_at || ""))}</span>
-      <span>${escapeHtml(task.status || "")}</span>
+      <span>${escapeHtml(localizedTaskStatus(task.status || ""))}</span>
       <span>${escapeHtml(task.params?.size || task.output_size || "")}</span>
       <span>${escapeHtml(facetDisplayValue("prompt_mode", task.params?.prompt_fidelity || ""))}</span>
       <span>${escapeHtml(facetDisplayValue("quality", task.params?.quality || task.quality || ""))}</span>
@@ -3193,6 +3200,7 @@ function renderTaskDetail(task: any): void {
           : `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml(confirmingDeleteTask ? translate("history.confirmDelete") : translate("action.delete"))}</button>`}
       </div>
     </div>
+    ${["failed", "partial_failed"].includes(task.status) ? `<div class="history-recovery"><p>${escapeHtml(taskRecoveryMessage(task))}</p><details><summary>${escapeHtml(translate("ux.errorDetails"))}</summary><p>${escapeHtml(String(task.error || task.last_error || ""))}</p></details><button type="button" class="ghost-button text-sm" data-history-reuse-task="${escapeHtml(taskId)}">${escapeHtml(translate("ux.openRecovery"))}</button></div>` : ""}
     <div class="history-detail-images${imageLayoutClass}">${images || `<div class="history-detail-empty">${escapeHtml(translate("history.noPreview"))}</div>`}</div>
     ${inputReferences}
     ${referenceFiles}
@@ -3235,7 +3243,7 @@ function historyTaskPromptForClipboard(task: any): string {
 
 function promptCompareHtml(task: any): string {
   const originalPrompt = promptTextValue(task.prompt || "");
-  const submittedPrompt = promptTextValue(task.prompt_for_model || "");
+  const submittedPrompt = promptTextValue(submittedPromptForTask(task));
   const revisedPrompt = revisedPromptText(task);
   const hasDistinctOutputPrompts = hasDistinctOutputRevisedPrompts(task);
   const seen = new Set<string>();
@@ -3251,7 +3259,9 @@ function promptCompareHtml(task: any): string {
 
   addPanel("original", translate("history.promptOriginal"), originalPrompt);
   const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised", translate("history.promptRevised"), revisedPrompt);
-  if (!hasRevisedPanel) {
+  if (task.generation_snapshot?.transparency_instruction) {
+    addPanel("submitted", translate("history.promptSubmittedActual"), submittedPrompt);
+  } else if (!hasRevisedPanel) {
     addPanel("submitted", translate("history.promptSubmitted"), submittedPrompt);
   }
   if (hasDistinctOutputPrompts) {
@@ -3544,7 +3554,7 @@ async function deleteUnselectedOutputs(taskId: string): Promise<void> {
 
 function promptTextForKind(kind: string): string {
   const task = historyState.detailTask || {};
-  if (kind === "submitted") return String(task.prompt_for_model || "").trim();
+  if (kind === "submitted") return submittedPromptForTask(task).trim();
   if (kind === "revised") {
     return revisedPromptText(task);
   }
@@ -3558,24 +3568,8 @@ function outputPromptTextForIndex(outputIndex: unknown): string {
   return String(record?.revisedPrompt || "").trim();
 }
 
-async function writeClipboardText(text: string): Promise<void> {
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return;
-    } catch {
-      // Some embedded browser contexts expose clipboard.writeText but reject it.
-    }
-  }
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.append(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  textarea.remove();
+async function writeClipboardText(text: string): Promise<boolean> {
+  return copyTextToClipboard(text);
 }
 
 function setPromptCopyButtonFeedback(button: HTMLElement, message: string): void {
@@ -3601,7 +3595,7 @@ async function copyPromptToClipboard(kind = "original", button?: HTMLElement): P
     return;
   }
   try {
-    await writeClipboardText(text);
+    if (!await writeClipboardText(text)) return;
     if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
     setText(els.resultSummary, translate("history.promptCopied"));
   } catch (error) {
@@ -3621,7 +3615,7 @@ async function copyOutputPromptToClipboard(outputIndex: unknown, button?: HTMLEl
     return;
   }
   try {
-    await writeClipboardText(text);
+    if (!await writeClipboardText(text)) return;
     if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
     setText(els.resultSummary, translate("history.promptCopied"));
   } catch (error) {
@@ -3650,7 +3644,7 @@ async function copyHistoryTaskId(taskIds: string[]): Promise<void> {
   const ids = taskIds.filter(Boolean);
   if (!ids.length) return;
   try {
-    await writeClipboardText(ids.join("\n"));
+    if (!await writeClipboardText(ids.join("\n"))) return;
     setText(els.resultSummary, ids.length > 1 ? formatTranslation("history.taskIdsCopied", { count: ids.length }) : translate("taskContext.idCopied"));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
@@ -3674,7 +3668,7 @@ async function copyHistoryTaskPrompts(taskIds: string[]): Promise<void> {
     return;
   }
   try {
-    await writeClipboardText(prompts.join("\n\n---\n\n"));
+    if (!await writeClipboardText(prompts.join("\n\n---\n\n"))) return;
     setText(els.resultSummary, taskIds.length > 1 ? formatTranslation("history.promptsCopied", { count: prompts.length }) : translate("history.promptCopied"));
   } catch (error) {
     setText(els.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));

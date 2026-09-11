@@ -322,3 +322,24 @@ test("backup request posts the exact validated payload", async () => {
   await createUserConfigBackup({ sections: ["chips"], include_api_keys: false, client_preferences: null }, { fetch: fetchFn });
   assert.deepEqual(JSON.parse(body), { sections: ["chips"], include_api_keys: false, client_preferences: null });
 });
+
+test("HTTP LAN config upload retains chunk integrity checks without Web Crypto", async () => {
+  const { createHash } = await import("node:crypto");
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  Object.defineProperty(globalThis, "crypto", { configurable: true, value: {} });
+  try {
+    let chunks = 0;
+    const session = await uploadUserConfigRestore(new Blob(["abc"]), { session_id: "lan", upload_chunk_bytes: 8 }, {
+      fetch: async (_url, init = {}) => {
+        chunks++;
+        assert.equal(new Headers(init.headers).get("x-chunk-sha256"), createHash("sha256").update("abc").digest("hex"));
+        return new Response(JSON.stringify({ session: { session_id: "lan", uploaded_bytes: 3 } }), { status: 200 });
+      },
+    });
+    assert.equal(session.uploaded_bytes, 3);
+    assert.equal(chunks, 1);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, "crypto", descriptor);
+    else Reflect.deleteProperty(globalThis, "crypto");
+  }
+});

@@ -131,6 +131,9 @@ from .settings_store import (
     _parse_color_palette_import,
 )
 from .security import LocalWebUISecurityMiddleware
+from .lan_access import LanAccessRuntime
+from .state_sync import StateSyncClock
+from .routes.lan_access import register_lan_access_routes
 from .context import WebUIContext
 from .events import event_key, event_snapshot, queue_snapshot, queued_or_running_task_ids, sse_message, task_event
 from .history_export import HistoryExportService
@@ -405,7 +408,9 @@ def create_app(
         openapi_url=None,
     )
     app.state.webui_shutdown_coordinator = ShutdownCoordinator()
-    app.add_middleware(LocalWebUISecurityMiddleware)
+    app.state.state_sync_clock = StateSyncClock()
+    app.state.lan_access = LanAccessRuntime(enabled=settings.read_lan_access_enabled())
+    app.add_middleware(LocalWebUISecurityMiddleware, lan_access=app.state.lan_access)
     ctx = WebUIContext(
         app=app,
         storage=storage,
@@ -562,6 +567,7 @@ def create_app(
         }
     )
     register_webui_routes(app, ctx)
+    register_lan_access_routes(app, ctx)
 
     return app
 

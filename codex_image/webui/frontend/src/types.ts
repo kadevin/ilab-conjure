@@ -14,6 +14,7 @@ export interface ProviderModelBindingSettings {
   parameter_codec: string;
   operations: GenerationOperation[];
   append_aspect_ratio_prompt?: boolean;
+  transparency_mode?: "native" | "prompt";
 }
 
 export interface ProviderConnectionSettings {
@@ -111,6 +112,8 @@ export interface CatalogProviderBinding {
   parameter_codec: string;
   operations: GenerationOperation[];
   append_aspect_ratio_prompt?: boolean;
+  transparency_mode?: "native" | "prompt";
+  transparency_instruction?: string;
   available?: boolean;
   display_name?: string;
 }
@@ -167,6 +170,7 @@ export interface TaskOutputRecord {
   format?: string;
   quality?: string;
   background?: string;
+  has_transparency?: boolean;
   revised_prompt?: string;
   usage?: Record<string, unknown>;
   tool_usage?: Record<string, unknown>;
@@ -308,6 +312,7 @@ export interface QueueState {
 }
 
 export interface RealtimePayload {
+  sync?: { instance: string; revision: number };
   type?: "snapshot" | "queue" | "task";
   tasks?: WebUITask[];
   task_groups?: Array<{ key: string; count: number; tasks?: WebUITask[] }>;

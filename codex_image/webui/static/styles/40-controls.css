@@ -757,3 +757,19 @@ select.themed-select-native {
     transform: none;
   }
 }
+
+/* Required input boundaries are stronger than decorative panel dividers. */
+.control, .custom-size-input, .custom-ratio-digit, .themed-select-trigger {
+  border-color: var(--control-border);
+}
+.controls-col .radio-group .segmented-indicator,
+.controls-col .radio-btn.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.controls-col .radio-group.segmented-indicator-host .radio-btn.active {
+  color: var(--primary-foreground);
+}
+.controls-col .radio-btn.active {
+  font-weight: 600;
+}

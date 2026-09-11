@@ -1,4 +1,5 @@
 import { translate } from "./i18n";
+import { bindImageTouchGestures } from "./lightbox-touch";
 import {
   bindLightboxZoomChrome,
   hideLightboxShortcutHint,
@@ -43,6 +44,7 @@ export type HistoryLightboxOptions = {
 };
 
 let historyLightboxEl: HTMLDivElement | null = null;
+let resetTouchGesture = () => {};
 
 const historyLightboxState: HistoryLightboxState = {
   urls: [],
@@ -440,6 +442,7 @@ function ensureHistoryLightbox(): HTMLDivElement {
     </button>
     <button class="history-lightbox-peek history-lightbox-peek-previous" type="button" data-history-lightbox-slot="previous" aria-label="${escapeHtml(translate("lightbox.previous"))}">
       <img alt="" draggable="false">
+      <span class="history-lightbox-peek-icon" aria-hidden="true">‹</span>
     </button>
     <div class="history-lightbox-track" data-history-lightbox-track>
       <div class="history-lightbox-current-frame" data-history-lightbox-slot="current">
@@ -448,6 +451,7 @@ function ensureHistoryLightbox(): HTMLDivElement {
     </div>
     <button class="history-lightbox-peek history-lightbox-peek-next" type="button" data-history-lightbox-slot="next" aria-label="${escapeHtml(translate("lightbox.next"))}">
       <img alt="" draggable="false">
+      <span class="history-lightbox-peek-icon" aria-hidden="true">›</span>
     </button>
     <div class="history-lightbox-counter" data-history-lightbox-counter aria-live="polite"></div>
     ${lightboxZoomChromeHtml()}
@@ -475,6 +479,24 @@ function ensureHistoryLightbox(): HTMLDivElement {
   });
 
   const image = historyLightboxImage();
+  if (image) resetTouchGesture = bindImageTouchGestures(historyLightboxEl, image, {
+    tap: target => {
+      if (shouldCloseLightboxFromClick(target, historyLightboxEl!)) closeHistoryLightbox();
+    },
+    read: () => ({ scale: historyLightboxState.scale, x: historyLightboxState.pointX, y: historyLightboxState.pointY }),
+    write: ({ scale, x, y }) => {
+      const maxX = Math.max(0, (image.clientWidth * scale - window.innerWidth) / 2);
+      const maxY = Math.max(0, (image.clientHeight * scale - window.innerHeight) / 2);
+      historyLightboxState.scale = scale;
+      historyLightboxState.pointX = Math.max(-maxX, Math.min(maxX, x));
+      historyLightboxState.pointY = Math.max(-maxY, Math.min(maxY, y));
+      setHistoryLightboxTransform();
+    },
+    navigate: direction => {
+      if (direction === "next") showNextHistoryLightboxImage();
+      else showPreviousHistoryLightboxImage();
+    },
+  });
   image?.addEventListener("mousedown", (event) => {
     if (event.button !== 0) {
       stopHistoryLightboxPanning();
@@ -569,7 +591,9 @@ export function openHistoryLightbox(urls: string[], index = 0, options: HistoryL
   lightbox.focus({ preventScroll: true });
   updateHistoryLightboxControls();
   if (!wasActive) {
-    showLightboxShortcutHint(lightbox, Boolean(historyLightboxState.onTaskNavigate));
+    if (!window.matchMedia("(pointer: coarse), (max-width: 600px)").matches) {
+      showLightboxShortcutHint(lightbox, Boolean(historyLightboxState.onTaskNavigate));
+    }
   }
 }
 
@@ -602,6 +626,7 @@ export function closeHistoryLightbox(): void {
   historyLightboxState.onTaskNavigate = null;
   historyLightboxState.isTransitioning = false;
   hideLightboxShortcutHint(historyLightboxEl);
+  resetTouchGesture();
   resetHistoryLightboxTransform();
   document.body.classList.remove("history-lightbox-open");
 }

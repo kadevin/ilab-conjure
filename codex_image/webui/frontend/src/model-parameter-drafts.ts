@@ -1,4 +1,5 @@
 import { isGptImageModel } from "./gpt-image-models";
+import { setBackgroundControl } from "./background-controls";
 import type { CatalogModel, CatalogParameterDefinition, GenerationOperation } from "./types";
 import { selectedProviderBinding } from "./provider-selection";
 import { getLegacyBridge } from "./state";
@@ -141,6 +142,7 @@ export function restoreCurrentModelParameterDraft(): void {
   if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
   if (typeof draft["gpt.quality"] === "string" && els.quality) els.quality.value = draft["gpt.quality"];
   if (typeof draft["output.format"] === "string" && els.outputFormat) els.outputFormat.value = draft["output.format"];
+  setBackgroundControl(draft["gpt.background"]);
   if (typeof draft["gpt.moderation"] === "string" && els.moderation) els.moderation.value = draft["gpt.moderation"];
   if (typeof draft["gpt.output_compression"] === "number" && els.compression) els.compression.value = String(draft["gpt.output_compression"]);
   if (typeof draft["gpt.web_search"] === "boolean" && els.webSearch) {

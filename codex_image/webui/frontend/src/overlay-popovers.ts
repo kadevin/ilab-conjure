@@ -302,7 +302,7 @@ async function copyOptimizedPrompt(button) {
   if (!text) return;
   const defaultLabel = button.dataset.copyLabel || button.textContent || translate("templates.copy");
   button.dataset.copyLabel = defaultLabel;
-  await navigator.clipboard.writeText(text);
+  if (!await copyTextToClipboard(text)) return;
   button.textContent = translate("promptPopover.copied");
   clearPromptPopoverCopyTimer();
   promptPopoverState.copyTimerId = window.setTimeout(() => {
@@ -343,6 +343,11 @@ function handleDocumentClick(event) {
 function handleDocumentKeydown(event) {
   if (handleImageEditorHistoryShortcut(event)) return;
   if (event.key === "Escape") {
+    if (confirmPopoverEl && !confirmPopoverEl.classList.contains("hidden")) { closeConfirmPopover(); return; }
+    if (els.imageEditorModal && !els.imageEditorModal.classList.contains("hidden")) { closeImageEditor(); return; }
+    if (els.systemSettingsModal && !els.systemSettingsModal.classList.contains("hidden")) { closeApiSettingsModal(); return; }
+    if (els.promptTemplateDrawer?.classList.contains("open")) { closePromptTemplateDrawer(); return; }
+    if (els.galleryDrawer?.classList.contains("open")) { closeGallery(); return; }
     hideMentionSuggest();
     hideColorSuggest();
     hidePromptSnippetSuggest();
@@ -353,10 +358,7 @@ function handleDocumentKeydown(event) {
     closeGalleryEditPopover();
     closeConfirmPopover();
     closeArchiveModal();
-    closeImageEditor();
-    closeGallery();
-    closeApiSettingsModal();
-    closePromptTemplateDrawer();
+
   }
 }
 
@@ -383,3 +385,4 @@ export function initOverlayPopoversFeature() {
     handleDocumentKeydown,
   });
 }
+import { copyTextToClipboard } from "./clipboard-text";

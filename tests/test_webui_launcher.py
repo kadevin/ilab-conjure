@@ -49,13 +49,13 @@ class WebUILauncherTests(unittest.TestCase):
                 app_module.read_text(encoding="utf-8"),
             )
 
-    def test_launcher_starts_shutdown_aware_server_on_localhost(self) -> None:
+    def test_launcher_uses_shutdown_aware_server_listener_settings(self) -> None:
         launcher = Path("Start WebUI.command")
         text = launcher.read_text(encoding="utf-8")
 
         self.assertIn("-m codex_image.webui.server", text)
         self.assertIn("codex_image.webui.app:app", text)
-        self.assertIn("--host 127.0.0.1", text)
+        self.assertNotIn("--host", text)
         self.assertIn("--port 8787", text)
         self.assertIn("--no-access-log", text)
 

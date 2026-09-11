@@ -210,7 +210,13 @@ function updateElapsedPartElement(element: any, text: string): void {
 export function updatePromptCount(): void {
   const { els } = getLegacyBridge();
   if (!els.charCount) return;
-  els.charCount.textContent = `${getPromptText().length} / 4000`;
+  els.charCount.textContent = `${getPromptText().length}`;
+  if (getPromptText().trim()) {
+    els.promptEditor?.removeAttribute("aria-invalid");
+    const fieldError = document.getElementById("promptValidationError");
+    if (fieldError) fieldError.hidden = true;
+    if (els.statusText?.textContent === translate("status.emptyPrompt")) { els.statusText.textContent = ""; els.statusText.classList.remove("error"); }
+  }
 }
 
 export function addPendingTask(task: WebUITask): void {

@@ -237,3 +237,19 @@ test("a second submission is ignored until the first server response arrives", a
   }
   if (assertionError) throw assertionError;
 });
+
+test("editing during an in-flight submission remains an unsaved draft", async () => {
+  resetSubmissionState();
+  const { composerHasChanges, markComposerBaseline } = await import("../../codex_image/webui/frontend/src/composer-draft");
+  let prompt = "saved baseline";
+  methods.getPromptText = () => prompt;
+  methods.currentPromptForModel = () => prompt;
+  markComposerBaseline();
+  prompt = "first request";
+  const pendingFetch = deferredFetch();
+  const submission = methods.runTask();
+  prompt = "second draft typed while waiting";
+  pendingFetch.resolveAll();
+  await submission;
+  assert.equal(composerHasChanges(), true);
+});

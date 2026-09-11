@@ -2,6 +2,7 @@ import { currentAuthSource } from "./auth-source";
 import { currentApiMode, currentCodexMode } from "./api-provider-settings";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { escapeHtml } from "./webui-utils";
+import { selectedProviderBinding } from "./provider-selection";
 
 type PromptTransport = "images" | "responses";
 type PromptFidelity = "original" | "strict" | "off";
@@ -60,12 +61,15 @@ function renderPromptFidelityHelp(): void {
       </div>
     `;
   }).join("");
+  const transparencyRequirement = (document.querySelector("#transparentBackground") as HTMLInputElement | null)?.checked
+    && selectedProviderBinding()?.transparency_mode === "prompt";
   popover.innerHTML = `
     <div class="prompt-fidelity-help-header">
       <strong>${escapeHtml(translate("output.promptHelpTitle"))}</strong>
       <span>${escapeHtml(translate(`output.promptHelp.${transport}Channel`))}</span>
     </div>
     <dl class="prompt-fidelity-help-list">${rows}</dl>
+    ${transparencyRequirement ? `<p class="transparency-hint">${escapeHtml(translate("output.transparencyFidelityHint"))}</p>` : ""}
   `;
 }
 

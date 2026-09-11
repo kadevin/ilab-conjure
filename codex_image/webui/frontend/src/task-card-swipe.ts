@@ -270,6 +270,10 @@ async function performTaskCardAction(
     closeTaskCardDrawer(card, { immediate: true });
     return;
   }
+  if (action === "delete") {
+    legacyMethod("openTaskDeleteConfirm", button, taskId);
+    return;
+  }
   card.classList.add("task-card-action-pending");
   card.dataset.taskActionPending = action;
   card.setAttribute("aria-busy", "true");
@@ -278,9 +282,7 @@ async function performTaskCardAction(
   try {
     const succeeded = action === "archive"
       ? await legacyMethod("archiveTask", taskId)
-      : action === "delete"
-        ? await legacyMethod("deleteTask", taskId)
-        : action === "promote"
+      : action === "promote"
           ? await promoteQueueTask(taskId)
           : action === "cancel"
             ? await performCancelWaitingTask(taskId)

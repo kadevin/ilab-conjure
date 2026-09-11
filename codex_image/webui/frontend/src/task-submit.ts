@@ -1,4 +1,6 @@
+import { composerFingerprint, markComposerBaseline } from "./composer-draft";
 import { isGptImageModel } from "./gpt-image-models";
+import { setBackgroundControl } from "./background-controls";
 import { getLegacyBridge } from "./state";
 import { currentLocaleCode, translate } from "./i18n";
 import { selectedProviderBinding } from "./provider-selection";
@@ -152,6 +154,7 @@ export function applyTaskOutputParams(task: any): void {
   }
   if (output.quality && els.quality) els.quality.value = output.quality;
   if (output.output_format && els.outputFormat) els.outputFormat.value = output.output_format;
+  setBackgroundControl(output.background);
   if (output.moderation && els.moderation) els.moderation.value = output.moderation;
   if (output.output_compression !== null && output.output_compression !== undefined && els.compression) {
     els.compression.value = output.output_compression;
@@ -208,6 +211,14 @@ function buildPreviewRequest() {
     reference_file_ids: storedFiles.map((source: any) => source.id),
   };
   const usesGptPromptProcessing = !state.generationCatalog || isGptImageModel(state.selectedModelId);
+  if (parameters["gpt.background"] === "transparent") {
+    const binding = selectedProviderBinding();
+    payload.output_requirements = {
+      background: "transparent",
+      method: binding?.transparency_mode || "native",
+      instruction: binding?.transparency_instruction || undefined,
+    };
+  }
   if (usesGptPromptProcessing) payload.prompt_fidelity = currentPromptFidelity();
   if (isApi) {
     payload.api_provider_id = state.selectedProviderId;
@@ -282,6 +293,11 @@ async function runTask() {
     return;
   }
   if (!prompt) {
+    const fieldError = document.getElementById("promptValidationError");
+    if (fieldError) { fieldError.hidden = false; fieldError.textContent = translate("status.emptyPrompt"); }
+    els.promptEditor?.setAttribute("aria-invalid", "true");
+    els.promptEditor?.setAttribute("aria-describedby", "promptValidationError");
+    els.promptEditor?.focus();
     setStatus(translate("status.emptyPrompt"), "error");
     return;
   }
@@ -297,6 +313,7 @@ async function runTask() {
   if (customSizeError) {
     updateCustomSize();
     updatePixelPreview("custom");
+    els.customWidth?.focus();
     setStatus(customSizeError, "error");
     return;
   }
@@ -321,6 +338,7 @@ async function runTask() {
     uploads.forEach((source: any) => form.append("images", source.file));
   }
 
+  const submittedComposer = composerFingerprint();
   const pendingTask = createPendingTask();
   addPendingTask(pendingTask);
   if (els.requestJson) {
@@ -342,6 +360,7 @@ async function runTask() {
       throw new Error(responseErrorMessage(data.detail));
     }
     addQueuedTask(data.task);
+    if (composerFingerprint() === submittedComposer) markComposerBaseline();
     if (els.requestJson) {
       els.requestJson.textContent = JSON.stringify(data.request || {}, null, 2);
     }
@@ -350,6 +369,7 @@ async function runTask() {
     await window.refreshQueue?.();
     await refreshRecentAssets();
     renderPreview(data.task);
+    getLegacyBridge().methods.showMobilePreview?.();
   } catch (error) {
     stopRunFeedback();
     const message = error instanceof DOMException && error.name === "AbortError"

@@ -142,6 +142,7 @@ function updateTaskFilterSummary() {
 function handleTaskFilterKeydown(event: any) {
   if (event.key !== "Escape" || els.taskFilterPopover?.hidden) return;
   event.preventDefault();
+  event.stopImmediatePropagation();
   setTaskFilterPopoverOpen(false);
   els.taskFilterButton?.focus?.();
 }

@@ -1182,3 +1182,24 @@
   background: linear-gradient(90deg, transparent, var(--primary), transparent);
   animation: waiting-bar 1.4s ease-in-out infinite;
 }
+.transparency-grid,
+.history-lightbox img {
+  background-color: var(--surface);
+  background-image: conic-gradient(var(--line) 25%, transparent 0 50%, var(--line) 0 75%, transparent 0);
+  background-size: 16px 16px;
+}
+
+.output-transparency-status {
+  position: absolute;
+  z-index: 2;
+  top: 40px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  padding: 3px 7px;
+  border-radius: var(--radius-small, 6px);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}

@@ -223,6 +223,7 @@ export function bindingForProtocolSelection(
       operations,
     ),
     append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt),
+    transparency_mode: isGptImageModel(canonicalModelId) ? original.transparency_mode || "native" : "native",
   };
 }
 
@@ -251,6 +252,7 @@ export function bindingForCompatibilitySelection(
       operations,
     ),
     append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt),
+    transparency_mode: isGptImageModel(canonicalModelId) ? original.transparency_mode || "native" : "native",
   };
 }
 
@@ -277,6 +279,7 @@ export function normalizeProviderBindings(
         parameter_codec: String(item.parameter_codec || fallbackTemplate?.parameter_codec || "").trim(),
         operations: normalizedOperations(item.operations),
         append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt),
+        transparency_mode: item.transparency_mode === "prompt" ? "prompt" as const : "native" as const,
       };
     });
 }
@@ -346,14 +349,21 @@ export function renderProviderBindingCards(
   defaults: Record<string, string>,
 ): void {
   if (!container) return;
+  const disclosureState = new Map([...container.querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")]
+    .map(card => [card.dataset.bindingId, card.open]));
   destroyThemedSelects(container);
   const normalizedBindings = normalizeProviderBindings(bindings, providerId);
   const cards = normalizedBindings.map((binding, index) => {
-    const card = document.createElement("fieldset");
+    const card = document.createElement("details");
     card.className = "provider-binding-card";
     card.dataset.bindingId = binding.id;
-    const legend = document.createElement("legend");
-    legend.textContent = `模型绑定 ${index + 1}`;
+    card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
+    const legend = document.createElement("summary");
+    legend.className = "provider-binding-summary";
+    const updateSummary = () => {
+      const model = models.find(item => item.id === modelSelect.value);
+      legend.textContent = `${model?.display_name || modelSelect.value} · ${BINDING_PROTOCOL_LABELS[protocolSelect.value as BindingProtocol]} · ${remoteInput.value}`;
+    };
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "ghost-button danger-button provider-binding-remove";
@@ -427,6 +437,29 @@ export function renderProviderBindingCards(
     });
     compatibilityField.append(compatibilityLabel, compatibilitySelect);
 
+    const transparencyField = document.createElement("label");
+    transparencyField.className = "field provider-binding-transparency";
+    const transparencyLabel = document.createElement("span");
+    transparencyLabel.id = `provider-binding-${binding.id}-transparency-label`;
+    transparencyLabel.dataset.i18n = "apiSettings.transparencyMode";
+    transparencyLabel.textContent = translate("apiSettings.transparencyMode");
+    const transparencySelect = document.createElement("select");
+    transparencySelect.className = "control";
+    transparencySelect.dataset.bindingTransparency = "";
+    transparencySelect.setAttribute("aria-labelledby", transparencyLabel.id);
+    transparencySelect.append(
+      option("native", translate("apiSettings.transparencyNative"), binding.transparency_mode !== "prompt"),
+      option("prompt", translate("apiSettings.transparencyPrompt"), binding.transparency_mode === "prompt"),
+    );
+    transparencyField.append(transparencyLabel, transparencySelect);
+    const syncTransparencyField = () => {
+      const supported = isGptImageModel(modelSelect.value);
+      transparencyField.classList.toggle("hidden", !supported);
+      transparencySelect.disabled = !supported;
+    };
+    syncTransparencyField();
+    modelSelect.addEventListener("change", syncTransparencyField);
+
     const ratioPromptField = document.createElement("label");
     ratioPromptField.className = "provider-binding-toggle provider-binding-ratio-prompt";
     ratioPromptField.dataset.i18nAttr = "title:apiSettings.appendRatioPrompt";
@@ -464,12 +497,16 @@ export function renderProviderBindingCards(
     card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
     card.dataset.bindingProtocolChanged = "false";
     card.dataset.bindingCompatibilityChanged = "false";
-    grid.append(modelField, protocolField, remoteField, compatibilityField, footer);
+    grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
     card.append(legend, grid);
+    updateSummary();
+    card.addEventListener("change", () => queueMicrotask(updateSummary));
+    remoteInput.addEventListener("input", updateSummary);
+    card.addEventListener("invalid", () => { card.open = true; }, true);
     return card;
   });
   container.replaceChildren(...cards);
-  container.querySelectorAll<HTMLSelectElement>("[data-binding-model], [data-binding-protocol], [data-binding-compatibility]")
+  container.querySelectorAll<HTMLSelectElement>("[data-binding-model], [data-binding-protocol], [data-binding-compatibility], [data-binding-transparency]")
     .forEach((select) => mountThemedSelect(select));
 }
 
@@ -495,6 +532,8 @@ export function readProviderBindingCards(container: HTMLElement | null): Array<P
       append_aspect_ratio_prompt: Boolean(
         card.querySelector<HTMLInputElement>("[data-binding-ratio-prompt]")?.checked
       ),
+      transparency_mode: isGptImageModel(modelId)
+        && card.querySelector<HTMLSelectElement>("[data-binding-transparency]")?.value === "prompt" ? "prompt" : "native",
     };
     return {
       ...bindingForCompatibilitySelection(

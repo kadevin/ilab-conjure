@@ -1,3 +1,5 @@
+import { taskRecoveryKind, taskRecoveryMessage } from "./task-recovery";
+import { requestedTransparentBackground, submittedPromptForTask, transparencyStatus } from "./transparency-status";
 import { getLegacyBridge } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { groundingAttributionKey, syncGroundingAttribution } from "./grounding-attribution";
@@ -83,6 +85,9 @@ function renderPreview(task: any = null) {
   const visibleSelectedTask = selectedTask && !isTaskArchived(selectedTask.task_id) ? selectedTask : null;
   const selected = task || visibleSelectedTask || state.tasks.find((item: any) => !isTaskArchived(item.task_id)) || selectedTask || state.tasks[0];
   const status = taskPreviewStatus(selected);
+  const sourceLabel = document.getElementById("previewSourceLabel");
+  if (sourceLabel) sourceLabel.textContent = selected ? `${translate(state.selectedTaskId ? "ux.selectedResult" : "ux.previousResult")} · ${selected.title || selected.prompt?.slice(0, 48) || selected.task_id} · ${selected.task_id}` : "";
+  if (sourceLabel) sourceLabel.title = sourceLabel.textContent || "";
   syncGroundingAttribution(els.previewGrid, selected, "preview");
   updatePreviewDownloadActions(selected);
   const nextPreviewKey = previewStructureKey(selected);
@@ -314,6 +319,7 @@ function ensurePreviewOutputCard(key: string) {
   const downloadImageLabel = translate("preview.downloadImage");
   card.innerHTML = `
     <span class="preview-index hidden"></span>
+    <span class="output-transparency-status hidden"></span>
     <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="${addFeaturedLabel}" title="${addFeaturedLabel}" data-i18n-attr="aria-label:preview.addFeatured;title:preview.addFeatured" hidden disabled>
       <svg class="preview-select-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="8.5" />
@@ -339,6 +345,15 @@ function ensurePreviewOutputCard(key: string) {
 function updatePreviewOutputCard(card: HTMLElement, task: any, url: any, index: any, totalCount: any, { preservePreviousImage = true, imageAlreadyLoaded = false }: any = {}) {
   const outputIndex = taskOutputIndex(task, url, index);
   const outputUrl = String(url || "");
+  const output = task.outputs?.find((item: any) => Number(item.index) === Number(outputIndex));
+  const transparency = transparencyStatus(output?.has_transparency, requestedTransparentBackground(task));
+  const badge = card.querySelector<HTMLElement>(".output-transparency-status");
+  if (badge) {
+    badge.classList.toggle("hidden", !transparency);
+    badge.textContent = transparency?.label || "";
+    badge.title = transparency?.hint || transparency?.label || "";
+  }
+  card.querySelector("img")?.classList.toggle("transparency-grid", output?.has_transparency === true);
   const downloadName = outputDownloadFilename(task, url, index);
   card.setAttribute("data-preview-card-key", previewOutputCardKey(task, url, index));
   card.setAttribute("data-preview-output-url", outputUrl);
@@ -506,6 +521,7 @@ function handlePreviewGridClick(event: any) {
   const target = event.target instanceof Element ? event.target : null;
   if (!target) return;
   if (target.closest("[data-download-output-url]")) return;
+  if (target.closest("[data-preview-provider-settings]")) { legacyMethod("openApiSettingsModal"); return; }
   const retryButton = target.closest("[data-preview-retry-failed-task-id]") as HTMLElement | null;
   if (retryButton) {
     retryFailedTask(retryButton.dataset.previewRetryFailedTaskId);
@@ -528,7 +544,7 @@ function handlePreviewGridClick(event: any) {
   }
   const addButton = target.closest("[data-add-input-url]") as HTMLElement | null;
   if (addButton) {
-    void window.addToInput?.(addButton.dataset.addInputUrl || "");
+    void window.addToInput?.(addButton.dataset.addInputUrl || "", addButton as HTMLButtonElement);
     return;
   }
   const collectButton = target.closest("[data-collect-input-url]") as HTMLElement | null;
@@ -767,7 +783,7 @@ function syncPreviewImageOrientation() {
 
 function promptPopoverData(task: any, index: any) {
   const originalPrompt = task.prompt || task.prompt_for_model || "";
-  const submittedPrompt = task.prompt_for_model || originalPrompt || "";
+  const submittedPrompt = submittedPromptForTask(task);
   const optimizedPrompt = task.revised_prompts?.[index] || task.revised_prompt || "";
   return { originalPrompt, submittedPrompt, optimizedPrompt };
 }
@@ -843,11 +859,15 @@ function failureSummaryCard(task: any, visibleOutputCount: any) {
 function retryFailureSummaryButton(task: any) {
   const taskId = escapeHtml(task.task_id || "");
   const actions = [];
+  actions.push(`<p class="recovery-guidance">${escapeHtml(taskRecoveryMessage(task))}</p>`);
+  if (taskRecoveryKind(task) === "credentials" || taskRecoveryKind(task) === "quota") {
+    actions.push(`<button type="button" class="ghost-button text-sm" data-preview-provider-settings>${escapeHtml(translate("ux.checkProvider"))}</button>`);
+  }
   if (canRetryFailedTask(task)) {
     actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml(translate("preview.retryFailed"))}</button>`);
   }
   if (canAcceptTaskSuccesses(task)) {
-    actions.push(`<button class="ghost-button text-sm" type="button" data-preview-accept-successes-task-id="${taskId}">${escapeHtml(translate("preview.acceptSuccesses"))}</button>`);
+    actions.push(`<button class="ghost-button text-sm" type="button" title="${escapeHtml(translate("ux.acceptDetail"))}" data-preview-accept-successes-task-id="${taskId}">${escapeHtml(translate("preview.acceptSuccesses"))}</button>`);
   }
   if (!actions.length) return "";
   return `

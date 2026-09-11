@@ -80,6 +80,7 @@ Download standard app packages and portable transition packages from
   task prompt when unavailable.
 - Shared generator/history top navigation, rabbit logo, return entry, and
   system/light/dark theme preference.
+- GPT Image 2 and 2.5 Flare / Sunburst offer transparent backgrounds with PNG / WebP. Codex uses prompt compatibility; API model bindings can choose native parameters or prompt compatibility. Results are checked for actual transparent pixels, with no automatic regeneration if transparency is missing.
 - Optional web search for Codex Responses and API Responses image generation,
   plus prompt and task ID search across recent and historical tasks.
 - Shared gallery references, recent reference images, color chips, prompt
@@ -188,7 +189,7 @@ Start WebUI.bat
 Manual:
 
 ```bash
-.venv/bin/python -m codex_image.webui.server codex_image.webui.app:app --host 127.0.0.1 --port 8787 --no-access-log
+.venv/bin/python -m codex_image.webui.server codex_image.webui.app:app --port 8787 --no-access-log
 ```
 
 Then open:
@@ -196,6 +197,16 @@ Then open:
 ```text
 http://127.0.0.1:8787/
 ```
+
+To share the workspace, enable **System Settings → Network → Allow LAN access**,
+then restart the WebUI service. Other devices can open the displayed
+`http://LAN-IP:port/` address without logging in. Everyone shares tasks, the
+gallery, providers, and the queue, including settings changes and deletion.
+The setting defaults to off; disabling it also requires a restart. Saving it does
+not interrupt running tasks. Use it only on a trusted LAN. Omit `--host` when
+starting manually so the setting controls the listener; an explicit
+`--host 127.0.0.1` keeps it local. LAN URLs use HTTP, so some browser features that
+require a secure context may be unavailable.
 
 ## App packages
 

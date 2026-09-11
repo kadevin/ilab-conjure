@@ -15,6 +15,7 @@ export interface OutputSettingsSnapshot {
   n: number;
   prompt_fidelity: "original" | "strict" | "off";
   quality: string;
+  background: string;
   output_format: string;
   output_compression: number | null;
   moderation: string;
@@ -113,6 +114,7 @@ export function normalizeOutputSettingsSnapshot(params: any): OutputSettingsSnap
     n: Math.max(1, Math.min(4, Math.round(Number(parameters["output.count"] ?? params?.n) || 1))),
     prompt_fidelity: fidelity === "original" || fidelity === "off" ? fidelity : "strict",
     quality: String(parameters["gpt.quality"] || params?.quality || "auto"),
+    background: String(parameters["gpt.background"] || params?.background || "auto"),
     output_format: String(parameters["output.format"] || params?.output_format || "png").toLowerCase(),
     output_compression: compression === null || compression === undefined ? null : Number(compression),
     moderation: String(parameters["gpt.moderation"] || params?.moderation || "auto"),
@@ -196,7 +198,7 @@ export function buildOutputSettingsSummaryModel(
         kind: "format" as const,
         label: translate("output.lock.output"),
         value: snapshot.output_format.toUpperCase(),
-        meta: translate("output.lock.fileFormat"),
+        meta: translate(snapshot.background === "transparent" ? "output.transparentBackground" : "output.lock.fileFormat"),
       }
     : {
         kind: "resolution" as const,

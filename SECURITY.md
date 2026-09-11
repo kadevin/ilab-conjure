@@ -1,10 +1,21 @@
 # Security Policy
 
-## Local-only assumptions
+## Local and trusted LAN access
 
-iLab CONJURE is designed for local personal workflows. Do not expose the
-WebUI directly to the public internet unless you have reviewed and hardened the
-deployment yourself.
+iLab CONJURE listens on loopback by default. The optional **Allow LAN access**
+setting binds to all IPv4 interfaces after the WebUI service restarts. Turning it
+off also takes effect after a restart; saving alone does not disconnect clients.
+
+LAN access has no login or user roles. Anyone who can reach the listener shares
+the same workspace and can generate images using the host's configured channels,
+view tasks and images, change settings, and delete shared data. Use it only on a
+trusted network. The setting does not limit access to a particular subnet; do not
+port-forward or expose this unauthenticated listener to the public internet.
+
+Same-origin write checks, request size limits, and file/parameter validation still
+apply. LAN URLs use HTTP; browser features that require a secure context, such as
+system notifications, may be unavailable. Address copying falls back to selecting
+the address for manual copying when the browser cannot copy it automatically.
 
 ## Secrets and local data
 

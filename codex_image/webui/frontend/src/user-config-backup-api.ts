@@ -1,3 +1,5 @@
+import { sha256Hex } from "./sha256";
+
 export const USER_CONFIG_SECTIONS = ["chips", "gallery", "templates", "settings"] as const;
 export const USER_CONFIG_RESTORE_CHUNK_BYTES = 8 * 1024 * 1024;
 export const USER_CONFIG_TRANSFER_STORAGE_KEY = "ilab-user-config-transfer";
@@ -388,11 +390,6 @@ export async function createUserConfigRestore(
   );
 }
 
-async function sha256Hex(blob: Blob): Promise<string> {
-  const digest = await globalThis.crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
-}
-
 export async function uploadUserConfigRestore(
   file: Blob,
   upload: Pick<UserConfigRestoreSession, "session_id"> & { upload_chunk_bytes?: number },
@@ -410,7 +407,7 @@ export async function uploadUserConfigRestore(
         headers: {
           "content-type": "application/octet-stream",
           "x-upload-offset": String(offset),
-          "x-chunk-sha256": await sha256Hex(chunk),
+          "x-chunk-sha256": await sha256Hex(await chunk.arrayBuffer()),
         },
         body: chunk,
       }, options.signal),

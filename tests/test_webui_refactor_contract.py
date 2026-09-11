@@ -372,6 +372,8 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/app-version/dismiss-onboarding", "POST"),
                 ("/api/settings", "GET"),
                 ("/api/settings", "PATCH"),
+                ("/api/lan-access", "GET"),
+                ("/api/lan-access", "PATCH"),
                 ("/api/color-palette", "GET"),
                 ("/api/color-palette", "PATCH"),
                 ("/api/color-palette/export.css", "GET"),

@@ -1,3 +1,4 @@
+import { preserveComposerDraft, markComposerBaseline } from "./composer-draft";
 import type { WebUIElements } from "./elements";
 import type { LegacyMethods } from "./legacy-bridge";
 import type { WebUIState } from "./state";
@@ -53,7 +54,6 @@ export function bindSharedTopNavSettingsEvents(
   });
   els.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
   els.authSourceGroup?.addEventListener("click", (event: Event) => call(methods, "handleAuthSourceClick", event));
-  els.apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"));
   els.modelFamilyOptions?.addEventListener("click", (event: Event) => {
     const item = (event.target as HTMLElement | null)?.closest?.("[data-family-id]") as HTMLElement | null;
     if (item?.dataset.familyId) call(methods, "selectModelFamily", item.dataset.familyId);
@@ -107,7 +107,9 @@ export function bindWebUIEvents(state: WebUIState, els: WebUIElements, methods: 
   call(methods, "bindFormControlEvents");
 
   els.clearPromptButton.addEventListener("click", () => {
+    preserveComposerDraft();
     call(methods, "setPromptText", "");
+    markComposerBaseline();
     call(methods, "syncGalleryInputsFromPrompt");
     call(methods, "updatePromptCount");
     call(methods, "updateRequestPreview");

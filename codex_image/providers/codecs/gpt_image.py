@@ -7,6 +7,7 @@ from codex_image.generation.types import GenerationCommand, GenerationOperation,
 from codex_image.openai_images_client import build_openai_images_payload
 from codex_image.openai_responses_client import build_openai_responses_payload
 from codex_image.providers.contracts import ProtocolRequest, ProviderModelBinding
+from codex_image.providers.transparency import transparency_request
 
 GPT_PARAMETER_IDS = frozenset(
     {
@@ -55,15 +56,16 @@ def _images_payload(
     binding: ProviderModelBinding,
 ) -> dict[str, Any]:
     parameters = gpt_image_parameters(command)
+    transparency = transparency_request(command, binding)
     return build_openai_images_payload(
-        prompt=command.prompt,
+        prompt=transparency.prompt,
         action=command.operation,
         model=binding.remote_model_id, default_model=binding.remote_model_id,
         input_images=[image.data_url for image in command.image_inputs],
         mask_image=command.mask_image,
         size=parameters["size"],
         quality=parameters["quality"],
-        background=parameters["background"],
+        background=transparency.background,
         output_format=parameters["output_format"],
         input_fidelity=parameters["input_fidelity"],
         moderation=parameters["moderation"],
@@ -79,10 +81,11 @@ def _responses_payload(
     codex: bool,
 ) -> dict[str, Any]:
     parameters = gpt_image_parameters(command)
+    transparency = transparency_request(command, binding)
     builder = build_codex_responses_payload if codex else build_openai_responses_payload
     kwargs = dict(
-        prompt=command.prompt,
-        instructions=command.instructions,
+        prompt=transparency.prompt,
+        instructions=transparency.instructions,
         action=command.operation,
         main_model=command.main_model or "",
         model=binding.remote_model_id,
@@ -91,7 +94,7 @@ def _responses_payload(
         mask_image=command.mask_image,
         size=parameters["size"],
         quality=parameters["quality"],
-        background=parameters["background"],
+        background=transparency.background,
         output_format=parameters["output_format"],
         input_fidelity=parameters["input_fidelity"],
         moderation=parameters["moderation"],

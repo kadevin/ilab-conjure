@@ -1,3 +1,5 @@
+import { sha256Hex } from "./sha256";
+
 export type HistoryImportStatus =
   | "uploading"
   | "uploaded"
@@ -107,12 +109,6 @@ function currentFetch(): FetchLike {
 
 function currentStorage(): StorageLike | null {
   try { return globalThis.sessionStorage; } catch { return null; }
-}
-
-function currentCrypto(): CryptoLike {
-  const value = globalThis.crypto;
-  if (!value?.subtle) throw new Error("history_import_crypto_unavailable");
-  return value;
 }
 
 async function apiError(response: Response): Promise<HistoryImportApiError> {
@@ -333,10 +329,6 @@ function isRetryableChunkError(error: unknown): boolean {
   return error.status === 408 || error.status === 429 || error.status >= 500;
 }
 
-function digestHex(digest: ArrayBuffer): string {
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 export async function uploadAndValidateHistoryImport(
   file: Blob,
   initialSession: HistoryImportSession,
@@ -346,7 +338,7 @@ export async function uploadAndValidateHistoryImport(
     throw new HistoryImportApiError("backup_import_size_invalid", "backup_import_size_invalid", 422);
   }
   const fetchFn = options.fetch ?? currentFetch();
-  const cryptoLike = options.crypto ?? currentCrypto();
+  const cryptoLike = options.crypto ?? globalThis.crypto;
   const chunkBytes = positiveChunkSize(initialSession.upload_chunk_bytes);
   let offset = initialSession.uploaded_bytes;
   if (!Number.isInteger(offset) || offset < 0 || offset > file.size) {
@@ -357,7 +349,7 @@ export async function uploadAndValidateHistoryImport(
     const end = Math.min(file.size, offset + chunkBytes);
     const slice = file.slice(offset, end);
     const bytes = await slice.arrayBuffer();
-    const sha256 = digestHex(await cryptoLike.subtle.digest("SHA-256", bytes));
+    const sha256 = await sha256Hex(bytes, cryptoLike);
     let uploaded: HistoryImportSession | null = null;
     let lastError: unknown = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -442,7 +434,7 @@ function phaseForStatus(status: HistoryImportStatus): HistoryImportPhase {
 export function createHistoryImportController(options: HistoryImportControllerOptions = {}) {
   const fetchFn = options.fetch ?? currentFetch();
   const storage = options.storage === undefined ? currentStorage() : options.storage;
-  const cryptoLike = options.crypto ?? currentCrypto();
+  const cryptoLike = options.crypto ?? globalThis.crypto;
   let sessionId: string | null = null;
   let activeAbort: AbortController | null = null;
   let generation = 0;

@@ -74,4 +74,4 @@ if webui_is_ready; then
 fi
 
 open_when_ready &
-"$PYTHON_BIN" -m codex_image.webui.server codex_image.webui.app:app --host 127.0.0.1 --port 8787 --no-access-log --timeout-graceful-shutdown 5 > >(tee -a "$LOG_FILE") 2>&1
+"$PYTHON_BIN" -m codex_image.webui.server codex_image.webui.app:app --port 8787 --no-access-log --timeout-graceful-shutdown 5 > >(tee -a "$LOG_FILE") 2>&1

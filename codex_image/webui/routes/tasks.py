@@ -155,7 +155,8 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.get("/api/tasks/sidebar")
     def list_sidebar_tasks(limit: int = Query(50, ge=1, le=100)) -> dict[str, Any]:
-        return generation_page_payload(ctx, limit_per_group=limit)
+        with app.state.state_sync_clock.capture() as sync:
+            return {**generation_page_payload(ctx, limit_per_group=limit), "sync": sync}
 
     @app.get("/api/tasks/sidebar/groups/{group_key}")
     def list_sidebar_task_group(
@@ -397,7 +398,7 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         thumbnail_path = ctx.storage.output_path(thumbnail_file)
         return FileResponse(
             thumbnail_path,
-            media_type="image/jpeg",
+            media_type="image/webp" if thumbnail_path.suffix == ".webp" else "image/jpeg",
             headers={"Cache-Control": "public, max-age=31536000, immutable"},
         )
 

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#457B66" />
     <title>iLab CONJURE</title>
     <link rel="icon" type="image/svg+xml" href="/static/brand/favicon.svg" />
@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-789" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-821" />
   </head>
   <body>
     <div class="layout-container">
@@ -152,6 +152,7 @@
               </div>
             </div>
             <div class="brand-actions">
+              <button id="compactTasksButton" class="ghost-button compact-only" type="button" aria-expanded="false" aria-controls="compactTaskDrawer" data-i18n="ux.tasks">任务</button>
               <button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话" data-i18n-attr="aria-label:app.newTaskAria">
                 <svg class="brand-new-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
@@ -270,11 +271,40 @@
           <div id="batchToolbar" class="batch-toolbar hidden" aria-live="polite">
             <div id="batchSelectedCount" class="batch-selected-count" data-i18n="batch.selected">已选择 0 个</div>
             <div class="batch-toolbar-actions">
-              <button id="batchSelectGroupButton" class="ghost-button text-sm" type="button" data-i18n="batch.selectCurrentGroup">全选本组</button>
-              <button id="batchSelectWaitingButton" class="ghost-button text-sm" type="button" data-i18n="batch.selectWaiting">全选等待中</button>
-              <button id="batchArchiveButton" class="ghost-button text-sm" type="button" disabled data-i18n="action.archive">归档</button>
-              <button id="batchDeleteButton" class="ghost-button text-sm danger-button" type="button" disabled data-i18n="action.delete">删除</button>
-              <button id="batchCancelSelectedButton" class="ghost-button text-sm danger-button" type="button" disabled data-i18n="batch.cancelSelected">取消任务</button>
+              <button id="batchSelectGroupButton" class="ghost-button text-sm" type="button">
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <rect x="4" y="4" width="16" height="16" rx="3" />
+                  <path class="batch-select-mark" d="m8 12 3 3 5-6" />
+                  <path class="batch-clear-mark" d="M8 12h8" />
+                </svg>
+                <span data-batch-selection-label data-i18n="batch.selectCurrentGroup">全选本组</span>
+              </button>
+              <button id="batchSelectWaitingButton" class="ghost-button text-sm" type="button">
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="8" />
+                  <path class="batch-select-mark" d="M12 7v5l3 2" />
+                  <path class="batch-clear-mark" d="M8 12h8" />
+                </svg>
+                <span data-batch-selection-label data-i18n="batch.selectWaiting">全选等待中</span>
+              </button>
+              <button id="batchArchiveButton" class="ghost-button text-sm" type="button" disabled>
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M5 9v11h14V9M9 13h6" /><rect x="3" y="4" width="18" height="5" rx="1" />
+                </svg>
+                <span data-i18n="action.archive">归档</span>
+              </button>
+              <button id="batchDeleteButton" class="ghost-button text-sm danger-button" type="button" disabled>
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
+                </svg>
+                <span data-i18n="action.delete">删除</span>
+              </button>
+              <button id="batchCancelSelectedButton" class="ghost-button text-sm danger-button" type="button" disabled>
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="8" /><path d="m9 9 6 6m0-6-6 6" />
+                </svg>
+                <span data-i18n="batch.cancelSelected">取消任务</span>
+              </button>
             </div>
           </div>
           <div
@@ -411,6 +441,7 @@
             <section class="panel image-panel">
               <div class="panel-heading">
                 <h2 data-i18n="imageInput.referenceTitle">参考输入（可选）</h2>
+                <button id="compactReferencesButton" type="button" class="ghost-button text-sm compact-reference-toggle" data-i18n="ux.addReference">添加参考</button>
               </div>
 
               <div class="image-input-workspace">
@@ -423,7 +454,7 @@
                           <div id="imageThumbItems" class="image-thumb-items"></div>
                           <div id="referenceFileSelection" class="reference-file-selection hidden" aria-live="polite"></div>
                         </div>
-                        <div id="imageUploadSource" class="image-upload-source" tabindex="0" aria-label="点击、拖入或粘贴图片与文件" data-i18n-attr="aria-label:imageInput.uploadAria">
+                        <div id="imageUploadSource" class="image-upload-source" role="button" tabindex="0" aria-label="点击、拖入或粘贴图片与文件" data-i18n-attr="aria-label:imageInput.uploadAria">
                           <label class="upload-tile">
                             <input id="imageInput" type="file" accept="image/*,.pdf,.xla,.xlb,.xlc,.xlm,.xls,.xlt,.xlw,.xlsx,.csv,.tsv,.iif,.doc,.docx,.dot,.odt,.rtf,.pot,.ppa,.pps,.ppt,.pwz,.wiz,.pptx,.asm,.bat,.c,.cc,.conf,.cpp,.css,.cxx,.def,.dic,.eml,.h,.hh,.htm,.html,.ics,.ifb,.in,.js,.json,.ksh,.list,.log,.markdown,.md,.mht,.mhtml,.mime,.mjs,.nws,.pl,.py,.rst,.s,.sql,.srt,.text,.txt,.vcf,.vtt,.xml" multiple />
                             <span class="icon" aria-hidden="true">
@@ -511,7 +542,8 @@
               <div class="panel-heading prompt-heading">
                 <div class="prompt-heading-main">
                   <h2 data-i18n="prompt.title">提示词</h2>
-                  <span id="charCount" class="prompt-count">0 / 4000</span>
+                  <span id="charCount" class="prompt-count">0</span>
+                  <button id="restoreComposerDraft" type="button" class="ghost-button text-sm" hidden data-i18n="ux.restoreDraft">恢复草稿</button>
                 </div>
               </div>
               <div class="prompt-compose">
@@ -526,7 +558,7 @@
                     aria-label="提示词"
                     data-i18n-attr="aria-label:prompt.editorLabel;data-placeholder:prompt.placeholder"
                   ></div>
-                  <input id="prompt" type="hidden" maxlength="4000" value="" />
+                  <input id="prompt" type="hidden" value="" />
                   <div id="mentionSuggest" class="mention-suggest hidden"></div>
                   <div id="colorSuggest" class="color-suggest hidden" aria-label="颜色码选择器"></div>
                 </div>
@@ -534,6 +566,8 @@
                   <button id="runButton" class="run-button prompt-run-button" type="button" aria-keyshortcuts="Meta+Enter" title="开始生成（Cmd+Enter）" data-i18n="prompt.run" data-i18n-attr="title:prompt.runTitle">开始生成</button>
                 </div>
               </div>
+              <p id="executionSummary" class="execution-summary" aria-live="polite"></p>
+              <p id="promptValidationError" class="field-error" role="alert" hidden></p>
               <div class="prompt-template-row">
                 <div class="prompt-template-recent-cell">
                   <div class="prompt-footer">
@@ -615,17 +649,19 @@
                   <div id="modeSpecificSettings" class="mode-specific-settings mode-transition">
                     <div class="model-tool-row">
                       <label id="mainModelField" class="field main-model-field">
-                        <span data-i18n="output.mainModel">主模型</span>
+                        <span id="mainModelLabel" data-i18n="output.mainModel">主模型</span>
                         <div
                           id="mainModelCombobox"
                           class="model-combobox"
                           role="combobox"
+                          aria-labelledby="mainModelLabel"
                           aria-haspopup="listbox"
                           aria-expanded="false"
                           aria-owns="mainModelOptions"
                         >
                           <input
                             id="mainModel"
+                            aria-labelledby="mainModelLabel"
                             class="control model-combobox-input"
                             type="text"
                             value="gpt-5.6-luna"
@@ -641,30 +677,24 @@
                         </div>
                       </label>
 
-                      <div id="apiDirectSettingsNotice" class="field api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true">
-                        <span data-i18n="output.apiDirect">API 直连</span>
-                        <div class="api-direct-settings-control">
-                          <div class="api-direct-settings-header">
-                            <strong data-i18n="output.apiToolModel">使用 API 图像生成模型</strong>
-                            <span data-i18n="output.mainModelUnused">主模型不参与本次请求</span>
-                          </div>
-                          <button id="apiDirectSettingsButton" class="ghost-button text-sm icon-text-button api-direct-settings-button" type="button">
-                            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                              <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-                              <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
-                            </svg>
-                            <span data-i18n="api.settings">系统设置</span>
-                          </button>
-                        </div>
-                      </div>
+                      <p id="apiDirectSettingsNotice" class="api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true" data-i18n="output.mainModelUnused">直接使用所选图像模型生成</p>
 
+                      <div class="generation-output-options">
                       <div id="webSearchField" class="field web-search-field">
-                        <span data-i18n="output.webSearch">联网搜索</span>
                         <label class="web-search-toggle" title="先联网搜索并用于本次生成" data-i18n-attr="title:output.webSearchTitle">
-                          <input id="webSearch" type="checkbox" />
+                          <span id="webSearchLabel" class="generation-option-label" data-i18n="output.webSearch">联网搜索</span>
+                          <input id="webSearch" type="checkbox" aria-labelledby="webSearchLabel" />
                           <span class="web-search-toggle-track" aria-hidden="true"></span>
-                          <span class="web-search-toggle-text" data-i18n="output.webSearchToggle">开启</span>
                         </label>
+                      </div>
+                      <div id="transparentBackgroundField" class="field transparent-background-field">
+                        <label class="web-search-toggle">
+                          <span id="transparentBackgroundLabel" class="generation-option-label" data-i18n="output.transparentBackground">透明背景</span>
+                          <input id="transparentBackground" type="checkbox" aria-labelledby="transparentBackgroundLabel" />
+                          <span class="web-search-toggle-track" aria-hidden="true"></span>
+                        </label>
+                        <input id="background" type="hidden" value="auto" />
+                      </div>
                       </div>
                     </div>
 
@@ -880,7 +910,7 @@
                   </div>
                 </div>
 
-                <div id="pixelPreview" class="full-width" style="text-align: center; font-size: 13px; color: var(--primary-strong); padding: 8px; background: var(--primary-light); border-radius: 6px;">
+                <div id="pixelPreview" class="full-width" style="text-align: center; font-size: 13px; color: var(--text-secondary); padding: 8px; background: var(--surface-soft); border-radius: 6px;">
                   <span data-i18n="output.pixelPreview">输出像素: 1024 x 1024 px</span>
                 </div>
 
@@ -912,12 +942,12 @@
                 <div class="field moderation-field">
                   <span data-i18n="output.moderation">审核</span>
                   <div class="radio-group" id="moderationGroup" role="group" aria-label="审核" data-i18n-attr="aria-label:output.moderation">
-                    <button class="radio-btn active" data-val="auto" type="button">auto</button>
-                    <button class="radio-btn" data-val="low" type="button">low</button>
+                    <button class="radio-btn active" data-val="auto" type="button" data-i18n="ux.moderationAuto">自动</button>
+                    <button class="radio-btn" data-val="low" type="button" data-i18n="ux.moderationLow">较宽松</button>
                   </div>
                   <select id="moderation" class="hidden">
-                    <option value="auto">auto</option>
-                    <option value="low">low</option>
+                    <option value="auto" data-i18n="ux.moderationAuto">自动</option>
+                    <option value="low" data-i18n="ux.moderationLow">较宽松</option>
                   </select>
                 </div>
                 </div>
@@ -930,6 +960,7 @@
             <section class="panel preview-panel">
               <div class="panel-heading preview-heading">
                 <h2 data-i18n="preview.title">预览结果</h2>
+                <span id="previewSourceLabel" class="preview-source-label"></span>
                 <div class="preview-heading-actions">
                   <div class="preview-selection-actions hidden" id="previewSelectionActions" aria-live="polite">
                     <span id="previewSelectionCount" class="preview-selection-count" data-i18n="preview.selectedZero">已选 0</span>
@@ -1169,6 +1200,16 @@
           </div>
         </section>
         <section id="systemSettingsNetworkPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsNetworkTab" hidden aria-hidden="true">
+          <div class="lan-access-panel">
+            <label class="web-search-toggle lan-access-toggle">
+              <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
+              <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
+              <span class="web-search-toggle-track" aria-hidden="true"></span>
+            </label>
+            <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
+            <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
+            <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
+          </div>
           <div class="network-egress-panel">
             <div class="field">
               <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
@@ -1612,7 +1653,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-793"></script>
+  <script src="/static/app.js?v=runtime-820"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

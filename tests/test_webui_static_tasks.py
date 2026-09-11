@@ -44,7 +44,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-116', history_html)
+        self.assertIn('/static/history.js?v=history-139', history_html)
         self.assertIn('fetch("/api/task-history/summary")', history_source)
         self.assertIn('new URLSearchParams', history_source)
         self.assertIn('/api/task-history/tasks?', history_source)
@@ -447,7 +447,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
             "function replaceTask(",
             "function cleanupSessionSelections()",
             "async function setTaskArchiveState(",
-            "async function migrateLegacyArchivedTasks()",
+            "function migrateLegacyArchivedTasks()",
             "function renderArchiveButton()",
             "async function restoreArchivedTask(",
             "function openArchiveModal()",
@@ -538,7 +538,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 
         self.assertRegex(
             html,
-            r'<div class="brand-actions">\s*<button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话"[^>]*>',
+            r'<div class="brand-actions">[\s\S]*?<button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话"[^>]*>',
         )
         self.assertRegex(html, r'<span[^>]*>新建</span>')
         self.assertIn('class="brand-new-icon"', html)
@@ -1219,21 +1219,21 @@ console.log(JSON.stringify({{
             light_tokens,
         )
         self.assertIn(
-            "--task-card-surface-selected: color-mix(in srgb, var(--surface) 28%, var(--primary-light));",
+            "--task-card-surface-selected: color-mix(in srgb, var(--primary) 28%, var(--surface));",
             light_tokens,
         )
         self.assertIn(
-            "--task-card-edge-selected: color-mix(in srgb, var(--line) 80%, var(--text-secondary));",
+            "--task-card-edge-selected: var(--primary);",
             light_tokens,
         )
         self.assertIn("--task-card-gradient-top-tint: var(--surface);", light_tokens)
         self.assertIn("--task-card-gradient-bottom-tint: var(--line);", light_tokens)
         self.assertIn(
-            "--task-card-surface-selected: color-mix(in srgb, var(--primary-light) 86%, var(--surface-soft));",
+            "--task-card-surface-selected: color-mix(in srgb, var(--primary) 28%, var(--surface));",
             dark_tokens,
         )
         self.assertIn(
-            "--task-card-edge-selected: color-mix(in srgb, var(--line) 78%, var(--text-secondary));",
+            "--task-card-edge-selected: var(--primary);",
             dark_tokens,
         )
         self.assertIn("--task-card-gradient-top-tint: var(--text-secondary);", dark_tokens)
@@ -1292,7 +1292,7 @@ console.log(JSON.stringify({{
         )
         self.assertRegex(
             styles,
-            r"\.task-card:focus-visible \.task-card-swipe-surface\s*\{[^}]*outline-offset:\s*2px",
+            r"\.task-card:focus-visible \.task-card-swipe-surface\s*\{[^}]*outline-offset:\s*-3px",
         )
         self.assertRegex(
             task_styles,
@@ -1810,9 +1810,9 @@ console.log(JSON.stringify({{
         self.assertIn("async function applyRealtimeTaskPayloads", queue_source)
         self.assertIn("applyTasksSnapshot", queue_source)
         self.assertIn("const updatedTasks = payload.tasks || [];", queue_source)
-        self.assertIn("await applyRealtimeTaskPayloads(updatedTasks)", queue_source)
-        self.assertIn("applyQueueState(payload.queue, { deferTaskListRender: true })", queue_source)
-        self.assertIn("applyQueueTasks(payload.queue)", queue_source)
+        self.assertIn("await applyRealtimeTaskPayloads(updatedTasks, payload.sync)", queue_source)
+        self.assertIn("applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync })", queue_source)
+        self.assertIn("applyQueueTasks(state.queue)", queue_source)
         self.assertIn("function applyQueueTasks", queue_source)
         self.assertIn("applyTaskUpdate", queue_source)
         self.assertIn("updateTaskInState", queue_source)
@@ -1821,22 +1821,14 @@ console.log(JSON.stringify({{
         self.assertIn("bridge.methods.renderTasks?.({ preserveScroll: true });", queue_source)
         self.assertIn("bridge.methods.renderTasks({ preserveScroll: true })", queue_source)
         boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
-        self.assertIn("const realtimeStarted = window.startRealtimeUpdates?.({ migrateLegacyArchives: true });", boot_source)
-        self.assertIn("if (!realtimeStarted) {", boot_source)
+        self.assertIn("window.startRealtimeUpdates?.({ migrateLegacyArchives: true });", boot_source)
+        self.assertNotIn("if (!realtimeStarted)", boot_source)
+        self.assertIn('void window.refreshQueue?.();', boot_source)
         self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', boot_source)
-        realtime_fallback_block = re.search(
-            r"if \(!realtimeStarted\) \{(?P<body>[\s\S]*?)\n  \}",
-            boot_source,
-        )
-        self.assertIsNotNone(realtime_fallback_block)
-        self.assertIn('window.refreshQueue?.()', realtime_fallback_block.group("body"))
-        self.assertIn('call(methods, "refreshTasks", { migrateLegacyArchives: true })', realtime_fallback_block.group("body"))
-        self.assertNotRegex(
-            boot_source.replace(realtime_fallback_block.group(0), ""),
-            r"refreshTasks\(\s*\{ migrateLegacyArchives: true \}\)",
-        )
+        self.assertNotIn('state.realtimeSnapshotNeedsArchiveMigration = false', boot_source)
+        self.assertIn('acceptQueueSnapshot(state, payload.sync)', queue_source)
         self.assertIn("void requestRealtimeResync();", queue_source)
-        self.assertIn("applyQueueState(payload.queue)", queue_source)
+        self.assertIn("applyQueueState(payload.queue, { sync: payload.sync })", queue_source)
         self.assertIn("function activeTasksNeedQueueReconcile(", queue_source)
         self.assertIn(
             'status === "submitting" || status === "queued" || status === "running" || status === "cancelling"',
@@ -2384,6 +2376,7 @@ console.log(JSON.stringify({{
                 const state = { apiSettings: { providers: [] } };
                 function persistApiSettings() {}
                 function populateApiSettingsForm() {}
+                function setBackgroundControl() {}
                 function taskOutputControlValues(task) { return task.params || {}; }
                 function syncSizeControlsFromSize() {}
                 function updatePromptCount() {}
@@ -2448,6 +2441,7 @@ console.log(JSON.stringify({{
                 function setMode() {}
                 function setPromptWithGalleryRefs() {}
                 function persistMainModel() {}
+                function setBackgroundControl() {}
                 function taskOutputControlValues(task) { return task.params || {}; }
                 function syncSizeControlsFromSize() {}
                 function updatePromptCount() {}
@@ -2584,12 +2578,12 @@ console.log(JSON.stringify({{
         self.assertIn("if (state.batchMode)", swipe_source)
         self.assertIn('target.closest("button, input, select, textarea, a")', swipe_source)
         self.assertIn('legacyMethod("archiveTask"', swipe_source)
-        self.assertIn('legacyMethod("deleteTask"', swipe_source)
+        self.assertIn('legacyMethod("openTaskDeleteConfirm"', swipe_source)
         self.assertIn("cancelRunningTask", swipe_source)
         self.assertIn("performCancelWaitingTask", swipe_source)
         self.assertNotIn("cancelWaitingTask(button, taskId)", swipe_source)
         self.assertIn("promoteQueueTask", swipe_source)
-        self.assertNotIn('legacyMethod("openTaskDeleteConfirm"', swipe_source)
+        self.assertNotIn('legacyMethod("deleteTask"', swipe_source)
         self.assertIn("revealTaskCardAction", swipe_source)
         self.assertIn("closeOpenTaskCardDrawer", swipe_source)
         self.assertIn('event.key === "Escape"', swipe_source)
@@ -2854,6 +2848,7 @@ console.log(JSON.stringify({{
                 self._extract_javascript_function(script, "taskTotalCount"),
                 self._extract_javascript_function(script, "taskImageBlockStatesFromCounts"),
                 self._extract_javascript_function(script, "taskImageBlockStates"),
+                self._extract_javascript_function(script, "taskRecoveryKind"),
                 self._extract_javascript_function(script, "taskHasNonRetryableError"),
                 self._extract_javascript_function(script, "taskRetrySuccessfulCount"),
                 self._extract_javascript_function(script, "taskPartialFailureCanRetryGenericInvalidRequest"),

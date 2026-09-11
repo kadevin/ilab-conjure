@@ -1203,7 +1203,7 @@
 }
 
 .history-detail-close {
-  display: none;
+  display: inline-flex;
 }
 
 .history-action-panel {

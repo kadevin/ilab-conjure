@@ -595,7 +595,7 @@
 
 .task-card:focus-visible .task-card-swipe-surface {
   outline: 2px solid var(--task-card-focus-ring);
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 
 .task-card.batch-mode .task-card-swipe-surface {
@@ -1553,7 +1553,7 @@
 }
 
 .task-history-batch-button.active {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  border-color: transparent;
   background: var(--primary-light);
   color: var(--primary-strong);
 }
@@ -1563,9 +1563,9 @@
   display: grid;
   gap: 7px;
   padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line));
+  border: 0;
   border-radius: 8px;
-  background: var(--surface-soft);
+  background: transparent;
 }
 
 .batch-selected-count {
@@ -1580,12 +1580,58 @@
   gap: 6px;
 }
 
-.batch-toolbar-actions #batchArchiveButton {
-  grid-column: 1 / -1;
+.batch-toolbar-actions .ghost-button {
+  gap: 6px;
+  border: 0;
+  background: color-mix(in srgb, var(--surface-soft) 65%, var(--line));
+  color: var(--text-secondary);
+  box-shadow: none;
 }
 
-.batch-toolbar-actions .ghost-button:disabled {
-  opacity: 0.45;
+.batch-toolbar-actions .batch-clear-mark,
+.batch-toolbar-actions [aria-pressed="true"] .batch-select-mark {
+  display: none;
+}
+
+.batch-toolbar-actions [aria-pressed="true"] .batch-clear-mark {
+  display: block;
+}
+
+.batch-toolbar-actions .ghost-button:not(:disabled):hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.batch-toolbar-actions .ghost-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.batch-toolbar-actions #batchArchiveButton {
+  grid-column: 1 / -1;
+  background: var(--primary-light);
+  color: var(--primary-strong);
+}
+
+.batch-toolbar-actions #batchArchiveButton:not(:disabled):hover {
+  background: color-mix(in srgb, var(--primary) 12%, var(--primary-light));
+}
+
+.batch-toolbar-actions .danger-button {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.batch-toolbar-actions .danger-button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--danger) 12%, var(--danger-soft));
+  color: var(--danger);
+}
+
+.batch-toolbar-actions .ghost-button:disabled,
+.batch-toolbar-actions #batchArchiveButton:disabled {
+  background: var(--surface-soft);
+  color: var(--muted);
+  opacity: 1;
   cursor: not-allowed;
 }
 

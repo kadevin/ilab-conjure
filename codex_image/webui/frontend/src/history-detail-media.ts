@@ -1,6 +1,7 @@
 import { formatTranslation, translate } from "./i18n";
 import { referenceFileIconSvgMarkup } from "./reference-file-icons";
 import { escapeHtml } from "./webui-utils";
+import { requestedTransparentBackground, transparencyStatusHtml } from "./transparency-status";
 
 export type HistoryOutputRecord = {
   url: string;
@@ -9,6 +10,8 @@ export type HistoryOutputRecord = {
   revisedPrompt: string;
   width: number | null;
   height: number | null;
+  hasTransparency?: boolean;
+  requestedTransparency?: boolean;
 };
 
 type HistoryInputRecord = {
@@ -81,6 +84,8 @@ export function taskOutputRecords(task: any): HistoryOutputRecord[] {
       revisedPrompt: String(output.revised_prompt || ""),
       width: size?.[0] || null,
       height: size?.[1] || null,
+      hasTransparency: output.has_transparency,
+      requestedTransparency: requestedTransparentBackground(task),
     });
   });
   if (records.length) return records;
@@ -198,8 +203,9 @@ function historyDetailImageHtml(
           aria-label="${escapeHtml(translate("history.openPreview"))}"
         >
           ${outputBadge}
-          <img src="${escapeHtml(record.url)}" alt="" loading="lazy" decoding="async">
+          <img class="${record.hasTransparency ? "transparency-grid" : ""}" src="${escapeHtml(record.url)}" alt="" loading="lazy" decoding="async">
         </button>
+        ${transparencyStatusHtml(record.hasTransparency, Boolean(record.requestedTransparency))}
         <div class="history-detail-image-actions" aria-label="${escapeHtml(translate("history.outputActions"))}">
           <button
             class="history-detail-overlay-button"

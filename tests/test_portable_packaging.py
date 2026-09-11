@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import subprocess
 import sys
 import tempfile
@@ -475,6 +476,77 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("Install Update", readme_text)
         self.assertIn("automatically replaces", readme_text)
         self.assertIn("first version", readme_text)
+
+    @unittest.skipIf(sys.platform == "win32", "macOS packaging shell requires bash")
+    def test_macos_dmg_creation_requires_successful_signing_and_strict_verification(self) -> None:
+        build_text = Path("packaging/macos/build-app.sh").read_text(encoding="utf-8")
+        self.assertIn("\nset -euo pipefail\n", build_text)
+        start = build_text.index('remove_local_artifacts "$APP_BUNDLE_ROOT"\n')
+        end = build_text.index('\nSHA256=', start)
+        # Execute the actual final packaging steps with signature tools stubbed;
+        # this must fail closed without rebuilding Python or the Rust launcher.
+        final_steps = build_text[start:end]
+        stubs = r'''
+set -euo pipefail
+remove_local_artifacts() { :; }
+codesign() {
+  local step=app-sign
+  local target="${@: -1}"
+  if [[ "$1" == "--verify" ]]; then
+    [[ "$*" == *"--deep"* && "$*" == *"--strict"* ]] || return 31
+    if [[ "$target" == "$DMG_ROOT/$APP_BUNDLE_NAME/Contents/Resources/python/Python.framework" ]]; then
+      step=framework-verify
+    elif [[ "$target" == "$DMG_ROOT/$APP_BUNDLE_NAME" ]]; then
+      step=app-verify
+    else
+      return 32
+    fi
+  elif [[ "$target" == "$PYTHON_FRAMEWORK" ]]; then
+    step=framework-sign
+  else
+    [[ "$target" == "$APP_BUNDLE_ROOT" ]] || return 33
+  fi
+  printf '%s\n' "$step" >> "$TRACE"
+  if [[ "$FAIL_STEP" == "$step" ]]; then
+    echo "fixture signature failure" >&2
+    return 23
+  fi
+}
+hdiutil() { printf 'dmg\n' >> "$TRACE"; touch "$DMG_PATH"; }
+'''
+        successful_steps = ["framework-sign", "app-sign", "framework-verify", "app-verify", "dmg"]
+        for fail_step in (*successful_steps[:-1], "none"):
+            with self.subTest(fail_step=fail_step), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                app_name = "Test App.app"
+                app = root / app_name
+                app.mkdir()
+                trace = root / "trace.txt"
+                dmg = root / "result.dmg"
+                result = subprocess.run(
+                    ["bash", "-c", stubs + final_steps],
+                    env={
+                        **os.environ,
+                        "APP_BUNDLE_ROOT": str(app),
+                        "APP_BUNDLE_NAME": app_name,
+                        "PYTHON_FRAMEWORK": str(app / "Contents/Resources/python/Python.framework"),
+                        "DMG_ROOT": str(root / "dmg root"),
+                        "DMG_PATH": str(dmg),
+                        "TRACE": str(trace),
+                        "FAIL_STEP": fail_step,
+                    },
+                    capture_output=True,
+                    text=True,
+                )
+                if fail_step == "none":
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(trace.read_text().splitlines(), successful_steps)
+                    self.assertTrue(dmg.exists())
+                else:
+                    self.assertEqual(result.returncode, 23, result.stderr)
+                    self.assertIn("fixture signature failure", result.stderr)
+                    self.assertFalse(dmg.exists())
+                    self.assertNotIn("dmg", trace.read_text().splitlines())
 
     def test_windows_standard_app_zip_packaging_is_not_an_installer(self) -> None:
         build_script = Path("packaging/windows/build-app.ps1")

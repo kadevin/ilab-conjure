@@ -11,6 +11,7 @@ from codex_image.generation.catalog import (
     list_model_manifests,
 )
 from codex_image.providers.registry import default_registry
+from codex_image.providers.transparency import transparency_instruction
 from codex_image.webui.context import WebUIContext
 
 
@@ -74,6 +75,8 @@ def generation_catalog_payload(ctx: WebUIContext) -> dict[str, Any]:
             "remote_model_id": "gpt-image-2",
             "protocol_profile": f"codex_{mode}",
             "parameter_codec": f"gpt_codex_{mode}",
+            "transparency_mode": "prompt",
+            "transparency_instruction": transparency_instruction(),
             "operations": ["edit", "generate"],
             "display_name": "Codex Responses" if mode == "responses" else "Codex Image",
         }
@@ -92,6 +95,8 @@ def generation_catalog_payload(ctx: WebUIContext) -> dict[str, Any]:
         bindings = []
         for raw_binding in provider.get("bindings") or []:
             binding = dict(raw_binding)
+            if binding.get("transparency_mode") == "prompt":
+                binding["transparency_instruction"] = transparency_instruction()
             binding["available"] = _runtime_available(
                 str(binding.get("protocol_profile") or ""),
                 str(binding.get("parameter_codec") or ""),

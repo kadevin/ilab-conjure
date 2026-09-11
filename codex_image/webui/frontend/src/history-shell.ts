@@ -1,9 +1,12 @@
+import { initOverlayFocus } from "./overlay-focus";
+import { initMobileShell } from "./mobile-shell";
 import "../legacy-app.js";
 import { initApiAdvancedSettingsFeature } from "./api-advanced-settings";
 import { initApiSettingsFeature } from "./api-settings";
 import { bindSharedTopNavSettingsEvents } from "./event-bindings";
 import { initI18nFeature } from "./i18n";
 import { initModelCatalogFeature } from "./model-catalog";
+import { initLanAccessSettingsFeature } from "./lan-access-settings";
 import { initNetworkEgressSettingsFeature } from "./network-egress-settings";
 import { initOverlayPopoversFeature } from "./overlay-popovers";
 import { initProviderSelectionFeature } from "./provider-selection";
@@ -95,13 +98,16 @@ export function initializeHistoryShell(
   initApiAdvancedSettingsFeature();
   initStorageSettingsFeature();
   initNetworkEgressSettingsFeature();
+  initLanAccessSettingsFeature();
   initSystemSettingsFeature();
   initOverlayPopoversFeature();
+  initOverlayFocus();
   initTaskNotificationsFeature();
   initProviderSelectionFeature();
   initModelCatalogFeature();
   initializeQueueFeature();
   initSegmentedIndicatorFeature();
+  initMobileShell();
 
   methods.bindShellUiEvents?.();
   bindSharedTopNavSettingsEvents(bridge.els, methods);

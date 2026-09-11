@@ -56,6 +56,11 @@ class OutputSettingsOverlayLayoutContractTests(unittest.TestCase):
         self.assertNotIn("Ultra-wide workspaces grow both columns", responsive)
         self.assertNotRegex(responsive, r"clamp\(760px,\s*42%,\s*1120px\)")
 
+        # Empty-reference disclosure also responds to landscape height, but does
+        # not establish a page-height or locked-summary layout band.
+        responsive = responsive.replace(
+            "@media (max-width: 600px), (max-height: 500px)", "@media (max-width: 600px)"
+        )
         height_queries = re.findall(r"@media\s*\([^\n{]*height[^\n{]*\)", responsive)
         self.assertLessEqual(
             len(height_queries),

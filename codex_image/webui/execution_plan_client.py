@@ -9,6 +9,7 @@ from codex_image.generation.service import GenerationService
 from codex_image.generation.types import GeneratedAsset, GenerationResult
 from codex_image.providers.contracts import ExecutionPlan
 from codex_image.providers.registry import ProviderRegistry, default_registry
+from codex_image.providers.transparency import transparency_request
 
 
 class _LegacyClientAdapter:
@@ -18,20 +19,21 @@ class _LegacyClientAdapter:
     def execute(self, plan: ExecutionPlan) -> GenerationResult:
         command = plan.command
         params = {**command.parameters, **command.legacy_compat_parameters}
+        transparency = transparency_request(command, plan.binding)
         common: dict[str, Any] = {
-            "prompt": command.prompt,
+            "prompt": transparency.prompt,
             "main_model": command.main_model,
             "model": plan.binding.remote_model_id,
             "size": params.get("canvas.size"),
             "quality": params.get("gpt.quality"),
-            "background": params.get("gpt.background"),
+            "background": transparency.background,
             "output_format": params.get("output.format", "png"),
             "moderation": params.get("gpt.moderation"),
             "output_compression": params.get("gpt.output_compression"),
         }
         ephemeral_reference_files: list[Any] = []
         if plan.binding.protocol_profile.endswith("responses"):
-            common["instructions"] = command.instructions
+            common["instructions"] = transparency.instructions
             common["web_search"] = bool(params.get("gpt.web_search"))
             ephemeral_reference_files = list(command.reference_files)
             common["reference_files"] = ephemeral_reference_files

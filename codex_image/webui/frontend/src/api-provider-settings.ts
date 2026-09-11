@@ -692,6 +692,10 @@ export function confirmDeleteApiProvider(anchor: any = els.deleteApiProviderButt
 }
 
 export function openApiSettingsModal(): void {
+  if (apiProviderEditorActive()) {
+    openSystemSettingsModal("api");
+    return;
+  }
   closePromptPopover();
   state.apiProviderEditingId = null;
   state.apiProviderDraft = null;
@@ -720,6 +724,8 @@ export function selectApiProvider(providerId: any, anchor?: HTMLElement | null):
   }
   if (state.apiProviderSortMode) return;
   const provider = providerById(id);
+  const providerChanged = provider.id !== activeApiProvider().id;
+  if (!providerChanged && provider.id === currentApiProviderId()) return;
   const continueSwitch = () => {
     state.apiSettings = normalizeApiSettings({
       ...state.apiSettings,
@@ -730,12 +736,8 @@ export function selectApiProvider(providerId: any, anchor?: HTMLElement | null):
     persistApiSettings();
     legacyMethod("selectGenerationProvider", provider.id);
     renderAuthSourceAfterProviderChange();
-    queueApiSettingsAutosave();
+    if (providerChanged) queueApiSettingsAutosave({ silent: true });
   };
-  if (provider.id === currentApiProviderId()) {
-    continueSwitch();
-    return;
-  }
   void anchor;
   continueSwitch();
 }
@@ -859,6 +861,9 @@ export function addProviderBinding(): void {
     draft.id,
     defaultsForProviderDraft(draft),
   );
+  const added = [...(els.apiProviderBindings as HTMLElement).querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")]
+    .find(card => card.dataset.bindingId === bindingId);
+  if (added) { added.open = true; added.querySelector<HTMLElement>("summary")?.focus(); }
   updateApiRequestEndpointPreview();
 }
 
@@ -1063,15 +1068,15 @@ export function selectCodexMode(mode: any, anchor?: HTMLElement | null): boolean
   return true;
 }
 
-export function queueApiSettingsAutosave(): void {
+export function queueApiSettingsAutosave(options: { silent?: boolean } = {}): void {
   if (apiProviderEditorActive()) return;
   if (apiSettingsAutosaveTimerId !== null) {
     window.clearTimeout(apiSettingsAutosaveTimerId);
   }
-  setApiSettingsFeedback(translate("apiSettings.autoSaving"), "running");
+  setApiSettingsFeedback(options.silent ? "" : translate("apiSettings.autoSaving"), options.silent ? "" : "running");
   apiSettingsAutosaveTimerId = window.setTimeout(() => {
     apiSettingsAutosaveTimerId = null;
-    void saveApiSettings({ auto: true });
+    void saveApiSettings({ auto: true, silent: options.silent });
   }, 260);
 }
 
@@ -1150,6 +1155,7 @@ function setSaveButtonText(stateName: "saving" | "saved" | "failed" | "default")
 
 export async function saveApiSettings(options: any = {}): Promise<boolean> {
   const autoSave = Boolean(options.auto);
+  const silent = autoSave && Boolean(options.silent);
   if (autoSave && apiProviderEditorActive()) return true;
   const sortFocusId = autoSave ? focusedApiProviderSortId() : "";
   if (state.apiSettingsSaveTimerId) {
@@ -1246,7 +1252,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
     setSaveButtonsDisabled(true);
     setSaveButtonText("saving");
   }
-  setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
+  if (!silent) setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
   try {
     const response = await fetch("/api/api-settings", {
       method: "PATCH",
@@ -1269,7 +1275,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
     persistApiSettings();
     populateApiSettingsForm();
     focusApiProviderSortHandle(sortFocusId);
-    setApiSettingsFeedback(autoSave ? translate("apiSettings.autoSaved") : formatTranslation("apiSettings.savedSummary", {
+    if (!silent) setApiSettingsFeedback(autoSave ? translate("apiSettings.autoSaved") : formatTranslation("apiSettings.savedSummary", {
       codex: codexModeLabel(currentCodexMode()),
       provider: activeApiProvider().name,
       mode: apiModeLabel(currentApiMode()),
@@ -1281,7 +1287,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
       if (!autoSave) setSaveButtonText("default");
       state.apiSettingsSaveTimerId = null;
     }, 1600);
-    setStatus(translate("apiSettings.savedStatus"), "ok");
+    if (!silent) setStatus(translate("apiSettings.savedStatus"), "ok");
     await refreshGenerationCatalog();
     await refreshHealth();
     updateRequestPreview();

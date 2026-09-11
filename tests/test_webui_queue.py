@@ -648,7 +648,16 @@ class WebUIQueueTests(unittest.TestCase):
                 },
             )
             client = TestClient(app)
+            before = client.get("/api/queue").json()["sync"]
             response = client.get("/api/events")
+            after = client.get("/api/tasks/sidebar").json()["sync"]
+            streamed = json.loads(response.text.removeprefix("data: "))["sync"]
+            self.assertEqual(before["instance"], streamed["instance"])
+            self.assertEqual(streamed["instance"], after["instance"])
+            self.assertLess(before["revision"], streamed["revision"])
+            self.assertLess(streamed["revision"], after["revision"])
+            self.assertEqual(response.headers["cache-control"], "no-cache")
+            self.assertEqual(response.headers["x-accel-buffering"], "no")
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("text/event-stream", response.headers["content-type"])
@@ -1567,6 +1576,7 @@ raise SystemExit(1)
             with patch.dict(os.environ, {"CODEX_IMAGE_REQUEST_TIMEOUT_SECONDS": "1"}):
                 app = create_app(
                     output_root=root,
+                    network_egress_settings_path=root / "network-settings.json",
                     client_factory=lambda: fake,
                     auth_checker=lambda: True,
                     batch_delay_seconds=0,

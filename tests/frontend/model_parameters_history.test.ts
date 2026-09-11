@@ -349,7 +349,7 @@ test("old tasks receive a GPT-compatible legacy snapshot", () => {
   });
 });
 
-test("legacy snapshots preserve explicit background data but the inspector hides the retired control", () => {
+test("legacy snapshots preserve explicit background data for the restored inspector control", () => {
   assert.equal(Object.hasOwn(legacyGenerationSnapshot({
     task_id: "without-background",
     params: { size: "1024x1024" },
@@ -359,7 +359,7 @@ test("legacy snapshots preserve explicit background data but the inspector hides
     params: { size: "1024x1024", background: "transparent" },
   } as any);
   assert.equal(snapshot.requested_parameters["gpt.background"], "transparent");
-  assert.equal(Object.hasOwn(taskParameterInspectorParameters(snapshot), "gpt.background"), false);
+  assert.equal(taskParameterInspectorParameters(snapshot)["gpt.background"], "transparent");
 });
 
 test("GPT history inspector mirrors the visible Image editor controls", () => {

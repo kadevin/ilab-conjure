@@ -704,8 +704,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-793', html)
-        self.assertIn('/static/styles.css?v=runtime-789', html)
+        self.assertIn('/static/app.js?v=runtime-820', html)
+        self.assertIn('/static/styles.css?v=runtime-821', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -1694,7 +1694,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('id="gallerySearch"', html)
         self.assertNotIn('id="galleryButtons"', html)
         self.assertNotIn("gallery-picker-row", html)
-        self.assertRegex(html, r'<div class="panel-heading">\s*<h2[^>]*>参考输入（可选）</h2>\s*</div>')
+        self.assertRegex(html, r'<div class="panel-heading">\s*<h2[^>]*>参考输入（可选）</h2>\s*<button id="compactReferencesButton"[^>]*>[^<]*</button>\s*</div>')
         self.assertRegex(html, r'<div class="image-input-footer">[\s\S]*<div class="image-input-actions">[\s\S]*<button id="clearImagesButton"')
         self.assertRegex(html, r'<div class="image-input-footer">[\s\S]*id="recentAssetDock"[\s\S]*id="recentAssetList"')
         self.assertRegex(html, r'<div class="image-gallery-column">[\s\S]*id="quickGalleryDock"[\s\S]*id="galleryManagePanel"')
@@ -1966,11 +1966,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"\.ratio-group\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)"
             r"[^}]*grid-template-rows:\s*repeat\(2,\s*var\(--compact-settings-segment-height\)\)",
         )
-        self.assertRegex(
-            top_level,
-            r"\.mode-settings-slot\s*\{[^}]*--mode-settings-stable-height:\s*clamp\("
-            r"[\s\S]*77px,[\s\S]*144px",
-        )
+        self.assertNotIn("--mode-settings-stable-height", responsive)
         self.assertNotRegex(
             top_level,
             r"\.(?:orientation|resolution|ratio|quantity|quality|moderation)-field\s*\{[^}]*grid-row",
@@ -1983,10 +1979,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             top_level,
             r"\.quantity-quality-row\s*\{[^}]*display:\s*contents",
         )
-        self.assertRegex(
+        self.assertNotRegex(
             narrow,
-            r"\.mode-specific-settings\s*\{[^}]*grid-template-columns:\s*"
-            r"minmax\(0,\s*1fr\)\s+minmax\(0,\s*1fr\)",
+            r"#promptFidelityField\s*\{[^}]*grid-column:\s*2\s*/\s*3",
         )
         self.assertRegex(
             narrow,
@@ -1996,10 +1991,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(
             narrow,
             r"--custom-size-mode-card-height:\s*clamp\(\s*105px,\s*calc\(14\.76dvh\s*-\s*8\.4px\),\s*154px",
-        )
-        self.assertRegex(
-            narrow,
-            r"--mode-settings-stable-height:\s*clamp\(\s*48px,\s*calc\(15\.96dvh\s*-\s*74\.6px\),\s*102px",
         )
         self.assertRegex(
             compact,
@@ -2392,7 +2383,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('class="settings-modal-actions settings-status-only"', html)
         self.assertNotIn('id="apiMode"', html)
         self.assertIn('id="generationProviderSettingsButton"', html)
-        self.assertIn('id="apiDirectSettingsButton"', html)
+        self.assertNotIn('id="apiDirectSettingsButton"', html)
         self.assertIn('class="model-tool-row"', html)
         self.assertIn('id="webSearchField"', html)
         self.assertIn('id="webSearch"', html)
@@ -2477,10 +2468,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn("apiMode: document.querySelector", script)
         self.assertIn("apiProvider: document.querySelector", script)
         self.assertIn("generationProviderSelect: document.querySelector", script)
-        self.assertIn("apiDirectSettingsButton: document.querySelector", script)
         self.assertIn("webSearch: document.querySelector", script)
         self.assertIn("webSearchField: document.querySelector", script)
-        self.assertIn('apiDirectSettingsButton?.addEventListener("click", () => call(methods, "openApiSettingsModal"))', script)
         self.assertIn("apiProviderName: document.querySelector", script)
         self.assertIn("apiProviderSection: document.querySelector", script)
         self.assertIn("apiProviderSearch: document.querySelector", script)
@@ -2512,8 +2501,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('classList.toggle("hidden", !searchVisible)', provider_list_source)
         self.assertIn("apiProviderMatchesSearch", provider_list_source)
         self.assertIn("scrollActiveApiProviderCardIntoView", provider_list_source)
-        self.assertIn("grid.scrollTo", provider_list_source)
-        self.assertIn("Math.floor(maxScrollTop / rowStep) * rowStep", provider_list_source)
+        self.assertIn("panel.scrollTo", provider_list_source)
+        self.assertIn('closest<HTMLElement>(".system-settings-section")', provider_list_source)
         self.assertNotIn("scrollIntoView", provider_list_source)
         self.assertIn("apiProviderMatchesSearch(provider, searchQuery)", provider_source)
         self.assertIn('translate("apiSettings.noProviderSearchResults")', provider_source)
@@ -2550,11 +2539,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function selectCodexMode", script)
         self.assertIn("function queueApiSettingsAutosave", script)
         self.assertRegex(provider_source, r"function deleteApiProvider\(\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*function confirmDeleteApiProvider")
-        self.assertRegex(provider_source, r"function selectApiProvider\(providerId[^)]*\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*function editApiProvider")
+        self.assertRegex(provider_source, r"function selectApiProvider\(providerId[^)]*\)[\s\S]*queueApiSettingsAutosave\(\{ silent: true \}\);[\s\S]*function editApiProvider")
         self.assertRegex(provider_source, r"function reorderApiProviders\(orderedIds[^)]*\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*async function saveApiProviderEdit")
         self.assertIn("const sortFocusId = autoSave ? focusedApiProviderSortId()", provider_source)
         self.assertRegex(provider_source, r"populateApiSettingsForm\(\);\s*focusApiProviderSortHandle\(sortFocusId\);")
-        self.assertIn('void saveApiSettings({ auto: true })', script)
+        self.assertIn('void saveApiSettings({ auto: true, silent: options.silent })', script)
         self.assertIn('translate("apiSettings.autoSaving")', script)
         self.assertIn('translate("apiSettings.autoSaved")', script)
         self.assertIn("codexModeLabel(currentCodexMode())", script)
@@ -2665,11 +2654,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.api-provider-detail-actions \.ghost-button,\s*\.api-provider-detail-actions \.danger-button,[\s\S]*height:\s*40px")
         self.assertRegex(styles, r"\.api-provider-editor-actions \.ghost-button,\s*\.api-provider-editor-actions \.run-button\s*\{[^}]*border-radius:\s*8px")
         self.assertRegex(styles, r"\.api-provider-choice-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)")
-        self.assertNotRegex(styles, r"\.api-provider-choice-grid\s*\{[^}]*max-height:")
-        self.assertRegex(styles, r"\.api-provider-choice-grid\.is-long-list\s*\{[^}]*max-height:\s*min\(320px,\s*38vh\)")
-        self.assertRegex(styles, r"\.api-provider-choice-grid\.is-long-list\s*\{[^}]*overflow-y:\s*auto")
-        self.assertRegex(styles, r"\.api-provider-choice-grid\.is-long-list\s*\{[^}]*overflow-x:\s*hidden")
-        self.assertRegex(styles, r"\.api-provider-choice-grid\.is-long-list\s*\{[^}]*overscroll-behavior:\s*contain")
+        self.assertNotRegex(styles, r"\.api-provider-choice-grid(?:\.is-long-list)?\s*\{[^}]*(?:max-height:|overflow-y:\s*auto)")
         self.assertRegex(styles, r"\.api-provider-search-empty\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"\.api-provider-section\.editing\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)")
@@ -2755,9 +2740,19 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.api-provider-sort-drag-preview\s*\{[^}]*will-change:\s*transform")
         self.assertRegex(styles, r"@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.api-provider-sort-row\.is-dragging")
         self.assertNotIn(".api-provider-sort-button", styles)
-        self.assertRegex(styles, r"\.model-tool-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(104px,\s*max-content\)")
+        self.assertRegex(styles, r"\.model-tool-row\s*\{[^}]*flex-wrap:\s*wrap")
         self.assertIn(".web-search-toggle", styles)
         self.assertIn(".web-search-field.is-disabled", styles)
+        for control_id, label_id in (("webSearch", "webSearchLabel"), ("transparentBackground", "transparentBackgroundLabel")):
+            self.assertRegex(
+                html,
+                rf'<label class="web-search-toggle"[^>]*>\s*<span id="{label_id}"[^>]*>[^<]+</span>\s*'
+                rf'<input id="{control_id}"[^>]*aria-labelledby="{label_id}"[^>]*>\s*'
+                r'<span class="web-search-toggle-track" aria-hidden="true"></span>\s*</label>',
+            )
+        self.assertNotIn('data-i18n="output.webSearchToggle"', html)
+        self.assertIn(".web-search-toggle:has(input:focus-visible)", styles)
+        self.assertRegex(styles, r"\.api-direct-settings-notice\s*\{[^}]*border:\s*1px solid var\(--line\)")
         self.assertIn(".api-settings-feedback.ok", styles)
         self.assertIn(".api-settings-feedback.error", styles)
         self.assertIn(".api-settings-feedback.running", styles)
@@ -2958,14 +2953,16 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('DEFAULT_RATIO = "1:1"', script)
         self.assertIn('DEFAULT_ORIENTATION = "square"', script)
         self.assertIn("syncRatioAndOrientation", script)
-    def test_background_control_is_removed_and_quantity_sits_with_quality(self) -> None:
+    def test_transparent_background_toggle_is_next_to_search_and_quantity_stays_with_quality(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertNotIn('id="background"', html)
+        self.assertIn('id="background" type="hidden" value="auto"', html)
+        self.assertNotIn("transparencyHint", html)
         self.assertNotIn("<span>背景</span>", html)
-        self.assertNotIn("els.background", script)
+        self.assertIn("els.background", script)
+        self.assertRegex(html, r'class="generation-output-options"[\s\S]*id="webSearchField"[\s\S]*id="transparentBackground"')
         self.assertNotIn('form.append("background"', script)
         self.assertRegex(html, r'class="field-pair full-width quantity-quality-row"[\s\S]*id="quality"[\s\S]*id="quantityGroup"')
         self.assertRegex(styles, r"\.field-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*1fr\)")
@@ -3579,7 +3576,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("shouldCloseLightboxFromClick(event.target, historyLightboxEl!)", shared_source)
         self.assertIn("showLightboxShortcutHint", shared_source)
         self.assertIn("const wasActive = isHistoryLightboxActive();", shared_source)
-        self.assertRegex(shared_source, r"if \(!wasActive\) \{\s*showLightboxShortcutHint")
+        self.assertRegex(shared_source, r"if \(!wasActive\) \{\s*if \(!window.matchMedia\([^\n]+\)\.matches\) \{\s*showLightboxShortcutHint")
         self.assertIn("openMainTaskLightboxByDirection", selection_source)
         self.assertIn("onTaskNavigate: openMainTaskLightboxByDirection", selection_source)
         self.assertIn('onTaskNavigate: (direction, context) => legacyMethod("openMainTaskLightboxByDirection", direction, context)', preview_source)
@@ -3783,8 +3780,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-793', html)
-        self.assertIn('/static/styles.css?v=runtime-789', html)
+        self.assertIn('/static/app.js?v=runtime-820', html)
+        self.assertIn('/static/styles.css?v=runtime-821', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4029,8 +4026,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             script,
             r"function drawEditorArrowOnContext\(ctx, start, end\)[\s\S]*ctx\.lineTo\(geometry\.shaftEnd\.x, geometry\.shaftEnd\.y\);[\s\S]*ctx\.stroke\(\);",
         )
-        self.assertIn('els.imageEditorClose?.addEventListener("click", closeImageEditor)', script)
-        self.assertIn('els.imageEditorCancel?.addEventListener("click", closeImageEditor)', script)
+        self.assertIn('els.imageEditorClose?.addEventListener("click", () => closeImageEditor())', script)
+        self.assertIn('els.imageEditorCancel?.addEventListener("click", () => closeImageEditor())', script)
         self.assertIn('els.imageEditorSave?.addEventListener("click", saveImageEdit)', script)
         self.assertIn('els.imageEditorUndo?.addEventListener("click", undoImageEdit)', script)
         self.assertIn('els.imageEditorRedo?.addEventListener("click", redoImageEdit)', script)
@@ -4235,8 +4232,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-793", html)
-        self.assertIn("/static/styles.css?v=runtime-789", html)
+        self.assertIn("/static/app.js?v=runtime-820", html)
+        self.assertIn("/static/styles.css?v=runtime-821", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

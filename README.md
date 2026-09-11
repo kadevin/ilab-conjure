@@ -65,6 +65,7 @@ API 中转站可分别绑定 GPT Image 2、GPT Image 2.5 Flare 和 Sunburst，�
 - 历史任务可收藏并添加多个标签，也可按收藏、标签或无标签筛选；最多可一次整理 300 个已选任务。
 - 单个或多个历史任务可导出成一个 ZIP，支持仅图片或图片＋提示词；每张图优先附带自己的优化后提示词，没有时回退到任务原提示词。
 - 生成页与历史库共用顶部工具栏、小兔子 Logo、返回入口和跟随系统／浅色／深色主题偏好。
+- GPT Image 2、2.5 Flare / Sunburst 可在联网搜索旁开启透明背景，支持 PNG / WebP；Codex 使用提示词兼容，API 模型绑定可选择原生参数或提示词兼容。结果会检测真实透明像素，未实现透明时保留图片并提示，不自动重新生成。
 - Codex Responses 和 API Responses 生图可选启用联网搜索；生成页和历史库搜索支持提示词与任务 ID，并可命中历史任务。
 - 单任务多图输出、部分失败处理和失败重试。
 - 公用图库、最近参考图、颜色 chip、提示词片段 chip 和提示词模板。
@@ -139,7 +140,7 @@ Start WebUI.bat
 手动启动：
 
 ```bash
-.venv/bin/python -m codex_image.webui.server codex_image.webui.app:app --host 127.0.0.1 --port 8787 --no-access-log
+.venv/bin/python -m codex_image.webui.server codex_image.webui.app:app --port 8787 --no-access-log
 ```
 
 然后打开：
@@ -148,17 +149,24 @@ Start WebUI.bat
 http://127.0.0.1:8787/
 ```
 
+在 **系统设置 → 网络** 打开“允许局域网访问”，然后重启 WebUI 服务。
+同一局域网内的其他设备可以打开设置中显示的 `http://本机局域网IP:端口/`。
+无需登录，所有人共用任务、图库、供应商和队列，也可以修改设置、删除共享数据。
+此选项默认关闭，关闭后同样需要重启；保存不会中断当前任务。仅用于可信局域网。
+手动启动时请省略 `--host`，让设置决定监听地址；显式的 `--host 127.0.0.1`
+会保持仅本机监听。LAN 地址使用 HTTP，部分需要安全上下文的浏览器功能可能不可用。
+
 ## 应用包下载
 
 当前可用的标准包和一键包见 [下载 / Releases](RELEASES.md)，也可以直接打开
-[GitHub Release v0.8.6](https://github.com/kadevin/ilab-conjure/releases/tag/v0.8.6)。
+[GitHub Release v0.9.0](https://github.com/kadevin/ilab-conjure/releases/tag/v0.9.0)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.8.6.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.8.6.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.9.0.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.9.0.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.8.6.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.9.0.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的

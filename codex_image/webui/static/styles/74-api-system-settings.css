@@ -11,6 +11,58 @@
   max-width: 640px;
 }
 
+.lan-access-panel {
+  display: grid;
+  gap: 8px;
+  max-width: 640px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lan-access-toggle {
+  justify-content: space-between;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lan-access-toggle:has(input:disabled) {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.lan-access-help {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.lan-access-panel .settings-action-status {
+  margin: 0;
+  white-space: normal;
+}
+
+.lan-access-addresses {
+  display: grid;
+  gap: 8px;
+}
+
+.lan-access-addresses[hidden] {
+  display: none;
+}
+
+.lan-access-address {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.lan-access-address .control {
+  min-width: 0;
+}
+
 .network-request-policy-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -312,8 +364,11 @@
   background: color-mix(in srgb, var(--surface-soft) 82%, transparent);
 }
 
-.provider-binding-card legend {
-  padding: 0 6px;
+.provider-binding-summary {
+  padding: 4px 0;
+  min-height: 32px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
   color: var(--text);
   font-size: 12px;
   font-weight: 700;
@@ -414,6 +469,7 @@
 }
 
 .api-provider-section {
+  flex: 0 0 auto;
   min-width: 0;
   display: grid;
   gap: 8px;
@@ -497,16 +553,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   align-items: stretch;
-}
-
-.api-provider-choice-grid.is-long-list {
-  max-height: min(320px, 38vh);
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 4px;
-  scrollbar-gutter: stable;
-  scrollbar-color: color-mix(in srgb, var(--primary) 55%, transparent) transparent;
 }
 
 .api-provider-section.editing {
@@ -1280,6 +1326,17 @@ body.api-provider-sort-dragging * {
   padding-top: 0;
 }
 
+#apiSettingsActions {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+#apiSettingsActions:has(.settings-action-status:empty) {
+  display: none;
+}
+
 .settings-action-status {
   flex: 1 1 auto;
   min-width: 0;
@@ -1352,3 +1409,10 @@ body.api-provider-sort-dragging * {
     transition: none;
   }
 }
+
+.provider-binding-card[open] > .provider-binding-grid { margin-top: 12px; }
+.provider-binding-summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+.api-provider-editor .api-base-url-field,
+.api-provider-editor .api-key-field { grid-column: 1 / -1; grid-row: auto; }
+
+.provider-binding-grid .provider-binding-remote-model { grid-column: 1 / -1; }

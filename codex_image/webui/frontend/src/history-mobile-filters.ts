@@ -13,7 +13,7 @@ export function initializeHistoryMobileFilters({
 }: HistoryMobileFiltersOptions): void {
   if (!page || !sidebar || !trigger || !backdrop) return;
 
-  const mobileQuery = window.matchMedia("(max-width: 760px)");
+  const mobileQuery = window.matchMedia("(max-width: 760px), (max-width: 950px) and (max-height: 500px) and (pointer: coarse)");
 
   const sync = () => {
     const open = mobileQuery.matches && page.classList.contains("history-filters-open");
@@ -38,6 +38,7 @@ export function initializeHistoryMobileFilters({
     setOpen(!page.classList.contains("history-filters-open"));
   });
   backdrop.addEventListener("click", () => setOpen(false, true));
+  sidebar.querySelector(".history-filters-close")?.addEventListener("click", () => setOpen(false, true));
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || !page.classList.contains("history-filters-open")) return;
     event.preventDefault();

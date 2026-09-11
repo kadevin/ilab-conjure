@@ -287,3 +287,11 @@ test("model changes follow defaults across consecutive selections while preservi
   assert.equal(remoteModelAfterSelection("  ", "gpt-image-2", "gpt-image-2.5-flare"), "gpt-image-2.5-flare");
   assert.equal(remoteModelAfterSelection("vendor/custom", "gpt-image-2", "gpt-image-2.5-flare"), "vendor/custom");
 });
+
+test("transparent compatibility survives provider copies and protocol changes per binding", () => {
+  const binding = { ...bindingFromProtocol("b", "gpt-image-2.5-flare", "custom", "openai_images"), transparency_mode: "prompt" as const };
+  assert.equal(normalizeProviderBindings([binding], "copy")[0].transparency_mode, "prompt");
+  assert.equal(bindingForProtocolSelection(binding, binding.canonical_model_id, "custom", "openai_responses", true, ["generate", "edit"]).transparency_mode, "prompt");
+  assert.equal(bindingForCompatibilitySelection(binding, "gpt-image-2.5-sunburst", "other", "openai_images", "standard", true, ["generate"]).transparency_mode, "prompt");
+  assert.equal(bindingForProtocolSelection(binding, "nano-banana-pro", "nano", "gemini", true, ["generate"]).transparency_mode, "native");
+});

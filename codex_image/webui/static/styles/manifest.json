@@ -15,5 +15,6 @@
   "75-gallery-card-image-editor.css",
   "76-user-config-backup.css",
   "80-utilities-responsive.css",
-  "90-history.css"
+  "90-history.css",
+  "95-touch.css"
 ]

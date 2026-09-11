@@ -475,21 +475,8 @@ button:disabled {
     grid-template-rows: repeat(2, var(--compact-settings-segment-height));
   }
 
-  .mode-settings-slot {
-    --mode-settings-stable-height: clamp(
-      77px,
-      calc(10.77dvh - 5.7px - var(--compact-mode-shell-adjustment, 0px)),
-      144px
-    );
-  }
-
   .mode-specific-settings {
     gap: var(--compact-settings-gap);
-  }
-
-  .model-tool-row {
-    grid-template-columns: minmax(0, 1fr) minmax(92px, 0.32fr);
-    gap: clamp(6px, calc(1.61dvh - 6.4px), 16px);
   }
 
   .web-search-toggle {
@@ -497,12 +484,6 @@ button:disabled {
     --compact-web-search-track-height: clamp(18px, calc(0.32dvh + 15.5px), 20px);
     --compact-web-search-knob-size: clamp(12px, calc(0.32dvh + 9.5px), 14px);
     --compact-web-search-shift: clamp(14px, calc(0.32dvh + 11.5px), 16px);
-    width: 100%;
-    min-width: 0;
-    height: var(--compact-settings-control-height);
-    grid-template-columns: var(--compact-web-search-track-width) minmax(0, max-content);
-    gap: clamp(6px, calc(0.32dvh + 3.5px), 8px);
-    padding: 0 clamp(8px, calc(0.32dvh + 5.5px), 10px);
   }
 
   .web-search-toggle-track {
@@ -517,43 +498,6 @@ button:disabled {
 
   .web-search-toggle input:checked + .web-search-toggle-track::before {
     transform: translateX(var(--compact-web-search-shift));
-  }
-
-  .web-search-toggle-text {
-    font-size: clamp(11px, calc(0.32dvh + 8.5px), 13px);
-  }
-
-  .api-direct-settings-notice {
-    min-height: 46px;
-  }
-
-  .api-direct-settings-control {
-    height: var(--compact-settings-control-height);
-    gap: clamp(8px, calc(0.32dvh + 5.5px), 10px);
-    padding: 0 6px 0 clamp(8px, calc(0.64dvh + 3.1px), 12px);
-  }
-
-  .api-direct-settings-header {
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .api-direct-settings-header span {
-    font-size: 11px;
-  }
-
-  .api-direct-settings-header strong {
-    min-height: 22px;
-    padding: 0 8px;
-    overflow: hidden;
-    font-size: 11px;
-    text-overflow: ellipsis;
-  }
-
-  .api-direct-settings-button {
-    height: 28px;
-    min-height: 28px;
   }
 
   #pixelPreview {
@@ -646,57 +590,10 @@ button:disabled {
       --custom-size-mode-card-height: clamp(105px, calc(14.76dvh - 8.4px), 154px);
     }
 
-    .mode-settings-slot {
-      --mode-settings-stable-height: clamp(48px, calc(15.96dvh - 74.6px), 102px);
-    }
-
     .mode-specific-settings {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      align-items: end;
       gap: clamp(6px, calc(0.32dvh + 3.5px), 8px);
     }
 
-    .model-tool-row {
-      grid-column: 1 / 2;
-      grid-row: 1 / 2;
-      grid-template-columns: minmax(0, 1fr) minmax(92px, 0.32fr);
-      gap: 6px;
-    }
-
-    #mainModelField,
-    #apiDirectSettingsNotice {
-      grid-column: 1 / 2;
-    }
-
-    .model-tool-row .web-search-field {
-      grid-column: 2 / 3;
-    }
-
-    #promptFidelityField {
-      grid-column: 2 / 3;
-      grid-row: 1 / 2;
-    }
-
-    #apiDirectSettingsNotice .api-direct-settings-control {
-      grid-template-columns: minmax(0, 1fr) 28px;
-      gap: 4px;
-      padding-inline: 6px;
-    }
-
-    #apiDirectSettingsNotice .api-direct-settings-header {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    #apiDirectSettingsNotice .api-direct-settings-header span,
-    #apiDirectSettingsNotice .api-direct-settings-button > span {
-      display: none;
-    }
-
-    #apiDirectSettingsNotice .api-direct-settings-button {
-      width: 28px;
-      min-width: 28px;
-      padding: 0;
-    }
   }
 }
 
@@ -835,7 +732,6 @@ button:disabled {
     --compact-prompt-panel-min: 124px;
     --compact-panel-shell-adjustment: clamp(0px, calc(53.462px - 3.846dvh), 15px);
     --compact-settings-shell-adjustment: clamp(0px, calc(14.256px - 1.026dvh), 4px);
-    --compact-mode-shell-adjustment: clamp(0px, calc(53.462px - 3.846dvh), 15px);
     --compact-image-shell-adjustment: clamp(0px, calc(42.769px - 3.077dvh), 12px);
     --compact-action-shell-adjustment: clamp(0px, calc(7.128px - 0.513dvh), 2px);
   }
@@ -1140,33 +1036,6 @@ button:disabled {
     grid-template-rows: auto auto;
   }
 
-  .model-tool-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .web-search-field {
-    grid-column: 1 / -1;
-    grid-row: auto;
-  }
-
-  .api-direct-settings-control {
-    height: auto;
-    min-height: 36px;
-    padding-block: 4px;
-  }
-
-  .api-direct-settings-header {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
-  }
-
-  .api-direct-settings-header strong {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 24px;
-  }
-
   .custom-size-row {
     grid-template-columns: max-content minmax(0, 1fr) 30px max-content minmax(0, 1fr);
     column-gap: 6px;
@@ -1184,5 +1053,96 @@ button:disabled {
     min-width: 0;
     width: 100%;
     padding-inline: 4px;
+  }
+}
+
+/* UX audit: preserve task access and make the next request explicit. */
+.compact-only, .compact-reference-toggle { display: none; }
+.execution-summary, .preview-source-label { color: var(--text-secondary); font-size: 12px; overflow-wrap: anywhere; }
+.execution-summary { margin: 6px 0; flex: 0 0 auto; }
+.preview-source-label { display: block; max-width: 100%; }
+.field-error, .history-recovery { color: var(--danger); font-size: 12px; overflow-wrap: anywhere; }
+.recovery-guidance { flex-basis: 100%; margin: 0; }
+.resource-manage-button { background: var(--surface-soft); color: var(--text-secondary); border: 1px solid var(--line); }
+.compact-task-drawer { position: fixed; inset: 0; z-index: 1200; background: var(--surface); padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.compact-task-drawer > button { align-self: flex-end; }
+.compact-task-drawer .task-history-shell { display: flex; flex-direction: column; align-items: stretch; padding: 0; min-height: 0; }
+.compact-task-drawer .sidebar-search, .compact-task-drawer .sidebar-content,
+.compact-task-drawer .task-history-library-slot, .compact-task-drawer .sidebar-footer { display: block; }
+.compact-task-drawer .task-active-list:not(.hidden), .compact-task-drawer .batch-toolbar:not(.hidden),
+.compact-task-drawer .task-history-anchor-rail:not(.hidden) { display: flex; }
+.compact-task-drawer .task-history-tools { width: 100%; }
+@media (max-width: 1180px) { .compact-only { display: inline-flex; } }
+@media (max-width: 600px), (max-height: 500px) {
+  .compact-reference-toggle { display: inline-flex; }
+  .image-panel.references-collapsed { min-height: 0; height: auto; flex: 0 0 auto; }
+  .image-panel.references-collapsed > .panel-heading { margin-bottom: 0; }
+  .references-collapsed .image-input-workspace { display: none; }
+  .image-panel .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .execution-summary { line-height: 1.5; }
+  .status-text.error { white-space: normal; overflow-wrap: anywhere; }
+}
+#compactReferencesButton[hidden], #restoreComposerDraft[hidden], #promptValidationError[hidden], #customSizeSuggestion[hidden] { display: none !important; }
+.controls-col .prompt-panel { min-height: calc(var(--compact-prompt-panel-height, 260px) + 60px); }
+.prompt-heading, .prompt-template-row { flex-shrink: 0; }
+.compact-task-drawer .task-history-batch-button:not(.hidden) { display: inline-flex; }
+.compact-task-drawer .task-history-tools .status-text { width: auto; max-width: none; text-align: left; flex: 1; }
+@container workspace (max-width: 899px) {
+  .controls-col .prompt-panel { flex: 0 0 auto; height: auto; min-height: 0; overflow: visible; }
+  .controls-col .prompt-compose { flex: 0 0 auto; min-height: 140px; }
+}
+@media (max-width: 600px) {
+  .brand-title { display: none; }
+  .prompt-heading { grid-template-columns: minmax(0, 1fr); }
+}
+.preview-heading { flex-wrap: wrap; }
+.preview-heading h2 { flex-shrink: 0; }
+.preview-source-label { order: 3; flex-basis: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reference-add-feedback { font-size: 12px; color: var(--text-secondary); overflow-wrap: anywhere; }
+
+/* Content minima take precedence over fitting every form into one viewport. */
+@container workspace (min-width: 900px) {
+  .dashboard { grid-auto-rows: minmax(min-content, auto); }
+  .controls-col, .preview-col { height: auto; }
+  .controls-col .image-panel { flex: 0 0 auto; min-height: 220px; }
+  .controls-col .image-input-workspace { --image-input-main-height: 132px; min-height: 176px; }
+  .controls-col .image-input-main { min-height: 132px; }
+  .controls-col .image-input-left, .controls-col .image-gallery-column { height: auto; min-height: 176px; }
+  .controls-col .image-gallery-column { grid-template-rows: minmax(132px, 1fr) var(--image-input-action-height); }
+  .controls-col .quick-gallery-dock, .controls-col .quick-gallery-list, .controls-col .quick-gallery-rail { min-height: 132px; }
+  .controls-col .prompt-panel { min-height: 300px; }
+  .controls-col .prompt-compose { min-height: 140px; }
+  .controls-col .prompt-box { min-height: 140px; }
+  .controls-col .upload-title { font-size: 13px; line-height: 1.4; }
+  .controls-col .upload-subtitle { font-size: 12px; line-height: 1.4; }
+}
+.compact-preview-jump { display: none; }
+@container workspace (max-width: 899px) {
+  .compact-preview-jump { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-self: flex-end; }
+}
+@media (max-width: 600px) {
+  .controls-col .prompt-compose { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .controls-col .prompt-box { font-size: 16px; min-height: 160px; height: 160px; }
+  .controls-col .prompt-compose .run-button { height: 48px; min-height: 48px; width: 100%; }
+  .prompt-template-row { grid-template-columns: minmax(0, 1fr); }
+  .prompt-template-entry { justify-content: stretch; }
+  .top-nav { height: auto; min-height: 104px; padding-block: 6px; }
+  .nav-actions { display: grid; grid-template-columns: 80px minmax(0, 1fr) 44px 44px; gap: 6px; overflow: visible; --top-nav-control-height: 44px; }
+  .nav-actions .generation-provider-control { order: 0; grid-row: 1; grid-column: 1 / 4; width: 100%; max-width: none; }
+  .nav-actions .queue-status-chip { order: 1; grid-row: 2; grid-column: 1; justify-self: stretch; padding-inline: 6px; min-width: 0; }
+  .nav-actions .task-notification-button { order: 0; grid-row: 1; grid-column: 4; }
+  .nav-actions .github-link { order: 3; grid-row: 2; grid-column: 4; width: 44px; }
+  .nav-actions .theme-switcher { order: 2; grid-row: 2; grid-column: 2 / 4; justify-self: stretch; }
+  .nav-actions .theme-option { flex: 1; min-height: 40px; }
+  .sidebar .brand-new-button, #compactTasksButton { min-height: 44px; }
+  .sidebar .brand-new-button { min-width: 44px; width: 44px; }
+}
+
+.controls-col .image-panel.references-collapsed { min-height: 0; }
+
+@media (max-width: 600px) {
+  .web-search-toggle,
+  .main-model-field .control {
+    min-height: 44px;
   }
 }

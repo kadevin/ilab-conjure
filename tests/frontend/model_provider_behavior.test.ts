@@ -604,3 +604,90 @@ test("health/auth races cannot override catalog provider availability", async ()
     (globalThis as any).fetch = previousFetch;
   }
 });
+
+test("transparent background controls preserve opaque history and restore JPEG availability", async () => {
+  const { setBackgroundControl, updateTransparencyControls, handleTransparentBackgroundChange } = await import("../../codex_image/webui/frontend/src/background-controls");
+  const previousWindow = (globalThis as any).window;
+  const field = () => ({ classList: new FakeClassList(), dataset: {} as Record<string, string>, textContent: "" });
+  const jpegOption = { disabled: false };
+  const jpegButton = { disabled: false, title: "" };
+  let saved = 0;
+  const els: any = {
+    background: { value: "auto" }, transparentBackground: { checked: false, disabled: false },
+    transparentBackgroundField: field(),
+    outputFormat: { value: "jpeg", querySelector: () => jpegOption, dispatchEvent: () => {} },
+    outputFormatGroup: { querySelector: () => jpegButton },
+  };
+  const state: any = { generationCatalog: null, selectedModelId: "gpt-image-2" };
+  (globalThis as any).window = { __codexImageWebUI: { els, state, methods: { saveCurrentModelParameterDraft: () => saved++ } } };
+  try {
+    setBackgroundControl("opaque");
+    updateTransparencyControls();
+    assert.equal(els.background.value, "opaque");
+    assert.equal(els.transparentBackground.checked, false);
+    els.transparentBackground.checked = true;
+    handleTransparentBackgroundChange();
+    assert.equal(els.background.value, "transparent");
+    assert.equal(els.outputFormat.value, "png");
+    assert.equal(jpegButton.disabled, true);
+    assert.equal(jpegOption.disabled, true);
+    assert.match(jpegButton.title, /PNG/);
+    assert.equal(saved, 1);
+    els.transparentBackground.checked = false;
+    handleTransparentBackgroundChange();
+    assert.equal(els.background.value, "auto");
+    assert.equal(els.outputFormat.value, "png");
+    assert.equal(jpegButton.disabled, false);
+    assert.equal(jpegOption.disabled, false);
+    setBackgroundControl("transparent");
+    state.generationCatalog = { models: [], providers: [] };
+    state.selectedModelId = "nano-banana-pro";
+    updateTransparencyControls();
+    assert.equal(els.transparentBackgroundField.classList.contains("hidden"), true);
+    assert.equal(jpegOption.disabled, false);
+    assert.equal(els.background.value, "transparent", "hidden GPT draft is preserved");
+  } finally {
+    (globalThis as any).window = previousWindow;
+  }
+});
+
+test("transparency badges use pixel evidence, never request metadata alone", async () => {
+  const { transparencyStatus, requestedTransparentBackground } = await import("../../codex_image/webui/frontend/src/transparency-status");
+  assert.equal(transparencyStatus(undefined, true), null);
+  assert.equal(transparencyStatus(false, false), null);
+  assert.ok(transparencyStatus(false, true)?.hint);
+  assert.ok(transparencyStatus(true, false)?.label);
+  assert.equal(requestedTransparentBackground({ background: "transparent" }), false);
+  assert.equal(requestedTransparentBackground({ params: { background: "transparent" } }), true);
+  assert.equal(requestedTransparentBackground({ generation_snapshot: { requested_parameters: { "gpt.background": "auto" } }, params: { background: "transparent" } }), false);
+});
+
+test("catalog refresh restores saved parameters before request preview, and honors an existing lock", async () => {
+  const { refreshGenerationCatalog } = await import("../../codex_image/webui/frontend/src/model-catalog");
+  const previous = { window: (globalThis as any).window, document: (globalThis as any).document, fetch: globalThis.fetch, localStorage: (globalThis as any).localStorage };
+  const order: string[] = [];
+  let locked = false;
+  (globalThis as any).window = { __codexImageWebUI: { state: {
+    generationCatalog: null, selectedModelId: "model-a", mode: "generate", lastProviderByModel: {}, lastProviderSelectionByModel: {}, parameterDraftsByModel: {}, parameterDraftVersionsByModel: {},
+  }, els: {}, methods: {
+    isOutputSettingsLocked: () => locked,
+    restoreCurrentModelParameterDraft: () => order.push("restore"),
+    updateRequestPreview: () => order.push("preview"),
+  } } };
+  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  (globalThis as any).localStorage = { setItem: () => {} };
+  globalThis.fetch = (async () => ({ ok: true, json: async () => catalog })) as any;
+  try {
+    await refreshGenerationCatalog();
+    assert.deepEqual(order, ["restore", "preview"]);
+    order.length = 0;
+    locked = true;
+    await refreshGenerationCatalog();
+    assert.deepEqual(order, ["preview"]);
+  } finally {
+    (globalThis as any).window = previous.window;
+    (globalThis as any).document = previous.document;
+    globalThis.fetch = previous.fetch;
+    (globalThis as any).localStorage = previous.localStorage;
+  }
+});

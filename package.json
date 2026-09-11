@@ -11,6 +11,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@noble/hashes": "2.4.0",
     "konva": "^10.3.0"
   }
 }

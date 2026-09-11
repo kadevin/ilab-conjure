@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .resource_limits import MAX_HTTP_REQUEST_BYTES
+from .lan_access import LanAccessRuntime
 
 
 _SAFE_METHODS: Final = frozenset({"GET", "HEAD"})
@@ -157,11 +158,13 @@ class LocalWebUISecurityMiddleware:
         app: ASGIApp,
         *,
         max_request_bytes: int = MAX_HTTP_REQUEST_BYTES,
+        lan_access: LanAccessRuntime | None = None,
     ) -> None:
         if max_request_bytes <= 0:
             raise ValueError("max_request_bytes must be positive")
         self.app = app
         self.max_request_bytes = int(max_request_bytes)
+        self.lan_access = lan_access or LanAccessRuntime()
 
     async def __call__(
         self,
@@ -176,9 +179,11 @@ class LocalWebUISecurityMiddleware:
         headers = Headers(scope=scope)
         host_header = headers.get("host", "")
         rejection: tuple[int, str] | None = None
-        if not _host_is_allowed(scope, host_header):
+        if not _parse_authority(host_header) or (
+            not self.lan_access.active and not _host_is_allowed(scope, host_header)
+        ):
             rejection = (400, "Invalid local WebUI host")
-        elif not _client_is_loopback(scope):
+        elif not self.lan_access.active and not _client_is_loopback(scope):
             rejection = (403, "WebUI access is limited to this device")
         elif scope["type"] == "http" and str(scope.get("method") or "").upper() not in _SAFE_METHODS:
             fetch_site = headers.get("sec-fetch-site", "").strip().lower()
