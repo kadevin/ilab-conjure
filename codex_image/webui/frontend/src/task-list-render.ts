@@ -920,6 +920,7 @@ function taskCardHtml(task: any) {
     <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}" data-task-swipe-enabled="${swipeEnabled ? "true" : "false"}" data-task-swipe-positive-action="${escapeHtml(swipeActions.positive || "")}" data-task-swipe-negative-action="${escapeHtml(swipeActions.negative || "")}" data-active-label="${activeLabel}" aria-keyshortcuts="${swipeKeyboardShortcuts}"${activeCurrent}${queueTaskData}>
       ${swipeActionsHtml}
       <div class="task-card-swipe-surface">
+        <button type="button" class="task-touch-menu ghost-button" data-task-context-trigger aria-label="${escapeHtml(translate("mobile.taskActions"))}" aria-haspopup="menu">···</button>
         ${batchSelect}
         ${image}
         <div class="task-info">

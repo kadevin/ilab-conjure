@@ -812,6 +812,7 @@ export function renderModelParameters(
   }
   els.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
   els.webSearchField?.classList.toggle("hidden", !legacyGpt);
+  els.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
   root.classList.toggle("hidden", legacyGpt);
   if (legacyGpt) root.replaceChildren();
   else renderInteractiveParameterDefinitionsInto(

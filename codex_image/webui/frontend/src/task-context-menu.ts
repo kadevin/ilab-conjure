@@ -30,6 +30,14 @@ function bindTaskContextMenuEvents() {
   taskContextMenuEventsBound = true;
 
   taskContextMenuRoots().forEach((root) => {
+    root.addEventListener("click", event => {
+      const trigger = (event.target as Element).closest<HTMLElement>("[data-task-context-trigger]");
+      const card = trigger?.closest<HTMLElement>(".task-card[data-task-id]");
+      if (!trigger || !card) return;
+      event.preventDefault(); event.stopPropagation();
+      const rect = trigger.getBoundingClientRect();
+      openTaskContextMenu(card, rect.left, rect.bottom);
+    }, true);
     root.addEventListener("contextmenu", handleTaskListContextMenu);
     root.addEventListener("keydown", handleTaskListContextMenuKeydown);
   });
@@ -108,14 +116,14 @@ function ensureTaskContextMenu() {
   taskContextMenuEl = document.createElement("div");
   taskContextMenuEl.className = "task-context-menu hidden";
   taskContextMenuEl.setAttribute("role", "menu");
-  taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
+  taskContextMenuEl.setAttribute("aria-label", translate("mobile.taskActions"));
   document.body.appendChild(taskContextMenuEl);
   return taskContextMenuEl;
 }
 
 function rerenderTaskContextMenuForLocale() {
   if (!taskContextMenuEl) return;
-  taskContextMenuEl.setAttribute("aria-label", translate("taskContext.menuLabel"));
+  taskContextMenuEl.setAttribute("aria-label", translate("mobile.taskActions"));
   if (taskContextMenuEl.classList.contains("hidden")) return;
   const taskId = String(taskContextMenuEl.dataset.taskContextTaskId || "");
   const task = taskById(taskId);

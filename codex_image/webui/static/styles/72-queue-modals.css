@@ -279,6 +279,10 @@
   overflow: hidden;
 }
 
+.system-settings-modal-panel.is-height-animating > .system-settings-section:not([hidden]) {
+  flex: 0 0 var(--system-settings-section-height);
+}
+
 .system-settings-modal-panel > .modal-heading {
   position: relative;
   align-items: center;

@@ -100,7 +100,7 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         self.assertIn('compatibilitySelect.dataset.bindingCompatibility = ""', source)
         self.assertRegex(
             source,
-            r"grid\.append\(modelField,\s*protocolField,\s*remoteField,\s*compatibilityField,\s*footer\)",
+            r"grid\.append\(modelField,\s*protocolField,\s*remoteField,\s*compatibilityField,\s*transparencyField,\s*footer\)",
         )
         self.assertRegex(
             self.styles,

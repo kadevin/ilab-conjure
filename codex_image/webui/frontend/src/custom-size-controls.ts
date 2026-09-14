@@ -1,3 +1,4 @@
+import { suggestLegalSize } from "./size-suggestion";
 import { getLegacyBridge } from "./state";
 import {
   DEFAULT_ORIENTATION,
@@ -548,6 +549,28 @@ export function updateCustomSize(): void {
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
   const message = isCustom ? customSizeValidationMessage() : "";
+  const previousError = els.customSizeHint?.textContent;
+  [els.customWidth, els.customHeight].forEach(input => {
+    input?.setAttribute("aria-invalid", String(Boolean(message)));
+    input?.setAttribute("aria-describedby", "customSizeHint");
+  });
+  if (!message && els.statusText?.textContent === previousError) { els.statusText.textContent = ""; els.statusText.classList.remove("error"); }
+  let suggestion = document.getElementById("customSizeSuggestion") as HTMLButtonElement | null;
+  if (!suggestion && els.customSizeHint) {
+    suggestion = document.createElement("button"); suggestion.id = "customSizeSuggestion"; suggestion.type = "button"; suggestion.className = "ghost-button text-sm";
+    els.customSizeHint.after(suggestion);
+  }
+  if (suggestion) {
+    suggestion.hidden = !message;
+    if (message) {
+      const next = suggestLegalSize(Number(els.customWidth?.value), Number(els.customHeight?.value));
+      suggestion.textContent = formatTranslation("ux.useSize", next);
+      suggestion.onclick = () => {
+        els.customWidth.value = String(next.width); els.customHeight.value = String(next.height);
+        updateCustomSize(); updatePixelPreview("custom"); updateRequestPreview(); saveCurrentModelParameterDraft();
+      };
+    }
+  }
   els.customSize?.classList.toggle("has-error", Boolean(message));
   if (els.customSizeHint) {
     els.customSizeHint.textContent = message || formatTranslation("output.customSizeHint");

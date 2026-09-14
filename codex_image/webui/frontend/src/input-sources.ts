@@ -235,6 +235,7 @@ function clipboardPasteShortcutLabel() {
 }
 
 function clipboardReadFallbackMessage(prefix: string) {
+  if (window.matchMedia?.("(pointer: coarse), (max-width: 600px)").matches) return `${prefix} ${translate("mobile.pasteHint")}`;
   return formatTranslation("inputSource.focusPasteFallback", {
     prefix,
     shortcut: clipboardPasteShortcutLabel(),
@@ -243,6 +244,10 @@ function clipboardReadFallbackMessage(prefix: string) {
 
 function focusImagePasteTarget() {
   const els = getEls();
+  if (window.matchMedia?.("(pointer: coarse), (max-width: 600px)").matches) {
+    els.promptEditor?.focus();
+    return;
+  }
   els.imageUploadSource?.focus({ preventScroll: true });
 }
 
@@ -609,6 +614,35 @@ async function restoreHistoryReferenceHandoff() {
 
 function bindInputSourceEvents() {
   const els = getEls();
+  if (els.imageUploadSource) {
+    const actions = document.createElement("div");
+    actions.className = "mobile-input-actions";
+    const photos = document.createElement("button");
+    const files = document.createElement("button");
+    const photoInput = document.createElement("input");
+    photoInput.type = "file"; photoInput.accept = "image/*"; photoInput.multiple = true; photoInput.hidden = true;
+    for (const button of [photos, files]) { button.type = "button"; button.className = "ghost-button"; }
+    const label = () => {
+      photos.textContent = translate("mobile.photos");
+      files.textContent = translate("mobile.files");
+    };
+    label(); document.addEventListener(LOCALE_CHANGE_EVENT, label);
+    photos.addEventListener("click", () => photoInput.click());
+    files.addEventListener("click", () => els.imageInput?.click());
+    photoInput.addEventListener("change", () => {
+      addImageFiles(Array.from(photoInput.files || []));
+      photoInput.value = "";
+    });
+    actions.append(photos, files, photoInput);
+    els.imageUploadSource.after(actions);
+  }
+  els.imageUploadSource?.addEventListener("keydown", (event: KeyboardEvent) => {
+    if (event.target !== els.imageUploadSource || event.repeat) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      els.imageInput?.click();
+    }
+  });
   els.pasteClipboardButton?.addEventListener("click", pasteClipboardImages);
   document.addEventListener("paste", handleImagePaste);
   els.imageUploaderGrid?.addEventListener("dragenter", handleImageDragEnter);

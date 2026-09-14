@@ -118,4 +118,4 @@ if webui_is_ready; then
 fi
 
 open_when_ready &
-exec "$PYTHON_BIN" -m codex_image.webui.server portable_webui_app:app --host 127.0.0.1 --port "$PORT" --no-access-log --timeout-graceful-shutdown 5 >> "$LOG_FILE" 2>&1
+exec "$PYTHON_BIN" -m codex_image.webui.server portable_webui_app:app --port "$PORT" --no-access-log --timeout-graceful-shutdown 5 >> "$LOG_FILE" 2>&1

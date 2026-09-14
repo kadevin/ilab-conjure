@@ -94,9 +94,11 @@ def cleanup_macos_runtime(runtime_dir: Path) -> None:
     framework = runtime_dir / "Python.framework" / "Versions"
     if not framework.is_dir():
         return
+    headers_links = [framework.parent / "Headers"]
     for version_dir in framework.iterdir():
         if not version_dir.is_dir() or version_dir.name == "Current":
             continue
+        headers_links.append(version_dir / "Headers")
         for relative in ("include", "share"):
             _remove(version_dir / relative, root=runtime_dir)
         for stdlib in (version_dir / "lib").glob("python3.*"):
@@ -109,6 +111,12 @@ def cleanup_macos_runtime(runtime_dir: Path) -> None:
             ("pip*", "idle*", "2to3*", "pydoc*"),
             root=runtime_dir,
         )
+
+    # Pruning include/ leaves framework Headers aliases dangling. Remove only
+    # broken aliases, from the version outwards; retain valid runtime/SDK links.
+    for headers in reversed(headers_links):
+        if headers.is_symlink() and not headers.exists():
+            _remove(headers, root=runtime_dir)
 
 
 def cleanup_windows_runtime(runtime_dir: Path) -> None:

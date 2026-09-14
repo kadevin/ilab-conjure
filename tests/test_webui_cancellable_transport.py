@@ -198,6 +198,7 @@ class WebUICancellableTransportTests(unittest.TestCase):
             provider_url = f"http://127.0.0.1:{server.server_port}/v1"
             app = create_app(
                 output_root=root,
+                network_egress_settings_path=root / "network-settings.json",
                 client_factory=lambda: OpenAIImagesImageClient(
                     api_key="test-key",
                     base_url=provider_url,

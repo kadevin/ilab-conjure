@@ -1,3 +1,4 @@
+import { translate } from "./i18n";
 import {
   closeHistoryLightbox,
   openHistoryLightbox,
@@ -35,12 +36,25 @@ function syncActiveLightboxUrls(urls: string[]): void {
   syncHistoryLightboxUrls(urls);
 }
 
-async function addToInput(url: string): Promise<void> {
+async function addToInput(url: string, anchor?: HTMLButtonElement): Promise<void> {
+  if (anchor?.disabled) return;
+  let feedback = anchor?.parentElement?.querySelector<HTMLElement>(".reference-add-feedback");
+  if (anchor && !feedback) {
+    feedback = document.createElement("span"); feedback.className = "reference-add-feedback"; feedback.setAttribute("role", "status"); anchor.after(feedback);
+  }
+  if (anchor) { anchor.disabled = true; anchor.setAttribute("aria-busy", "true"); }
+  if (feedback) feedback.textContent = translate("ux.addingReference");
   try {
+    legacyMethod("setStatus", translate("ux.addingReference"), "");
     const file = await legacyMethod("imageFileFromUrl", url, "preview-" + Date.now());
-    legacyMethod("addImageFiles", [file]);
+    await legacyMethod("addImageFiles", [file]);
+    legacyMethod("setStatus", translate("ux.referenceAdded"), "ok");
+    if (feedback) feedback.textContent = translate("ux.referenceAdded");
   } catch (error) {
-    console.error("Failed to add image to input", error);
+    legacyMethod("setStatus", `${translate("ux.referenceFailed")} ${error instanceof Error ? error.message : ""}`, "error");
+    if (feedback) feedback.textContent = translate("ux.referenceFailed");
+  } finally {
+    if (anchor) { anchor.disabled = false; anchor.removeAttribute("aria-busy"); }
   }
 }
 

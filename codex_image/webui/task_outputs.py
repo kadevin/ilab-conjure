@@ -17,6 +17,7 @@ from .thumbnails import (
     SIDEBAR_THUMBNAIL_MAX_EDGE,
     create_image_thumbnail,
     create_sidebar_thumbnail,
+    inspect_image_transparency,
     thumbnail_needs_refresh,
 )
 
@@ -335,8 +336,11 @@ def _output_url(storage: TaskStorage, path: Path) -> str:
     return f"/outputs/{quote(storage.output_file(path), safe='/')}"
 
 
-def _output_thumbnail_fields(storage: TaskStorage, task_id: str, output_index: int, output_path: Path) -> dict[str, str]:
+def _output_thumbnail_fields(storage: TaskStorage, task_id: str, output_index: int, output_path: Path) -> dict[str, Any]:
+    has_transparency = inspect_image_transparency(output_path)
     thumbnail_path = storage.output_thumbnail_path(task_id, output_index)
+    if has_transparency:
+        thumbnail_path = thumbnail_path.with_suffix(".webp")
     sidebar_thumbnail_path = storage.output_sidebar_thumbnail_path(task_id, output_index)
     if thumbnail_needs_refresh(output_path, thumbnail_path):
         create_image_thumbnail(output_path, thumbnail_path)
@@ -346,7 +350,9 @@ def _output_thumbnail_fields(storage: TaskStorage, task_id: str, output_index: i
         max_edge=SIDEBAR_THUMBNAIL_MAX_EDGE,
     ):
         create_sidebar_thumbnail(output_path, sidebar_thumbnail_path)
-    fields: dict[str, str] = {}
+    fields: dict[str, Any] = {}
+    if has_transparency is not None:
+        fields["has_transparency"] = has_transparency
     if thumbnail_path.exists():
         fields.update(
             {

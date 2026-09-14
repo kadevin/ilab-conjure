@@ -369,7 +369,7 @@ jobs:
           - macOS Apple Silicon：ilab-gpt-conjure_macos_portable_arm64_${release_version}.zip
           - macOS Intel：ilab-gpt-conjure_macos_portable_x64_${release_version}.zip
 
-          包含标准更新助手的 macOS App 可在用户确认后校验 signed latest.json 与 DMG SHA256，自动覆盖并重新启动；旧版 macOS App 需要先手动安装首个支持版本，Windows 标准 ZIP 仍手动覆盖。portable 包继续使用原有自动替换更新器。macOS 包暂未签名、未 notarize。如果 macOS 拦截启动，可以右键或 Control-click App，选择 Open；portable zip 仍可对解压目录执行 xattr -dr com.apple.quarantine。
+          包含标准更新助手的 macOS App 可在用户确认后校验 signed latest.json 与 DMG SHA256，自动覆盖并重新启动；旧版 macOS App 需要先手动安装首个支持版本，Windows 标准 ZIP 仍手动覆盖。portable 包继续使用原有自动替换更新器。macOS 包尚未使用 Apple Developer ID 签名，也未 notarize。如果 macOS 拦截启动，可以右键或 Control-click App，选择 Open；portable zip 仍可对解压目录执行 xattr -dr com.apple.quarantine。
           EOF
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --notes-file release-notes.md

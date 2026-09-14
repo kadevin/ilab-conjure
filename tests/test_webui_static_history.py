@@ -1481,7 +1481,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn("lightboxZoomChromeHtml", source)
         self.assertIn("showLightboxShortcutHint", source)
         self.assertIn("const wasActive = isHistoryLightboxActive();", source)
-        self.assertRegex(source, r"if \(!wasActive\) \{\s*showLightboxShortcutHint")
+        self.assertRegex(source, r"if \(!wasActive\) \{\s*if \(!window.matchMedia\([^\n]+\)\.matches\) \{\s*showLightboxShortcutHint")
         self.assertNotIn("historyLightboxState.scale !== 1", source)
         self.assertNotIn("event.target === historyLightboxEl", source)
 
@@ -1505,7 +1505,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
               module, exports: module.exports, console, Promise, Set, Map, Array,
               require(name) {{
                 if (name === "./i18n") return {{ translate: (key) => key }};
-                if (name === "./lightbox-controls") return {{}};
+                if (name === "./lightbox-controls" || name === "./lightbox-touch") return {{}};
                 if (name === "./webui-utils") return {{ escapeHtml: (value) => String(value) }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
@@ -1709,8 +1709,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('class="history-filter-heading-icon"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeFilters"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeDetail"', html)
-        self.assertIn('/static/styles.css?v=runtime-789', html)
-        self.assertIn('/static/history.js?v=history-116', html)
+        self.assertIn('/static/styles.css?v=runtime-821', html)
+        self.assertIn('/static/history.js?v=history-139', html)
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*height:\s*100dvh")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*--history-sidebar-width:\s*280px")
@@ -2426,6 +2426,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'uniquePromptTexts',
             'normalizePromptForCompare',
             'const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised"',
+            'if (task.generation_snapshot?.transparency_instruction)',
+            'addPanel("submitted", translate("history.promptSubmittedActual"), submittedPrompt)',
             'translate("history.outputRevisedPromptNotice")',
             'history-prompt-panel-header',
             'data-history-copy-output-prompt-index',
@@ -2464,9 +2466,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn('historyContextButton("copy-ids"', source)
         self.assertNotIn('els.sentinel?.addEventListener("click"', source)
         write_clipboard_body = _typescript_function_body(source, "writeClipboardText")
-        self.assertIn("await navigator.clipboard.writeText(text)", write_clipboard_body)
-        self.assertIn("} catch {", write_clipboard_body)
-        self.assertIn('document.execCommand("copy")', write_clipboard_body)
+        self.assertIn("return copyTextToClipboard(text)", write_clipboard_body)
+        clipboard_source = Path("codex_image/webui/frontend/src/clipboard-text.ts").read_text(encoding="utf-8")
+        self.assertIn("await navigator.clipboard.writeText(text)", clipboard_source)
+        self.assertIn('document.execCommand?.("copy")', clipboard_source)
+        self.assertIn("selectable.readOnly = true", clipboard_source)
+        self.assertIn("if (!await writeClipboardText(text)) return", source)
 
         for marker in [
             '"history.homeAria": "返回 iLab CONJURE 生成页"',

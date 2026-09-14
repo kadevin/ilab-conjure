@@ -353,6 +353,7 @@ function openTaskDeleteConfirm(deleteButton: any, taskId: any) {
   const title = task.prompt || task.mode || taskId;
   openConfirmPopover(deleteButton, {
     title: translate("taskActions.deleteTitle"),
+    focusCancel: true,
     message: translate("taskActions.deleteMessage"),
     detail: title,
     confirmText: translate("action.delete"),

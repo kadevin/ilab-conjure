@@ -32,27 +32,17 @@ export function apiProviderMatchesSearch(provider: any, query: string): boolean 
 export function scrollActiveApiProviderCardIntoView(providerId: string, align: "center" | "nearest" = "center"): void {
   window.requestAnimationFrame(() => {
     const grid = providerChoiceGrid();
-    if (!grid?.classList.contains("is-long-list")) return;
+    const panel = grid?.closest<HTMLElement>(".system-settings-section");
+    if (!grid || !panel || panel.clientHeight === 0) return;
     const escapedId = CSS.escape(providerId);
     const card = grid.querySelector<HTMLElement>(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);
     if (!card) return;
-    const gridRect = grid.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
     const cardRect = card.getBoundingClientRect();
-    const cardTop = grid.scrollTop + cardRect.top - gridRect.top;
-    let targetTop = align === "center"
-      ? cardTop - Math.max(0, (grid.clientHeight - card.offsetHeight) / 2)
-      : Math.min(cardTop, Math.max(grid.scrollTop, cardTop + card.offsetHeight - grid.clientHeight));
-    if (align === "center") {
-      const rowGap = Number.parseFloat(window.getComputedStyle(grid).rowGap || "0") || 0;
-      const rowStep = card.offsetHeight + rowGap;
-      const maxScrollTop = Math.max(0, grid.scrollHeight - grid.clientHeight);
-      if (rowStep > 0) {
-        targetTop = Math.min(
-          Math.floor(Math.max(0, targetTop) / rowStep) * rowStep,
-          Math.floor(maxScrollTop / rowStep) * rowStep,
-        );
-      }
-    }
-    grid.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+    const cardTop = panel.scrollTop + cardRect.top - panelRect.top;
+    const targetTop = align === "center"
+      ? cardTop - Math.max(0, (panel.clientHeight - card.offsetHeight) / 2)
+      : Math.min(cardTop, Math.max(panel.scrollTop, cardTop + card.offsetHeight - panel.clientHeight));
+    panel.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
   });
 }

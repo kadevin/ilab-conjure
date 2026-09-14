@@ -84,7 +84,7 @@ declare global {
       },
     ) => void;
     closeLightbox?: () => void;
-    addToInput?: (url: string) => Promise<void>;
+    addToInput?: (url: string, anchor?: HTMLButtonElement) => Promise<void>;
   }
 }
 

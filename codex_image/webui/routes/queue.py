@@ -17,7 +17,8 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
     @app.get("/api/queue")
     async def get_queue() -> dict[str, Any]:
         h["ensure_queue_worker_running"]()
-        return queue_snapshot(ctx)
+        with app.state.state_sync_clock.capture() as sync:
+            return {**queue_snapshot(ctx), "sync": sync}
 
     @app.get("/api/events", response_model=None)
     async def events(request: Request, stream: bool = False) -> StreamingResponse:
@@ -45,20 +46,25 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
                 if await request.is_disconnected():
                     return
                 h["ensure_queue_worker_running"]()
-                queue = queue_snapshot(ctx)
-                queue_key = event_key(queue)
-                if queue_key == previous_queue_key:
-                    continue
+                with app.state.state_sync_clock.capture() as sync:
+                    queue = queue_snapshot(ctx)
+                    queue_key = event_key(queue)
+                    if queue_key == previous_queue_key:
+                        continue
 
-                current_task_ids = queued_or_running_task_ids(queue)
-                finished_events = task_events(ctx, previous_task_ids - current_task_ids)
-                yield sse_message(queue_event(queue, finished_events))
+                    current_task_ids = queued_or_running_task_ids(queue)
+                    finished_events = task_events(ctx, previous_task_ids - current_task_ids)
+                yield sse_message({**queue_event(queue, finished_events), "sync": sync})
                 for task_payload in finished_events:
-                    yield sse_message(task_payload)
+                    yield sse_message({**task_payload, "sync": sync})
                 previous_queue_key = queue_key
                 previous_task_ids = current_task_ids
 
-        return StreamingResponse(stream_events(), media_type="text/event-stream")
+        return StreamingResponse(
+            stream_events(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     @app.patch("/api/queue/reorder")
     def reorder_queue(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:

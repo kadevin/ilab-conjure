@@ -2,6 +2,7 @@ import { getEls } from "./dom";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge, getState } from "./state";
 import type { QueueState, RealtimePayload, WebUITask } from "./types";
+import { acceptQueueSnapshot, acceptTaskUpdate, type StateSyncVersion } from "./state-sync";
 
 const REALTIME_EVENTS_URL = "/api/events?stream=1";
 const QUEUE_DISPATCH_RESYNC_DELAY_MS = 1500;
@@ -88,9 +89,6 @@ async function resyncRealtimeState(): Promise<void> {
   const state = bridge.state;
   const shouldMigrateArchives = state.realtimeSnapshotNeedsArchiveMigration;
   await Promise.all([refreshQueue(), bridge.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives })]);
-  if (shouldMigrateArchives) {
-    state.realtimeSnapshotNeedsArchiveMigration = false;
-  }
 }
 
 function requestRealtimeResync(): Promise<void> {
@@ -132,34 +130,35 @@ export async function handleRealtimePayload(payload: RealtimePayload | null | un
   const bridge = getLegacyBridge();
   const state = bridge.state;
   if (payload?.type === "snapshot") {
-    applyQueueState(payload.queue);
+    applyQueueState(payload.queue, { sync: payload.sync });
     await bridge.methods.applyTasksSnapshot(payload.tasks || [], {
       migrateLegacyArchives: state.realtimeSnapshotNeedsArchiveMigration,
       ...(payload.task_groups ? { taskGroups: payload.task_groups } : {}),
+      sync: payload.sync,
     });
-    applyQueueTasks(payload.queue);
-    state.realtimeSnapshotNeedsArchiveMigration = false;
+    if (acceptQueueSnapshot(state, payload.sync)) applyQueueTasks(state.queue);
     return;
   }
   if (payload?.type === "queue") {
     const updatedTasks = payload.tasks || [];
-    applyQueueState(payload.queue, { deferTaskListRender: true });
-    await applyRealtimeTaskPayloads(updatedTasks);
-    applyQueueTasks(payload.queue);
+    applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync });
+    await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
+    if (acceptQueueSnapshot(state, payload.sync)) applyQueueTasks(state.queue);
     if (!updatedTasks.length && !queueTaskCount(payload.queue)) {
       bridge.methods.renderTasks?.({ preserveScroll: true });
     }
     return;
   }
   if (payload?.type === "task") {
-    await applyRealtimeTaskPayloads(payload.task ? [payload.task] : []);
+    await applyRealtimeTaskPayloads(payload.task ? [payload.task] : [], payload.sync);
   }
 }
 
-async function applyRealtimeTaskPayloads(tasks: WebUITask[]): Promise<void> {
+async function applyRealtimeTaskPayloads(tasks: WebUITask[], sync?: StateSyncVersion): Promise<void> {
   const bridge = getLegacyBridge();
   const state = bridge.state;
   for (const task of tasks) {
+    if (!acceptTaskUpdate(state, task, sync)) continue;
     const previousTask = state.tasks.find((item) => String(item.task_id) === String(task?.task_id));
     bridge.methods.notifyTaskUpdate?.(previousTask, task);
     await bridge.methods.applyTaskUpdate(task);
@@ -177,6 +176,7 @@ export async function refreshQueue(): Promise<void> {
     if (!response.ok) {
       throw new Error(data.detail || translate("queue.readFailed"));
     }
+    if (!acceptQueueSnapshot(state, data.sync)) return;
     state.queue = normalizeQueueState(data);
     renderQueue();
   } catch (error: unknown) {
@@ -203,10 +203,11 @@ export function invalidateQueueRequests(): void {
 
 export function applyQueueState(
   queue: QueueState | null | undefined,
-  { deferTaskListRender = false }: { deferTaskListRender?: boolean } = {},
+  { deferTaskListRender = false, sync }: { deferTaskListRender?: boolean; sync?: StateSyncVersion | undefined } = {},
 ): void {
   const state = getState();
-  invalidateQueueRequests();
+  if (!acceptQueueSnapshot(state, sync)) return;
+  if (!sync) invalidateQueueRequests();
   state.queue = normalizeQueueState(queue);
   renderQueue({ deferTaskListRender });
 }
@@ -295,6 +296,7 @@ export function jumpToActiveTaskGroup(): void {
   const bridge = getLegacyBridge();
   const state = bridge.state;
   const hasActiveTasks = Boolean((state.queue.running || []).length || (state.queue.waiting || []).length);
+  bridge.methods.openCompactTasks?.();
   if (!hasActiveTasks) return;
   bridge.methods.revealActiveTaskGroup?.();
 }

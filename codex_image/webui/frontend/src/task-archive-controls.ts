@@ -85,14 +85,25 @@ async function setTaskArchiveState(taskId: any, archived: any) {
   return data.task;
 }
 
-async function migrateLegacyArchivedTasks() {
+let legacyArchiveMigration: Promise<boolean> | null = null;
+
+function migrateLegacyArchivedTasks(): Promise<boolean> {
+  if (!legacyArchiveMigration) {
+    legacyArchiveMigration = migrateLegacyArchivedTasksOnce().finally(() => {
+      legacyArchiveMigration = null;
+    });
+  }
+  return legacyArchiveMigration;
+}
+
+async function migrateLegacyArchivedTasksOnce(): Promise<boolean> {
   const ids = state.legacyArchivedTaskIds.filter((taskId: any) => {
     const task = state.tasks.find((item) => String(item.task_id) === String(taskId));
     return task && !taskArchived(task);
   });
   if (!ids.length) {
     clearLegacyArchivedTasks();
-    return;
+    return true;
   }
 
   const results = await Promise.allSettled(ids.map((taskId: any) => setTaskArchiveState(taskId, true)));
@@ -107,6 +118,7 @@ async function migrateLegacyArchivedTasks() {
   if (!hasFailure) {
     clearLegacyArchivedTasks();
   }
+  return !hasFailure;
 }
 
 function renderArchiveButton() {

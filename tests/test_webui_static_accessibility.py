@@ -67,7 +67,12 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
                 "codex_image/webui/static/styles"
             ).glob("*.css")
         )
-        self.assertNotIn("color: var(--muted);", component_styles)
+        for selector, declarations in re.findall(r"([^{}]+)\{([^{}]*)\}", component_styles):
+            if "color: var(--muted);" in declarations:
+                self.assertTrue(
+                    all(":disabled" in part for part in selector.split(",")),
+                    f"Low-contrast muted text must be limited to disabled controls: {selector}",
+                )
 
         html = Path(
             "codex_image/webui/static/index.html"
@@ -76,7 +81,8 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
             html.index('id="pixelPreview"'):
             html.index('id="size"', html.index('id="pixelPreview"'))
         ]
-        self.assertIn("color: var(--primary-strong)", pixel_preview)
+        self.assertIn("color: var(--text-secondary)", pixel_preview)
+        self.assertIn("background: var(--surface-soft)", pixel_preview)
 
     def test_static_segmented_controls_announce_group_and_pressed_state(
         self,

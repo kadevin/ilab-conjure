@@ -44,6 +44,7 @@ function clearSystemSettingsHeightAnimation(panel: HTMLElement): void {
     systemSettingsHeightAnimationTimer = undefined;
   }
   panel.classList.remove("is-height-animating");
+  panel.style.removeProperty("--system-settings-section-height");
   panel.style.height = "";
 }
 
@@ -75,6 +76,9 @@ function animateSystemSettingsPanelHeight(panel: HTMLElement, beforeHeight: numb
   }
   systemSettingsHeightAnimationToken += 1;
   const token = systemSettingsHeightAnimationToken;
+  // Lay out the content at its destination size while only the outer shell resizes.
+  const section = panel.querySelector<HTMLElement>(".system-settings-section:not([hidden])");
+  if (section) panel.style.setProperty("--system-settings-section-height", `${section.getBoundingClientRect().height}px`);
   panel.classList.add("is-height-animating");
   panel.style.height = `${beforeHeight}px`;
   panel.getBoundingClientRect();
@@ -92,6 +96,7 @@ function animateSystemSettingsPanelHeight(panel: HTMLElement, beforeHeight: numb
     }
     panel.removeEventListener("transitionend", cleanup);
     panel.classList.remove("is-height-animating");
+    panel.style.removeProperty("--system-settings-section-height");
     panel.style.height = "";
   };
   panel.addEventListener("transitionend", cleanup);
@@ -126,10 +131,13 @@ export function setSystemSettingsTab(tab: any, options: { refresh?: boolean } = 
   });
   if (options.refresh === false) return;
   if (selected === "storage") maybeCall("refreshSettings");
-  if (selected === "network") maybeCall("refreshNetworkEgress");
+  if (selected === "network") {
+    maybeCall("refreshNetworkEgress");
+    maybeCall("refreshLanAccess");
+  }
   if (selected === "api") {
     maybeCall("setApiSettingsFeedback", "", "");
-    maybeCall("populateApiSettingsForm");
+    if (!getLegacyBridge().state.apiProviderEditingId) maybeCall("populateApiSettingsForm");
     maybeCall("updateModeSpecificSettings");
   }
   refreshSegmentedIndicators();

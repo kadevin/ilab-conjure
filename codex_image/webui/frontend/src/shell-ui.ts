@@ -1,5 +1,7 @@
 // @ts-nocheck
+import { preserveComposerDraft, markComposerBaseline } from "./composer-draft";
 import { getLegacyBridge } from "./state";
+import { setBackgroundControl } from "./background-controls";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { webAppDocumentTitle } from "./web-app-title";
 import {
@@ -65,7 +67,8 @@ function handleShellLocaleChange() {
   const current = String(els.statusText.textContent || "").trim();
   const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
   if (waitingLabels.includes(current)) {
-    setStatus(translate("status.waiting"), "");
+    markComposerBaseline();
+  setStatus(translate("status.waiting"), "");
   }
 }
 
@@ -293,11 +296,14 @@ function updateDocumentTitle() {
 
 function setStatus(message, type) {
   if (!els.statusText) return;
+  delete els.statusText.dataset.statusSource;
   els.statusText.textContent = message;
   els.statusText.className = `status-text ${type || ""}`;
 }
 
 function resetForm() {
+  preserveComposerDraft();
+  state.taskInputRestoreSeq += 1;
   const outputSettingsLocked = Boolean(legacyMethod("isOutputSettingsLocked"));
   closePromptPopover();
   closePromptSnippetPopover();
@@ -326,6 +332,7 @@ function resetForm() {
     els.size.value = "1024x1024";
     els.quality.value = "auto";
     els.outputFormat.value = "png";
+    setBackgroundControl("auto");
     els.moderation.value = "auto";
     els.compression.value = "80";
     if (els.promptFidelity) els.promptFidelity.value = "off";
@@ -344,12 +351,13 @@ function resetForm() {
   renderPreview();
   updateRequestPreview();
   if (outputSettingsLocked) legacyMethod("showLockedOutputSettings");
+  markComposerBaseline();
   setStatus(translate("status.waiting"), "");
 }
 
 async function copyJson() {
   if (!els.requestJson) return;
-  await navigator.clipboard.writeText(els.requestJson.textContent);
+  if (!await copyTextToClipboard(els.requestJson.textContent)) return;
   setStatus(translate("status.jsonCopied"), "ok");
 }
 
@@ -380,3 +388,4 @@ export function initShellUiFeature() {
     copyJson,
   });
 }
+import { copyTextToClipboard } from "./clipboard-text";

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { preserveComposerDraft, markComposerBaseline } from "./composer-draft";
 import { formatTranslation, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 import { taskOutputSettingsView } from "./task-model-summary";
@@ -85,9 +86,11 @@ function applyTaskInputRestoreSources(sources, taskId, restoreSeq) {
 }
 
 function renderSelectedTask(task, taskId) {
+  const wasBrowsingTasks = getLegacyBridge().methods.closeCompactTasks?.();
   applySelectedTaskRequestPreview(task);
   updateTaskSelectionVisuals(taskId);
   renderPreview(task);
+  if (wasBrowsingTasks) getLegacyBridge().methods.showMobilePreview?.();
   if (task.status === "failed") {
     setStatus(taskFailureMessage(task) || translate("taskActions.failedFallback"), "error");
   } else if (!["running", "cancelling"].includes(String(task.status || ""))) {
@@ -291,7 +294,9 @@ async function selectTask(taskId) {
   }
   const restoreSeq = ++state.taskInputRestoreSeq;
   void markTaskViewed(taskId);
+  preserveComposerDraft();
   applyTaskToFormWithOutputLock(task);
+  const restoredPrompt = legacyMethod("getPromptText");
   await restoreTaskReferenceFiles(task, { taskId, restoreSeq });
   if (!selectedTaskInputRestoreCurrent(taskId, restoreSeq)) return;
   renderSelectedTask(task, taskId);
@@ -306,6 +311,7 @@ async function selectTask(taskId) {
     return;
   }
   if (!selectedTaskInputRestoreCurrent(taskId, restoreSeq)) return;
+  markComposerBaseline(restoredPrompt);
   applySelectedTaskRequestPreview(task);
   if (!["running", "cancelling"].includes(String(task.status || ""))) renderSelectedTask(task, taskId);
 }
@@ -365,7 +371,9 @@ async function restoreHistoryTaskReuseHandoff() {
     state.selectedTaskId = taskId;
     await revealHistoryTaskInSidebar(task);
     const restoreSeq = ++state.taskInputRestoreSeq;
-    applyTaskToFormWithOutputLock(task);
+    preserveComposerDraft();
+  applyTaskToFormWithOutputLock(task);
+  const restoredPrompt = legacyMethod("getPromptText");
     await restoreTaskReferenceFiles(task, { taskId, restoreSeq });
     if (!selectedTaskInputRestoreCurrent(taskId, restoreSeq)) return;
     renderSelectedTask(task, taskId);

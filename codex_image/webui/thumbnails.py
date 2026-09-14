@@ -14,6 +14,21 @@ SIDEBAR_THUMBNAIL_QUALITY = 82
 SIDEBAR_THUMBNAIL_EXTENSION = "webp"
 
 
+def image_has_transparency(image: Image.Image) -> bool:
+    if "A" not in image.getbands() and "transparency" not in image.info:
+        return False
+    return image.convert("RGBA").getchannel("A").getextrema()[0] < 255
+
+
+def inspect_image_transparency(source_path: Path) -> bool | None:
+    """Check pixels, not upstream claims or the mere presence of an alpha channel."""
+    try:
+        with Image.open(source_path) as image:
+            return image_has_transparency(image)
+    except (OSError, UnidentifiedImageError, ValueError, Image.DecompressionBombError):
+        return None
+
+
 def create_image_thumbnail(
     source_path: Path,
     thumbnail_path: Path,
@@ -25,9 +40,12 @@ def create_image_thumbnail(
         with Image.open(source_path) as image:
             image = ImageOps.exif_transpose(image)
             image.thumbnail((max_edge, max_edge), Image.Resampling.LANCZOS)
-            thumbnail = _flatten_for_jpeg(image)
             thumbnail_path.parent.mkdir(parents=True, exist_ok=True)
-            thumbnail.save(thumbnail_path, "JPEG", quality=quality, optimize=True)
+            if thumbnail_path.suffix.lower() == ".webp":
+                image.convert("RGBA").save(thumbnail_path, "WEBP", quality=quality, method=4)
+            else:
+                thumbnail = _flatten_for_jpeg(image)
+                thumbnail.save(thumbnail_path, "JPEG", quality=quality, optimize=True)
             return thumbnail_path
     except (OSError, UnidentifiedImageError, ValueError):
         return None
@@ -42,7 +60,7 @@ def create_sidebar_thumbnail(source_path: Path, thumbnail_path: Path) -> Path | 
                 Image.Resampling.LANCZOS,
             )
             thumbnail_path.parent.mkdir(parents=True, exist_ok=True)
-            if "A" in image.getbands():
+            if "A" in image.getbands() or "transparency" in image.info:
                 thumbnail = image.convert("RGBA")
             else:
                 thumbnail = image.convert("RGB")
@@ -79,7 +97,7 @@ def thumbnail_needs_refresh(
 def _flatten_for_jpeg(image: Image.Image) -> Image.Image:
     if image.mode == "RGB":
         return image
-    if "A" not in image.getbands():
+    if "A" not in image.getbands() and "transparency" not in image.info:
         return image.convert("RGB")
     rgba = image.convert("RGBA")
     background = Image.new("RGB", rgba.size, (255, 255, 255))

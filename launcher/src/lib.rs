@@ -1805,8 +1805,6 @@ impl WebUiService {
                 "-m",
                 "codex_image.webui.server",
                 self.config.uvicorn_app(),
-                "--host",
-                "127.0.0.1",
                 "--port",
                 &self.config.port.to_string(),
                 "--no-access-log",

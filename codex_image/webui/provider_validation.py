@@ -248,6 +248,9 @@ def _validate_binding(raw: Mapping[str, Any], *, fallback_id: str) -> dict[str, 
     append_aspect_ratio_prompt = raw.get("append_aspect_ratio_prompt", False)
     if not isinstance(append_aspect_ratio_prompt, bool):
         raise ValueError("invalid_append_aspect_ratio_prompt")
+    transparency_mode = raw.get("transparency_mode", "native")
+    if transparency_mode not in ("native", "prompt"):
+        raise ValueError("invalid_transparency_mode")
     binding = {
         "id": binding_id,
         "canonical_model_id": canonical_model_id,
@@ -258,6 +261,8 @@ def _validate_binding(raw: Mapping[str, Any], *, fallback_id: str) -> dict[str, 
     }
     if append_aspect_ratio_prompt:
         binding["append_aspect_ratio_prompt"] = True
+    if transparency_mode == "prompt" and any(p.id == "gpt.background" for p in manifest.parameters):
+        binding["transparency_mode"] = transparency_mode
     return binding
 
 

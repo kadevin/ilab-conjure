@@ -164,7 +164,10 @@ def _api_binding_appends_aspect_ratio_prompt(
 
 def _generation_request_error(exc: ValueError) -> HTTPException:
     message = str(exc)
-    if "does not support model" in message:
+    if message == "transparent_background_requires_png_or_webp":
+        code = message
+        safe_message = "Transparent backgrounds require PNG or WebP output."
+    elif "does not support model" in message:
         code = "provider_model_binding_missing"
         safe_message = "The selected provider does not support this model."
     elif "does not support operation" in message:
@@ -412,7 +415,7 @@ def _prepare_generation_submission(
         request_kwargs["instructions"] = request_instructions
     if web_search_enabled:
         request_kwargs["web_search"] = True
-    if canonical_model_id is not None:
+    if canonical_model_id is not None or plan.command.parameters.get("gpt.background") == "transparent":
         protocol_preview = redacted_protocol_request(plan)
         request_payload = dict(protocol_preview.json_body or protocol_preview.form_fields)
     else:

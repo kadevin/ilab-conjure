@@ -191,6 +191,7 @@ class ProviderSettings(StoreLockMixin):
                     append_aspect_ratio_prompt=bool(
                         binding.get("append_aspect_ratio_prompt", False)
                     ),
+                    transparency_mode=binding.get("transparency_mode", "native"),
                 )
                 for binding in provider["bindings"]
             )

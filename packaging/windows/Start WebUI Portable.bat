@@ -51,7 +51,7 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 start "" /b "%PYTHON_BIN%" -m codex_image.webui.open_when_ready --health-url "%HEALTH_URL%" --url "%URL%" --attempts %WAIT_ATTEMPTS% --interval 1 >nul 2>nul
-"%PYTHON_BIN%" -m codex_image.webui.server portable_webui_app:app --host 127.0.0.1 --port %PORT% --no-access-log --timeout-graceful-shutdown 5 >> "%LOG_FILE%" 2>&1
+"%PYTHON_BIN%" -m codex_image.webui.server portable_webui_app:app --port %PORT% --no-access-log --timeout-graceful-shutdown 5 >> "%LOG_FILE%" 2>&1
 set "SERVER_EXIT=%ERRORLEVEL%"
 if %SERVER_EXIT% NEQ 0 echo WebUI stopped with exit code %SERVER_EXIT%. Check %LOG_FILE%.
 exit /b %SERVER_EXIT%

@@ -15,6 +15,7 @@ from codex_image.providers.contracts import (
     ProviderModelBinding,
 )
 from codex_image.providers.registry import ProviderRegistry
+from codex_image.providers.transparency import transparency_instruction
 
 
 SNAPSHOT_SCHEMA_VERSION = 1
@@ -61,11 +62,15 @@ def generation_snapshot(plan: ExecutionPlan) -> dict[str, Any]:
         "parameter_codec": plan.binding.parameter_codec,
         "binding_operations": sorted(plan.binding.operations),
         "append_aspect_ratio_prompt": plan.binding.append_aspect_ratio_prompt,
+        "transparency_mode": plan.binding.transparency_mode,
+        "transparency_prompt_version": plan.binding.transparency_prompt_version,
         "requested_parameters": dict(plan.command.parameters),
         "mapped_request": _request_dict(redacted_protocol_request(plan)),
     }
     if plan.command.legacy_compat_parameters:
         snapshot["legacy_compat_parameters"] = dict(plan.command.legacy_compat_parameters)
+    if plan.binding.transparency_mode == "prompt" and plan.command.parameters.get("gpt.background") == "transparent":
+        snapshot["transparency_instruction"] = transparency_instruction(plan.binding.transparency_prompt_version)
     return snapshot
 
 
@@ -79,6 +84,9 @@ def provider_binding_from_snapshot(snapshot: Mapping[str, Any]) -> ProviderModel
         parameter_codec=str(snapshot["parameter_codec"]),
         operations=frozenset(str(item) for item in snapshot.get("binding_operations") or ()),
         append_aspect_ratio_prompt=bool(snapshot.get("append_aspect_ratio_prompt", False)),
+        # Before this field existed all bindings sent the native parameter.
+        transparency_mode=str(snapshot.get("transparency_mode", "native")),
+        transparency_prompt_version=int(snapshot.get("transparency_prompt_version", 1)),
     )
 
 

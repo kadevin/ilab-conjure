@@ -59,8 +59,8 @@ class ModelParameterFrontendContractTests(WebUIStaticTestCase):
         self.assertIn(".model-parameter-advanced-grid:not(.model-parameter-advanced-grid-expanded)", responsive)
         self.assertIn("@container workspace (max-width: 520px)", responsive)
         self.assertIn(".model-parameter-advanced-grid-expanded", responsive)
-        self.assertIn("#apiDirectSettingsNotice .api-direct-settings-header span", responsive)
-        self.assertIn("#apiDirectSettingsNotice .api-direct-settings-button > span", responsive)
+        self.assertNotIn("#apiDirectSettingsNotice .api-direct-settings-header span", responsive)
+        self.assertNotIn("#apiDirectSettingsNotice .api-direct-settings-button > span", responsive)
 
     def test_collapsed_custom_size_has_no_minimum_height(self) -> None:
         styles = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")

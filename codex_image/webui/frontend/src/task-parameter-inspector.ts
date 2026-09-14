@@ -111,13 +111,13 @@ export function taskParameterInspectorTitle(
 }
 
 const TASK_PARAMETER_INSPECTOR_HIDDEN_IDS = new Set([
-  "gpt.background",
   "gpt.output_compression",
 ]);
 const GPT_TASK_PARAMETER_INSPECTOR_ORDER = new Map([
   "canvas.size",
   "gpt.quality",
   "output.format",
+  "gpt.background",
   "output.count",
   "gpt.moderation",
   "gpt.web_search",

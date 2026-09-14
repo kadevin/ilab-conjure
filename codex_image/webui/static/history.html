@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#457B66" />
   <title>历史库 - iLab CONJURE</title>
   <link rel="icon" type="image/svg+xml" href="/static/brand/favicon.svg" />
@@ -25,7 +25,7 @@
       document.documentElement.dataset.themePreference = preference;
     })();
   </script>
-  <link rel="stylesheet" href="/static/styles.css?v=runtime-789" />
+  <link rel="stylesheet" href="/static/styles.css?v=runtime-821" />
 </head>
 <body>
   <main class="history-page">
@@ -59,6 +59,7 @@
           <strong data-i18n="history.title">历史库</strong>
           <span id="historyTotal" data-i18n="history.loading">载入中</span>
         </div>
+        <button class="ghost-button history-filters-close" type="button" aria-label="关闭" data-i18n-attr="aria-label:action.close">×</button>
       </div>
       <a class="history-back-link" href="/" data-i18n="history.backToGenerator">返回生成页</a>
       <label class="history-search-label" for="historySearch" data-i18n="history.search">搜索</label>
@@ -145,6 +146,9 @@
     <div class="history-resize-hit-area history-resize-hit-area-left" role="separator" tabindex="0" aria-orientation="vertical" aria-valuemin="220" aria-valuemax="420" aria-valuenow="280" aria-label="调整筛选栏宽度" data-history-resizer="left" data-i18n-attr="aria-label:history.resizeFilters"></div>
     <header class="top-nav history-top-nav">
       <div class="nav-actions">
+        <a class="ghost-button history-mobile-home" href="/" aria-label="返回生成页" title="返回生成页" data-i18n-attr="aria-label:history.backToGenerator;title:history.backToGenerator">
+          <svg class="history-toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 5-7 7 7 7M5 12h14" /></svg>
+        </a>
         <button id="queueButton" class="queue-button queue-status-chip" type="button" aria-label="队列状态：暂无排队" title="跳转到进行中任务" data-i18n-attr="aria-label:queue.emptyAria;title:queue.jumpTitle">
           <span id="queueStatusText" data-i18n="queue.empty">暂无排队</span>
         </button>
@@ -213,7 +217,7 @@
               <button class="history-sort-button" type="button" data-history-sort="oldest" aria-pressed="false" data-i18n="history.oldest">最早优先</button>
             </div>
           </div>
-          <div class="history-toolbar-utilities">
+          <div id="historyToolbarUtilities" class="history-toolbar-utilities">
             <button id="historyManagementButton" class="ghost-button history-toolbar-icon-button history-management-button" type="button" data-history-open-management aria-label="历史库管理" title="历史库管理">
               <svg class="history-toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h16v12H4zM3 4h18v4H3zM9 12h6" /></svg>
             </button>
@@ -460,6 +464,16 @@
         </div>
       </section>
       <section id="systemSettingsNetworkPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsNetworkTab" hidden aria-hidden="true">
+        <div class="lan-access-panel">
+          <label class="web-search-toggle lan-access-toggle">
+            <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
+            <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
+            <span class="web-search-toggle-track" aria-hidden="true"></span>
+          </label>
+          <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
+          <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
+          <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
+        </div>
         <div class="network-egress-panel">
           <div class="field">
             <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
@@ -554,6 +568,6 @@
     </div>
   </div>
   <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/history.js?v=history-116"></script>
+  <script src="/static/history.js?v=history-139"></script>
 </body>
 </html>

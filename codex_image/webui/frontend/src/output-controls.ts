@@ -1,4 +1,6 @@
+import { updateExecutionSummary } from "./execution-summary";
 import { getLegacyBridge } from "./state";
+import { updateTransparencyControls } from "./background-controls";
 
 const { els } = getLegacyBridge();
 
@@ -39,6 +41,7 @@ export function updateQuantity(): void {
 }
 
 export function updateCompression(): void {
+  updateTransparencyControls();
   const compressionEnabled = els.outputFormat.value !== "png";
   els.compression.disabled = !compressionEnabled;
   if (!compressionEnabled) {
@@ -73,6 +76,7 @@ export function syncRadioButtons(...selects: any[]): void {
 }
 
 export function updateRequestPreview(): void {
+  updateExecutionSummary();
   if (!els.requestJson) return;
   els.requestJson.textContent = JSON.stringify(buildPreviewRequest(), null, 2);
 }

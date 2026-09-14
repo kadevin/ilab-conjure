@@ -137,6 +137,23 @@ class WebUISettings(StoreLockMixin):
         return _settings_locale(self._read_payload().get("locale"), allow_empty=True)
 
     @store_locked
+    def read_lan_access_enabled(self) -> bool:
+        return self._read_payload().get("lan_access_enabled") is True
+
+    @store_locked
+    def write_lan_access_enabled(self, enabled: Any) -> bool:
+        if not isinstance(enabled, bool):
+            raise ValueError("enabled must be a boolean")
+        payload = self._read_payload()
+        payload["lan_access_enabled"] = enabled
+        atomic_write_text(
+            self.path,
+            json.dumps(payload, indent=2, ensure_ascii=False),
+            mode=0o600,
+        )
+        return enabled
+
+    @store_locked
     def write_paths(self, payload: dict[str, Any]) -> dict[str, Path]:
         current = self.read_paths()
         paths = {
@@ -147,7 +164,8 @@ class WebUISettings(StoreLockMixin):
         }
         _validate_webui_paths(paths)
         locale = self.read_locale()
-        persisted: dict[str, str] = {key: str(value) for key, value in paths.items()}
+        persisted: dict[str, Any] = self._read_payload()
+        persisted.update({key: str(value) for key, value in paths.items()})
         if locale:
             persisted["locale"] = locale
         atomic_write_text(

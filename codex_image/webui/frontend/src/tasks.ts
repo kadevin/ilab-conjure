@@ -6,6 +6,7 @@ import {
   sidebarTaskRevealPagePlan,
 } from "./history-task-reveal-model";
 import { cssEscape } from "./webui-utils";
+import { queueSnapshotIsNewer, reconcileTaskSnapshot } from "./state-sync";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -88,11 +89,13 @@ async function refreshTasks({ migrateLegacyArchives = false }: any = {}) {
   const requestSeq = ++state.tasksRequestSeq;
   const response = await fetch("/api/tasks/sidebar?limit=50");
   const data = await response.json();
-  if (requestSeq !== state.tasksRequestSeq) return;
-  await applyTasksSnapshot(data.tasks || [], {
+  if (requestSeq !== state.tasksRequestSeq) return false;
+  if (!response.ok) throw new Error(data.detail || "Task history loading failed");
+  return await applyTasksSnapshot(data.tasks || [], {
     migrateLegacyArchives,
     requestSeq,
     taskGroups: data.task_groups,
+    sync: data.sync,
   });
 }
 
@@ -102,11 +105,17 @@ async function applyTasksSnapshot(
     migrateLegacyArchives = false,
     requestSeq = state.tasksRequestSeq,
     taskGroups,
+    sync,
   }: any = {},
 ) {
+  const incoming = Array.isArray(tasks) ? tasks : [];
+  const snapshot = reconcileTaskSnapshot(
+    state, queueSnapshotIsNewer(state, sync) ? mergeActiveQueueTaskDetails(incoming) : incoming, sync,
+  );
+  if (snapshot === null) return false;
   const previousLocalPendingTasks = state.tasks.filter((task: any) => task?.local_pending);
   const pendingTask = state.pendingTaskId ? state.tasks.find((task: any) => task.task_id === state.pendingTaskId) : null;
-  state.tasks = mergeActiveQueueTaskDetails(Array.isArray(tasks) ? tasks : []);
+  state.tasks = snapshot;
   if (Array.isArray(taskGroups)) {
     state.taskSidebarGroupLoadError = null;
     state.taskSidebarGroupCounts = Object.fromEntries(
@@ -125,7 +134,8 @@ async function applyTasksSnapshot(
     if (!retainedTasks.has(task)) revokeTaskUploadPreviewUrls(task);
   });
   if (migrateLegacyArchives) {
-    await migrateLegacyArchivedTasks();
+    const migrated = await migrateLegacyArchivedTasks();
+    if (migrated !== false) state.realtimeSnapshotNeedsArchiveMigration = false;
     if (requestSeq !== state.tasksRequestSeq) return;
   }
   cleanupSessionSelections();
@@ -133,6 +143,7 @@ async function applyTasksSnapshot(
   renderArchiveButton();
   renderArchiveModal();
   await renderSelectedTaskPreview(requestSeq);
+  return true;
 }
 
 function mergeActiveQueueTaskDetails(tasks: any[]) {

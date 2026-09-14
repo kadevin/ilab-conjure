@@ -161,7 +161,7 @@ function reorderRowAtPoint(clientX: number, clientY: number): void {
 }
 
 function scrollContainer(): HTMLElement | null {
-  return providerList?.closest<HTMLElement>(".api-provider-choice-grid") || null;
+  return providerList?.closest<HTMLElement>(".system-settings-section") || null;
 }
 
 function autoScrollStep(): void {

@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { handleTransparentBackgroundChange, updateTransparencyControls } from "./background-controls";
 import {
   closeMainModelCombobox,
   currentMainModel,
@@ -61,6 +62,8 @@ function syncRunButtonLabel(): void {
 export function bindFormControlEvents(): void {
   if (formControlEventsBound) return;
   formControlEventsBound = true;
+  els.transparentBackground?.addEventListener("change", handleTransparentBackgroundChange);
+  document.addEventListener(LOCALE_CHANGE_EVENT, updateTransparencyControls);
 
   document.querySelectorAll("[data-mode]").forEach((button: any) => {
     button.addEventListener("click", () => setMode(button.dataset.mode));

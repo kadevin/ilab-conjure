@@ -312,6 +312,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
             const media = evaluate(transpile({str(module_path)!r}), (name) => {{
               if (name === "./i18n") return {{ translate: (key) => key, formatTranslation: (key) => key }};
               if (name === "./reference-file-icons") return icons;
+              if (name === "./transparency-status") return {{}}; // Not used by reference-file rendering.
               if (name === "./webui-utils") return utils;
               throw new Error(`unexpected require: ${{name}}`);
             }});
@@ -351,12 +352,11 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         index = (ROOT / "codex_image/webui/static/index.html").read_text(encoding="utf-8")
         history = (ROOT / "codex_image/webui/static/history.html").read_text(encoding="utf-8")
         worker = (ROOT / "codex_image/webui/static/service-worker.js").read_text(encoding="utf-8")
-        self.assertIn("runtime-789", index)
-        self.assertIn("runtime-789", history)
-        self.assertIn("history-116", history)
-        self.assertIn('ilab-conjure-shell-v272', worker)
-        self.assertIn('/static/app.js?v=runtime-793', worker)
-        self.assertIn('/static/styles.css?v=runtime-789', worker)
+        assets = set(re.findall(r'/static/(?:app|history)\.js\?v=[^"\s]+|/static/styles\.css\?v=[^"\s]+', index + history))
+        self.assertEqual(len(assets), 3)
+        for asset in assets:
+            self.assertIn(f'"{asset}"', worker)
+        self.assertRegex(worker, r'ilab-conjure-shell-v\d+')
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:
         design_path = ROOT / "DESIGN.md"
@@ -571,6 +571,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
               require(name) {{
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
+                if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
@@ -630,6 +631,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
               require(name) {{
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
+                if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},

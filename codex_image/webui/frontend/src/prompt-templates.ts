@@ -234,6 +234,7 @@ function openPromptTemplateDrawer() {
 }
 
 function closePromptTemplateDrawer(options: any = {}) {
+  if (!els.promptTemplateDrawer?.classList.contains("open")) return;
   const restoreFocus = options?.restoreFocus !== false;
   els.promptTemplateDrawer?.classList.remove("open");
   els.promptTemplateDrawer?.setAttribute("aria-hidden", "true");
@@ -455,7 +456,7 @@ async function afterPromptTemplateApplied(template: any) {
 async function copyPromptTemplateContent(template: any) {
   if (!template) return;
   try {
-    await navigator.clipboard.writeText(template.content);
+    if (!await copyTextToClipboard(template.content)) return;
     setStatus(translate("templates.copied"), "ok");
   } catch {
     setStatus(translate("templates.copyFailed"), "error");
@@ -986,3 +987,4 @@ export function initPromptTemplatesFeature(): void {
   });
   bindPromptTemplateEvents();
 }
+import { copyTextToClipboard } from "./clipboard-text";

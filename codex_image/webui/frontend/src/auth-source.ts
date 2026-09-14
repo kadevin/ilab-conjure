@@ -34,6 +34,7 @@ export async function refreshHealth(): Promise<void> {
     els.runButton.disabled = !state.authAvailable;
     if (!state.authAvailable && !state.generationCatalog) {
       setStatus(translate("auth.missingCodexSession"), "error");
+      if (els.statusText) els.statusText.dataset.statusSource = "codex-health";
     }
     updateRequestPreview();
   } catch (error: any) {

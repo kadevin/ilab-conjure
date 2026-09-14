@@ -4,6 +4,7 @@ from codex_image.codex_images_client import CodexImagesImageClient
 from codex_image.codex_responses_client import CodexImageClient
 from codex_image.providers.contracts import ExecutionPlan
 from codex_image.providers.openai import image_results_to_generation
+from codex_image.providers.transparency import transparency_request
 
 
 def _parameters(plan: ExecutionPlan) -> dict[str, object]:
@@ -35,13 +36,14 @@ class CodexImagesAdapter:
             image_model=plan.binding.remote_model_id,
         )
         params = _parameters(plan)
+        transparency = transparency_request(plan.command, plan.binding)
         common = {
-            "prompt": plan.command.prompt,
+            "prompt": transparency.prompt,
             "main_model": plan.command.main_model or "",
             "model": plan.binding.remote_model_id,
             "size": params["size"],
             "quality": params["quality"],
-            "background": params["background"],
+            "background": transparency.background,
             "output_format": params["output_format"],
             "moderation": params["moderation"],
             "output_compression": params["output_compression"],
@@ -76,15 +78,16 @@ class CodexResponsesAdapter:
             transport=self._transport,
         )
         params = _parameters(plan)
+        transparency = transparency_request(plan.command, plan.binding)
         common = {
-            "prompt": plan.command.prompt,
-            "instructions": plan.command.instructions,
+            "prompt": transparency.prompt,
+            "instructions": transparency.instructions,
             "main_model": plan.command.main_model or "",
             "model": plan.binding.remote_model_id,
             "reference_files": list(plan.command.reference_files),
             "size": params["size"],
             "quality": params["quality"],
-            "background": params["background"],
+            "background": transparency.background,
             "output_format": params["output_format"],
             "moderation": params["moderation"],
             "output_compression": params["output_compression"],

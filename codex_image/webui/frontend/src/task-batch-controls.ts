@@ -1,10 +1,13 @@
 import { getLegacyBridge } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT } from "./i18n";
-import { waitingBatchTaskIds } from "./task-batch-selection-model";
+import { isBatchScopeSelected, toggleBatchScopeIds, waitingBatchTaskIds } from "./task-batch-selection-model";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
 const els = bridge.els;
+let groupSelectionSnapshot: { key: string; taskIds: string[] } | null = null;
+let groupSelectionRequestSeq = 0;
+let groupSelectionPending = false;
 
 function legacyMethod(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
@@ -43,6 +46,9 @@ function activeTaskIds() {
 function toggleBatchMode(force?: any) {
   state.batchMode = typeof force === "boolean" ? force : !state.batchMode;
   if (!state.batchMode) {
+    groupSelectionRequestSeq += 1;
+    groupSelectionPending = false;
+    groupSelectionSnapshot = null;
     state.batchSelectedTaskIds = [];
     state.batchSelectionAnchorTaskId = null;
     state.batchSelectionIncludesUnloaded = false;
@@ -158,10 +164,25 @@ function renderBatchToolbar() {
     els.batchSelectedCount.textContent = formatTranslation("batch.selectedCount", { count });
   }
   if (els.batchSelectGroupButton) {
-    els.batchSelectGroupButton.disabled = !["today", "yesterday", "last7"].includes(String(state.expandedTaskGroupKey || ""));
+    const scope = currentBatchGroupScope();
+    const selected = isBatchScopeSelected(state.batchSelectedTaskIds, knownGroupScopeIds(scope));
+    const key = selected ? "batch.deselectCurrentGroup" : "batch.selectCurrentGroup";
+    const label = els.batchSelectGroupButton.querySelector("[data-batch-selection-label]") || els.batchSelectGroupButton;
+    label.textContent = formatTranslation(key);
+    label.setAttribute("data-i18n", key);
+    els.batchSelectGroupButton.setAttribute("aria-pressed", String(selected));
+    els.batchSelectGroupButton.setAttribute("aria-busy", String(groupSelectionPending));
+    els.batchSelectGroupButton.disabled = groupSelectionPending || !scope.valid;
   }
   if (els.batchSelectWaitingButton) {
-    els.batchSelectWaitingButton.disabled = waitingBatchTaskIds(state.queue).length === 0;
+    const taskIds = waitingBatchTaskIds(state.queue);
+    const selected = isBatchScopeSelected(state.batchSelectedTaskIds, taskIds);
+    const key = selected ? "batch.deselectWaiting" : "batch.selectWaiting";
+    const label = els.batchSelectWaitingButton.querySelector("[data-batch-selection-label]") || els.batchSelectWaitingButton;
+    label.textContent = formatTranslation(key);
+    label.setAttribute("data-i18n", key);
+    els.batchSelectWaitingButton.setAttribute("aria-pressed", String(selected));
+    els.batchSelectWaitingButton.disabled = taskIds.length === 0;
   }
   [els.batchArchiveButton, els.batchDeleteButton].forEach((button: any) => {
     if (button) button.disabled = count === 0;
@@ -174,13 +195,19 @@ function renderBatchToolbar() {
 function selectWaitingTasksForBatch() {
   const taskIds = waitingBatchTaskIds(state.queue);
   if (!taskIds.length) return;
-  state.batchSelectionIncludesUnloaded = false;
-  applyBatchTaskSelection(taskIds, taskIds[0] || null);
+  toggleBatchScopeSelection(taskIds);
 }
 
-async function selectAllMatchingTasksInExpandedGroup() {
+function toggleBatchScopeSelection(taskIds: string[]) {
+  const nextIds = toggleBatchScopeIds(state.batchSelectedTaskIds, taskIds);
+  const loadedIds = new Set((state.tasks || []).map((task: any) => String(task.task_id)));
+  state.batchSelectionIncludesUnloaded = nextIds.some((id) => !loadedIds.has(id));
+  state.batchSelectionAnchorTaskId = nextIds[nextIds.length - 1] || null;
+  applyBatchTaskSelection(nextIds, state.batchSelectionAnchorTaskId);
+}
+
+function currentBatchGroupScope() {
   const groupKey = String(state.expandedTaskGroupKey || "");
-  if (!groupKey) return;
   const filters = taskFilterValues();
   const params = new URLSearchParams();
   [
@@ -192,17 +219,58 @@ async function selectAllMatchingTasksInExpandedGroup() {
   ].forEach(([key, value]) => {
     if (value) params.set(String(key), String(value));
   });
+  const query = String(state.taskSearchQuery || "").trim();
+  const count = state.taskSidebarGroupCounts?.[groupKey];
+  return {
+    groupKey, params, count,
+    valid: !query && ["today", "yesterday", "last7"].includes(groupKey),
+    key: JSON.stringify([groupKey, params.toString(), query, count]),
+  };
+}
+
+function knownGroupScopeIds(scope: ReturnType<typeof currentBatchGroupScope>): string[] {
+  if (!scope.valid) return [];
+  if (groupSelectionSnapshot?.key === scope.key) return groupSelectionSnapshot.taskIds;
+  if (typeof scope.count !== "number"
+      || Number(state.taskSidebarGroupLoadedCounts?.[scope.groupKey] || 0) < scope.count) return [];
+  const methods = getLegacyBridge().methods;
+  const groups = methods.taskHistoryGroups?.(methods.filteredVisibleTasks?.() || [], "") || [];
+  const group = groups.find((item: any) => item.key === scope.groupKey);
+  return (group?.tasks || []).map((task: any) => String(task.task_id));
+}
+
+async function selectAllMatchingTasksInExpandedGroup() {
+  const scope = currentBatchGroupScope();
+  if (groupSelectionPending || !scope.valid || !state.batchMode) return;
+  const knownIds = knownGroupScopeIds(scope);
+  if (isBatchScopeSelected(state.batchSelectedTaskIds, knownIds)) {
+    toggleBatchScopeSelection(knownIds);
+    return;
+  }
+  const requestSeq = ++groupSelectionRequestSeq;
+  const selectedBefore = JSON.stringify(state.batchSelectedTaskIds);
+  const current = () => requestSeq === groupSelectionRequestSeq && state.batchMode
+    && currentBatchGroupScope().key === scope.key
+    && JSON.stringify(state.batchSelectedTaskIds) === selectedBefore;
+  groupSelectionPending = true;
+  renderBatchToolbar();
   try {
     const response = await fetch(
-      `/api/tasks/sidebar/groups/${encodeURIComponent(groupKey)}/selection?${params.toString()}`,
+      `/api/tasks/sidebar/groups/${encodeURIComponent(scope.groupKey)}/selection?${scope.params.toString()}`,
     );
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || formatTranslation("batch.deleteFailed"));
+    if (!current()) return;
+    if (!response.ok) throw new Error(data.detail || formatTranslation("batch.selectFailed"));
     const taskIds = Array.isArray(data.task_ids) ? data.task_ids.map(String).filter(Boolean) : [];
-    state.batchSelectionIncludesUnloaded = true;
-    applyBatchTaskSelection(taskIds, taskIds[0] || null);
+    groupSelectionSnapshot = { key: scope.key, taskIds };
+    toggleBatchScopeSelection(taskIds);
   } catch (error) {
-    setStatus(errorMessage(error, formatTranslation("batch.deleteFailed")), "error");
+    if (current()) setStatus(errorMessage(error, formatTranslation("batch.selectFailed")), "error");
+  } finally {
+    if (requestSeq === groupSelectionRequestSeq) {
+      groupSelectionPending = false;
+      renderBatchToolbar();
+    }
   }
 }
 

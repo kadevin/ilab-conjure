@@ -256,6 +256,11 @@ export async function refreshGenerationCatalog(): Promise<void> {
   }
   renderModelSelectors();
   renderProviderSelection();
+  // Restore the saved controls before preview generation reads their HTML defaults
+  // back into the draft. A persisted output lock already restored its own values.
+  if (state.generationCatalog && !getLegacyBridge().methods.isOutputSettingsLocked?.()) {
+    getLegacyBridge().methods.restoreCurrentModelParameterDraft?.();
+  }
   getLegacyBridge().methods.renderCurrentModelParameters?.();
   getLegacyBridge().methods.updateModeSpecificSettings?.();
   getLegacyBridge().methods.updateRequestPreview?.();

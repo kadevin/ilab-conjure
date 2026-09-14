@@ -711,3 +711,39 @@ test("resume upload rejects filename and size mismatches without replacing the s
   assert.equal(calls.some((call) => call.startsWith("DELETE ")), false);
   assert.equal(calls.some((call) => call === "POST /api/task-history/backup-imports"), false);
 });
+
+test("HTTP LAN import initializes and validates chunk hashes without Web Crypto", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  Object.defineProperty(globalThis, "crypto", { configurable: true, value: {} });
+  try {
+    let chunks = 0;
+    const controller = createHistoryImportController({
+      storage: new MemoryStorage(),
+      fetch: async (url, init = {}) => {
+        if (String(url).endsWith("/chunks")) {
+          chunks++;
+          const expected = Buffer.from(await webcrypto.subtle.digest("SHA-256", init.body as ArrayBuffer)).toString("hex");
+          assert.equal(new Headers(init.headers).get("x-chunk-sha256"), expected);
+          return json({ session_id: "lan", uploaded_bytes: 3, status: "uploaded" });
+        }
+        if (String(url).endsWith("/validate")) return json({ session_id: "lan", restorable: [] });
+        return json({ session_id: "lan", filename: "backup.zip", size_bytes: 3, uploaded_bytes: 0, status: "uploading", upload_chunk_bytes: 8 });
+      },
+    });
+    const preview = await controller.start(new Blob(["abc"]), "backup.zip");
+    assert.equal(preview.session_id, "lan");
+    assert.equal(chunks, 1);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, "crypto", descriptor);
+    else Reflect.deleteProperty(globalThis, "crypto");
+  }
+});
+
+test("HTTP SHA-256 fallback matches native hashing at block boundaries and upload chunk size", async () => {
+  const { sha256Hex } = await import("../../codex_image/webui/frontend/src/sha256");
+  for (const length of [0, 1, 55, 56, 63, 64, 65, 1024, 8 * 1024 * 1024]) {
+    const bytes = Uint8Array.from({ length }, (_, index) => index % 251).buffer;
+    const expected = Buffer.from(await webcrypto.subtle.digest("SHA-256", bytes)).toString("hex");
+    assert.equal(await sha256Hex(bytes, null), expected);
+  }
+});

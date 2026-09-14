@@ -133,6 +133,7 @@ def codex_provider_connection(codex_mode: str) -> ProviderConnection:
             parameter_codec=f"gpt_codex_{mode}",
             operations=frozenset({"generate", "edit"}),
             is_default=mode == "images",
+            transparency_mode="prompt",
         )
         for mode in ("images", "responses")
     )

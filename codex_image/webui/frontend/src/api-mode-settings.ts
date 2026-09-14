@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { selectedProviderBinding } from "./provider-selection";
+import { updateTransparencyControls } from "./background-controls";
 import { resolveModeSettingsVisibility, type ModeSettingsVisibility } from "./mode-settings-visibility";
 
 const bridge = getLegacyBridge();
@@ -86,6 +87,7 @@ export function updateModeSpecificSettings(authSource: any = currentAuthSource()
     legacyDirectApi: isDirectApi,
   }));
   updateWebSearchAvailability(authSource);
+  updateTransparencyControls();
   legacyMethod("syncReferenceFileAvailability");
   const refreshOutputSettingsLock = getLegacyBridge().methods.refreshOutputSettingsLock;
   if (typeof refreshOutputSettingsLock === "function") refreshOutputSettingsLock();

@@ -43,7 +43,7 @@ class WebUIShortHeightContractTests(unittest.TestCase):
         self.assertNotRegex(block, r"\.controls-col\s+\.output-settings-stage\s*\{")
         self.assertNotIn("align-content: space-between", block)
         self.assertIn("grid-template-rows: repeat(2, var(--compact-settings-segment-height))", block)
-        self.assertRegex(block, r"--mode-settings-stable-height:\s*clamp\([\s\S]*77px,[\s\S]*144px")
+        self.assertNotIn("--mode-settings-stable-height", block)
         self.assertNotIn("output-settings-editor-height", block)
 
     def test_short_workspace_compacts_without_reflowing_output_settings(self) -> None:
@@ -79,10 +79,9 @@ class WebUIShortHeightContractTests(unittest.TestCase):
         self.assertNotRegex(top_level, r"\.quantity-quality-row\s*\{[^}]*display:\s*contents")
         self.assertNotRegex(top_level, r"\.(?:orientation|resolution|ratio|quantity|quality|moderation)-field\s*\{[^}]*grid-row")
         self.assertNotRegex(top_level, r"#(?:promptFidelityField|pixelPreview|outputFormatField)\s*\{[^}]*grid-row")
-        self.assertRegex(
-            narrow_container,
-            r"\.mode-specific-settings\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(0,\s*1fr\)",
-        )
+        self.assertNotRegex(narrow_container, r"\.mode-specific-settings\s*\{[^}]*grid-template-columns")
+        output_styles = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
+        self.assertRegex(output_styles, r"\.model-tool-row\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap")
         self.assertRegex(
             narrow_container,
             r"\.settings-grid\.custom-size-mode\s*\{[^}]*--custom-size-mode-card-height:\s*clamp\(\s*105px",
@@ -91,10 +90,7 @@ class WebUIShortHeightContractTests(unittest.TestCase):
             narrow_container,
             r"--custom-size-mode-card-height:\s*clamp\(\s*105px,\s*calc\(14\.76dvh\s*-\s*8\.4px\),\s*154px",
         )
-        self.assertRegex(
-            narrow_container,
-            r"--mode-settings-stable-height:\s*clamp\(\s*48px,\s*calc\(15\.96dvh\s*-\s*74\.6px\),\s*102px",
-        )
+        self.assertNotIn("--mode-settings-stable-height", narrow_container)
 
     def test_short_workspace_keeps_all_section_headings_visible(self) -> None:
         self.assertNotIn("@media (max-height: 860px)", self.responsive)
@@ -142,7 +138,6 @@ class WebUIShortHeightContractTests(unittest.TestCase):
         for name, maximum in (
             ("panel", 15),
             ("settings", 4),
-            ("mode", 15),
             ("image", 12),
             ("action", 2),
         ):

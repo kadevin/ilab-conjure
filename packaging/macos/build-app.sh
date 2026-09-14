@@ -330,11 +330,17 @@ chmod +x "${APP_BUNDLE_HELPERS}/ilab-conjure-standard-updater"
 create_macos_app_icon "${REPO_ROOT}/launcher/assets/rabbit-logo.svg" "${APP_BUNDLE_RESOURCES}/AppIcon.icns" "${BUILD_ROOT}/_app-icon"
 write_macos_app_plist "${APP_BUNDLE_CONTENTS}/Info.plist"
 remove_local_artifacts "$APP_BUNDLE_ROOT"
-codesign --force --deep --sign - "$APP_BUNDLE_ROOT" >/dev/null 2>&1 || true
+# The runtime lives outside Contents/Frameworks, so --deep on the App does not
+# refresh its resource seal after trimming. Sign it explicitly, inside out.
+codesign --force --deep --sign - "$PYTHON_FRAMEWORK" >/dev/null
+codesign --force --deep --sign - "$APP_BUNDLE_ROOT" >/dev/null
 
 mkdir -p "$DMG_ROOT"
 cp -R "$APP_BUNDLE_ROOT" "$DMG_ROOT/${APP_BUNDLE_NAME}"
 ln -s /Applications "$DMG_ROOT/Applications"
+# Match the updater's gate against the exact App staged for the DMG.
+codesign --verify --deep --strict "$DMG_ROOT/${APP_BUNDLE_NAME}/Contents/Resources/python/Python.framework"
+codesign --verify --deep --strict "$DMG_ROOT/${APP_BUNDLE_NAME}"
 hdiutil create -volname "iLab CONJURE" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG_PATH"
 
 SHA256="$(shasum -a 256 "$DMG_PATH" | awk '{print $1}')"

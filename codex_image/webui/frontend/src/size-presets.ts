@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { isGptImageModel } from "./gpt-image-models";
 import { currentAuthSource } from "./auth-source";
 import { currentApiImageModel, currentApiImagesConcurrency, currentApiMode, currentApiProviderId, currentCodexMode } from "./api-provider-settings";
 import { currentMainModel } from "./main-model-combobox";
@@ -194,12 +195,13 @@ export function currentTaskParams(): any {
     size: currentSize(),
     n: currentQuantity(),
     quality: els.quality.value,
+    background: els.background?.value || "auto",
     output_format: els.outputFormat.value,
     moderation: els.moderation.value,
     output_compression: els.outputFormat.value === "png" ? null : Number(els.compression.value),
   };
   const { state } = getLegacyBridge();
-  if (!state.generationCatalog || state.selectedModelId === "gpt-image-2") {
+  if (!state.generationCatalog || isGptImageModel(state.selectedModelId)) {
     params.main_model = currentMainModel();
     params.prompt_fidelity = currentPromptFidelity();
   }
