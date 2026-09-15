@@ -13,7 +13,7 @@ export function remoteModelAfterSelection(current: string, previousDefault: stri
 
 export type BindingTemplateId = keyof typeof BINDING_TEMPLATES;
 export type BindingProtocol = "gemini" | "openai_images" | "openai_responses";
-export type BindingCompatibility = "standard" | "gemini_image_config" | "change2pro" | "t8_newapi" | "openrouter";
+export type BindingCompatibility = "standard" | "gemini_image_config" | "change2pro" | "t8_newapi" | "openrouter" | "atlascloud";
 
 export const BINDING_TEMPLATES = {
   gpt_openai_images: {
@@ -56,6 +56,11 @@ export const BINDING_TEMPLATES = {
     parameter_codec: "gemini_openrouter_images",
     base_url: "https://openrouter.ai/api/v1",
   },
+  gpt_atlascloud_images: {
+    protocol_profile: "atlascloud_images",
+    parameter_codec: "gpt_atlascloud_images",
+    base_url: "https://api.atlascloud.ai",
+  },
 } as const;
 
 export const BINDING_PROTOCOL_LABELS: Record<BindingProtocol, string> = {
@@ -70,6 +75,7 @@ export const BINDING_COMPATIBILITY_LABELS: Record<BindingCompatibility, string> 
   change2pro: "Change2Pro / Gemini v1beta",
   t8_newapi: "T8 / NewAPI",
   openrouter: "OpenRouter",
+  atlascloud: "Atlas Cloud",
 };
 
 function slug(value: unknown, fallback: string): string {
@@ -112,6 +118,9 @@ export function availableCompatibilityLayers(
   if (modelId.startsWith("nano-banana") && protocol === "openai_images") {
     return ["standard", "t8_newapi", "openrouter"];
   }
+  if (modelId === "gpt-image-2" && protocol === "openai_images") {
+    return ["standard", "atlascloud"];
+  }
   return ["standard"];
 }
 
@@ -129,6 +138,7 @@ export function compatibilityForBinding(
   if (codec === "gemini_generate_content_image_config") return "gemini_image_config";
   if (codec === "gemini_t8_images") return "t8_newapi";
   if (codec === "gemini_openrouter_images") return "openrouter";
+  if (codec === "gpt_atlascloud_images") return "atlascloud";
   return "standard";
 }
 
@@ -162,6 +172,7 @@ export function bindingTemplateForCompatibility(
   if (compatibility === "change2pro") return "gemini_change2pro_generate_content";
   if (compatibility === "t8_newapi") return "gemini_t8_images";
   if (compatibility === "openrouter") return "gemini_openrouter_images";
+  if (compatibility === "atlascloud") return "gpt_atlascloud_images";
   return bindingTemplateForProtocol(modelId, protocol);
 }
 
