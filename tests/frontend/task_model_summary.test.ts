@@ -151,6 +151,21 @@ test("locked task selection keeps the visual summary while unlocked cross-model 
   assert.equal(taskOutputSettingsView(geminiTask, "nano-banana-2-lite", false), "editor");
 });
 
+test("GPT history versions share the current parameter editor without changing the historical identity", () => {
+  const versions = ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"];
+  for (const historicalModel of versions) {
+    const task = { generation_snapshot: { canonical_model_id: historicalModel } };
+    for (const selectedModel of versions) {
+      assert.equal(taskOutputSettingsView(task, selectedModel, false), "editor");
+      assert.equal(taskOutputSettingsView(task, selectedModel, true), "locked-summary");
+      assert.equal(taskCanonicalModelId(task), historicalModel);
+    }
+    assert.equal(taskOutputSettingsView(task, "nano-banana-2", false), "parameter-inspector");
+    assert.equal(taskOutputSettingsView(task, "gpt-image-future", false), "parameter-inspector");
+  }
+  assert.equal(taskOutputSettingsView({ params: { model: "gpt-image-2" } }, "gpt-image-2.5-flare", false), "editor");
+});
+
 test("task cards use the shared Gemini brand mark asset", () => {
   const icon = modelFamilyBrandMarkHtml("gemini-image", "task-model-family-brand-mark");
 

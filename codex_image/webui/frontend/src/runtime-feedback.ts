@@ -3,6 +3,7 @@ import { formatTranslation, translate } from "./i18n";
 import { cssEscape } from "./webui-utils";
 import type { WebUITask } from "./types";
 import { taskCancellationPending, taskWasCancelled } from "./task-cancellation";
+import { taskUpdateIsOlder } from "./state-sync";
 
 function legacyMethod(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
@@ -42,6 +43,7 @@ export function updateTaskInState(task: WebUITask | null | undefined): boolean {
     return true;
   }
   const previousTask = state.tasks[previousIndex];
+  if (taskUpdateIsOlder(previousTask, task)) return false;
   if (previousTask?.local_pending) {
     revokeTaskUploadPreviewUrls(previousTask);
   }
@@ -232,6 +234,8 @@ export function addPendingTask(task: WebUITask): void {
 
 export function replacePendingTask(pendingTaskId: string, completedTask: WebUITask): void {
   const state = getLegacyBridge().state;
+  const currentTask = state.tasks.find((task) => task.task_id === completedTask.task_id && !task.local_pending);
+  if (currentTask && taskUpdateIsOlder(currentTask, completedTask)) completedTask = currentTask;
   const removedPendingTasks = state.tasks.filter((task: any) => (
     task?.local_pending
     && (task.task_id === completedTask.task_id || task.task_id === pendingTaskId)

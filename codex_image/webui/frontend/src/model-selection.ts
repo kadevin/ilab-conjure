@@ -151,7 +151,7 @@ export function renderModelSelectors(): void {
     ));
     const gptVersions = selectedFamily.id === "gpt-image";
     const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
-    modelField?.classList.toggle("hidden", gptVersions ? familyModels.length < 2 : !expanded);
+    modelField?.classList.toggle("hidden", gptVersions || !expanded);
     modelSelect.replaceChildren();
     familyModels.forEach((model) => {
       const option = document.createElement("option");

@@ -295,3 +295,94 @@ test("transparent compatibility survives provider copies and protocol changes pe
   assert.equal(bindingForCompatibilitySelection(binding, "gpt-image-2.5-sunburst", "other", "openai_images", "standard", true, ["generate"]).transparency_mode, "prompt");
   assert.equal(bindingForProtocolSelection(binding, "nano-banana-pro", "nano", "gemini", true, ["generate"]).transparency_mode, "native");
 });
+
+test("provider edits keep complete defaults and retain the submitted form after a save failure", async (t) => {
+  const state: any = {};
+  const els: any = {};
+  const previousWindow = globalThis.window;
+  const previousDocument = globalThis.document;
+  const previousStorage = globalThis.localStorage;
+  const previousFetch = globalThis.fetch;
+  (globalThis as any).window = { setTimeout: () => 1, clearTimeout() {}, __codexImageWebUI: { state, els, methods: {
+    setStatus() {}, syncReferenceFileAvailability() {}, currentAuthSource: () => "api", currentApiMode: () => "images",
+  } } };
+  (globalThis as any).document = { querySelector: () => null };
+  (globalThis as any).localStorage = { setItem() {} };
+  const { readApiSettingsForm, saveApiSettings } = await import("../../codex_image/webui/frontend/src/api-provider-settings");
+  const provider = (id: string, model = "gpt-image-2") => ({
+    id, name: id, base_url: "https://relay.example/v1", api_key_set: true, concurrency: 4,
+    bindings: [bindingFromProtocol(`${id}-binding`, model, model, "openai_images")],
+  });
+  const prepare = (isDefault: boolean, targetModel = "gpt-image-2.5-flare", existingTarget = false) => {
+    state.apiSettings = {
+      schema_version: 2, active_provider_id: "edited", codex_mode: "images",
+      providers: [provider("edited"), provider("other"), ...(existingTarget ? [provider("target", targetModel)] : [])],
+      default_provider_by_model: {
+        "gpt-image-2": isDefault ? "edited" : "other",
+        ...(existingTarget ? { [targetModel]: "target" } : {}),
+      },
+    };
+    state.apiProviderEditingId = "edited";
+    state.apiProviderDraft = structuredClone(state.apiSettings.providers[0]);
+    state.apiProviderDraftIsNew = false;
+    els.apiBaseUrl = { value: "https://relay.example/v1" };
+    els.apiImagesConcurrency = { value: "7" };
+    const values: Record<string, any> = {
+      "[data-binding-model]": { value: targetModel },
+      "[data-binding-remote-model]": { value: "vendor/custom-2.5" },
+      "[data-binding-protocol]": { value: "openai_images" },
+      "[data-binding-compatibility]": { value: "standard" },
+      "[data-binding-default]": { checked: isDefault },
+    };
+    const card = {
+      dataset: {
+        bindingId: "edited-binding", bindingOriginalModelId: "gpt-image-2",
+        bindingOriginalProtocolProfile: "openai_images", bindingOriginalParameterCodec: "gpt_openai_images",
+        bindingModelOperations: "generate,edit", bindingProtocolChanged: "true",
+      },
+      querySelector: (selector: string) => values[selector] || null,
+    };
+    els.apiProviderBindings = { querySelectorAll: () => [card] };
+  };
+  try {
+    for (const model of ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+      for (const isDefault of [true, false]) {
+        await t.test(`${model} saves after changing a ${isDefault ? "default" : "non-default"} provider`, () => {
+          prepare(isDefault, model);
+          const settings = readApiSettingsForm({ applyProviderDraft: true });
+          assert.deepEqual(settings.default_provider_by_model, { "gpt-image-2": "other", [model]: "edited" });
+          assert.equal(settings.providers[0].bindings[0].canonical_model_id, model);
+          assert.equal(settings.providers[0].bindings[0].remote_model_id, "vendor/custom-2.5");
+          assert.equal(settings.providers[1].bindings[0].canonical_model_id, "gpt-image-2");
+        });
+      }
+    }
+    await t.test("an existing default for the target model remains selected", () => {
+      prepare(false, "gpt-image-2.5-flare", true);
+      assert.deepEqual(readApiSettingsForm({ applyProviderDraft: true }).default_provider_by_model, {
+        "gpt-image-2": "other", "gpt-image-2.5-flare": "target",
+      });
+    });
+    await t.test("failed persistence keeps edits available for retry", async () => {
+      prepare(true);
+      let submitted: any;
+      globalThis.fetch = (async (_url: any, options: any) => {
+        submitted = JSON.parse(options.body);
+        els.apiProviderBindings = null; // Rendering is verified in the browser; inspect the retained draft here.
+        return { ok: false, json: async () => ({ detail: "Synthetic storage failure" }) };
+      }) as any;
+      assert.equal(await saveApiSettings(), false);
+      assert.equal(submitted.providers[0].bindings[0].canonical_model_id, "gpt-image-2.5-flare");
+      assert.equal(state.apiSettings.providers[0].bindings[0].canonical_model_id, "gpt-image-2");
+      assert.equal(state.apiProviderEditingId, "edited");
+      assert.equal(state.apiProviderDraft.bindings[0].canonical_model_id, "gpt-image-2.5-flare");
+      assert.equal(state.apiProviderDraft.bindings[0].remote_model_id, "vendor/custom-2.5");
+      assert.equal(state.apiProviderDraft.concurrency, 7);
+    });
+  } finally {
+    globalThis.window = previousWindow;
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousStorage;
+    globalThis.fetch = previousFetch;
+  }
+});

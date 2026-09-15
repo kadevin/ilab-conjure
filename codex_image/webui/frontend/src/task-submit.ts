@@ -1,4 +1,4 @@
-import { composerFingerprint, markComposerBaseline } from "./composer-draft";
+import { composerFingerprint, markComposerSubmitted } from "./composer-draft";
 import { isGptImageModel } from "./gpt-image-models";
 import { setBackgroundControl } from "./background-controls";
 import { getLegacyBridge } from "./state";
@@ -200,6 +200,7 @@ function buildPreviewRequest() {
     requested_backend: requestedBackend,
     canonical_model_id: selection.canonicalModelId,
     provider_id: selection.providerId,
+    binding_id: selection.bindingId,
     parameters,
     ui_language: currentLocaleCode(),
     prompt: getPromptText(),
@@ -360,7 +361,7 @@ async function runTask() {
       throw new Error(responseErrorMessage(data.detail));
     }
     addQueuedTask(data.task);
-    if (composerFingerprint() === submittedComposer) markComposerBaseline();
+    markComposerSubmitted(submittedComposer);
     if (els.requestJson) {
       els.requestJson.textContent = JSON.stringify(data.request || {}, null, 2);
     }
@@ -368,7 +369,7 @@ async function runTask() {
     setStatus(translate("taskSubmit.queued"), "ok");
     await window.refreshQueue?.();
     await refreshRecentAssets();
-    renderPreview(data.task);
+    renderPreview();
     getLegacyBridge().methods.showMobilePreview?.();
   } catch (error) {
     stopRunFeedback();

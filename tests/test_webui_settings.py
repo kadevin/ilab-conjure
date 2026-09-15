@@ -3153,6 +3153,48 @@ class WebUISettingsTests(unittest.TestCase):
             self.assertEqual(deleted.status_code, 200)
             self.assertEqual(deleted.json()["templates"], [])
 
+    def test_prompt_template_model_hints_survive_save_edit_and_pack_round_trip(self) -> None:
+        from codex_image.generation.catalog import list_model_manifests
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            clients = [TestClient(create_app(
+                output_root=root / name / "outputs",
+                prompt_templates_path=root / name / "templates.json",
+                auth_checker=lambda: True,
+                auto_start_queue=False,
+            )) for name in ("source", "destination")]
+            source, destination = clients
+            model_ids = [model.id for model in list_model_manifests()] + ["any"]
+            for model_id in model_ids:
+                with self.subTest(model_id=model_id):
+                    created = source.post("/api/prompt-templates", json={
+                        "title": "Shared template", "content": "Synthetic prompt",
+                        "model_hint": model_id,
+                    })
+                    self.assertEqual(created.status_code, 200, created.text)
+                    template_id = created.json()["template"]["id"]
+                    updated = source.patch(f"/api/prompt-templates/{template_id}", json={"notes": "Edited"})
+                    self.assertEqual(updated.status_code, 200)
+                    self.assertEqual(updated.json()["template"]["model_hint"], model_id)
+            exported = source.get("/api/prompt-templates/export.json")
+            self.assertEqual(exported.status_code, 200)
+            self.assertEqual(exported.json()["model_hint"], "any")
+            imported = destination.post("/api/prompt-templates/import", files={
+                "file": ("templates.json", exported.content, "application/json"),
+            })
+            self.assertEqual(imported.status_code, 200, imported.text)
+            self.assertEqual(imported.json()["imported"], len(model_ids))
+            self.assertEqual({item["model_hint"] for item in imported.json()["templates"]}, set(model_ids))
+            repeated = destination.post("/api/prompt-templates/import", files={
+                "file": ("templates.json", exported.content, "application/json"),
+            })
+            self.assertEqual(repeated.json()["imported"], 0)
+            self.assertEqual(repeated.json()["skipped"], len(model_ids))
+            listed = destination.get("/api/prompt-templates").json()["templates"]
+            self.assertEqual({item["model_hint"] for item in listed}, set(model_ids))
+
     def test_prompt_templates_support_categories_thumbnails_and_pack_import_export(self) -> None:
         from codex_image.webui.app import create_app
 

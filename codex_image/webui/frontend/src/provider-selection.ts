@@ -7,6 +7,8 @@ import type {
 import { getLegacyBridge } from "./state";
 import { translate } from "./i18n";
 import { syncThemedSelect } from "./themed-select";
+import { isGptImageModel } from "./gpt-image-models";
+import { selectConcreteModel } from "./model-selection";
 
 export interface EligibleProviderBinding {
   provider: CatalogProvider;
@@ -34,12 +36,19 @@ export function eligibleProviderBindings(
   modelId: string | null,
   operation: GenerationOperation,
 ): EligibleProviderBinding[] {
-  if (!modelId) return [];
+  return eligibleBindingsForModels(catalog, modelId ? [modelId] : [], operation);
+}
+
+function eligibleBindingsForModels(
+  catalog: GenerationCatalog,
+  modelIds: readonly string[],
+  operation: GenerationOperation,
+): EligibleProviderBinding[] {
   return catalog.providers.flatMap((provider) => {
-    if (!providerIsEligible(catalog, provider, modelId)) return [];
     return provider.bindings
       .filter((binding) => (
-        binding.canonical_model_id === modelId
+        modelIds.includes(binding.canonical_model_id)
+        && providerIsEligible(catalog, provider, binding.canonical_model_id)
         && binding.operations.includes(operation)
         && binding.available !== false
       ))
@@ -49,6 +58,17 @@ export function eligibleProviderBindings(
         selectionKey: providerBindingSelectionKey(provider.id, binding.id),
       }));
   });
+}
+
+function providerMenuBindings(
+  catalog: GenerationCatalog,
+  modelId: string | null,
+  operation: GenerationOperation,
+): EligibleProviderBinding[] {
+  const modelIds = isGptImageModel(modelId)
+    ? catalog.models.filter((model) => isGptImageModel(model.id)).map((model) => model.id)
+    : modelId ? [modelId] : [];
+  return eligibleBindingsForModels(catalog, modelIds, operation);
 }
 
 export function eligibleProviders(
@@ -138,8 +158,12 @@ export function settingsTabForProvider(_providerId: string | null | undefined): 
   return "api";
 }
 
-function optionLabel(entry: EligibleProviderBinding): string {
-  return entry.binding.display_name || entry.provider.name;
+function optionLabel(entry: EligibleProviderBinding, entries: EligibleProviderBinding[], catalog: GenerationCatalog): string {
+  const label = entry.binding.display_name || entry.provider.name;
+  const multipleModels = entries.some((candidate) => candidate.provider.id === entry.provider.id
+    && candidate.binding.canonical_model_id !== entry.binding.canonical_model_id);
+  const model = catalog.models.find((model) => model.id === entry.binding.canonical_model_id);
+  return multipleModels ? `${label} · ${model?.display_name || entry.binding.canonical_model_id}` : label;
 }
 
 function applyOptionIcon(option: HTMLOptionElement, entry: EligibleProviderBinding): void {
@@ -159,11 +183,11 @@ export function renderProviderSelection(): void {
   const select = els.generationProviderSelect as HTMLSelectElement | null;
   const catalog = state.generationCatalog;
   const entries = catalog
-    ? eligibleProviderBindings(catalog, state.selectedModelId, state.mode as GenerationOperation)
+    ? providerMenuBindings(catalog, state.selectedModelId, state.mode as GenerationOperation)
     : [];
   const resolved = catalog
     ? resolveProviderSelection(
-        entries,
+        entries.filter((entry) => entry.binding.canonical_model_id === state.selectedModelId),
         state.lastProviderSelectionByModel[state.selectedModelId || ""],
         state.lastProviderByModel[state.selectedModelId || ""],
         catalog.default_provider_by_model[state.selectedModelId || ""],
@@ -176,26 +200,27 @@ export function renderProviderSelection(): void {
 
   if (select) {
     select.replaceChildren();
-    if (!entries.length) {
+    if (!resolved) {
       const option = document.createElement("option");
       option.value = "";
       option.textContent = catalog
         ? translate("modelSelection.providerUnavailable")
         : translate("modelSelection.catalogUnavailable");
       select.append(option);
-    } else {
+    }
+    if (catalog) {
       for (const entry of entries) {
         const option = document.createElement("option");
         option.value = entry.selectionKey;
-        option.textContent = optionLabel(entry);
-        option.title = optionLabel(entry);
+        option.textContent = optionLabel(entry, entries, catalog);
+        option.title = optionLabel(entry, entries, catalog);
         applyOptionIcon(option, entry);
         select.append(option);
       }
     }
     select.value = resolved?.selectionKey || "";
-    select.disabled = !resolved;
-    select.title = resolved ? optionLabel(resolved) : "";
+    select.disabled = !entries.length;
+    select.title = resolved && catalog ? optionLabel(resolved, entries, catalog) : "";
     select.setAttribute("aria-invalid", resolved ? "false" : "true");
     syncThemedSelect(select);
   }
@@ -209,17 +234,23 @@ export function selectGenerationProvider(selectionOrProviderId: string): void {
   const { state } = getLegacyBridge();
   const catalog = state.generationCatalog;
   if (!catalog || !state.selectedModelId) return;
-  const entries = eligibleProviderBindings(catalog, state.selectedModelId, state.mode as GenerationOperation);
+  const entries = providerMenuBindings(catalog, state.selectedModelId, state.mode as GenerationOperation);
   const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId)
+    || preferredProviderBinding(entries.filter((entry) => entry.binding.canonical_model_id === state.selectedModelId), selectionOrProviderId, catalog.codex.mode)
     || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
   if (!selected) {
     renderProviderSelection();
     return;
   }
+  const modelId = selected.binding.canonical_model_id;
+  state.lastProviderByModel[modelId] = selected.provider.id;
+  state.lastProviderSelectionByModel[modelId] = selected.selectionKey;
+  if (modelId !== state.selectedModelId) {
+    selectConcreteModel(modelId);
+    return;
+  }
   state.selectedProviderId = selected.provider.id;
   state.selectedProviderBindingId = selected.binding.id;
-  state.lastProviderByModel[state.selectedModelId] = selected.provider.id;
-  state.lastProviderSelectionByModel[state.selectedModelId] = selected.selectionKey;
   getLegacyBridge().methods.persistModelSelection?.();
   renderProviderSelection();
   getLegacyBridge().methods.updateModeSpecificSettings?.();

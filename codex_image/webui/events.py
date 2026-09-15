@@ -101,6 +101,9 @@ def queue_snapshot(ctx: WebUIContext) -> dict[str, Any]:
     return {
         "waiting": waiting,
         "running": running,
+        # Preserve queue mutations even when a task starts and finishes between
+        # SSE checks and both visible snapshots are empty.
+        "updated_at": state["updated_at"] if ctx.queue_storage.path.exists() else "",
         "summary": {
             "waiting_count": len(waiting),
             "running_count": len(running),

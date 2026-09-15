@@ -14,6 +14,12 @@ interface SyncState {
 
 const syncStates = new WeakMap<object, SyncState>();
 
+export function taskUpdateIsOlder(previous: any, incoming: any): boolean {
+  const previousTime = Date.parse(previous?.updated_at || previous?.created_at || "");
+  const incomingTime = Date.parse(incoming?.updated_at || incoming?.created_at || "");
+  return Number.isFinite(previousTime) && Number.isFinite(incomingTime) && incomingTime < previousTime;
+}
+
 function versionState(state: object, version?: StateSyncVersion): SyncState | null | false {
   // Older servers and local-only updates retain their existing behavior.
   if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;

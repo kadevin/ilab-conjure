@@ -3,6 +3,44 @@ import test from "node:test";
 import { suggestLegalSize } from "../../codex_image/webui/frontend/src/size-suggestion";
 import { taskRecoveryKind } from "../../codex_image/webui/frontend/src/task-recovery";
 
+test("template creation records the current model and edits preserve the stored model hint", async () => {
+  const previous = { window: globalThis.window, document: globalThis.document, fetch: globalThis.fetch };
+  const form: any = {
+    dataset: { promptTemplateFormId: "" },
+    querySelector: () => ({ value: "Synthetic template", checked: false }),
+  };
+  const state: any = { selectedModelId: "gpt-image-2.5-flare", promptTemplates: [] };
+  const requests: any[] = [];
+  const methods: any = { setStatus() {} };
+  (globalThis as any).window = { __codexImageWebUI: { state, methods, els: {
+    promptTemplateForm: { querySelector: () => form, classList: { add() {} }, addEventListener() {} },
+  } } };
+  (globalThis as any).document = { addEventListener() {} };
+  globalThis.fetch = (async (_url: string, options: any) => {
+    const payload = JSON.parse(options.body);
+    requests.push({ method: options.method, payload });
+    const existing = state.promptTemplates.find((item: any) => item.id === form.dataset.promptTemplateFormId);
+    return { ok: true, json: async () => ({ templates: [{ ...existing, ...payload, id: "saved" }], categories: [] }) };
+  }) as any;
+  try {
+    const { initPromptTemplatesFeature } = await import("../../codex_image/webui/frontend/src/prompt-templates");
+    initPromptTemplatesFeature();
+    for (const modelId of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst", "nano-banana-2"]) {
+      state.selectedModelId = modelId;
+      form.dataset.promptTemplateFormId = "";
+      await methods.savePromptTemplateFromDrawer();
+      assert.equal(requests.at(-1).method, "POST");
+      assert.equal(requests.at(-1).payload.model_hint, modelId);
+      state.selectedModelId = "gpt-image-2";
+      form.dataset.promptTemplateFormId = "saved";
+      await methods.savePromptTemplateFromDrawer();
+      assert.equal(requests.at(-1).method, "PATCH");
+      assert.equal(Object.hasOwn(requests.at(-1).payload, "model_hint"), false);
+      assert.equal(state.promptTemplates[0].model_hint, modelId);
+    }
+  } finally { Object.assign(globalThis, previous); }
+});
+
 test("size corrections satisfy provider limits without silently changing the source", () => {
   for (const [w, h] of [[16,16],[1,10000],[0,0],[9999,9999],[800,1200],[NaN,Infinity]]) {
     const result = suggestLegalSize(w!, h!);
@@ -39,6 +77,7 @@ test("draft restoration preserves prompt chips, files and image blobs across a d
   prompt = 'draft @reference ~snippet #ffffff';
   state.images = [{kind:'upload',file,name:file.name,previewUrl:URL.createObjectURL(file)}];
   state.referenceFiles = [{id:'document-1',filename:'notes.pdf'}];
+  const fingerprint = drafts.composerFingerprint();
   drafts.preserveComposerDraft();
   methods.revokeUploadPreviewUrls(state.images);
   state.images=[];state.referenceFiles=[];prompt=''; drafts.markComposerBaseline();
@@ -47,6 +86,7 @@ test("draft restoration preserves prompt chips, files and image blobs across a d
   assert.equal(state.images[0].file,file); assert.equal(state.referenceFiles[0].id,'document-1');
   assert.equal(await (await fetch(state.images[0].previewUrl)).text(),'test');
   assert.equal(state.selectedTaskId,null); assert.equal(state.taskInputRestoreSeq,1);
+  assert.equal(drafts.composerFingerprint(), fingerprint, "recreating a preview URL does not change draft identity");
   URL.revokeObjectURL(state.images[0].previewUrl);
 });
 
@@ -72,7 +112,7 @@ test("reference read errors remain visible, retain inputs and release the button
 test("provider resolution clears only the stale Codex health warning", async () => {
   const statusText: any = { textContent: "No Codex session detected", dataset: {statusSource:"codex-health"} };
   const state: any = {
-    generationCatalog: { models: [], providers: [], default_provider_by_model: {}, codex: {mode:"images",available:false} },
+    generationCatalog: { models: [{id:"gpt-image-2",family_id:"gpt-image"}], providers: [], default_provider_by_model: {}, codex: {mode:"images",available:false} },
     selectedModelId: "gpt-image-2", mode:"generate", lastProviderSelectionByModel:{}, lastProviderByModel:{},
   };
   const runButton = {disabled:false};

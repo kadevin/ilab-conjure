@@ -309,6 +309,7 @@ export interface QueueState {
   waiting: WebUITask[];
   running: WebUITask[];
   summary: QueueSummary;
+  updated_at?: string;
 }
 
 export interface RealtimePayload {

@@ -20,13 +20,18 @@ export function taskCanonicalModelId(task: unknown): string {
 
 export type TaskOutputSettingsView = "locked-summary" | "parameter-inspector" | "editor";
 
+export function modelsShareParameterEditor(leftModelId: string, rightModelId: string): boolean {
+  return leftModelId === rightModelId
+    || (isGptImageModel(leftModelId) && isGptImageModel(rightModelId));
+}
+
 export function taskOutputSettingsView(
   task: unknown,
   selectedModelId: string,
   outputSettingsLocked: boolean,
 ): TaskOutputSettingsView {
   if (outputSettingsLocked) return "locked-summary";
-  return taskCanonicalModelId(task) === selectedModelId ? "editor" : "parameter-inspector";
+  return modelsShareParameterEditor(taskCanonicalModelId(task), selectedModelId) ? "editor" : "parameter-inspector";
 }
 
 export function taskRequestedParameters(task: unknown): Record<string, unknown> {

@@ -19,16 +19,18 @@ import {
   aspectRatioSlots,
 } from "../../codex_image/webui/frontend/src/aspect-ratio-controls";
 import {
+  adoptTaskParameters,
   inspectTaskParameters,
   legacyGenerationSnapshot,
   notifyParameterMigration,
+  reconcileTaskParameterInspection,
   taskParameterInspectionAction,
   taskParameterInspectionMatchesSelectedModel,
   taskParameterInspectorModel,
   taskParameterInspectorTitle,
   taskParameterInspectorParameters,
 } from "../../codex_image/webui/frontend/src/task-parameter-inspector";
-import { appendCanonicalGenerationFields } from "../../codex_image/webui/frontend/src/generation-request";
+import { appendCanonicalGenerationFields, currentGenerationSelection } from "../../codex_image/webui/frontend/src/generation-request";
 import { translate } from "../../codex_image/webui/frontend/src/i18n";
 
 const parameters: CatalogModel["parameters"] = [
@@ -81,6 +83,105 @@ function installBridge() {
   (globalThis as any).window = { __codexImageWebUI: { state, els: {}, methods: { renderTaskParameterInspector() {} } } };
   return { state, restore: () => { (globalThis as any).window = previousWindow; } };
 }
+
+const gptVersions = ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"];
+
+function installGptAdoptionBridge(selectedModelId: string) {
+  const previous = { window: globalThis.window, document: globalThis.document };
+  const gptParameters: CatalogModel["parameters"] = [
+    { ...parameters[0], id: "canvas.size", default: "1024x1024", allowed_values: [] },
+    { ...parameters[0], id: "gpt.quality", default: "auto", allowed_values: ["auto", "low", "medium", "high"] },
+    { ...parameters[0], id: "gpt.background", default: "auto", allowed_values: ["auto", "opaque", "transparent"] },
+    { ...parameters[0], id: "output.format", default: "png", allowed_values: ["png", "jpeg", "webp"] },
+    { ...parameters[0], id: "gpt.moderation", default: "auto", allowed_values: ["auto", "low"] },
+    parameters[3],
+  ];
+  const gptCatalog: GenerationCatalog = {
+    ...catalog,
+    families: [...catalog.families, { id: "gpt-image", display_name: "GPT", short_name: "GPT", label_key: "gpt" }],
+    models: [model, ...gptVersions.map(id => ({ ...model, id, family_id: "gpt-image", parameters: gptParameters }))],
+    providers: [...catalog.providers, ...gptVersions.map((id, index) => ({
+      id: `gpt-${index}`, name: `GPT provider ${index}`, available: true, builtin: false,
+      bindings: ["images", "responses"].map(protocol => ({
+        id: `gpt-${index}-${protocol}`, canonical_model_id: id, remote_model_id: `vendor/${id}`,
+        protocol_profile: `openai_${protocol}`, parameter_codec: `gpt_openai_${protocol}`, operations: ["generate" as const],
+      })),
+    }))],
+    default_provider_by_model: { ...catalog.default_provider_by_model, ...Object.fromEntries(gptVersions.map((id, index) => [id, `gpt-${index}`])) },
+  };
+  const index = gptVersions.indexOf(selectedModelId);
+  const providerId = index < 0 ? "provider-a" : `gpt-${index}`;
+  const bindingId = index < 0 ? "binding-a" : `gpt-${index}-responses`;
+  const state: any = {
+    generationCatalog: gptCatalog, selectedModelId, selectedFamilyId: index < 0 ? "family-a" : "gpt-image",
+    selectedProviderId: providerId, selectedProviderBindingId: bindingId, mode: "generate",
+    lastModelByFamily: {}, lastProviderByModel: { [selectedModelId]: providerId },
+    lastProviderSelectionByModel: { [selectedModelId]: `${providerId}::${bindingId}` },
+    parameterDraftsByModel: {}, parameterDraftVersionsByModel: {},
+  };
+  const els: any = Object.fromEntries(Object.entries({
+    size: "1024x1024", quality: "auto", background: "auto", outputFormat: "png", moderation: "auto", nInput: "1",
+  }).map(([id, value]) => [id, {
+    value, selectedValue: value,
+    dispatchEvent() { this.selectedValue = this.value; },
+  }]));
+  let preview: ReturnType<typeof currentGenerationSelection> | null = null;
+  const methods = {
+    currentTaskParams: () => ({ size: els.size.value, quality: els.quality.value, background: els.background.value,
+      output_format: els.outputFormat.value, moderation: els.moderation.value, n: Number(els.nInput.value) }),
+    syncSizeControlsFromSize: (size: string) => { els.size.value = size; },
+    syncRadioButtons: (...inputs: any[]) => inputs.filter(Boolean).forEach(input => input.dispatchEvent(new Event("change"))),
+    persistModelSelection() {},
+    updateRequestPreview() { preview = currentGenerationSelection(); },
+  };
+  (globalThis as any).window = { __codexImageWebUI: { state, els, methods } };
+  (globalThis as any).document = { querySelectorAll: () => [] };
+  return { state, els, preview: () => preview, restore() { Object.assign(globalThis, previous); } };
+}
+
+test("adopting GPT history preserves the current version, provider and protocol binding", () => {
+  for (const selectedModelId of gptVersions) {
+    for (const historicalModelId of gptVersions) {
+      const { state, restore } = installGptAdoptionBridge(selectedModelId);
+      const before = [state.selectedModelId, state.selectedProviderId, state.selectedProviderBindingId];
+      const snapshot = { canonical_model_id: historicalModelId, provider_id: "gpt-0",
+        requested_parameters: { "gpt.quality": "high", "output.count": 3 } };
+      try {
+        adoptTaskParameters({ task_id: "historical", mode: "generate", generation_snapshot: snapshot } as any);
+        assert.deepEqual([state.selectedModelId, state.selectedProviderId, state.selectedProviderBindingId], before);
+        assert.equal(snapshot.canonical_model_id, historicalModelId);
+      } finally { restore(); }
+    }
+  }
+});
+
+test("adopted GPT parameters reach the controls and request after provider selection", () => {
+  for (const targetModelId of gptVersions) {
+    for (const sourceModelId of ["model-a", targetModelId]) {
+      const { state, els, preview, restore } = installGptAdoptionBridge(sourceModelId);
+      const requested = { "canvas.size": "1536x1024", "gpt.quality": "high", "output.count": 3,
+        "gpt.background": "transparent", "output.format": "png", "gpt.moderation": "low" };
+      const task = { task_id: "historical", mode: "generate", generation_snapshot: {
+        canonical_model_id: targetModelId, provider_id: `gpt-${gptVersions.indexOf(targetModelId)}`,
+        requested_parameters: requested,
+      } } as any;
+      try {
+        const report = adoptTaskParameters(task);
+        assert.equal(state.selectedModelId, targetModelId);
+        assert.equal(els.quality.value, "high");
+        assert.equal(els.nInput.value, "3");
+        assert.equal(els.nInput.selectedValue, "3");
+        assert.equal(els.quality.selectedValue, "high");
+        assert.equal(els.size.value, "1536x1024");
+        assert.equal(els.background.value, "transparent");
+        assert.equal(els.moderation.value, "low");
+        assert.deepEqual(preview()?.parameters, requested);
+        assert.deepEqual(report.values, requested);
+        assert.deepEqual(task.generation_snapshot.requested_parameters, requested);
+      } finally { restore(); }
+    }
+  }
+});
 
 test("draft initialization preserves valid values, defaults invalid values, and reports drops", () => {
   assert.deepEqual(initializeParameterDraft(model, {
@@ -349,6 +450,31 @@ test("old tasks receive a GPT-compatible legacy snapshot", () => {
   });
 });
 
+test("tasks without frozen snapshots retain their canonical request instead of becoming Image 2", () => {
+  const { state, restore } = installBridge();
+  try {
+    for (const canonicalModelId of [...gptVersions, "nano-banana-2"]) {
+      const requested = { "output.count": 3, "canvas.size": "1536x1024", "gpt.quality": "high" };
+      const task = { task_id: "pending-failed", status: "failed", local_pending: true,
+        params: { model: `vendor/${canonicalModelId}`, quality: "low", n: 1 },
+        request: { canonical_model_id: canonicalModelId, provider_id: "current-provider", binding_id: "exact-binding",
+          api_provider_name: "Current provider", requested_backend: "openai_responses", parameters: requested },
+      } as any;
+      inspectTaskParameters(task);
+      const snapshot = state.inspectedGenerationSnapshot;
+      assert.equal(snapshot.canonical_model_id, canonicalModelId);
+      assert.equal(snapshot.family_id, canonicalModelId === "nano-banana-2" ? "gemini-image" : "gpt-image");
+      assert.equal(snapshot.provider_id, "current-provider");
+      assert.equal(snapshot.provider_name, "Current provider");
+      assert.equal(snapshot.binding_id, "exact-binding");
+      assert.equal(snapshot.remote_model_id, `vendor/${canonicalModelId}`);
+      assert.equal(snapshot.protocol_profile, "openai_responses");
+      assert.equal(snapshot.legacy, false);
+      assert.deepEqual(snapshot.requested_parameters, requested);
+    }
+  } finally { restore(); }
+});
+
 test("legacy snapshots preserve explicit background data for the restored inspector control", () => {
   assert.equal(Object.hasOwn(legacyGenerationSnapshot({
     task_id: "without-background",
@@ -432,6 +558,39 @@ test("history inspection closes when the selected model catches up with the task
   assert.equal(taskParameterInspectionAction(task, "nano-banana-2", false), "inspect");
   assert.equal(taskParameterInspectionAction(task, "gpt-image-2", false), "clear");
   assert.equal(taskParameterInspectionAction(task, "nano-banana-2", true), "preserve");
+});
+
+test("GPT history reconciliation keeps the shared editor and current provider version", () => {
+  const { state, restore } = installBridge();
+  try {
+    for (const historicalModel of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+      const snapshot = { canonical_model_id: historicalModel } as any;
+      const task = { task_id: "gpt-history", generation_snapshot: snapshot } as any;
+      for (const selectedModel of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+        assert.equal(taskParameterInspectionMatchesSelectedModel(snapshot, selectedModel), true);
+        assert.equal(taskParameterInspectionAction(task, selectedModel, false), "clear");
+        assert.equal(taskParameterInspectionAction(task, selectedModel, true), "preserve");
+        Object.assign(state, {
+          selectedModelId: selectedModel,
+          selectedProviderId: "current-provider",
+          selectedProviderBindingId: "current-binding",
+          selectedTaskId: task.task_id,
+          tasks: [task],
+          inspectedGenerationSnapshot: snapshot,
+        });
+        const drafts = structuredClone(state.parameterDraftsByModel);
+        reconcileTaskParameterInspection();
+        assert.equal(state.inspectedGenerationSnapshot, null);
+        assert.equal(state.selectedModelId, selectedModel);
+        assert.equal(state.selectedProviderId, "current-provider");
+        assert.equal(state.selectedProviderBindingId, "current-binding");
+        assert.deepEqual(state.parameterDraftsByModel, drafts);
+        assert.equal(task.generation_snapshot.canonical_model_id, historicalModel);
+      }
+    }
+  } finally {
+    restore();
+  }
 });
 
 test("history title shows the canonical model once and does not present the remote image model as a main model", () => {

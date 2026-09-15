@@ -141,9 +141,15 @@ export async function handleRealtimePayload(payload: RealtimePayload | null | un
   }
   if (payload?.type === "queue") {
     const updatedTasks = payload.tasks || [];
+    const queueMutated = Boolean(payload.queue?.updated_at && payload.queue.updated_at !== state.queue.updated_at);
     applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync });
     await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
-    if (acceptQueueSnapshot(state, payload.sync)) applyQueueTasks(state.queue);
+    if (!acceptQueueSnapshot(state, payload.sync)) return;
+    if (queueMutated && !updatedTasks.length && !queueTaskCount(payload.queue)) {
+      await bridge.methods.refreshTasks();
+      return;
+    }
+    applyQueueTasks(state.queue);
     if (!updatedTasks.length && !queueTaskCount(payload.queue)) {
       bridge.methods.renderTasks?.({ preserveScroll: true });
     }
@@ -177,8 +183,7 @@ export async function refreshQueue(): Promise<void> {
       throw new Error(data.detail || translate("queue.readFailed"));
     }
     if (!acceptQueueSnapshot(state, data.sync)) return;
-    state.queue = normalizeQueueState(data);
-    renderQueue();
+    await handleRealtimePayload({ type: "queue", queue: data, sync: data.sync });
   } catch (error: unknown) {
     bridge.methods.setStatus(errorMessage(error, translate("queue.readFailed")), "error");
   }
@@ -194,6 +199,7 @@ export function normalizeQueueState(queue: QueueState | null | undefined): Queue
     waiting: Array.isArray(queue?.waiting) ? queue.waiting : fallback.waiting,
     running: Array.isArray(queue?.running) ? queue.running : fallback.running,
     summary: queue?.summary || fallback.summary,
+    ...(queue?.updated_at ? { updated_at: queue.updated_at } : {}),
   };
 }
 

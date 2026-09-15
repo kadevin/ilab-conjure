@@ -2,9 +2,10 @@ import { isGptImageModel } from "./gpt-image-models";
 import { formatTranslation, translate } from "./i18n";
 import { migrateParameterValues, renderParameterDefinitionsInto, renderCurrentModelParameters } from "./model-parameters";
 import { selectConcreteModel } from "./model-selection";
+import { restoreCurrentModelParameterDraft } from "./model-parameter-drafts";
 import { eligibleProviders, selectGenerationProvider } from "./provider-selection";
 import { getLegacyBridge } from "./state";
-import { taskCanonicalModelId } from "./task-model-summary";
+import { modelsShareParameterEditor, taskModelFamilyId, taskOutputSettingsView } from "./task-model-summary";
 import type { CatalogModel, GenerationCatalog, GenerationSnapshotView, ParameterMigrationReport, WebUITask } from "./types";
 
 function record(value: unknown): Record<string, unknown> {
@@ -62,6 +63,28 @@ export function clearTaskParameterInspection(): void {
 export function legacyGenerationSnapshot(task: WebUITask): GenerationSnapshotView {
   const params = record(task.params);
   const request = record(task.request);
+  const canonicalModelId = String(request.canonical_model_id || "").trim();
+  if (canonicalModelId) {
+    const providerId = String(request.provider_id || request.api_provider_id || params.api_provider_id || "codex");
+    const responses = [request.api_mode, request.codex_mode, params.api_mode, params.codex_mode].includes("responses");
+    const profile = String(request.protocol_profile || request.requested_backend || request.endpoint
+      || `${providerId === "codex" ? "codex" : "openai"}_${responses ? "responses" : "images"}`);
+    return {
+      schema_version: 1,
+      family_id: taskModelFamilyId(task, null),
+      canonical_model_id: canonicalModelId,
+      model_manifest_version: integer(request.model_manifest_version, 1),
+      provider_id: providerId,
+      provider_name: String(request.api_provider_name || params.api_provider_name || (providerId === "codex" ? "Codex" : providerId)),
+      binding_id: String(request.binding_id || ""),
+      remote_model_id: String(request.remote_model_id || params.model || request.image_model || canonicalModelId),
+      protocol_profile: profile,
+      parameter_codec: String(request.parameter_codec || (isGptImageModel(canonicalModelId) ? `gpt_${profile}` : "")),
+      requested_parameters: record(request.parameters),
+      mapped_request: request,
+      legacy: false,
+    };
+  }
   const requestedParameters: Record<string, unknown> = {
     "canvas.size": String(params.size || request.size || "1024x1024"),
     "gpt.quality": String(params.quality || request.quality || "auto"),
@@ -178,7 +201,7 @@ export function taskParameterInspectionMatchesSelectedModel(
   snapshot: GenerationSnapshotView | null | undefined,
   selectedModelId: string,
 ): boolean {
-  return Boolean(snapshot && snapshot.canonical_model_id === selectedModelId);
+  return Boolean(snapshot && modelsShareParameterEditor(snapshot.canonical_model_id, selectedModelId));
 }
 
 export type TaskParameterInspectionAction = "preserve" | "inspect" | "clear";
@@ -190,7 +213,7 @@ export function taskParameterInspectionAction(
 ): TaskParameterInspectionAction {
   if (outputSettingsLocked) return "preserve";
   if (!task) return "clear";
-  return taskCanonicalModelId(task) === selectedModelId ? "clear" : "inspect";
+  return taskOutputSettingsView(task, selectedModelId, false) === "editor" ? "clear" : "inspect";
 }
 
 export function reconcileTaskParameterInspection(): void {
@@ -264,7 +287,9 @@ export function renderTaskParameterInspector(): void {
 export function adoptTaskParameters(task: WebUITask): ParameterMigrationReport {
   const { state, methods } = getLegacyBridge();
   const snapshot = snapshotFromTask(task);
-  const model = state.generationCatalog?.models.find((item) => item.id === snapshot.canonical_model_id);
+  const keepGptBinding = isGptImageModel(state.selectedModelId) && isGptImageModel(snapshot.canonical_model_id);
+  const targetModelId = keepGptBinding ? state.selectedModelId : snapshot.canonical_model_id;
+  const model = state.generationCatalog?.models.find((item) => item.id === targetModelId);
   if (!model) {
     return {
       values: {},
@@ -274,17 +299,20 @@ export function adoptTaskParameters(task: WebUITask): ParameterMigrationReport {
   }
   const report = migrateParameterValues(model, snapshot.requested_parameters);
   methods.setMode?.(task.mode === "edit" && model.operations.includes("edit") ? "edit" : "generate");
-  selectConcreteModel(model.id);
-  state.parameterDraftsByModel[model.id] = report.values;
-  state.parameterDraftVersionsByModel[model.id] = model.version;
+  if (!keepGptBinding) selectConcreteModel(model.id);
   const providers = eligibleProviders(state.generationCatalog!, model.id, state.mode);
-  if (providers.some((provider) => provider.id === snapshot.provider_id)) {
+  if (!keepGptBinding && providers.some((provider) => provider.id === snapshot.provider_id)) {
     selectGenerationProvider(snapshot.provider_id);
   }
-  methods.persistModelSelection?.();
+  // Routing updates can read the previous controls into the draft. Apply the
+  // historical values after routing settles, then restore controls and preview.
+  state.parameterDraftsByModel[model.id] = report.values;
+  state.parameterDraftVersionsByModel[model.id] = model.version;
   state.inspectedGenerationSnapshot = null;
   renderTaskParameterInspector();
-  renderCurrentModelParameters();
+  restoreCurrentModelParameterDraft();
+  methods.updateRequestPreview?.();
+  methods.persistModelSelection?.();
   notifyParameterMigration(report);
   return report;
 }

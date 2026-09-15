@@ -637,6 +637,7 @@ function activeTaskSections(tasks: any[]) {
   const running: any[] = [];
   const waiting: any[] = [];
   tasks.forEach((task: any) => {
+    if (!isAlwaysVisibleTask(task)) return;
     const taskId = String(task?.task_id || "");
     const status = String(task?.status || "");
     if (queueIds.running.has(taskId) || status === "running" || status === "cancelling") {
@@ -1034,7 +1035,8 @@ function taskHistoryGroups(tasks: any, query: any) {
 
 function isAlwaysVisibleTask(task: any) {
   const status = String(task?.status || "");
-  return Boolean(task?.local_pending || ["submitting", "queued", "running"].includes(status));
+  if (["failed", "completed", "cancelled"].includes(status)) return false;
+  return Boolean(task?.local_pending || ["submitting", "queued", "running", "cancelling"].includes(status));
 }
 
 function queueTaskIdsBySection() {

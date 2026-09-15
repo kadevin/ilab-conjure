@@ -9,9 +9,14 @@ function capture(): Draft {
   return { prompt: methods.getPromptText?.() || "", images: [...(state.images || [])], files: [...(state.referenceFiles || [])], mode: state.mode };
 }
 function key(draft: Draft): string {
-  return JSON.stringify([draft.prompt, draft.images.map(item => [item.id, item.name, item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size]), draft.mode]);
+  return JSON.stringify([draft.prompt, draft.images.map(item => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
 }
 export function composerFingerprint(): string { return key(capture()); }
+export function markComposerSubmitted(fingerprint: string): void {
+  drafts = drafts.filter(draft => key(draft) !== fingerprint);
+  if (composerFingerprint() === fingerprint) baseline = fingerprint;
+  renderRestoreButton();
+}
 export function markComposerBaseline(prompt?: string): void {
   const draft = capture();
   if (prompt !== undefined) draft.prompt = prompt;

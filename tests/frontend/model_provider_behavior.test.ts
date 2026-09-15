@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { GenerationCatalog } from "../../codex_image/webui/frontend/src/types";
-import { eligibleProviders, resolveProviderId, settingsTabForProvider } from "../../codex_image/webui/frontend/src/provider-selection";
+import { eligibleProviders, renderProviderSelection, resolveProviderId, selectedProviderBinding, selectGenerationProvider, settingsTabForProvider } from "../../codex_image/webui/frontend/src/provider-selection";
 import { initialCatalogSelection, isGenerationCatalog, persistModelSelection, safeDraftValue } from "../../codex_image/webui/frontend/src/model-catalog";
 import {
   canonicalControlValues,
@@ -689,5 +689,232 @@ test("catalog refresh restores saved parameters before request preview, and hono
     (globalThis as any).document = previous.document;
     globalThis.fetch = previous.fetch;
     (globalThis as any).localStorage = previous.localStorage;
+  }
+});
+
+test("catalog refresh follows a changed selected binding instead of switching suppliers", async (t) => {
+  const { refreshGenerationCatalog } = await import("../../codex_image/webui/frontend/src/model-catalog");
+  const { restoreCurrentModelParameterDraft } = await import("../../codex_image/webui/frontend/src/model-parameter-drafts");
+  const previous = { window: globalThis.window, document: globalThis.document, fetch: globalThis.fetch, localStorage: globalThis.localStorage };
+  const parameters: any[] = [{
+    id: "gpt.quality", label_key: "quality", group: "generation", control: "select", value_type: "string",
+    default: "auto", allowed_values: ["auto", "high"], scope: "model", minimum: null, maximum: null,
+    step: null, visible_when: [], operations: ["generate", "edit"], full_width: false,
+  }];
+  const provider = (id: string, modelId: string): any => ({
+    id, name: id, builtin: false, available: true,
+    bindings: [{ id: `${id}-binding`, canonical_model_id: modelId, remote_model_id: modelId,
+      protocol_profile: "openai_images", parameter_codec: "gpt_openai_images", operations: ["generate", "edit"] }],
+  });
+  const before: GenerationCatalog = {
+    ...catalog,
+    families: [{ id: "gpt-image", display_name: "GPT Image", short_name: "GPT", label_key: "gpt" }],
+    models: ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].map(id => ({
+      ...model(id, "gpt-image"), operations: ["generate", "edit"], parameters,
+    })),
+    providers: [provider("edited", "gpt-image-2"), provider("fallback", "gpt-image-2")],
+    default_provider_by_model: { "gpt-image-2": "edited" },
+  };
+  const state: any = {};
+  const els: any = { quality: new FakeElement(), concreteModelSelect: new FakeElement(), generationProviderSelect: new FakeElement() };
+  const previews: string[] = [];
+  const prepare = (nextModel: string, locked = false) => {
+    Object.assign(state, {
+      generationCatalog: structuredClone(before), selectedFamilyId: "gpt-image", selectedModelId: "gpt-image-2",
+      selectedProviderId: "edited", selectedProviderBindingId: "edited-binding", mode: "generate",
+      lastModelByFamily: { "gpt-image": "gpt-image-2" }, lastProviderByModel: { "gpt-image-2": "edited" },
+      lastProviderSelectionByModel: { "gpt-image-2": "edited::edited-binding" },
+      parameterDraftsByModel: {}, parameterDraftVersionsByModel: {}, parameterValidationErrorsByModel: {},
+    });
+    els.quality.value = "high";
+    previews.length = 0;
+    (globalThis as any).window = { __codexImageWebUI: { state, els, methods: {
+      isOutputSettingsLocked: () => locked, currentTaskParams: () => ({ quality: els.quality.value }),
+      restoreCurrentModelParameterDraft, persistModelSelection,
+      updateRequestPreview: () => previews.push(`${state.selectedModelId}:${state.selectedProviderId}`),
+    } } };
+    const after = structuredClone(before);
+    after.providers[0].bindings[0].canonical_model_id = nextModel;
+    after.providers[0].bindings[0].remote_model_id = nextModel;
+    after.default_provider_by_model = { "gpt-image-2": "fallback", [nextModel]: "edited" };
+    globalThis.fetch = (async () => ({ ok: true, json: async () => after })) as any;
+    return after;
+  };
+  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  (globalThis as any).localStorage = { setItem() {} };
+  try {
+    for (const nextModel of ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+      for (const locked of [false, true]) {
+        await t.test(`${nextModel} follows the selected binding with parameters ${locked ? "locked" : "unlocked"}`, async () => {
+          prepare(nextModel, locked);
+          await refreshGenerationCatalog();
+          assert.equal(state.selectedModelId, nextModel);
+          assert.equal(state.selectedProviderId, "edited");
+          assert.equal(state.selectedProviderBindingId, "edited-binding");
+          assert.equal(state.lastModelByFamily["gpt-image"], nextModel);
+          assert.equal(els.concreteModelSelect.value, nextModel);
+          assert.equal(els.generationProviderSelect.value, "edited::edited-binding");
+          assert.equal(els.quality.value, "high");
+          assert.equal(state.parameterDraftsByModel[nextModel]["gpt.quality"], "high");
+          assert.deepEqual(previews, [`${nextModel}:edited`], "no preview uses a fallback supplier during the transition");
+        });
+        await t.test(`${nextModel} restores a moved binding after reload with parameters ${locked ? "locked" : "unlocked"}`, async () => {
+          prepare(nextModel, locked);
+          state.generationCatalog = null;
+          state.selectedProviderId = null;
+          state.selectedProviderBindingId = null;
+          state.parameterDraftsByModel["gpt-image-2"] = { "gpt.quality": "high" };
+          els.quality.value = "auto";
+          await refreshGenerationCatalog();
+          assert.equal(state.selectedModelId, nextModel);
+          assert.equal(state.selectedProviderId, "edited");
+          assert.equal(state.selectedProviderBindingId, "edited-binding");
+          assert.equal(state.lastModelByFamily["gpt-image"], nextModel);
+          assert.equal(state.lastProviderSelectionByModel[nextModel], "edited::edited-binding");
+          assert.equal(els.quality.value, "high");
+          assert.equal(state.parameterDraftsByModel[nextModel]["gpt.quality"], "high");
+          assert.deepEqual(previews, [`${nextModel}:edited`]);
+        });
+      }
+    }
+    await t.test("editing another provider does not change the current model or supplier", async () => {
+      prepare("gpt-image-2.5-flare");
+      state.selectedProviderId = "fallback";
+      state.selectedProviderBindingId = "fallback-binding";
+      state.lastProviderByModel["gpt-image-2"] = "fallback";
+      state.lastProviderSelectionByModel["gpt-image-2"] = "fallback::fallback-binding";
+      await refreshGenerationCatalog();
+      assert.equal(state.selectedModelId, "gpt-image-2");
+      assert.equal(state.selectedProviderId, "fallback");
+    });
+    await t.test("an unavailable replacement binding is not selected", async () => {
+      const after = prepare("gpt-image-2.5-flare");
+      after.providers[0].bindings[0].available = false;
+      await refreshGenerationCatalog();
+      assert.equal(state.selectedModelId, "gpt-image-2");
+      assert.equal(state.selectedProviderId, "fallback");
+    });
+    await t.test("reload rejects moved bindings unavailable for the current operation", async () => {
+      const after = prepare("gpt-image-2.5-flare");
+      after.providers[0].bindings[0].operations = ["edit"];
+      const selection = initialCatalogSelection(after, "gpt-image-2", state.lastProviderByModel, "generate", state.lastProviderSelectionByModel);
+      assert.equal(selection.modelId, "gpt-image-2");
+      assert.equal(selection.providerId, "fallback");
+    });
+    await t.test("changing another binding on the same supplier keeps the selected binding", async () => {
+      const after = prepare("gpt-image-2.5-flare");
+      after.providers[0].bindings[0] = structuredClone(before.providers[0].bindings[0]);
+      after.providers[0].bindings.push({
+        ...after.providers[0].bindings[0], id: "other-binding", canonical_model_id: "gpt-image-2.5-flare",
+      });
+      await refreshGenerationCatalog();
+      assert.equal(state.selectedModelId, "gpt-image-2");
+      assert.equal(state.selectedProviderId, "edited");
+      assert.equal(state.selectedProviderBindingId, "edited-binding");
+    });
+  } finally {
+    globalThis.window = previous.window;
+    globalThis.document = previous.document;
+    globalThis.fetch = previous.fetch;
+    globalThis.localStorage = previous.localStorage;
+  }
+});
+
+test("GPT versions share one parameter panel and are selected through provider bindings", () => {
+  const previous = { window: globalThis.window, document: globalThis.document };
+  const binding = (id: string, modelId: string, protocol = "openai_images"): any => ({
+    id, canonical_model_id: modelId, remote_model_id: `vendor/${modelId}`, protocol_profile: protocol,
+    parameter_codec: "gpt_openai_images", operations: ["generate", "edit"],
+  });
+  const provider = (id: string, bindings: any[]): any => ({ id, name: id, available: true, builtin: id === "codex", bindings });
+  const parameters: any[] = [{
+    id: "gpt.quality", label_key: "quality", group: "generation", control: "select", value_type: "string",
+    default: "auto", allowed_values: ["auto", "high"], scope: "model", minimum: null, maximum: null,
+    step: null, visible_when: [], operations: ["generate", "edit"], full_width: false,
+  }];
+  const gptCatalog: GenerationCatalog = {
+    ...catalog,
+    families: [
+      { id: "gpt-image", display_name: "GPT", short_name: "GPT", label_key: "gpt" },
+      { id: "gemini-image", display_name: "Gemini", short_name: "Gemini", label_key: "gemini" },
+    ],
+    models: [
+      ...["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].map(id => ({ ...model(id, "gpt-image"), parameters })),
+      model("nano-banana-pro", "gemini-image"), model("nano-banana-2", "gemini-image"),
+    ],
+    providers: [
+      provider("old", [binding("old-2", "gpt-image-2")]),
+      provider("modern", [binding("modern-flare", "gpt-image-2.5-flare")]),
+      provider("multi", [binding("multi-2", "gpt-image-2"), binding("multi-sunburst", "gpt-image-2.5-sunburst")]),
+      provider("codex", [
+        { ...binding("codex-images", "gpt-image-2", "codex_images"), display_name: "Codex Image" },
+        { ...binding("codex-responses", "gpt-image-2", "codex_responses"), display_name: "Codex Responses" },
+      ]),
+      provider("gemini", [binding("gemini-pro", "nano-banana-pro"), binding("gemini-2", "nano-banana-2")]),
+      { ...provider("unavailable", [binding("unavailable-flare", "gpt-image-2.5-flare")]), available: false },
+      provider("edit-only", [{ ...binding("edit-only-sunburst", "gpt-image-2.5-sunburst"), operations: ["edit"] }]),
+    ],
+    default_provider_by_model: { "gpt-image-2": "old", "gpt-image-2.5-flare": "modern", "gpt-image-2.5-sunburst": "multi" },
+    codex: { available: true, mode: "images" },
+  };
+  const field = new FakeElement();
+  const els: any = {
+    concreteModelSelect: new FakeElement(), concreteModelOptions: new FakeElement(),
+    generationProviderSelect: new FakeElement(), quality: new FakeElement(), runButton: new FakeElement(),
+  };
+  els.concreteModelSelect.closestResult = field;
+  els.quality.value = "high";
+  const state: any = {
+    generationCatalog: gptCatalog, selectedFamilyId: "gpt-image", selectedModelId: "gpt-image-2", mode: "generate",
+    selectedProviderId: "old", selectedProviderBindingId: "old-2", lastModelByFamily: {},
+    lastProviderByModel: { "gpt-image-2": "old" }, lastProviderSelectionByModel: { "gpt-image-2": "old::old-2" },
+    parameterDraftsByModel: {}, parameterDraftVersionsByModel: {}, parameterValidationErrorsByModel: {},
+  };
+  (globalThis as any).window = { __codexImageWebUI: { state, els, methods: {
+    currentTaskParams: () => ({ quality: els.quality.value }), persistModelSelection() {},
+  } } };
+  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  try {
+    renderModelSelectors();
+    renderProviderSelection();
+    assert.equal(field.classList.contains("hidden"), true, "GPT has no separate model selector");
+    const choices = els.generationProviderSelect.options;
+    assert.deepEqual(choices.map((option: any) => option.value), [
+      "old::old-2", "modern::modern-flare", "multi::multi-2", "multi::multi-sunburst",
+      "codex::codex-images", "codex::codex-responses",
+    ]);
+    assert.notEqual(choices[2].textContent, choices[3].textContent, "multiple versions on one supplier remain distinguishable");
+    selectGenerationProvider("modern::modern-flare");
+    assert.equal(state.selectedModelId, "gpt-image-2.5-flare");
+    assert.equal(state.selectedProviderId, "modern");
+    assert.equal(selectedProviderBinding()?.remote_model_id, "vendor/gpt-image-2.5-flare");
+    assert.equal(els.quality.value, "high");
+    assert.equal(field.classList.contains("hidden"), true);
+    selectGenerationProvider("codex::codex-responses");
+    assert.equal(state.selectedModelId, "gpt-image-2");
+    assert.equal(state.selectedProviderBindingId, "codex-responses");
+    assert.equal(selectedProviderBinding()?.protocol_profile, "codex_responses");
+    selectGenerationProvider("multi::multi-sunburst");
+    assert.equal(state.selectedModelId, "gpt-image-2.5-sunburst");
+    assert.equal(state.selectedProviderBindingId, "multi-sunburst");
+
+    state.selectedModelId = "gpt-image-2";
+    state.generationCatalog = { ...gptCatalog, providers: [gptCatalog.providers[1]] };
+    renderProviderSelection();
+    assert.equal(els.generationProviderSelect.disabled, false, "another GPT version remains selectable when the old model has no provider");
+    assert.equal(els.runButton.disabled, true, "generation still requires an exact model binding");
+    selectGenerationProvider("modern::modern-flare");
+    assert.equal(els.runButton.disabled, false);
+
+    state.generationCatalog = gptCatalog;
+    state.selectedFamilyId = "gemini-image";
+    state.selectedModelId = "nano-banana-pro";
+    renderModelSelectors();
+    renderProviderSelection();
+    assert.equal(field.classList.contains("hidden"), false, "Gemini keeps its concrete-model controls");
+    assert.deepEqual(els.generationProviderSelect.options.map((option: any) => option.value), ["gemini::gemini-pro"]);
+  } finally {
+    globalThis.window = previous.window;
+    globalThis.document = previous.document;
   }
 });

@@ -315,7 +315,7 @@ function writeProviderForm(provider: any): void {
     provider.bindings || [],
     state.generationCatalog?.models || [],
     provider.id,
-    state.apiSettings.default_provider_by_model || {},
+    defaultsForProviderDraft(provider),
   );
   updateApiRequestEndpointPreview();
   resetApiAdvancedSettings();
@@ -323,6 +323,9 @@ function writeProviderForm(provider: any): void {
 
 function defaultsForProviderDraft(provider: any): Record<string, string> {
   const defaults = { ...(state.apiSettings.default_provider_by_model || {}) };
+  Object.keys(defaults).forEach((modelId) => {
+    if (defaults[modelId] === provider.id) delete defaults[modelId];
+  });
   (provider.default_model_ids || []).forEach((modelId: string) => { defaults[modelId] = provider.id; });
   return defaults;
 }
@@ -454,6 +457,14 @@ function applyApiProviderDraft(settings: any): any {
     if (normalized.default_provider_by_model[modelId] !== draft.id) continue;
     if (!(draft.bindings || []).some((binding: any) => binding.canonical_model_id === modelId)) {
       delete normalized.default_provider_by_model[modelId];
+    }
+  }
+  // Every configured model needs a default, including the model a binding left.
+  // Keep valid choices and prefer another supporter when this draft opted out.
+  const fallbackProviders = normalized.providers.filter((provider: any) => provider.id !== draft.id).concat(draft);
+  for (const provider of fallbackProviders) {
+    for (const binding of provider.bindings) {
+      normalized.default_provider_by_model[binding.canonical_model_id] ??= provider.id;
     }
   }
   state.apiProviderEditingId = null;
@@ -748,7 +759,11 @@ export function editApiProvider(): void {
   const provider = activeApiProvider();
   state.apiProviderEditingId = provider.id;
   state.apiProviderDraftIsNew = false;
-  state.apiProviderDraft = normalizeApiProvider({ ...provider }, 0);
+  state.apiProviderDraft = normalizeApiProvider({
+    ...provider,
+    default_model_ids: Object.keys(state.apiSettings.default_provider_by_model || {})
+      .filter((modelId) => state.apiSettings.default_provider_by_model[modelId] === provider.id),
+  }, 0);
   populateApiSettingsForm();
   setApiSettingsFeedback(translate("apiSettings.editDraftStatus"), "running");
   scrollApiProviderEditorIntoView();
@@ -1164,7 +1179,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
   }
   const previousSettings = normalizeApiSettings(state.apiSettings);
   const previousEditingId = state.apiProviderEditingId;
-  const previousDraft = state.apiProviderDraft ? structuredClone(state.apiProviderDraft) : null;
+  const previousDraft = apiProviderEditorActive() ? draftProviderFromForm() : null;
   const previousDraftIsNew = state.apiProviderDraftIsNew;
   let confirmedOriginChange: ProviderOriginChangeConfirmation | null = null;
   if (!autoSave && apiProviderEditorActive()) {

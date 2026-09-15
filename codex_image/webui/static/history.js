@@ -18490,7 +18490,7 @@
     return { prompt: methods.getPromptText?.() || "", images: [...state5.images || []], files: [...state5.referenceFiles || []], mode: state5.mode };
   }
   function key(draft) {
-    return JSON.stringify([draft.prompt, draft.images.map((item) => [item.id, item.name, item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size]), draft.mode]);
+    return JSON.stringify([draft.prompt, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
   }
   function markComposerBaseline(prompt) {
     const draft = capture();
@@ -19053,6 +19053,44 @@
     return Boolean(task?.cancel_requested && !taskWasCancelled(task));
   }
 
+  // codex_image/webui/frontend/src/state-sync.ts
+  var syncStates = /* @__PURE__ */ new WeakMap();
+  function taskUpdateIsOlder(previous, incoming) {
+    const previousTime = Date.parse(previous?.updated_at || previous?.created_at || "");
+    const incomingTime = Date.parse(incoming?.updated_at || incoming?.created_at || "");
+    return Number.isFinite(previousTime) && Number.isFinite(incomingTime) && incomingTime < previousTime;
+  }
+  function versionState(state5, version) {
+    if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
+    let current = syncStates.get(state5);
+    if (current?.retired.has(version.instance)) return false;
+    if (!current || current.instance !== version.instance) {
+      const retired = current?.retired || /* @__PURE__ */ new Set();
+      if (current) retired.add(current.instance);
+      current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
+      syncStates.set(state5, current);
+    }
+    return current;
+  }
+  function acceptQueueSnapshot(state5, version) {
+    const current = versionState(state5, version);
+    if (current === false) return false;
+    if (!current || !version) return true;
+    if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
+    current.queue = version.revision;
+    return true;
+  }
+  function acceptTaskUpdate(state5, task, version) {
+    const current = versionState(state5, version);
+    if (current === false || !task?.task_id) return false;
+    if (!current || !version) return true;
+    const id = String(task.task_id);
+    if (version.revision < current.tasks || version.revision < (current.changes.get(id)?.revision || 0)) return false;
+    current.lastChange = Math.max(current.lastChange, version.revision);
+    current.changes.set(id, { revision: version.revision, task });
+    return true;
+  }
+
   // codex_image/webui/frontend/src/runtime-feedback.ts
   function legacyMethod(name, ...args) {
     const method = getLegacyBridge().methods[name];
@@ -19090,6 +19128,7 @@
       return true;
     }
     const previousTask = state5.tasks[previousIndex];
+    if (taskUpdateIsOlder(previousTask, task)) return false;
     if (previousTask?.local_pending) {
       revokeTaskUploadPreviewUrls(previousTask);
     }
@@ -19259,6 +19298,8 @@
   }
   function replacePendingTask(pendingTaskId, completedTask) {
     const state5 = getLegacyBridge().state;
+    const currentTask = state5.tasks.find((task) => task.task_id === completedTask.task_id && !task.local_pending);
+    if (currentTask && taskUpdateIsOlder(currentTask, completedTask)) completedTask = currentTask;
     const removedPendingTasks = state5.tasks.filter((task) => task?.local_pending && (task.task_id === completedTask.task_id || task.task_id === pendingTaskId));
     state5.tasks = [
       completedTask,
@@ -19707,167 +19748,6 @@
     syncApiAdvancedSettingsSummary();
   }
 
-  // codex_image/webui/frontend/src/provider-selection.ts
-  function providerBindingSelectionKey(providerId, bindingId) {
-    return `${providerId}::${bindingId}`;
-  }
-  function providerIsEligible(catalog, provider, modelId) {
-    if (!provider.available || !modelId) return false;
-    const model = catalog.models.find((item) => item.id === modelId);
-    return provider.id !== "codex" || catalog.codex.available && model?.family_id === "gpt-image" && model.id === "gpt-image-2";
-  }
-  function eligibleProviderBindings(catalog, modelId, operation) {
-    if (!modelId) return [];
-    return catalog.providers.flatMap((provider) => {
-      if (!providerIsEligible(catalog, provider, modelId)) return [];
-      return provider.bindings.filter((binding) => binding.canonical_model_id === modelId && binding.operations.includes(operation) && binding.available !== false).map((binding) => ({
-        provider,
-        binding,
-        selectionKey: providerBindingSelectionKey(provider.id, binding.id)
-      }));
-    });
-  }
-  function eligibleProviders(catalog, modelId, operation) {
-    const providers = /* @__PURE__ */ new Map();
-    eligibleProviderBindings(catalog, modelId, operation).forEach(({ provider }) => {
-      providers.set(provider.id, provider);
-    });
-    return [...providers.values()];
-  }
-  function preferredProviderBinding(entries, providerId, codexMode) {
-    const providerEntries = entries.filter((entry) => entry.provider.id === providerId);
-    if (!providerEntries.length) return null;
-    if (providerId === "codex") {
-      return providerEntries.find((entry) => entry.binding.protocol_profile === `codex_${codexMode}`) || providerEntries[0] || null;
-    }
-    return providerEntries[0] || null;
-  }
-  function resolveProviderSelection(entries, lastSelectionKey, lastProviderId, defaultProviderId, codexMode) {
-    if (lastSelectionKey) {
-      const remembered = entries.find((entry) => entry.selectionKey === lastSelectionKey);
-      if (remembered) return remembered;
-    }
-    return preferredProviderBinding(entries, lastProviderId, codexMode) || preferredProviderBinding(entries, defaultProviderId, codexMode) || entries[0] || null;
-  }
-  function resolveProviderId(eligible, lastProviderId, defaultProviderId) {
-    const ids = new Set(eligible.map((provider) => provider.id));
-    if (lastProviderId && ids.has(lastProviderId)) return lastProviderId;
-    if (defaultProviderId && ids.has(defaultProviderId)) return defaultProviderId;
-    return eligible[0]?.id ?? null;
-  }
-  function selectedProviderBinding() {
-    const { state: state5 } = getLegacyBridge();
-    const provider = state5.generationCatalog?.providers.find((item) => item.id === state5.selectedProviderId);
-    const candidates = provider?.bindings.filter((binding) => binding.canonical_model_id === state5.selectedModelId && binding.operations.includes(state5.mode) && binding.available !== false) || [];
-    return candidates.find((binding) => binding.id === state5.selectedProviderBindingId) || candidates[0] || null;
-  }
-  function syncCodexCatalogMode(mode) {
-    const { state: state5 } = getLegacyBridge();
-    const catalog = state5.generationCatalog;
-    if (!catalog) return;
-    catalog.codex.mode = mode;
-    if (state5.selectedProviderId !== "codex") return;
-    const selected = preferredProviderBinding(
-      eligibleProviderBindings(catalog, state5.selectedModelId, state5.mode),
-      "codex",
-      mode
-    );
-    if (selected) state5.selectedProviderBindingId = selected.binding.id;
-    renderProviderSelection();
-  }
-  function settingsTabForProvider(_providerId) {
-    return "api";
-  }
-  function optionLabel(entry) {
-    return entry.binding.display_name || entry.provider.name;
-  }
-  function applyOptionIcon(option2, entry) {
-    if (entry.provider.id === "codex") {
-      option2.dataset.optionIcon = "/static/brand/codex-channel-mark.svg";
-      option2.dataset.optionIconKind = "image";
-      return;
-    }
-    if (entry.provider.icon_emoji) {
-      option2.dataset.optionIcon = entry.provider.icon_emoji;
-      option2.dataset.optionIconKind = "emoji";
-    }
-  }
-  function renderProviderSelection() {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const select = els9.generationProviderSelect;
-    const catalog = state5.generationCatalog;
-    const entries = catalog ? eligibleProviderBindings(catalog, state5.selectedModelId, state5.mode) : [];
-    const resolved = catalog ? resolveProviderSelection(
-      entries,
-      state5.lastProviderSelectionByModel[state5.selectedModelId || ""],
-      state5.lastProviderByModel[state5.selectedModelId || ""],
-      catalog.default_provider_by_model[state5.selectedModelId || ""],
-      catalog.codex.mode
-    ) : null;
-    state5.selectedProviderId = resolved?.provider.id || null;
-    state5.selectedProviderBindingId = resolved?.binding.id || null;
-    state5.authAvailable = Boolean(resolved);
-    if (select) {
-      select.replaceChildren();
-      if (!entries.length) {
-        const option2 = document.createElement("option");
-        option2.value = "";
-        option2.textContent = catalog ? translate("modelSelection.providerUnavailable") : translate("modelSelection.catalogUnavailable");
-        select.append(option2);
-      } else {
-        for (const entry of entries) {
-          const option2 = document.createElement("option");
-          option2.value = entry.selectionKey;
-          option2.textContent = optionLabel(entry);
-          option2.title = optionLabel(entry);
-          applyOptionIcon(option2, entry);
-          select.append(option2);
-        }
-      }
-      select.value = resolved?.selectionKey || "";
-      select.disabled = !resolved;
-      select.title = resolved ? optionLabel(resolved) : "";
-      select.setAttribute("aria-invalid", resolved ? "false" : "true");
-      syncThemedSelect(select);
-    }
-    if (catalog && els9.statusText?.dataset.statusSource === "codex-health") {
-      getLegacyBridge().methods.setStatus?.("", "");
-    }
-    if (els9.runButton) els9.runButton.disabled = !resolved;
-  }
-  function selectGenerationProvider(selectionOrProviderId) {
-    const { state: state5 } = getLegacyBridge();
-    const catalog = state5.generationCatalog;
-    if (!catalog || !state5.selectedModelId) return;
-    const entries = eligibleProviderBindings(catalog, state5.selectedModelId, state5.mode);
-    const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId) || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
-    if (!selected) {
-      renderProviderSelection();
-      return;
-    }
-    state5.selectedProviderId = selected.provider.id;
-    state5.selectedProviderBindingId = selected.binding.id;
-    state5.lastProviderByModel[state5.selectedModelId] = selected.provider.id;
-    state5.lastProviderSelectionByModel[state5.selectedModelId] = selected.selectionKey;
-    getLegacyBridge().methods.persistModelSelection?.();
-    renderProviderSelection();
-    getLegacyBridge().methods.updateModeSpecificSettings?.();
-    getLegacyBridge().methods.updateRequestPreview?.();
-  }
-  function initProviderSelectionFeature() {
-    Object.assign(getLegacyBridge().methods, {
-      eligibleProviders,
-      eligibleProviderBindings,
-      resolveProviderId,
-      resolveProviderSelection,
-      settingsTabForProvider,
-      renderProviderSelection,
-      selectedProviderBinding,
-      selectGenerationProvider,
-      syncCodexCatalogMode
-    });
-  }
-
   // codex_image/webui/frontend/src/gpt-image-models.ts
   function isGptImageModel(modelId) {
     return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].includes(String(modelId || ""));
@@ -19899,279 +19779,6 @@
       els9.outputFormat.value = "png";
       els9.outputFormat.dispatchEvent(new Event("change"));
     }
-  }
-
-  // codex_image/webui/frontend/src/mode-settings-visibility.ts
-  function resolveModeSettingsVisibility({
-    catalogAvailable,
-    modelId,
-    protocolProfile,
-    legacyDirectApi
-  }) {
-    if (!catalogAvailable) {
-      return {
-        showMainModel: !legacyDirectApi,
-        showApiDirectNotice: legacyDirectApi,
-        showPromptFidelity: true
-      };
-    }
-    if (!isGptImageModel(modelId)) {
-      return {
-        showMainModel: false,
-        showApiDirectNotice: false,
-        showPromptFidelity: false
-      };
-    }
-    if (!protocolProfile) {
-      return {
-        showMainModel: false,
-        showApiDirectNotice: false,
-        showPromptFidelity: true
-      };
-    }
-    const usesResponses = protocolProfile.endsWith("_responses");
-    return {
-      showMainModel: usesResponses,
-      showApiDirectNotice: !usesResponses,
-      showPromptFidelity: true
-    };
-  }
-
-  // codex_image/webui/frontend/src/api-mode-settings.ts
-  var bridge = getLegacyBridge();
-  var els2 = bridge.els;
-  function legacyMethod2(name, ...args) {
-    const method = getLegacyBridge().methods[name];
-    if (typeof method !== "function") {
-      throw new Error("Legacy method " + name + " is not initialized");
-    }
-    return method(...args);
-  }
-  function currentAuthSource() {
-    return legacyMethod2("currentAuthSource");
-  }
-  function currentApiMode() {
-    return legacyMethod2("currentApiMode");
-  }
-  function currentCodexMode() {
-    return legacyMethod2("currentCodexMode");
-  }
-  function setModeSpecificElementVisibility(element, visible) {
-    if (!element) return;
-    element.setAttribute("aria-hidden", visible ? "false" : "true");
-    if (visible) {
-      element.classList.remove("hidden");
-      element.classList.remove("mode-collapsed");
-      return;
-    }
-    element.classList.add("mode-collapsed");
-    element.classList.add("hidden");
-  }
-  function applyModeSettingsVisibility(visibility) {
-    const showModeSettings = visibility.showMainModel || visibility.showApiDirectNotice || visibility.showPromptFidelity;
-    setModeSpecificElementVisibility(els2.modeSettingsSlot, showModeSettings);
-    setModeSpecificElementVisibility(els2.modeSpecificSettings, showModeSettings);
-    setModeSpecificElementVisibility(els2.mainModelField, visibility.showMainModel);
-    setModeSpecificElementVisibility(els2.apiDirectSettingsNotice, visibility.showApiDirectNotice);
-    setModeSpecificElementVisibility(els2.promptFidelityField, visibility.showPromptFidelity);
-  }
-  function updateWebSearchAvailability(authSource = currentAuthSource()) {
-    const binding = selectedProviderBinding();
-    const supported = binding ? binding.protocol_profile.endsWith("_responses") : authSource === "api" ? currentApiMode() === "responses" : currentCodexMode() === "responses";
-    if (els2.webSearch) {
-      const wasChecked = Boolean(els2.webSearch.checked);
-      els2.webSearch.disabled = !supported;
-      if (!supported) els2.webSearch.checked = false;
-      if (wasChecked && !els2.webSearch.checked) {
-        els2.webSearch.dispatchEvent(new Event("input"));
-      }
-    }
-    if (els2.webSearchField) {
-      els2.webSearchField.classList.toggle("is-disabled", !supported);
-      els2.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
-    }
-  }
-  function setModeSettingsVariant(isDirectApi, visibility) {
-    const slot = els2.modeSettingsSlot;
-    if (slot) {
-      slot.style.height = "";
-      slot.classList.remove("is-transitioning");
-    }
-    applyModeSettingsVisibility(visibility || resolveModeSettingsVisibility({
-      catalogAvailable: false,
-      modelId: null,
-      protocolProfile: null,
-      legacyDirectApi: Boolean(isDirectApi)
-    }));
-  }
-  function updateModeSpecificSettings(authSource = currentAuthSource()) {
-    const binding = selectedProviderBinding();
-    const isDirectApi = binding ? !binding.protocol_profile.endsWith("_responses") : authSource === "api" && currentApiMode() !== "responses" || authSource === "codex" && currentCodexMode() !== "responses";
-    setModeSettingsVariant(isDirectApi, resolveModeSettingsVisibility({
-      catalogAvailable: Boolean(getLegacyBridge().state.generationCatalog),
-      modelId: getLegacyBridge().state.selectedModelId,
-      protocolProfile: binding?.protocol_profile || null,
-      legacyDirectApi: isDirectApi
-    }));
-    updateWebSearchAvailability(authSource);
-    updateTransparencyControls();
-    legacyMethod2("syncReferenceFileAvailability");
-    const refreshOutputSettingsLock = getLegacyBridge().methods.refreshOutputSettingsLock;
-    if (typeof refreshOutputSettingsLock === "function") refreshOutputSettingsLock();
-  }
-
-  // codex_image/webui/frontend/src/auth-source.ts
-  var bridge2 = getLegacyBridge();
-  var state2 = bridge2.state;
-  var els3 = bridge2.els;
-  function legacyMethod3(name, ...args) {
-    const method = getLegacyBridge().methods[name];
-    if (typeof method !== "function") {
-      throw new Error("Legacy method " + name + " is not initialized");
-    }
-    return method(...args);
-  }
-  function setStatus2(message, type) {
-    legacyMethod3("setStatus", message, type);
-  }
-  function updateRequestPreview() {
-    legacyMethod3("updateRequestPreview");
-  }
-  function currentApiMode2() {
-    return legacyMethod3("currentApiMode");
-  }
-  function currentCodexMode2() {
-    return legacyMethod3("currentCodexMode");
-  }
-  function currentApiProviderLabel() {
-    return legacyMethod3("currentApiProviderLabel");
-  }
-  function apiModeLabel(mode) {
-    return legacyMethod3("apiModeLabel", mode);
-  }
-  function codexModeLabel(mode) {
-    return legacyMethod3("codexModeLabel", mode);
-  }
-  async function refreshHealth() {
-    try {
-      const response = await fetch("/api/health");
-      const data = await response.json();
-      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
-      state2.authStatus = data.auth || null;
-      renderAuthSource(state2.authStatus);
-      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
-      els3.runButton.disabled = !state2.authAvailable;
-      if (!state2.authAvailable && !state2.generationCatalog) {
-        setStatus2(translate("auth.missingCodexSession"), "error");
-        if (els3.statusText) els3.statusText.dataset.statusSource = "codex-health";
-      }
-      updateRequestPreview();
-    } catch (error) {
-      if (state2.generationCatalog) {
-        getLegacyBridge().methods.renderProviderSelection?.();
-        getLegacyBridge().methods.updateModeSpecificSettings?.();
-        updateRequestPreview();
-        return;
-      }
-      state2.authAvailable = false;
-      els3.apiStatus.className = "status-dot error";
-      els3.runButton.disabled = true;
-      setStatus2(error.message, "error");
-    }
-  }
-  async function applyAuthSource(source) {
-    state2.pendingAuthSource = source;
-    applyAuthSourceSelection(source);
-    updateRequestPreview();
-    try {
-      const response = await fetch("/api/auth", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || translate("auth.switchFailed"));
-      }
-      state2.pendingAuthSource = null;
-      state2.authStatus = data;
-      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
-      renderAuthSource(data);
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
-      getLegacyBridge().methods.updateModeSpecificSettings?.();
-      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
-      els3.runButton.disabled = !state2.authAvailable;
-      setStatus2(authSourceDetailText(data), state2.authAvailable ? "ok" : "error");
-      updateRequestPreview();
-      return true;
-    } catch (error) {
-      state2.pendingAuthSource = null;
-      renderAuthSource(state2.authStatus);
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
-      getLegacyBridge().methods.updateModeSpecificSettings?.();
-      updateRequestPreview();
-      setStatus2(error.message || translate("auth.switchFailed"), "error");
-      return false;
-    }
-  }
-  async function setAuthSource(source, _anchor) {
-    const normalized = source === "api" ? "api" : "codex";
-    return await applyAuthSource(normalized);
-  }
-  function handleAuthSourceClick(event) {
-    const button = event.target.closest?.("[data-auth-source]");
-    if (!button) return;
-    const source = button.dataset.authSource;
-    void setAuthSource(source, button);
-  }
-  function renderAuthSource(auth) {
-    const selected = state2.pendingAuthSource || auth?.selected_source || "codex";
-    applyAuthSourceSelection(selected);
-    if (els3.authSourceDetail) {
-      const text = auth ? authSourceDetailText(auth) : translate("auth.checking");
-      els3.authSourceDetail.textContent = text;
-      els3.authSourceDetail.title = text;
-    }
-  }
-  function applyAuthSourceSelection(source) {
-    const selected = source || "codex";
-    els3.authSourceGroup?.querySelectorAll("[data-auth-source]").forEach((button) => {
-      const active = button.dataset.authSource === selected;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-    els3.apiProviderQuick?.classList.add("hidden");
-    updateModeSpecificSettings(selected);
-  }
-  function authSourceDetailText(auth) {
-    if (!auth) return translate("auth.checking");
-    const selected = sourceLabel(auth.selected_source);
-    const effectiveApi = auth.effective_source === "api";
-    if (!auth.auth_available) {
-      if (auth.selected_source === "api" || effectiveApi) {
-        return formatTranslation("auth.sourceUnavailable", { source: selected });
-      }
-      return formatTranslation("auth.sourceUnavailable", { source: selected });
-    }
-    if (effectiveApi) {
-      const provider = currentApiProviderLabel();
-      const mode = apiModeLabel(currentApiMode2());
-      return `API \xB7 ${provider} \xB7 ${mode}`;
-    }
-    return codexModeLabel(currentCodexMode2());
-  }
-  function sourceLabel(source) {
-    if (source === "codex") return "Codex";
-    if (source === "api") return "API";
-    return translate("auth.notActive");
-  }
-  function currentAuthSource2() {
-    if (state2.selectedProviderId) return state2.selectedProviderId === "codex" ? "codex" : "api";
-    return state2.pendingAuthSource || state2.authStatus?.selected_source || "codex";
-  }
-  function isDirectApiMode(authSource = currentAuthSource2()) {
-    return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
   }
 
   // codex_image/webui/frontend/src/aspect-ratio-controls.ts
@@ -21118,7 +20725,7 @@
       els9.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
     }
     if (typeof draft["output.count"] === "number" && els9.nInput) els9.nInput.value = String(draft["output.count"]);
-    methods.syncRadioButtons?.(els9.quality, els9.outputFormat, els9.moderation);
+    methods.syncRadioButtons?.(els9.quality, els9.outputFormat, els9.moderation, els9.nInput);
     methods.updateQuantity?.();
     methods.updateCompression?.();
     renderCurrentModelParameters();
@@ -21243,7 +20850,7 @@
       const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2" || model.id === state5.selectedModelId || catalog.providers.some((provider) => provider.bindings.some((binding) => binding.canonical_model_id === model.id && binding.operations.includes(state5.mode))));
       const gptVersions = selectedFamily.id === "gpt-image";
       const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
-      modelField?.classList.toggle("hidden", gptVersions ? familyModels.length < 2 : !expanded);
+      modelField?.classList.toggle("hidden", gptVersions || !expanded);
       modelSelect.replaceChildren();
       familyModels.forEach((model) => {
         const option2 = document.createElement("option");
@@ -21278,6 +20885,454 @@
       }
     }
     refreshSegmentedIndicators();
+  }
+
+  // codex_image/webui/frontend/src/provider-selection.ts
+  function providerBindingSelectionKey(providerId, bindingId) {
+    return `${providerId}::${bindingId}`;
+  }
+  function providerIsEligible(catalog, provider, modelId) {
+    if (!provider.available || !modelId) return false;
+    const model = catalog.models.find((item) => item.id === modelId);
+    return provider.id !== "codex" || catalog.codex.available && model?.family_id === "gpt-image" && model.id === "gpt-image-2";
+  }
+  function eligibleProviderBindings(catalog, modelId, operation) {
+    return eligibleBindingsForModels(catalog, modelId ? [modelId] : [], operation);
+  }
+  function eligibleBindingsForModels(catalog, modelIds, operation) {
+    return catalog.providers.flatMap((provider) => {
+      return provider.bindings.filter((binding) => modelIds.includes(binding.canonical_model_id) && providerIsEligible(catalog, provider, binding.canonical_model_id) && binding.operations.includes(operation) && binding.available !== false).map((binding) => ({
+        provider,
+        binding,
+        selectionKey: providerBindingSelectionKey(provider.id, binding.id)
+      }));
+    });
+  }
+  function providerMenuBindings(catalog, modelId, operation) {
+    const modelIds = isGptImageModel(modelId) ? catalog.models.filter((model) => isGptImageModel(model.id)).map((model) => model.id) : modelId ? [modelId] : [];
+    return eligibleBindingsForModels(catalog, modelIds, operation);
+  }
+  function eligibleProviders(catalog, modelId, operation) {
+    const providers = /* @__PURE__ */ new Map();
+    eligibleProviderBindings(catalog, modelId, operation).forEach(({ provider }) => {
+      providers.set(provider.id, provider);
+    });
+    return [...providers.values()];
+  }
+  function preferredProviderBinding(entries, providerId, codexMode) {
+    const providerEntries = entries.filter((entry) => entry.provider.id === providerId);
+    if (!providerEntries.length) return null;
+    if (providerId === "codex") {
+      return providerEntries.find((entry) => entry.binding.protocol_profile === `codex_${codexMode}`) || providerEntries[0] || null;
+    }
+    return providerEntries[0] || null;
+  }
+  function resolveProviderSelection(entries, lastSelectionKey, lastProviderId, defaultProviderId, codexMode) {
+    if (lastSelectionKey) {
+      const remembered = entries.find((entry) => entry.selectionKey === lastSelectionKey);
+      if (remembered) return remembered;
+    }
+    return preferredProviderBinding(entries, lastProviderId, codexMode) || preferredProviderBinding(entries, defaultProviderId, codexMode) || entries[0] || null;
+  }
+  function resolveProviderId(eligible, lastProviderId, defaultProviderId) {
+    const ids = new Set(eligible.map((provider) => provider.id));
+    if (lastProviderId && ids.has(lastProviderId)) return lastProviderId;
+    if (defaultProviderId && ids.has(defaultProviderId)) return defaultProviderId;
+    return eligible[0]?.id ?? null;
+  }
+  function selectedProviderBinding() {
+    const { state: state5 } = getLegacyBridge();
+    const provider = state5.generationCatalog?.providers.find((item) => item.id === state5.selectedProviderId);
+    const candidates = provider?.bindings.filter((binding) => binding.canonical_model_id === state5.selectedModelId && binding.operations.includes(state5.mode) && binding.available !== false) || [];
+    return candidates.find((binding) => binding.id === state5.selectedProviderBindingId) || candidates[0] || null;
+  }
+  function syncCodexCatalogMode(mode) {
+    const { state: state5 } = getLegacyBridge();
+    const catalog = state5.generationCatalog;
+    if (!catalog) return;
+    catalog.codex.mode = mode;
+    if (state5.selectedProviderId !== "codex") return;
+    const selected = preferredProviderBinding(
+      eligibleProviderBindings(catalog, state5.selectedModelId, state5.mode),
+      "codex",
+      mode
+    );
+    if (selected) state5.selectedProviderBindingId = selected.binding.id;
+    renderProviderSelection();
+  }
+  function settingsTabForProvider(_providerId) {
+    return "api";
+  }
+  function optionLabel(entry, entries, catalog) {
+    const label = entry.binding.display_name || entry.provider.name;
+    const multipleModels = entries.some((candidate) => candidate.provider.id === entry.provider.id && candidate.binding.canonical_model_id !== entry.binding.canonical_model_id);
+    const model = catalog.models.find((model2) => model2.id === entry.binding.canonical_model_id);
+    return multipleModels ? `${label} \xB7 ${model?.display_name || entry.binding.canonical_model_id}` : label;
+  }
+  function applyOptionIcon(option2, entry) {
+    if (entry.provider.id === "codex") {
+      option2.dataset.optionIcon = "/static/brand/codex-channel-mark.svg";
+      option2.dataset.optionIconKind = "image";
+      return;
+    }
+    if (entry.provider.icon_emoji) {
+      option2.dataset.optionIcon = entry.provider.icon_emoji;
+      option2.dataset.optionIconKind = "emoji";
+    }
+  }
+  function renderProviderSelection() {
+    const { state: state5, els: els9 } = getLegacyBridge();
+    const select = els9.generationProviderSelect;
+    const catalog = state5.generationCatalog;
+    const entries = catalog ? providerMenuBindings(catalog, state5.selectedModelId, state5.mode) : [];
+    const resolved = catalog ? resolveProviderSelection(
+      entries.filter((entry) => entry.binding.canonical_model_id === state5.selectedModelId),
+      state5.lastProviderSelectionByModel[state5.selectedModelId || ""],
+      state5.lastProviderByModel[state5.selectedModelId || ""],
+      catalog.default_provider_by_model[state5.selectedModelId || ""],
+      catalog.codex.mode
+    ) : null;
+    state5.selectedProviderId = resolved?.provider.id || null;
+    state5.selectedProviderBindingId = resolved?.binding.id || null;
+    state5.authAvailable = Boolean(resolved);
+    if (select) {
+      select.replaceChildren();
+      if (!resolved) {
+        const option2 = document.createElement("option");
+        option2.value = "";
+        option2.textContent = catalog ? translate("modelSelection.providerUnavailable") : translate("modelSelection.catalogUnavailable");
+        select.append(option2);
+      }
+      if (catalog) {
+        for (const entry of entries) {
+          const option2 = document.createElement("option");
+          option2.value = entry.selectionKey;
+          option2.textContent = optionLabel(entry, entries, catalog);
+          option2.title = optionLabel(entry, entries, catalog);
+          applyOptionIcon(option2, entry);
+          select.append(option2);
+        }
+      }
+      select.value = resolved?.selectionKey || "";
+      select.disabled = !entries.length;
+      select.title = resolved && catalog ? optionLabel(resolved, entries, catalog) : "";
+      select.setAttribute("aria-invalid", resolved ? "false" : "true");
+      syncThemedSelect(select);
+    }
+    if (catalog && els9.statusText?.dataset.statusSource === "codex-health") {
+      getLegacyBridge().methods.setStatus?.("", "");
+    }
+    if (els9.runButton) els9.runButton.disabled = !resolved;
+  }
+  function selectGenerationProvider(selectionOrProviderId) {
+    const { state: state5 } = getLegacyBridge();
+    const catalog = state5.generationCatalog;
+    if (!catalog || !state5.selectedModelId) return;
+    const entries = providerMenuBindings(catalog, state5.selectedModelId, state5.mode);
+    const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId) || preferredProviderBinding(entries.filter((entry) => entry.binding.canonical_model_id === state5.selectedModelId), selectionOrProviderId, catalog.codex.mode) || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
+    if (!selected) {
+      renderProviderSelection();
+      return;
+    }
+    const modelId = selected.binding.canonical_model_id;
+    state5.lastProviderByModel[modelId] = selected.provider.id;
+    state5.lastProviderSelectionByModel[modelId] = selected.selectionKey;
+    if (modelId !== state5.selectedModelId) {
+      selectConcreteModel(modelId);
+      return;
+    }
+    state5.selectedProviderId = selected.provider.id;
+    state5.selectedProviderBindingId = selected.binding.id;
+    getLegacyBridge().methods.persistModelSelection?.();
+    renderProviderSelection();
+    getLegacyBridge().methods.updateModeSpecificSettings?.();
+    getLegacyBridge().methods.updateRequestPreview?.();
+  }
+  function initProviderSelectionFeature() {
+    Object.assign(getLegacyBridge().methods, {
+      eligibleProviders,
+      eligibleProviderBindings,
+      resolveProviderId,
+      resolveProviderSelection,
+      settingsTabForProvider,
+      renderProviderSelection,
+      selectedProviderBinding,
+      selectGenerationProvider,
+      syncCodexCatalogMode
+    });
+  }
+
+  // codex_image/webui/frontend/src/mode-settings-visibility.ts
+  function resolveModeSettingsVisibility({
+    catalogAvailable,
+    modelId,
+    protocolProfile,
+    legacyDirectApi
+  }) {
+    if (!catalogAvailable) {
+      return {
+        showMainModel: !legacyDirectApi,
+        showApiDirectNotice: legacyDirectApi,
+        showPromptFidelity: true
+      };
+    }
+    if (!isGptImageModel(modelId)) {
+      return {
+        showMainModel: false,
+        showApiDirectNotice: false,
+        showPromptFidelity: false
+      };
+    }
+    if (!protocolProfile) {
+      return {
+        showMainModel: false,
+        showApiDirectNotice: false,
+        showPromptFidelity: true
+      };
+    }
+    const usesResponses = protocolProfile.endsWith("_responses");
+    return {
+      showMainModel: usesResponses,
+      showApiDirectNotice: !usesResponses,
+      showPromptFidelity: true
+    };
+  }
+
+  // codex_image/webui/frontend/src/api-mode-settings.ts
+  var bridge = getLegacyBridge();
+  var els2 = bridge.els;
+  function legacyMethod2(name, ...args) {
+    const method = getLegacyBridge().methods[name];
+    if (typeof method !== "function") {
+      throw new Error("Legacy method " + name + " is not initialized");
+    }
+    return method(...args);
+  }
+  function currentAuthSource() {
+    return legacyMethod2("currentAuthSource");
+  }
+  function currentApiMode() {
+    return legacyMethod2("currentApiMode");
+  }
+  function currentCodexMode() {
+    return legacyMethod2("currentCodexMode");
+  }
+  function setModeSpecificElementVisibility(element, visible) {
+    if (!element) return;
+    element.setAttribute("aria-hidden", visible ? "false" : "true");
+    if (visible) {
+      element.classList.remove("hidden");
+      element.classList.remove("mode-collapsed");
+      return;
+    }
+    element.classList.add("mode-collapsed");
+    element.classList.add("hidden");
+  }
+  function applyModeSettingsVisibility(visibility) {
+    const showModeSettings = visibility.showMainModel || visibility.showApiDirectNotice || visibility.showPromptFidelity;
+    setModeSpecificElementVisibility(els2.modeSettingsSlot, showModeSettings);
+    setModeSpecificElementVisibility(els2.modeSpecificSettings, showModeSettings);
+    setModeSpecificElementVisibility(els2.mainModelField, visibility.showMainModel);
+    setModeSpecificElementVisibility(els2.apiDirectSettingsNotice, visibility.showApiDirectNotice);
+    setModeSpecificElementVisibility(els2.promptFidelityField, visibility.showPromptFidelity);
+  }
+  function updateWebSearchAvailability(authSource = currentAuthSource()) {
+    const binding = selectedProviderBinding();
+    const supported = binding ? binding.protocol_profile.endsWith("_responses") : authSource === "api" ? currentApiMode() === "responses" : currentCodexMode() === "responses";
+    if (els2.webSearch) {
+      const wasChecked = Boolean(els2.webSearch.checked);
+      els2.webSearch.disabled = !supported;
+      if (!supported) els2.webSearch.checked = false;
+      if (wasChecked && !els2.webSearch.checked) {
+        els2.webSearch.dispatchEvent(new Event("input"));
+      }
+    }
+    if (els2.webSearchField) {
+      els2.webSearchField.classList.toggle("is-disabled", !supported);
+      els2.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
+    }
+  }
+  function setModeSettingsVariant(isDirectApi, visibility) {
+    const slot = els2.modeSettingsSlot;
+    if (slot) {
+      slot.style.height = "";
+      slot.classList.remove("is-transitioning");
+    }
+    applyModeSettingsVisibility(visibility || resolveModeSettingsVisibility({
+      catalogAvailable: false,
+      modelId: null,
+      protocolProfile: null,
+      legacyDirectApi: Boolean(isDirectApi)
+    }));
+  }
+  function updateModeSpecificSettings(authSource = currentAuthSource()) {
+    const binding = selectedProviderBinding();
+    const isDirectApi = binding ? !binding.protocol_profile.endsWith("_responses") : authSource === "api" && currentApiMode() !== "responses" || authSource === "codex" && currentCodexMode() !== "responses";
+    setModeSettingsVariant(isDirectApi, resolveModeSettingsVisibility({
+      catalogAvailable: Boolean(getLegacyBridge().state.generationCatalog),
+      modelId: getLegacyBridge().state.selectedModelId,
+      protocolProfile: binding?.protocol_profile || null,
+      legacyDirectApi: isDirectApi
+    }));
+    updateWebSearchAvailability(authSource);
+    updateTransparencyControls();
+    legacyMethod2("syncReferenceFileAvailability");
+    const refreshOutputSettingsLock = getLegacyBridge().methods.refreshOutputSettingsLock;
+    if (typeof refreshOutputSettingsLock === "function") refreshOutputSettingsLock();
+  }
+
+  // codex_image/webui/frontend/src/auth-source.ts
+  var bridge2 = getLegacyBridge();
+  var state2 = bridge2.state;
+  var els3 = bridge2.els;
+  function legacyMethod3(name, ...args) {
+    const method = getLegacyBridge().methods[name];
+    if (typeof method !== "function") {
+      throw new Error("Legacy method " + name + " is not initialized");
+    }
+    return method(...args);
+  }
+  function setStatus2(message, type) {
+    legacyMethod3("setStatus", message, type);
+  }
+  function updateRequestPreview() {
+    legacyMethod3("updateRequestPreview");
+  }
+  function currentApiMode2() {
+    return legacyMethod3("currentApiMode");
+  }
+  function currentCodexMode2() {
+    return legacyMethod3("currentCodexMode");
+  }
+  function currentApiProviderLabel() {
+    return legacyMethod3("currentApiProviderLabel");
+  }
+  function apiModeLabel(mode) {
+    return legacyMethod3("apiModeLabel", mode);
+  }
+  function codexModeLabel(mode) {
+    return legacyMethod3("codexModeLabel", mode);
+  }
+  async function refreshHealth() {
+    try {
+      const response = await fetch("/api/health");
+      const data = await response.json();
+      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
+      state2.authStatus = data.auth || null;
+      renderAuthSource(state2.authStatus);
+      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
+      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      els3.runButton.disabled = !state2.authAvailable;
+      if (!state2.authAvailable && !state2.generationCatalog) {
+        setStatus2(translate("auth.missingCodexSession"), "error");
+        if (els3.statusText) els3.statusText.dataset.statusSource = "codex-health";
+      }
+      updateRequestPreview();
+    } catch (error) {
+      if (state2.generationCatalog) {
+        getLegacyBridge().methods.renderProviderSelection?.();
+        getLegacyBridge().methods.updateModeSpecificSettings?.();
+        updateRequestPreview();
+        return;
+      }
+      state2.authAvailable = false;
+      els3.apiStatus.className = "status-dot error";
+      els3.runButton.disabled = true;
+      setStatus2(error.message, "error");
+    }
+  }
+  async function applyAuthSource(source) {
+    state2.pendingAuthSource = source;
+    applyAuthSourceSelection(source);
+    updateRequestPreview();
+    try {
+      const response = await fetch("/api/auth", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || translate("auth.switchFailed"));
+      }
+      state2.pendingAuthSource = null;
+      state2.authStatus = data;
+      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
+      renderAuthSource(data);
+      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      getLegacyBridge().methods.updateModeSpecificSettings?.();
+      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
+      els3.runButton.disabled = !state2.authAvailable;
+      setStatus2(authSourceDetailText(data), state2.authAvailable ? "ok" : "error");
+      updateRequestPreview();
+      return true;
+    } catch (error) {
+      state2.pendingAuthSource = null;
+      renderAuthSource(state2.authStatus);
+      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      getLegacyBridge().methods.updateModeSpecificSettings?.();
+      updateRequestPreview();
+      setStatus2(error.message || translate("auth.switchFailed"), "error");
+      return false;
+    }
+  }
+  async function setAuthSource(source, _anchor) {
+    const normalized = source === "api" ? "api" : "codex";
+    return await applyAuthSource(normalized);
+  }
+  function handleAuthSourceClick(event) {
+    const button = event.target.closest?.("[data-auth-source]");
+    if (!button) return;
+    const source = button.dataset.authSource;
+    void setAuthSource(source, button);
+  }
+  function renderAuthSource(auth) {
+    const selected = state2.pendingAuthSource || auth?.selected_source || "codex";
+    applyAuthSourceSelection(selected);
+    if (els3.authSourceDetail) {
+      const text = auth ? authSourceDetailText(auth) : translate("auth.checking");
+      els3.authSourceDetail.textContent = text;
+      els3.authSourceDetail.title = text;
+    }
+  }
+  function applyAuthSourceSelection(source) {
+    const selected = source || "codex";
+    els3.authSourceGroup?.querySelectorAll("[data-auth-source]").forEach((button) => {
+      const active = button.dataset.authSource === selected;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    els3.apiProviderQuick?.classList.add("hidden");
+    updateModeSpecificSettings(selected);
+  }
+  function authSourceDetailText(auth) {
+    if (!auth) return translate("auth.checking");
+    const selected = sourceLabel(auth.selected_source);
+    const effectiveApi = auth.effective_source === "api";
+    if (!auth.auth_available) {
+      if (auth.selected_source === "api" || effectiveApi) {
+        return formatTranslation("auth.sourceUnavailable", { source: selected });
+      }
+      return formatTranslation("auth.sourceUnavailable", { source: selected });
+    }
+    if (effectiveApi) {
+      const provider = currentApiProviderLabel();
+      const mode = apiModeLabel(currentApiMode2());
+      return `API \xB7 ${provider} \xB7 ${mode}`;
+    }
+    return codexModeLabel(currentCodexMode2());
+  }
+  function sourceLabel(source) {
+    if (source === "codex") return "Codex";
+    if (source === "api") return "API";
+    return translate("auth.notActive");
+  }
+  function currentAuthSource2() {
+    if (state2.selectedProviderId) return state2.selectedProviderId === "codex" ? "codex" : "api";
+    return state2.pendingAuthSource || state2.authStatus?.selected_source || "codex";
+  }
+  function isDirectApiMode(authSource = currentAuthSource2()) {
+    return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
   }
 
   // codex_image/webui/frontend/src/model-catalog.ts
@@ -21383,6 +21438,18 @@
     return true;
   }
   function initialCatalogSelection(catalog, storedModelId, lastProviderByModel, operation, lastProviderSelectionByModel = {}) {
+    const rememberedBinding = storedModelId && lastProviderSelectionByModel[storedModelId];
+    if (rememberedBinding && isGptImageModel(storedModelId)) {
+      for (const candidate of catalog.models.filter((item) => isGptImageModel(item.id))) {
+        const entry = eligibleProviderBindings(catalog, candidate.id, operation).find((item) => item.selectionKey === rememberedBinding);
+        if (entry) return {
+          familyId: candidate.family_id,
+          modelId: candidate.id,
+          providerId: entry.provider.id,
+          bindingId: entry.binding.id
+        };
+      }
+    }
     const model = catalog.models.find((item) => item.id === storedModelId) || catalog.models.find((item) => item.id === "gpt-image-2") || catalog.models[0];
     if (!model) return { familyId: null, modelId: null, providerId: null, bindingId: null };
     const entries = eligibleProviderBindings(catalog, model.id, operation);
@@ -21402,10 +21469,32 @@
   }
   async function refreshGenerationCatalog() {
     const { state: state5 } = getLegacyBridge();
+    let followedBindingModel = false;
     try {
       const response = await fetch("/api/generation-catalog", { headers: { Accept: "application/json" } });
       const payload = await response.json();
       if (!response.ok || !isGenerationCatalog(payload)) throw new Error("generation catalog unavailable");
+      const previousBinding = selectedProviderBinding();
+      const updatedBinding = payload.providers.find((provider) => provider.id === state5.selectedProviderId)?.bindings.find((binding) => binding.id === previousBinding?.id);
+      const sourceModel = state5.generationCatalog?.models.find((model) => model.id === state5.selectedModelId);
+      const targetModel = payload.models.find((model) => model.id === updatedBinding?.canonical_model_id);
+      const updatedEntry = targetModel && eligibleProviderBindings(payload, targetModel.id, state5.mode).find((entry) => entry.provider.id === state5.selectedProviderId && entry.binding.id === previousBinding?.id);
+      if (sourceModel && targetModel && updatedEntry && sourceModel.id !== targetModel.id) {
+        saveCurrentModelParameterDraft();
+        if (sourceModel.family_id === targetModel.family_id) {
+          state5.parameterDraftsByModel[targetModel.id] = migratePortableModelDraft(
+            sourceModel,
+            targetModel,
+            state5.parameterDraftsByModel[sourceModel.id] || {},
+            state5.parameterDraftsByModel[targetModel.id] || {}
+          );
+        }
+        state5.selectedModelId = targetModel.id;
+        state5.lastModelByFamily[targetModel.family_id] = targetModel.id;
+        state5.lastProviderByModel[targetModel.id] = updatedEntry.provider.id;
+        state5.lastProviderSelectionByModel[targetModel.id] = updatedEntry.selectionKey;
+        followedBindingModel = true;
+      }
       state5.generationCatalog = payload;
       state5.generationCatalogError = null;
       const selection = initialCatalogSelection(
@@ -21415,6 +21504,20 @@
         state5.mode,
         state5.lastProviderSelectionByModel
       );
+      if (!followedBindingModel && selection.modelId !== state5.selectedModelId && isGptImageModel(state5.selectedModelId) && isGptImageModel(selection.modelId)) {
+        const previousModel = payload.models.find((model) => model.id === state5.selectedModelId);
+        const restoredModel = payload.models.find((model) => model.id === selection.modelId);
+        if (previousModel) {
+          state5.parameterDraftsByModel[restoredModel.id] = migratePortableModelDraft(
+            previousModel,
+            restoredModel,
+            state5.parameterDraftsByModel[previousModel.id] || {},
+            state5.parameterDraftsByModel[restoredModel.id] || {}
+          );
+        }
+        state5.lastModelByFamily[restoredModel.family_id] = restoredModel.id;
+        followedBindingModel = true;
+      }
       state5.selectedFamilyId = selection.familyId;
       state5.selectedModelId = selection.modelId;
       state5.selectedProviderId = selection.providerId;
@@ -21434,8 +21537,12 @@
     }
     renderModelSelectors();
     renderProviderSelection();
-    if (state5.generationCatalog && !getLegacyBridge().methods.isOutputSettingsLocked?.()) {
+    if (state5.generationCatalog && (followedBindingModel || !getLegacyBridge().methods.isOutputSettingsLocked?.())) {
       getLegacyBridge().methods.restoreCurrentModelParameterDraft?.();
+    }
+    if (followedBindingModel) {
+      getLegacyBridge().methods.reconcileTaskParameterInspection?.();
+      getLegacyBridge().methods.refreshOutputSettingsLock?.();
     }
     getLegacyBridge().methods.renderCurrentModelParameters?.();
     getLegacyBridge().methods.updateModeSpecificSettings?.();
@@ -22738,13 +22845,16 @@
       provider.bindings || [],
       state3.generationCatalog?.models || [],
       provider.id,
-      state3.apiSettings.default_provider_by_model || {}
+      defaultsForProviderDraft(provider)
     );
     updateApiRequestEndpointPreview();
     resetApiAdvancedSettings();
   }
   function defaultsForProviderDraft(provider) {
     const defaults = { ...state3.apiSettings.default_provider_by_model || {} };
+    Object.keys(defaults).forEach((modelId) => {
+      if (defaults[modelId] === provider.id) delete defaults[modelId];
+    });
     (provider.default_model_ids || []).forEach((modelId) => {
       defaults[modelId] = provider.id;
     });
@@ -22854,6 +22964,7 @@
     writeProviderForm(state3.apiProviderDraft);
   }
   function applyApiProviderDraft(settings) {
+    var _a, _b;
     if (!apiProviderEditorActive()) return normalizeApiSettings(settings);
     const draft = draftProviderFromForm();
     const normalized = normalizeApiSettings(settings);
@@ -22874,6 +22985,12 @@
       if (normalized.default_provider_by_model[modelId] !== draft.id) continue;
       if (!(draft.bindings || []).some((binding) => binding.canonical_model_id === modelId)) {
         delete normalized.default_provider_by_model[modelId];
+      }
+    }
+    const fallbackProviders = normalized.providers.filter((provider) => provider.id !== draft.id).concat(draft);
+    for (const provider of fallbackProviders) {
+      for (const binding of provider.bindings) {
+        (_a = normalized.default_provider_by_model)[_b = binding.canonical_model_id] ?? (_a[_b] = provider.id);
       }
     }
     state3.apiProviderEditingId = null;
@@ -23146,7 +23263,10 @@
     const provider = activeApiProvider();
     state3.apiProviderEditingId = provider.id;
     state3.apiProviderDraftIsNew = false;
-    state3.apiProviderDraft = normalizeApiProvider({ ...provider }, 0);
+    state3.apiProviderDraft = normalizeApiProvider({
+      ...provider,
+      default_model_ids: Object.keys(state3.apiSettings.default_provider_by_model || {}).filter((modelId) => state3.apiSettings.default_provider_by_model[modelId] === provider.id)
+    }, 0);
     populateApiSettingsForm();
     setApiSettingsFeedback(translate("apiSettings.editDraftStatus"), "running");
     scrollApiProviderEditorIntoView();
@@ -23514,7 +23634,7 @@
     }
     const previousSettings = normalizeApiSettings(state3.apiSettings);
     const previousEditingId = state3.apiProviderEditingId;
-    const previousDraft = state3.apiProviderDraft ? structuredClone(state3.apiProviderDraft) : null;
+    const previousDraft = apiProviderEditorActive() ? draftProviderFromForm() : null;
     const previousDraftIsNew = state3.apiProviderDraftIsNew;
     let confirmedOriginChange = null;
     if (!autoSave && apiProviderEditorActive()) {
@@ -24557,39 +24677,6 @@
     return getLegacyBridge().els;
   }
 
-  // codex_image/webui/frontend/src/state-sync.ts
-  var syncStates = /* @__PURE__ */ new WeakMap();
-  function versionState(state5, version) {
-    if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
-    let current = syncStates.get(state5);
-    if (current?.retired.has(version.instance)) return false;
-    if (!current || current.instance !== version.instance) {
-      const retired = current?.retired || /* @__PURE__ */ new Set();
-      if (current) retired.add(current.instance);
-      current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
-      syncStates.set(state5, current);
-    }
-    return current;
-  }
-  function acceptQueueSnapshot(state5, version) {
-    const current = versionState(state5, version);
-    if (current === false) return false;
-    if (!current || !version) return true;
-    if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
-    current.queue = version.revision;
-    return true;
-  }
-  function acceptTaskUpdate(state5, task, version) {
-    const current = versionState(state5, version);
-    if (current === false || !task?.task_id) return false;
-    if (!current || !version) return true;
-    const id = String(task.task_id);
-    if (version.revision < current.tasks || version.revision < (current.changes.get(id)?.revision || 0)) return false;
-    current.lastChange = Math.max(current.lastChange, version.revision);
-    current.changes.set(id, { revision: version.revision, task });
-    return true;
-  }
-
   // codex_image/webui/frontend/src/queue.ts
   var REALTIME_EVENTS_URL = "/api/events?stream=1";
   var QUEUE_DISPATCH_RESYNC_DELAY_MS = 1500;
@@ -24706,9 +24793,15 @@
     }
     if (payload?.type === "queue") {
       const updatedTasks = payload.tasks || [];
+      const queueMutated = Boolean(payload.queue?.updated_at && payload.queue.updated_at !== state5.queue.updated_at);
       applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync });
       await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
-      if (acceptQueueSnapshot(state5, payload.sync)) applyQueueTasks(state5.queue);
+      if (!acceptQueueSnapshot(state5, payload.sync)) return;
+      if (queueMutated && !updatedTasks.length && !queueTaskCount(payload.queue)) {
+        await bridge7.methods.refreshTasks();
+        return;
+      }
+      applyQueueTasks(state5.queue);
       if (!updatedTasks.length && !queueTaskCount(payload.queue)) {
         bridge7.methods.renderTasks?.({ preserveScroll: true });
       }
@@ -24740,8 +24833,7 @@
         throw new Error(data.detail || translate("queue.readFailed"));
       }
       if (!acceptQueueSnapshot(state5, data.sync)) return;
-      state5.queue = normalizeQueueState(data);
-      renderQueue();
+      await handleRealtimePayload({ type: "queue", queue: data, sync: data.sync });
     } catch (error) {
       bridge7.methods.setStatus(errorMessage(error, translate("queue.readFailed")), "error");
     }
@@ -24754,7 +24846,8 @@
     return {
       waiting: Array.isArray(queue?.waiting) ? queue.waiting : fallback.waiting,
       running: Array.isArray(queue?.running) ? queue.running : fallback.running,
-      summary: queue?.summary || fallback.summary
+      summary: queue?.summary || fallback.summary,
+      ...queue?.updated_at ? { updated_at: queue.updated_at } : {}
     };
   }
   function invalidateQueueRequests() {

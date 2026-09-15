@@ -1,10 +1,13 @@
 import type { GenerationCatalog, GenerationOperation } from "./types";
 import { getLegacyBridge } from "./state";
+import { isGptImageModel } from "./gpt-image-models";
 import { renderModelSelectors } from "./model-selection";
+import { migratePortableModelDraft, saveCurrentModelParameterDraft } from "./model-parameter-drafts";
 import {
   eligibleProviderBindings,
   renderProviderSelection,
   resolveProviderSelection,
+  selectedProviderBinding,
 } from "./provider-selection";
 
 export const MODEL_SELECTION_STORAGE_KEY = "codex-image-model-selection-v1";
@@ -202,6 +205,17 @@ export function initialCatalogSelection(
   operation: GenerationOperation,
   lastProviderSelectionByModel: Record<string, string> = {},
 ): { familyId: string | null; modelId: string | null; providerId: string | null; bindingId: string | null } {
+  const rememberedBinding = storedModelId && lastProviderSelectionByModel[storedModelId];
+  if (rememberedBinding && isGptImageModel(storedModelId)) {
+    for (const candidate of catalog.models.filter((item) => isGptImageModel(item.id))) {
+      const entry = eligibleProviderBindings(catalog, candidate.id, operation)
+        .find((item) => item.selectionKey === rememberedBinding);
+      if (entry) return {
+        familyId: candidate.family_id, modelId: candidate.id,
+        providerId: entry.provider.id, bindingId: entry.binding.id,
+      };
+    }
+  }
   const model = catalog.models.find((item) => item.id === storedModelId)
     || catalog.models.find((item) => item.id === "gpt-image-2")
     || catalog.models[0];
@@ -224,10 +238,35 @@ export function initialCatalogSelection(
 
 export async function refreshGenerationCatalog(): Promise<void> {
   const { state } = getLegacyBridge();
+  let followedBindingModel = false;
   try {
     const response = await fetch("/api/generation-catalog", { headers: { Accept: "application/json" } });
     const payload: unknown = await response.json();
     if (!response.ok || !isGenerationCatalog(payload)) throw new Error("generation catalog unavailable");
+    const previousBinding = selectedProviderBinding();
+    const updatedBinding = payload.providers.find((provider) => provider.id === state.selectedProviderId)
+      ?.bindings.find((binding) => binding.id === previousBinding?.id);
+    const sourceModel = state.generationCatalog?.models.find((model) => model.id === state.selectedModelId);
+    const targetModel = payload.models.find((model) => model.id === updatedBinding?.canonical_model_id);
+    const updatedEntry = targetModel && eligibleProviderBindings(payload, targetModel.id, state.mode as GenerationOperation)
+      .find((entry) => entry.provider.id === state.selectedProviderId && entry.binding.id === previousBinding?.id);
+    if (sourceModel && targetModel && updatedEntry && sourceModel.id !== targetModel.id) {
+      // Keep the selected binding when its model changes, before fallback routing
+      // can move the composer to another supplier for the old model.
+      saveCurrentModelParameterDraft();
+      if (sourceModel.family_id === targetModel.family_id) {
+        state.parameterDraftsByModel[targetModel.id] = migratePortableModelDraft(
+          sourceModel, targetModel,
+          state.parameterDraftsByModel[sourceModel.id] || {},
+          state.parameterDraftsByModel[targetModel.id] || {},
+        );
+      }
+      state.selectedModelId = targetModel.id;
+      state.lastModelByFamily[targetModel.family_id] = targetModel.id;
+      state.lastProviderByModel[targetModel.id] = updatedEntry.provider.id;
+      state.lastProviderSelectionByModel[targetModel.id] = updatedEntry.selectionKey;
+      followedBindingModel = true;
+    }
     state.generationCatalog = payload;
     state.generationCatalogError = null;
     const selection = initialCatalogSelection(
@@ -237,6 +276,20 @@ export async function refreshGenerationCatalog(): Promise<void> {
       state.mode as GenerationOperation,
       state.lastProviderSelectionByModel,
     );
+    if (!followedBindingModel && selection.modelId !== state.selectedModelId
+        && isGptImageModel(state.selectedModelId) && isGptImageModel(selection.modelId)) {
+      const previousModel = payload.models.find((model) => model.id === state.selectedModelId);
+      const restoredModel = payload.models.find((model) => model.id === selection.modelId)!;
+      if (previousModel) {
+        state.parameterDraftsByModel[restoredModel.id] = migratePortableModelDraft(
+          previousModel, restoredModel,
+          state.parameterDraftsByModel[previousModel.id] || {},
+          state.parameterDraftsByModel[restoredModel.id] || {},
+        );
+      }
+      state.lastModelByFamily[restoredModel.family_id] = restoredModel.id;
+      followedBindingModel = true;
+    }
     state.selectedFamilyId = selection.familyId;
     state.selectedModelId = selection.modelId;
     state.selectedProviderId = selection.providerId;
@@ -258,8 +311,12 @@ export async function refreshGenerationCatalog(): Promise<void> {
   renderProviderSelection();
   // Restore the saved controls before preview generation reads their HTML defaults
   // back into the draft. A persisted output lock already restored its own values.
-  if (state.generationCatalog && !getLegacyBridge().methods.isOutputSettingsLocked?.()) {
+  if (state.generationCatalog && (followedBindingModel || !getLegacyBridge().methods.isOutputSettingsLocked?.())) {
     getLegacyBridge().methods.restoreCurrentModelParameterDraft?.();
+  }
+  if (followedBindingModel) {
+    getLegacyBridge().methods.reconcileTaskParameterInspection?.();
+    getLegacyBridge().methods.refreshOutputSettingsLock?.();
   }
   getLegacyBridge().methods.renderCurrentModelParameters?.();
   getLegacyBridge().methods.updateModeSpecificSettings?.();

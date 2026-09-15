@@ -149,7 +149,7 @@ export function restoreCurrentModelParameterDraft(): void {
     els.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
   }
   if (typeof draft["output.count"] === "number" && els.nInput) els.nInput.value = String(draft["output.count"]);
-  methods.syncRadioButtons?.(els.quality, els.outputFormat, els.moderation);
+  methods.syncRadioButtons?.(els.quality, els.outputFormat, els.moderation, els.nInput);
   methods.updateQuantity?.();
   methods.updateCompression?.();
   renderCurrentModelParameters();

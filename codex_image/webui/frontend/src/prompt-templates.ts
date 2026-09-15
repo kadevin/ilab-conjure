@@ -612,7 +612,7 @@ async function savePromptTemplateFromDrawer() {
     notes: (form.querySelector("[data-prompt-template-notes]") as HTMLTextAreaElement | null)?.value || "",
     thumbnail_url: (form.querySelector("[data-prompt-template-thumbnail-url]") as HTMLInputElement | null)?.value || "",
     favorite: Boolean((form.querySelector("[data-prompt-template-favorite]") as HTMLInputElement | null)?.checked),
-    model_hint: "gpt-image-2",
+    ...(templateId ? {} : { model_hint: state.selectedModelId || "gpt-image-2" }),
   };
   try {
     const response = await fetch(templateId ? `${PROMPT_TEMPLATES_ENDPOINT}/${encodeURIComponent(templateId)}` : PROMPT_TEMPLATES_ENDPOINT, {

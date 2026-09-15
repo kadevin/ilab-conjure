@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from codex_image.client import DEFAULT_IMAGE_MODEL
+from codex_image.generation.catalog import list_model_manifests
 
 from .atomic_files import atomic_write_text
 from .store_locks import StoreLockMixin, store_locked
@@ -25,7 +26,7 @@ MAX_PROMPT_TEMPLATE_CONTENT_LENGTH = 8000
 MAX_PROMPT_TEMPLATE_NOTES_LENGTH = 500
 MAX_PROMPT_TEMPLATE_THUMBNAIL_URL_LENGTH = 500
 MAX_PROMPT_TEMPLATE_IMPORT_BYTES = 1_000_000
-SUPPORTED_PROMPT_TEMPLATE_MODEL_HINTS = {DEFAULT_IMAGE_MODEL, "any"}
+SUPPORTED_PROMPT_TEMPLATE_MODEL_HINTS = {model.id for model in list_model_manifests()} | {"any"}
 PROMPT_TEMPLATE_MODES = {"text_to_image", "image_to_image", "edit", "any"}
 DEFAULT_PROMPT_TEMPLATE_CATEGORIES = [
     {"id": "常用", "name": "常用", "order": 10},
@@ -205,10 +206,11 @@ class PromptTemplateSettings(StoreLockMixin):
     @store_locked
     def export_pack(self) -> dict[str, Any]:
         settings = self.read()
+        model_hints = {template["model_hint"] for template in settings["templates"]}
         return {
             "version": 1,
             "format": "webui-prompt-template-pack",
-            "model_hint": DEFAULT_IMAGE_MODEL,
+            "model_hint": next(iter(model_hints)) if len(model_hints) == 1 else "any" if model_hints else DEFAULT_IMAGE_MODEL,
             "exported_at": utc_now(),
             "categories": settings["categories"],
             "templates": settings["templates"],
@@ -220,7 +222,7 @@ class PromptTemplateSettings(StoreLockMixin):
         current = self.read()
         categories = _normalize_prompt_template_categories_payload([*current["categories"], *imported_categories])
         templates = [*current["templates"]]
-        existing_keys = {(template["title"].casefold(), template["content"]) for template in templates}
+        existing_keys = {(template["title"].casefold(), template["content"], template["model_hint"]) for template in templates}
         imported = 0
         skipped = 0
         now = utc_now()
@@ -232,14 +234,13 @@ class PromptTemplateSettings(StoreLockMixin):
                 {
                     **item,
                     "id": str(uuid.uuid4()),
-                    "model_hint": DEFAULT_IMAGE_MODEL,
                     "usage_count": 0,
                     "created_at": now,
                     "updated_at": now,
                     "last_used_at": "",
                 }
             )
-            key = (candidate["title"].casefold(), candidate["content"])
+            key = (candidate["title"].casefold(), candidate["content"], candidate["model_hint"])
             if key in existing_keys:
                 skipped += 1
                 continue
@@ -554,6 +555,7 @@ def _prompt_template_payload_from_community_record(record: Any, *, filename: str
         return None
     title = _first_prompt_template_text(record, ["title", "name", "label", "short_title", "shortTitle"]) or _prompt_template_title_from_content(filename, content)
     category = _first_prompt_template_text(record, ["category", "group", "folder", "type"]) or "常用"
+    model_hint = str(record.get("model_hint") or "").strip()
     return {
         "title": title,
         "short_title": _first_prompt_template_text(record, ["short_title", "shortTitle", "alias"]) or title[:MAX_PROMPT_TEMPLATE_SHORT_TITLE_LENGTH],
@@ -561,7 +563,7 @@ def _prompt_template_payload_from_community_record(record: Any, *, filename: str
         "category": category,
         "tags": _prompt_template_tags_from_import(record.get("tags") or record.get("keywords")),
         "mode": _prompt_template_mode_from_import(record.get("mode") or record.get("workflow")),
-        "model_hint": DEFAULT_IMAGE_MODEL,
+        "model_hint": model_hint if model_hint in SUPPORTED_PROMPT_TEMPLATE_MODEL_HINTS else DEFAULT_IMAGE_MODEL,
         "notes": _first_prompt_template_text(record, ["notes", "description", "desc", "comment"]),
         "thumbnail_url": _first_prompt_template_text(record, ["thumbnail_url", "thumbnail", "preview_url", "preview", "cover", "image"]),
         "favorite": bool(record.get("favorite")),
