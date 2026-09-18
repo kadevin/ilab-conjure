@@ -212,6 +212,7 @@ class SQLiteTaskIndex:
             "prompt_preview": "text not null default ''",
             "search_text": "text not null default ''",
             "schema_version": "integer not null default 0",
+            "repair_version": "integer not null default 0",
         }
         for name, definition in columns.items():
             if name not in existing:
@@ -239,6 +240,9 @@ class SQLiteTaskIndex:
         connection.execute("create index if not exists idx_task_index_provider on task_index(provider)")
 
     def _ensure_fts(self, connection: sqlite3.Connection) -> bool:
+        initialized = connection.execute(
+            "select count(*) from sqlite_master where name in ('task_index_fts', 'task_index_fts_keys')"
+        ).fetchone()[0] == 2
         try:
             connection.execute(
                 """
@@ -248,6 +252,22 @@ class SQLiteTaskIndex:
             )
         except sqlite3.OperationalError:
             return False
+        # A separate INTEGER PRIMARY KEY survives VACUUM and task-index upserts.
+        # The old FTS task_id column is unindexed, so never use it for mutations.
+        connection.execute(
+            "create table if not exists task_index_fts_keys "
+            "(id integer primary key, task_id text not null unique)"
+        )
+        if not initialized:
+            connection.execute("delete from task_index_fts")
+            connection.execute(
+                "insert or ignore into task_index_fts_keys(task_id) select task_id from task_index"
+            )
+            connection.execute(
+                "insert into task_index_fts(rowid, task_id, search_text) "
+                "select k.id, t.task_id, t.search_text from task_index t "
+                "join task_index_fts_keys k on k.task_id = t.task_id"
+            )
         return True
 
     def _backfill_structured_columns(self, connection: sqlite3.Connection) -> None:
@@ -305,7 +325,7 @@ class SQLiteTaskIndex:
             )
             self._upsert_fts_row(connection, str(row["task_id"]), fields["search_text"])
 
-    def upsert(self, metadata: dict[str, Any]) -> None:
+    def upsert(self, metadata: dict[str, Any], *, repair_attempted: bool = False) -> None:
         task_id = str(metadata.get("task_id") or "")
         if not task_id:
             return
@@ -323,9 +343,9 @@ class SQLiteTaskIndex:
                         task_id, created_at, updated_at, status, prompt, summary_json,
                         completed_at, terminal_at, activity_at, month_key, mode, size, quality, prompt_mode, ratio, orientation, resolution, backend, provider,
                         archived_at, generated_count, failed_count, total_count, thumbnail_url,
-                        prompt_preview, search_text, schema_version
+                        prompt_preview, search_text, schema_version, repair_version
                     )
-                    values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     on conflict(task_id) do update set
                         created_at = excluded.created_at,
                         updated_at = excluded.updated_at,
@@ -352,7 +372,8 @@ class SQLiteTaskIndex:
                         thumbnail_url = excluded.thumbnail_url,
                         prompt_preview = excluded.prompt_preview,
                         search_text = excluded.search_text,
-                        schema_version = excluded.schema_version
+                        schema_version = excluded.schema_version,
+                        repair_version = excluded.repair_version
                     """,
                     (
                         task_id,
@@ -382,6 +403,7 @@ class SQLiteTaskIndex:
                         fields["prompt_preview"],
                         fields["search_text"],
                         TASK_INDEX_SCHEMA_VERSION,
+                        int(repair_attempted),
                     ),
                 )
                 self._upsert_fts_row(connection, task_id, fields["search_text"])
@@ -646,6 +668,7 @@ class SQLiteTaskIndex:
                 """
                 select task_id from task_index
                 where status in ('completed', 'partial_failed')
+                  and repair_version < 1
                   and (thumbnail_url = '' or generated_count = 0 or total_count = 0)
                 order by updated_at desc, created_at desc, task_id desc
                 limit ?
@@ -653,6 +676,12 @@ class SQLiteTaskIndex:
                 (safe_limit,),
             ).fetchall()
         return [str(row["task_id"]) for row in rows]
+
+    def mark_repair_attempted(self, task_id: str) -> None:
+        with closing(self._connect()) as connection, connection:
+            connection.execute(
+                "update task_index set repair_version = 1 where task_id = ?", (task_id,)
+            )
 
     def query_history(
         self,
@@ -731,8 +760,13 @@ class SQLiteTaskIndex:
         if not self.fts_enabled:
             return
         try:
-            connection.execute("delete from task_index_fts where task_id = ?", (task_id,))
-            connection.execute("insert into task_index_fts(task_id, search_text) values(?, ?)", (task_id, search_text))
+            connection.execute("insert or ignore into task_index_fts_keys(task_id) values(?)", (task_id,))
+            row_id = connection.execute("select id from task_index_fts_keys where task_id = ?", (task_id,)).fetchone()[0]
+            old = connection.execute("select search_text from task_index_fts where rowid = ?", (row_id,)).fetchone()
+            if old is not None and old[0] == search_text:
+                return
+            connection.execute("delete from task_index_fts where rowid = ?", (row_id,))
+            connection.execute("insert into task_index_fts(rowid, task_id, search_text) values(?, ?, ?)", (row_id, task_id, search_text))
         except sqlite3.OperationalError:
             self.fts_enabled = False
 
@@ -740,7 +774,11 @@ class SQLiteTaskIndex:
         if not self.fts_enabled:
             return
         try:
-            connection.execute("delete from task_index_fts where task_id = ?", (task_id,))
+            connection.execute(
+                "delete from task_index_fts where rowid = (select id from task_index_fts_keys where task_id = ?)",
+                (task_id,),
+            )
+            connection.execute("delete from task_index_fts_keys where task_id = ?", (task_id,))
         except sqlite3.OperationalError:
             self.fts_enabled = False
 

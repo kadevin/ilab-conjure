@@ -35,9 +35,9 @@ class GeminiAttributionFrontendContractTests(WebUIStaticTestCase):
             encoding="utf-8"
         )
         task_list = Path(
-            "codex_image/webui/frontend/src/task-list-render.ts"
+            "codex_image/webui/frontend/src/task-card-view.ts"
         ).read_text(encoding="utf-8")
-        history = Path("codex_image/webui/frontend/src/history.ts").read_text(
+        history = Path("codex_image/webui/frontend/src/history-detail-controller.ts").read_text(
             encoding="utf-8"
         )
 

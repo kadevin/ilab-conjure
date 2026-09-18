@@ -5,11 +5,14 @@ import concurrent.futures
 import contextvars
 import threading
 import time
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 from typing import Any, Coroutine, Iterator, Mapping, TypeVar
 from urllib.parse import urljoin, urlsplit
+from urllib.request import getproxies, proxy_bypass
 
 import httpx
+
+from .asset_urls import resolve_asset_destination
 
 from .http import (
     HTTPResponse,
@@ -20,6 +23,7 @@ from .http import (
     _format_elapsed_seconds,
     _request_timeout_seconds,
     _same_origin,
+    _https_ssl_context,
 )
 
 
@@ -176,6 +180,17 @@ class HttpxTransport:
             max_response_bytes=MAX_HTTP_RESPONSE_BYTES,
         )
 
+    def request_asset_bounded(
+        self, *, url: str, headers: dict[str, str], max_response_bytes: int,
+        provider_base_url: str,
+    ) -> HTTPResponse:
+        return self._run(self._request_bounded(
+            method="GET", url=url, headers=headers, body=b"",
+            max_response_bytes=max_response_bytes,
+            same_origin_redirects=any(name.lower() in _CREDENTIAL_HEADER_NAMES for name in headers),
+            asset_provider_base_url=provider_base_url,
+        ))
+
     def request_same_origin_redirects_bounded(
         self,
         *,
@@ -225,36 +240,56 @@ class HttpxTransport:
         body: bytes,
         max_response_bytes: int,
         same_origin_redirects: bool,
+        asset_provider_base_url: str | None = None,
     ) -> HTTPResponse:
         if max_response_bytes <= 0:
             raise ValueError("max_response_bytes must be positive")
         started_at = time.monotonic()
         try:
+            proxy = self._proxy_for_url(url)
+            trust_env = self.proxy_map is None
+            client_options = {}
+            if asset_provider_base_url is not None and self.proxy_map is None:
+                # NO_PROXY applies to the original hostname, before pinning.
+                parsed = urlsplit(url)
+                proxies = getproxies()
+                proxy = None if proxy_bypass(parsed.hostname or "") else (proxies.get(parsed.scheme) or proxies.get("all"))
+                trust_env = False
+                client_options["verify"] = _https_ssl_context() or True
             async with httpx.AsyncClient(
                 timeout=httpx.Timeout(self.timeout),
-                proxy=self._proxy_for_url(url),
-                trust_env=self.proxy_map is None,
-                follow_redirects=not same_origin_redirects,
+                proxy=proxy,
+                trust_env=trust_env,
+                follow_redirects=not same_origin_redirects and asset_provider_base_url is None,
+                **client_options,
             ) as client:
                 current_method = method
                 current_url = url
                 current_headers = dict(headers)
                 current_body = bytes(body)
                 for redirect_count in range(client.max_redirects + 1):
-                    async with client.stream(
-                        current_method,
-                        current_url,
-                        headers=current_headers,
+                    request_urls = (current_url,)
+                    request_headers = current_headers
+                    extensions = {}
+                    if asset_provider_base_url is not None:
+                        destination = await asyncio.to_thread(resolve_asset_destination, current_url, asset_provider_base_url)
+                        request_urls = destination.urls
+                        request_headers = {**current_headers, "Host": destination.host_header}
+                        extensions = {"sni_hostname": destination.server_hostname}
+                    async with _stream_with_address_fallback(
+                        client, current_method, request_urls,
+                        headers=request_headers,
                         content=current_body,
+                        extensions=extensions,
                     ) as response:
                         location = response.headers.get("location", "")
                         if (
-                            same_origin_redirects
+                            (same_origin_redirects or asset_provider_base_url is not None)
                             and response.status_code in self._REDIRECT_STATUSES
                             and location
                         ):
-                            redirected_url = urljoin(str(response.url), location)
-                            if not _same_origin(str(response.url), redirected_url):
+                            redirected_url = urljoin(current_url, location)
+                            if same_origin_redirects and not _same_origin(url, redirected_url):
                                 return HTTPResponse(
                                     status=response.status_code,
                                     body=await self._read_body(
@@ -324,6 +359,20 @@ class HttpxTransport:
                 f"HTTP response exceeded the {limit}-byte limit"
             )
         return bytes(payload[:limit])
+
+
+@asynccontextmanager
+async def _stream_with_address_fallback(client, method, urls, **kwargs):
+    for index, url in enumerate(urls):
+        opened = False
+        try:
+            async with client.stream(method, url, **kwargs) as response:
+                opened = True
+                yield response
+                return
+        except (httpx.ConnectError, httpx.ConnectTimeout):
+            if opened or index == len(urls) - 1:
+                raise
 
 
 __all__ = (

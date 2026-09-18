@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 import json
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 from .context import WebUIContext
 from .storage_utils import utc_now
@@ -136,9 +136,9 @@ def generation_page_payload(
     return {"tasks": tasks, "task_groups": task_groups}
 
 
-def event_snapshot(ctx: WebUIContext) -> dict[str, Any]:
+def event_snapshot(ctx: WebUIContext, *, queue_provider: Callable[[], dict[str, Any]] | None = None) -> dict[str, Any]:
     with ctx.app.state.state_sync_clock.capture() as sync:
-        queue = queue_snapshot(ctx)
+        queue = queue_provider() if queue_provider is not None else queue_snapshot(ctx)
         page = generation_page_payload(ctx, queue)
     return {
         "type": "snapshot",

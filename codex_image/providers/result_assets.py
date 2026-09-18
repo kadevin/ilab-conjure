@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 from urllib.parse import urljoin, urlsplit
 
+from codex_image.asset_urls import UnsafeAssetURLError
+
 from codex_image.client_types import OPENAI_COMPATIBLE_USER_AGENT
 from codex_image.http import HTTPResponse, Transport
 from codex_image.raster_validation import (
@@ -119,7 +121,12 @@ def _authenticated_request(
     *,
     url: str,
     authorization: str,
+    provider_base_url: str,
 ) -> HTTPResponse:
+    asset_request = getattr(transport, "request_asset_bounded", None)
+    if callable(asset_request):
+        return asset_request(url=url, headers=_download_headers(authorization=authorization),
+                             max_response_bytes=MAX_ASSET_BYTES, provider_base_url=provider_base_url)
     bounded_guarded = getattr(
         transport,
         "request_same_origin_redirects_bounded",
@@ -156,12 +163,26 @@ def download_asset_url(
     provider_base_url: str,
     authorization: str | None,
 ) -> LoadedAsset:
+    try:
+        return _download_asset_url(url, transport=transport,
+                                   provider_base_url=provider_base_url, authorization=authorization)
+    except UnsafeAssetURLError as exc:
+        raise AssetLoadError(str(exc)) from exc
+
+
+def _download_asset_url(
+    url: str, *, transport: Transport, provider_base_url: str, authorization: str | None,
+) -> LoadedAsset:
     parsed = urlsplit(str(url))
     if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
         raise AssetLoadError("generated asset URL must use HTTP or HTTPS")
 
     bounded = getattr(transport, "request_bounded", None)
-    if callable(bounded):
+    asset_request = getattr(transport, "request_asset_bounded", None)
+    if callable(asset_request):
+        response = asset_request(url=url, headers=_download_headers(),
+                                 max_response_bytes=MAX_ASSET_BYTES, provider_base_url=provider_base_url)
+    elif callable(bounded):
         response = bounded(
             method="GET",
             url=url,
@@ -181,6 +202,7 @@ def download_asset_url(
             transport,
             url=url,
             authorization=authorization,
+            provider_base_url=provider_base_url,
         )
         if 300 <= response.status < 400:
             location = _header(response.headers, "location")

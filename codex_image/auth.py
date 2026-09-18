@@ -15,6 +15,7 @@ except ImportError:  # pragma: no cover - exercised by Windows portable builds.
     fcntl = None
 
 from .http import Transport, UrllibTransport
+from .atomic_files import atomic_write_text
 
 DEFAULT_AUTH_PATH = Path.home() / ".codex" / "auth.json"
 TOKEN_URL = "https://auth.openai.com/oauth/token"
@@ -182,7 +183,16 @@ def _persist_refreshed_tokens(state: AuthState, token_payload: dict[str, Any]) -
     )
     raw["tokens"] = tokens
     raw["last_refresh"] = now
-    state.path.write_text(json.dumps(raw, indent=2), encoding="utf-8")
+    try:
+        # Preserve a user-managed auth symlink while replacing its destination
+        # atomically. A failed write must never truncate the shared login file.
+        atomic_write_text(state.path.resolve(), json.dumps(raw, indent=2), mode=0o600)
+    except OSError as exc:
+        raise OSError(
+            "Refreshed Codex credentials could not be saved. The previous auth file "
+            "was preserved; fix the storage error and run `codex login` if the "
+            "refresh token was already rotated."
+        ) from exc
 
     return AuthState(
         path=state.path,

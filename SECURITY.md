@@ -13,11 +13,19 @@ trusted network. The setting does not limit access to a particular subnet; do no
 port-forward or expose this unauthenticated listener to the public internet.
 
 Same-origin write checks, request size limits, and file/parameter validation still
-apply. LAN URLs use HTTP; browser features that require a secure context, such as
+apply. Host names are limited to loopback, the server's interface addresses,
+its system hostname/local name, and an explicitly configured listener host.
+Arbitrary DNS aliases are not accepted. LAN URLs use HTTP; browser features that require a secure context, such as
 system notifications, may be unavailable. Address copying falls back to selecting
 the address for manual copying when the browser cannot copy it automatically.
 
 ## Secrets and local data
+
+Generated image URLs are resolved and checked before download and on every
+redirect. Indirect assets must use public addresses; assets on the exact origin
+of a user-configured local provider remain supported. Connections use the checked
+IP while retaining the original HTTP Host and TLS hostname. Credentials are only
+retried on the configured provider origin and never follow a cross-origin redirect.
 
 Do not publish OAuth tokens, API keys, account files, `.env` files, input images,
 generated outputs, task metadata, SQLite databases, or debug logs.

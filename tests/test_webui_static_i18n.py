@@ -710,7 +710,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
             "queue": Path("codex_image/webui/frontend/src/queue.ts").read_text(encoding="utf-8"),
             "notifications": Path("codex_image/webui/frontend/src/task-notifications.ts").read_text(encoding="utf-8"),
             "archive": Path("codex_image/webui/frontend/src/task-archive-controls.ts").read_text(encoding="utf-8"),
-            "task_groups": Path("codex_image/webui/frontend/src/task-list-render.ts").read_text(encoding="utf-8"),
+            "task_groups": Path("codex_image/webui/frontend/src/task-list-model.ts").read_text(encoding="utf-8"),
             "templates": Path("codex_image/webui/frontend/src/prompt-templates.ts").read_text(encoding="utf-8"),
             "gallery": Path("codex_image/webui/frontend/src/gallery-grid.ts").read_text(encoding="utf-8"),
             "gallery_categories": Path("codex_image/webui/frontend/src/gallery-categories.ts").read_text(encoding="utf-8"),

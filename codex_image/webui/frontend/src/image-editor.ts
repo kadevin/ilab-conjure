@@ -1,7 +1,13 @@
 import Konva from "konva";
+import { captureImageEditorCanvas, rememberImageEditorCanvasSnapshot } from "./image-editor-canvas";
+import { editedUploadFilename, imageEditorCanvasFromImage, imageEditorCanvasSnapshot, imageEditorClampedCanvasDimensions, imageEditorExportBlob, imageEditorExportDimensions, imageEditorLayerAttrs, loadImageEditorImage, resizeImageEditorBackingCanvas } from "./image-editor-canvas";
+import { createImageEditorDrawing } from "./image-editor-drawing";
+import { createImageEditorFill } from "./image-editor-fill-client";
+import { createImageEditorHistory } from "./image-editor-history";
+import { createImageEditorPanel } from "./image-editor-panel";
+import { createImageEditorPointer } from "./image-editor-pointer";
 
 import { getEls } from "./dom";
-import { getLegacyBridge, getState } from "./state";
 import { translate } from "./i18n";
 import type {
   ImageEditorLayer,
@@ -9,12 +15,10 @@ import type {
   ImageEditorSnapshot,
   ImageEditorState,
 } from "./image-editor-types";
+import { getLegacyBridge, getState } from "./state";
 
 const IMAGE_EDITOR_PROMPT_HINT_LEGACY = "\u56fe\u4e2d\u7684\u624b\u7ed8\u7bad\u5934\u548c\u6807\u8bb0\u4ec5\u7528\u4e8e\u6307\u793a\u7f16\u8f91\u8981\u6c42\uff0c\u4e0d\u8981\u4fdd\u7559\u5728\u6700\u7ec8\u753b\u9762\u4e2d\u3002";
-const IMAGE_EDITOR_MAX_EXPORT_EDGE = 4096;
-const IMAGE_EDITOR_HISTORY_LIMIT = 30;
 const IMAGE_EDITOR_LAYER_FIT_RATIO = 0.72;
-const IMAGE_EDITOR_LAYER_THUMB_SIZE = 96;
 
 const imageEditorState = {
   sessionId: 0,
@@ -30,7 +34,6 @@ const imageEditorState = {
   konvaLayer: null,
   konvaTransformer: null,
   markNode: null,
-  previewNode: null,
   layers: [],
   selectedLayerId: null,
   displayScale: 1,
@@ -40,23 +43,84 @@ const imageEditorState = {
   crop: null,
   canvasScope: "base",
   hasInstructionMarks: false,
-  history: [],
-  historyIndex: -1,
-  drawing: null,
 } as ImageEditorState;
 
 let imageEditorFeatureInitialized = false;
 let imageEditorLayerSequence = 0;
+const editorFill = createImageEditorFill();
+let pendingFill: Promise<boolean | null> | null = null;
+
+const editorHistory = createImageEditorHistory<ImageEditorSnapshot>({
+  capture: () => { editorFill.cancel(); return imageEditorSnapshot(); },
+  restore: snapshot => { editorFill.cancel(); restoreImageEditorSnapshot(snapshot); },
+  changed: () => updateImageEditorControls(),
+  resources: snapshot => [
+    ...snapshot.layers.map(layer => layer.canvas), snapshot.workCanvas,
+    snapshot.brushBoundaryCanvas, snapshot.brushOverlayCanvas,
+  ].filter((canvas): canvas is HTMLCanvasElement => Boolean(canvas)),
+});
+const { pushImageEditorHistory } = editorHistory;
+function undoImageEdit() { editorFill.cancel(); editorHistory.undoImageEdit(); }
+function redoImageEdit() { editorFill.cancel(); editorHistory.redoImageEdit(); }
+
+function paintBucketFillRegion(point: { x: number; y: number }): Promise<boolean | null> {
+  const { workCanvas, brushBoundaryCanvas, color } = imageEditorState;
+  if (!workCanvas || !brushBoundaryCanvas) return Promise.resolve(false);
+  const pending = editorFill.fill(point, workCanvas, brushBoundaryCanvas, color, redrawImageEditorBrushOverlay)
+    .finally(() => { if (pendingFill === pending) pendingFill = null; });
+  pendingFill = pending;
+  return pending;
+}
+
+const editorPointer = createImageEditorPointer({
+  getTool: () => imageEditorState.tool,
+  cancelPendingFill: () => editorFill.cancel(),
+  hasStage: () => Boolean(imageEditorState.konvaStage),
+  getStageContainer: () => imageEditorState.konvaStage?.container?.() || null,
+  markInstruction: () => { imageEditorState.hasInstructionMarks = true; },
+  setCrop: crop => { imageEditorState.crop = crop; },
+  imageEditorPoint: (...args: Parameters<typeof imageEditorPoint>) => imageEditorPoint(...args),
+  paintBucketFillRegion: (...args: Parameters<typeof paintBucketFillRegion>) => paintBucketFillRegion(...args),
+  pushImageEditorHistory: (...args: Parameters<typeof pushImageEditorHistory>) => pushImageEditorHistory(...args),
+  setImageEditorStatus: (...args: Parameters<typeof setImageEditorStatus>) => setImageEditorStatus(...args),
+  renderImageEditor: (...args: Parameters<typeof renderImageEditor>) => renderImageEditor(...args),
+  selectedImageEditorLayer: (...args: Parameters<typeof selectedImageEditorLayer>) => selectedImageEditorLayer(...args),
+  applyImageEditorLayerEraseDot: (...args: Parameters<typeof applyImageEditorLayerEraseDot>) => applyImageEditorLayerEraseDot(...args),
+  applyImageEditorLayerEraseSegment: (...args: Parameters<typeof applyImageEditorLayerEraseSegment>) => applyImageEditorLayerEraseSegment(...args),
+  updateImageEditorCropBox: (...args: Parameters<typeof updateImageEditorCropBox>) => updateImageEditorCropBox(...args),
+  previewEditorArrow: (...args: Parameters<typeof previewEditorArrow>) => previewEditorArrow(...args),
+  drawEditorBrushSegment: (...args: Parameters<typeof drawEditorBrushSegment>) => drawEditorBrushSegment(...args),
+  imageEditorContext: (...args: Parameters<typeof imageEditorContext>) => imageEditorContext(...args),
+  drawEditorArrowOnContext: (...args: Parameters<typeof drawEditorArrowOnContext>) => drawEditorArrowOnContext(...args),
+  clearImageEditorPreview: (...args: Parameters<typeof clearImageEditorPreview>) => clearImageEditorPreview(...args),
+});
+const { handleImageEditorPointerDown, handleImageEditorPointerMove, handleImageEditorPointerUp, handleImageEditorPointerCancel, captureImageEditorPointer, releaseImageEditorPointer } = editorPointer;
+
+const { renderImageEditorInsertList, renderImageEditorLayerList } = createImageEditorPanel({
+  getSources: () => getState().images,
+  getEditorSnapshot: () => ({ sourceIndex: imageEditorState.sourceIndex, layers: imageEditorState.layers, selectedLayerId: imageEditorState.selectedLayerId }),
+  getPanelElements: () => ({ imageEditorInsertList: getEls().imageEditorInsertList, imageEditorLayerList: getEls().imageEditorLayerList }),
+  isEditableImageSource: (...args: Parameters<typeof isEditableImageSource>) => isEditableImageSource(...args),
+  sourcePreviewUrlForEditor: (...args: Parameters<typeof sourcePreviewUrlForEditor>) => sourcePreviewUrlForEditor(...args),
+  sourceName: source => legacyMethod("sourceName", source),
+  imageEditorSourceName: (...args: Parameters<typeof imageEditorSourceName>) => imageEditorSourceName(...args),
+  insertImageEditorLayerFromSource: (...args: Parameters<typeof insertImageEditorLayerFromSource>) => insertImageEditorLayerFromSource(...args),
+  selectImageEditorLayer: (...args: Parameters<typeof selectImageEditorLayer>) => selectImageEditorLayer(...args),
+  updateImageEditorControls: (...args: Parameters<typeof updateImageEditorControls>) => updateImageEditorControls(...args),
+});
+
+const editorDrawing = createImageEditorDrawing({
+  getBrushSettings: () => ({ color: imageEditorState.color, strokeWidth: imageEditorState.strokeWidth }),
+  getOverlayCanvas: () => imageEditorState.brushOverlayCanvas,
+  getKonvaLayer: () => imageEditorState.konvaLayer,
+  imageEditorBrushBoundaryContext: (...args: Parameters<typeof imageEditorBrushBoundaryContext>) => imageEditorBrushBoundaryContext(...args),
+  imageEditorBrushOverlayContext: (...args: Parameters<typeof imageEditorBrushOverlayContext>) => imageEditorBrushOverlayContext(...args),
+  imageEditorContext: (...args: Parameters<typeof imageEditorContext>) => imageEditorContext(...args),
+});
+const { configureImageEditorStroke, drawEditorBrushBoundarySegment, drawEditorBrushOverlaySegment, redrawImageEditorBrushOverlay, drawEditorBrushSegment, drawEditorArrowOnContext, clearImageEditorPreview, previewEditorArrow, imageEditorLayerLocalPoint, imageEditorLayerCanvasPoint, imageEditorLayerCanvasStrokeWidth, applyImageEditorLayerEraseSegment, applyImageEditorLayerEraseDot, applyImageEditorLayerEraseStroke } = editorDrawing;
 
 function legacyMethod(name: string, ...args: any[]) {
   return getLegacyBridge().methods[name]?.(...args);
-}
-
-function editedUploadFilename(name: any) {
-  const sourceName = String(name || "input.png");
-  const dotIndex = sourceName.lastIndexOf(".");
-  const base = dotIndex > 0 ? sourceName.slice(0, dotIndex) : sourceName;
-  return `${base}-edited.png`;
 }
 
 function isEditableImageSource(source: any) {
@@ -117,30 +181,6 @@ function imageEditorVisibleContext() {
   return getEls().imageEditorCanvas?.getContext("2d") || null;
 }
 
-function imageEditorCanvasSnapshot(canvas: any) {
-  if (!canvas) return null;
-  const snapshot = document.createElement("canvas");
-  snapshot.width = canvas.width;
-  snapshot.height = canvas.height;
-  const ctx = snapshot.getContext("2d");
-  if (!ctx) return null;
-  ctx.drawImage(canvas, 0, 0);
-  return snapshot;
-}
-
-function imageEditorLayerAttrs(node: any) {
-  return {
-    x: node.x(),
-    y: node.y(),
-    width: node.width(),
-    height: node.height(),
-    scaleX: node.scaleX(),
-    scaleY: node.scaleY(),
-    rotation: node.rotation(),
-    opacity: node.opacity(),
-  };
-}
-
 function imageEditorSnapshot(): ImageEditorSnapshot | null {
   if (!imageEditorState.workCanvas) return null;
   return {
@@ -148,13 +188,13 @@ function imageEditorSnapshot(): ImageEditorSnapshot | null {
       id: layer.id,
       sourceIndex: layer.sourceIndex,
       name: layer.name,
-      canvas: imageEditorCanvasSnapshot(layer.canvas) || layer.canvas,
+      canvas: captureImageEditorCanvas(layer.canvas),
       attrs: imageEditorLayerAttrs(layer.node),
       edited: layer.edited,
     })),
-    workCanvas: imageEditorCanvasSnapshot(imageEditorState.workCanvas) || imageEditorState.workCanvas,
-    brushBoundaryCanvas: imageEditorCanvasSnapshot(imageEditorState.brushBoundaryCanvas),
-    brushOverlayCanvas: imageEditorCanvasSnapshot(imageEditorState.brushOverlayCanvas),
+    workCanvas: captureImageEditorCanvas(imageEditorState.workCanvas),
+    brushBoundaryCanvas: imageEditorState.brushBoundaryCanvas ? captureImageEditorCanvas(imageEditorState.brushBoundaryCanvas) : null,
+    brushOverlayCanvas: imageEditorState.brushOverlayCanvas ? captureImageEditorCanvas(imageEditorState.brushOverlayCanvas) : null,
     canvasScope: imageEditorState.canvasScope,
     crop: imageEditorState.crop ? { ...imageEditorState.crop } : null,
     selectedLayerId: imageEditorState.selectedLayerId,
@@ -170,6 +210,7 @@ function restoreImageEditorCanvas(canvas: any, snapshot: any) {
   canvas.height = snapshot.height;
   ctx.clearRect(0, 0, snapshot.width, snapshot.height);
   ctx.drawImage(snapshot, 0, 0);
+  rememberImageEditorCanvasSnapshot(canvas, snapshot);
 }
 
 function rebuildImageEditorLayers(snapshots: ImageEditorLayerSnapshot[]) {
@@ -178,7 +219,9 @@ function rebuildImageEditorLayers(snapshots: ImageEditorLayerSnapshot[]) {
   imageEditorState.layers.forEach((layer) => layer.node?.destroy?.());
   imageEditorState.layers = [];
   snapshots.forEach((snapshot) => {
-    const canvas = imageEditorCanvasSnapshot(snapshot.canvas) || snapshot.canvas;
+    const canvas = imageEditorCanvasSnapshot(snapshot.canvas);
+    if (!canvas) throw new Error(translate("imageEditor.canvasCreateFailed"));
+    rememberImageEditorCanvasSnapshot(canvas, snapshot.canvas);
     const layer = createImageEditorLayerFromCanvas(canvas, {
       id: snapshot.id,
       source: null,
@@ -224,69 +267,12 @@ function restoreImageEditorSnapshot(snapshot: ImageEditorSnapshot | null) {
   renderImageEditor();
 }
 
-async function loadImageEditorImage(file: any) {
-  const objectUrl = URL.createObjectURL(file);
-  try {
-    const image = new Image();
-    image.decoding = "async";
-    image.src = objectUrl;
-    await image.decode();
-    return image;
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
-}
-
-function imageEditorExportDimensions(image: any) {
-  const width = image.naturalWidth || image.width;
-  const height = image.naturalHeight || image.height;
-  const longest = Math.max(width, height);
-  if (longest <= IMAGE_EDITOR_MAX_EXPORT_EDGE) {
-    return { width, height, scale: 1 };
-  }
-  const scale = IMAGE_EDITOR_MAX_EXPORT_EDGE / longest;
-  return {
-    width: Math.max(1, Math.round(width * scale)),
-    height: Math.max(1, Math.round(height * scale)),
-    scale,
-  };
-}
-
-function imageEditorCanvasFromImage(image: HTMLImageElement, dimensions = imageEditorExportDimensions(image)) {
-  const canvas = document.createElement("canvas");
-  canvas.width = dimensions.width;
-  canvas.height = dimensions.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error(translate("imageEditor.canvasCreateFailed"));
-  ctx.drawImage(image, 0, 0, dimensions.width, dimensions.height);
-  return canvas;
-}
-
 function imageEditorBaseDimensions() {
   const baseCanvas = imageEditorState.baseCanvas;
   return {
     width: Math.max(1, Math.round(baseCanvas?.width || imageEditorState.konvaStage?.width?.() || 1)),
     height: Math.max(1, Math.round(baseCanvas?.height || imageEditorState.konvaStage?.height?.() || 1)),
   };
-}
-
-function imageEditorClampedCanvasDimensions(width: number, height: number) {
-  return {
-    width: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(width))),
-    height: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(height))),
-  };
-}
-
-function resizeImageEditorBackingCanvas(canvas: HTMLCanvasElement | null, width: number, height: number, offsetX: number, offsetY: number) {
-  if (!canvas) return;
-  if (canvas.width === width && canvas.height === height && !offsetX && !offsetY) return;
-  const snapshot = imageEditorCanvasSnapshot(canvas);
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return;
-  canvas.width = width;
-  canvas.height = height;
-  ctx.clearRect(0, 0, width, height);
-  if (snapshot) ctx.drawImage(snapshot, offsetX, offsetY);
 }
 
 function resizeImageEditorCanvas(width: number, height: number, offsetX = 0, offsetY = 0) {
@@ -504,7 +490,7 @@ function orderImageEditorKonvaNodes() {
     layer.node?.zIndex?.(index);
   });
   imageEditorState.markNode?.moveToTop?.();
-  imageEditorState.previewNode?.moveToTop?.();
+  editorDrawing.promotePreview();
   imageEditorState.konvaTransformer?.moveToTop?.();
   imageEditorState.konvaLayer?.batchDraw?.();
 }
@@ -533,7 +519,7 @@ function destroyImageEditorKonva() {
   imageEditorState.konvaLayer = null;
   imageEditorState.konvaStage = null;
   imageEditorState.markNode = null;
-  imageEditorState.previewNode = null;
+  editorDrawing.resetPreview();
 }
 
 function initializeImageEditorKonva(width: number, height: number) {
@@ -577,6 +563,7 @@ function initializeImageEditorKonva(width: number, height: number) {
 }
 
 function initializeImageEditorCanvases(image: any) {
+  editorFill.cancel();
   const dimensions = imageEditorExportDimensions(image);
   const baseCanvas = imageEditorCanvasFromImage(image, dimensions);
   const workCanvas = document.createElement("canvas");
@@ -596,8 +583,7 @@ function initializeImageEditorCanvases(image: any) {
   imageEditorState.crop = null;
   imageEditorState.canvasScope = "base";
   imageEditorState.hasInstructionMarks = false;
-  imageEditorState.history = [];
-  imageEditorState.historyIndex = -1;
+  editorHistory.reset();
   imageEditorState.layers = [];
   imageEditorState.selectedLayerId = null;
   initializeImageEditorKonva(dimensions.width, dimensions.height);
@@ -638,38 +624,10 @@ function renderImageEditor() {
   stage?.batchDraw?.();
 }
 
-function pushImageEditorHistory() {
-  const snapshot = imageEditorSnapshot();
-  if (!snapshot) return;
-  imageEditorState.history = imageEditorState.history.slice(0, imageEditorState.historyIndex + 1);
-  imageEditorState.history.push(snapshot);
-  imageEditorState.historyIndex = imageEditorState.history.length - 1;
-  if (imageEditorState.history.length > IMAGE_EDITOR_HISTORY_LIMIT) {
-    const trimCount = imageEditorState.history.length - IMAGE_EDITOR_HISTORY_LIMIT;
-    imageEditorState.history = imageEditorState.history.slice(trimCount);
-    imageEditorState.historyIndex = Math.max(0, imageEditorState.historyIndex - trimCount);
-  }
-  updateImageEditorControls();
-}
-
-function undoImageEdit() {
-  if (imageEditorState.historyIndex <= 0) return;
-  imageEditorState.historyIndex -= 1;
-  const snapshot = imageEditorState.history[imageEditorState.historyIndex] || null;
-  restoreImageEditorSnapshot(snapshot);
-}
-
-function redoImageEdit() {
-  if (imageEditorState.historyIndex >= imageEditorState.history.length - 1) return;
-  imageEditorState.historyIndex += 1;
-  const snapshot = imageEditorState.history[imageEditorState.historyIndex] || null;
-  restoreImageEditorSnapshot(snapshot);
-}
-
 function updateImageEditorControls() {
   const els = getEls();
-  const canUndo = imageEditorState.historyIndex > 0;
-  const canRedo = imageEditorState.historyIndex >= 0 && imageEditorState.historyIndex < imageEditorState.history.length - 1;
+  const canUndo = editorHistory.canUndo();
+  const canRedo = editorHistory.canRedo();
   const selectedLayer = selectedImageEditorLayer();
   if (els.imageEditorUndo) els.imageEditorUndo.disabled = !canUndo;
   if (els.imageEditorRedo) els.imageEditorRedo.disabled = !canRedo;
@@ -793,483 +751,8 @@ function imageEditorPoint(event: any) {
   };
 }
 
-function normalizedRect(start: any, end: any) {
-  const left = Math.min(start.x, end.x);
-  const top = Math.min(start.y, end.y);
-  const width = Math.abs(end.x - start.x);
-  const height = Math.abs(end.y - start.y);
-  if (width < 4 || height < 4) return null;
-  return { left, top, width, height };
-}
-
-function imageEditorPointDistance(from: any, to: any) {
-  return Math.hypot(to.x - from.x, to.y - from.y);
-}
-
-function isImageEditorLineGesture(from: any, to: any) {
-  return imageEditorPointDistance(from, to) >= 4;
-}
-
-function imageEditorPixelOffset(index: any) {
-  return index * 4;
-}
-
-function imageEditorBucketFillColor() {
-  const normalized = String(imageEditorState.color || "#ff3b30").replace("#", "").trim();
-  const hex = /^[0-9a-fA-F]{6}$/.test(normalized) ? normalized : "ff3b30";
-  return [
-    Number.parseInt(hex.slice(0, 2), 16),
-    Number.parseInt(hex.slice(2, 4), 16),
-    Number.parseInt(hex.slice(4, 6), 16),
-    255,
-  ];
-}
-
-function imageEditorBoundaryPixelBlocks(data: any, index: any) {
-  return data[imageEditorPixelOffset(index) + 3] > 0;
-}
-
-function imageEditorBoundaryHasPixels(data: any) {
-  for (let offset = 3; offset < data.length; offset += 4) {
-    if (data[offset] > 0) return true;
-  }
-  return false;
-}
-
-function imageEditorPixelTouchesCanvasEdge(index: any, width: any, height: any) {
-  const column = index % width;
-  const row = Math.floor(index / width);
-  return column === 0 || column === width - 1 || row === 0 || row === height - 1;
-}
-
-function paintBucketFillRegion(point: any) {
-  const canvas = imageEditorState.workCanvas;
-  const ctx = imageEditorContext(canvas);
-  const boundaryCanvas = imageEditorState.brushBoundaryCanvas;
-  const boundaryCtx = imageEditorBrushBoundaryContext();
-  if (!canvas || !ctx || !boundaryCanvas || !boundaryCtx) return false;
-
-  const width = canvas.width;
-  const height = canvas.height;
-  const x = Math.max(0, Math.min(width - 1, Math.floor(point.x)));
-  const y = Math.max(0, Math.min(height - 1, Math.floor(point.y)));
-  const boundaryData = boundaryCtx.getImageData(0, 0, width, height).data;
-  if (!imageEditorBoundaryHasPixels(boundaryData)) return false;
-
-  const startIndex = y * width + x;
-  if (imageEditorBoundaryPixelBlocks(boundaryData, startIndex)) return false;
-
-  const visited = new Uint8Array(width * height);
-  const stack = new Int32Array(width * height);
-  const region: number[] = [];
-  let stackLength = 0;
-  const pushPixel = (index: number) => {
-    if (visited[index]) return;
-    visited[index] = 1;
-    if (imageEditorBoundaryPixelBlocks(boundaryData, index)) return;
-    stack[stackLength] = index;
-    stackLength += 1;
-  };
-
-  pushPixel(startIndex);
-  while (stackLength > 0) {
-    stackLength -= 1;
-    const index = stack[stackLength];
-    if (index === undefined) break;
-    if (imageEditorPixelTouchesCanvasEdge(index, width, height)) return false;
-    region.push(index);
-
-    const column = index % width;
-    if (column > 0) pushPixel(index - 1);
-    if (column < width - 1) pushPixel(index + 1);
-    if (index >= width) pushPixel(index - width);
-    if (index < width * (height - 1)) pushPixel(index + width);
-  }
-
-  if (!region.length) return false;
-  const imageData = ctx.getImageData(0, 0, width, height);
-  const data = imageData.data;
-  const fill = imageEditorBucketFillColor();
-  const [red = 0, green = 0, blue = 0, alpha = 255] = fill;
-  region.forEach((index) => {
-    const offset = imageEditorPixelOffset(index);
-    data[offset] = red;
-    data[offset + 1] = green;
-    data[offset + 2] = blue;
-    data[offset + 3] = alpha;
-  });
-  ctx.putImageData(imageData, 0, 0);
-  redrawImageEditorBrushOverlay(ctx);
-  return true;
-}
-
-function configureImageEditorStroke(ctx: any, options: any = {}) {
-  if (!ctx) return;
-  ctx.strokeStyle = imageEditorState.color;
-  ctx.fillStyle = imageEditorState.color;
-  ctx.lineWidth = imageEditorState.strokeWidth;
-  ctx.lineCap = options.lineCap || "round";
-  ctx.lineJoin = options.lineJoin || "round";
-  ctx.miterLimit = options.miterLimit || 10;
-}
-
-function drawEditorBrushBoundarySegment(from: any, to: any) {
-  const ctx = imageEditorBrushBoundaryContext();
-  if (!ctx) return;
-  ctx.strokeStyle = "#000";
-  ctx.fillStyle = "#000";
-  ctx.lineWidth = imageEditorState.strokeWidth;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.beginPath();
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-}
-
-function drawEditorBrushOverlaySegment(from: any, to: any) {
-  const ctx = imageEditorBrushOverlayContext();
-  if (!ctx) return;
-  configureImageEditorStroke(ctx);
-  ctx.beginPath();
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-}
-
-function redrawImageEditorBrushOverlay(ctx: any) {
-  if (!ctx || !imageEditorState.brushOverlayCanvas) return;
-  ctx.drawImage(imageEditorState.brushOverlayCanvas, 0, 0);
-}
-
-function drawEditorBrushSegment(from: any, to: any) {
-  const ctx = imageEditorContext();
-  if (!ctx) return;
-  configureImageEditorStroke(ctx);
-  ctx.beginPath();
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-  drawEditorBrushBoundarySegment(from, to);
-  drawEditorBrushOverlaySegment(from, to);
-}
-
-function imageEditorArrowGeometry(start: any, end: any) {
-  const strokeWidth = Math.max(1, Number(imageEditorState.strokeWidth) || 1);
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const length = Math.max(1, Math.hypot(dx, dy));
-  const unitX = dx / length;
-  const unitY = dy / length;
-  const perpX = -unitY;
-  const perpY = unitX;
-  const headLength = Math.min(Math.max(16, strokeWidth * 2.8), Math.max(16, length * 0.55));
-  const headWidth = Math.max(18, strokeWidth * 2.2);
-  const overlap = Math.min(headLength * 0.42, Math.max(2, strokeWidth * 0.28));
-  const shaftDistance = Math.max(0, headLength - overlap);
-  const baseCenter = {
-    x: end.x - unitX * headLength,
-    y: end.y - unitY * headLength,
-  };
-  return {
-    headLength,
-    headWidth,
-    shaftEnd: {
-      x: end.x - unitX * shaftDistance,
-      y: end.y - unitY * shaftDistance,
-    },
-    headLeft: {
-      x: baseCenter.x + perpX * (headWidth / 2),
-      y: baseCenter.y + perpY * (headWidth / 2),
-    },
-    headRight: {
-      x: baseCenter.x - perpX * (headWidth / 2),
-      y: baseCenter.y - perpY * (headWidth / 2),
-    },
-  };
-}
-
-function drawEditorArrowOnContext(ctx: any, start: any, end: any) {
-  if (!ctx) return;
-  configureImageEditorStroke(ctx, { lineCap: "butt", lineJoin: "miter" });
-  const geometry = imageEditorArrowGeometry(start, end);
-  ctx.beginPath();
-  ctx.moveTo(start.x, start.y);
-  ctx.lineTo(geometry.shaftEnd.x, geometry.shaftEnd.y);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(end.x, end.y);
-  ctx.lineTo(geometry.headLeft.x, geometry.headLeft.y);
-  ctx.lineTo(geometry.headRight.x, geometry.headRight.y);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function clearImageEditorPreview() {
-  imageEditorState.previewNode?.destroy?.();
-  imageEditorState.previewNode = null;
-  imageEditorState.konvaLayer?.batchDraw?.();
-}
-
-function previewEditorArrow(start: any, end: any) {
-  if (!imageEditorState.konvaLayer) return;
-  const points = [start.x, start.y, end.x, end.y];
-  const geometry = imageEditorArrowGeometry(start, end);
-  if (!imageEditorState.previewNode) {
-    imageEditorState.previewNode = new Konva.Arrow({
-      points,
-      stroke: imageEditorState.color,
-      fill: imageEditorState.color,
-      strokeWidth: imageEditorState.strokeWidth,
-      pointerLength: geometry.headLength,
-      pointerWidth: geometry.headWidth,
-      lineCap: "butt",
-      lineJoin: "miter",
-      listening: false,
-      name: "image-editor-preview-arrow",
-    });
-    imageEditorState.konvaLayer.add(imageEditorState.previewNode);
-  } else {
-    imageEditorState.previewNode.points(points);
-    imageEditorState.previewNode.stroke(imageEditorState.color);
-    imageEditorState.previewNode.fill(imageEditorState.color);
-    imageEditorState.previewNode.strokeWidth(imageEditorState.strokeWidth);
-    imageEditorState.previewNode.pointerLength(geometry.headLength);
-    imageEditorState.previewNode.pointerWidth(geometry.headWidth);
-  }
-  imageEditorState.previewNode.moveToTop?.();
-  imageEditorState.konvaLayer.batchDraw?.();
-}
-
 function selectedImageEditorLayer() {
   return imageEditorState.layers.find((layer) => layer.id === imageEditorState.selectedLayerId) || null;
-}
-
-function imageEditorLayerLocalPoint(layer: ImageEditorLayer, point: any) {
-  const transform = layer.node.getAbsoluteTransform().copy();
-  transform.invert();
-  return transform.point(point);
-}
-
-function imageEditorLayerCanvasPoint(layer: ImageEditorLayer, point: any) {
-  const local = imageEditorLayerLocalPoint(layer, point);
-  const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
-  const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
-  return {
-    x: local.x * widthScale,
-    y: local.y * heightScale,
-  };
-}
-
-function imageEditorLayerCanvasStrokeWidth(layer: ImageEditorLayer) {
-  const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
-  const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
-  return Math.max(1, imageEditorState.strokeWidth * ((widthScale + heightScale) / 2));
-}
-
-function applyImageEditorLayerEraseSegment(layer: ImageEditorLayer, from: any, to: any) {
-  const ctx = layer.canvas.getContext("2d");
-  if (!ctx) return false;
-  const start = imageEditorLayerCanvasPoint(layer, from);
-  const end = imageEditorLayerCanvasPoint(layer, to);
-  ctx.save();
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.lineWidth = imageEditorLayerCanvasStrokeWidth(layer);
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.beginPath();
-  ctx.moveTo(start.x, start.y);
-  ctx.lineTo(end.x, end.y);
-  ctx.stroke();
-  ctx.restore();
-  layer.edited = true;
-  layer.node.image(layer.canvas);
-  layer.node.getLayer()?.batchDraw?.();
-  return true;
-}
-
-function applyImageEditorLayerEraseDot(layer: ImageEditorLayer, point: any) {
-  const ctx = layer.canvas.getContext("2d");
-  if (!ctx) return false;
-  const local = imageEditorLayerCanvasPoint(layer, point);
-  ctx.save();
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.beginPath();
-  ctx.arc(local.x, local.y, imageEditorLayerCanvasStrokeWidth(layer) / 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  layer.edited = true;
-  layer.node.image(layer.canvas);
-  layer.node.getLayer()?.batchDraw?.();
-  return true;
-}
-
-function applyImageEditorLayerEraseStroke(layer: ImageEditorLayer, points: any[]) {
-  if (!layer || points.length < 2) return false;
-  let changed = false;
-  for (let index = 1; index < points.length; index += 1) {
-    changed = applyImageEditorLayerEraseSegment(layer, points[index - 1], points[index]) || changed;
-  }
-  return changed;
-}
-
-function handleImageEditorPointerDown(event: any) {
-  if (!imageEditorState.konvaStage) return;
-  if (imageEditorState.tool === "select") return;
-  event.preventDefault?.();
-  const point = imageEditorPoint(event);
-  if (imageEditorState.tool === "fill") {
-    if (paintBucketFillRegion(point)) {
-      imageEditorState.hasInstructionMarks = true;
-      pushImageEditorHistory();
-      setImageEditorStatus("");
-    } else {
-      setImageEditorStatus(translate("imageEditor.closedRegionRequired"), "error");
-    }
-    renderImageEditor();
-    return;
-  }
-  if (imageEditorState.tool === "eraser") {
-    const layer = selectedImageEditorLayer();
-    if (!layer) {
-      setImageEditorStatus(translate("imageEditor.selectLayerFirst"), "error");
-      return;
-    }
-    const captureTarget = captureImageEditorPointer(event);
-    const changed = applyImageEditorLayerEraseDot(layer, point);
-    imageEditorState.drawing = {
-      pointerId: event.pointerId,
-      captureTarget,
-      layerId: layer.id,
-      start: point,
-      last: point,
-      points: [point],
-      changed,
-    };
-    return;
-  }
-  const captureTarget = captureImageEditorPointer(event);
-  imageEditorState.drawing = {
-    pointerId: event.pointerId,
-    captureTarget,
-    start: point,
-    last: point,
-    points: [point],
-  };
-  if (imageEditorState.tool === "crop") {
-    imageEditorState.crop = { left: point.x, top: point.y, width: 0, height: 0 };
-    updateImageEditorCropBox();
-  }
-}
-
-function handleImageEditorPointerMove(event: any) {
-  const drawing = imageEditorState.drawing;
-  if (!drawing) return;
-  if (drawing.pointerId !== undefined && event.pointerId !== undefined && drawing.pointerId !== event.pointerId) return;
-  event.preventDefault?.();
-  const point = imageEditorPoint(event);
-  if (imageEditorState.tool === "eraser") {
-    const layer = selectedImageEditorLayer();
-    if (layer && layer.id === drawing.layerId) {
-      drawing.changed = applyImageEditorLayerEraseSegment(layer, drawing.last, point) || drawing.changed;
-    }
-    drawing.points.push(point);
-    drawing.last = point;
-    return;
-  }
-  if (imageEditorState.tool === "brush") {
-    drawEditorBrushSegment(drawing.last, point);
-    if (imageEditorPointDistance(drawing.last, point) > 0) {
-      imageEditorState.hasInstructionMarks = true;
-    }
-    drawing.last = point;
-    renderImageEditor();
-    return;
-  }
-  if (imageEditorState.tool === "arrow") {
-    previewEditorArrow(drawing.start, point);
-    return;
-  }
-  if (imageEditorState.tool === "crop") {
-    imageEditorState.crop = normalizedRect(drawing.start, point);
-    updateImageEditorCropBox();
-  }
-}
-
-function handleImageEditorPointerUp(event: any) {
-  const drawing = imageEditorState.drawing;
-  if (!drawing) return;
-  if (drawing.pointerId !== undefined && event.pointerId !== undefined && drawing.pointerId !== event.pointerId) return;
-  event.preventDefault?.();
-  const point = imageEditorPoint(event);
-  releaseImageEditorPointer(event, drawing.captureTarget);
-  if (imageEditorState.tool === "eraser") {
-    drawing.points.push(point);
-    const layer = selectedImageEditorLayer();
-    if (
-      layer
-      && layer.id === drawing.layerId
-      && imageEditorPointDistance(drawing.last, point) > 0
-    ) {
-      drawing.changed = applyImageEditorLayerEraseSegment(layer, drawing.last, point) || drawing.changed;
-    }
-    if (drawing.changed) {
-      pushImageEditorHistory();
-      setImageEditorStatus("");
-    }
-  } else if (imageEditorState.tool === "arrow") {
-    const ctx = imageEditorContext();
-    if (ctx && isImageEditorLineGesture(drawing.start, point)) {
-      drawEditorArrowOnContext(ctx, drawing.start, point);
-      imageEditorState.hasInstructionMarks = true;
-      pushImageEditorHistory();
-    }
-    clearImageEditorPreview();
-  } else if (imageEditorState.tool === "brush") {
-    pushImageEditorHistory();
-  } else if (imageEditorState.tool === "crop") {
-    imageEditorState.crop = normalizedRect(drawing.start, point);
-  }
-  imageEditorState.drawing = null;
-  renderImageEditor();
-}
-
-function handleImageEditorPointerCancel(event: any) {
-  const drawing = imageEditorState.drawing;
-  if (!drawing) return;
-  if (drawing.pointerId !== undefined && event.pointerId !== undefined && drawing.pointerId !== event.pointerId) return;
-  releaseImageEditorPointer(event, drawing.captureTarget);
-  if (imageEditorState.tool === "brush") {
-    pushImageEditorHistory();
-  } else if (imageEditorState.tool === "eraser") {
-    if (drawing.changed) pushImageEditorHistory();
-  } else if (imageEditorState.tool === "arrow") {
-    clearImageEditorPreview();
-  } else if (imageEditorState.tool === "crop") {
-    imageEditorState.crop = null;
-  }
-  imageEditorState.drawing = null;
-  renderImageEditor();
-}
-
-function captureImageEditorPointer(event: any) {
-  if (event?.pointerId === undefined) return null;
-  const target = event.currentTarget || event.target || imageEditorState.konvaStage?.container?.();
-  try {
-    target?.setPointerCapture?.(event.pointerId);
-    return target || null;
-  } catch {
-    return null;
-  }
-}
-
-function releaseImageEditorPointer(event: any, target: any) {
-  if (event?.pointerId === undefined || !target) return;
-  try {
-    target.releasePointerCapture?.(event.pointerId);
-  } catch {
-    // Pointer capture is best-effort; missing capture should not cancel the edit.
-  }
 }
 
 function imageEditorCompositeCanvas() {
@@ -1301,18 +784,6 @@ function imageEditorCanvasForSave() {
   return imageEditorCompositeCanvas();
 }
 
-function imageEditorExportBlob(canvas: any) {
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob: Blob | null) => {
-      if (blob) {
-        resolve(blob);
-      } else {
-        reject(new Error(translate("imageEditor.saveFailed")));
-      }
-    }, "image/png");
-  });
-}
-
 function ensureImageEditorPromptHint() {
   const current = legacyMethod("getPromptText");
   const hint = translate("imageEditor.promptHint");
@@ -1327,6 +798,11 @@ async function saveImageEdit() {
   const els = getEls();
   const sessionId = imageEditorState.sessionId;
   const source = imageEditorState.source;
+  if (pendingFill) {
+    try { if (await pendingFill === null) return; }
+    catch { setImageEditorStatus(translate("imageEditor.saveFailed"), "error"); return; }
+    if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
+  }
   const saveCanvas = imageEditorCanvasForSave();
   if (!source || !isEditableImageSource(source) || !saveCanvas || !state.images.includes(source)) {
     setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
@@ -1375,116 +851,6 @@ function sourcePreviewUrlForEditor(source: any) {
   if (!source) return "";
   if (source.kind === "upload") return source.previewUrl || "";
   return legacyMethod("sourcePreviewUrl", source) || "";
-}
-
-function renderImageEditorInsertList() {
-  const state = getState();
-  const list = getEls().imageEditorInsertList;
-  if (!list) return;
-  list.textContent = "";
-  const sources = state.images
-    .map((source: any, index: number) => ({ source, index }))
-    .filter((item: any) => item.index !== imageEditorState.sourceIndex && isEditableImageSource(item.source));
-  if (!sources.length) {
-    const empty = document.createElement("div");
-    empty.className = "image-editor-insert-empty";
-    empty.textContent = translate("imageEditor.emptyInsertList");
-    list.append(empty);
-    return;
-  }
-  sources.forEach(({ source, index }: any) => {
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "image-editor-insert-item";
-    row.dataset.sourceIndex = String(index);
-    const thumbUrl = sourcePreviewUrlForEditor(source);
-    if (thumbUrl) {
-      const img = document.createElement("img");
-      img.src = thumbUrl;
-      img.alt = "";
-      img.loading = "lazy";
-      row.append(img);
-    } else {
-      const placeholder = document.createElement("span");
-      placeholder.className = "image-editor-layer-thumb";
-      placeholder.textContent = "IMG";
-      row.append(placeholder);
-    }
-    const text = document.createElement("span");
-    text.className = "image-editor-insert-name";
-    text.textContent = legacyMethod("sourceName", source) || imageEditorSourceName(source);
-    row.append(text);
-    row.addEventListener("click", () => insertImageEditorLayerFromSource(source));
-    list.append(row);
-  });
-}
-
-function imageEditorLayerThumbnailUrl(layer: ImageEditorLayer) {
-  if (!layer.canvas?.width || !layer.canvas?.height) return "";
-  try {
-    const thumbnailCanvas = document.createElement("canvas");
-    thumbnailCanvas.width = IMAGE_EDITOR_LAYER_THUMB_SIZE;
-    thumbnailCanvas.height = IMAGE_EDITOR_LAYER_THUMB_SIZE;
-    const ctx = thumbnailCanvas.getContext("2d");
-    if (!ctx) return "";
-    const scale = Math.min(
-      thumbnailCanvas.width / Math.max(1, layer.canvas.width),
-      thumbnailCanvas.height / Math.max(1, layer.canvas.height),
-    );
-    const width = Math.max(1, Math.round(layer.canvas.width * scale));
-    const height = Math.max(1, Math.round(layer.canvas.height * scale));
-    ctx.drawImage(
-      layer.canvas,
-      Math.round((thumbnailCanvas.width - width) / 2),
-      Math.round((thumbnailCanvas.height - height) / 2),
-      width,
-      height,
-    );
-    return thumbnailCanvas.toDataURL("image/png");
-  } catch {
-    return "";
-  }
-}
-
-function renderImageEditorLayerList() {
-  const list = getEls().imageEditorLayerList;
-  if (!list) return;
-  list.textContent = "";
-  [...imageEditorState.layers].reverse().forEach((layer) => {
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "image-editor-layer-item";
-    row.classList.toggle("active", layer.id === imageEditorState.selectedLayerId);
-    row.dataset.layerId = layer.id;
-    const thumb = document.createElement("span");
-    thumb.className = "image-editor-layer-thumb";
-    const thumbnailUrl = imageEditorLayerThumbnailUrl(layer);
-    if (thumbnailUrl) {
-      const thumbnail = document.createElement("img");
-      thumbnail.src = thumbnailUrl;
-      thumbnail.alt = "";
-      thumbnail.decoding = "async";
-      thumbnail.draggable = false;
-      thumb.append(thumbnail);
-    } else {
-      thumb.textContent = String(imageEditorState.layers.indexOf(layer) + 1);
-    }
-    row.append(thumb);
-    const content = document.createElement("span");
-    const name = document.createElement("span");
-    name.className = "image-editor-layer-name";
-    name.textContent = layer.name || translate("imageEditor.baseLayer");
-    const meta = document.createElement("span");
-    meta.className = "image-editor-layer-meta";
-    const width = Math.max(1, Math.round(layer.node.width() * layer.node.scaleX()));
-    const height = Math.max(1, Math.round(layer.node.height() * layer.node.scaleY()));
-    meta.textContent = `${width}×${height}`;
-    content.append(name, meta);
-    row.append(content);
-    row.addEventListener("click", () => selectImageEditorLayer(layer.id, { updateTool: true }));
-    list.append(row);
-  });
-  updateImageEditorControls();
 }
 
 async function insertImageEditorLayerFromSource(source: any) {
@@ -1573,7 +939,7 @@ async function openImageEditor(index: any) {
   imageEditorState.color = els.imageEditorColor?.value || "#ff3b30";
   imageEditorState.strokeWidth = Number(els.imageEditorStroke?.value || 8);
   imageEditorState.hasInstructionMarks = false;
-  imageEditorState.drawing = null;
+  editorPointer.clearDrawing();
   imageEditorState.canvasScope = "base";
   setImageEditorStatus("");
   if (els.imageEditorSubtitle) {
@@ -1599,7 +965,7 @@ async function openImageEditor(index: any) {
 
 function closeImageEditor(force = false) {
   const els = getEls();
-  if (force !== true && (imageEditorState.historyIndex > 0 || Boolean(imageEditorState.crop?.width && imageEditorState.crop?.height))) {
+  if (force !== true && (editorHistory.canUndo() || Boolean(imageEditorState.crop?.width && imageEditorState.crop?.height))) {
     legacyMethod("openConfirmPopover", els.imageEditorClose, {
       title: translate("ux.discardEdits"),
       focusCancel: true,
@@ -1624,9 +990,8 @@ function closeImageEditor(force = false) {
   imageEditorState.selectedLayerId = null;
   imageEditorState.crop = null;
   imageEditorState.hasInstructionMarks = false;
-  imageEditorState.history = [];
-  imageEditorState.historyIndex = -1;
-  imageEditorState.drawing = null;
+  editorHistory.reset();
+  editorPointer.clearDrawing();
   imageEditorState.canvasScope = "base";
   setImageEditorStatus("");
   renderImageEditorInsertList();
@@ -1637,7 +1002,7 @@ function closeImageEditor(force = false) {
 function setImageEditorTool(tool: any) {
   if (!["select", "brush", "arrow", "crop", "fill", "eraser"].includes(tool)) return;
   imageEditorState.tool = tool;
-  imageEditorState.drawing = null;
+  editorPointer.clearDrawing();
   clearImageEditorPreview();
   updateImageEditorControls();
   imageEditorState.konvaLayer?.batchDraw?.();
@@ -1657,6 +1022,7 @@ function setImageEditorCanvasScope(scope: any) {
 }
 
 async function resetImageEdit() {
+  editorFill.cancel();
   const sessionId = imageEditorState.sessionId;
   const source = imageEditorState.source;
   const file = imageEditorState.originalFile;

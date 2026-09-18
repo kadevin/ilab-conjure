@@ -19181,19 +19181,6 @@
     return proxy2;
   }
 
-  // codex_image/webui/frontend/src/webui-utils.ts
-  function escapeHtml(value) {
-    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  }
-  function cssEscape(value) {
-    const text = String(value || "");
-    if (window.CSS?.escape) return window.CSS.escape(text);
-    return text.replace(/["\\]/g, "\\$&");
-  }
-  function prefersReducedMotion() {
-    return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
-  }
-
   // codex_image/webui/frontend/src/task-cancellation.ts
   var USER_CANCELLATION_ERROR = "Task cancelled by user.";
   function taskWasCancelled(task) {
@@ -19371,13 +19358,6 @@
   function setTextIfChanged(element2, text) {
     if (element2.textContent !== text) element2.textContent = text;
   }
-  function activeElapsedTaskCards(els44, taskId) {
-    const roots = [els44.taskActiveList, els44.taskList].filter((root) => root instanceof HTMLElement);
-    const cards = roots.flatMap(
-      (root) => Array.from(root.querySelectorAll(`.task-card[data-task-id="${cssEscape(taskId)}"]`))
-    );
-    return Array.from(new Set(cards));
-  }
   function updateTaskElapsedCard(card, task) {
     const statusElement = card.querySelector("[data-task-status-id]");
     if (statusElement) {
@@ -19404,11 +19384,17 @@
     const { state: state33, els: els44 } = getLegacyBridge();
     const activeTasks = state33.tasks.filter((task) => taskNeedsElapsedTick(task));
     if (!activeTasks.length) return;
-    activeTasks.forEach((task) => {
-      const taskId = String(task.task_id || "");
-      if (!taskId) return;
-      activeElapsedTaskCards(els44, taskId).forEach((card) => updateTaskElapsedCard(card, task));
-    });
+    const tasksById = new Map(activeTasks.map((task) => [String(task.task_id || ""), task]));
+    const visited = /* @__PURE__ */ new Set();
+    for (const root of /* @__PURE__ */ new Set([els44.taskActiveList, els44.taskList])) {
+      if (!(root instanceof HTMLElement)) continue;
+      root.querySelectorAll(".task-card[data-task-id]").forEach((card) => {
+        if (visited.has(card)) return;
+        visited.add(card);
+        const task = tasksById.get(card.dataset.taskId || "");
+        if (task) updateTaskElapsedCard(card, task);
+      });
+    }
   }
   function updatePreviewElapsedDisplay() {
     const { els: els44 } = getLegacyBridge();
@@ -19682,6 +19668,19 @@
       mainModelOptionIndex: 0,
       mainModelShowAllOptions: false
     };
+  }
+
+  // codex_image/webui/frontend/src/webui-utils.ts
+  function escapeHtml(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+  function cssEscape(value) {
+    const text = String(value || "");
+    if (window.CSS?.escape) return window.CSS.escape(text);
+    return text.replace(/["\\]/g, "\\$&");
+  }
+  function prefersReducedMotion() {
+    return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
   }
 
   // codex_image/webui/frontend/src/bootstrap.ts
@@ -32557,12 +32556,760 @@ js: import "konva/skia-backend";
   // node_modules/konva/lib/index.js
   var lib_default = Konva3;
 
+  // codex_image/webui/frontend/src/image-editor-canvas.ts
+  var IMAGE_EDITOR_MAX_EXPORT_EDGE = 4096;
+  var IMAGE_EDITOR_LAYER_THUMB_SIZE = 96;
+  var pixelSnapshots = /* @__PURE__ */ new WeakMap();
+  function markImageEditorCanvasChanged(canvas) {
+    pixelSnapshots.delete(canvas);
+  }
+  function rememberImageEditorCanvasSnapshot(canvas, snapshot) {
+    pixelSnapshots.set(canvas, snapshot);
+  }
+  function captureImageEditorCanvas(canvas) {
+    const previous = pixelSnapshots.get(canvas);
+    if (previous && previous.width === canvas.width && previous.height === canvas.height && previous.width > 0) return previous;
+    const snapshot = imageEditorCanvasSnapshot(canvas);
+    if (!snapshot) throw new Error(translate("imageEditor.canvasCreateFailed"));
+    pixelSnapshots.set(canvas, snapshot);
+    return snapshot;
+  }
+  function editedUploadFilename(name) {
+    const sourceName3 = String(name || "input.png");
+    const dotIndex = sourceName3.lastIndexOf(".");
+    const base = dotIndex > 0 ? sourceName3.slice(0, dotIndex) : sourceName3;
+    return `${base}-edited.png`;
+  }
+  function imageEditorCanvasSnapshot(canvas) {
+    if (!canvas) return null;
+    const snapshot = document.createElement("canvas");
+    snapshot.width = canvas.width;
+    snapshot.height = canvas.height;
+    const ctx = snapshot.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(canvas, 0, 0);
+    return snapshot;
+  }
+  function imageEditorLayerAttrs(node) {
+    return {
+      x: node.x(),
+      y: node.y(),
+      width: node.width(),
+      height: node.height(),
+      scaleX: node.scaleX(),
+      scaleY: node.scaleY(),
+      rotation: node.rotation(),
+      opacity: node.opacity()
+    };
+  }
+  async function loadImageEditorImage(file) {
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.decoding = "async";
+      image.src = objectUrl;
+      await image.decode();
+      return image;
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+  }
+  function imageEditorExportDimensions(image) {
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+    const longest = Math.max(width, height);
+    if (longest <= IMAGE_EDITOR_MAX_EXPORT_EDGE) {
+      return { width, height, scale: 1 };
+    }
+    const scale = IMAGE_EDITOR_MAX_EXPORT_EDGE / longest;
+    return {
+      width: Math.max(1, Math.round(width * scale)),
+      height: Math.max(1, Math.round(height * scale)),
+      scale
+    };
+  }
+  function imageEditorCanvasFromImage(image, dimensions2 = imageEditorExportDimensions(image)) {
+    const canvas = document.createElement("canvas");
+    canvas.width = dimensions2.width;
+    canvas.height = dimensions2.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error(translate("imageEditor.canvasCreateFailed"));
+    ctx.drawImage(image, 0, 0, dimensions2.width, dimensions2.height);
+    return canvas;
+  }
+  function imageEditorClampedCanvasDimensions(width, height) {
+    return {
+      width: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(width))),
+      height: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(height)))
+    };
+  }
+  function resizeImageEditorBackingCanvas(canvas, width, height, offsetX, offsetY) {
+    if (!canvas) return;
+    if (canvas.width === width && canvas.height === height && !offsetX && !offsetY) return;
+    markImageEditorCanvasChanged(canvas);
+    const snapshot = imageEditorCanvasSnapshot(canvas);
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+    if (snapshot) {
+      ctx.drawImage(snapshot, offsetX, offsetY);
+      snapshot.width = snapshot.height = 0;
+    }
+  }
+  function imageEditorExportBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error(translate("imageEditor.saveFailed")));
+        }
+      }, "image/png");
+    });
+  }
+  function imageEditorLayerThumbnailUrl(layer) {
+    if (!layer.canvas?.width || !layer.canvas?.height) return "";
+    try {
+      const thumbnailCanvas = document.createElement("canvas");
+      thumbnailCanvas.width = IMAGE_EDITOR_LAYER_THUMB_SIZE;
+      thumbnailCanvas.height = IMAGE_EDITOR_LAYER_THUMB_SIZE;
+      const ctx = thumbnailCanvas.getContext("2d");
+      if (!ctx) return "";
+      const scale = Math.min(
+        thumbnailCanvas.width / Math.max(1, layer.canvas.width),
+        thumbnailCanvas.height / Math.max(1, layer.canvas.height)
+      );
+      const width = Math.max(1, Math.round(layer.canvas.width * scale));
+      const height = Math.max(1, Math.round(layer.canvas.height * scale));
+      ctx.drawImage(
+        layer.canvas,
+        Math.round((thumbnailCanvas.width - width) / 2),
+        Math.round((thumbnailCanvas.height - height) / 2),
+        width,
+        height
+      );
+      return thumbnailCanvas.toDataURL("image/png");
+    } catch {
+      return "";
+    }
+  }
+
+  // codex_image/webui/frontend/src/image-editor-geometry.ts
+  function normalizedRect(start, end) {
+    const left = Math.min(start.x, end.x);
+    const top = Math.min(start.y, end.y);
+    const width = Math.abs(end.x - start.x);
+    const height = Math.abs(end.y - start.y);
+    if (width < 4 || height < 4) return null;
+    return { left, top, width, height };
+  }
+  function imageEditorPointDistance(from, to) {
+    return Math.hypot(to.x - from.x, to.y - from.y);
+  }
+  function isImageEditorLineGesture(from, to) {
+    return imageEditorPointDistance(from, to) >= 4;
+  }
+  function imageEditorBucketFillColor(color) {
+    const normalized = String(color || "#ff3b30").replace("#", "").trim();
+    const hex = /^[0-9a-fA-F]{6}$/.test(normalized) ? normalized : "ff3b30";
+    return [
+      Number.parseInt(hex.slice(0, 2), 16),
+      Number.parseInt(hex.slice(2, 4), 16),
+      Number.parseInt(hex.slice(4, 6), 16),
+      255
+    ];
+  }
+  function imageEditorArrowGeometry(start, end, strokeWidthValue) {
+    const strokeWidth = Math.max(1, Number(strokeWidthValue) || 1);
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.max(1, Math.hypot(dx, dy));
+    const unitX = dx / length;
+    const unitY = dy / length;
+    const perpX = -unitY;
+    const perpY = unitX;
+    const headLength = Math.min(Math.max(16, strokeWidth * 2.8), Math.max(16, length * 0.55));
+    const headWidth = Math.max(18, strokeWidth * 2.2);
+    const overlap = Math.min(headLength * 0.42, Math.max(2, strokeWidth * 0.28));
+    const shaftDistance = Math.max(0, headLength - overlap);
+    const baseCenter = {
+      x: end.x - unitX * headLength,
+      y: end.y - unitY * headLength
+    };
+    return {
+      headLength,
+      headWidth,
+      shaftEnd: {
+        x: end.x - unitX * shaftDistance,
+        y: end.y - unitY * shaftDistance
+      },
+      headLeft: {
+        x: baseCenter.x + perpX * (headWidth / 2),
+        y: baseCenter.y + perpY * (headWidth / 2)
+      },
+      headRight: {
+        x: baseCenter.x - perpX * (headWidth / 2),
+        y: baseCenter.y - perpY * (headWidth / 2)
+      }
+    };
+  }
+
+  // codex_image/webui/frontend/src/image-editor-drawing.ts
+  function createImageEditorDrawing(dependencies) {
+    const { getBrushSettings, getOverlayCanvas, getKonvaLayer, imageEditorBrushBoundaryContext: imageEditorBrushBoundaryContext2, imageEditorBrushOverlayContext: imageEditorBrushOverlayContext2, imageEditorContext: imageEditorContext2 } = dependencies;
+    let previewNode = null;
+    function configureImageEditorStroke2(ctx, options = {}) {
+      if (!ctx) return;
+      ctx.strokeStyle = getBrushSettings().color;
+      ctx.fillStyle = getBrushSettings().color;
+      ctx.lineWidth = getBrushSettings().strokeWidth;
+      ctx.lineCap = options.lineCap || "round";
+      ctx.lineJoin = options.lineJoin || "round";
+      ctx.miterLimit = options.miterLimit || 10;
+    }
+    function drawEditorBrushBoundarySegment2(from, to) {
+      const ctx = imageEditorBrushBoundaryContext2();
+      if (!ctx) return;
+      ctx.strokeStyle = "#000";
+      ctx.fillStyle = "#000";
+      ctx.lineWidth = getBrushSettings().strokeWidth;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+      markImageEditorCanvasChanged(ctx.canvas);
+    }
+    function drawEditorBrushOverlaySegment2(from, to) {
+      const ctx = imageEditorBrushOverlayContext2();
+      if (!ctx) return;
+      configureImageEditorStroke2(ctx);
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+      markImageEditorCanvasChanged(ctx.canvas);
+    }
+    function redrawImageEditorBrushOverlay2(ctx) {
+      if (!ctx || !getOverlayCanvas()) return;
+      ctx.drawImage(getOverlayCanvas(), 0, 0);
+    }
+    function drawEditorBrushSegment2(from, to) {
+      const ctx = imageEditorContext2();
+      if (!ctx) return;
+      configureImageEditorStroke2(ctx);
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+      markImageEditorCanvasChanged(ctx.canvas);
+      drawEditorBrushBoundarySegment2(from, to);
+      drawEditorBrushOverlaySegment2(from, to);
+    }
+    function drawEditorArrowOnContext2(ctx, start, end) {
+      if (!ctx) return;
+      configureImageEditorStroke2(ctx, { lineCap: "butt", lineJoin: "miter" });
+      const geometry = imageEditorArrowGeometry(start, end, getBrushSettings().strokeWidth);
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(geometry.shaftEnd.x, geometry.shaftEnd.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(end.x, end.y);
+      ctx.lineTo(geometry.headLeft.x, geometry.headLeft.y);
+      ctx.lineTo(geometry.headRight.x, geometry.headRight.y);
+      ctx.closePath();
+      ctx.fill();
+      markImageEditorCanvasChanged(ctx.canvas);
+    }
+    function clearImageEditorPreview2() {
+      previewNode?.destroy?.();
+      previewNode = null;
+      getKonvaLayer()?.batchDraw?.();
+    }
+    function previewEditorArrow2(start, end) {
+      const layer = getKonvaLayer();
+      if (!layer) return;
+      const points = [start.x, start.y, end.x, end.y];
+      const geometry = imageEditorArrowGeometry(start, end, getBrushSettings().strokeWidth);
+      if (!previewNode) {
+        previewNode = new lib_default.Arrow({
+          points,
+          stroke: getBrushSettings().color,
+          fill: getBrushSettings().color,
+          strokeWidth: getBrushSettings().strokeWidth,
+          pointerLength: geometry.headLength,
+          pointerWidth: geometry.headWidth,
+          lineCap: "butt",
+          lineJoin: "miter",
+          listening: false,
+          name: "image-editor-preview-arrow"
+        });
+        layer.add(previewNode);
+      } else {
+        previewNode.points(points);
+        previewNode.stroke(getBrushSettings().color);
+        previewNode.fill(getBrushSettings().color);
+        previewNode.strokeWidth(getBrushSettings().strokeWidth);
+        previewNode.pointerLength(geometry.headLength);
+        previewNode.pointerWidth(geometry.headWidth);
+      }
+      previewNode.moveToTop?.();
+      layer.batchDraw?.();
+    }
+    function imageEditorLayerLocalPoint2(layer, point) {
+      const transform = layer.node.getAbsoluteTransform().copy();
+      transform.invert();
+      return transform.point(point);
+    }
+    function imageEditorLayerCanvasPoint2(layer, point) {
+      const local = imageEditorLayerLocalPoint2(layer, point);
+      const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
+      const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
+      return {
+        x: local.x * widthScale,
+        y: local.y * heightScale
+      };
+    }
+    function imageEditorLayerCanvasStrokeWidth2(layer) {
+      const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
+      const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
+      return Math.max(1, getBrushSettings().strokeWidth * ((widthScale + heightScale) / 2));
+    }
+    function applyImageEditorLayerEraseSegment2(layer, from, to) {
+      const ctx = layer.canvas.getContext("2d");
+      if (!ctx) return false;
+      const start = imageEditorLayerCanvasPoint2(layer, from);
+      const end = imageEditorLayerCanvasPoint2(layer, to);
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineWidth = imageEditorLayerCanvasStrokeWidth2(layer);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.restore();
+      markImageEditorCanvasChanged(layer.canvas);
+      layer.edited = true;
+      layer.node.image(layer.canvas);
+      layer.node.getLayer()?.batchDraw?.();
+      return true;
+    }
+    function applyImageEditorLayerEraseDot2(layer, point) {
+      const ctx = layer.canvas.getContext("2d");
+      if (!ctx) return false;
+      const local = imageEditorLayerCanvasPoint2(layer, point);
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(local.x, local.y, imageEditorLayerCanvasStrokeWidth2(layer) / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      markImageEditorCanvasChanged(layer.canvas);
+      layer.edited = true;
+      layer.node.image(layer.canvas);
+      layer.node.getLayer()?.batchDraw?.();
+      return true;
+    }
+    function applyImageEditorLayerEraseStroke2(layer, points) {
+      if (!layer || points.length < 2) return false;
+      let changed = false;
+      for (let index = 1; index < points.length; index += 1) {
+        changed = applyImageEditorLayerEraseSegment2(layer, points[index - 1], points[index]) || changed;
+      }
+      return changed;
+    }
+    return { configureImageEditorStroke: configureImageEditorStroke2, drawEditorBrushBoundarySegment: drawEditorBrushBoundarySegment2, drawEditorBrushOverlaySegment: drawEditorBrushOverlaySegment2, redrawImageEditorBrushOverlay: redrawImageEditorBrushOverlay2, drawEditorBrushSegment: drawEditorBrushSegment2, drawEditorArrowOnContext: drawEditorArrowOnContext2, clearImageEditorPreview: clearImageEditorPreview2, previewEditorArrow: previewEditorArrow2, imageEditorLayerLocalPoint: imageEditorLayerLocalPoint2, imageEditorLayerCanvasPoint: imageEditorLayerCanvasPoint2, imageEditorLayerCanvasStrokeWidth: imageEditorLayerCanvasStrokeWidth2, applyImageEditorLayerEraseSegment: applyImageEditorLayerEraseSegment2, applyImageEditorLayerEraseDot: applyImageEditorLayerEraseDot2, applyImageEditorLayerEraseStroke: applyImageEditorLayerEraseStroke2, promotePreview: () => previewNode?.moveToTop(), resetPreview: () => {
+      previewNode = null;
+    } };
+  }
+
+  // codex_image/webui/frontend/src/image-editor-fill-client.ts
+  function createImageEditorFill() {
+    let cancelPending = null;
+    function cancel() {
+      cancelPending?.();
+    }
+    function fill(point, canvas, boundary, color, redrawOverlay) {
+      cancel();
+      return new Promise((resolve, reject) => {
+        const ctx = canvas.getContext("2d"), boundaryCtx = boundary.getContext("2d", { willReadFrequently: true });
+        if (!ctx || !boundaryCtx) {
+          resolve(false);
+          return;
+        }
+        const worker = new Worker("/static/image-editor-fill-worker.js?v=1");
+        let settled = false;
+        const finish = (result, error) => {
+          if (settled) return;
+          settled = true;
+          worker.terminate();
+          cancelPending = null;
+          if (error) reject(error);
+          else resolve(result);
+        };
+        cancelPending = () => finish(null);
+        worker.onerror = () => finish(null, new Error("Image fill worker failed"));
+        worker.onmessage = (event) => {
+          if (settled) return;
+          try {
+            const patch = event.data;
+            if (!patch) {
+              finish(false);
+              return;
+            }
+            const surface = document.createElement("canvas");
+            surface.width = patch.width;
+            surface.height = patch.height;
+            const patchCtx = surface.getContext("2d");
+            if (!patchCtx) {
+              finish(null, new Error("Image fill canvas unavailable"));
+              return;
+            }
+            patchCtx.putImageData(new ImageData(patch.pixels, patch.width, patch.height), 0, 0);
+            ctx.drawImage(surface, patch.left, patch.top);
+            surface.width = surface.height = 0;
+            redrawOverlay(ctx);
+            markImageEditorCanvasChanged(canvas);
+            finish(true);
+          } catch (error) {
+            finish(null, error);
+          }
+        };
+        try {
+          const pixels = boundaryCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+          worker.postMessage({ boundary: pixels, width: canvas.width, height: canvas.height, point, color: imageEditorBucketFillColor(color) }, [pixels.buffer]);
+        } catch (error) {
+          finish(null, error);
+        }
+      });
+    }
+    return { fill, cancel };
+  }
+
+  // codex_image/webui/frontend/src/image-editor-history.ts
+  function createImageEditorHistory(options) {
+    const IMAGE_EDITOR_HISTORY_LIMIT = 30;
+    let history = [];
+    let historyIndex = -1;
+    const resources = /* @__PURE__ */ new Map();
+    let retainedBytes = 0;
+    const byteBudget = options.byteBudget ?? 512 * 1024 * 1024;
+    function retain(snapshot) {
+      for (const canvas of new Set(options.resources?.(snapshot) || [])) {
+        const count = resources.get(canvas) || 0;
+        if (!count) retainedBytes += canvas.width * canvas.height * 4;
+        resources.set(canvas, count + 1);
+      }
+    }
+    function release(snapshot) {
+      for (const canvas of new Set(options.resources?.(snapshot) || [])) {
+        const count = (resources.get(canvas) || 1) - 1;
+        if (count) resources.set(canvas, count);
+        else {
+          retainedBytes -= canvas.width * canvas.height * 4;
+          resources.delete(canvas);
+          canvas.width = canvas.height = 0;
+        }
+      }
+    }
+    function pushImageEditorHistory2() {
+      const snapshot = options.capture();
+      if (!snapshot) return;
+      retain(snapshot);
+      history.splice(historyIndex + 1).forEach(release);
+      history.push(snapshot);
+      historyIndex = history.length - 1;
+      while (history.length > IMAGE_EDITOR_HISTORY_LIMIT || retainedBytes > byteBudget && history.length > 2) {
+        release(history.shift());
+        historyIndex -= 1;
+      }
+      options.changed();
+    }
+    function undoImageEdit2() {
+      if (historyIndex <= 0) return;
+      historyIndex -= 1;
+      options.restore(history[historyIndex] || null);
+    }
+    function redoImageEdit2() {
+      if (historyIndex >= history.length - 1) return;
+      historyIndex += 1;
+      options.restore(history[historyIndex] || null);
+    }
+    function reset() {
+      history.forEach(release);
+      history = [];
+      historyIndex = -1;
+    }
+    return {
+      pushImageEditorHistory: pushImageEditorHistory2,
+      undoImageEdit: undoImageEdit2,
+      redoImageEdit: redoImageEdit2,
+      reset,
+      canUndo: () => historyIndex > 0,
+      canRedo: () => historyIndex >= 0 && historyIndex < history.length - 1,
+      retainedBytes: () => retainedBytes
+    };
+  }
+
+  // codex_image/webui/frontend/src/image-editor-panel.ts
+  function createImageEditorPanel(dependencies) {
+    const { getSources, getEditorSnapshot, getPanelElements, isEditableImageSource: isEditableImageSource2, sourcePreviewUrlForEditor: sourcePreviewUrlForEditor2, sourceName: sourceName3, imageEditorSourceName: imageEditorSourceName2, insertImageEditorLayerFromSource: insertImageEditorLayerFromSource2, selectImageEditorLayer: selectImageEditorLayer2, updateImageEditorControls: updateImageEditorControls2 } = dependencies;
+    function renderImageEditorInsertList2() {
+      const list = getPanelElements().imageEditorInsertList;
+      if (!list) return;
+      list.textContent = "";
+      const sources = getSources().map((source, index) => ({ source, index })).filter((item) => item.index !== getEditorSnapshot().sourceIndex && isEditableImageSource2(item.source));
+      if (!sources.length) {
+        const empty = document.createElement("div");
+        empty.className = "image-editor-insert-empty";
+        empty.textContent = translate("imageEditor.emptyInsertList");
+        list.append(empty);
+        return;
+      }
+      sources.forEach(({ source, index }) => {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "image-editor-insert-item";
+        row.dataset.sourceIndex = String(index);
+        const thumbUrl = sourcePreviewUrlForEditor2(source);
+        if (thumbUrl) {
+          const img = document.createElement("img");
+          img.src = thumbUrl;
+          img.alt = "";
+          img.loading = "lazy";
+          row.append(img);
+        } else {
+          const placeholder = document.createElement("span");
+          placeholder.className = "image-editor-layer-thumb";
+          placeholder.textContent = "IMG";
+          row.append(placeholder);
+        }
+        const text = document.createElement("span");
+        text.className = "image-editor-insert-name";
+        text.textContent = sourceName3(source) || imageEditorSourceName2(source);
+        row.append(text);
+        row.addEventListener("click", () => insertImageEditorLayerFromSource2(source));
+        list.append(row);
+      });
+    }
+    function renderImageEditorLayerList2() {
+      const list = getPanelElements().imageEditorLayerList;
+      if (!list) return;
+      list.textContent = "";
+      [...getEditorSnapshot().layers].reverse().forEach((layer) => {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "image-editor-layer-item";
+        row.classList.toggle("active", layer.id === getEditorSnapshot().selectedLayerId);
+        row.dataset.layerId = layer.id;
+        const thumb = document.createElement("span");
+        thumb.className = "image-editor-layer-thumb";
+        const thumbnailUrl = imageEditorLayerThumbnailUrl(layer);
+        if (thumbnailUrl) {
+          const thumbnail = document.createElement("img");
+          thumbnail.src = thumbnailUrl;
+          thumbnail.alt = "";
+          thumbnail.decoding = "async";
+          thumbnail.draggable = false;
+          thumb.append(thumbnail);
+        } else {
+          thumb.textContent = String(getEditorSnapshot().layers.indexOf(layer) + 1);
+        }
+        row.append(thumb);
+        const content = document.createElement("span");
+        const name = document.createElement("span");
+        name.className = "image-editor-layer-name";
+        name.textContent = layer.name || translate("imageEditor.baseLayer");
+        const meta = document.createElement("span");
+        meta.className = "image-editor-layer-meta";
+        const width = Math.max(1, Math.round(layer.node.width() * layer.node.scaleX()));
+        const height = Math.max(1, Math.round(layer.node.height() * layer.node.scaleY()));
+        meta.textContent = `${width}\xD7${height}`;
+        content.append(name, meta);
+        row.append(content);
+        row.addEventListener("click", () => selectImageEditorLayer2(layer.id, { updateTool: true }));
+        list.append(row);
+      });
+      updateImageEditorControls2();
+    }
+    return { renderImageEditorInsertList: renderImageEditorInsertList2, renderImageEditorLayerList: renderImageEditorLayerList2 };
+  }
+
+  // codex_image/webui/frontend/src/image-editor-pointer.ts
+  function createImageEditorPointer(dependencies) {
+    const { getTool, hasStage, getStageContainer, markInstruction, setCrop, imageEditorPoint: imageEditorPoint2, paintBucketFillRegion: paintBucketFillRegion2, pushImageEditorHistory: pushImageEditorHistory2, setImageEditorStatus: setImageEditorStatus2, renderImageEditor: renderImageEditor2, selectedImageEditorLayer: selectedImageEditorLayer2, applyImageEditorLayerEraseDot: applyImageEditorLayerEraseDot2, applyImageEditorLayerEraseSegment: applyImageEditorLayerEraseSegment2, updateImageEditorCropBox: updateImageEditorCropBox2, previewEditorArrow: previewEditorArrow2, drawEditorBrushSegment: drawEditorBrushSegment2, imageEditorContext: imageEditorContext2, drawEditorArrowOnContext: drawEditorArrowOnContext2, clearImageEditorPreview: clearImageEditorPreview2 } = dependencies;
+    let drawingState = null;
+    function handleImageEditorPointerDown2(event) {
+      if (!hasStage()) return;
+      dependencies.cancelPendingFill?.();
+      if (getTool() === "select") return;
+      event.preventDefault?.();
+      const point = imageEditorPoint2(event);
+      if (getTool() === "fill") {
+        const commit = (filled) => {
+          if (filled === null) return;
+          if (filled) {
+            markInstruction();
+            pushImageEditorHistory2();
+            setImageEditorStatus2("");
+          } else {
+            setImageEditorStatus2(translate("imageEditor.closedRegionRequired"), "error");
+          }
+          renderImageEditor2();
+        };
+        const result = paintBucketFillRegion2(point);
+        if (typeof result === "boolean") commit(result);
+        else void result.then(commit).catch(() => setImageEditorStatus2(translate("imageEditor.canvasCreateFailed"), "error"));
+        return;
+      }
+      if (getTool() === "eraser") {
+        const layer = selectedImageEditorLayer2();
+        if (!layer) {
+          setImageEditorStatus2(translate("imageEditor.selectLayerFirst"), "error");
+          return;
+        }
+        const captureTarget2 = captureImageEditorPointer2(event);
+        const changed = applyImageEditorLayerEraseDot2(layer, point);
+        drawingState = {
+          pointerId: event.pointerId,
+          captureTarget: captureTarget2,
+          layerId: layer.id,
+          start: point,
+          last: point,
+          points: [point],
+          changed
+        };
+        return;
+      }
+      const captureTarget = captureImageEditorPointer2(event);
+      drawingState = {
+        pointerId: event.pointerId,
+        captureTarget,
+        start: point,
+        last: point,
+        points: [point]
+      };
+      if (getTool() === "crop") {
+        setCrop({ left: point.x, top: point.y, width: 0, height: 0 });
+        updateImageEditorCropBox2();
+      }
+    }
+    function handleImageEditorPointerMove2(event) {
+      const drawing = drawingState;
+      if (!drawing) return;
+      if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
+      event.preventDefault?.();
+      const point = imageEditorPoint2(event);
+      if (getTool() === "eraser") {
+        const layer = selectedImageEditorLayer2();
+        if (layer && layer.id === drawing.layerId) {
+          drawing.changed = applyImageEditorLayerEraseSegment2(layer, drawing.last, point) || drawing.changed;
+        }
+        drawing.points.push(point);
+        drawing.last = point;
+        return;
+      }
+      if (getTool() === "brush") {
+        drawEditorBrushSegment2(drawing.last, point);
+        if (imageEditorPointDistance(drawing.last, point) > 0) {
+          markInstruction();
+        }
+        drawing.last = point;
+        renderImageEditor2();
+        return;
+      }
+      if (getTool() === "arrow") {
+        previewEditorArrow2(drawing.start, point);
+        return;
+      }
+      if (getTool() === "crop") {
+        setCrop(normalizedRect(drawing.start, point));
+        updateImageEditorCropBox2();
+      }
+    }
+    function handleImageEditorPointerUp2(event) {
+      const drawing = drawingState;
+      if (!drawing) return;
+      if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
+      event.preventDefault?.();
+      const point = imageEditorPoint2(event);
+      releaseImageEditorPointer2(event, drawing.captureTarget);
+      if (getTool() === "eraser") {
+        drawing.points.push(point);
+        const layer = selectedImageEditorLayer2();
+        if (layer && layer.id === drawing.layerId && imageEditorPointDistance(drawing.last, point) > 0) {
+          drawing.changed = applyImageEditorLayerEraseSegment2(layer, drawing.last, point) || drawing.changed;
+        }
+        if (drawing.changed) {
+          pushImageEditorHistory2();
+          setImageEditorStatus2("");
+        }
+      } else if (getTool() === "arrow") {
+        const ctx = imageEditorContext2();
+        if (ctx && isImageEditorLineGesture(drawing.start, point)) {
+          drawEditorArrowOnContext2(ctx, drawing.start, point);
+          markInstruction();
+          pushImageEditorHistory2();
+        }
+        clearImageEditorPreview2();
+      } else if (getTool() === "brush") {
+        pushImageEditorHistory2();
+      } else if (getTool() === "crop") {
+        setCrop(normalizedRect(drawing.start, point));
+      }
+      drawingState = null;
+      renderImageEditor2();
+    }
+    function handleImageEditorPointerCancel2(event) {
+      dependencies.cancelPendingFill?.();
+      const drawing = drawingState;
+      if (!drawing) return;
+      if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
+      releaseImageEditorPointer2(event, drawing.captureTarget);
+      if (getTool() === "brush") {
+        pushImageEditorHistory2();
+      } else if (getTool() === "eraser") {
+        if (drawing.changed) pushImageEditorHistory2();
+      } else if (getTool() === "arrow") {
+        clearImageEditorPreview2();
+      } else if (getTool() === "crop") {
+        setCrop(null);
+      }
+      drawingState = null;
+      renderImageEditor2();
+    }
+    function captureImageEditorPointer2(event) {
+      if (event?.pointerId === void 0) return null;
+      const target = event.currentTarget || event.target || getStageContainer();
+      try {
+        target?.setPointerCapture?.(event.pointerId);
+        return target || null;
+      } catch {
+        return null;
+      }
+    }
+    function releaseImageEditorPointer2(event, target) {
+      if (event?.pointerId === void 0 || !target) return;
+      try {
+        target.releasePointerCapture?.(event.pointerId);
+      } catch {
+      }
+    }
+    return { handleImageEditorPointerDown: handleImageEditorPointerDown2, handleImageEditorPointerMove: handleImageEditorPointerMove2, handleImageEditorPointerUp: handleImageEditorPointerUp2, handleImageEditorPointerCancel: handleImageEditorPointerCancel2, captureImageEditorPointer: captureImageEditorPointer2, releaseImageEditorPointer: releaseImageEditorPointer2, clearDrawing: () => {
+      dependencies.cancelPendingFill?.();
+      drawingState = null;
+    } };
+  }
+
   // codex_image/webui/frontend/src/image-editor.ts
   var IMAGE_EDITOR_PROMPT_HINT_LEGACY = "\u56FE\u4E2D\u7684\u624B\u7ED8\u7BAD\u5934\u548C\u6807\u8BB0\u4EC5\u7528\u4E8E\u6307\u793A\u7F16\u8F91\u8981\u6C42\uFF0C\u4E0D\u8981\u4FDD\u7559\u5728\u6700\u7EC8\u753B\u9762\u4E2D\u3002";
-  var IMAGE_EDITOR_MAX_EXPORT_EDGE = 4096;
-  var IMAGE_EDITOR_HISTORY_LIMIT = 30;
   var IMAGE_EDITOR_LAYER_FIT_RATIO = 0.72;
-  var IMAGE_EDITOR_LAYER_THUMB_SIZE = 96;
   var imageEditorState = {
     sessionId: 0,
     sourceIndex: null,
@@ -32577,7 +33324,6 @@ js: import "konva/skia-backend";
     konvaLayer: null,
     konvaTransformer: null,
     markNode: null,
-    previewNode: null,
     layers: [],
     selectedLayerId: null,
     displayScale: 1,
@@ -32586,21 +33332,97 @@ js: import "konva/skia-backend";
     strokeWidth: 8,
     crop: null,
     canvasScope: "base",
-    hasInstructionMarks: false,
-    history: [],
-    historyIndex: -1,
-    drawing: null
+    hasInstructionMarks: false
   };
   var imageEditorFeatureInitialized = false;
   var imageEditorLayerSequence = 0;
+  var editorFill = createImageEditorFill();
+  var pendingFill = null;
+  var editorHistory = createImageEditorHistory({
+    capture: () => {
+      editorFill.cancel();
+      return imageEditorSnapshot();
+    },
+    restore: (snapshot) => {
+      editorFill.cancel();
+      restoreImageEditorSnapshot(snapshot);
+    },
+    changed: () => updateImageEditorControls(),
+    resources: (snapshot) => [
+      ...snapshot.layers.map((layer) => layer.canvas),
+      snapshot.workCanvas,
+      snapshot.brushBoundaryCanvas,
+      snapshot.brushOverlayCanvas
+    ].filter((canvas) => Boolean(canvas))
+  });
+  var { pushImageEditorHistory } = editorHistory;
+  function undoImageEdit() {
+    editorFill.cancel();
+    editorHistory.undoImageEdit();
+  }
+  function redoImageEdit() {
+    editorFill.cancel();
+    editorHistory.redoImageEdit();
+  }
+  function paintBucketFillRegion(point) {
+    const { workCanvas, brushBoundaryCanvas, color } = imageEditorState;
+    if (!workCanvas || !brushBoundaryCanvas) return Promise.resolve(false);
+    const pending = editorFill.fill(point, workCanvas, brushBoundaryCanvas, color, redrawImageEditorBrushOverlay).finally(() => {
+      if (pendingFill === pending) pendingFill = null;
+    });
+    pendingFill = pending;
+    return pending;
+  }
+  var editorPointer = createImageEditorPointer({
+    getTool: () => imageEditorState.tool,
+    cancelPendingFill: () => editorFill.cancel(),
+    hasStage: () => Boolean(imageEditorState.konvaStage),
+    getStageContainer: () => imageEditorState.konvaStage?.container?.() || null,
+    markInstruction: () => {
+      imageEditorState.hasInstructionMarks = true;
+    },
+    setCrop: (crop) => {
+      imageEditorState.crop = crop;
+    },
+    imageEditorPoint: (...args) => imageEditorPoint(...args),
+    paintBucketFillRegion: (...args) => paintBucketFillRegion(...args),
+    pushImageEditorHistory: (...args) => pushImageEditorHistory(...args),
+    setImageEditorStatus: (...args) => setImageEditorStatus(...args),
+    renderImageEditor: (...args) => renderImageEditor(...args),
+    selectedImageEditorLayer: (...args) => selectedImageEditorLayer(...args),
+    applyImageEditorLayerEraseDot: (...args) => applyImageEditorLayerEraseDot(...args),
+    applyImageEditorLayerEraseSegment: (...args) => applyImageEditorLayerEraseSegment(...args),
+    updateImageEditorCropBox: (...args) => updateImageEditorCropBox(...args),
+    previewEditorArrow: (...args) => previewEditorArrow(...args),
+    drawEditorBrushSegment: (...args) => drawEditorBrushSegment(...args),
+    imageEditorContext: (...args) => imageEditorContext(...args),
+    drawEditorArrowOnContext: (...args) => drawEditorArrowOnContext(...args),
+    clearImageEditorPreview: (...args) => clearImageEditorPreview(...args)
+  });
+  var { handleImageEditorPointerDown, handleImageEditorPointerMove, handleImageEditorPointerUp, handleImageEditorPointerCancel, captureImageEditorPointer, releaseImageEditorPointer } = editorPointer;
+  var { renderImageEditorInsertList, renderImageEditorLayerList } = createImageEditorPanel({
+    getSources: () => getState().images,
+    getEditorSnapshot: () => ({ sourceIndex: imageEditorState.sourceIndex, layers: imageEditorState.layers, selectedLayerId: imageEditorState.selectedLayerId }),
+    getPanelElements: () => ({ imageEditorInsertList: getEls().imageEditorInsertList, imageEditorLayerList: getEls().imageEditorLayerList }),
+    isEditableImageSource: (...args) => isEditableImageSource(...args),
+    sourcePreviewUrlForEditor: (...args) => sourcePreviewUrlForEditor(...args),
+    sourceName: (source) => legacyMethod4("sourceName", source),
+    imageEditorSourceName: (...args) => imageEditorSourceName(...args),
+    insertImageEditorLayerFromSource: (...args) => insertImageEditorLayerFromSource(...args),
+    selectImageEditorLayer: (...args) => selectImageEditorLayer(...args),
+    updateImageEditorControls: (...args) => updateImageEditorControls(...args)
+  });
+  var editorDrawing = createImageEditorDrawing({
+    getBrushSettings: () => ({ color: imageEditorState.color, strokeWidth: imageEditorState.strokeWidth }),
+    getOverlayCanvas: () => imageEditorState.brushOverlayCanvas,
+    getKonvaLayer: () => imageEditorState.konvaLayer,
+    imageEditorBrushBoundaryContext: (...args) => imageEditorBrushBoundaryContext(...args),
+    imageEditorBrushOverlayContext: (...args) => imageEditorBrushOverlayContext(...args),
+    imageEditorContext: (...args) => imageEditorContext(...args)
+  });
+  var { configureImageEditorStroke, drawEditorBrushBoundarySegment, drawEditorBrushOverlaySegment, redrawImageEditorBrushOverlay, drawEditorBrushSegment, drawEditorArrowOnContext, clearImageEditorPreview, previewEditorArrow, imageEditorLayerLocalPoint, imageEditorLayerCanvasPoint, imageEditorLayerCanvasStrokeWidth, applyImageEditorLayerEraseSegment, applyImageEditorLayerEraseDot, applyImageEditorLayerEraseStroke } = editorDrawing;
   function legacyMethod4(name, ...args) {
     return getLegacyBridge().methods[name]?.(...args);
-  }
-  function editedUploadFilename(name) {
-    const sourceName3 = String(name || "input.png");
-    const dotIndex = sourceName3.lastIndexOf(".");
-    const base = dotIndex > 0 ? sourceName3.slice(0, dotIndex) : sourceName3;
-    return `${base}-edited.png`;
   }
   function isEditableImageSource(source) {
     if (!source || source.missing) return false;
@@ -32647,28 +33469,6 @@ js: import "konva/skia-backend";
   function imageEditorBrushOverlayContext() {
     return imageEditorState.brushOverlayCanvas?.getContext("2d", { willReadFrequently: true }) || null;
   }
-  function imageEditorCanvasSnapshot(canvas) {
-    if (!canvas) return null;
-    const snapshot = document.createElement("canvas");
-    snapshot.width = canvas.width;
-    snapshot.height = canvas.height;
-    const ctx = snapshot.getContext("2d");
-    if (!ctx) return null;
-    ctx.drawImage(canvas, 0, 0);
-    return snapshot;
-  }
-  function imageEditorLayerAttrs(node) {
-    return {
-      x: node.x(),
-      y: node.y(),
-      width: node.width(),
-      height: node.height(),
-      scaleX: node.scaleX(),
-      scaleY: node.scaleY(),
-      rotation: node.rotation(),
-      opacity: node.opacity()
-    };
-  }
   function imageEditorSnapshot() {
     if (!imageEditorState.workCanvas) return null;
     return {
@@ -32676,13 +33476,13 @@ js: import "konva/skia-backend";
         id: layer.id,
         sourceIndex: layer.sourceIndex,
         name: layer.name,
-        canvas: imageEditorCanvasSnapshot(layer.canvas) || layer.canvas,
+        canvas: captureImageEditorCanvas(layer.canvas),
         attrs: imageEditorLayerAttrs(layer.node),
         edited: layer.edited
       })),
-      workCanvas: imageEditorCanvasSnapshot(imageEditorState.workCanvas) || imageEditorState.workCanvas,
-      brushBoundaryCanvas: imageEditorCanvasSnapshot(imageEditorState.brushBoundaryCanvas),
-      brushOverlayCanvas: imageEditorCanvasSnapshot(imageEditorState.brushOverlayCanvas),
+      workCanvas: captureImageEditorCanvas(imageEditorState.workCanvas),
+      brushBoundaryCanvas: imageEditorState.brushBoundaryCanvas ? captureImageEditorCanvas(imageEditorState.brushBoundaryCanvas) : null,
+      brushOverlayCanvas: imageEditorState.brushOverlayCanvas ? captureImageEditorCanvas(imageEditorState.brushOverlayCanvas) : null,
       canvasScope: imageEditorState.canvasScope,
       crop: imageEditorState.crop ? { ...imageEditorState.crop } : null,
       selectedLayerId: imageEditorState.selectedLayerId,
@@ -32697,6 +33497,7 @@ js: import "konva/skia-backend";
     canvas.height = snapshot.height;
     ctx.clearRect(0, 0, snapshot.width, snapshot.height);
     ctx.drawImage(snapshot, 0, 0);
+    rememberImageEditorCanvasSnapshot(canvas, snapshot);
   }
   function rebuildImageEditorLayers(snapshots) {
     const konvaLayer = imageEditorState.konvaLayer;
@@ -32704,7 +33505,9 @@ js: import "konva/skia-backend";
     imageEditorState.layers.forEach((layer) => layer.node?.destroy?.());
     imageEditorState.layers = [];
     snapshots.forEach((snapshot) => {
-      const canvas = imageEditorCanvasSnapshot(snapshot.canvas) || snapshot.canvas;
+      const canvas = imageEditorCanvasSnapshot(snapshot.canvas);
+      if (!canvas) throw new Error(translate("imageEditor.canvasCreateFailed"));
+      rememberImageEditorCanvasSnapshot(canvas, snapshot.canvas);
       const layer = createImageEditorLayerFromCanvas(canvas, {
         id: snapshot.id,
         source: null,
@@ -32748,64 +33551,12 @@ js: import "konva/skia-backend";
     selectImageEditorLayer(snapshot.selectedLayerId, { updateTool: false });
     renderImageEditor();
   }
-  async function loadImageEditorImage(file) {
-    const objectUrl = URL.createObjectURL(file);
-    try {
-      const image = new Image();
-      image.decoding = "async";
-      image.src = objectUrl;
-      await image.decode();
-      return image;
-    } finally {
-      URL.revokeObjectURL(objectUrl);
-    }
-  }
-  function imageEditorExportDimensions(image) {
-    const width = image.naturalWidth || image.width;
-    const height = image.naturalHeight || image.height;
-    const longest = Math.max(width, height);
-    if (longest <= IMAGE_EDITOR_MAX_EXPORT_EDGE) {
-      return { width, height, scale: 1 };
-    }
-    const scale = IMAGE_EDITOR_MAX_EXPORT_EDGE / longest;
-    return {
-      width: Math.max(1, Math.round(width * scale)),
-      height: Math.max(1, Math.round(height * scale)),
-      scale
-    };
-  }
-  function imageEditorCanvasFromImage(image, dimensions2 = imageEditorExportDimensions(image)) {
-    const canvas = document.createElement("canvas");
-    canvas.width = dimensions2.width;
-    canvas.height = dimensions2.height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error(translate("imageEditor.canvasCreateFailed"));
-    ctx.drawImage(image, 0, 0, dimensions2.width, dimensions2.height);
-    return canvas;
-  }
   function imageEditorBaseDimensions() {
     const baseCanvas = imageEditorState.baseCanvas;
     return {
       width: Math.max(1, Math.round(baseCanvas?.width || imageEditorState.konvaStage?.width?.() || 1)),
       height: Math.max(1, Math.round(baseCanvas?.height || imageEditorState.konvaStage?.height?.() || 1))
     };
-  }
-  function imageEditorClampedCanvasDimensions(width, height) {
-    return {
-      width: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(width))),
-      height: Math.max(1, Math.min(IMAGE_EDITOR_MAX_EXPORT_EDGE, Math.round(height)))
-    };
-  }
-  function resizeImageEditorBackingCanvas(canvas, width, height, offsetX, offsetY) {
-    if (!canvas) return;
-    if (canvas.width === width && canvas.height === height && !offsetX && !offsetY) return;
-    const snapshot = imageEditorCanvasSnapshot(canvas);
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-    canvas.width = width;
-    canvas.height = height;
-    ctx.clearRect(0, 0, width, height);
-    if (snapshot) ctx.drawImage(snapshot, offsetX, offsetY);
   }
   function resizeImageEditorCanvas(width, height, offsetX = 0, offsetY = 0) {
     const dimensions2 = imageEditorClampedCanvasDimensions(width, height);
@@ -32994,7 +33745,7 @@ js: import "konva/skia-backend";
       layer.node?.zIndex?.(index);
     });
     imageEditorState.markNode?.moveToTop?.();
-    imageEditorState.previewNode?.moveToTop?.();
+    editorDrawing.promotePreview();
     imageEditorState.konvaTransformer?.moveToTop?.();
     imageEditorState.konvaLayer?.batchDraw?.();
   }
@@ -33021,7 +33772,7 @@ js: import "konva/skia-backend";
     imageEditorState.konvaLayer = null;
     imageEditorState.konvaStage = null;
     imageEditorState.markNode = null;
-    imageEditorState.previewNode = null;
+    editorDrawing.resetPreview();
   }
   function initializeImageEditorKonva(width, height) {
     const els44 = getEls();
@@ -33063,6 +33814,7 @@ js: import "konva/skia-backend";
     bindImageEditorStageEvents(stage);
   }
   function initializeImageEditorCanvases(image) {
+    editorFill.cancel();
     const dimensions2 = imageEditorExportDimensions(image);
     const baseCanvas = imageEditorCanvasFromImage(image, dimensions2);
     const workCanvas = document.createElement("canvas");
@@ -33081,8 +33833,7 @@ js: import "konva/skia-backend";
     imageEditorState.crop = null;
     imageEditorState.canvasScope = "base";
     imageEditorState.hasInstructionMarks = false;
-    imageEditorState.history = [];
-    imageEditorState.historyIndex = -1;
+    editorHistory.reset();
     imageEditorState.layers = [];
     imageEditorState.selectedLayerId = null;
     initializeImageEditorKonva(dimensions2.width, dimensions2.height);
@@ -33121,35 +33872,10 @@ js: import "konva/skia-backend";
     renderImageEditorLayerList();
     stage?.batchDraw?.();
   }
-  function pushImageEditorHistory() {
-    const snapshot = imageEditorSnapshot();
-    if (!snapshot) return;
-    imageEditorState.history = imageEditorState.history.slice(0, imageEditorState.historyIndex + 1);
-    imageEditorState.history.push(snapshot);
-    imageEditorState.historyIndex = imageEditorState.history.length - 1;
-    if (imageEditorState.history.length > IMAGE_EDITOR_HISTORY_LIMIT) {
-      const trimCount = imageEditorState.history.length - IMAGE_EDITOR_HISTORY_LIMIT;
-      imageEditorState.history = imageEditorState.history.slice(trimCount);
-      imageEditorState.historyIndex = Math.max(0, imageEditorState.historyIndex - trimCount);
-    }
-    updateImageEditorControls();
-  }
-  function undoImageEdit() {
-    if (imageEditorState.historyIndex <= 0) return;
-    imageEditorState.historyIndex -= 1;
-    const snapshot = imageEditorState.history[imageEditorState.historyIndex] || null;
-    restoreImageEditorSnapshot(snapshot);
-  }
-  function redoImageEdit() {
-    if (imageEditorState.historyIndex >= imageEditorState.history.length - 1) return;
-    imageEditorState.historyIndex += 1;
-    const snapshot = imageEditorState.history[imageEditorState.historyIndex] || null;
-    restoreImageEditorSnapshot(snapshot);
-  }
   function updateImageEditorControls() {
     const els44 = getEls();
-    const canUndo = imageEditorState.historyIndex > 0;
-    const canRedo = imageEditorState.historyIndex >= 0 && imageEditorState.historyIndex < imageEditorState.history.length - 1;
+    const canUndo = editorHistory.canUndo();
+    const canRedo = editorHistory.canRedo();
     const selectedLayer = selectedImageEditorLayer();
     if (els44.imageEditorUndo) els44.imageEditorUndo.disabled = !canUndo;
     if (els44.imageEditorRedo) els44.imageEditorRedo.disabled = !canRedo;
@@ -33265,434 +33991,8 @@ js: import "konva/skia-backend";
       y: 0
     };
   }
-  function normalizedRect(start, end) {
-    const left = Math.min(start.x, end.x);
-    const top = Math.min(start.y, end.y);
-    const width = Math.abs(end.x - start.x);
-    const height = Math.abs(end.y - start.y);
-    if (width < 4 || height < 4) return null;
-    return { left, top, width, height };
-  }
-  function imageEditorPointDistance(from, to) {
-    return Math.hypot(to.x - from.x, to.y - from.y);
-  }
-  function isImageEditorLineGesture(from, to) {
-    return imageEditorPointDistance(from, to) >= 4;
-  }
-  function imageEditorPixelOffset(index) {
-    return index * 4;
-  }
-  function imageEditorBucketFillColor() {
-    const normalized = String(imageEditorState.color || "#ff3b30").replace("#", "").trim();
-    const hex = /^[0-9a-fA-F]{6}$/.test(normalized) ? normalized : "ff3b30";
-    return [
-      Number.parseInt(hex.slice(0, 2), 16),
-      Number.parseInt(hex.slice(2, 4), 16),
-      Number.parseInt(hex.slice(4, 6), 16),
-      255
-    ];
-  }
-  function imageEditorBoundaryPixelBlocks(data, index) {
-    return data[imageEditorPixelOffset(index) + 3] > 0;
-  }
-  function imageEditorBoundaryHasPixels(data) {
-    for (let offset = 3; offset < data.length; offset += 4) {
-      if (data[offset] > 0) return true;
-    }
-    return false;
-  }
-  function imageEditorPixelTouchesCanvasEdge(index, width, height) {
-    const column = index % width;
-    const row = Math.floor(index / width);
-    return column === 0 || column === width - 1 || row === 0 || row === height - 1;
-  }
-  function paintBucketFillRegion(point) {
-    const canvas = imageEditorState.workCanvas;
-    const ctx = imageEditorContext(canvas);
-    const boundaryCanvas = imageEditorState.brushBoundaryCanvas;
-    const boundaryCtx = imageEditorBrushBoundaryContext();
-    if (!canvas || !ctx || !boundaryCanvas || !boundaryCtx) return false;
-    const width = canvas.width;
-    const height = canvas.height;
-    const x = Math.max(0, Math.min(width - 1, Math.floor(point.x)));
-    const y = Math.max(0, Math.min(height - 1, Math.floor(point.y)));
-    const boundaryData = boundaryCtx.getImageData(0, 0, width, height).data;
-    if (!imageEditorBoundaryHasPixels(boundaryData)) return false;
-    const startIndex = y * width + x;
-    if (imageEditorBoundaryPixelBlocks(boundaryData, startIndex)) return false;
-    const visited = new Uint8Array(width * height);
-    const stack = new Int32Array(width * height);
-    const region = [];
-    let stackLength = 0;
-    const pushPixel = (index) => {
-      if (visited[index]) return;
-      visited[index] = 1;
-      if (imageEditorBoundaryPixelBlocks(boundaryData, index)) return;
-      stack[stackLength] = index;
-      stackLength += 1;
-    };
-    pushPixel(startIndex);
-    while (stackLength > 0) {
-      stackLength -= 1;
-      const index = stack[stackLength];
-      if (index === void 0) break;
-      if (imageEditorPixelTouchesCanvasEdge(index, width, height)) return false;
-      region.push(index);
-      const column = index % width;
-      if (column > 0) pushPixel(index - 1);
-      if (column < width - 1) pushPixel(index + 1);
-      if (index >= width) pushPixel(index - width);
-      if (index < width * (height - 1)) pushPixel(index + width);
-    }
-    if (!region.length) return false;
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    const fill = imageEditorBucketFillColor();
-    const [red = 0, green = 0, blue = 0, alpha = 255] = fill;
-    region.forEach((index) => {
-      const offset = imageEditorPixelOffset(index);
-      data[offset] = red;
-      data[offset + 1] = green;
-      data[offset + 2] = blue;
-      data[offset + 3] = alpha;
-    });
-    ctx.putImageData(imageData, 0, 0);
-    redrawImageEditorBrushOverlay(ctx);
-    return true;
-  }
-  function configureImageEditorStroke(ctx, options = {}) {
-    if (!ctx) return;
-    ctx.strokeStyle = imageEditorState.color;
-    ctx.fillStyle = imageEditorState.color;
-    ctx.lineWidth = imageEditorState.strokeWidth;
-    ctx.lineCap = options.lineCap || "round";
-    ctx.lineJoin = options.lineJoin || "round";
-    ctx.miterLimit = options.miterLimit || 10;
-  }
-  function drawEditorBrushBoundarySegment(from, to) {
-    const ctx = imageEditorBrushBoundaryContext();
-    if (!ctx) return;
-    ctx.strokeStyle = "#000";
-    ctx.fillStyle = "#000";
-    ctx.lineWidth = imageEditorState.strokeWidth;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-  }
-  function drawEditorBrushOverlaySegment(from, to) {
-    const ctx = imageEditorBrushOverlayContext();
-    if (!ctx) return;
-    configureImageEditorStroke(ctx);
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-  }
-  function redrawImageEditorBrushOverlay(ctx) {
-    if (!ctx || !imageEditorState.brushOverlayCanvas) return;
-    ctx.drawImage(imageEditorState.brushOverlayCanvas, 0, 0);
-  }
-  function drawEditorBrushSegment(from, to) {
-    const ctx = imageEditorContext();
-    if (!ctx) return;
-    configureImageEditorStroke(ctx);
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-    drawEditorBrushBoundarySegment(from, to);
-    drawEditorBrushOverlaySegment(from, to);
-  }
-  function imageEditorArrowGeometry(start, end) {
-    const strokeWidth = Math.max(1, Number(imageEditorState.strokeWidth) || 1);
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const length = Math.max(1, Math.hypot(dx, dy));
-    const unitX = dx / length;
-    const unitY = dy / length;
-    const perpX = -unitY;
-    const perpY = unitX;
-    const headLength = Math.min(Math.max(16, strokeWidth * 2.8), Math.max(16, length * 0.55));
-    const headWidth = Math.max(18, strokeWidth * 2.2);
-    const overlap = Math.min(headLength * 0.42, Math.max(2, strokeWidth * 0.28));
-    const shaftDistance = Math.max(0, headLength - overlap);
-    const baseCenter = {
-      x: end.x - unitX * headLength,
-      y: end.y - unitY * headLength
-    };
-    return {
-      headLength,
-      headWidth,
-      shaftEnd: {
-        x: end.x - unitX * shaftDistance,
-        y: end.y - unitY * shaftDistance
-      },
-      headLeft: {
-        x: baseCenter.x + perpX * (headWidth / 2),
-        y: baseCenter.y + perpY * (headWidth / 2)
-      },
-      headRight: {
-        x: baseCenter.x - perpX * (headWidth / 2),
-        y: baseCenter.y - perpY * (headWidth / 2)
-      }
-    };
-  }
-  function drawEditorArrowOnContext(ctx, start, end) {
-    if (!ctx) return;
-    configureImageEditorStroke(ctx, { lineCap: "butt", lineJoin: "miter" });
-    const geometry = imageEditorArrowGeometry(start, end);
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(geometry.shaftEnd.x, geometry.shaftEnd.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(end.x, end.y);
-    ctx.lineTo(geometry.headLeft.x, geometry.headLeft.y);
-    ctx.lineTo(geometry.headRight.x, geometry.headRight.y);
-    ctx.closePath();
-    ctx.fill();
-  }
-  function clearImageEditorPreview() {
-    imageEditorState.previewNode?.destroy?.();
-    imageEditorState.previewNode = null;
-    imageEditorState.konvaLayer?.batchDraw?.();
-  }
-  function previewEditorArrow(start, end) {
-    if (!imageEditorState.konvaLayer) return;
-    const points = [start.x, start.y, end.x, end.y];
-    const geometry = imageEditorArrowGeometry(start, end);
-    if (!imageEditorState.previewNode) {
-      imageEditorState.previewNode = new lib_default.Arrow({
-        points,
-        stroke: imageEditorState.color,
-        fill: imageEditorState.color,
-        strokeWidth: imageEditorState.strokeWidth,
-        pointerLength: geometry.headLength,
-        pointerWidth: geometry.headWidth,
-        lineCap: "butt",
-        lineJoin: "miter",
-        listening: false,
-        name: "image-editor-preview-arrow"
-      });
-      imageEditorState.konvaLayer.add(imageEditorState.previewNode);
-    } else {
-      imageEditorState.previewNode.points(points);
-      imageEditorState.previewNode.stroke(imageEditorState.color);
-      imageEditorState.previewNode.fill(imageEditorState.color);
-      imageEditorState.previewNode.strokeWidth(imageEditorState.strokeWidth);
-      imageEditorState.previewNode.pointerLength(geometry.headLength);
-      imageEditorState.previewNode.pointerWidth(geometry.headWidth);
-    }
-    imageEditorState.previewNode.moveToTop?.();
-    imageEditorState.konvaLayer.batchDraw?.();
-  }
   function selectedImageEditorLayer() {
     return imageEditorState.layers.find((layer) => layer.id === imageEditorState.selectedLayerId) || null;
-  }
-  function imageEditorLayerLocalPoint(layer, point) {
-    const transform = layer.node.getAbsoluteTransform().copy();
-    transform.invert();
-    return transform.point(point);
-  }
-  function imageEditorLayerCanvasPoint(layer, point) {
-    const local = imageEditorLayerLocalPoint(layer, point);
-    const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
-    const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
-    return {
-      x: local.x * widthScale,
-      y: local.y * heightScale
-    };
-  }
-  function imageEditorLayerCanvasStrokeWidth(layer) {
-    const widthScale = layer.canvas.width / Math.max(1, layer.node.width());
-    const heightScale = layer.canvas.height / Math.max(1, layer.node.height());
-    return Math.max(1, imageEditorState.strokeWidth * ((widthScale + heightScale) / 2));
-  }
-  function applyImageEditorLayerEraseSegment(layer, from, to) {
-    const ctx = layer.canvas.getContext("2d");
-    if (!ctx) return false;
-    const start = imageEditorLayerCanvasPoint(layer, from);
-    const end = imageEditorLayerCanvasPoint(layer, to);
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth = imageEditorLayerCanvasStrokeWidth(layer);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.stroke();
-    ctx.restore();
-    layer.edited = true;
-    layer.node.image(layer.canvas);
-    layer.node.getLayer()?.batchDraw?.();
-    return true;
-  }
-  function applyImageEditorLayerEraseDot(layer, point) {
-    const ctx = layer.canvas.getContext("2d");
-    if (!ctx) return false;
-    const local = imageEditorLayerCanvasPoint(layer, point);
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(local.x, local.y, imageEditorLayerCanvasStrokeWidth(layer) / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-    layer.edited = true;
-    layer.node.image(layer.canvas);
-    layer.node.getLayer()?.batchDraw?.();
-    return true;
-  }
-  function handleImageEditorPointerDown(event) {
-    if (!imageEditorState.konvaStage) return;
-    if (imageEditorState.tool === "select") return;
-    event.preventDefault?.();
-    const point = imageEditorPoint(event);
-    if (imageEditorState.tool === "fill") {
-      if (paintBucketFillRegion(point)) {
-        imageEditorState.hasInstructionMarks = true;
-        pushImageEditorHistory();
-        setImageEditorStatus("");
-      } else {
-        setImageEditorStatus(translate("imageEditor.closedRegionRequired"), "error");
-      }
-      renderImageEditor();
-      return;
-    }
-    if (imageEditorState.tool === "eraser") {
-      const layer = selectedImageEditorLayer();
-      if (!layer) {
-        setImageEditorStatus(translate("imageEditor.selectLayerFirst"), "error");
-        return;
-      }
-      const captureTarget2 = captureImageEditorPointer(event);
-      const changed = applyImageEditorLayerEraseDot(layer, point);
-      imageEditorState.drawing = {
-        pointerId: event.pointerId,
-        captureTarget: captureTarget2,
-        layerId: layer.id,
-        start: point,
-        last: point,
-        points: [point],
-        changed
-      };
-      return;
-    }
-    const captureTarget = captureImageEditorPointer(event);
-    imageEditorState.drawing = {
-      pointerId: event.pointerId,
-      captureTarget,
-      start: point,
-      last: point,
-      points: [point]
-    };
-    if (imageEditorState.tool === "crop") {
-      imageEditorState.crop = { left: point.x, top: point.y, width: 0, height: 0 };
-      updateImageEditorCropBox();
-    }
-  }
-  function handleImageEditorPointerMove(event) {
-    const drawing = imageEditorState.drawing;
-    if (!drawing) return;
-    if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
-    event.preventDefault?.();
-    const point = imageEditorPoint(event);
-    if (imageEditorState.tool === "eraser") {
-      const layer = selectedImageEditorLayer();
-      if (layer && layer.id === drawing.layerId) {
-        drawing.changed = applyImageEditorLayerEraseSegment(layer, drawing.last, point) || drawing.changed;
-      }
-      drawing.points.push(point);
-      drawing.last = point;
-      return;
-    }
-    if (imageEditorState.tool === "brush") {
-      drawEditorBrushSegment(drawing.last, point);
-      if (imageEditorPointDistance(drawing.last, point) > 0) {
-        imageEditorState.hasInstructionMarks = true;
-      }
-      drawing.last = point;
-      renderImageEditor();
-      return;
-    }
-    if (imageEditorState.tool === "arrow") {
-      previewEditorArrow(drawing.start, point);
-      return;
-    }
-    if (imageEditorState.tool === "crop") {
-      imageEditorState.crop = normalizedRect(drawing.start, point);
-      updateImageEditorCropBox();
-    }
-  }
-  function handleImageEditorPointerUp(event) {
-    const drawing = imageEditorState.drawing;
-    if (!drawing) return;
-    if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
-    event.preventDefault?.();
-    const point = imageEditorPoint(event);
-    releaseImageEditorPointer(event, drawing.captureTarget);
-    if (imageEditorState.tool === "eraser") {
-      drawing.points.push(point);
-      const layer = selectedImageEditorLayer();
-      if (layer && layer.id === drawing.layerId && imageEditorPointDistance(drawing.last, point) > 0) {
-        drawing.changed = applyImageEditorLayerEraseSegment(layer, drawing.last, point) || drawing.changed;
-      }
-      if (drawing.changed) {
-        pushImageEditorHistory();
-        setImageEditorStatus("");
-      }
-    } else if (imageEditorState.tool === "arrow") {
-      const ctx = imageEditorContext();
-      if (ctx && isImageEditorLineGesture(drawing.start, point)) {
-        drawEditorArrowOnContext(ctx, drawing.start, point);
-        imageEditorState.hasInstructionMarks = true;
-        pushImageEditorHistory();
-      }
-      clearImageEditorPreview();
-    } else if (imageEditorState.tool === "brush") {
-      pushImageEditorHistory();
-    } else if (imageEditorState.tool === "crop") {
-      imageEditorState.crop = normalizedRect(drawing.start, point);
-    }
-    imageEditorState.drawing = null;
-    renderImageEditor();
-  }
-  function handleImageEditorPointerCancel(event) {
-    const drawing = imageEditorState.drawing;
-    if (!drawing) return;
-    if (drawing.pointerId !== void 0 && event.pointerId !== void 0 && drawing.pointerId !== event.pointerId) return;
-    releaseImageEditorPointer(event, drawing.captureTarget);
-    if (imageEditorState.tool === "brush") {
-      pushImageEditorHistory();
-    } else if (imageEditorState.tool === "eraser") {
-      if (drawing.changed) pushImageEditorHistory();
-    } else if (imageEditorState.tool === "arrow") {
-      clearImageEditorPreview();
-    } else if (imageEditorState.tool === "crop") {
-      imageEditorState.crop = null;
-    }
-    imageEditorState.drawing = null;
-    renderImageEditor();
-  }
-  function captureImageEditorPointer(event) {
-    if (event?.pointerId === void 0) return null;
-    const target = event.currentTarget || event.target || imageEditorState.konvaStage?.container?.();
-    try {
-      target?.setPointerCapture?.(event.pointerId);
-      return target || null;
-    } catch {
-      return null;
-    }
-  }
-  function releaseImageEditorPointer(event, target) {
-    if (event?.pointerId === void 0 || !target) return;
-    try {
-      target.releasePointerCapture?.(event.pointerId);
-    } catch {
-    }
   }
   function imageEditorCompositeCanvas() {
     const stage = imageEditorState.konvaStage;
@@ -33719,17 +34019,6 @@ js: import "konva/skia-backend";
     }
     return imageEditorCompositeCanvas();
   }
-  function imageEditorExportBlob(canvas) {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error(translate("imageEditor.saveFailed")));
-        }
-      }, "image/png");
-    });
-  }
   function ensureImageEditorPromptHint() {
     const current = legacyMethod4("getPromptText");
     const hint = translate("imageEditor.promptHint");
@@ -33744,6 +34033,15 @@ ${hint}` : hint;
     const els44 = getEls();
     const sessionId = imageEditorState.sessionId;
     const source = imageEditorState.source;
+    if (pendingFill) {
+      try {
+        if (await pendingFill === null) return;
+      } catch {
+        setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
+        return;
+      }
+      if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
+    }
     const saveCanvas = imageEditorCanvasForSave();
     if (!source || !isEditableImageSource(source) || !saveCanvas || !state33.images.includes(source)) {
       setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
@@ -33787,111 +34085,6 @@ ${hint}` : hint;
     if (!source) return "";
     if (source.kind === "upload") return source.previewUrl || "";
     return legacyMethod4("sourcePreviewUrl", source) || "";
-  }
-  function renderImageEditorInsertList() {
-    const state33 = getState();
-    const list = getEls().imageEditorInsertList;
-    if (!list) return;
-    list.textContent = "";
-    const sources = state33.images.map((source, index) => ({ source, index })).filter((item) => item.index !== imageEditorState.sourceIndex && isEditableImageSource(item.source));
-    if (!sources.length) {
-      const empty = document.createElement("div");
-      empty.className = "image-editor-insert-empty";
-      empty.textContent = translate("imageEditor.emptyInsertList");
-      list.append(empty);
-      return;
-    }
-    sources.forEach(({ source, index }) => {
-      const row = document.createElement("button");
-      row.type = "button";
-      row.className = "image-editor-insert-item";
-      row.dataset.sourceIndex = String(index);
-      const thumbUrl = sourcePreviewUrlForEditor(source);
-      if (thumbUrl) {
-        const img = document.createElement("img");
-        img.src = thumbUrl;
-        img.alt = "";
-        img.loading = "lazy";
-        row.append(img);
-      } else {
-        const placeholder = document.createElement("span");
-        placeholder.className = "image-editor-layer-thumb";
-        placeholder.textContent = "IMG";
-        row.append(placeholder);
-      }
-      const text = document.createElement("span");
-      text.className = "image-editor-insert-name";
-      text.textContent = legacyMethod4("sourceName", source) || imageEditorSourceName(source);
-      row.append(text);
-      row.addEventListener("click", () => insertImageEditorLayerFromSource(source));
-      list.append(row);
-    });
-  }
-  function imageEditorLayerThumbnailUrl(layer) {
-    if (!layer.canvas?.width || !layer.canvas?.height) return "";
-    try {
-      const thumbnailCanvas = document.createElement("canvas");
-      thumbnailCanvas.width = IMAGE_EDITOR_LAYER_THUMB_SIZE;
-      thumbnailCanvas.height = IMAGE_EDITOR_LAYER_THUMB_SIZE;
-      const ctx = thumbnailCanvas.getContext("2d");
-      if (!ctx) return "";
-      const scale = Math.min(
-        thumbnailCanvas.width / Math.max(1, layer.canvas.width),
-        thumbnailCanvas.height / Math.max(1, layer.canvas.height)
-      );
-      const width = Math.max(1, Math.round(layer.canvas.width * scale));
-      const height = Math.max(1, Math.round(layer.canvas.height * scale));
-      ctx.drawImage(
-        layer.canvas,
-        Math.round((thumbnailCanvas.width - width) / 2),
-        Math.round((thumbnailCanvas.height - height) / 2),
-        width,
-        height
-      );
-      return thumbnailCanvas.toDataURL("image/png");
-    } catch {
-      return "";
-    }
-  }
-  function renderImageEditorLayerList() {
-    const list = getEls().imageEditorLayerList;
-    if (!list) return;
-    list.textContent = "";
-    [...imageEditorState.layers].reverse().forEach((layer) => {
-      const row = document.createElement("button");
-      row.type = "button";
-      row.className = "image-editor-layer-item";
-      row.classList.toggle("active", layer.id === imageEditorState.selectedLayerId);
-      row.dataset.layerId = layer.id;
-      const thumb = document.createElement("span");
-      thumb.className = "image-editor-layer-thumb";
-      const thumbnailUrl = imageEditorLayerThumbnailUrl(layer);
-      if (thumbnailUrl) {
-        const thumbnail = document.createElement("img");
-        thumbnail.src = thumbnailUrl;
-        thumbnail.alt = "";
-        thumbnail.decoding = "async";
-        thumbnail.draggable = false;
-        thumb.append(thumbnail);
-      } else {
-        thumb.textContent = String(imageEditorState.layers.indexOf(layer) + 1);
-      }
-      row.append(thumb);
-      const content = document.createElement("span");
-      const name = document.createElement("span");
-      name.className = "image-editor-layer-name";
-      name.textContent = layer.name || translate("imageEditor.baseLayer");
-      const meta = document.createElement("span");
-      meta.className = "image-editor-layer-meta";
-      const width = Math.max(1, Math.round(layer.node.width() * layer.node.scaleX()));
-      const height = Math.max(1, Math.round(layer.node.height() * layer.node.scaleY()));
-      meta.textContent = `${width}\xD7${height}`;
-      content.append(name, meta);
-      row.append(content);
-      row.addEventListener("click", () => selectImageEditorLayer(layer.id, { updateTool: true }));
-      list.append(row);
-    });
-    updateImageEditorControls();
   }
   async function insertImageEditorLayerFromSource(source) {
     const sessionId = imageEditorState.sessionId;
@@ -33974,7 +34167,7 @@ ${hint}` : hint;
     imageEditorState.color = els44.imageEditorColor?.value || "#ff3b30";
     imageEditorState.strokeWidth = Number(els44.imageEditorStroke?.value || 8);
     imageEditorState.hasInstructionMarks = false;
-    imageEditorState.drawing = null;
+    editorPointer.clearDrawing();
     imageEditorState.canvasScope = "base";
     setImageEditorStatus("");
     if (els44.imageEditorSubtitle) {
@@ -33998,7 +34191,7 @@ ${hint}` : hint;
   }
   function closeImageEditor(force = false) {
     const els44 = getEls();
-    if (force !== true && (imageEditorState.historyIndex > 0 || Boolean(imageEditorState.crop?.width && imageEditorState.crop?.height))) {
+    if (force !== true && (editorHistory.canUndo() || Boolean(imageEditorState.crop?.width && imageEditorState.crop?.height))) {
       legacyMethod4("openConfirmPopover", els44.imageEditorClose, {
         title: translate("ux.discardEdits"),
         focusCancel: true,
@@ -34023,9 +34216,8 @@ ${hint}` : hint;
     imageEditorState.selectedLayerId = null;
     imageEditorState.crop = null;
     imageEditorState.hasInstructionMarks = false;
-    imageEditorState.history = [];
-    imageEditorState.historyIndex = -1;
-    imageEditorState.drawing = null;
+    editorHistory.reset();
+    editorPointer.clearDrawing();
     imageEditorState.canvasScope = "base";
     setImageEditorStatus("");
     renderImageEditorInsertList();
@@ -34035,7 +34227,7 @@ ${hint}` : hint;
   function setImageEditorTool(tool) {
     if (!["select", "brush", "arrow", "crop", "fill", "eraser"].includes(tool)) return;
     imageEditorState.tool = tool;
-    imageEditorState.drawing = null;
+    editorPointer.clearDrawing();
     clearImageEditorPreview();
     updateImageEditorControls();
     imageEditorState.konvaLayer?.batchDraw?.();
@@ -34053,6 +34245,7 @@ ${hint}` : hint;
     renderImageEditor();
   }
   async function resetImageEdit() {
+    editorFill.cancel();
     const sessionId = imageEditorState.sessionId;
     const source = imageEditorState.source;
     const file = imageEditorState.originalFile;
@@ -38210,6 +38403,1046 @@ ${hint}` : hint;
     return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
   }
 
+  // codex_image/webui/frontend/src/api-advanced-settings.ts
+  var DEFAULT_IMAGE_MODEL = "gpt-image-2";
+  var DEFAULT_CONCURRENCY = "4";
+  function advancedSettingsElement() {
+    return document.querySelector("#apiAdvancedSettings");
+  }
+  function imageModelInput() {
+    return document.querySelector("#apiImageModel");
+  }
+  function concurrencyInput() {
+    return document.querySelector("#apiImagesConcurrency");
+  }
+  function syncApiAdvancedSettingsSummary() {
+    const modelSummary = document.querySelector("#apiAdvancedImageModelSummary");
+    const concurrencySummary = document.querySelector("#apiAdvancedConcurrencySummary");
+    if (modelSummary) {
+      modelSummary.textContent = imageModelInput()?.value.trim() || DEFAULT_IMAGE_MODEL;
+    }
+    if (concurrencySummary) {
+      concurrencySummary.textContent = concurrencyInput()?.value.trim() || DEFAULT_CONCURRENCY;
+    }
+  }
+  function resetApiAdvancedSettings() {
+    const details = advancedSettingsElement();
+    if (details) details.open = false;
+    syncApiAdvancedSettingsSummary();
+  }
+  var apiAdvancedSettingsInitialized = false;
+  function initApiAdvancedSettingsFeature() {
+    if (apiAdvancedSettingsInitialized) return;
+    apiAdvancedSettingsInitialized = true;
+    imageModelInput()?.addEventListener("input", syncApiAdvancedSettingsSummary);
+    concurrencyInput()?.addEventListener("input", syncApiAdvancedSettingsSummary);
+    syncApiAdvancedSettingsSummary();
+  }
+
+  // codex_image/webui/frontend/src/provider-model-bindings.ts
+  function remoteModelAfterSelection(current, previousDefault, nextDefault) {
+    return !current.trim() || current.trim() === previousDefault ? nextDefault : current;
+  }
+  var BINDING_TEMPLATES = {
+    gpt_openai_images: {
+      protocol_profile: "openai_images",
+      parameter_codec: "gpt_openai_images",
+      base_url: "https://api.openai.com/v1"
+    },
+    gpt_openai_responses: {
+      protocol_profile: "openai_responses",
+      parameter_codec: "gpt_openai_responses",
+      base_url: "https://api.openai.com/v1"
+    },
+    gemini_generate_content: {
+      protocol_profile: "gemini_generate_content",
+      parameter_codec: "gemini_generate_content_image",
+      base_url: "https://generativelanguage.googleapis.com/v1beta"
+    },
+    gemini_generate_content_image_config: {
+      protocol_profile: "gemini_generate_content",
+      parameter_codec: "gemini_generate_content_image_config",
+      base_url: "https://api.change2pro.com/v1beta"
+    },
+    gemini_change2pro_generate_content: {
+      protocol_profile: "gemini_change2pro_generate_content",
+      parameter_codec: "gemini_generate_content_image_config",
+      base_url: "https://api.change2pro.com/v1"
+    },
+    gemini_openai_images: {
+      protocol_profile: "openai_images",
+      parameter_codec: "gemini_openai_images",
+      base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+    },
+    gemini_t8_images: {
+      protocol_profile: "t8_images",
+      parameter_codec: "gemini_t8_images",
+      base_url: "https://ai.t8star.org/v1"
+    },
+    gemini_openrouter_images: {
+      protocol_profile: "openrouter_images",
+      parameter_codec: "gemini_openrouter_images",
+      base_url: "https://openrouter.ai/api/v1"
+    }
+  };
+  var BINDING_PROTOCOL_LABELS = {
+    gemini: "Gemini",
+    openai_images: "OpenAI Images",
+    openai_responses: "OpenAI Responses"
+  };
+  var BINDING_COMPATIBILITY_LABELS = {
+    standard: "\u6807\u51C6",
+    gemini_image_config: "Gemini ImageConfig",
+    change2pro: "Change2Pro / Gemini v1beta",
+    t8_newapi: "T8 / NewAPI",
+    openrouter: "OpenRouter"
+  };
+  function slug(value, fallback) {
+    return String(value || fallback).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
+  }
+  function normalizedOperations(value) {
+    const operations = Array.isArray(value) ? value.filter((item) => item === "generate" || item === "edit") : [];
+    return [...new Set(operations)];
+  }
+  function resolvedBindingOperations(binding, bindings, model) {
+    const hasLegacySplitBindings = bindings.filter(
+      (candidate) => candidate.canonical_model_id === binding.canonical_model_id
+    ).length > 1;
+    if (hasLegacySplitBindings || !model) return binding.operations;
+    return [...model.operations];
+  }
+  function availableProtocolsForModel(modelId) {
+    if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
+    if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
+    return [];
+  }
+  function availableCompatibilityLayers(modelId, protocol) {
+    if (modelId.startsWith("nano-banana") && protocol === "gemini") {
+      return ["standard", "gemini_image_config", "change2pro"];
+    }
+    if (modelId.startsWith("nano-banana") && protocol === "openai_images") {
+      return ["standard", "t8_newapi", "openrouter"];
+    }
+    return ["standard"];
+  }
+  function protocolForBinding(binding) {
+    const profile = String(binding.protocol_profile || "");
+    if (profile.startsWith("gemini_")) return "gemini";
+    return profile.includes("responses") ? "openai_responses" : "openai_images";
+  }
+  function compatibilityForBinding(binding) {
+    if (binding.protocol_profile === "gemini_change2pro_generate_content") return "change2pro";
+    const codec = String(binding.parameter_codec || "");
+    if (codec === "gemini_generate_content_image_config") return "gemini_image_config";
+    if (codec === "gemini_t8_images") return "t8_newapi";
+    if (codec === "gemini_openrouter_images") return "openrouter";
+    return "standard";
+  }
+  function bindingTemplateForProtocol(modelId, protocol) {
+    if (!availableProtocolsForModel(modelId).includes(protocol)) {
+      throw new Error("unsupported_binding_protocol");
+    }
+    if (modelId.startsWith("nano-banana")) {
+      return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
+    }
+    if (isGptImageModel(modelId)) {
+      return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
+    }
+    throw new Error("unsupported_binding_protocol");
+  }
+  function bindingTemplateForCompatibility(modelId, protocol, compatibility) {
+    if (!availableCompatibilityLayers(modelId, protocol).includes(compatibility)) {
+      throw new Error("unsupported_binding_compatibility");
+    }
+    if (compatibility === "gemini_image_config") {
+      return "gemini_generate_content_image_config";
+    }
+    if (compatibility === "change2pro") return "gemini_change2pro_generate_content";
+    if (compatibility === "t8_newapi") return "gemini_t8_images";
+    if (compatibility === "openrouter") return "gemini_openrouter_images";
+    return bindingTemplateForProtocol(modelId, protocol);
+  }
+  function bindingFromTemplate(id, canonicalModelId, remoteModelId, templateId, operations = ["generate", "edit"]) {
+    const template = BINDING_TEMPLATES[templateId];
+    return {
+      id: slug(id, `binding-${Date.now()}`),
+      canonical_model_id: String(canonicalModelId || "").trim(),
+      remote_model_id: String(remoteModelId || "").trim(),
+      protocol_profile: template.protocol_profile,
+      parameter_codec: template.parameter_codec,
+      operations: normalizedOperations(operations)
+    };
+  }
+  function bindingFromProtocol(id, canonicalModelId, remoteModelId, protocol, operations = ["generate", "edit"]) {
+    return bindingFromTemplate(
+      id,
+      canonicalModelId,
+      remoteModelId,
+      bindingTemplateForProtocol(canonicalModelId, protocol),
+      operations
+    );
+  }
+  function bindingForCompatibilitySelection(original, canonicalModelId, remoteModelId, protocol, compatibility, selectionChanged, operations) {
+    if (!selectionChanged && canonicalModelId === original.canonical_model_id) {
+      return {
+        ...original,
+        remote_model_id: remoteModelId,
+        operations: normalizedOperations(operations)
+      };
+    }
+    return {
+      ...bindingFromTemplate(
+        original.id,
+        canonicalModelId,
+        remoteModelId,
+        bindingTemplateForCompatibility(canonicalModelId, protocol, compatibility),
+        operations
+      ),
+      append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt),
+      transparency_mode: isGptImageModel(canonicalModelId) ? original.transparency_mode || "native" : "native"
+    };
+  }
+  function normalizeProviderBindings(bindings, providerId = "provider") {
+    if (!Array.isArray(bindings)) return [];
+    const seen = /* @__PURE__ */ new Set();
+    return bindings.filter((item) => Boolean(item && typeof item === "object")).map((item, index) => {
+      let id = slug(item.id, `${providerId}-binding-${index + 1}`);
+      while (seen.has(id)) id = `${id}-${index + 1}`;
+      seen.add(id);
+      const fallbackProtocol = availableProtocolsForModel(String(item.canonical_model_id || ""))[0];
+      const fallbackTemplate = fallbackProtocol ? BINDING_TEMPLATES[bindingTemplateForProtocol(String(item.canonical_model_id || ""), fallbackProtocol)] : null;
+      return {
+        id,
+        canonical_model_id: String(item.canonical_model_id || "").trim(),
+        remote_model_id: String(item.remote_model_id || "").trim(),
+        protocol_profile: String(item.protocol_profile || fallbackTemplate?.protocol_profile || "").trim(),
+        parameter_codec: String(item.parameter_codec || fallbackTemplate?.parameter_codec || "").trim(),
+        operations: normalizedOperations(item.operations),
+        append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt),
+        transparency_mode: item.transparency_mode === "prompt" ? "prompt" : "native"
+      };
+    });
+  }
+  function validateProviderBindingOverlaps(bindings) {
+    const claimed = /* @__PURE__ */ new Map();
+    for (const binding of bindings) {
+      for (const operation of binding.operations) {
+        const key2 = `${binding.canonical_model_id}\0${operation}`;
+        const firstBindingId = claimed.get(key2);
+        if (firstBindingId) {
+          return {
+            firstBindingId,
+            secondBindingId: binding.id,
+            canonicalModelId: binding.canonical_model_id,
+            operation
+          };
+        }
+        claimed.set(key2, binding.id);
+      }
+    }
+    return null;
+  }
+  function bindingTemplateSuggestion(templateId) {
+    const template = BINDING_TEMPLATES[templateId];
+    return { base_url: template.base_url };
+  }
+  function isBindingTemplateBaseUrl(value) {
+    const normalized = String(value || "").trim().replace(/\/+$/, "");
+    return Object.values(BINDING_TEMPLATES).some(
+      (template) => template.base_url.replace(/\/+$/, "") === normalized
+    );
+  }
+  function option(value, label, selected) {
+    const element2 = document.createElement("option");
+    element2.value = value;
+    element2.textContent = label;
+    element2.selected = selected;
+    return element2;
+  }
+  function renderProviderBindingCards(container, bindings, models, providerId, defaults) {
+    if (!container) return;
+    const disclosureState = new Map([...container.querySelectorAll("details[data-binding-id]")].map((card) => [card.dataset.bindingId, card.open]));
+    destroyThemedSelects(container);
+    const normalizedBindings = normalizeProviderBindings(bindings, providerId);
+    const cards = normalizedBindings.map((binding, index) => {
+      const card = document.createElement("details");
+      card.className = "provider-binding-card";
+      card.dataset.bindingId = binding.id;
+      card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
+      const legend = document.createElement("summary");
+      legend.className = "provider-binding-summary";
+      const updateSummary = () => {
+        const model = models.find((item) => item.id === modelSelect.value);
+        legend.textContent = `${model?.display_name || modelSelect.value} \xB7 ${BINDING_PROTOCOL_LABELS[protocolSelect.value]} \xB7 ${remoteInput.value}`;
+      };
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "ghost-button danger-button provider-binding-remove";
+      remove.dataset.removeProviderBinding = binding.id;
+      remove.dataset.i18n = "apiSettings.removeBinding";
+      remove.textContent = translate("apiSettings.removeBinding");
+      const grid = document.createElement("div");
+      grid.className = "provider-binding-grid";
+      const modelField = document.createElement("div");
+      modelField.className = "field";
+      const modelLabel = document.createElement("span");
+      modelLabel.id = `provider-binding-${binding.id}-model-label`;
+      modelLabel.textContent = "\u5177\u4F53\u578B\u53F7";
+      const modelSelect = document.createElement("select");
+      modelSelect.className = "control";
+      modelSelect.dataset.bindingModel = "";
+      modelSelect.setAttribute("aria-labelledby", modelLabel.id);
+      models.forEach((model) => modelSelect.append(option(model.id, model.display_name, model.id === binding.canonical_model_id)));
+      modelField.append(modelLabel, modelSelect);
+      const protocolField = document.createElement("div");
+      protocolField.className = "field";
+      const protocolLabel = document.createElement("span");
+      protocolLabel.id = `provider-binding-${binding.id}-protocol-label`;
+      protocolLabel.textContent = "\u534F\u8BAE";
+      const protocolSelect = document.createElement("select");
+      protocolSelect.className = "control";
+      protocolSelect.dataset.bindingProtocol = "";
+      protocolSelect.setAttribute("aria-labelledby", protocolLabel.id);
+      const selectedProtocol = protocolForBinding(binding);
+      const selectedModel = models.find((model) => model.id === binding.canonical_model_id);
+      card.dataset.bindingModelOperations = resolvedBindingOperations(
+        binding,
+        normalizedBindings,
+        selectedModel
+      ).join(",");
+      availableProtocolsForModel(binding.canonical_model_id).forEach((protocol) => {
+        protocolSelect.append(option(protocol, BINDING_PROTOCOL_LABELS[protocol], protocol === selectedProtocol));
+      });
+      protocolField.append(protocolLabel, protocolSelect);
+      const remoteField = document.createElement("label");
+      remoteField.className = "field provider-binding-remote-model";
+      remoteField.append(document.createTextNode("\u4E2D\u8F6C\u7AD9\u6A21\u578B\u540D\u79F0"));
+      const remoteInput = document.createElement("input");
+      remoteInput.className = "control";
+      remoteInput.type = "text";
+      remoteInput.autocomplete = "off";
+      remoteInput.value = binding.remote_model_id;
+      remoteInput.dataset.bindingRemoteModel = "";
+      remoteInput.placeholder = "\u4F8B\u5982 vendor/model.name:version-1";
+      remoteField.append(remoteInput);
+      const compatibilityField = document.createElement("div");
+      compatibilityField.className = "field provider-binding-compatibility";
+      const compatibilityLabel = document.createElement("span");
+      compatibilityLabel.id = `provider-binding-${binding.id}-compatibility-label`;
+      compatibilityLabel.textContent = "\u517C\u5BB9\u5C42";
+      const compatibilitySelect = document.createElement("select");
+      compatibilitySelect.className = "control";
+      compatibilitySelect.dataset.bindingCompatibility = "";
+      compatibilitySelect.setAttribute("aria-labelledby", compatibilityLabel.id);
+      const selectedCompatibility = compatibilityForBinding(binding);
+      availableCompatibilityLayers(binding.canonical_model_id, selectedProtocol).forEach((compatibility) => {
+        compatibilitySelect.append(option(
+          compatibility,
+          BINDING_COMPATIBILITY_LABELS[compatibility],
+          compatibility === selectedCompatibility
+        ));
+      });
+      compatibilityField.append(compatibilityLabel, compatibilitySelect);
+      const transparencyField = document.createElement("label");
+      transparencyField.className = "field provider-binding-transparency";
+      const transparencyLabel = document.createElement("span");
+      transparencyLabel.id = `provider-binding-${binding.id}-transparency-label`;
+      transparencyLabel.dataset.i18n = "apiSettings.transparencyMode";
+      transparencyLabel.textContent = translate("apiSettings.transparencyMode");
+      const transparencySelect = document.createElement("select");
+      transparencySelect.className = "control";
+      transparencySelect.dataset.bindingTransparency = "";
+      transparencySelect.setAttribute("aria-labelledby", transparencyLabel.id);
+      transparencySelect.append(
+        option("native", translate("apiSettings.transparencyNative"), binding.transparency_mode !== "prompt"),
+        option("prompt", translate("apiSettings.transparencyPrompt"), binding.transparency_mode === "prompt")
+      );
+      transparencyField.append(transparencyLabel, transparencySelect);
+      const syncTransparencyField = () => {
+        const supported = isGptImageModel(modelSelect.value);
+        transparencyField.classList.toggle("hidden", !supported);
+        transparencySelect.disabled = !supported;
+      };
+      syncTransparencyField();
+      modelSelect.addEventListener("change", syncTransparencyField);
+      const ratioPromptField = document.createElement("label");
+      ratioPromptField.className = "provider-binding-toggle provider-binding-ratio-prompt";
+      ratioPromptField.dataset.i18nAttr = "title:apiSettings.appendRatioPrompt";
+      const ratioPromptInput = document.createElement("input");
+      ratioPromptInput.type = "checkbox";
+      ratioPromptInput.dataset.bindingRatioPrompt = "";
+      ratioPromptInput.checked = Boolean(binding.append_aspect_ratio_prompt);
+      const ratioPromptLabel = document.createElement("span");
+      ratioPromptLabel.dataset.i18n = "apiSettings.appendRatioPrompt";
+      ratioPromptLabel.textContent = translate("apiSettings.appendRatioPrompt");
+      ratioPromptField.append(ratioPromptInput, ratioPromptLabel);
+      const defaultField = document.createElement("label");
+      defaultField.className = "provider-binding-toggle provider-binding-default";
+      defaultField.dataset.i18nAttr = "title:apiSettings.defaultProviderForModel";
+      const defaultInput = document.createElement("input");
+      defaultInput.type = "checkbox";
+      defaultInput.dataset.bindingDefault = "";
+      defaultInput.checked = defaults[binding.canonical_model_id] === providerId;
+      const defaultLabel = document.createElement("span");
+      defaultLabel.dataset.i18n = "apiSettings.defaultProviderForModel";
+      defaultLabel.textContent = translate("apiSettings.defaultProviderForModel");
+      defaultField.append(defaultInput, defaultLabel);
+      const footer = document.createElement("div");
+      footer.className = "provider-binding-footer";
+      const footerSettings = document.createElement("div");
+      footerSettings.className = "provider-binding-footer-settings";
+      footerSettings.append(ratioPromptField, defaultField);
+      footer.append(footerSettings, remove);
+      card.dataset.bindingOriginalModelId = binding.canonical_model_id;
+      card.dataset.bindingPreviousModelId = binding.canonical_model_id;
+      card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
+      card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
+      card.dataset.bindingProtocolChanged = "false";
+      card.dataset.bindingCompatibilityChanged = "false";
+      grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
+      card.append(legend, grid);
+      updateSummary();
+      card.addEventListener("change", () => queueMicrotask(updateSummary));
+      remoteInput.addEventListener("input", updateSummary);
+      card.addEventListener("invalid", () => {
+        card.open = true;
+      }, true);
+      return card;
+    });
+    container.replaceChildren(...cards);
+    container.querySelectorAll("[data-binding-model], [data-binding-protocol], [data-binding-compatibility], [data-binding-transparency]").forEach((select) => mountThemedSelect(select));
+  }
+  function readProviderBindingCards(container) {
+    if (!container) return [];
+    return [...container.querySelectorAll("[data-binding-id]")].map((card) => {
+      const modelId = card.querySelector("[data-binding-model]")?.value || "";
+      const remoteModelId = card.querySelector("[data-binding-remote-model]")?.value || "";
+      const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
+      const compatibility = card.querySelector("[data-binding-compatibility]")?.value || "standard";
+      const operations = normalizedOperations(
+        String(card.dataset.bindingModelOperations || "").split(",")
+      );
+      const original = {
+        id: card.dataset.bindingId || "binding",
+        canonical_model_id: card.dataset.bindingOriginalModelId || modelId,
+        remote_model_id: remoteModelId,
+        protocol_profile: card.dataset.bindingOriginalProtocolProfile || "",
+        parameter_codec: card.dataset.bindingOriginalParameterCodec || "",
+        operations,
+        append_aspect_ratio_prompt: Boolean(
+          card.querySelector("[data-binding-ratio-prompt]")?.checked
+        ),
+        transparency_mode: isGptImageModel(modelId) && card.querySelector("[data-binding-transparency]")?.value === "prompt" ? "prompt" : "native"
+      };
+      return {
+        ...bindingForCompatibilitySelection(
+          original,
+          modelId,
+          remoteModelId,
+          protocol,
+          compatibility,
+          card.dataset.bindingProtocolChanged === "true" || card.dataset.bindingCompatibilityChanged === "true",
+          operations
+        ),
+        is_default: Boolean(card.querySelector("[data-binding-default]")?.checked)
+      };
+    });
+  }
+
+  // codex_image/webui/frontend/src/api-provider-binding-editor.ts
+  function handleProviderBindingEditorChange(event, context) {
+    const { state: state33, els: els44, updateApiRequestEndpointPreview: updateApiRequestEndpointPreview2 } = context;
+    const target = event.target;
+    const card = target?.closest("[data-binding-id]");
+    if (!target || !card) return;
+    if (target.matches("[data-binding-model]")) {
+      const modelId = target.value;
+      const protocols = availableProtocolsForModel(modelId);
+      const defaultProtocol = protocols[0];
+      const protocolSelect = card.querySelector("[data-binding-protocol]");
+      if (protocolSelect) {
+        protocolSelect.replaceChildren(...protocols.map((protocol) => {
+          const option2 = document.createElement("option");
+          option2.value = protocol;
+          option2.textContent = BINDING_PROTOCOL_LABELS[protocol];
+          return option2;
+        }));
+        protocolSelect.value = protocols[0] || "";
+        syncThemedSelect(protocolSelect);
+      }
+      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
+      if (compatibilitySelect) {
+        compatibilitySelect.replaceChildren(...(defaultProtocol ? availableCompatibilityLayers(modelId, defaultProtocol) : []).map((compatibility) => {
+          const option2 = document.createElement("option");
+          option2.value = compatibility;
+          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
+          return option2;
+        }));
+        compatibilitySelect.value = "standard";
+        syncThemedSelect(compatibilitySelect);
+      }
+      card.dataset.bindingProtocolChanged = "true";
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state33.apiProviderDraftIsNew && defaultProtocol) {
+        const suggestion = bindingTemplateSuggestion(bindingTemplateForProtocol(modelId, defaultProtocol));
+        const currentBase = String(els44.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els44.apiBaseUrl.value = suggestion.base_url;
+      }
+      const remoteInput = card.querySelector("[data-binding-remote-model]");
+      const model = state33.generationCatalog?.models.find((item) => item.id === modelId);
+      const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
+      const previousModel = state33.generationCatalog?.models.find((item) => item.id === previousModelId);
+      if (remoteInput) remoteInput.value = remoteModelAfterSelection(
+        remoteInput.value,
+        previousModel?.official_model_id || previousModelId,
+        model?.official_model_id || modelId
+      );
+      card.dataset.bindingPreviousModelId = modelId;
+      const existingOperations = String(card.dataset.bindingModelOperations || "").split(",").filter(Boolean);
+      card.dataset.bindingModelOperations = (model?.operations || existingOperations).join(",");
+    }
+    if (target.matches("[data-binding-default]")) {
+      const modelId = card.querySelector("[data-binding-model]")?.value;
+      if (modelId) {
+        els44.apiProviderBindings?.querySelectorAll("[data-binding-id]").forEach((item) => {
+          if (item === card) return;
+          if (item.querySelector("[data-binding-model]")?.value !== modelId) return;
+          const checkbox = item.querySelector("[data-binding-default]");
+          if (checkbox) checkbox.checked = target.checked;
+        });
+      }
+    }
+    if (target.matches("[data-binding-protocol]")) {
+      card.dataset.bindingProtocolChanged = "true";
+      const modelId = card.querySelector("[data-binding-model]")?.value || "";
+      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
+      const protocol = target.value;
+      if (compatibilitySelect) {
+        compatibilitySelect.replaceChildren(...availableCompatibilityLayers(modelId, protocol).map((compatibility) => {
+          const option2 = document.createElement("option");
+          option2.value = compatibility;
+          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
+          return option2;
+        }));
+        compatibilitySelect.value = "standard";
+        syncThemedSelect(compatibilitySelect);
+      }
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state33.apiProviderDraftIsNew) {
+        const templateId = bindingTemplateForProtocol(modelId, protocol);
+        const suggestion = bindingTemplateSuggestion(templateId);
+        const currentBase = String(els44.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els44.apiBaseUrl.value = suggestion.base_url;
+      }
+    }
+    if (target.matches("[data-binding-compatibility]")) {
+      card.dataset.bindingCompatibilityChanged = "true";
+      if (state33.apiProviderDraftIsNew) {
+        const modelId = card.querySelector("[data-binding-model]")?.value || "";
+        const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
+        const templateId = bindingTemplateForCompatibility(
+          modelId,
+          protocol,
+          target.value
+        );
+        const suggestion = bindingTemplateSuggestion(templateId);
+        const currentBase = String(els44.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els44.apiBaseUrl.value = suggestion.base_url;
+      }
+    }
+    updateApiRequestEndpointPreview2();
+  }
+
+  // codex_image/webui/frontend/src/api-provider-credentials.ts
+  function providerUrlOrigin(value) {
+    try {
+      return new URL(String(value || "").trim()).origin;
+    } catch {
+      return "";
+    }
+  }
+  function evaluateProviderCredentialSave(draft, savedProviders) {
+    if (String(draft?.api_key || "").trim()) return { kind: "allow" };
+    const providers = Array.isArray(savedProviders) ? savedProviders : [];
+    const nextOrigin = providerUrlOrigin(draft?.base_url);
+    const existing = providers.find((provider) => provider?.id === draft?.id);
+    if (existing && Boolean(existing.api_key_set || existing.api_key)) {
+      const previousOrigin = providerUrlOrigin(existing.base_url);
+      if (previousOrigin && previousOrigin === nextOrigin) return { kind: "allow" };
+      return {
+        kind: "confirm_origin_change",
+        providerId: String(draft.id || ""),
+        previousOrigin,
+        nextOrigin
+      };
+    }
+    const sourceId = String(draft?.api_key_source_provider_id || "").trim();
+    const source = providers.find((provider) => provider?.id === sourceId);
+    if (source && Boolean(source.api_key_set || source.api_key) && providerUrlOrigin(source.base_url) === nextOrigin) {
+      return { kind: "allow" };
+    }
+    return { kind: "key_required" };
+  }
+  function isConfirmedProviderOriginChange(decision, confirmation2) {
+    return decision.kind === "confirm_origin_change" && Boolean(confirmation2) && decision.providerId === confirmation2?.providerId && decision.previousOrigin === confirmation2?.previousOrigin && decision.nextOrigin === confirmation2?.nextOrigin;
+  }
+  function clearProviderApiKeyInputs(settings) {
+    return {
+      ...settings,
+      providers: Array.isArray(settings?.providers) ? settings.providers.map((provider) => ({
+        ...provider,
+        api_key: "",
+        api_key_source_provider_id: ""
+      })) : []
+    };
+  }
+
+  // codex_image/webui/frontend/src/api-provider-list-ui.ts
+  var API_PROVIDER_SEARCH_THRESHOLD = 10;
+  function providerChoiceGrid() {
+    return document.querySelector(".api-provider-choice-grid");
+  }
+  function providerSearchField() {
+    return document.querySelector("#apiProviderSearchField");
+  }
+  function providerSearchInput() {
+    return document.querySelector("#apiProviderSearch");
+  }
+  function updateApiProviderListPresentation(providerCount, sorting) {
+    const longList = providerCount > API_PROVIDER_SEARCH_THRESHOLD;
+    const searchVisible = longList && !sorting;
+    providerChoiceGrid()?.classList.toggle("is-long-list", longList);
+    providerSearchField()?.classList.toggle("hidden", !searchVisible);
+    const input = providerSearchInput();
+    if (!input) return "";
+    if (!searchVisible && input.value) input.value = "";
+    return searchVisible ? input.value.trim().toLocaleLowerCase() : "";
+  }
+  function apiProviderMatchesSearch(provider, query) {
+    if (!query) return true;
+    return [provider?.name, provider?.id].some((value) => String(value || "").toLocaleLowerCase().includes(query));
+  }
+  function scrollActiveApiProviderCardIntoView(providerId, align = "center") {
+    window.requestAnimationFrame(() => {
+      const grid = providerChoiceGrid();
+      const panel = grid?.closest(".system-settings-section");
+      if (!grid || !panel || panel.clientHeight === 0) return;
+      const escapedId = CSS.escape(providerId);
+      const card = grid.querySelector(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);
+      if (!card) return;
+      const panelRect = panel.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const cardTop = panel.scrollTop + cardRect.top - panelRect.top;
+      const targetTop = align === "center" ? cardTop - Math.max(0, (panel.clientHeight - card.offsetHeight) / 2) : Math.min(cardTop, Math.max(panel.scrollTop, cardTop + card.offsetHeight - panel.clientHeight));
+      panel.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+    });
+  }
+
+  // codex_image/webui/frontend/src/api-provider-model.ts
+  function normalizeApiProvider(provider = {}, index = 0) {
+    const fallbackId = index === 0 ? "default" : `provider-${index + 1}`;
+    const id = String(provider.id || fallbackId).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallbackId;
+    const legacyMode = provider.api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
+    const bindings = normalizeProviderBindings(
+      Array.isArray(provider.bindings) && provider.bindings.length ? provider.bindings : [{
+        id: `${id}-gpt-image-2`,
+        canonical_model_id: "gpt-image-2",
+        remote_model_id: String(provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL,
+        protocol_profile: legacyMode === "responses" ? "openai_responses" : "openai_images",
+        parameter_codec: legacyMode === "responses" ? "gpt_openai_responses" : "gpt_openai_images",
+        operations: ["generate", "edit"]
+      }],
+      id
+    );
+    const gptBinding = bindings.find((binding) => binding.canonical_model_id === "gpt-image-2") || bindings[0];
+    const apiMode = gptBinding?.protocol_profile === "openai_responses" ? "responses" : "images";
+    const concurrency = normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency);
+    return {
+      id,
+      name: String(provider.name || (id === "default" ? "Default" : `Provider ${index + 1}`)).trim() || id,
+      base_url: String(provider.base_url || DEFAULT_API_BASE_URL).trim() || DEFAULT_API_BASE_URL,
+      api_key: String(provider.api_key || "").trim(),
+      concurrency,
+      bindings,
+      image_model: gptBinding?.remote_model_id || DEFAULT_API_IMAGE_MODEL,
+      api_mode: apiMode,
+      images_concurrency: concurrency,
+      api_key_set: Boolean(provider.api_key_set || provider.api_key),
+      api_key_masked: String(provider.api_key_masked || ""),
+      api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim(),
+      icon_emoji: String(provider.icon_emoji || "").trim(),
+      default_model_ids: Array.isArray(provider.default_model_ids) ? provider.default_model_ids.map((value) => String(value || "").trim()).filter(Boolean) : []
+    };
+  }
+  function normalizeApiImagesConcurrency(value) {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed)) return DEFAULT_API_IMAGES_CONCURRENCY;
+    return Math.min(32, Math.max(1, parsed));
+  }
+  function normalizeCodexMode(value) {
+    return value === "responses" ? "responses" : DEFAULT_CODEX_MODE;
+  }
+  function normalizeApiSettings(settings = {}) {
+    const rawProviders = Array.isArray(settings.providers) && settings.providers.length ? settings.providers : [{
+      id: settings.active_provider_id || "default",
+      name: settings.name || "Default",
+      base_url: settings.base_url,
+      api_key: settings.api_key,
+      image_model: settings.image_model,
+      api_mode: settings.api_mode,
+      images_concurrency: settings.images_concurrency,
+      api_key_set: settings.api_key_set,
+      api_key_masked: settings.api_key_masked
+    }];
+    const providers = [];
+    const seen = /* @__PURE__ */ new Set();
+    rawProviders.forEach((provider, index) => {
+      const normalized = normalizeApiProvider(provider, index);
+      if (seen.has(normalized.id)) return;
+      seen.add(normalized.id);
+      providers.push(normalized);
+    });
+    if (!providers.length) providers.push(normalizeApiProvider({}, 0));
+    const requestedActive = String(settings.active_provider_id || providers[0].id).trim().toLowerCase();
+    const activeProvider = providers.find((provider) => provider.id === requestedActive) || providers[0];
+    return {
+      schema_version: 2,
+      codex_mode: normalizeCodexMode(settings.codex_mode),
+      active_provider_id: activeProvider.id,
+      default_provider_by_model: { ...settings.default_provider_by_model || { "gpt-image-2": activeProvider.id } },
+      providers
+    };
+  }
+  function applyProviderDraft(settings, draft) {
+    var _a, _b;
+    const normalized = normalizeApiSettings(settings);
+    const index = normalized.providers.findIndex((provider) => provider.id === draft.id);
+    if (index >= 0) {
+      normalized.providers[index] = normalizeApiProvider({ ...normalized.providers[index], ...draft }, index);
+    } else {
+      normalized.providers.push(normalizeApiProvider(draft, normalized.providers.length));
+    }
+    normalized.active_provider_id = draft.id;
+    const defaultModelIds = new Set(draft.default_model_ids || []);
+    for (const binding of draft.bindings || []) {
+      const modelId = binding.canonical_model_id;
+      if (defaultModelIds.has(modelId)) normalized.default_provider_by_model[modelId] = draft.id;
+      else if (normalized.default_provider_by_model[modelId] === draft.id) delete normalized.default_provider_by_model[modelId];
+    }
+    for (const modelId of Object.keys(normalized.default_provider_by_model)) {
+      if (normalized.default_provider_by_model[modelId] !== draft.id) continue;
+      if (!(draft.bindings || []).some((binding) => binding.canonical_model_id === modelId)) {
+        delete normalized.default_provider_by_model[modelId];
+      }
+    }
+    const fallbackProviders = normalized.providers.filter((provider) => provider.id !== draft.id).concat(draft);
+    for (const provider of fallbackProviders) {
+      for (const binding of provider.bindings) {
+        (_a = normalized.default_provider_by_model)[_b = binding.canonical_model_id] ?? (_a[_b] = provider.id);
+      }
+    }
+    return normalizeApiSettings(normalized);
+  }
+
+  // codex_image/webui/frontend/src/api-provider-save.ts
+  function apiSettingsSavePayload(settings, confirmedOriginChange = null) {
+    const payload2 = {
+      schema_version: 2,
+      codex_mode: settings.codex_mode,
+      active_provider_id: settings.active_provider_id,
+      default_provider_by_model: settings.default_provider_by_model,
+      providers: settings.providers.map((provider) => {
+        const item = {
+          id: provider.id,
+          name: provider.name,
+          icon_emoji: provider.icon_emoji || "",
+          base_url: provider.base_url,
+          concurrency: provider.concurrency,
+          bindings: provider.bindings
+        };
+        if (provider.api_key || !provider.api_key_set) item.api_key = provider.api_key;
+        if (!provider.api_key && provider.api_key_source_provider_id) {
+          item.api_key_source_provider_id = provider.api_key_source_provider_id;
+        }
+        if (provider.id === confirmedOriginChange?.providerId) {
+          item.preserve_api_key_on_origin_change = true;
+        }
+        return item;
+      })
+    };
+    return payload2;
+  }
+  async function patchApiSettings(payload2, request = fetch) {
+    const response = await request("/api/api-settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload2)
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      const detail = String(data.detail || "");
+      if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+      if (detail === "api_key_origin_change_confirmation_required") {
+        throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
+      }
+      throw new Error(detail || translate("apiSettings.saveFailed"));
+    }
+    return data;
+  }
+
+  // codex_image/webui/frontend/src/api-provider-sort.ts
+  var DRAG_START_THRESHOLD_PX = 6;
+  var AUTO_SCROLL_EDGE_PX = 36;
+  var AUTO_SCROLL_MAX_STEP_PX = 12;
+  var initialized2 = false;
+  var providerList = null;
+  var dragSession = null;
+  function isCompleteProviderOrder(candidate, current) {
+    if (candidate.length !== current.length || new Set(candidate).size !== candidate.length) return false;
+    const currentIds = new Set(current);
+    return candidate.every((id) => currentIds.has(id));
+  }
+  function moveProviderId(order, providerId, targetIndex) {
+    const sourceIndex = order.indexOf(providerId);
+    if (sourceIndex < 0) return [...order];
+    const boundedTarget = Math.max(0, Math.min(order.length - 1, targetIndex));
+    if (sourceIndex === boundedTarget) return [...order];
+    const next = [...order];
+    const [provider] = next.splice(sourceIndex, 1);
+    if (provider === void 0) return [...order];
+    next.splice(boundedTarget, 0, provider);
+    return next;
+  }
+  function providerOrderFromRows(list) {
+    return Array.from(list.querySelectorAll(".api-provider-sort-row[data-api-provider-id]")).map((row) => row.dataset.apiProviderId || "").filter(Boolean);
+  }
+  function sortModeEnabled() {
+    const bridge40 = getLegacyBridge();
+    return Boolean(bridge40.state.apiProviderSortMode && providerList?.classList.contains("is-sorting"));
+  }
+  function sameOrder(left, right) {
+    return left.length === right.length && left.every((id, index) => id === right[index]);
+  }
+  function restoreProviderRows(list, order) {
+    const rowsById = new Map(
+      Array.from(list.querySelectorAll(".api-provider-sort-row[data-api-provider-id]")).map((row) => [row.dataset.apiProviderId || "", row])
+    );
+    order.forEach((providerId) => {
+      const row = rowsById.get(providerId);
+      if (row) list.append(row);
+    });
+  }
+  function removeDragListeners() {
+    window.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", handlePointerCancel);
+    window.removeEventListener("keydown", handleWindowKeydown);
+  }
+  function cleanUpDrag(restoreOrder) {
+    const session = dragSession;
+    if (!session) return null;
+    dragSession = null;
+    removeDragListeners();
+    if (session.animationFrameId !== null) window.cancelAnimationFrame(session.animationFrameId);
+    if (restoreOrder && providerList) restoreProviderRows(providerList, session.originalOrder);
+    session.row.classList.remove("is-dragging");
+    session.layer?.remove();
+    document.body.classList.remove("api-provider-sort-dragging");
+    try {
+      if (session.handle.hasPointerCapture(session.pointerId)) {
+        session.handle.releasePointerCapture(session.pointerId);
+      }
+    } catch {
+    }
+    return session;
+  }
+  function cancelApiProviderSortInteraction(restoreOrder = true) {
+    cleanUpDrag(restoreOrder);
+  }
+  function positionPreview(session) {
+    if (!session.preview) return;
+    const left = session.latestX - session.offsetX;
+    const top = session.latestY - session.offsetY;
+    session.preview.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+  }
+  function createDragPreview(session) {
+    const rect = session.row.getBoundingClientRect();
+    const layer = document.createElement("div");
+    layer.className = "api-provider-sort-drag-layer";
+    layer.setAttribute("aria-hidden", "true");
+    const preview = session.row.cloneNode(true);
+    preview.classList.remove("is-dragging");
+    preview.classList.add("api-provider-sort-drag-preview");
+    preview.removeAttribute("role");
+    preview.style.width = `${rect.width}px`;
+    preview.style.height = `${rect.height}px`;
+    preview.querySelectorAll("button, [tabindex]").forEach((element2) => {
+      element2.setAttribute("tabindex", "-1");
+    });
+    layer.append(preview);
+    document.body.append(layer);
+    session.layer = layer;
+    session.preview = preview;
+    session.offsetX = session.startX - rect.left;
+    session.offsetY = session.startY - rect.top;
+    session.row.classList.add("is-dragging");
+    document.body.classList.add("api-provider-sort-dragging");
+    positionPreview(session);
+  }
+  function rowAtPoint(clientX, clientY) {
+    if (!providerList) return null;
+    for (const element2 of document.elementsFromPoint(clientX, clientY)) {
+      const row = element2.closest(".api-provider-sort-row[data-api-provider-id]");
+      if (row && row.parentElement === providerList && row !== dragSession?.row) return row;
+    }
+    return null;
+  }
+  function reorderRowAtPoint(clientX, clientY) {
+    const session = dragSession;
+    const target = rowAtPoint(clientX, clientY);
+    if (!session?.active || !target) return;
+    const targetRect = target.getBoundingClientRect();
+    if (clientY < targetRect.top + targetRect.height / 2) {
+      if (target.previousElementSibling !== session.row) target.before(session.row);
+    } else if (target.nextElementSibling !== session.row) {
+      target.after(session.row);
+    }
+  }
+  function scrollContainer() {
+    return providerList?.closest(".system-settings-section") || null;
+  }
+  function autoScrollStep() {
+    const session = dragSession;
+    if (!session?.active) return;
+    const container = scrollContainer();
+    if (container && container.scrollHeight > container.clientHeight) {
+      const rect = container.getBoundingClientRect();
+      let step = 0;
+      if (session.latestY < rect.top + AUTO_SCROLL_EDGE_PX) {
+        const intensity = Math.min(1, (rect.top + AUTO_SCROLL_EDGE_PX - session.latestY) / AUTO_SCROLL_EDGE_PX);
+        step = -Math.ceil(AUTO_SCROLL_MAX_STEP_PX * intensity);
+      } else if (session.latestY > rect.bottom - AUTO_SCROLL_EDGE_PX) {
+        const intensity = Math.min(1, (session.latestY - (rect.bottom - AUTO_SCROLL_EDGE_PX)) / AUTO_SCROLL_EDGE_PX);
+        step = Math.ceil(AUTO_SCROLL_MAX_STEP_PX * intensity);
+      }
+      if (step !== 0) {
+        const previousScrollTop = container.scrollTop;
+        container.scrollTop += step;
+        if (container.scrollTop !== previousScrollTop) {
+          reorderRowAtPoint(session.latestX, session.latestY);
+        }
+      }
+    }
+    session.animationFrameId = window.requestAnimationFrame(autoScrollStep);
+  }
+  function activateDrag(session) {
+    if (session.active) return;
+    session.active = true;
+    try {
+      session.handle.setPointerCapture(session.pointerId);
+    } catch {
+    }
+    createDragPreview(session);
+    session.animationFrameId = window.requestAnimationFrame(autoScrollStep);
+  }
+  function handlePointerMove(event) {
+    const session = dragSession;
+    if (!session || event.pointerId !== session.pointerId) return;
+    session.latestX = event.clientX;
+    session.latestY = event.clientY;
+    if (!session.active) {
+      const deltaX = event.clientX - session.startX;
+      const deltaY = event.clientY - session.startY;
+      if (Math.hypot(deltaX, deltaY) < DRAG_START_THRESHOLD_PX) return;
+      activateDrag(session);
+    }
+    event.preventDefault();
+    positionPreview(session);
+    reorderRowAtPoint(event.clientX, event.clientY);
+  }
+  function submitProviderOrder(order, focusProviderId) {
+    const method = getLegacyBridge().methods.reorderApiProviders;
+    if (typeof method === "function") method(order, focusProviderId);
+  }
+  function handlePointerUp(event) {
+    const session = dragSession;
+    if (!session || event.pointerId !== session.pointerId) return;
+    const nextOrder = session.active && providerList ? providerOrderFromRows(providerList) : session.originalOrder;
+    const providerId = session.row.dataset.apiProviderId || "";
+    const wasActive = session.active;
+    const originalOrder = session.originalOrder;
+    cleanUpDrag(false);
+    if (wasActive) event.preventDefault();
+    if (wasActive && !sameOrder(nextOrder, originalOrder)) submitProviderOrder(nextOrder, providerId);
+  }
+  function handlePointerCancel(event) {
+    if (event.pointerId !== dragSession?.pointerId) return;
+    cleanUpDrag(true);
+  }
+  function handleWindowKeydown(event) {
+    if (event.key === "Escape" && dragSession) {
+      event.preventDefault();
+      cleanUpDrag(true);
+    }
+  }
+  function handlePointerDown(event) {
+    if (!providerList || !sortModeEnabled() || event.button !== 0 || dragSession) return;
+    const handle = event.target?.closest(
+      "button[data-api-provider-sort-handle]"
+    );
+    const row = handle?.closest(".api-provider-sort-row[data-api-provider-id]");
+    if (!handle || !row || row.parentElement !== providerList) return;
+    dragSession = {
+      pointerId: event.pointerId,
+      handle,
+      row,
+      originalOrder: providerOrderFromRows(providerList),
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: 0,
+      offsetY: 0,
+      latestX: event.clientX,
+      latestY: event.clientY,
+      active: false,
+      layer: null,
+      preview: null,
+      animationFrameId: null
+    };
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
+    window.addEventListener("keydown", handleWindowKeydown);
+  }
+  function handleSortKeydown(event) {
+    if (!providerList || !sortModeEnabled() || dragSession) return;
+    const handle = event.target?.closest(
+      "button[data-api-provider-sort-handle]"
+    );
+    const providerId = handle?.dataset.apiProviderId || "";
+    if (!handle || !providerId) return;
+    const order = providerOrderFromRows(providerList);
+    const index = order.indexOf(providerId);
+    if (index < 0) return;
+    let targetIndex = null;
+    if (event.key === "ArrowUp") targetIndex = index - 1;
+    else if (event.key === "ArrowDown") targetIndex = index + 1;
+    else if (event.key === "Home") targetIndex = 0;
+    else if (event.key === "End") targetIndex = order.length - 1;
+    if (targetIndex === null) return;
+    event.preventDefault();
+    const nextOrder = moveProviderId(order, providerId, targetIndex);
+    if (!sameOrder(nextOrder, order)) submitProviderOrder(nextOrder, providerId);
+  }
+  function initApiProviderSortFeature() {
+    if (initialized2) return;
+    const list = getLegacyBridge().els.apiProviderList;
+    if (!list) return;
+    initialized2 = true;
+    providerList = list;
+    list.addEventListener("pointerdown", handlePointerDown);
+    list.addEventListener("keydown", handleSortKeydown);
+  }
+
   // codex_image/webui/frontend/src/model-catalog.ts
   var MODEL_SELECTION_STORAGE_KEY = "codex-image-model-selection-v1";
   function stringRecord(value) {
@@ -38739,790 +39972,6 @@ ${hint}` : hint;
     });
   }
 
-  // codex_image/webui/frontend/src/api-advanced-settings.ts
-  var DEFAULT_IMAGE_MODEL = "gpt-image-2";
-  var DEFAULT_CONCURRENCY = "4";
-  function advancedSettingsElement() {
-    return document.querySelector("#apiAdvancedSettings");
-  }
-  function imageModelInput() {
-    return document.querySelector("#apiImageModel");
-  }
-  function concurrencyInput() {
-    return document.querySelector("#apiImagesConcurrency");
-  }
-  function syncApiAdvancedSettingsSummary() {
-    const modelSummary = document.querySelector("#apiAdvancedImageModelSummary");
-    const concurrencySummary = document.querySelector("#apiAdvancedConcurrencySummary");
-    if (modelSummary) {
-      modelSummary.textContent = imageModelInput()?.value.trim() || DEFAULT_IMAGE_MODEL;
-    }
-    if (concurrencySummary) {
-      concurrencySummary.textContent = concurrencyInput()?.value.trim() || DEFAULT_CONCURRENCY;
-    }
-  }
-  function resetApiAdvancedSettings() {
-    const details = advancedSettingsElement();
-    if (details) details.open = false;
-    syncApiAdvancedSettingsSummary();
-  }
-  var apiAdvancedSettingsInitialized = false;
-  function initApiAdvancedSettingsFeature() {
-    if (apiAdvancedSettingsInitialized) return;
-    apiAdvancedSettingsInitialized = true;
-    imageModelInput()?.addEventListener("input", syncApiAdvancedSettingsSummary);
-    concurrencyInput()?.addEventListener("input", syncApiAdvancedSettingsSummary);
-    syncApiAdvancedSettingsSummary();
-  }
-
-  // codex_image/webui/frontend/src/api-provider-list-ui.ts
-  var API_PROVIDER_SEARCH_THRESHOLD = 10;
-  function providerChoiceGrid() {
-    return document.querySelector(".api-provider-choice-grid");
-  }
-  function providerSearchField() {
-    return document.querySelector("#apiProviderSearchField");
-  }
-  function providerSearchInput() {
-    return document.querySelector("#apiProviderSearch");
-  }
-  function updateApiProviderListPresentation(providerCount, sorting) {
-    const longList = providerCount > API_PROVIDER_SEARCH_THRESHOLD;
-    const searchVisible = longList && !sorting;
-    providerChoiceGrid()?.classList.toggle("is-long-list", longList);
-    providerSearchField()?.classList.toggle("hidden", !searchVisible);
-    const input = providerSearchInput();
-    if (!input) return "";
-    if (!searchVisible && input.value) input.value = "";
-    return searchVisible ? input.value.trim().toLocaleLowerCase() : "";
-  }
-  function apiProviderMatchesSearch(provider, query) {
-    if (!query) return true;
-    return [provider?.name, provider?.id].some((value) => String(value || "").toLocaleLowerCase().includes(query));
-  }
-  function scrollActiveApiProviderCardIntoView(providerId, align = "center") {
-    window.requestAnimationFrame(() => {
-      const grid = providerChoiceGrid();
-      const panel = grid?.closest(".system-settings-section");
-      if (!grid || !panel || panel.clientHeight === 0) return;
-      const escapedId = CSS.escape(providerId);
-      const card = grid.querySelector(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);
-      if (!card) return;
-      const panelRect = panel.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      const cardTop = panel.scrollTop + cardRect.top - panelRect.top;
-      const targetTop = align === "center" ? cardTop - Math.max(0, (panel.clientHeight - card.offsetHeight) / 2) : Math.min(cardTop, Math.max(panel.scrollTop, cardTop + card.offsetHeight - panel.clientHeight));
-      panel.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
-    });
-  }
-
-  // codex_image/webui/frontend/src/api-provider-sort.ts
-  var DRAG_START_THRESHOLD_PX = 6;
-  var AUTO_SCROLL_EDGE_PX = 36;
-  var AUTO_SCROLL_MAX_STEP_PX = 12;
-  var initialized2 = false;
-  var providerList = null;
-  var dragSession = null;
-  function isCompleteProviderOrder(candidate, current) {
-    if (candidate.length !== current.length || new Set(candidate).size !== candidate.length) return false;
-    const currentIds = new Set(current);
-    return candidate.every((id) => currentIds.has(id));
-  }
-  function moveProviderId(order, providerId, targetIndex) {
-    const sourceIndex = order.indexOf(providerId);
-    if (sourceIndex < 0) return [...order];
-    const boundedTarget = Math.max(0, Math.min(order.length - 1, targetIndex));
-    if (sourceIndex === boundedTarget) return [...order];
-    const next = [...order];
-    const [provider] = next.splice(sourceIndex, 1);
-    if (provider === void 0) return [...order];
-    next.splice(boundedTarget, 0, provider);
-    return next;
-  }
-  function providerOrderFromRows(list) {
-    return Array.from(list.querySelectorAll(".api-provider-sort-row[data-api-provider-id]")).map((row) => row.dataset.apiProviderId || "").filter(Boolean);
-  }
-  function sortModeEnabled() {
-    const bridge40 = getLegacyBridge();
-    return Boolean(bridge40.state.apiProviderSortMode && providerList?.classList.contains("is-sorting"));
-  }
-  function sameOrder(left, right) {
-    return left.length === right.length && left.every((id, index) => id === right[index]);
-  }
-  function restoreProviderRows(list, order) {
-    const rowsById = new Map(
-      Array.from(list.querySelectorAll(".api-provider-sort-row[data-api-provider-id]")).map((row) => [row.dataset.apiProviderId || "", row])
-    );
-    order.forEach((providerId) => {
-      const row = rowsById.get(providerId);
-      if (row) list.append(row);
-    });
-  }
-  function removeDragListeners() {
-    window.removeEventListener("pointermove", handlePointerMove);
-    window.removeEventListener("pointerup", handlePointerUp);
-    window.removeEventListener("pointercancel", handlePointerCancel);
-    window.removeEventListener("keydown", handleWindowKeydown);
-  }
-  function cleanUpDrag(restoreOrder) {
-    const session = dragSession;
-    if (!session) return null;
-    dragSession = null;
-    removeDragListeners();
-    if (session.animationFrameId !== null) window.cancelAnimationFrame(session.animationFrameId);
-    if (restoreOrder && providerList) restoreProviderRows(providerList, session.originalOrder);
-    session.row.classList.remove("is-dragging");
-    session.layer?.remove();
-    document.body.classList.remove("api-provider-sort-dragging");
-    try {
-      if (session.handle.hasPointerCapture(session.pointerId)) {
-        session.handle.releasePointerCapture(session.pointerId);
-      }
-    } catch {
-    }
-    return session;
-  }
-  function cancelApiProviderSortInteraction(restoreOrder = true) {
-    cleanUpDrag(restoreOrder);
-  }
-  function positionPreview(session) {
-    if (!session.preview) return;
-    const left = session.latestX - session.offsetX;
-    const top = session.latestY - session.offsetY;
-    session.preview.style.transform = `translate3d(${left}px, ${top}px, 0)`;
-  }
-  function createDragPreview(session) {
-    const rect = session.row.getBoundingClientRect();
-    const layer = document.createElement("div");
-    layer.className = "api-provider-sort-drag-layer";
-    layer.setAttribute("aria-hidden", "true");
-    const preview = session.row.cloneNode(true);
-    preview.classList.remove("is-dragging");
-    preview.classList.add("api-provider-sort-drag-preview");
-    preview.removeAttribute("role");
-    preview.style.width = `${rect.width}px`;
-    preview.style.height = `${rect.height}px`;
-    preview.querySelectorAll("button, [tabindex]").forEach((element2) => {
-      element2.setAttribute("tabindex", "-1");
-    });
-    layer.append(preview);
-    document.body.append(layer);
-    session.layer = layer;
-    session.preview = preview;
-    session.offsetX = session.startX - rect.left;
-    session.offsetY = session.startY - rect.top;
-    session.row.classList.add("is-dragging");
-    document.body.classList.add("api-provider-sort-dragging");
-    positionPreview(session);
-  }
-  function rowAtPoint(clientX, clientY) {
-    if (!providerList) return null;
-    for (const element2 of document.elementsFromPoint(clientX, clientY)) {
-      const row = element2.closest(".api-provider-sort-row[data-api-provider-id]");
-      if (row && row.parentElement === providerList && row !== dragSession?.row) return row;
-    }
-    return null;
-  }
-  function reorderRowAtPoint(clientX, clientY) {
-    const session = dragSession;
-    const target = rowAtPoint(clientX, clientY);
-    if (!session?.active || !target) return;
-    const targetRect = target.getBoundingClientRect();
-    if (clientY < targetRect.top + targetRect.height / 2) {
-      if (target.previousElementSibling !== session.row) target.before(session.row);
-    } else if (target.nextElementSibling !== session.row) {
-      target.after(session.row);
-    }
-  }
-  function scrollContainer() {
-    return providerList?.closest(".system-settings-section") || null;
-  }
-  function autoScrollStep() {
-    const session = dragSession;
-    if (!session?.active) return;
-    const container = scrollContainer();
-    if (container && container.scrollHeight > container.clientHeight) {
-      const rect = container.getBoundingClientRect();
-      let step = 0;
-      if (session.latestY < rect.top + AUTO_SCROLL_EDGE_PX) {
-        const intensity = Math.min(1, (rect.top + AUTO_SCROLL_EDGE_PX - session.latestY) / AUTO_SCROLL_EDGE_PX);
-        step = -Math.ceil(AUTO_SCROLL_MAX_STEP_PX * intensity);
-      } else if (session.latestY > rect.bottom - AUTO_SCROLL_EDGE_PX) {
-        const intensity = Math.min(1, (session.latestY - (rect.bottom - AUTO_SCROLL_EDGE_PX)) / AUTO_SCROLL_EDGE_PX);
-        step = Math.ceil(AUTO_SCROLL_MAX_STEP_PX * intensity);
-      }
-      if (step !== 0) {
-        const previousScrollTop = container.scrollTop;
-        container.scrollTop += step;
-        if (container.scrollTop !== previousScrollTop) {
-          reorderRowAtPoint(session.latestX, session.latestY);
-        }
-      }
-    }
-    session.animationFrameId = window.requestAnimationFrame(autoScrollStep);
-  }
-  function activateDrag(session) {
-    if (session.active) return;
-    session.active = true;
-    try {
-      session.handle.setPointerCapture(session.pointerId);
-    } catch {
-    }
-    createDragPreview(session);
-    session.animationFrameId = window.requestAnimationFrame(autoScrollStep);
-  }
-  function handlePointerMove(event) {
-    const session = dragSession;
-    if (!session || event.pointerId !== session.pointerId) return;
-    session.latestX = event.clientX;
-    session.latestY = event.clientY;
-    if (!session.active) {
-      const deltaX = event.clientX - session.startX;
-      const deltaY = event.clientY - session.startY;
-      if (Math.hypot(deltaX, deltaY) < DRAG_START_THRESHOLD_PX) return;
-      activateDrag(session);
-    }
-    event.preventDefault();
-    positionPreview(session);
-    reorderRowAtPoint(event.clientX, event.clientY);
-  }
-  function submitProviderOrder(order, focusProviderId) {
-    const method = getLegacyBridge().methods.reorderApiProviders;
-    if (typeof method === "function") method(order, focusProviderId);
-  }
-  function handlePointerUp(event) {
-    const session = dragSession;
-    if (!session || event.pointerId !== session.pointerId) return;
-    const nextOrder = session.active && providerList ? providerOrderFromRows(providerList) : session.originalOrder;
-    const providerId = session.row.dataset.apiProviderId || "";
-    const wasActive = session.active;
-    const originalOrder = session.originalOrder;
-    cleanUpDrag(false);
-    if (wasActive) event.preventDefault();
-    if (wasActive && !sameOrder(nextOrder, originalOrder)) submitProviderOrder(nextOrder, providerId);
-  }
-  function handlePointerCancel(event) {
-    if (event.pointerId !== dragSession?.pointerId) return;
-    cleanUpDrag(true);
-  }
-  function handleWindowKeydown(event) {
-    if (event.key === "Escape" && dragSession) {
-      event.preventDefault();
-      cleanUpDrag(true);
-    }
-  }
-  function handlePointerDown(event) {
-    if (!providerList || !sortModeEnabled() || event.button !== 0 || dragSession) return;
-    const handle = event.target?.closest(
-      "button[data-api-provider-sort-handle]"
-    );
-    const row = handle?.closest(".api-provider-sort-row[data-api-provider-id]");
-    if (!handle || !row || row.parentElement !== providerList) return;
-    dragSession = {
-      pointerId: event.pointerId,
-      handle,
-      row,
-      originalOrder: providerOrderFromRows(providerList),
-      startX: event.clientX,
-      startY: event.clientY,
-      offsetX: 0,
-      offsetY: 0,
-      latestX: event.clientX,
-      latestY: event.clientY,
-      active: false,
-      layer: null,
-      preview: null,
-      animationFrameId: null
-    };
-    window.addEventListener("pointermove", handlePointerMove, { passive: false });
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerCancel);
-    window.addEventListener("keydown", handleWindowKeydown);
-  }
-  function handleSortKeydown(event) {
-    if (!providerList || !sortModeEnabled() || dragSession) return;
-    const handle = event.target?.closest(
-      "button[data-api-provider-sort-handle]"
-    );
-    const providerId = handle?.dataset.apiProviderId || "";
-    if (!handle || !providerId) return;
-    const order = providerOrderFromRows(providerList);
-    const index = order.indexOf(providerId);
-    if (index < 0) return;
-    let targetIndex = null;
-    if (event.key === "ArrowUp") targetIndex = index - 1;
-    else if (event.key === "ArrowDown") targetIndex = index + 1;
-    else if (event.key === "Home") targetIndex = 0;
-    else if (event.key === "End") targetIndex = order.length - 1;
-    if (targetIndex === null) return;
-    event.preventDefault();
-    const nextOrder = moveProviderId(order, providerId, targetIndex);
-    if (!sameOrder(nextOrder, order)) submitProviderOrder(nextOrder, providerId);
-  }
-  function initApiProviderSortFeature() {
-    if (initialized2) return;
-    const list = getLegacyBridge().els.apiProviderList;
-    if (!list) return;
-    initialized2 = true;
-    providerList = list;
-    list.addEventListener("pointerdown", handlePointerDown);
-    list.addEventListener("keydown", handleSortKeydown);
-  }
-
-  // codex_image/webui/frontend/src/provider-model-bindings.ts
-  function remoteModelAfterSelection(current, previousDefault, nextDefault) {
-    return !current.trim() || current.trim() === previousDefault ? nextDefault : current;
-  }
-  var BINDING_TEMPLATES = {
-    gpt_openai_images: {
-      protocol_profile: "openai_images",
-      parameter_codec: "gpt_openai_images",
-      base_url: "https://api.openai.com/v1"
-    },
-    gpt_openai_responses: {
-      protocol_profile: "openai_responses",
-      parameter_codec: "gpt_openai_responses",
-      base_url: "https://api.openai.com/v1"
-    },
-    gemini_generate_content: {
-      protocol_profile: "gemini_generate_content",
-      parameter_codec: "gemini_generate_content_image",
-      base_url: "https://generativelanguage.googleapis.com/v1beta"
-    },
-    gemini_generate_content_image_config: {
-      protocol_profile: "gemini_generate_content",
-      parameter_codec: "gemini_generate_content_image_config",
-      base_url: "https://api.change2pro.com/v1beta"
-    },
-    gemini_change2pro_generate_content: {
-      protocol_profile: "gemini_change2pro_generate_content",
-      parameter_codec: "gemini_generate_content_image_config",
-      base_url: "https://api.change2pro.com/v1"
-    },
-    gemini_openai_images: {
-      protocol_profile: "openai_images",
-      parameter_codec: "gemini_openai_images",
-      base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
-    },
-    gemini_t8_images: {
-      protocol_profile: "t8_images",
-      parameter_codec: "gemini_t8_images",
-      base_url: "https://ai.t8star.org/v1"
-    },
-    gemini_openrouter_images: {
-      protocol_profile: "openrouter_images",
-      parameter_codec: "gemini_openrouter_images",
-      base_url: "https://openrouter.ai/api/v1"
-    }
-  };
-  var BINDING_PROTOCOL_LABELS = {
-    gemini: "Gemini",
-    openai_images: "OpenAI Images",
-    openai_responses: "OpenAI Responses"
-  };
-  var BINDING_COMPATIBILITY_LABELS = {
-    standard: "\u6807\u51C6",
-    gemini_image_config: "Gemini ImageConfig",
-    change2pro: "Change2Pro / Gemini v1beta",
-    t8_newapi: "T8 / NewAPI",
-    openrouter: "OpenRouter"
-  };
-  function slug(value, fallback) {
-    return String(value || fallback).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
-  }
-  function normalizedOperations(value) {
-    const operations = Array.isArray(value) ? value.filter((item) => item === "generate" || item === "edit") : [];
-    return [...new Set(operations)];
-  }
-  function resolvedBindingOperations(binding, bindings, model) {
-    const hasLegacySplitBindings = bindings.filter(
-      (candidate) => candidate.canonical_model_id === binding.canonical_model_id
-    ).length > 1;
-    if (hasLegacySplitBindings || !model) return binding.operations;
-    return [...model.operations];
-  }
-  function availableProtocolsForModel(modelId) {
-    if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
-    if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
-    return [];
-  }
-  function availableCompatibilityLayers(modelId, protocol) {
-    if (modelId.startsWith("nano-banana") && protocol === "gemini") {
-      return ["standard", "gemini_image_config", "change2pro"];
-    }
-    if (modelId.startsWith("nano-banana") && protocol === "openai_images") {
-      return ["standard", "t8_newapi", "openrouter"];
-    }
-    return ["standard"];
-  }
-  function protocolForBinding(binding) {
-    const profile = String(binding.protocol_profile || "");
-    if (profile.startsWith("gemini_")) return "gemini";
-    return profile.includes("responses") ? "openai_responses" : "openai_images";
-  }
-  function compatibilityForBinding(binding) {
-    if (binding.protocol_profile === "gemini_change2pro_generate_content") return "change2pro";
-    const codec = String(binding.parameter_codec || "");
-    if (codec === "gemini_generate_content_image_config") return "gemini_image_config";
-    if (codec === "gemini_t8_images") return "t8_newapi";
-    if (codec === "gemini_openrouter_images") return "openrouter";
-    return "standard";
-  }
-  function bindingTemplateForProtocol(modelId, protocol) {
-    if (!availableProtocolsForModel(modelId).includes(protocol)) {
-      throw new Error("unsupported_binding_protocol");
-    }
-    if (modelId.startsWith("nano-banana")) {
-      return protocol === "gemini" ? "gemini_generate_content" : "gemini_openai_images";
-    }
-    if (isGptImageModel(modelId)) {
-      return protocol === "openai_responses" ? "gpt_openai_responses" : "gpt_openai_images";
-    }
-    throw new Error("unsupported_binding_protocol");
-  }
-  function bindingTemplateForCompatibility(modelId, protocol, compatibility) {
-    if (!availableCompatibilityLayers(modelId, protocol).includes(compatibility)) {
-      throw new Error("unsupported_binding_compatibility");
-    }
-    if (compatibility === "gemini_image_config") {
-      return "gemini_generate_content_image_config";
-    }
-    if (compatibility === "change2pro") return "gemini_change2pro_generate_content";
-    if (compatibility === "t8_newapi") return "gemini_t8_images";
-    if (compatibility === "openrouter") return "gemini_openrouter_images";
-    return bindingTemplateForProtocol(modelId, protocol);
-  }
-  function bindingFromTemplate(id, canonicalModelId, remoteModelId, templateId, operations = ["generate", "edit"]) {
-    const template = BINDING_TEMPLATES[templateId];
-    return {
-      id: slug(id, `binding-${Date.now()}`),
-      canonical_model_id: String(canonicalModelId || "").trim(),
-      remote_model_id: String(remoteModelId || "").trim(),
-      protocol_profile: template.protocol_profile,
-      parameter_codec: template.parameter_codec,
-      operations: normalizedOperations(operations)
-    };
-  }
-  function bindingFromProtocol(id, canonicalModelId, remoteModelId, protocol, operations = ["generate", "edit"]) {
-    return bindingFromTemplate(
-      id,
-      canonicalModelId,
-      remoteModelId,
-      bindingTemplateForProtocol(canonicalModelId, protocol),
-      operations
-    );
-  }
-  function bindingForCompatibilitySelection(original, canonicalModelId, remoteModelId, protocol, compatibility, selectionChanged, operations) {
-    if (!selectionChanged && canonicalModelId === original.canonical_model_id) {
-      return {
-        ...original,
-        remote_model_id: remoteModelId,
-        operations: normalizedOperations(operations)
-      };
-    }
-    return {
-      ...bindingFromTemplate(
-        original.id,
-        canonicalModelId,
-        remoteModelId,
-        bindingTemplateForCompatibility(canonicalModelId, protocol, compatibility),
-        operations
-      ),
-      append_aspect_ratio_prompt: Boolean(original.append_aspect_ratio_prompt),
-      transparency_mode: isGptImageModel(canonicalModelId) ? original.transparency_mode || "native" : "native"
-    };
-  }
-  function normalizeProviderBindings(bindings, providerId = "provider") {
-    if (!Array.isArray(bindings)) return [];
-    const seen = /* @__PURE__ */ new Set();
-    return bindings.filter((item) => Boolean(item && typeof item === "object")).map((item, index) => {
-      let id = slug(item.id, `${providerId}-binding-${index + 1}`);
-      while (seen.has(id)) id = `${id}-${index + 1}`;
-      seen.add(id);
-      const fallbackProtocol = availableProtocolsForModel(String(item.canonical_model_id || ""))[0];
-      const fallbackTemplate = fallbackProtocol ? BINDING_TEMPLATES[bindingTemplateForProtocol(String(item.canonical_model_id || ""), fallbackProtocol)] : null;
-      return {
-        id,
-        canonical_model_id: String(item.canonical_model_id || "").trim(),
-        remote_model_id: String(item.remote_model_id || "").trim(),
-        protocol_profile: String(item.protocol_profile || fallbackTemplate?.protocol_profile || "").trim(),
-        parameter_codec: String(item.parameter_codec || fallbackTemplate?.parameter_codec || "").trim(),
-        operations: normalizedOperations(item.operations),
-        append_aspect_ratio_prompt: Boolean(item.append_aspect_ratio_prompt),
-        transparency_mode: item.transparency_mode === "prompt" ? "prompt" : "native"
-      };
-    });
-  }
-  function validateProviderBindingOverlaps(bindings) {
-    const claimed = /* @__PURE__ */ new Map();
-    for (const binding of bindings) {
-      for (const operation of binding.operations) {
-        const key2 = `${binding.canonical_model_id}\0${operation}`;
-        const firstBindingId = claimed.get(key2);
-        if (firstBindingId) {
-          return {
-            firstBindingId,
-            secondBindingId: binding.id,
-            canonicalModelId: binding.canonical_model_id,
-            operation
-          };
-        }
-        claimed.set(key2, binding.id);
-      }
-    }
-    return null;
-  }
-  function bindingTemplateSuggestion(templateId) {
-    const template = BINDING_TEMPLATES[templateId];
-    return { base_url: template.base_url };
-  }
-  function isBindingTemplateBaseUrl(value) {
-    const normalized = String(value || "").trim().replace(/\/+$/, "");
-    return Object.values(BINDING_TEMPLATES).some(
-      (template) => template.base_url.replace(/\/+$/, "") === normalized
-    );
-  }
-  function option(value, label, selected) {
-    const element2 = document.createElement("option");
-    element2.value = value;
-    element2.textContent = label;
-    element2.selected = selected;
-    return element2;
-  }
-  function renderProviderBindingCards(container, bindings, models, providerId, defaults) {
-    if (!container) return;
-    const disclosureState = new Map([...container.querySelectorAll("details[data-binding-id]")].map((card) => [card.dataset.bindingId, card.open]));
-    destroyThemedSelects(container);
-    const normalizedBindings = normalizeProviderBindings(bindings, providerId);
-    const cards = normalizedBindings.map((binding, index) => {
-      const card = document.createElement("details");
-      card.className = "provider-binding-card";
-      card.dataset.bindingId = binding.id;
-      card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
-      const legend = document.createElement("summary");
-      legend.className = "provider-binding-summary";
-      const updateSummary = () => {
-        const model = models.find((item) => item.id === modelSelect.value);
-        legend.textContent = `${model?.display_name || modelSelect.value} \xB7 ${BINDING_PROTOCOL_LABELS[protocolSelect.value]} \xB7 ${remoteInput.value}`;
-      };
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "ghost-button danger-button provider-binding-remove";
-      remove.dataset.removeProviderBinding = binding.id;
-      remove.dataset.i18n = "apiSettings.removeBinding";
-      remove.textContent = translate("apiSettings.removeBinding");
-      const grid = document.createElement("div");
-      grid.className = "provider-binding-grid";
-      const modelField = document.createElement("div");
-      modelField.className = "field";
-      const modelLabel = document.createElement("span");
-      modelLabel.id = `provider-binding-${binding.id}-model-label`;
-      modelLabel.textContent = "\u5177\u4F53\u578B\u53F7";
-      const modelSelect = document.createElement("select");
-      modelSelect.className = "control";
-      modelSelect.dataset.bindingModel = "";
-      modelSelect.setAttribute("aria-labelledby", modelLabel.id);
-      models.forEach((model) => modelSelect.append(option(model.id, model.display_name, model.id === binding.canonical_model_id)));
-      modelField.append(modelLabel, modelSelect);
-      const protocolField = document.createElement("div");
-      protocolField.className = "field";
-      const protocolLabel = document.createElement("span");
-      protocolLabel.id = `provider-binding-${binding.id}-protocol-label`;
-      protocolLabel.textContent = "\u534F\u8BAE";
-      const protocolSelect = document.createElement("select");
-      protocolSelect.className = "control";
-      protocolSelect.dataset.bindingProtocol = "";
-      protocolSelect.setAttribute("aria-labelledby", protocolLabel.id);
-      const selectedProtocol = protocolForBinding(binding);
-      const selectedModel = models.find((model) => model.id === binding.canonical_model_id);
-      card.dataset.bindingModelOperations = resolvedBindingOperations(
-        binding,
-        normalizedBindings,
-        selectedModel
-      ).join(",");
-      availableProtocolsForModel(binding.canonical_model_id).forEach((protocol) => {
-        protocolSelect.append(option(protocol, BINDING_PROTOCOL_LABELS[protocol], protocol === selectedProtocol));
-      });
-      protocolField.append(protocolLabel, protocolSelect);
-      const remoteField = document.createElement("label");
-      remoteField.className = "field provider-binding-remote-model";
-      remoteField.append(document.createTextNode("\u4E2D\u8F6C\u7AD9\u6A21\u578B\u540D\u79F0"));
-      const remoteInput = document.createElement("input");
-      remoteInput.className = "control";
-      remoteInput.type = "text";
-      remoteInput.autocomplete = "off";
-      remoteInput.value = binding.remote_model_id;
-      remoteInput.dataset.bindingRemoteModel = "";
-      remoteInput.placeholder = "\u4F8B\u5982 vendor/model.name:version-1";
-      remoteField.append(remoteInput);
-      const compatibilityField = document.createElement("div");
-      compatibilityField.className = "field provider-binding-compatibility";
-      const compatibilityLabel = document.createElement("span");
-      compatibilityLabel.id = `provider-binding-${binding.id}-compatibility-label`;
-      compatibilityLabel.textContent = "\u517C\u5BB9\u5C42";
-      const compatibilitySelect = document.createElement("select");
-      compatibilitySelect.className = "control";
-      compatibilitySelect.dataset.bindingCompatibility = "";
-      compatibilitySelect.setAttribute("aria-labelledby", compatibilityLabel.id);
-      const selectedCompatibility = compatibilityForBinding(binding);
-      availableCompatibilityLayers(binding.canonical_model_id, selectedProtocol).forEach((compatibility) => {
-        compatibilitySelect.append(option(
-          compatibility,
-          BINDING_COMPATIBILITY_LABELS[compatibility],
-          compatibility === selectedCompatibility
-        ));
-      });
-      compatibilityField.append(compatibilityLabel, compatibilitySelect);
-      const transparencyField = document.createElement("label");
-      transparencyField.className = "field provider-binding-transparency";
-      const transparencyLabel = document.createElement("span");
-      transparencyLabel.id = `provider-binding-${binding.id}-transparency-label`;
-      transparencyLabel.dataset.i18n = "apiSettings.transparencyMode";
-      transparencyLabel.textContent = translate("apiSettings.transparencyMode");
-      const transparencySelect = document.createElement("select");
-      transparencySelect.className = "control";
-      transparencySelect.dataset.bindingTransparency = "";
-      transparencySelect.setAttribute("aria-labelledby", transparencyLabel.id);
-      transparencySelect.append(
-        option("native", translate("apiSettings.transparencyNative"), binding.transparency_mode !== "prompt"),
-        option("prompt", translate("apiSettings.transparencyPrompt"), binding.transparency_mode === "prompt")
-      );
-      transparencyField.append(transparencyLabel, transparencySelect);
-      const syncTransparencyField = () => {
-        const supported = isGptImageModel(modelSelect.value);
-        transparencyField.classList.toggle("hidden", !supported);
-        transparencySelect.disabled = !supported;
-      };
-      syncTransparencyField();
-      modelSelect.addEventListener("change", syncTransparencyField);
-      const ratioPromptField = document.createElement("label");
-      ratioPromptField.className = "provider-binding-toggle provider-binding-ratio-prompt";
-      ratioPromptField.dataset.i18nAttr = "title:apiSettings.appendRatioPrompt";
-      const ratioPromptInput = document.createElement("input");
-      ratioPromptInput.type = "checkbox";
-      ratioPromptInput.dataset.bindingRatioPrompt = "";
-      ratioPromptInput.checked = Boolean(binding.append_aspect_ratio_prompt);
-      const ratioPromptLabel = document.createElement("span");
-      ratioPromptLabel.dataset.i18n = "apiSettings.appendRatioPrompt";
-      ratioPromptLabel.textContent = translate("apiSettings.appendRatioPrompt");
-      ratioPromptField.append(ratioPromptInput, ratioPromptLabel);
-      const defaultField = document.createElement("label");
-      defaultField.className = "provider-binding-toggle provider-binding-default";
-      defaultField.dataset.i18nAttr = "title:apiSettings.defaultProviderForModel";
-      const defaultInput = document.createElement("input");
-      defaultInput.type = "checkbox";
-      defaultInput.dataset.bindingDefault = "";
-      defaultInput.checked = defaults[binding.canonical_model_id] === providerId;
-      const defaultLabel = document.createElement("span");
-      defaultLabel.dataset.i18n = "apiSettings.defaultProviderForModel";
-      defaultLabel.textContent = translate("apiSettings.defaultProviderForModel");
-      defaultField.append(defaultInput, defaultLabel);
-      const footer = document.createElement("div");
-      footer.className = "provider-binding-footer";
-      const footerSettings = document.createElement("div");
-      footerSettings.className = "provider-binding-footer-settings";
-      footerSettings.append(ratioPromptField, defaultField);
-      footer.append(footerSettings, remove);
-      card.dataset.bindingOriginalModelId = binding.canonical_model_id;
-      card.dataset.bindingPreviousModelId = binding.canonical_model_id;
-      card.dataset.bindingOriginalProtocolProfile = binding.protocol_profile;
-      card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
-      card.dataset.bindingProtocolChanged = "false";
-      card.dataset.bindingCompatibilityChanged = "false";
-      grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
-      card.append(legend, grid);
-      updateSummary();
-      card.addEventListener("change", () => queueMicrotask(updateSummary));
-      remoteInput.addEventListener("input", updateSummary);
-      card.addEventListener("invalid", () => {
-        card.open = true;
-      }, true);
-      return card;
-    });
-    container.replaceChildren(...cards);
-    container.querySelectorAll("[data-binding-model], [data-binding-protocol], [data-binding-compatibility], [data-binding-transparency]").forEach((select) => mountThemedSelect(select));
-  }
-  function readProviderBindingCards(container) {
-    if (!container) return [];
-    return [...container.querySelectorAll("[data-binding-id]")].map((card) => {
-      const modelId = card.querySelector("[data-binding-model]")?.value || "";
-      const remoteModelId = card.querySelector("[data-binding-remote-model]")?.value || "";
-      const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
-      const compatibility = card.querySelector("[data-binding-compatibility]")?.value || "standard";
-      const operations = normalizedOperations(
-        String(card.dataset.bindingModelOperations || "").split(",")
-      );
-      const original = {
-        id: card.dataset.bindingId || "binding",
-        canonical_model_id: card.dataset.bindingOriginalModelId || modelId,
-        remote_model_id: remoteModelId,
-        protocol_profile: card.dataset.bindingOriginalProtocolProfile || "",
-        parameter_codec: card.dataset.bindingOriginalParameterCodec || "",
-        operations,
-        append_aspect_ratio_prompt: Boolean(
-          card.querySelector("[data-binding-ratio-prompt]")?.checked
-        ),
-        transparency_mode: isGptImageModel(modelId) && card.querySelector("[data-binding-transparency]")?.value === "prompt" ? "prompt" : "native"
-      };
-      return {
-        ...bindingForCompatibilitySelection(
-          original,
-          modelId,
-          remoteModelId,
-          protocol,
-          compatibility,
-          card.dataset.bindingProtocolChanged === "true" || card.dataset.bindingCompatibilityChanged === "true",
-          operations
-        ),
-        is_default: Boolean(card.querySelector("[data-binding-default]")?.checked)
-      };
-    });
-  }
-
-  // codex_image/webui/frontend/src/api-provider-credentials.ts
-  function providerUrlOrigin(value) {
-    try {
-      return new URL(String(value || "").trim()).origin;
-    } catch {
-      return "";
-    }
-  }
-  function evaluateProviderCredentialSave(draft, savedProviders) {
-    if (String(draft?.api_key || "").trim()) return { kind: "allow" };
-    const providers = Array.isArray(savedProviders) ? savedProviders : [];
-    const nextOrigin = providerUrlOrigin(draft?.base_url);
-    const existing = providers.find((provider) => provider?.id === draft?.id);
-    if (existing && Boolean(existing.api_key_set || existing.api_key)) {
-      const previousOrigin = providerUrlOrigin(existing.base_url);
-      if (previousOrigin && previousOrigin === nextOrigin) return { kind: "allow" };
-      return {
-        kind: "confirm_origin_change",
-        providerId: String(draft.id || ""),
-        previousOrigin,
-        nextOrigin
-      };
-    }
-    const sourceId = String(draft?.api_key_source_provider_id || "").trim();
-    const source = providers.find((provider) => provider?.id === sourceId);
-    if (source && Boolean(source.api_key_set || source.api_key) && providerUrlOrigin(source.base_url) === nextOrigin) {
-      return { kind: "allow" };
-    }
-    return { kind: "key_required" };
-  }
-  function isConfirmedProviderOriginChange(decision, confirmation2) {
-    return decision.kind === "confirm_origin_change" && Boolean(confirmation2) && decision.providerId === confirmation2?.providerId && decision.previousOrigin === confirmation2?.previousOrigin && decision.nextOrigin === confirmation2?.nextOrigin;
-  }
-  function clearProviderApiKeyInputs(settings) {
-    return {
-      ...settings,
-      providers: Array.isArray(settings?.providers) ? settings.providers.map((provider) => ({
-        ...provider,
-        api_key: "",
-        api_key_source_provider_id: ""
-      })) : []
-    };
-  }
-
   // codex_image/webui/frontend/src/api-provider-settings.ts
   var bridge9 = getLegacyBridge();
   var state9 = bridge9.state;
@@ -39547,41 +39996,6 @@ ${hint}` : hint;
   function openConfirmPopover4(...args) {
     legacyMethod14("openConfirmPopover", ...args);
   }
-  function normalizeApiProvider(provider = {}, index = 0) {
-    const fallbackId = index === 0 ? "default" : `provider-${index + 1}`;
-    const id = String(provider.id || fallbackId).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || fallbackId;
-    const legacyMode = provider.api_mode === "responses" ? "responses" : DEFAULT_API_MODE;
-    const bindings = normalizeProviderBindings(
-      Array.isArray(provider.bindings) && provider.bindings.length ? provider.bindings : [{
-        id: `${id}-gpt-image-2`,
-        canonical_model_id: "gpt-image-2",
-        remote_model_id: String(provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL,
-        protocol_profile: legacyMode === "responses" ? "openai_responses" : "openai_images",
-        parameter_codec: legacyMode === "responses" ? "gpt_openai_responses" : "gpt_openai_images",
-        operations: ["generate", "edit"]
-      }],
-      id
-    );
-    const gptBinding = bindings.find((binding) => binding.canonical_model_id === "gpt-image-2") || bindings[0];
-    const apiMode = gptBinding?.protocol_profile === "openai_responses" ? "responses" : "images";
-    const concurrency = normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency);
-    return {
-      id,
-      name: String(provider.name || (id === "default" ? "Default" : `Provider ${index + 1}`)).trim() || id,
-      base_url: String(provider.base_url || DEFAULT_API_BASE_URL).trim() || DEFAULT_API_BASE_URL,
-      api_key: String(provider.api_key || "").trim(),
-      concurrency,
-      bindings,
-      image_model: gptBinding?.remote_model_id || DEFAULT_API_IMAGE_MODEL,
-      api_mode: apiMode,
-      images_concurrency: concurrency,
-      api_key_set: Boolean(provider.api_key_set || provider.api_key),
-      api_key_masked: String(provider.api_key_masked || ""),
-      api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim(),
-      icon_emoji: String(provider.icon_emoji || "").trim(),
-      default_model_ids: Array.isArray(provider.default_model_ids) ? provider.default_model_ids.map((value) => String(value || "").trim()).filter(Boolean) : []
-    };
-  }
   function appendProviderIdentity(target, provider, className) {
     const icon = String(provider?.icon_emoji || "").trim();
     if (icon) {
@@ -39595,14 +40009,6 @@ ${hint}` : hint;
     label.className = className;
     label.textContent = provider?.name || provider?.id || "";
     target.append(label);
-  }
-  function normalizeApiImagesConcurrency(value) {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isNaN(parsed)) return DEFAULT_API_IMAGES_CONCURRENCY;
-    return Math.min(32, Math.max(1, parsed));
-  }
-  function normalizeCodexMode(value) {
-    return value === "responses" ? "responses" : DEFAULT_CODEX_MODE;
   }
   function providerById(providerId, settings = state9.apiSettings) {
     const normalized = normalizeApiSettings(settings);
@@ -39873,72 +40279,6 @@ ${hint}` : hint;
     const isNew = Boolean(state9.apiProviderDraftIsNew);
     setElementText(els10.apiProviderEditorTitle, translate(isNew ? "apiSettings.newProviderTitle" : "apiSettings.editProvider"));
     writeProviderForm(state9.apiProviderDraft);
-  }
-  function applyApiProviderDraft(settings) {
-    var _a, _b;
-    if (!apiProviderEditorActive()) return normalizeApiSettings(settings);
-    const draft = draftProviderFromForm();
-    const normalized = normalizeApiSettings(settings);
-    const index = normalized.providers.findIndex((provider) => provider.id === draft.id);
-    if (index >= 0) {
-      normalized.providers[index] = normalizeApiProvider({ ...normalized.providers[index], ...draft }, index);
-    } else {
-      normalized.providers.push(normalizeApiProvider(draft, normalized.providers.length));
-    }
-    normalized.active_provider_id = draft.id;
-    const defaultModelIds = new Set(draft.default_model_ids || []);
-    for (const binding of draft.bindings || []) {
-      const modelId = binding.canonical_model_id;
-      if (defaultModelIds.has(modelId)) normalized.default_provider_by_model[modelId] = draft.id;
-      else if (normalized.default_provider_by_model[modelId] === draft.id) delete normalized.default_provider_by_model[modelId];
-    }
-    for (const modelId of Object.keys(normalized.default_provider_by_model)) {
-      if (normalized.default_provider_by_model[modelId] !== draft.id) continue;
-      if (!(draft.bindings || []).some((binding) => binding.canonical_model_id === modelId)) {
-        delete normalized.default_provider_by_model[modelId];
-      }
-    }
-    const fallbackProviders = normalized.providers.filter((provider) => provider.id !== draft.id).concat(draft);
-    for (const provider of fallbackProviders) {
-      for (const binding of provider.bindings) {
-        (_a = normalized.default_provider_by_model)[_b = binding.canonical_model_id] ?? (_a[_b] = provider.id);
-      }
-    }
-    state9.apiProviderEditingId = null;
-    state9.apiProviderDraft = null;
-    state9.apiProviderDraftIsNew = false;
-    return normalizeApiSettings(normalized);
-  }
-  function normalizeApiSettings(settings = {}) {
-    const rawProviders = Array.isArray(settings.providers) && settings.providers.length ? settings.providers : [{
-      id: settings.active_provider_id || "default",
-      name: settings.name || "Default",
-      base_url: settings.base_url,
-      api_key: settings.api_key,
-      image_model: settings.image_model,
-      api_mode: settings.api_mode,
-      images_concurrency: settings.images_concurrency,
-      api_key_set: settings.api_key_set,
-      api_key_masked: settings.api_key_masked
-    }];
-    const providers = [];
-    const seen = /* @__PURE__ */ new Set();
-    rawProviders.forEach((provider, index) => {
-      const normalized = normalizeApiProvider(provider, index);
-      if (seen.has(normalized.id)) return;
-      seen.add(normalized.id);
-      providers.push(normalized);
-    });
-    if (!providers.length) providers.push(normalizeApiProvider({}, 0));
-    const requestedActive = String(settings.active_provider_id || providers[0].id).trim().toLowerCase();
-    const activeProvider = providers.find((provider) => provider.id === requestedActive) || providers[0];
-    return {
-      schema_version: 2,
-      codex_mode: normalizeCodexMode(settings.codex_mode),
-      active_provider_id: activeProvider.id,
-      default_provider_by_model: { ...settings.default_provider_by_model || { "gpt-image-2": activeProvider.id } },
-      providers
-    };
   }
   function activeApiProvider() {
     const settings = normalizeApiSettings(state9.apiSettings);
@@ -40305,107 +40645,6 @@ ${hint}` : hint;
     );
     updateApiRequestEndpointPreview();
   }
-  function handleProviderBindingEditorChange(event) {
-    const target = event.target;
-    const card = target?.closest("[data-binding-id]");
-    if (!target || !card) return;
-    if (target.matches("[data-binding-model]")) {
-      const modelId = target.value;
-      const protocols = availableProtocolsForModel(modelId);
-      const defaultProtocol = protocols[0];
-      const protocolSelect = card.querySelector("[data-binding-protocol]");
-      if (protocolSelect) {
-        protocolSelect.replaceChildren(...protocols.map((protocol) => {
-          const option2 = document.createElement("option");
-          option2.value = protocol;
-          option2.textContent = BINDING_PROTOCOL_LABELS[protocol];
-          return option2;
-        }));
-        protocolSelect.value = protocols[0] || "";
-        syncThemedSelect(protocolSelect);
-      }
-      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
-      if (compatibilitySelect) {
-        compatibilitySelect.replaceChildren(...(defaultProtocol ? availableCompatibilityLayers(modelId, defaultProtocol) : []).map((compatibility) => {
-          const option2 = document.createElement("option");
-          option2.value = compatibility;
-          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
-          return option2;
-        }));
-        compatibilitySelect.value = "standard";
-        syncThemedSelect(compatibilitySelect);
-      }
-      card.dataset.bindingProtocolChanged = "true";
-      card.dataset.bindingCompatibilityChanged = "true";
-      if (state9.apiProviderDraftIsNew && defaultProtocol) {
-        const suggestion = bindingTemplateSuggestion(bindingTemplateForProtocol(modelId, defaultProtocol));
-        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
-      }
-      const remoteInput = card.querySelector("[data-binding-remote-model]");
-      const model = state9.generationCatalog?.models.find((item) => item.id === modelId);
-      const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
-      const previousModel = state9.generationCatalog?.models.find((item) => item.id === previousModelId);
-      if (remoteInput) remoteInput.value = remoteModelAfterSelection(
-        remoteInput.value,
-        previousModel?.official_model_id || previousModelId,
-        model?.official_model_id || modelId
-      );
-      card.dataset.bindingPreviousModelId = modelId;
-      const existingOperations = String(card.dataset.bindingModelOperations || "").split(",").filter(Boolean);
-      card.dataset.bindingModelOperations = (model?.operations || existingOperations).join(",");
-    }
-    if (target.matches("[data-binding-default]")) {
-      const modelId = card.querySelector("[data-binding-model]")?.value;
-      if (modelId) {
-        els10.apiProviderBindings?.querySelectorAll("[data-binding-id]").forEach((item) => {
-          if (item === card) return;
-          if (item.querySelector("[data-binding-model]")?.value !== modelId) return;
-          const checkbox = item.querySelector("[data-binding-default]");
-          if (checkbox) checkbox.checked = target.checked;
-        });
-      }
-    }
-    if (target.matches("[data-binding-protocol]")) {
-      card.dataset.bindingProtocolChanged = "true";
-      const modelId = card.querySelector("[data-binding-model]")?.value || "";
-      const compatibilitySelect = card.querySelector("[data-binding-compatibility]");
-      const protocol = target.value;
-      if (compatibilitySelect) {
-        compatibilitySelect.replaceChildren(...availableCompatibilityLayers(modelId, protocol).map((compatibility) => {
-          const option2 = document.createElement("option");
-          option2.value = compatibility;
-          option2.textContent = BINDING_COMPATIBILITY_LABELS[compatibility];
-          return option2;
-        }));
-        compatibilitySelect.value = "standard";
-        syncThemedSelect(compatibilitySelect);
-      }
-      card.dataset.bindingCompatibilityChanged = "true";
-      if (state9.apiProviderDraftIsNew) {
-        const templateId = bindingTemplateForProtocol(modelId, protocol);
-        const suggestion = bindingTemplateSuggestion(templateId);
-        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
-      }
-    }
-    if (target.matches("[data-binding-compatibility]")) {
-      card.dataset.bindingCompatibilityChanged = "true";
-      if (state9.apiProviderDraftIsNew) {
-        const modelId = card.querySelector("[data-binding-model]")?.value || "";
-        const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
-        const templateId = bindingTemplateForCompatibility(
-          modelId,
-          protocol,
-          target.value
-        );
-        const suggestion = bindingTemplateSuggestion(templateId);
-        const currentBase = String(els10.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els10.apiBaseUrl.value = suggestion.base_url;
-      }
-    }
-    updateApiRequestEndpointPreview();
-  }
   function renderAuthSourceAfterProviderChange() {
     legacyMethod14("renderAuthSource", state9.authStatus);
     legacyMethod14("renderProviderSelection");
@@ -40604,50 +40843,14 @@ ${hint}` : hint;
     }
     const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
     persistApiSettings();
-    const payload2 = {
-      schema_version: 2,
-      codex_mode: settings.codex_mode,
-      active_provider_id: settings.active_provider_id,
-      default_provider_by_model: settings.default_provider_by_model,
-      providers: settings.providers.map((provider) => {
-        const item = {
-          id: provider.id,
-          name: provider.name,
-          icon_emoji: provider.icon_emoji || "",
-          base_url: provider.base_url,
-          concurrency: provider.concurrency,
-          bindings: provider.bindings
-        };
-        if (provider.api_key || !provider.api_key_set) item.api_key = provider.api_key;
-        if (!provider.api_key && provider.api_key_source_provider_id) {
-          item.api_key_source_provider_id = provider.api_key_source_provider_id;
-        }
-        if (provider.id === confirmedOriginChange?.providerId) {
-          item.preserve_api_key_on_origin_change = true;
-        }
-        return item;
-      })
-    };
+    const payload2 = apiSettingsSavePayload(settings, confirmedOriginChange);
     if (!autoSave) {
       setSaveButtonsDisabled(true);
       setSaveButtonText("saving");
     }
     if (!silent) setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
     try {
-      const response = await fetch("/api/api-settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload2)
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        const detail = String(data.detail || "");
-        if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
-        if (detail === "api_key_origin_change_confirmation_required") {
-          throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
-        }
-        throw new Error(detail || translate("apiSettings.saveFailed"));
-      }
+      const data = await patchApiSettings(payload2);
       state9.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
       state9.apiProviderEditingId = null;
       state9.apiProviderDraft = null;
@@ -40693,6 +40896,21 @@ ${hint}` : hint;
         }, 1600);
       }
     }
+  }
+  function applyApiProviderDraft(settings) {
+    if (!apiProviderEditorActive()) return normalizeApiSettings(settings);
+    const result = applyProviderDraft(settings, draftProviderFromForm());
+    state9.apiProviderEditingId = null;
+    state9.apiProviderDraft = null;
+    state9.apiProviderDraftIsNew = false;
+    return result;
+  }
+  function handleProviderBindingEditorChange2(event) {
+    handleProviderBindingEditorChange(event, {
+      state: { apiProviderDraftIsNew: state9.apiProviderDraftIsNew, generationCatalog: state9.generationCatalog },
+      els: { apiBaseUrl: els10.apiBaseUrl, apiProviderBindings: els10.apiProviderBindings },
+      updateApiRequestEndpointPreview
+    });
   }
 
   // codex_image/webui/frontend/src/api-settings.ts
@@ -40740,7 +40958,7 @@ ${hint}` : hint;
       deleteApiProvider,
       editApiProvider,
       hideApiKeyReveal,
-      handleProviderBindingEditorChange,
+      handleProviderBindingEditorChange: handleProviderBindingEditorChange2,
       cancelApiProviderEdit,
       saveApiProviderEdit,
       selectApiProvider,
@@ -46294,9 +46512,9 @@ ${hint}` : hint;
     return Array.from(data.items || []).some((item) => item.kind === "file" && item.type?.startsWith("image/"));
   }
   function promptPlainTextFromHtml(html) {
-    const container = document.createElement("div");
+    const container = document.createElement("template");
     container.innerHTML = String(html || "");
-    return normalizePromptPasteText(promptPlainTextFromHtmlNode(container));
+    return normalizePromptPasteText(promptPlainTextFromHtmlNode(container.content));
   }
   function promptPlainTextFromHtmlNode(node) {
     let text = "";
@@ -46307,6 +46525,7 @@ ${hint}` : hint;
       }
       if (child.nodeType !== Node.ELEMENT_NODE) return;
       const tagName = child.tagName;
+      if (["SCRIPT", "STYLE", "NOSCRIPT"].includes(tagName)) return;
       if (tagName === "BR") {
         text += "\n";
         return;
@@ -48993,6 +49212,115 @@ ${galleryText}`;
     }
   }
 
+  // codex_image/webui/frontend/src/task-card-swipe-logic.ts
+  var TASK_CARD_SWIPE_DIRECTION_LOCK_PX = 8;
+  var TASK_CARD_ARCHIVE_REVEAL_PX = 30;
+  var TASK_CARD_DELETE_REVEAL_PX = 38;
+  var TASK_CARD_STOP_REVEAL_PX = 52;
+  var TASK_CARD_SWIPE_OPEN_PX = 64;
+  var TASK_CARD_SWIPE_MAX_PX = 78;
+  var TASK_CARD_BLOCKED_SWIPE_MAX_PX = 16;
+  var TASK_QUEUE_REORDER_DIRECTION_LOCK_PX = TASK_CARD_SWIPE_DIRECTION_LOCK_PX;
+  var TASK_QUEUE_TOUCH_HOLD_MS = 280;
+  var TASK_QUEUE_REORDER_HINT_STORAGE_KEY = "ilab-conjure-queue-reorder-hint-v1";
+  var TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO = 1.25;
+  var TASK_CARD_GESTURE_FORCE_COMMIT_PX = 18;
+  function taskCardSwipeActionRequiresConfirmation(action) {
+    return action === "stop";
+  }
+  function resolveTaskCardGestureAxis(deltaX, deltaY, directionLockPx = TASK_CARD_SWIPE_DIRECTION_LOCK_PX) {
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    const distance = Math.hypot(deltaX, deltaY);
+    if (distance < directionLockPx) return "pending";
+    if (absX >= absY * TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO) return "horizontal";
+    if (absY >= absX * TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO) return "vertical";
+    if (distance < TASK_CARD_GESTURE_FORCE_COMMIT_PX) return "pending";
+    return absX >= absY ? "horizontal" : "vertical";
+  }
+  function resolveTaskQueueReorderIntent(pointerType, holdReady, deltaX, deltaY) {
+    const axis = resolveTaskCardGestureAxis(
+      deltaX,
+      deltaY,
+      TASK_QUEUE_REORDER_DIRECTION_LOCK_PX
+    );
+    if (axis === "pending") return "pending";
+    if (axis === "horizontal") return "horizontal";
+    if (pointerType === "mouse" || holdReady) return "reorder";
+    return "scroll";
+  }
+  function mergeTaskQueueReorderIds(currentIds, renderedIds) {
+    const currentSet = new Set(currentIds);
+    const reorderedVisibleIds = renderedIds.filter((taskId) => currentSet.has(taskId));
+    const reorderedVisibleSet = new Set(reorderedVisibleIds);
+    let visibleIndex = 0;
+    return currentIds.map((taskId) => {
+      if (!reorderedVisibleSet.has(taskId)) return taskId;
+      return reorderedVisibleIds[visibleIndex++] || taskId;
+    });
+  }
+  var TERMINAL_TASK_CARD_SWIPE_ACTIONS = {
+    positive: "archive",
+    negative: "delete"
+  };
+  function taskCardSwipeActionsForState(queueSection, status, localPending = false) {
+    if (localPending || ["submitting", "cancelling"].includes(status)) {
+      return { positive: null, negative: null };
+    }
+    if (queueSection === "running") return { positive: null, negative: "stop" };
+    if (queueSection === "waiting") return { positive: "promote", negative: "cancel" };
+    if (["queued", "running"].includes(status)) return { positive: null, negative: null };
+    return { ...TERMINAL_TASK_CARD_SWIPE_ACTIONS };
+  }
+  function resolveTaskCardSwipeSurfaceOffset(offset) {
+    const normalizedOffset = Number.isFinite(offset) ? offset : 0;
+    return Math.max(
+      -TASK_CARD_SWIPE_MAX_PX,
+      Math.min(TASK_CARD_SWIPE_MAX_PX, normalizedOffset)
+    );
+  }
+  function resolveTaskCardSwipe(deltaX, deltaY, cardWidth, startOffset = 0, actions = TERMINAL_TASK_CARD_SWIPE_ACTIONS) {
+    const safeWidth = Math.max(1, cardWidth);
+    const axis = resolveTaskCardGestureAxis(deltaX, deltaY);
+    if (axis === "pending") {
+      return {
+        axis: "pending",
+        direction: null,
+        revealDirection: null,
+        offset: startOffset,
+        ready: false
+      };
+    }
+    if (axis === "vertical") {
+      return {
+        axis: "vertical",
+        direction: null,
+        revealDirection: null,
+        offset: startOffset,
+        ready: false
+      };
+    }
+    const maxOffset = Math.min(TASK_CARD_SWIPE_MAX_PX, safeWidth * 0.36);
+    const rawOffset = startOffset + deltaX;
+    const positive = rawOffset >= 0;
+    const direction = positive ? actions.positive : actions.negative;
+    const allowedOffset = Math.max(-maxOffset, Math.min(maxOffset, rawOffset));
+    const blockedOffset = Math.max(
+      -TASK_CARD_BLOCKED_SWIPE_MAX_PX,
+      Math.min(TASK_CARD_BLOCKED_SWIPE_MAX_PX, rawOffset * 0.2)
+    );
+    const offset = direction ? allowedOffset : blockedOffset;
+    const revealDistance = direction === "stop" ? TASK_CARD_STOP_REVEAL_PX : positive ? TASK_CARD_ARCHIVE_REVEAL_PX : TASK_CARD_DELETE_REVEAL_PX;
+    const ready = Boolean(direction) && Math.abs(offset) >= revealDistance;
+    return {
+      axis: "horizontal",
+      direction,
+      revealDirection: ready ? direction : null,
+      offset,
+      ready
+    };
+  }
+
   // codex_image/webui/frontend/src/task-model-summary.ts
   function record3(value) {
     return value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -49121,113 +49449,493 @@ ${galleryText}`;
     return "";
   }
 
-  // codex_image/webui/frontend/src/task-card-swipe-logic.ts
-  var TASK_CARD_SWIPE_DIRECTION_LOCK_PX = 8;
-  var TASK_CARD_ARCHIVE_REVEAL_PX = 30;
-  var TASK_CARD_DELETE_REVEAL_PX = 38;
-  var TASK_CARD_STOP_REVEAL_PX = 52;
-  var TASK_CARD_SWIPE_OPEN_PX = 64;
-  var TASK_CARD_SWIPE_MAX_PX = 78;
-  var TASK_CARD_BLOCKED_SWIPE_MAX_PX = 16;
-  var TASK_QUEUE_REORDER_DIRECTION_LOCK_PX = TASK_CARD_SWIPE_DIRECTION_LOCK_PX;
-  var TASK_QUEUE_TOUCH_HOLD_MS = 280;
-  var TASK_QUEUE_REORDER_HINT_STORAGE_KEY = "ilab-conjure-queue-reorder-hint-v1";
-  var TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO = 1.25;
-  var TASK_CARD_GESTURE_FORCE_COMMIT_PX = 18;
-  function taskCardSwipeActionRequiresConfirmation(action) {
-    return action === "stop";
-  }
-  function resolveTaskCardGestureAxis(deltaX, deltaY, directionLockPx = TASK_CARD_SWIPE_DIRECTION_LOCK_PX) {
-    const absX = Math.abs(deltaX);
-    const absY = Math.abs(deltaY);
-    const distance = Math.hypot(deltaX, deltaY);
-    if (distance < directionLockPx) return "pending";
-    if (absX >= absY * TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO) return "horizontal";
-    if (absY >= absX * TASK_CARD_GESTURE_AXIS_DOMINANCE_RATIO) return "vertical";
-    if (distance < TASK_CARD_GESTURE_FORCE_COMMIT_PX) return "pending";
-    return absX >= absY ? "horizontal" : "vertical";
-  }
-  function resolveTaskQueueReorderIntent(pointerType, holdReady, deltaX, deltaY) {
-    const axis = resolveTaskCardGestureAxis(
-      deltaX,
-      deltaY,
-      TASK_QUEUE_REORDER_DIRECTION_LOCK_PX
-    );
-    if (axis === "pending") return "pending";
-    if (axis === "horizontal") return "horizontal";
-    if (pointerType === "mouse" || holdReady) return "reorder";
-    return "scroll";
-  }
-  function mergeTaskQueueReorderIds(currentIds, renderedIds) {
-    const currentSet = new Set(currentIds);
-    const reorderedVisibleIds = renderedIds.filter((taskId) => currentSet.has(taskId));
-    const reorderedVisibleSet = new Set(reorderedVisibleIds);
-    let visibleIndex = 0;
-    return currentIds.map((taskId) => {
-      if (!reorderedVisibleSet.has(taskId)) return taskId;
-      return reorderedVisibleIds[visibleIndex++] || taskId;
-    });
-  }
-  var TERMINAL_TASK_CARD_SWIPE_ACTIONS = {
-    positive: "archive",
-    negative: "delete"
-  };
-  function taskCardSwipeActionsForState(queueSection, status, localPending = false) {
-    if (localPending || ["submitting", "cancelling"].includes(status)) {
-      return { positive: null, negative: null };
+  // codex_image/webui/frontend/src/task-card-view.ts
+  function createTaskCardView(dependencies) {
+    const { getState: getState2, activeTaskSections: activeTaskSections2, compressTaskImageBlockStates: compressTaskImageBlockStates3, elapsedTimerSpan: elapsedTimerSpan4, escapeHtml: escapeHtml21, formatTaskCardStatus: formatTaskCardStatus3, formatTaskStatus: formatTaskStatus5, queueTaskIdsBySection: queueTaskIdsBySection2, taskApiProviderId: taskApiProviderId4, taskApiProviderLabel: taskApiProviderLabel4, taskCardRetryStateText: taskCardRetryStateText3, taskCompletionTimestampText: taskCompletionTimestampText3, taskCompletionTimestampTitle: taskCompletionTimestampTitle3, taskDurationText: taskDurationText3, taskGroupCount: taskGroupCount3, taskHasUnreadUpdate: taskHasUnreadUpdate2, taskImageBlockStates: taskImageBlockStates3, taskImageStatusCounts: taskImageStatusCounts3, taskInputPreviewUrls: taskInputPreviewUrls3, taskOutputUrls: taskOutputUrls5, taskProgressStartValue: taskProgressStartValue5, taskQueueSection: taskQueueSection2, taskRetryStateText: taskRetryStateText5, taskRuntimeText: taskRuntimeText3, taskThumbnailUrls: taskThumbnailUrls3, timestampMs: timestampMs4, waitingQueueIndex: waitingQueueIndex2, isQueueDispatchPending: isQueueDispatchPending2 } = dependencies;
+    const TASK_THUMB_OUTER_SPIN_DURATION_MS = 1300;
+    const TASK_THUMB_INNER_SPIN_DURATION_MS = 950;
+    const TASK_THUMB_INNER_SPIN_OFFSET_MS = 280;
+    function expandedTaskGroupHeaderHtml2(group, options = {}) {
+      const groupKey = escapeHtml21(group.key);
+      const startExpanded = options.startExpanded !== false;
+      return `
+    <button
+      class="task-group-header task-group-header-split"
+      type="button"
+      data-task-group-toggle-key="${groupKey}"
+      data-task-group-expanded="true"
+      aria-expanded="${startExpanded ? "true" : "false"}"
+      aria-label="${escapeHtml21(formatTranslation("taskGroup.collapse", { label: group.label }))}"
+    >
+      <span class="task-group-label-button">
+        <span class="task-group-title">
+          <span class="task-group-label">${escapeHtml21(group.label)}</span>
+          <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
+          <span class="task-group-count">${taskGroupCount3(group)}</span>
+        </span>
+      </span>
+      <span
+        class="task-group-arrow-button"
+        aria-hidden="true"
+      >
+        <span class="task-group-toggle" aria-hidden="true">
+          <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
+            <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+          </svg>
+        </span>
+      </span>
+    </button>
+  `;
     }
-    if (queueSection === "running") return { positive: null, negative: "stop" };
-    if (queueSection === "waiting") return { positive: "promote", negative: "cancel" };
-    if (["queued", "running"].includes(status)) return { positive: null, negative: null };
-    return { ...TERMINAL_TASK_CARD_SWIPE_ACTIONS };
-  }
-  function resolveTaskCardSwipeSurfaceOffset(offset) {
-    const normalizedOffset = Number.isFinite(offset) ? offset : 0;
-    return Math.max(
-      -TASK_CARD_SWIPE_MAX_PX,
-      Math.min(TASK_CARD_SWIPE_MAX_PX, normalizedOffset)
-    );
-  }
-  function resolveTaskCardSwipe(deltaX, deltaY, cardWidth, startOffset = 0, actions = TERMINAL_TASK_CARD_SWIPE_ACTIONS) {
-    const safeWidth = Math.max(1, cardWidth);
-    const axis = resolveTaskCardGestureAxis(deltaX, deltaY);
-    if (axis === "pending") {
-      return {
-        axis: "pending",
-        direction: null,
-        revealDirection: null,
-        offset: startOffset,
-        ready: false
-      };
+    function renderExpandedTaskGroupBodyShellHtml2(group) {
+      const groupKey = escapeHtml21(group.key);
+      return `
+    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
+      <div class="task-group-items task-group-items-expanded" data-expanded-task-group-items-key="${groupKey}"></div>
+    </section>
+  `;
     }
-    if (axis === "vertical") {
-      return {
-        axis: "vertical",
-        direction: null,
-        revealDirection: null,
-        offset: startOffset,
-        ready: false
-      };
+    function renderExpandedTaskGroupShellHtml2(group, options = {}) {
+      const groupKey = escapeHtml21(group.key);
+      return `
+    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
+      ${expandedTaskGroupHeaderHtml2(group, options)}
+      <div class="task-group-items task-group-items-expanded" data-expanded-task-group-items-key="${groupKey}"></div>
+    </section>
+  `;
     }
-    const maxOffset = Math.min(TASK_CARD_SWIPE_MAX_PX, safeWidth * 0.36);
-    const rawOffset = startOffset + deltaX;
-    const positive = rawOffset >= 0;
-    const direction = positive ? actions.positive : actions.negative;
-    const allowedOffset = Math.max(-maxOffset, Math.min(maxOffset, rawOffset));
-    const blockedOffset = Math.max(
-      -TASK_CARD_BLOCKED_SWIPE_MAX_PX,
-      Math.min(TASK_CARD_BLOCKED_SWIPE_MAX_PX, rawOffset * 0.2)
-    );
-    const offset = direction ? allowedOffset : blockedOffset;
-    const revealDistance = direction === "stop" ? TASK_CARD_STOP_REVEAL_PX : positive ? TASK_CARD_ARCHIVE_REVEAL_PX : TASK_CARD_DELETE_REVEAL_PX;
-    const ready = Boolean(direction) && Math.abs(offset) >= revealDistance;
-    return {
-      axis: "horizontal",
-      direction,
-      revealDirection: ready ? direction : null,
-      offset,
-      ready
-    };
+    function activeTaskSectionHtml2(key2, label, tasks) {
+      if (!tasks.length) return "";
+      const sectionClass = key2 === "running" ? 'class="task-active-section task-active-section-running"' : 'class="task-active-section task-active-section-waiting"';
+      const sectionData = key2 === "running" ? 'data-active-task-section="running"' : 'data-active-task-section="waiting"';
+      const reorderHint = key2 === "waiting" ? taskQueueReorderHintHtml2(tasks.length) : "";
+      return `
+    <div ${sectionClass} ${sectionData}>
+      <div class="task-active-section-title">
+        <span class="task-active-section-heading">
+          <span>${escapeHtml21(label)}</span>
+          <span class="task-active-section-count-separator" aria-hidden="true">\xB7</span>
+          <span class="task-active-section-count">${tasks.length}</span>
+        </span>
+        ${reorderHint}
+      </div>
+      <div class="task-active-section-items">
+        ${tasks.map((task) => taskCardHtml2(task)).join("")}
+      </div>
+    </div>
+  `;
+    }
+    function activeTaskDispatchPendingHtml2() {
+      return `
+    <div class="task-active-empty" data-active-task-section="dispatch-pending">
+      ${translate("taskGroup.dispatchPending")}
+    </div>
+  `;
+    }
+    function activeTaskGroupHtml2(group) {
+      const state33 = getState2();
+      const groupKey = escapeHtml21(group.key);
+      const sections = activeTaskSections2(group.tasks || []);
+      const dispatchPending = Boolean(isQueueDispatchPending2());
+      const collapsed = Boolean(state33.activeTaskGroupCollapsed);
+      const body = [
+        activeTaskSectionHtml2("running", translate("taskGroup.running"), sections.running),
+        activeTaskSectionHtml2("waiting", translate("taskGroup.waiting"), sections.waiting),
+        !sections.running.length && !sections.waiting.length && dispatchPending ? activeTaskDispatchPendingHtml2() : ""
+      ].join("");
+      const activeLabel = escapeHtml21(group.label);
+      const activeCount = group.tasks.length;
+      const toggleLabel = escapeHtml21(formatTranslation(collapsed ? "taskGroup.expand" : "taskGroup.collapse", { label: group.label }));
+      return `
+    <section class="task-group task-group-expanded task-group-active${collapsed ? " task-active-collapsed" : ""}" data-task-group="${groupKey}">
+      <button
+        class="task-group-header task-group-header-split task-active-group-header"
+        type="button"
+        data-active-task-group-toggle="true"
+        aria-expanded="${collapsed ? "false" : "true"}"
+        aria-label="${toggleLabel}"
+      >
+        <span class="task-group-label-button">
+          <span class="task-group-title">
+            <span class="task-group-label">${activeLabel}</span>
+            <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
+            <span class="task-group-count">${activeCount}</span>
+          </span>
+        </span>
+        <span class="task-history-anchor-arrow" aria-hidden="true">
+          <span class="task-group-toggle" aria-hidden="true">
+            <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
+              <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div class="task-group-items task-group-items-expanded" data-active-task-group-items aria-hidden="${collapsed ? "true" : "false"}"${collapsed ? " inert" : ""}>
+        ${body}
+      </div>
+    </section>
+  `;
+    }
+    function expandedTaskGroupHtml2(group) {
+      const groupKey = escapeHtml21(group.key);
+      return `
+    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
+      ${expandedTaskGroupHeaderHtml2(group)}
+      <div class="task-group-items task-group-items-expanded">
+        ${group.tasks.map((task) => taskCardHtml2(task)).join("")}
+      </div>
+    </section>
+  `;
+    }
+    function taskGroupHtml2(group) {
+      return expandedTaskGroupHtml2(group);
+    }
+    function taskGroupButtonLabel2(group) {
+      return formatTranslation("taskGroup.buttonLabel", { label: group.label, count: taskGroupCount3(group) });
+    }
+    function taskQueueReorderHintVisible2(waitingCount) {
+      if (waitingCount < 2) return false;
+      try {
+        return window.localStorage.getItem(TASK_QUEUE_REORDER_HINT_STORAGE_KEY) !== "1";
+      } catch {
+        return true;
+      }
+    }
+    function taskQueueReorderHintHtml2(waitingCount) {
+      if (!taskQueueReorderHintVisible2(waitingCount)) return "";
+      return `<span class="task-queue-reorder-hint">${escapeHtml21(translate("queue.dragWaiting"))}</span>`;
+    }
+    function taskCardSwipeActionLabel2(action) {
+      if (action === "archive") return translate("action.archive");
+      if (action === "delete") return translate("action.delete");
+      if (action === "stop") return translate("action.stop");
+      if (action === "promote") return translate("queue.promote");
+      return translate("action.cancel");
+    }
+    function taskCardSwipeActionTitle2(action) {
+      if (action === "stop") return translate("queue.cancelRunningTitle");
+      if (action === "promote") return translate("queue.promoteTitle");
+      if (action === "cancel") return translate("batch.cancelSelected");
+      return taskCardSwipeActionLabel2(action);
+    }
+    function taskCardSwipeActionHtml2(action) {
+      if (!action) return "";
+      const label = escapeHtml21(taskCardSwipeActionLabel2(action));
+      const title = escapeHtml21(taskCardSwipeActionTitle2(action));
+      return `<button class="task-card-swipe-action task-card-swipe-${action}" type="button" data-task-card-action="${action}" aria-label="${title}" title="${title}" tabindex="-1" disabled>${label}</button>`;
+    }
+    function taskCardSwipeActionsHtml2(actions) {
+      if (!actions.positive && !actions.negative) return "";
+      const actionGroupLabel = escapeHtml21(translate("taskActions.group"));
+      return `
+      <div class="task-card-swipe-actions" role="group" aria-label="${actionGroupLabel}" aria-hidden="true" inert>
+        ${taskCardSwipeActionHtml2(actions.positive)}
+        ${taskCardSwipeActionHtml2(actions.negative)}
+      </div>
+  `;
+    }
+    function taskCardSwipeKeyboardShortcuts2(actions, queueReorderable = false) {
+      const shortcuts = ["Shift+F10"];
+      if (actions.negative) shortcuts.push("Delete", "Shift+ArrowLeft");
+      if (actions.positive) shortcuts.push("Shift+ArrowRight");
+      if (queueReorderable) shortcuts.push("Alt+ArrowUp", "Alt+ArrowDown");
+      return shortcuts.join(" ");
+    }
+    function taskCardHtml2(task) {
+      const state33 = getState2();
+      const image = taskThumbHtml3(task);
+      const active = String(task.task_id) === String(state33.selectedTaskId) ? " active" : "";
+      const activeCurrent = active ? ' aria-current="true"' : "";
+      const unread = taskHasUnreadUpdate2(task);
+      const unreadClass = unread ? " unread" : "";
+      const statusClass = task.status ? ` ${escapeHtml21(task.status)}` : "";
+      const title = escapeHtml21(task.prompt || task.mode || "Untitled");
+      const taskId = escapeHtml21(task.task_id);
+      const showImageSummary = taskImageSummaryVisible2(task);
+      const imageBlocks = showImageSummary ? taskImageBlocksHtml2(task) : "";
+      const imageSummary = showImageSummary ? escapeHtml21(taskImageSummaryText2(task)) : "";
+      const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";
+      const groundingCount = groundingSourceCount(task);
+      const groundingHtml = groundingCount > 0 ? `<span class="task-grounding-badge">${escapeHtml21(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>` : "";
+      const retryFullText = taskRetryStateText5(task);
+      const retryText = taskCardRetryStateText3(task) || retryFullText;
+      const runningTimerHtml = taskCardRunningTimerHtml2(task, taskId);
+      const statusLabel = taskStatusLabelHtml2(task);
+      const modelFamilyIcon = taskModelFamilyIconHtml2(task);
+      const statusMetaText = retryText ? taskMetaDetailsWithCompletionText2(task) : taskMetaDetailsText3(task);
+      const statusMeta = escapeHtml21(statusMetaText);
+      const taskTime = taskCardCompletionTimeText2(task);
+      const runtime = taskCardRuntimeText3(task);
+      const runtimeFullText = taskRuntimeText3(task);
+      const completionTitle = taskCompletionTimestampTitle3(task);
+      const runtimeTitleText = [runtimeFullText, completionTitle].filter(Boolean).join(" \xB7 ");
+      const runtimeTitle = runtimeTitleText ? ` title="${escapeHtml21(runtimeTitleText)}"` : "";
+      const runtimeHtml = runtime ? `<span class="task-runtime" data-task-runtime-id="${taskId}" data-task-completed-at-id="${taskId}"${runtimeTitle}>${escapeHtml21(runtime)}</span>` : "";
+      const topTimeHtml = runningTimerHtml || runtimeHtml;
+      const imageRow = showImageSummary ? `
+          <span class="task-image-row">
+            ${imageBlocks}
+            <span class="task-status-row task-status-inline" aria-label="${escapeHtml21(taskStatusAccessibleLabel3(task))}">
+              ${statusLabel}
+              ${modelFamilyIcon}
+            </span>
+            ${imageSummaryHtml}
+          </span>
+    ` : "";
+      const retryTitle = retryFullText && retryFullText !== retryText ? ` title="${escapeHtml21(retryFullText)}"` : "";
+      const retryHtml = retryText ? `<span class="task-retry-state" data-task-retry-id="${taskId}"${retryTitle}>${escapeHtml21(retryText)}</span>` : "";
+      const timeHtml = !retryText && taskTime ? `<span class="task-card-time">${escapeHtml21(taskTime)}</span>` : "";
+      const detailRightHtml = retryHtml || timeHtml;
+      const detailRowClass = detailRightHtml ? "task-detail-row" : "task-detail-row task-detail-row-meta-only";
+      const detailRow = statusMeta || detailRightHtml ? `
+        <div class="${detailRowClass}">
+          <span class="task-status-meta" data-task-meta-id="${taskId}">${statusMeta}</span>
+          ${detailRightHtml}
+        </div>
+    ` : "";
+      const batchSelected = state33.batchSelectedTaskIds.includes(String(task.task_id));
+      const batchClass = state33.batchMode ? " batch-mode" : "";
+      const batchSelectedClass = batchSelected ? " batch-selected" : "";
+      const queueIds = queueTaskIdsBySection2();
+      const queueSection = taskQueueSection2(task, queueIds);
+      const queueClass = queueSection ? ` queue-${escapeHtml21(queueSection)}` : "";
+      const waitingIndexValue = waitingQueueIndex2(task.task_id, queueIds);
+      const queueReorderable = queueSection === "waiting" && waitingIndexValue >= 0 && (state33.queue.waiting || []).length > 1;
+      const queueReorderDescription = queueReorderable ? escapeHtml21(translate("queue.dragWaiting")) : "";
+      const queueReorderData = queueReorderable ? ` data-queue-reorderable="true" aria-description="${queueReorderDescription}"` : "";
+      const queueTaskData = queueSection === "waiting" ? ` data-queue-task-id="${taskId}"${queueReorderData}` : "";
+      const swipeActions = taskCardSwipeActionsForState(
+        queueSection,
+        String(task.status || ""),
+        Boolean(task.local_pending)
+      );
+      const swipeEnabled = Boolean(swipeActions.positive || swipeActions.negative);
+      const swipeActionsHtml = taskCardSwipeActionsHtml2(swipeActions);
+      const swipeKeyboardShortcuts = escapeHtml21(taskCardSwipeKeyboardShortcuts2(swipeActions, queueReorderable));
+      const batchSelect = state33.batchMode ? `
+      <button class="task-select-button" type="button" role="checkbox" data-batch-select-task-id="${taskId}" aria-checked="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml21(translate("taskList.selectSession"))}">
+        <span></span>
+      </button>
+    ` : "";
+      const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml21(translate("taskList.unreadUpdate"))}"></span>` : "";
+      const activeLabel = escapeHtml21(translate("taskList.viewing"));
+      return `
+    <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}" data-task-swipe-enabled="${swipeEnabled ? "true" : "false"}" data-task-swipe-positive-action="${escapeHtml21(swipeActions.positive || "")}" data-task-swipe-negative-action="${escapeHtml21(swipeActions.negative || "")}" data-active-label="${activeLabel}" aria-keyshortcuts="${swipeKeyboardShortcuts}"${activeCurrent}${queueTaskData}>
+      ${swipeActionsHtml}
+      <div class="task-card-swipe-surface">
+        <button type="button" class="task-touch-menu ghost-button" data-task-context-trigger aria-label="${escapeHtml21(translate("mobile.taskActions"))}" aria-haspopup="menu">\xB7\xB7\xB7</button>
+        ${batchSelect}
+        ${image}
+        <div class="task-info">
+          <div class="task-meta-row">
+            ${imageRow}
+            ${topTimeHtml}
+          </div>
+          <div class="task-title-row">
+            ${unreadDot}
+            <div class="task-title">${title}</div>
+          </div>
+          ${detailRow}
+          ${groundingHtml}
+        </div>
+      </div>
+    </div>
+  `;
+    }
+    function taskGroupLoadMoreHtml2(group) {
+      const state33 = getState2();
+      const renderedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+      const loadedCount = Math.max(
+        renderedCount,
+        Math.max(0, Number(state33.taskSidebarGroupLoadedCounts?.[String(group?.key || "")] || 0))
+      );
+      const totalCount = Math.max(0, Number(group?.count || 0));
+      if (!group?.key || loadedCount >= totalCount) return "";
+      const loading = String(state33.taskSidebarGroupLoading || "") === String(group.key);
+      const failed = String(state33.taskSidebarGroupLoadError || "") === String(group.key);
+      const groupKey = escapeHtml21(group.key);
+      if (loading) {
+        return `
+      <div
+        class="task-group-load-more task-group-load-more-sentinel"
+        data-auto-load-task-group="${groupKey}"
+        data-load-more-task-group="${groupKey}"
+        aria-busy="true"
+        aria-hidden="true"
+        hidden
+      ></div>
+    `;
+      }
+      if (failed) {
+        return `
+      <button
+        class="ghost-button text-sm task-group-load-more task-group-load-more-error"
+        type="button"
+        data-load-more-task-group="${groupKey}"
+      >${escapeHtml21(translate("taskGroup.loadFailedRetry"))}</button>
+    `;
+      }
+      return `
+    <div
+      class="task-group-load-more task-group-load-more-sentinel"
+      data-auto-load-task-group="${groupKey}"
+      data-load-more-task-group="${groupKey}"
+      aria-hidden="true"
+      hidden
+    ></div>
+  `;
+    }
+    function taskThumbShowsLoading2(task) {
+      const status = String(task?.status || "");
+      return Boolean(task?.local_pending || ["submitting", "queued", "running"].includes(status));
+    }
+    function taskThumbSpinnerStyle2(task) {
+      const origin = timestampMs4(task?.created_at);
+      if (origin === null) return "";
+      const elapsed = Math.max(0, Date.now() - origin);
+      const outerDelay = -(elapsed % TASK_THUMB_OUTER_SPIN_DURATION_MS);
+      const innerDelay = -((elapsed + TASK_THUMB_INNER_SPIN_OFFSET_MS) % TASK_THUMB_INNER_SPIN_DURATION_MS);
+      return ` style="--task-spinner-outer-delay: ${outerDelay}ms; --task-spinner-inner-delay: ${innerDelay}ms"`;
+    }
+    function taskThumbHtml3(task, className = "task-thumb") {
+      const outputUrl = taskOutputUrls5(task)[0];
+      const outputThumbnailUrl = taskThumbnailUrls3(task)[0];
+      const inputPreviewUrl = taskInputPreviewUrls3(task)[0];
+      const loading = taskThumbShowsLoading2(task);
+      const outputImageUrl = outputThumbnailUrl || outputUrl || (!loading ? task.preview_url : "");
+      const imageUrl = outputImageUrl || inputPreviewUrl || task.preview_url;
+      const safeClassName = escapeHtml21(className);
+      const loadingSpinner = loading ? `<span class="task-thumb-stack-spinner" aria-hidden="true"${taskThumbSpinnerStyle2(task)}></span>` : "";
+      if (outputImageUrl && inputPreviewUrl && outputImageUrl !== inputPreviewUrl) {
+        const imageToImageLabel = escapeHtml21(translate("taskCard.imageToImageThumb"));
+        return `
+      <div class="${safeClassName} task-thumb-stack" aria-label="${imageToImageLabel}">
+        <img class="task-thumb-output" src="${escapeHtml21(outputImageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        <span class="task-thumb-reference-badge" aria-hidden="true">
+          <img class="task-thumb-reference" src="${escapeHtml21(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        </span>
+        ${loadingSpinner}
+      </div>
+    `;
+      }
+      if (inputPreviewUrl && loading) {
+        const imageToImageLabel = escapeHtml21(translate("taskCard.imageToImageThumb"));
+        return `
+      <div class="${safeClassName} task-thumb-single task-thumb-loading-reference" aria-label="${imageToImageLabel}">
+        <img class="task-thumb-single-image" src="${escapeHtml21(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+        ${loadingSpinner}
+      </div>
+    `;
+      }
+      if (imageUrl) {
+        const thumbnailLabel = escapeHtml21(translate(inputPreviewUrl ? "taskCard.imageToImageThumb" : "taskCard.textToImageThumb"));
+        return `
+      <div class="${safeClassName} task-thumb-single" aria-label="${thumbnailLabel}">
+        <img class="task-thumb-single-image" src="${escapeHtml21(imageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
+      </div>
+    `;
+      }
+      if (taskWasCancelled(task)) {
+        return `<div class="${safeClassName} failed-thumb task-cancelled-thumb" aria-label="${escapeHtml21(translate("queue.runningCancelled"))}"><span>\xD7</span></div>`;
+      }
+      if (task.status === "failed") {
+        return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml21(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
+      }
+      return `<div class="${safeClassName} running-thumb"><span${taskThumbSpinnerStyle2(task)}></span></div>`;
+    }
+    function taskStatusLabelHtml2(task) {
+      const label = escapeHtml21(formatTaskCardStatus3(task) || translate("taskStatus.unknown"));
+      const taskId = escapeHtml21(task?.task_id || "");
+      return `<span class="task-status-label" data-task-status-id="${taskId}">${label}</span>`;
+    }
+    function taskModelFamilyIconHtml2(task) {
+      const state33 = getState2();
+      const familyId = taskModelFamilyId(task, state33.generationCatalog);
+      const modelName = taskModelDisplayName(task, state33.generationCatalog);
+      return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml21(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
+    }
+    function taskStatusAccessibleLabel3(task) {
+      const state33 = getState2();
+      return [
+        formatTaskCardStatus3(task) || translate("taskStatus.unknown"),
+        taskModelDisplayName(task, state33.generationCatalog),
+        taskImageSummaryText2(task),
+        taskMetaDetailsText3(task)
+      ].filter(Boolean).join(" \xB7 ");
+    }
+    function taskMetaDetailsText3(task) {
+      const backend = taskCardProviderLabel2(task);
+      return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
+    }
+    function taskMetaDetailsWithCompletionText2(task) {
+      const statusMeta = taskMetaDetailsText3(task);
+      const completion = taskCompletionTimestampText3(task);
+      return [statusMeta, completion?.shortText].filter(Boolean).join(" \xB7 ");
+    }
+    function taskCardCompletionTimeText2(task) {
+      const completion = taskCompletionTimestampText3(task);
+      return completion?.shortText || "";
+    }
+    function taskCardElapsedLineHtml2(key2, values, elapsedHtml) {
+      const marker = "__TASK_CARD_ELAPSED_TIMER__";
+      return formatTranslation(key2, { ...values, elapsed: marker }).split(marker).map((part) => escapeHtml21(part)).join(elapsedHtml);
+    }
+    function taskCardRunningTimerHtml2(task, taskId) {
+      if (!["running", "cancelling"].includes(String(task?.status || ""))) return "";
+      const startedAt = taskProgressStartValue5(task);
+      if (!startedAt) return "";
+      const elapsed = elapsedTimerSpan4("task-card-running", startedAt);
+      return `<span class="task-card-time task-card-running-timer" data-task-running-timer-id="${taskId}">${taskCardElapsedLineHtml2("preview.elapsedLine", {}, elapsed)}</span>`;
+    }
+    function taskCardProviderLabel2(task) {
+      const providerLabel = String(taskApiProviderLabel4(task) || "").trim();
+      const providerId = String(taskApiProviderId4(task) || "").trim();
+      const backend = String(task?.backend || task?.requested_backend || "").trim();
+      const channel = taskChannelLabel(task);
+      if (providerLabel && (!providerId || providerLabel !== providerId)) {
+        const providerIdSuffix = providerId ? `(${providerId})` : "";
+        const label = providerIdSuffix && providerLabel.endsWith(providerIdSuffix) ? providerLabel.slice(0, -providerIdSuffix.length).trim() : providerLabel;
+        return [label, channel].filter(Boolean).join(" \xB7 ");
+      }
+      if (backend === "codex_images") return "Codex Image";
+      if (backend === "codex_responses") return "Codex Responses";
+      if (backend === "openai_images") return "API Image";
+      if (backend === "openai_responses") return "API Responses";
+      return "";
+    }
+    function taskCardRuntimeText3(task) {
+      return taskDurationText3(task);
+    }
+    function taskImageBlocksHtml2(task) {
+      const states = taskImageBlockStates3(task);
+      const visibleStates = compressTaskImageBlockStates3(states);
+      const total = states.length;
+      const visibleCount = Math.min(total, 4);
+      const compressedClass = states.length > visibleStates.length ? " compressed" : "";
+      const blocks = visibleStates.map((blockState) => `<span class="task-image-block ${blockState}" aria-hidden="true"></span>`).join("");
+      return `<div class="task-image-progress${compressedClass}" style="--task-block-count: ${visibleCount}" aria-hidden="true">${blocks}</div>`;
+    }
+    function taskImageSummaryText2(task) {
+      const states = taskImageBlockStates3(task);
+      const counts = taskImageStatusCounts3(states);
+      const parts = [];
+      if (counts.running) parts.push(formatTranslation("taskCard.count", { count: counts.running }));
+      if (counts.queued || counts.waiting) {
+        const waitingCount = counts.queued + counts.waiting;
+        parts.push(formatTranslation(counts.running ? "taskCard.waitingCount" : "taskCard.count", { count: waitingCount }));
+      }
+      return parts.join(" \xB7 ");
+    }
+    function taskImageSummaryVisible2(task) {
+      void task;
+      return true;
+    }
+    function taskMetaText2(task) {
+      const status = formatTaskStatus5(task);
+      const backend = taskCardProviderLabel2(task);
+      return [status, ...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
+    }
+    return { expandedTaskGroupHeaderHtml: expandedTaskGroupHeaderHtml2, renderExpandedTaskGroupBodyShellHtml: renderExpandedTaskGroupBodyShellHtml2, renderExpandedTaskGroupShellHtml: renderExpandedTaskGroupShellHtml2, activeTaskSectionHtml: activeTaskSectionHtml2, activeTaskDispatchPendingHtml: activeTaskDispatchPendingHtml2, activeTaskGroupHtml: activeTaskGroupHtml2, expandedTaskGroupHtml: expandedTaskGroupHtml2, taskGroupHtml: taskGroupHtml2, taskGroupButtonLabel: taskGroupButtonLabel2, taskQueueReorderHintVisible: taskQueueReorderHintVisible2, taskQueueReorderHintHtml: taskQueueReorderHintHtml2, taskCardSwipeActionLabel: taskCardSwipeActionLabel2, taskCardSwipeActionTitle: taskCardSwipeActionTitle2, taskCardSwipeActionHtml: taskCardSwipeActionHtml2, taskCardSwipeActionsHtml: taskCardSwipeActionsHtml2, taskCardSwipeKeyboardShortcuts: taskCardSwipeKeyboardShortcuts2, taskCardHtml: taskCardHtml2, taskGroupLoadMoreHtml: taskGroupLoadMoreHtml2, taskThumbShowsLoading: taskThumbShowsLoading2, taskThumbSpinnerStyle: taskThumbSpinnerStyle2, taskThumbHtml: taskThumbHtml3, taskStatusLabelHtml: taskStatusLabelHtml2, taskModelFamilyIconHtml: taskModelFamilyIconHtml2, taskStatusAccessibleLabel: taskStatusAccessibleLabel3, taskMetaDetailsText: taskMetaDetailsText3, taskMetaDetailsWithCompletionText: taskMetaDetailsWithCompletionText2, taskCardCompletionTimeText: taskCardCompletionTimeText2, taskCardElapsedLineHtml: taskCardElapsedLineHtml2, taskCardRunningTimerHtml: taskCardRunningTimerHtml2, taskCardProviderLabel: taskCardProviderLabel2, taskCardRuntimeText: taskCardRuntimeText3, taskImageBlocksHtml: taskImageBlocksHtml2, taskImageSummaryText: taskImageSummaryText2, taskImageSummaryVisible: taskImageSummaryVisible2, taskMetaText: taskMetaText2 };
   }
 
   // codex_image/webui/frontend/src/history-task-reveal-model.ts
@@ -49273,20 +49981,530 @@ ${galleryText}`;
     );
   }
 
+  // codex_image/webui/frontend/src/task-list-model.ts
+  function createTaskListModel(dependencies) {
+    const { getState: getState2, taskArchived: taskArchived3, taskBackendLabel: taskBackendLabel3, taskFilterValues: taskFilterValues3, taskOrientation: taskOrientation3, taskOutputUrls: taskOutputUrls5, taskPromptFidelity: taskPromptFidelity3, taskRatio: taskRatio3, taskResolution: taskResolution3, timestampMs: timestampMs4 } = dependencies;
+    let queueTaskIdsCacheKey = "";
+    let queueTaskIdsCache = null;
+    function taskAnchorLayout2(groups, expandedKey, query) {
+      if (query) {
+        return {
+          top: [],
+          bottom: [],
+          expandedGroup: groups[0] || null,
+          expandedKey: groups[0]?.key || expandedKey || null,
+          queryMode: true
+        };
+      }
+      const index = groups.findIndex((group) => String(group.key) === String(expandedKey));
+      if (index < 0) {
+        return {
+          top: groups,
+          bottom: [],
+          expandedGroup: null,
+          expandedKey: null,
+          queryMode: false
+        };
+      }
+      return {
+        top: index > 0 ? groups.slice(0, index) : [],
+        bottom: groups.slice(index + 1),
+        expandedGroup: groups[index] || null,
+        expandedKey,
+        queryMode: false
+      };
+    }
+    function taskSearchHistoryResultMatches2(taskId, query) {
+      const state33 = getState2();
+      if (!taskId || !query) return false;
+      if (String(state33.taskSearchHistoryResultQuery || "") !== query) return false;
+      return (state33.taskSearchHistoryResultIds || []).some((id) => String(id) === taskId);
+    }
+    function taskMatchesSearch2(task, query) {
+      const normalizedQuery = String(query || "").trim().toLowerCase();
+      const taskId = String(task?.task_id || "");
+      if (taskSearchHistoryResultMatches2(taskId, normalizedQuery)) {
+        return true;
+      }
+      const text = `${task.task_id || ""} ${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel3(task)}`.toLowerCase();
+      return text.includes(normalizedQuery);
+    }
+    function taskMatchesFilters2(task, filters) {
+      if (filters.status && String(task?.status || "") !== filters.status) return false;
+      if (filters.ratio && taskRatio3(task) !== filters.ratio) return false;
+      if (filters.orientation && taskOrientation3(task) !== filters.orientation) return false;
+      if (filters.promptFidelity && taskPromptFidelity3(task) !== filters.promptFidelity) return false;
+      if (filters.resolution && taskResolution3(task) !== filters.resolution) return false;
+      return true;
+    }
+    function activeTaskSections2(tasks) {
+      const queueIds = queueTaskIdsBySection2();
+      const running = [];
+      const waiting = [];
+      tasks.forEach((task) => {
+        if (!isAlwaysVisibleTask2(task)) return;
+        const taskId = String(task?.task_id || "");
+        const status = String(task?.status || "");
+        if (queueIds.running.has(taskId) || status === "running" || status === "cancelling") {
+          running.push(task);
+        } else if (queueIds.waiting.has(taskId) || task?.local_pending || ["submitting", "queued"].includes(status)) {
+          waiting.push(task);
+        }
+      });
+      return { running, waiting };
+    }
+    function activeTaskGroup2(tasks, query = "") {
+      if (query) return null;
+      const activeTasks = activeTasksForGroup2(tasks);
+      if (!activeTasks.length) return null;
+      return {
+        key: "active",
+        label: translate("sidebar.activeTasks"),
+        tasks: activeTasks,
+        collapsible: false,
+        defaultCollapsed: false
+      };
+    }
+    function taskQueueSection2(task, queueIds = queueTaskIdsBySection2()) {
+      const taskId = String(task?.task_id || "");
+      if (!taskId) return "";
+      if (queueIds.running.has(taskId)) return "running";
+      if (queueIds.waiting.has(taskId)) return "waiting";
+      return "";
+    }
+    function waitingQueueIndex2(taskId, queueIds = queueTaskIdsBySection2()) {
+      const normalizedTaskId = String(taskId || "");
+      return queueIds.waiting.get(normalizedTaskId) ?? -1;
+    }
+    function taskHasUnreadUpdate2(task) {
+      const state33 = getState2();
+      if (!task || task.local_pending) return false;
+      if (String(task.task_id) === String(state33.selectedTaskId)) return false;
+      if (!task.viewed_at) return false;
+      if (!taskHasViewableUpdate3(task)) return false;
+      const viewedAt = timestampMs4(task.viewed_at);
+      const updatedAt = timestampMs4(task.updated_at || task.completed_at || task.started_at || task.created_at);
+      return viewedAt !== null && updatedAt !== null && updatedAt > viewedAt;
+    }
+    function taskHasViewableUpdate3(task) {
+      const status = String(task?.status || "");
+      return ["completed", "failed", "partial_failed"].includes(status) || taskOutputUrls5(task).length > 0;
+    }
+    function taskHistoryGroups2(tasks, query) {
+      const state33 = getState2();
+      if (query) {
+        return [{
+          key: "search",
+          label: translate("taskGroup.searchResults"),
+          tasks,
+          collapsible: false,
+          defaultCollapsed: false
+        }];
+      }
+      const groups = [];
+      const assignedTaskIds = /* @__PURE__ */ new Set();
+      const addGroup = (key2, label, groupTasks, options = {}) => {
+        const count = Math.max(groupTasks.length, Number(options.count || 0));
+        if (!count) return;
+        groups.push({
+          key: key2,
+          label,
+          tasks: groupTasks,
+          count,
+          collapsible: Boolean(options.collapsible),
+          defaultCollapsed: Boolean(options.defaultCollapsed)
+        });
+        groupTasks.forEach((task) => assignedTaskIds.add(String(task.task_id)));
+      };
+      const filters = taskFilterValues3();
+      const useServerCounts = Object.values(filters).every((value) => !String(value || ""));
+      const serverCount = (key2) => useServerCounts ? Math.max(0, Number(state33.taskSidebarGroupCounts?.[key2] || 0)) : 0;
+      const historicalTasks = tasks.filter((task) => !isAlwaysVisibleTask2(task)).slice().sort((left, right) => taskHistoryActivityTimestamp2(right) - taskHistoryActivityTimestamp2(left) || String(right?.task_id || "").localeCompare(String(left?.task_id || "")));
+      const unassignedTasks = () => historicalTasks.filter((task) => !assignedTaskIds.has(String(task.task_id)));
+      const reveal = state33.historyTaskReveal;
+      const transientTaskId = reveal?.ready && reveal?.kind === "transient" && String(reveal?.taskId || "") === String(state33.selectedTaskId || "") ? String(reveal.taskId) : "";
+      if (transientTaskId) {
+        addGroup(
+          "current",
+          translate("taskGroup.current"),
+          unassignedTasks().filter((task) => String(task?.task_id || "") === transientTaskId),
+          { collapsible: true, defaultCollapsed: false }
+        );
+      }
+      addGroup(
+        "today",
+        translate("taskGroup.today"),
+        unassignedTasks().filter((task) => taskDateBucket2(task) === "today"),
+        { collapsible: true, defaultCollapsed: false, count: serverCount("today") }
+      );
+      [
+        ["yesterday", translate("taskGroup.yesterday")],
+        ["last7", translate("taskGroup.last7")]
+      ].forEach(([key2, label]) => {
+        addGroup(
+          key2,
+          label,
+          unassignedTasks().filter((task) => taskDateBucket2(task) === key2),
+          { collapsible: true, defaultCollapsed: true, count: serverCount(String(key2)) }
+        );
+      });
+      return groups;
+    }
+    function isAlwaysVisibleTask2(task) {
+      const status = String(task?.status || "");
+      if (["failed", "completed", "cancelled"].includes(status)) return false;
+      return Boolean(task?.local_pending || ["submitting", "queued", "running", "cancelling"].includes(status));
+    }
+    function queueTaskIdsBySection2() {
+      const state33 = getState2();
+      const runningIds = (state33.queue.running || []).map((task) => String(task.task_id || ""));
+      const waitingIds = (state33.queue.waiting || []).map((task) => String(task.task_id || ""));
+      const cacheKey = `${runningIds.join("|")}::${waitingIds.join("|")}`;
+      if (queueTaskIdsCache && queueTaskIdsCacheKey === cacheKey) return queueTaskIdsCache;
+      queueTaskIdsCacheKey = cacheKey;
+      queueTaskIdsCache = {
+        running: new Map((state33.queue.running || []).map((task, index) => [String(task.task_id), index])),
+        waiting: new Map((state33.queue.waiting || []).map((task, index) => [String(task.task_id), index]))
+      };
+      return queueTaskIdsCache;
+    }
+    function activeTaskOrderIndex2(task, sectionIds = queueTaskIdsBySection2()) {
+      const taskId = String(task?.task_id || "");
+      if (sectionIds.running.has(taskId)) return sectionIds.running.get(taskId) || 0;
+      if (String(task?.status || "") === "running") return 1e3;
+      if (sectionIds.waiting.has(taskId)) return 2e3 + (sectionIds.waiting.get(taskId) || 0);
+      if (task?.local_pending || String(task?.status || "") === "submitting") return 3e3;
+      if (String(task?.status || "") === "queued") return 4e3;
+      return 5e3;
+    }
+    function activeTasksForGroup2(tasks) {
+      const sectionIds = queueTaskIdsBySection2();
+      return tasks.filter((task) => isAlwaysVisibleTask2(task)).slice().sort((left, right) => activeTaskOrderIndex2(left, sectionIds) - activeTaskOrderIndex2(right, sectionIds));
+    }
+    function taskHistoryActivityTimestamp2(task) {
+      const timestamp = timestampMs4(task?.terminal_at || task?.completed_at || task?.created_at);
+      return timestamp === null ? Number.NEGATIVE_INFINITY : timestamp;
+    }
+    function taskDateBucket2(task) {
+      return sidebarTaskDateBucket(task);
+    }
+    function taskGroupCount3(group) {
+      const loadedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
+      return Math.max(loadedCount, Math.max(0, Number(group?.count || 0)));
+    }
+    function taskListRenderKey2(tasks, query, layout = {}, filters = {}, activeGroup = null) {
+      const state33 = getState2();
+      return JSON.stringify({
+        query,
+        filters,
+        activeQueue: activeQueueTaskListRenderKey2(),
+        activeGroup: activeGroup ? [activeGroup.key, activeGroup.label, activeGroup.tasks.length] : null,
+        activeTaskGroupCollapsed: Boolean(state33.activeTaskGroupCollapsed),
+        batchMode: state33.batchMode,
+        batchSelectedTaskIds: state33.batchSelectedTaskIds.map(String).sort(),
+        archivedTaskIds: state33.tasks.filter(taskArchived3).map((task) => String(task.task_id)).sort(),
+        expandedTaskGroupKey: state33.expandedTaskGroupKey,
+        historyTaskReveal: state33.historyTaskReveal?.ready ? [state33.historyTaskReveal.kind, state33.historyTaskReveal.groupKey, state33.historyTaskReveal.taskId] : null,
+        queryMode: Boolean(layout.queryMode),
+        expandedGroup: layout.expandedGroup ? [layout.expandedGroup.key, layout.expandedGroup.label, taskGroupCount3(layout.expandedGroup)] : null,
+        anchorGroups: [
+          (layout.top || []).map((group) => [group.key, taskGroupCount3(group)]),
+          (layout.bottom || []).map((group) => [group.key, taskGroupCount3(group)])
+        ],
+        tasks: tasks.map((task) => [
+          task.task_id,
+          task.status,
+          task.updated_at,
+          task.completed_at,
+          task.terminal_at,
+          task.started_at,
+          task.prompt,
+          task.mode,
+          task.backend,
+          task.requested_backend,
+          task.api_provider_id,
+          task.api_provider_name,
+          task.params?.api_provider_id,
+          task.params?.api_provider_name,
+          task.request?.webui_api_provider_id,
+          task.request?.webui_api_provider_name,
+          task.params?.size,
+          task.output_url,
+          Array.isArray(task.output_urls) ? task.output_urls.join("|") : "",
+          Array.isArray(task.input_thumbnail_urls) ? task.input_thumbnail_urls.join("|") : "",
+          Array.isArray(task.thumbnail_urls) ? task.thumbnail_urls.join("|") : "",
+          task.preview_url,
+          task.last_error || task.error || "",
+          task.attempts,
+          task.max_attempts,
+          Array.isArray(task.retrying_failed_slots) ? task.retrying_failed_slots.join(",") : "",
+          task.generated_count,
+          task.failed_count,
+          task.total_count,
+          Array.isArray(task.input_sources) ? task.input_sources.map((item) => [item?.kind, item?.image_url, item?.thumbnail_url].join(":")).join("|") : "",
+          Array.isArray(task.outputs) ? task.outputs.map((item) => [item?.index, item?.status, item?.url, item?.thumbnail_url, item?.error].join(":")).join("|") : "",
+          groundingAttributionKey(task)
+        ])
+      });
+    }
+    function activeQueueTaskListRenderKey2() {
+      const state33 = getState2();
+      return {
+        running: (state33.queue.running || []).map((task) => String(task.task_id || "")),
+        waiting: (state33.queue.waiting || []).map((task) => String(task.task_id || ""))
+      };
+    }
+    return { taskAnchorLayout: taskAnchorLayout2, taskSearchHistoryResultMatches: taskSearchHistoryResultMatches2, taskMatchesSearch: taskMatchesSearch2, taskMatchesFilters: taskMatchesFilters2, activeTaskSections: activeTaskSections2, activeTaskGroup: activeTaskGroup2, taskQueueSection: taskQueueSection2, waitingQueueIndex: waitingQueueIndex2, taskHasUnreadUpdate: taskHasUnreadUpdate2, taskHasViewableUpdate: taskHasViewableUpdate3, taskHistoryGroups: taskHistoryGroups2, isAlwaysVisibleTask: isAlwaysVisibleTask2, queueTaskIdsBySection: queueTaskIdsBySection2, activeTaskOrderIndex: activeTaskOrderIndex2, activeTasksForGroup: activeTasksForGroup2, taskHistoryActivityTimestamp: taskHistoryActivityTimestamp2, taskDateBucket: taskDateBucket2, taskGroupCount: taskGroupCount3, taskListRenderKey: taskListRenderKey2, activeQueueTaskListRenderKey: activeQueueTaskListRenderKey2 };
+  }
+
+  // codex_image/webui/frontend/src/task-list-viewport.ts
+  function createTaskListViewport(dependencies) {
+    const { getState: getState2, els: els44, consumeLatestTaskNavigationScrollAnchor: consumeLatestTaskNavigationScrollAnchor3, expandedTaskGroupHeaderHtml: expandedTaskGroupHeaderHtml2, scheduleLatestTaskNavigationRefresh: scheduleLatestTaskNavigationRefresh3, scheduleSidebarTaskGroupAutoLoad: scheduleSidebarTaskGroupAutoLoad3, taskCardHtml: taskCardHtml2, taskGroupCount: taskGroupCount3, taskGroupLoadMoreHtml: taskGroupLoadMoreHtml2, updateTaskElapsedDisplays: updateTaskElapsedDisplays3, cancelActiveTaskQueueReorder: cancelActiveTaskQueueReorder2, consumeExpansionAnimation } = dependencies;
+    let expandedTaskGroupRenderToken = 0;
+    let deferredActiveTaskHtml = null;
+    const EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT = 24;
+    const EXPANDED_TASK_GROUP_CHUNK_SIZE = 48;
+    const EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS = 320;
+    function captureTaskListScrollAnchors2() {
+      const historyAnchor = captureTaskListScrollAnchor2(
+        els44.sidebarContent || els44.taskHistoryShell || els44.taskList,
+        els44.taskList,
+        { retryMissingTask: true }
+      );
+      return [
+        captureTaskListScrollAnchor2(els44.taskActiveList, els44.taskActiveList),
+        consumeLatestTaskNavigationScrollAnchor3(historyAnchor)
+      ].filter((anchor) => Boolean(anchor));
+    }
+    function captureTaskListScrollAnchor2(scroller, root, { retryMissingTask = false } = {}) {
+      if (!scroller || !root) return null;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const cards = Array.from(root.querySelectorAll(".task-card[data-task-id]"));
+      const visibleCard = cards.find((card) => {
+        const rect2 = card.getBoundingClientRect();
+        return rect2.bottom > scrollerRect.top && rect2.top < scrollerRect.bottom;
+      });
+      if (!visibleCard) return { scroller, root, scrollTop: scroller.scrollTop, retryMissingTask };
+      const rect = visibleCard.getBoundingClientRect();
+      const anchor = {
+        scroller,
+        root,
+        scrollTop: scroller.scrollTop,
+        offsetTop: rect.top - scrollerRect.top,
+        retryMissingTask
+      };
+      if (visibleCard.dataset.taskId) anchor.taskId = visibleCard.dataset.taskId;
+      return anchor;
+    }
+    function restoreTaskListScrollAnchors2(anchors) {
+      anchors.forEach(restoreTaskListScrollAnchor2);
+    }
+    function restoreTaskListScrollAnchor2(anchor) {
+      if (!anchor?.scroller) return;
+      let attempts = 12;
+      const restore = () => {
+        if (!anchor.scroller.isConnected) return;
+        if (anchor.taskId) {
+          const card = anchor.root.querySelector(`.task-card[data-task-id="${cssEscape(anchor.taskId)}"]`);
+          if (card instanceof HTMLElement) {
+            const scrollerRect = anchor.scroller.getBoundingClientRect();
+            const rect = card.getBoundingClientRect();
+            anchor.scroller.scrollTop += rect.top - scrollerRect.top - (anchor.offsetTop || 0);
+            return;
+          }
+        }
+        if (anchor.taskId && anchor.retryMissingTask && attempts > 0) {
+          attempts -= 1;
+          requestAnimationFrame(restore);
+          return;
+        }
+        anchor.scroller.scrollTop = anchor.scrollTop;
+      };
+      restore();
+    }
+    function applyActiveTaskGroupHtml2(activeHtml) {
+      if (!els44.taskActiveList) return;
+      els44.taskActiveList.innerHTML = activeHtml;
+      els44.taskActiveList.classList.toggle("hidden", !activeHtml);
+    }
+    function draggedTaskStillWaiting2() {
+      const state33 = getState2();
+      const taskId = String(state33.queueDragTaskId || "");
+      return Boolean(taskId && (state33.queue.waiting || []).some(
+        (task) => String(task?.task_id || "") === taskId
+      ));
+    }
+    function renderActiveTaskGroup2(activeHtml) {
+      const state33 = getState2();
+      if (!els44.taskActiveList) return;
+      if (state33.queueDragTaskId && draggedTaskStillWaiting2()) {
+        deferredActiveTaskHtml = activeHtml;
+        return;
+      }
+      if (state33.queueDragTaskId) {
+        cancelActiveTaskQueueReorder2({ flushDeferred: false });
+      }
+      deferredActiveTaskHtml = null;
+      applyActiveTaskGroupHtml2(activeHtml);
+    }
+    function flushDeferredActiveTaskGroupRender2() {
+      const state33 = getState2();
+      if (state33.queueDragTaskId || deferredActiveTaskHtml === null) return false;
+      const activeHtml = deferredActiveTaskHtml;
+      deferredActiveTaskHtml = null;
+      const anchor = captureTaskListScrollAnchor2(els44.taskActiveList, els44.taskActiveList);
+      applyActiveTaskGroupHtml2(activeHtml);
+      restoreTaskListScrollAnchor2(anchor);
+      updateTaskElapsedDisplays3();
+      return true;
+    }
+    function discardDeferredActiveTaskGroupRender2() {
+      if (deferredActiveTaskHtml === null) return false;
+      deferredActiveTaskHtml = null;
+      return true;
+    }
+    function expandedTaskGroupBodyElements2(groupKey) {
+      const escapedGroupKey = cssEscape(groupKey);
+      const body = els44.taskList?.querySelector(
+        `.task-group-items-expanded[data-expanded-task-group-items-key="${escapedGroupKey}"]`
+      );
+      const headerButton = els44.taskHistoryCurrentAnchor?.querySelector(
+        `.task-group-header-split[data-task-group-toggle-key="${escapedGroupKey}"]`
+      );
+      return { body, headerButton };
+    }
+    function finalizeExpandedTaskGroupBody2(groupKey) {
+      const { body, headerButton } = expandedTaskGroupBodyElements2(groupKey);
+      headerButton?.setAttribute("aria-expanded", "true");
+      if (!body) return;
+      body.style.maxHeight = "none";
+      body.style.opacity = "1";
+    }
+    function animateExpandedTaskGroupBody2(groupKey) {
+      if (prefersReducedMotion()) {
+        finalizeExpandedTaskGroupBody2(groupKey);
+        return;
+      }
+      const { body, headerButton } = expandedTaskGroupBodyElements2(groupKey);
+      if (!body) return;
+      headerButton?.setAttribute("aria-expanded", "false");
+      body.style.maxHeight = "0px";
+      body.style.opacity = "0";
+      void body.offsetHeight;
+      requestAnimationFrame(() => {
+        headerButton?.setAttribute("aria-expanded", "true");
+        body.style.maxHeight = `${body.scrollHeight}px`;
+        body.style.opacity = "1";
+      });
+      let fallbackTimerId = 0;
+      const finalize = () => {
+        window.clearTimeout(fallbackTimerId);
+        body.removeEventListener("transitionend", handleTransitionEnd);
+        body.style.maxHeight = "none";
+        body.style.opacity = "1";
+      };
+      const handleTransitionEnd = (event) => {
+        if (event.propertyName !== "max-height") return;
+        finalize();
+      };
+      body.addEventListener("transitionend", handleTransitionEnd);
+      fallbackTimerId = window.setTimeout(finalize, EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS);
+    }
+    function expandedTaskGroupItemsContainer2(groupKey) {
+      if (!els44.taskList) return null;
+      return els44.taskList.querySelector(
+        `.task-group-items-expanded[data-expanded-task-group-items-key="${cssEscape(groupKey)}"]`
+      );
+    }
+    function updateExpandedTaskGroupCount2(group) {
+      if (!group || !els44.taskHistoryCurrentAnchor) return;
+      const count = els44.taskHistoryCurrentAnchor.querySelector(".task-group-count");
+      if (count) count.textContent = String(taskGroupCount3(group));
+    }
+    function appendExpandedTaskGroupPage2(group, requestedGroupKey, activeGroupKey = null) {
+      const groupKey = String(group?.key || "");
+      const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
+      if (!groupKey || groupKey !== requestedGroupKey || normalizedActiveGroupKey !== groupKey) return false;
+      const body = expandedTaskGroupItemsContainer2(groupKey);
+      if (!body || body.dataset.renderComplete !== "true") return false;
+      const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
+      const existingCards = Array.from(body.querySelectorAll(".task-card[data-task-id]"));
+      if (existingCards.length > tasks.length) return false;
+      const existingCardsMatch = existingCards.every((card, index) => String(card.dataset.taskId || "") === String(tasks[index]?.task_id || ""));
+      if (!existingCardsMatch) return false;
+      body.querySelectorAll("[data-load-more-task-group]").forEach((element2) => element2.remove());
+      body.dataset.renderComplete = "false";
+      scheduleExpandedTaskGroupItemsRender2(group, normalizedActiveGroupKey, {
+        startIndex: existingCards.length,
+        preserveExisting: true
+      });
+      return true;
+    }
+    function scheduleExpandedTaskGroupItemsRender2(group, activeGroupKey = null, options = {}) {
+      const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
+      const groupKey = String(group?.key || "");
+      if (!groupKey) return;
+      const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
+      const preserveExisting = options.preserveExisting === true;
+      const startIndex = Math.min(tasks.length, Math.max(0, Number(options.startIndex || 0)));
+      const animationPending = consumeExpansionAnimation();
+      const shouldAnimateExpand = !preserveExisting && animationPending;
+      const token = ++expandedTaskGroupRenderToken;
+      let index = startIndex;
+      const renderChunk = () => {
+        if (token !== expandedTaskGroupRenderToken) return;
+        if (normalizedActiveGroupKey !== groupKey) return;
+        const body = expandedTaskGroupItemsContainer2(groupKey);
+        if (!body) return;
+        const firstChunk = index === startIndex;
+        const chunkSize = !preserveExisting && firstChunk ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT : EXPANDED_TASK_GROUP_CHUNK_SIZE;
+        const nextTasks = tasks.slice(index, index + chunkSize);
+        if (!nextTasks.length) {
+          body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml2(group));
+          finalizeExpandedTaskGroupBody2(groupKey);
+          body.dataset.renderComplete = "true";
+          scheduleLatestTaskNavigationRefresh3();
+          scheduleSidebarTaskGroupAutoLoad3();
+          return;
+        }
+        body.insertAdjacentHTML("beforeend", nextTasks.map((task) => taskCardHtml2(task)).join(""));
+        index += nextTasks.length;
+        if (firstChunk) {
+          if (shouldAnimateExpand) {
+            animateExpandedTaskGroupBody2(groupKey);
+          } else {
+            finalizeExpandedTaskGroupBody2(groupKey);
+          }
+        } else if (body.style.maxHeight && body.style.maxHeight !== "none") {
+          body.style.maxHeight = `${body.scrollHeight}px`;
+        }
+        if (index < tasks.length) {
+          requestAnimationFrame(renderChunk);
+        } else {
+          body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml2(group));
+          body.dataset.renderComplete = "true";
+          scheduleSidebarTaskGroupAutoLoad3();
+        }
+        scheduleLatestTaskNavigationRefresh3();
+      };
+      requestAnimationFrame(renderChunk);
+    }
+    function renderExpandedTaskGroupHeader2(group, options = {}) {
+      if (!els44.taskHistoryCurrentAnchor) return;
+      const html = group ? expandedTaskGroupHeaderHtml2(group, options) : "";
+      els44.taskHistoryCurrentAnchor.innerHTML = html;
+      els44.taskHistoryCurrentAnchor.classList.toggle("hidden", !html);
+    }
+    function invalidateTaskGroupRender2() {
+      expandedTaskGroupRenderToken += 1;
+    }
+    return { captureTaskListScrollAnchors: captureTaskListScrollAnchors2, captureTaskListScrollAnchor: captureTaskListScrollAnchor2, restoreTaskListScrollAnchors: restoreTaskListScrollAnchors2, restoreTaskListScrollAnchor: restoreTaskListScrollAnchor2, applyActiveTaskGroupHtml: applyActiveTaskGroupHtml2, draggedTaskStillWaiting: draggedTaskStillWaiting2, renderActiveTaskGroup: renderActiveTaskGroup2, flushDeferredActiveTaskGroupRender: flushDeferredActiveTaskGroupRender2, discardDeferredActiveTaskGroupRender: discardDeferredActiveTaskGroupRender2, expandedTaskGroupBodyElements: expandedTaskGroupBodyElements2, finalizeExpandedTaskGroupBody: finalizeExpandedTaskGroupBody2, animateExpandedTaskGroupBody: animateExpandedTaskGroupBody2, expandedTaskGroupItemsContainer: expandedTaskGroupItemsContainer2, updateExpandedTaskGroupCount: updateExpandedTaskGroupCount2, appendExpandedTaskGroupPage: appendExpandedTaskGroupPage2, scheduleExpandedTaskGroupItemsRender: scheduleExpandedTaskGroupItemsRender2, renderExpandedTaskGroupHeader: renderExpandedTaskGroupHeader2, invalidateTaskGroupRender: invalidateTaskGroupRender2 };
+  }
+
   // codex_image/webui/frontend/src/task-list-render.ts
   var bridge25 = getLegacyBridge();
   var state19 = bridge25.state;
   var els28 = bridge25.els;
-  var EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT = 24;
-  var EXPANDED_TASK_GROUP_CHUNK_SIZE = 48;
-  var EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS = 320;
-  var TASK_THUMB_OUTER_SPIN_DURATION_MS = 1300;
-  var TASK_THUMB_INNER_SPIN_DURATION_MS = 950;
-  var TASK_THUMB_INNER_SPIN_OFFSET_MS = 280;
-  var expandedTaskGroupRenderToken = 0;
-  var queueTaskIdsCacheKey = "";
-  var queueTaskIdsCache = null;
-  var deferredActiveTaskHtml = null;
   function legacyMethod31(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -49374,6 +50592,66 @@ ${galleryText}`;
   var taskCompletionTimestampText = (...args) => legacyMethod31("taskCompletionTimestampText", ...args);
   var taskCompletionTimestampTitle = (...args) => legacyMethod31("taskCompletionTimestampTitle", ...args);
   var timestampMs2 = (...args) => legacyMethod31("timestampMs", ...args);
+  var { taskAnchorLayout, taskSearchHistoryResultMatches, taskMatchesSearch, taskMatchesFilters, activeTaskSections, activeTaskGroup, taskQueueSection, waitingQueueIndex, taskHasUnreadUpdate, taskHasViewableUpdate, taskHistoryGroups, isAlwaysVisibleTask, queueTaskIdsBySection, activeTaskOrderIndex, activeTasksForGroup, taskHistoryActivityTimestamp, taskDateBucket, taskGroupCount, taskListRenderKey, activeQueueTaskListRenderKey } = createTaskListModel({
+    getState: () => ({ activeTaskGroupCollapsed: state19.activeTaskGroupCollapsed, batchMode: state19.batchMode, batchSelectedTaskIds: state19.batchSelectedTaskIds, expandedTaskGroupKey: state19.expandedTaskGroupKey, historyTaskReveal: state19.historyTaskReveal, queue: state19.queue, selectedTaskId: state19.selectedTaskId, taskSearchHistoryResultIds: state19.taskSearchHistoryResultIds, taskSearchHistoryResultQuery: state19.taskSearchHistoryResultQuery, taskSidebarGroupCounts: state19.taskSidebarGroupCounts, tasks: state19.tasks }),
+    taskArchived: (...args) => taskArchived(...args),
+    taskBackendLabel: (...args) => taskBackendLabel2(...args),
+    taskFilterValues: (...args) => taskFilterValues(...args),
+    taskOrientation: (...args) => taskOrientation(...args),
+    taskOutputUrls: (...args) => taskOutputUrls(...args),
+    taskPromptFidelity: (...args) => taskPromptFidelity(...args),
+    taskRatio: (...args) => taskRatio(...args),
+    taskResolution: (...args) => taskResolution(...args),
+    timestampMs: (...args) => timestampMs2(...args)
+  });
+  var { expandedTaskGroupHeaderHtml, renderExpandedTaskGroupBodyShellHtml, renderExpandedTaskGroupShellHtml, activeTaskSectionHtml, activeTaskDispatchPendingHtml, activeTaskGroupHtml, expandedTaskGroupHtml, taskGroupHtml, taskGroupButtonLabel, taskQueueReorderHintVisible, taskQueueReorderHintHtml, taskCardSwipeActionLabel, taskCardSwipeActionTitle, taskCardSwipeActionHtml, taskCardSwipeActionsHtml, taskCardSwipeKeyboardShortcuts, taskCardHtml, taskGroupLoadMoreHtml, taskThumbShowsLoading, taskThumbSpinnerStyle, taskThumbHtml, taskStatusLabelHtml, taskModelFamilyIconHtml, taskStatusAccessibleLabel: taskStatusAccessibleLabel2, taskMetaDetailsText: taskMetaDetailsText2, taskMetaDetailsWithCompletionText, taskCardCompletionTimeText, taskCardElapsedLineHtml, taskCardRunningTimerHtml, taskCardProviderLabel, taskCardRuntimeText: taskCardRuntimeText2, taskImageBlocksHtml, taskImageSummaryText, taskImageSummaryVisible, taskMetaText } = createTaskCardView({
+    getState: () => ({ activeTaskGroupCollapsed: state19.activeTaskGroupCollapsed, batchMode: state19.batchMode, batchSelectedTaskIds: state19.batchSelectedTaskIds, generationCatalog: state19.generationCatalog, queue: state19.queue, selectedTaskId: state19.selectedTaskId, taskSidebarGroupLoadError: state19.taskSidebarGroupLoadError, taskSidebarGroupLoadedCounts: state19.taskSidebarGroupLoadedCounts, taskSidebarGroupLoading: state19.taskSidebarGroupLoading }),
+    activeTaskSections: (...args) => activeTaskSections(...args),
+    compressTaskImageBlockStates: (...args) => compressTaskImageBlockStates(...args),
+    elapsedTimerSpan: (...args) => elapsedTimerSpan(...args),
+    escapeHtml: (...args) => escapeHtml14(...args),
+    formatTaskCardStatus: (...args) => formatTaskCardStatus2(...args),
+    formatTaskStatus: (...args) => formatTaskStatus2(...args),
+    queueTaskIdsBySection: (...args) => queueTaskIdsBySection(...args),
+    taskApiProviderId: (...args) => taskApiProviderId2(...args),
+    taskApiProviderLabel: (...args) => taskApiProviderLabel2(...args),
+    taskCardRetryStateText: (...args) => taskCardRetryStateText(...args),
+    taskCompletionTimestampText: (...args) => taskCompletionTimestampText(...args),
+    taskCompletionTimestampTitle: (...args) => taskCompletionTimestampTitle(...args),
+    taskDurationText: (...args) => taskDurationText(...args),
+    taskGroupCount: (...args) => taskGroupCount(...args),
+    taskHasUnreadUpdate: (...args) => taskHasUnreadUpdate(...args),
+    taskImageBlockStates: (...args) => taskImageBlockStates(...args),
+    taskImageStatusCounts: (...args) => taskImageStatusCounts(...args),
+    taskInputPreviewUrls: (...args) => taskInputPreviewUrls(...args),
+    taskOutputUrls: (...args) => taskOutputUrls(...args),
+    taskProgressStartValue: (...args) => taskProgressStartValue2(...args),
+    taskQueueSection: (...args) => taskQueueSection(...args),
+    taskRetryStateText: (...args) => taskRetryStateText2(...args),
+    taskRuntimeText: (...args) => taskRuntimeText(...args),
+    taskThumbnailUrls: (...args) => taskThumbnailUrls(...args),
+    timestampMs: (...args) => timestampMs2(...args),
+    waitingQueueIndex: (...args) => waitingQueueIndex(...args),
+    isQueueDispatchPending: () => legacyMethod31("isQueueDispatchPending")
+  });
+  var { captureTaskListScrollAnchors, captureTaskListScrollAnchor, restoreTaskListScrollAnchors, restoreTaskListScrollAnchor, applyActiveTaskGroupHtml, draggedTaskStillWaiting, renderActiveTaskGroup, flushDeferredActiveTaskGroupRender, discardDeferredActiveTaskGroupRender, expandedTaskGroupBodyElements, finalizeExpandedTaskGroupBody, animateExpandedTaskGroupBody, expandedTaskGroupItemsContainer, updateExpandedTaskGroupCount, appendExpandedTaskGroupPage, scheduleExpandedTaskGroupItemsRender, renderExpandedTaskGroupHeader, invalidateTaskGroupRender } = createTaskListViewport({
+    getState: () => ({ queue: state19.queue, queueDragTaskId: state19.queueDragTaskId }),
+    els: { taskHistoryShell: els28.taskHistoryShell, sidebarContent: els28.sidebarContent, taskActiveList: els28.taskActiveList, taskList: els28.taskList, taskHistoryCurrentAnchor: els28.taskHistoryCurrentAnchor },
+    consumeLatestTaskNavigationScrollAnchor: (...args) => consumeLatestTaskNavigationScrollAnchor(...args),
+    expandedTaskGroupHeaderHtml: (...args) => expandedTaskGroupHeaderHtml(...args),
+    scheduleLatestTaskNavigationRefresh: (...args) => scheduleLatestTaskNavigationRefresh(...args),
+    scheduleSidebarTaskGroupAutoLoad: (...args) => scheduleSidebarTaskGroupAutoLoad(...args),
+    taskCardHtml: (...args) => taskCardHtml(...args),
+    taskGroupCount: (...args) => taskGroupCount(...args),
+    taskGroupLoadMoreHtml: (...args) => taskGroupLoadMoreHtml(...args),
+    updateTaskElapsedDisplays: (...args) => updateTaskElapsedDisplays2(...args),
+    cancelActiveTaskQueueReorder: (options) => getLegacyBridge().methods.cancelActiveTaskQueueReorder?.(options),
+    consumeExpansionAnimation: () => {
+      const pending = state19.expandedTaskGroupAnimationPending === true;
+      state19.expandedTaskGroupAnimationPending = false;
+      return pending;
+    }
+  });
   function renderTasks2(options = {}) {
     if (options.preserveScroll) rememberLatestTaskNavigationBeforeRender();
     const scrollAnchors = options.preserveScroll ? captureTaskListScrollAnchors() : [];
@@ -49418,7 +50696,7 @@ ${galleryText}`;
     const activeHtml = activeGroup ? activeTaskGroupHtml(activeGroup) : "";
     renderActiveTaskGroup(activeHtml);
     if (!tasks.length) {
-      expandedTaskGroupRenderToken += 1;
+      invalidateTaskGroupRender();
       renderExpandedTaskGroupHeader(null);
       els28.taskList.innerHTML = `<div class="task-meta">${escapeHtml14(translate("taskList.empty"))}</div>`;
       updateDocumentTitle();
@@ -49427,7 +50705,7 @@ ${galleryText}`;
       return;
     }
     if (!layout.expandedGroup) {
-      expandedTaskGroupRenderToken += 1;
+      invalidateTaskGroupRender();
       renderExpandedTaskGroupHeader(null);
       els28.taskList.innerHTML = "";
       updateDocumentTitle();
@@ -49445,255 +50723,6 @@ ${galleryText}`;
     updateDocumentTitle();
     restoreTaskListScrollAnchors(scrollAnchors);
     scheduleLatestTaskNavigationRefresh();
-  }
-  function captureTaskListScrollAnchors() {
-    const historyAnchor = captureTaskListScrollAnchor(
-      els28.sidebarContent || els28.taskHistoryShell || els28.taskList,
-      els28.taskList,
-      { retryMissingTask: true }
-    );
-    return [
-      captureTaskListScrollAnchor(els28.taskActiveList, els28.taskActiveList),
-      consumeLatestTaskNavigationScrollAnchor(historyAnchor)
-    ].filter((anchor) => Boolean(anchor));
-  }
-  function captureTaskListScrollAnchor(scroller, root, { retryMissingTask = false } = {}) {
-    if (!scroller || !root) return null;
-    const scrollerRect = scroller.getBoundingClientRect();
-    const cards = Array.from(root.querySelectorAll(".task-card[data-task-id]"));
-    const visibleCard = cards.find((card) => {
-      const rect2 = card.getBoundingClientRect();
-      return rect2.bottom > scrollerRect.top && rect2.top < scrollerRect.bottom;
-    });
-    if (!visibleCard) return { scroller, root, scrollTop: scroller.scrollTop, retryMissingTask };
-    const rect = visibleCard.getBoundingClientRect();
-    const anchor = {
-      scroller,
-      root,
-      scrollTop: scroller.scrollTop,
-      offsetTop: rect.top - scrollerRect.top,
-      retryMissingTask
-    };
-    if (visibleCard.dataset.taskId) anchor.taskId = visibleCard.dataset.taskId;
-    return anchor;
-  }
-  function restoreTaskListScrollAnchors(anchors) {
-    anchors.forEach(restoreTaskListScrollAnchor);
-  }
-  function restoreTaskListScrollAnchor(anchor) {
-    if (!anchor?.scroller) return;
-    let attempts = 12;
-    const restore = () => {
-      if (!anchor.scroller.isConnected) return;
-      if (anchor.taskId) {
-        const card = anchor.root.querySelector(`.task-card[data-task-id="${cssEscape(anchor.taskId)}"]`);
-        if (card instanceof HTMLElement) {
-          const scrollerRect = anchor.scroller.getBoundingClientRect();
-          const rect = card.getBoundingClientRect();
-          anchor.scroller.scrollTop += rect.top - scrollerRect.top - (anchor.offsetTop || 0);
-          return;
-        }
-      }
-      if (anchor.taskId && anchor.retryMissingTask && attempts > 0) {
-        attempts -= 1;
-        requestAnimationFrame(restore);
-        return;
-      }
-      anchor.scroller.scrollTop = anchor.scrollTop;
-    };
-    restore();
-  }
-  function applyActiveTaskGroupHtml(activeHtml) {
-    if (!els28.taskActiveList) return;
-    els28.taskActiveList.innerHTML = activeHtml;
-    els28.taskActiveList.classList.toggle("hidden", !activeHtml);
-  }
-  function draggedTaskStillWaiting() {
-    const taskId = String(state19.queueDragTaskId || "");
-    return Boolean(taskId && (state19.queue.waiting || []).some(
-      (task) => String(task?.task_id || "") === taskId
-    ));
-  }
-  function renderActiveTaskGroup(activeHtml) {
-    if (!els28.taskActiveList) return;
-    if (state19.queueDragTaskId && draggedTaskStillWaiting()) {
-      deferredActiveTaskHtml = activeHtml;
-      return;
-    }
-    if (state19.queueDragTaskId) {
-      getLegacyBridge().methods.cancelActiveTaskQueueReorder?.({ flushDeferred: false });
-    }
-    deferredActiveTaskHtml = null;
-    applyActiveTaskGroupHtml(activeHtml);
-  }
-  function flushDeferredActiveTaskGroupRender() {
-    if (state19.queueDragTaskId || deferredActiveTaskHtml === null) return false;
-    const activeHtml = deferredActiveTaskHtml;
-    deferredActiveTaskHtml = null;
-    const anchor = captureTaskListScrollAnchor(els28.taskActiveList, els28.taskActiveList);
-    applyActiveTaskGroupHtml(activeHtml);
-    restoreTaskListScrollAnchor(anchor);
-    updateTaskElapsedDisplays2();
-    return true;
-  }
-  function discardDeferredActiveTaskGroupRender() {
-    if (deferredActiveTaskHtml === null) return false;
-    deferredActiveTaskHtml = null;
-    return true;
-  }
-  function taskAnchorLayout(groups, expandedKey, query) {
-    if (query) {
-      return {
-        top: [],
-        bottom: [],
-        expandedGroup: groups[0] || null,
-        expandedKey: groups[0]?.key || expandedKey || null,
-        queryMode: true
-      };
-    }
-    const index = groups.findIndex((group) => String(group.key) === String(expandedKey));
-    if (index < 0) {
-      return {
-        top: groups,
-        bottom: [],
-        expandedGroup: null,
-        expandedKey: null,
-        queryMode: false
-      };
-    }
-    return {
-      top: index > 0 ? groups.slice(0, index) : [],
-      bottom: groups.slice(index + 1),
-      expandedGroup: groups[index] || null,
-      expandedKey,
-      queryMode: false
-    };
-  }
-  function expandedTaskGroupBodyElements(groupKey) {
-    const escapedGroupKey = cssEscape(groupKey);
-    const body = els28.taskList?.querySelector(
-      `.task-group-items-expanded[data-expanded-task-group-items-key="${escapedGroupKey}"]`
-    );
-    const headerButton = els28.taskHistoryCurrentAnchor?.querySelector(
-      `.task-group-header-split[data-task-group-toggle-key="${escapedGroupKey}"]`
-    );
-    return { body, headerButton };
-  }
-  function finalizeExpandedTaskGroupBody(groupKey) {
-    const { body, headerButton } = expandedTaskGroupBodyElements(groupKey);
-    headerButton?.setAttribute("aria-expanded", "true");
-    if (!body) return;
-    body.style.maxHeight = "none";
-    body.style.opacity = "1";
-  }
-  function animateExpandedTaskGroupBody(groupKey) {
-    if (prefersReducedMotion()) {
-      finalizeExpandedTaskGroupBody(groupKey);
-      return;
-    }
-    const { body, headerButton } = expandedTaskGroupBodyElements(groupKey);
-    if (!body) return;
-    headerButton?.setAttribute("aria-expanded", "false");
-    body.style.maxHeight = "0px";
-    body.style.opacity = "0";
-    void body.offsetHeight;
-    requestAnimationFrame(() => {
-      headerButton?.setAttribute("aria-expanded", "true");
-      body.style.maxHeight = `${body.scrollHeight}px`;
-      body.style.opacity = "1";
-    });
-    let fallbackTimerId = 0;
-    const finalize = () => {
-      window.clearTimeout(fallbackTimerId);
-      body.removeEventListener("transitionend", handleTransitionEnd);
-      body.style.maxHeight = "none";
-      body.style.opacity = "1";
-    };
-    const handleTransitionEnd = (event) => {
-      if (event.propertyName !== "max-height") return;
-      finalize();
-    };
-    body.addEventListener("transitionend", handleTransitionEnd);
-    fallbackTimerId = window.setTimeout(finalize, EXPANDED_TASK_GROUP_ANIMATION_FALLBACK_MS);
-  }
-  function expandedTaskGroupItemsContainer(groupKey) {
-    if (!els28.taskList) return null;
-    return els28.taskList.querySelector(
-      `.task-group-items-expanded[data-expanded-task-group-items-key="${cssEscape(groupKey)}"]`
-    );
-  }
-  function updateExpandedTaskGroupCount(group) {
-    if (!group || !els28.taskHistoryCurrentAnchor) return;
-    const count = els28.taskHistoryCurrentAnchor.querySelector(".task-group-count");
-    if (count) count.textContent = String(taskGroupCount(group));
-  }
-  function appendExpandedTaskGroupPage(group, requestedGroupKey, activeGroupKey = null) {
-    const groupKey = String(group?.key || "");
-    const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
-    if (!groupKey || groupKey !== requestedGroupKey || normalizedActiveGroupKey !== groupKey) return false;
-    const body = expandedTaskGroupItemsContainer(groupKey);
-    if (!body || body.dataset.renderComplete !== "true") return false;
-    const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
-    const existingCards = Array.from(body.querySelectorAll(".task-card[data-task-id]"));
-    if (existingCards.length > tasks.length) return false;
-    const existingCardsMatch = existingCards.every((card, index) => String(card.dataset.taskId || "") === String(tasks[index]?.task_id || ""));
-    if (!existingCardsMatch) return false;
-    body.querySelectorAll("[data-load-more-task-group]").forEach((element2) => element2.remove());
-    body.dataset.renderComplete = "false";
-    scheduleExpandedTaskGroupItemsRender(group, normalizedActiveGroupKey, {
-      startIndex: existingCards.length,
-      preserveExisting: true
-    });
-    return true;
-  }
-  function scheduleExpandedTaskGroupItemsRender(group, activeGroupKey = null, options = {}) {
-    const tasks = Array.isArray(group?.tasks) ? group.tasks : [];
-    const groupKey = String(group?.key || "");
-    if (!groupKey) return;
-    const normalizedActiveGroupKey = String(activeGroupKey || groupKey);
-    const preserveExisting = options.preserveExisting === true;
-    const startIndex = Math.min(tasks.length, Math.max(0, Number(options.startIndex || 0)));
-    const shouldAnimateExpand = !preserveExisting && state19.expandedTaskGroupAnimationPending === true;
-    state19.expandedTaskGroupAnimationPending = false;
-    const token = ++expandedTaskGroupRenderToken;
-    let index = startIndex;
-    const renderChunk = () => {
-      if (token !== expandedTaskGroupRenderToken) return;
-      if (normalizedActiveGroupKey !== groupKey) return;
-      const body = expandedTaskGroupItemsContainer(groupKey);
-      if (!body) return;
-      const firstChunk = index === startIndex;
-      const chunkSize = !preserveExisting && firstChunk ? EXPANDED_TASK_GROUP_INITIAL_CARD_COUNT : EXPANDED_TASK_GROUP_CHUNK_SIZE;
-      const nextTasks = tasks.slice(index, index + chunkSize);
-      if (!nextTasks.length) {
-        body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
-        finalizeExpandedTaskGroupBody(groupKey);
-        body.dataset.renderComplete = "true";
-        scheduleLatestTaskNavigationRefresh();
-        scheduleSidebarTaskGroupAutoLoad();
-        return;
-      }
-      body.insertAdjacentHTML("beforeend", nextTasks.map((task) => taskCardHtml(task)).join(""));
-      index += nextTasks.length;
-      if (firstChunk) {
-        if (shouldAnimateExpand) {
-          animateExpandedTaskGroupBody(groupKey);
-        } else {
-          finalizeExpandedTaskGroupBody(groupKey);
-        }
-      } else if (body.style.maxHeight && body.style.maxHeight !== "none") {
-        body.style.maxHeight = `${body.scrollHeight}px`;
-      }
-      if (index < tasks.length) {
-        requestAnimationFrame(renderChunk);
-      } else {
-        body.insertAdjacentHTML("beforeend", taskGroupLoadMoreHtml(group));
-        body.dataset.renderComplete = "true";
-        scheduleSidebarTaskGroupAutoLoad();
-      }
-      scheduleLatestTaskNavigationRefresh();
-    };
-    requestAnimationFrame(renderChunk);
   }
   function taskCardRoot() {
     return els28.taskHistoryShell || els28.sidebarContent || els28.taskList;
@@ -49736,28 +50765,6 @@ ${galleryText}`;
       resolution: els28.taskResolutionFilter?.value || ""
     };
   }
-  function taskSearchHistoryResultMatches(taskId, query) {
-    if (!taskId || !query) return false;
-    if (String(state19.taskSearchHistoryResultQuery || "") !== query) return false;
-    return (state19.taskSearchHistoryResultIds || []).some((id) => String(id) === taskId);
-  }
-  function taskMatchesSearch(task, query) {
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    const taskId = String(task?.task_id || "");
-    if (taskSearchHistoryResultMatches(taskId, normalizedQuery)) {
-      return true;
-    }
-    const text = `${task.task_id || ""} ${task.prompt || ""} ${task.status || ""} ${task.mode || ""} ${taskBackendLabel2(task)}`.toLowerCase();
-    return text.includes(normalizedQuery);
-  }
-  function taskMatchesFilters(task, filters) {
-    if (filters.status && String(task?.status || "") !== filters.status) return false;
-    if (filters.ratio && taskRatio(task) !== filters.ratio) return false;
-    if (filters.orientation && taskOrientation(task) !== filters.orientation) return false;
-    if (filters.promptFidelity && taskPromptFidelity(task) !== filters.promptFidelity) return false;
-    if (filters.resolution && taskResolution(task) !== filters.resolution) return false;
-    return true;
-  }
   function filteredVisibleTasks(query = taskSearchQuery(), filters = taskFilterValues()) {
     return state19.tasks.filter((task) => {
       return !isTaskArchived(task.task_id) && taskMatchesSearch(task, query) && taskMatchesFilters(task, filters);
@@ -49794,699 +50801,6 @@ ${galleryText}`;
     if (clearedControls) {
       legacyMethod31("setStatus", translate("status.shownActiveTasks"), "ok");
     }
-  }
-  function expandedTaskGroupHeaderHtml(group, options = {}) {
-    const groupKey = escapeHtml14(group.key);
-    const startExpanded = options.startExpanded !== false;
-    return `
-    <button
-      class="task-group-header task-group-header-split"
-      type="button"
-      data-task-group-toggle-key="${groupKey}"
-      data-task-group-expanded="true"
-      aria-expanded="${startExpanded ? "true" : "false"}"
-      aria-label="${escapeHtml14(formatTranslation("taskGroup.collapse", { label: group.label }))}"
-    >
-      <span class="task-group-label-button">
-        <span class="task-group-title">
-          <span class="task-group-label">${escapeHtml14(group.label)}</span>
-          <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
-          <span class="task-group-count">${taskGroupCount(group)}</span>
-        </span>
-      </span>
-      <span
-        class="task-group-arrow-button"
-        aria-hidden="true"
-      >
-        <span class="task-group-toggle" aria-hidden="true">
-          <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
-            <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-          </svg>
-        </span>
-      </span>
-    </button>
-  `;
-  }
-  function renderExpandedTaskGroupHeader(group, options = {}) {
-    if (!els28.taskHistoryCurrentAnchor) return;
-    const html = group ? expandedTaskGroupHeaderHtml(group, options) : "";
-    els28.taskHistoryCurrentAnchor.innerHTML = html;
-    els28.taskHistoryCurrentAnchor.classList.toggle("hidden", !html);
-  }
-  function renderExpandedTaskGroupBodyShellHtml(group) {
-    const groupKey = escapeHtml14(group.key);
-    return `
-    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
-      <div class="task-group-items task-group-items-expanded" data-expanded-task-group-items-key="${groupKey}"></div>
-    </section>
-  `;
-  }
-  function renderExpandedTaskGroupShellHtml(group, options = {}) {
-    const groupKey = escapeHtml14(group.key);
-    return `
-    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
-      ${expandedTaskGroupHeaderHtml(group, options)}
-      <div class="task-group-items task-group-items-expanded" data-expanded-task-group-items-key="${groupKey}"></div>
-    </section>
-  `;
-  }
-  function activeTaskSections(tasks) {
-    const queueIds = queueTaskIdsBySection();
-    const running = [];
-    const waiting = [];
-    tasks.forEach((task) => {
-      if (!isAlwaysVisibleTask(task)) return;
-      const taskId = String(task?.task_id || "");
-      const status = String(task?.status || "");
-      if (queueIds.running.has(taskId) || status === "running" || status === "cancelling") {
-        running.push(task);
-      } else if (queueIds.waiting.has(taskId) || task?.local_pending || ["submitting", "queued"].includes(status)) {
-        waiting.push(task);
-      }
-    });
-    return { running, waiting };
-  }
-  function activeTaskSectionHtml(key2, label, tasks) {
-    if (!tasks.length) return "";
-    const sectionClass = key2 === "running" ? 'class="task-active-section task-active-section-running"' : 'class="task-active-section task-active-section-waiting"';
-    const sectionData = key2 === "running" ? 'data-active-task-section="running"' : 'data-active-task-section="waiting"';
-    const reorderHint = key2 === "waiting" ? taskQueueReorderHintHtml(tasks.length) : "";
-    return `
-    <div ${sectionClass} ${sectionData}>
-      <div class="task-active-section-title">
-        <span class="task-active-section-heading">
-          <span>${escapeHtml14(label)}</span>
-          <span class="task-active-section-count-separator" aria-hidden="true">\xB7</span>
-          <span class="task-active-section-count">${tasks.length}</span>
-        </span>
-        ${reorderHint}
-      </div>
-      <div class="task-active-section-items">
-        ${tasks.map((task) => taskCardHtml(task)).join("")}
-      </div>
-    </div>
-  `;
-  }
-  function activeTaskDispatchPendingHtml() {
-    return `
-    <div class="task-active-empty" data-active-task-section="dispatch-pending">
-      ${translate("taskGroup.dispatchPending")}
-    </div>
-  `;
-  }
-  function activeTaskGroup(tasks, query = "") {
-    if (query) return null;
-    const activeTasks = activeTasksForGroup(tasks);
-    if (!activeTasks.length) return null;
-    return {
-      key: "active",
-      label: translate("sidebar.activeTasks"),
-      tasks: activeTasks,
-      collapsible: false,
-      defaultCollapsed: false
-    };
-  }
-  function activeTaskGroupHtml(group) {
-    const groupKey = escapeHtml14(group.key);
-    const sections = activeTaskSections(group.tasks || []);
-    const dispatchPending = Boolean(legacyMethod31("isQueueDispatchPending"));
-    const collapsed = Boolean(state19.activeTaskGroupCollapsed);
-    const body = [
-      activeTaskSectionHtml("running", translate("taskGroup.running"), sections.running),
-      activeTaskSectionHtml("waiting", translate("taskGroup.waiting"), sections.waiting),
-      !sections.running.length && !sections.waiting.length && dispatchPending ? activeTaskDispatchPendingHtml() : ""
-    ].join("");
-    const activeLabel = escapeHtml14(group.label);
-    const activeCount = group.tasks.length;
-    const toggleLabel = escapeHtml14(formatTranslation(collapsed ? "taskGroup.expand" : "taskGroup.collapse", { label: group.label }));
-    return `
-    <section class="task-group task-group-expanded task-group-active${collapsed ? " task-active-collapsed" : ""}" data-task-group="${groupKey}">
-      <button
-        class="task-group-header task-group-header-split task-active-group-header"
-        type="button"
-        data-active-task-group-toggle="true"
-        aria-expanded="${collapsed ? "false" : "true"}"
-        aria-label="${toggleLabel}"
-      >
-        <span class="task-group-label-button">
-          <span class="task-group-title">
-            <span class="task-group-label">${activeLabel}</span>
-            <span class="task-group-count-separator" aria-hidden="true">\xB7</span>
-            <span class="task-group-count">${activeCount}</span>
-          </span>
-        </span>
-        <span class="task-history-anchor-arrow" aria-hidden="true">
-          <span class="task-group-toggle" aria-hidden="true">
-            <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
-              <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-            </svg>
-          </span>
-        </span>
-      </button>
-      <div class="task-group-items task-group-items-expanded" data-active-task-group-items aria-hidden="${collapsed ? "true" : "false"}"${collapsed ? " inert" : ""}>
-        ${body}
-      </div>
-    </section>
-  `;
-  }
-  function expandedTaskGroupHtml(group) {
-    const groupKey = escapeHtml14(group.key);
-    return `
-    <section class="task-group task-group-expanded" data-task-group="${groupKey}">
-      ${expandedTaskGroupHeaderHtml(group)}
-      <div class="task-group-items task-group-items-expanded">
-        ${group.tasks.map((task) => taskCardHtml(task)).join("")}
-      </div>
-    </section>
-  `;
-  }
-  function taskGroupHtml(group) {
-    return expandedTaskGroupHtml(group);
-  }
-  function taskGroupButtonLabel(group) {
-    return formatTranslation("taskGroup.buttonLabel", { label: group.label, count: taskGroupCount(group) });
-  }
-  function taskQueueSection(task, queueIds = queueTaskIdsBySection()) {
-    const taskId = String(task?.task_id || "");
-    if (!taskId) return "";
-    if (queueIds.running.has(taskId)) return "running";
-    if (queueIds.waiting.has(taskId)) return "waiting";
-    return "";
-  }
-  function waitingQueueIndex(taskId, queueIds = queueTaskIdsBySection()) {
-    const normalizedTaskId = String(taskId || "");
-    return queueIds.waiting.get(normalizedTaskId) ?? -1;
-  }
-  function taskQueueReorderHintVisible(waitingCount) {
-    if (waitingCount < 2) return false;
-    try {
-      return window.localStorage.getItem(TASK_QUEUE_REORDER_HINT_STORAGE_KEY) !== "1";
-    } catch {
-      return true;
-    }
-  }
-  function taskQueueReorderHintHtml(waitingCount) {
-    if (!taskQueueReorderHintVisible(waitingCount)) return "";
-    return `<span class="task-queue-reorder-hint">${escapeHtml14(translate("queue.dragWaiting"))}</span>`;
-  }
-  function taskCardSwipeActionLabel(action) {
-    if (action === "archive") return translate("action.archive");
-    if (action === "delete") return translate("action.delete");
-    if (action === "stop") return translate("action.stop");
-    if (action === "promote") return translate("queue.promote");
-    return translate("action.cancel");
-  }
-  function taskCardSwipeActionTitle(action) {
-    if (action === "stop") return translate("queue.cancelRunningTitle");
-    if (action === "promote") return translate("queue.promoteTitle");
-    if (action === "cancel") return translate("batch.cancelSelected");
-    return taskCardSwipeActionLabel(action);
-  }
-  function taskCardSwipeActionHtml(action) {
-    if (!action) return "";
-    const label = escapeHtml14(taskCardSwipeActionLabel(action));
-    const title = escapeHtml14(taskCardSwipeActionTitle(action));
-    return `<button class="task-card-swipe-action task-card-swipe-${action}" type="button" data-task-card-action="${action}" aria-label="${title}" title="${title}" tabindex="-1" disabled>${label}</button>`;
-  }
-  function taskCardSwipeActionsHtml(actions) {
-    if (!actions.positive && !actions.negative) return "";
-    const actionGroupLabel = escapeHtml14(translate("taskActions.group"));
-    return `
-      <div class="task-card-swipe-actions" role="group" aria-label="${actionGroupLabel}" aria-hidden="true" inert>
-        ${taskCardSwipeActionHtml(actions.positive)}
-        ${taskCardSwipeActionHtml(actions.negative)}
-      </div>
-  `;
-  }
-  function taskCardSwipeKeyboardShortcuts(actions, queueReorderable = false) {
-    const shortcuts = ["Shift+F10"];
-    if (actions.negative) shortcuts.push("Delete", "Shift+ArrowLeft");
-    if (actions.positive) shortcuts.push("Shift+ArrowRight");
-    if (queueReorderable) shortcuts.push("Alt+ArrowUp", "Alt+ArrowDown");
-    return shortcuts.join(" ");
-  }
-  function taskCardHtml(task) {
-    const image = taskThumbHtml(task);
-    const active = String(task.task_id) === String(state19.selectedTaskId) ? " active" : "";
-    const activeCurrent = active ? ' aria-current="true"' : "";
-    const unread = taskHasUnreadUpdate(task);
-    const unreadClass = unread ? " unread" : "";
-    const statusClass = task.status ? ` ${escapeHtml14(task.status)}` : "";
-    const title = escapeHtml14(task.prompt || task.mode || "Untitled");
-    const taskId = escapeHtml14(task.task_id);
-    const showImageSummary = taskImageSummaryVisible(task);
-    const imageBlocks = showImageSummary ? taskImageBlocksHtml(task) : "";
-    const imageSummary = showImageSummary ? escapeHtml14(taskImageSummaryText(task)) : "";
-    const imageSummaryHtml = imageSummary ? `<span class="task-image-summary">${imageSummary}</span>` : "";
-    const groundingCount = groundingSourceCount(task);
-    const groundingHtml = groundingCount > 0 ? `<span class="task-grounding-badge">${escapeHtml14(formatTranslation("grounding.sourceCount", { count: groundingCount }))}</span>` : "";
-    const retryFullText = taskRetryStateText2(task);
-    const retryText = taskCardRetryStateText(task) || retryFullText;
-    const runningTimerHtml = taskCardRunningTimerHtml(task, taskId);
-    const statusLabel = taskStatusLabelHtml(task);
-    const modelFamilyIcon = taskModelFamilyIconHtml(task);
-    const statusMetaText = retryText ? taskMetaDetailsWithCompletionText(task) : taskMetaDetailsText2(task);
-    const statusMeta = escapeHtml14(statusMetaText);
-    const taskTime = taskCardCompletionTimeText(task);
-    const runtime = taskCardRuntimeText2(task);
-    const runtimeFullText = taskRuntimeText(task);
-    const completionTitle = taskCompletionTimestampTitle(task);
-    const runtimeTitleText = [runtimeFullText, completionTitle].filter(Boolean).join(" \xB7 ");
-    const runtimeTitle = runtimeTitleText ? ` title="${escapeHtml14(runtimeTitleText)}"` : "";
-    const runtimeHtml = runtime ? `<span class="task-runtime" data-task-runtime-id="${taskId}" data-task-completed-at-id="${taskId}"${runtimeTitle}>${escapeHtml14(runtime)}</span>` : "";
-    const topTimeHtml = runningTimerHtml || runtimeHtml;
-    const imageRow = showImageSummary ? `
-          <span class="task-image-row">
-            ${imageBlocks}
-            <span class="task-status-row task-status-inline" aria-label="${escapeHtml14(taskStatusAccessibleLabel2(task))}">
-              ${statusLabel}
-              ${modelFamilyIcon}
-            </span>
-            ${imageSummaryHtml}
-          </span>
-    ` : "";
-    const retryTitle = retryFullText && retryFullText !== retryText ? ` title="${escapeHtml14(retryFullText)}"` : "";
-    const retryHtml = retryText ? `<span class="task-retry-state" data-task-retry-id="${taskId}"${retryTitle}>${escapeHtml14(retryText)}</span>` : "";
-    const timeHtml = !retryText && taskTime ? `<span class="task-card-time">${escapeHtml14(taskTime)}</span>` : "";
-    const detailRightHtml = retryHtml || timeHtml;
-    const detailRowClass = detailRightHtml ? "task-detail-row" : "task-detail-row task-detail-row-meta-only";
-    const detailRow = statusMeta || detailRightHtml ? `
-        <div class="${detailRowClass}">
-          <span class="task-status-meta" data-task-meta-id="${taskId}">${statusMeta}</span>
-          ${detailRightHtml}
-        </div>
-    ` : "";
-    const batchSelected = state19.batchSelectedTaskIds.includes(String(task.task_id));
-    const batchClass = state19.batchMode ? " batch-mode" : "";
-    const batchSelectedClass = batchSelected ? " batch-selected" : "";
-    const queueIds = queueTaskIdsBySection();
-    const queueSection = taskQueueSection(task, queueIds);
-    const queueClass = queueSection ? ` queue-${escapeHtml14(queueSection)}` : "";
-    const waitingIndexValue = waitingQueueIndex(task.task_id, queueIds);
-    const queueReorderable = queueSection === "waiting" && waitingIndexValue >= 0 && (state19.queue.waiting || []).length > 1;
-    const queueReorderDescription = queueReorderable ? escapeHtml14(translate("queue.dragWaiting")) : "";
-    const queueReorderData = queueReorderable ? ` data-queue-reorderable="true" aria-description="${queueReorderDescription}"` : "";
-    const queueTaskData = queueSection === "waiting" ? ` data-queue-task-id="${taskId}"${queueReorderData}` : "";
-    const swipeActions = taskCardSwipeActionsForState(
-      queueSection,
-      String(task.status || ""),
-      Boolean(task.local_pending)
-    );
-    const swipeEnabled = Boolean(swipeActions.positive || swipeActions.negative);
-    const swipeActionsHtml = taskCardSwipeActionsHtml(swipeActions);
-    const swipeKeyboardShortcuts = escapeHtml14(taskCardSwipeKeyboardShortcuts(swipeActions, queueReorderable));
-    const batchSelect = state19.batchMode ? `
-      <button class="task-select-button" type="button" role="checkbox" data-batch-select-task-id="${taskId}" aria-checked="${batchSelected ? "true" : "false"}" aria-label="${escapeHtml14(translate("taskList.selectSession"))}">
-        <span></span>
-      </button>
-    ` : "";
-    const unreadDot = unread ? `<span class="task-unread-dot" aria-label="${escapeHtml14(translate("taskList.unreadUpdate"))}"></span>` : "";
-    const activeLabel = escapeHtml14(translate("taskList.viewing"));
-    return `
-    <div class="task-card${active}${unreadClass}${statusClass}${batchClass}${batchSelectedClass}${queueClass}" role="button" tabindex="0" data-task-id="${taskId}" data-task-unread="${unread ? "true" : "false"}" data-task-swipe-enabled="${swipeEnabled ? "true" : "false"}" data-task-swipe-positive-action="${escapeHtml14(swipeActions.positive || "")}" data-task-swipe-negative-action="${escapeHtml14(swipeActions.negative || "")}" data-active-label="${activeLabel}" aria-keyshortcuts="${swipeKeyboardShortcuts}"${activeCurrent}${queueTaskData}>
-      ${swipeActionsHtml}
-      <div class="task-card-swipe-surface">
-        <button type="button" class="task-touch-menu ghost-button" data-task-context-trigger aria-label="${escapeHtml14(translate("mobile.taskActions"))}" aria-haspopup="menu">\xB7\xB7\xB7</button>
-        ${batchSelect}
-        ${image}
-        <div class="task-info">
-          <div class="task-meta-row">
-            ${imageRow}
-            ${topTimeHtml}
-          </div>
-          <div class="task-title-row">
-            ${unreadDot}
-            <div class="task-title">${title}</div>
-          </div>
-          ${detailRow}
-          ${groundingHtml}
-        </div>
-      </div>
-    </div>
-  `;
-  }
-  function taskHasUnreadUpdate(task) {
-    if (!task || task.local_pending) return false;
-    if (String(task.task_id) === String(state19.selectedTaskId)) return false;
-    if (!task.viewed_at) return false;
-    if (!taskHasViewableUpdate(task)) return false;
-    const viewedAt = timestampMs2(task.viewed_at);
-    const updatedAt = timestampMs2(task.updated_at || task.completed_at || task.started_at || task.created_at);
-    return viewedAt !== null && updatedAt !== null && updatedAt > viewedAt;
-  }
-  function taskHasViewableUpdate(task) {
-    const status = String(task?.status || "");
-    return ["completed", "failed", "partial_failed"].includes(status) || taskOutputUrls(task).length > 0;
-  }
-  function taskHistoryGroups(tasks, query) {
-    if (query) {
-      return [{
-        key: "search",
-        label: translate("taskGroup.searchResults"),
-        tasks,
-        collapsible: false,
-        defaultCollapsed: false
-      }];
-    }
-    const groups = [];
-    const assignedTaskIds = /* @__PURE__ */ new Set();
-    const addGroup = (key2, label, groupTasks, options = {}) => {
-      const count = Math.max(groupTasks.length, Number(options.count || 0));
-      if (!count) return;
-      groups.push({
-        key: key2,
-        label,
-        tasks: groupTasks,
-        count,
-        collapsible: Boolean(options.collapsible),
-        defaultCollapsed: Boolean(options.defaultCollapsed)
-      });
-      groupTasks.forEach((task) => assignedTaskIds.add(String(task.task_id)));
-    };
-    const filters = taskFilterValues();
-    const useServerCounts = Object.values(filters).every((value) => !String(value || ""));
-    const serverCount = (key2) => useServerCounts ? Math.max(0, Number(state19.taskSidebarGroupCounts?.[key2] || 0)) : 0;
-    const historicalTasks = tasks.filter((task) => !isAlwaysVisibleTask(task)).slice().sort((left, right) => taskHistoryActivityTimestamp(right) - taskHistoryActivityTimestamp(left) || String(right?.task_id || "").localeCompare(String(left?.task_id || "")));
-    const unassignedTasks = () => historicalTasks.filter((task) => !assignedTaskIds.has(String(task.task_id)));
-    const reveal = state19.historyTaskReveal;
-    const transientTaskId = reveal?.ready && reveal?.kind === "transient" && String(reveal?.taskId || "") === String(state19.selectedTaskId || "") ? String(reveal.taskId) : "";
-    if (transientTaskId) {
-      addGroup(
-        "current",
-        translate("taskGroup.current"),
-        unassignedTasks().filter((task) => String(task?.task_id || "") === transientTaskId),
-        { collapsible: true, defaultCollapsed: false }
-      );
-    }
-    addGroup(
-      "today",
-      translate("taskGroup.today"),
-      unassignedTasks().filter((task) => taskDateBucket(task) === "today"),
-      { collapsible: true, defaultCollapsed: false, count: serverCount("today") }
-    );
-    [
-      ["yesterday", translate("taskGroup.yesterday")],
-      ["last7", translate("taskGroup.last7")]
-    ].forEach(([key2, label]) => {
-      addGroup(
-        key2,
-        label,
-        unassignedTasks().filter((task) => taskDateBucket(task) === key2),
-        { collapsible: true, defaultCollapsed: true, count: serverCount(String(key2)) }
-      );
-    });
-    return groups;
-  }
-  function isAlwaysVisibleTask(task) {
-    const status = String(task?.status || "");
-    if (["failed", "completed", "cancelled"].includes(status)) return false;
-    return Boolean(task?.local_pending || ["submitting", "queued", "running", "cancelling"].includes(status));
-  }
-  function queueTaskIdsBySection() {
-    const runningIds = (state19.queue.running || []).map((task) => String(task.task_id || ""));
-    const waitingIds = (state19.queue.waiting || []).map((task) => String(task.task_id || ""));
-    const cacheKey = `${runningIds.join("|")}::${waitingIds.join("|")}`;
-    if (queueTaskIdsCache && queueTaskIdsCacheKey === cacheKey) return queueTaskIdsCache;
-    queueTaskIdsCacheKey = cacheKey;
-    queueTaskIdsCache = {
-      running: new Map((state19.queue.running || []).map((task, index) => [String(task.task_id), index])),
-      waiting: new Map((state19.queue.waiting || []).map((task, index) => [String(task.task_id), index]))
-    };
-    return queueTaskIdsCache;
-  }
-  function activeTaskOrderIndex(task, sectionIds = queueTaskIdsBySection()) {
-    const taskId = String(task?.task_id || "");
-    if (sectionIds.running.has(taskId)) return sectionIds.running.get(taskId) || 0;
-    if (String(task?.status || "") === "running") return 1e3;
-    if (sectionIds.waiting.has(taskId)) return 2e3 + (sectionIds.waiting.get(taskId) || 0);
-    if (task?.local_pending || String(task?.status || "") === "submitting") return 3e3;
-    if (String(task?.status || "") === "queued") return 4e3;
-    return 5e3;
-  }
-  function activeTasksForGroup(tasks) {
-    const sectionIds = queueTaskIdsBySection();
-    return tasks.filter((task) => isAlwaysVisibleTask(task)).slice().sort((left, right) => activeTaskOrderIndex(left, sectionIds) - activeTaskOrderIndex(right, sectionIds));
-  }
-  function taskHistoryActivityTimestamp(task) {
-    const timestamp = timestampMs2(task?.terminal_at || task?.completed_at || task?.created_at);
-    return timestamp === null ? Number.NEGATIVE_INFINITY : timestamp;
-  }
-  function taskDateBucket(task) {
-    return sidebarTaskDateBucket(task);
-  }
-  function taskGroupCount(group) {
-    const loadedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
-    return Math.max(loadedCount, Math.max(0, Number(group?.count || 0)));
-  }
-  function taskGroupLoadMoreHtml(group) {
-    const renderedCount = Array.isArray(group?.tasks) ? group.tasks.length : 0;
-    const loadedCount = Math.max(
-      renderedCount,
-      Math.max(0, Number(state19.taskSidebarGroupLoadedCounts?.[String(group?.key || "")] || 0))
-    );
-    const totalCount = Math.max(0, Number(group?.count || 0));
-    if (!group?.key || loadedCount >= totalCount) return "";
-    const loading = String(state19.taskSidebarGroupLoading || "") === String(group.key);
-    const failed = String(state19.taskSidebarGroupLoadError || "") === String(group.key);
-    const groupKey = escapeHtml14(group.key);
-    if (loading) {
-      return `
-      <div
-        class="task-group-load-more task-group-load-more-sentinel"
-        data-auto-load-task-group="${groupKey}"
-        data-load-more-task-group="${groupKey}"
-        aria-busy="true"
-        aria-hidden="true"
-        hidden
-      ></div>
-    `;
-    }
-    if (failed) {
-      return `
-      <button
-        class="ghost-button text-sm task-group-load-more task-group-load-more-error"
-        type="button"
-        data-load-more-task-group="${groupKey}"
-      >${escapeHtml14(translate("taskGroup.loadFailedRetry"))}</button>
-    `;
-    }
-    return `
-    <div
-      class="task-group-load-more task-group-load-more-sentinel"
-      data-auto-load-task-group="${groupKey}"
-      data-load-more-task-group="${groupKey}"
-      aria-hidden="true"
-      hidden
-    ></div>
-  `;
-  }
-  function taskListRenderKey(tasks, query, layout = {}, filters = {}, activeGroup = null) {
-    return JSON.stringify({
-      query,
-      filters,
-      activeQueue: activeQueueTaskListRenderKey(),
-      activeGroup: activeGroup ? [activeGroup.key, activeGroup.label, activeGroup.tasks.length] : null,
-      activeTaskGroupCollapsed: Boolean(state19.activeTaskGroupCollapsed),
-      batchMode: state19.batchMode,
-      batchSelectedTaskIds: state19.batchSelectedTaskIds.map(String).sort(),
-      archivedTaskIds: state19.tasks.filter(taskArchived).map((task) => String(task.task_id)).sort(),
-      expandedTaskGroupKey: state19.expandedTaskGroupKey,
-      historyTaskReveal: state19.historyTaskReveal?.ready ? [state19.historyTaskReveal.kind, state19.historyTaskReveal.groupKey, state19.historyTaskReveal.taskId] : null,
-      queryMode: Boolean(layout.queryMode),
-      expandedGroup: layout.expandedGroup ? [layout.expandedGroup.key, layout.expandedGroup.label, taskGroupCount(layout.expandedGroup)] : null,
-      anchorGroups: [
-        (layout.top || []).map((group) => [group.key, taskGroupCount(group)]),
-        (layout.bottom || []).map((group) => [group.key, taskGroupCount(group)])
-      ],
-      tasks: tasks.map((task) => [
-        task.task_id,
-        task.status,
-        task.updated_at,
-        task.completed_at,
-        task.terminal_at,
-        task.started_at,
-        task.prompt,
-        task.mode,
-        task.backend,
-        task.requested_backend,
-        task.api_provider_id,
-        task.api_provider_name,
-        task.params?.api_provider_id,
-        task.params?.api_provider_name,
-        task.request?.webui_api_provider_id,
-        task.request?.webui_api_provider_name,
-        task.params?.size,
-        task.output_url,
-        Array.isArray(task.output_urls) ? task.output_urls.join("|") : "",
-        Array.isArray(task.input_thumbnail_urls) ? task.input_thumbnail_urls.join("|") : "",
-        Array.isArray(task.thumbnail_urls) ? task.thumbnail_urls.join("|") : "",
-        task.preview_url,
-        task.last_error || task.error || "",
-        task.attempts,
-        task.max_attempts,
-        Array.isArray(task.retrying_failed_slots) ? task.retrying_failed_slots.join(",") : "",
-        task.generated_count,
-        task.failed_count,
-        task.total_count,
-        Array.isArray(task.input_sources) ? task.input_sources.map((item) => [item?.kind, item?.image_url, item?.thumbnail_url].join(":")).join("|") : "",
-        Array.isArray(task.outputs) ? task.outputs.map((item) => [item?.index, item?.status, item?.url, item?.thumbnail_url, item?.error].join(":")).join("|") : "",
-        groundingAttributionKey(task)
-      ])
-    });
-  }
-  function activeQueueTaskListRenderKey() {
-    return {
-      running: (state19.queue.running || []).map((task) => String(task.task_id || "")),
-      waiting: (state19.queue.waiting || []).map((task) => String(task.task_id || ""))
-    };
-  }
-  function taskThumbShowsLoading(task) {
-    const status = String(task?.status || "");
-    return Boolean(task?.local_pending || ["submitting", "queued", "running"].includes(status));
-  }
-  function taskThumbSpinnerStyle(task) {
-    const origin = timestampMs2(task?.created_at);
-    if (origin === null) return "";
-    const elapsed = Math.max(0, Date.now() - origin);
-    const outerDelay = -(elapsed % TASK_THUMB_OUTER_SPIN_DURATION_MS);
-    const innerDelay = -((elapsed + TASK_THUMB_INNER_SPIN_OFFSET_MS) % TASK_THUMB_INNER_SPIN_DURATION_MS);
-    return ` style="--task-spinner-outer-delay: ${outerDelay}ms; --task-spinner-inner-delay: ${innerDelay}ms"`;
-  }
-  function taskThumbHtml(task, className = "task-thumb") {
-    const outputUrl = taskOutputUrls(task)[0];
-    const outputThumbnailUrl = taskThumbnailUrls(task)[0];
-    const inputPreviewUrl = taskInputPreviewUrls(task)[0];
-    const loading = taskThumbShowsLoading(task);
-    const outputImageUrl = outputThumbnailUrl || outputUrl || (!loading ? task.preview_url : "");
-    const imageUrl = outputImageUrl || inputPreviewUrl || task.preview_url;
-    const safeClassName = escapeHtml14(className);
-    const loadingSpinner = loading ? `<span class="task-thumb-stack-spinner" aria-hidden="true"${taskThumbSpinnerStyle(task)}></span>` : "";
-    if (outputImageUrl && inputPreviewUrl && outputImageUrl !== inputPreviewUrl) {
-      const imageToImageLabel = escapeHtml14(translate("taskCard.imageToImageThumb"));
-      return `
-      <div class="${safeClassName} task-thumb-stack" aria-label="${imageToImageLabel}">
-        <img class="task-thumb-output" src="${escapeHtml14(outputImageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
-        <span class="task-thumb-reference-badge" aria-hidden="true">
-          <img class="task-thumb-reference" src="${escapeHtml14(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
-        </span>
-        ${loadingSpinner}
-      </div>
-    `;
-    }
-    if (inputPreviewUrl && loading) {
-      const imageToImageLabel = escapeHtml14(translate("taskCard.imageToImageThumb"));
-      return `
-      <div class="${safeClassName} task-thumb-single task-thumb-loading-reference" aria-label="${imageToImageLabel}">
-        <img class="task-thumb-single-image" src="${escapeHtml14(inputPreviewUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
-        ${loadingSpinner}
-      </div>
-    `;
-    }
-    if (imageUrl) {
-      const thumbnailLabel = escapeHtml14(translate(inputPreviewUrl ? "taskCard.imageToImageThumb" : "taskCard.textToImageThumb"));
-      return `
-      <div class="${safeClassName} task-thumb-single" aria-label="${thumbnailLabel}">
-        <img class="task-thumb-single-image" src="${escapeHtml14(imageUrl)}" alt="" loading="lazy" decoding="async" draggable="false">
-      </div>
-    `;
-    }
-    if (taskWasCancelled(task)) {
-      return `<div class="${safeClassName} failed-thumb task-cancelled-thumb" aria-label="${escapeHtml14(translate("queue.runningCancelled"))}"><span>\xD7</span></div>`;
-    }
-    if (task.status === "failed") {
-      return `<div class="${safeClassName} failed-thumb" aria-label="${escapeHtml14(translate("taskCard.failedThumb"))}"><span>!</span></div>`;
-    }
-    return `<div class="${safeClassName} running-thumb"><span${taskThumbSpinnerStyle(task)}></span></div>`;
-  }
-  function taskStatusLabelHtml(task) {
-    const label = escapeHtml14(formatTaskCardStatus2(task) || translate("taskStatus.unknown"));
-    const taskId = escapeHtml14(task?.task_id || "");
-    return `<span class="task-status-label" data-task-status-id="${taskId}">${label}</span>`;
-  }
-  function taskModelFamilyIconHtml(task) {
-    const familyId = taskModelFamilyId(task, state19.generationCatalog);
-    const modelName = taskModelDisplayName(task, state19.generationCatalog);
-    return `<span class="task-model-family-icon task-model-family-icon-${familyId}" title="${escapeHtml14(modelName)}">${modelFamilyBrandMarkHtml(familyId, "task-model-family-brand-mark")}</span>`;
-  }
-  function taskStatusAccessibleLabel2(task) {
-    return [
-      formatTaskCardStatus2(task) || translate("taskStatus.unknown"),
-      taskModelDisplayName(task, state19.generationCatalog),
-      taskImageSummaryText(task),
-      taskMetaDetailsText2(task)
-    ].filter(Boolean).join(" \xB7 ");
-  }
-  function taskMetaDetailsText2(task) {
-    const backend = taskCardProviderLabel(task);
-    return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
-  }
-  function taskMetaDetailsWithCompletionText(task) {
-    const statusMeta = taskMetaDetailsText2(task);
-    const completion = taskCompletionTimestampText(task);
-    return [statusMeta, completion?.shortText].filter(Boolean).join(" \xB7 ");
-  }
-  function taskCardCompletionTimeText(task) {
-    const completion = taskCompletionTimestampText(task);
-    return completion?.shortText || "";
-  }
-  function taskCardElapsedLineHtml(key2, values, elapsedHtml) {
-    const marker = "__TASK_CARD_ELAPSED_TIMER__";
-    return formatTranslation(key2, { ...values, elapsed: marker }).split(marker).map((part) => escapeHtml14(part)).join(elapsedHtml);
-  }
-  function taskCardRunningTimerHtml(task, taskId) {
-    if (!["running", "cancelling"].includes(String(task?.status || ""))) return "";
-    const startedAt = taskProgressStartValue2(task);
-    if (!startedAt) return "";
-    const elapsed = elapsedTimerSpan("task-card-running", startedAt);
-    return `<span class="task-card-time task-card-running-timer" data-task-running-timer-id="${taskId}">${taskCardElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</span>`;
-  }
-  function taskCardProviderLabel(task) {
-    const providerLabel = String(taskApiProviderLabel2(task) || "").trim();
-    const providerId = String(taskApiProviderId2(task) || "").trim();
-    const backend = String(task?.backend || task?.requested_backend || "").trim();
-    const channel = taskChannelLabel(task);
-    if (providerLabel && (!providerId || providerLabel !== providerId)) {
-      const providerIdSuffix = providerId ? `(${providerId})` : "";
-      const label = providerIdSuffix && providerLabel.endsWith(providerIdSuffix) ? providerLabel.slice(0, -providerIdSuffix.length).trim() : providerLabel;
-      return [label, channel].filter(Boolean).join(" \xB7 ");
-    }
-    if (backend === "codex_images") return "Codex Image";
-    if (backend === "codex_responses") return "Codex Responses";
-    if (backend === "openai_images") return "API Image";
-    if (backend === "openai_responses") return "API Responses";
-    return "";
-  }
-  function taskCardRuntimeText2(task) {
-    return taskDurationText(task);
-  }
-  function taskImageBlocksHtml(task) {
-    const states = taskImageBlockStates(task);
-    const visibleStates = compressTaskImageBlockStates(states);
-    const total = states.length;
-    const visibleCount = Math.min(total, 4);
-    const compressedClass = states.length > visibleStates.length ? " compressed" : "";
-    const blocks = visibleStates.map((blockState) => `<span class="task-image-block ${blockState}" aria-hidden="true"></span>`).join("");
-    return `<div class="task-image-progress${compressedClass}" style="--task-block-count: ${visibleCount}" aria-hidden="true">${blocks}</div>`;
-  }
-  function taskImageSummaryText(task) {
-    const states = taskImageBlockStates(task);
-    const counts = taskImageStatusCounts(states);
-    const parts = [];
-    if (counts.running) parts.push(formatTranslation("taskCard.count", { count: counts.running }));
-    if (counts.queued || counts.waiting) {
-      const waitingCount = counts.queued + counts.waiting;
-      parts.push(formatTranslation(counts.running ? "taskCard.waitingCount" : "taskCard.count", { count: waitingCount }));
-    }
-    return parts.join(" \xB7 ");
-  }
-  function taskImageSummaryVisible(task) {
-    void task;
-    return true;
-  }
-  function taskMetaText(task) {
-    const status = formatTaskStatus2(task);
-    const backend = taskCardProviderLabel(task);
-    return [status, ...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" \xB7 ");
   }
   function initTaskListRenderFeature() {
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {

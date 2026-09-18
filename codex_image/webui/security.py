@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
+import socket
 from typing import Final
 from urllib.parse import urlsplit
 
@@ -9,7 +10,7 @@ from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .resource_limits import MAX_HTTP_REQUEST_BYTES
-from .lan_access import LanAccessRuntime
+from .lan_access import LanAccessRuntime, lan_ipv4_addresses
 
 
 _SAFE_METHODS: Final = frozenset({"GET", "HEAD"})
@@ -24,6 +25,7 @@ _CONTENT_SECURITY_POLICY: Final = (
     "media-src 'self' blob:; "
     "object-src 'none'; "
     "script-src 'self' 'unsafe-inline'; "
+    "script-src-attr 'none'; "
     "style-src 'self' 'unsafe-inline'; "
     "worker-src 'self' blob:"
 )
@@ -111,6 +113,31 @@ def _host_is_allowed(scope: Scope, host_header: str) -> bool:
     return _is_loopback_name(hostname)
 
 
+def _lan_host_is_allowed(scope: Scope, host_header: str, runtime: LanAccessRuntime) -> bool:
+    parsed = _parse_authority(host_header)
+    if parsed is None:
+        return False
+    hostname, _ = parsed
+    # Never resolve the supplied Host: an attacker controls its DNS answers.
+    machine_name = socket.gethostname().rstrip(".").lower()
+    allowed_names = {machine_name, machine_name.split(".")[0] + ".local"}
+    configured = str(runtime.host or "").rstrip(".").lower()
+    if configured not in {"", "0.0.0.0", "::"}:
+        allowed_names.add(configured)
+    if hostname in allowed_names:
+        return True
+    try:
+        address = ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+    if address.is_unspecified or address.is_multicast:
+        return False
+    server = scope.get("server")
+    if server and hostname == str(server[0]).lower():
+        return True
+    return hostname in lan_ipv4_addresses()
+
+
 def _effective_port(scheme: str, explicit_port: int | None) -> int | None:
     if explicit_port is not None:
         return explicit_port
@@ -179,9 +206,9 @@ class LocalWebUISecurityMiddleware:
         headers = Headers(scope=scope)
         host_header = headers.get("host", "")
         rejection: tuple[int, str] | None = None
-        if not _parse_authority(host_header) or (
-            not self.lan_access.active and not _host_is_allowed(scope, host_header)
-        ):
+        if not (_host_is_allowed(scope, host_header) or (
+            self.lan_access.active and _lan_host_is_allowed(scope, host_header, self.lan_access)
+        )):
             rejection = (400, "Invalid local WebUI host")
         elif not self.lan_access.active and not _client_is_loopback(scope):
             rejection = (403, "WebUI access is limited to this device")

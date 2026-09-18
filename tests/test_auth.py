@@ -4,6 +4,9 @@ import base64
 import json
 import tempfile
 import unittest
+import os
+import stat
+from unittest.mock import patch
 from pathlib import Path
 
 from tests.helpers import FakeResponse, FakeTransport, write_auth_file
@@ -18,6 +21,50 @@ def _make_id_token(account_id: str) -> str:
 
 
 class AuthTests(unittest.TestCase):
+    def test_failed_refresh_persistence_keeps_complete_original_json(self) -> None:
+        from codex_image.auth import load_auth_state, refresh_auth_state
+
+        for failure in ("create", "write", "sync", "replace", "permissions"):
+            with self.subTest(failure=failure):
+                write_auth_file(self.auth_path, access_token="old-access", refresh_token="old-refresh", account_id="acct-old")
+                before = self.auth_path.read_bytes()
+                transport = FakeTransport([FakeResponse(200, b'{"access_token":"new","refresh_token":"rotated"}', {})])
+                target = {"create": "tempfile.mkstemp", "write": "os.fdopen", "sync": "os.fsync",
+                          "replace": "os.replace", "permissions": "os.chmod"}[failure]
+                original_fdopen = os.fdopen
+
+                class PartialWrite:
+                    def __init__(self, descriptor, mode):
+                        self.handle = original_fdopen(descriptor, mode)
+                    def __enter__(self):
+                        return self
+                    def __exit__(self, *args):
+                        self.handle.close()
+                    def write(self, data):
+                        self.handle.write(data[:8])
+                        self.handle.flush()
+                        raise OSError(28, "synthetic disk full")
+
+                effect = PartialWrite if failure == "write" else OSError(28, "synthetic failure")
+                with patch("codex_image.atomic_files." + target, side_effect=effect):
+                    with self.assertRaisesRegex(OSError, "could not be saved"):
+                        refresh_auth_state(load_auth_state(self.auth_path), transport=transport)
+                self.assertEqual(self.auth_path.read_bytes(), before)
+                self.assertEqual(load_auth_state(self.auth_path).refresh_token, "old-refresh")
+                self.assertEqual(list(self.auth_path.parent.glob(".auth.json.*.tmp")), [])
+
+    def test_atomic_refresh_preserves_auth_symlink_and_private_permissions(self) -> None:
+        from codex_image.auth import load_auth_state, refresh_auth_state
+        destination = self.auth_path.with_name("shared.json")
+        write_auth_file(destination, access_token="old", refresh_token="old-refresh", account_id="acct")
+        self.auth_path.symlink_to(destination)
+        transport = FakeTransport([FakeResponse(200, b'{"access_token":"new","refresh_token":"rotated"}', {})])
+        refresh_auth_state(load_auth_state(self.auth_path), transport=transport)
+        self.assertTrue(self.auth_path.is_symlink())
+        self.assertEqual(load_auth_state(destination).refresh_token, "rotated")
+        if os.name != "nt":
+            self.assertEqual(stat.S_IMODE(destination.stat().st_mode), 0o600)
+
     def setUp(self) -> None:
         self.tmpdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmpdir.cleanup)

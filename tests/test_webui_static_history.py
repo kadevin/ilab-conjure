@@ -11,7 +11,10 @@ import textwrap
 def _typescript_function_body(source: str, name: str) -> str:
     marker = f"function {name}"
     start = source.index(marker)
-    brace = source.index("{", start)
+    signature = re.search(r"\)\s*(?::\s*[^\n{]+)?\s*\{", source[start:])
+    if not signature:
+        raise AssertionError(f"Function signature not found: {name}")
+    brace = start + signature.end() - 1
     depth = 0
     for index in range(brace, len(source)):
         char = source[index]
@@ -24,45 +27,49 @@ def _typescript_function_body(source: str, name: str) -> str:
     raise AssertionError(f"Function body not found: {name}")
 
 
+def _history_source(module: str) -> str:
+    """Read one explicitly named owner; integration is covered by page behavior tests."""
+    return Path(f"codex_image/webui/frontend/src/{module}.ts").read_text(encoding="utf-8")
+
+
 class WebUIStaticHistoryTests(unittest.TestCase):
     def test_history_position_restore_uses_guarded_anchor_load_and_throttled_save(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(
             encoding="utf-8"
         )
 
-        for marker in (
-            'from "./history-scroll-memory"',
-            'from "./history-position-runtime"',
-            "readHistoryLocationSnapshot()",
-            "runHistoryPositionBoot({",
-            "loadHistoryAnchorPage({",
-            "clearHistoryLocationSnapshot",
-            "createHistoryPositionSaveController({",
-        ):
-            self.assertIn(marker, source)
+        for module, marker in [
+            ('history', 'from "./history-scroll-memory"'),
+            ('history', 'from "./history-position-runtime"'),
+            ('history', 'readHistoryLocationSnapshot()'),
+            ('history', 'runHistoryPositionBoot({'),
+            ('history-list-controller', 'loadHistoryAnchorPage({'),
+            ('history', 'clearHistoryLocationSnapshot'),
+            ('history', 'createHistoryPositionSaveController({'),
+        ]:
+            self.assertIn(marker, _history_source(module))
 
-        boot_body = _typescript_function_body(source, "bootHistoryPage")
+        boot_body = _typescript_function_body(_history_source("history"), "bootHistoryPage")
         self.assertIn("runHistoryPositionBoot({", boot_body)
         self.assertIn("replaceLocation: (url) => window.history.replaceState", boot_body)
         self.assertIn("syncLocation: () =>", boot_body)
         self.assertIn("loadPage: async (options) =>", boot_body)
         self.assertIn("clearSnapshot: clearHistoryLocationSnapshot", boot_body)
 
-        query_body = _typescript_function_body(source, "queryParams")
+        query_body = _typescript_function_body(_history_source("history-filters-controller"), "queryParams")
         self.assertIn("historyTaskPageQuery(", query_body)
         self.assertIn("historyPageQueryInput(cursor, direction, anchorTaskId)", query_body)
 
-        load_start = source.index("async function loadTasks")
-        load_end = source.index("\nfunction taskWindowCursor", load_start)
-        load_body = source[load_start:load_end]
+        load_start = _history_source("history-list-controller").index('async function loadTasks')
+        load_body = _typescript_function_body(_history_source("history-list-controller"), "loadTasks")
         self.assertIn(
-            "): Promise<HistoryLoadResult> {",
+            "const emptyResult: HistoryLoadResult",
             load_body,
         )
         for marker in (
             "historyState.loading && !reset",
             "loadHistoryAnchorPage({",
-            "query: historyPageQueryInput(cursor, direction, anchorTaskId)",
+            "query: deps.filters.historyPageQueryInput(cursor, direction, anchorTaskId)",
             "request: requestPage",
             "isCurrent: () => requestId === historyState.requestId",
             "render: (tasks) => renderTasks(tasks, { position: \"replace\" })",
@@ -73,7 +80,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ):
             self.assertIn(marker, load_body)
 
-        save_body = _typescript_function_body(source, "saveCurrentHistoryLocation")
+        save_body = _typescript_function_body(_history_source("history-filters-controller"), "saveCurrentHistoryLocation")
         self.assertLess(
             save_body.index("updateHistoryUrl()"),
             save_body.index("historySnapshotQuery("),
@@ -81,17 +88,17 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn("saveHistoryLocationSnapshot({", save_body)
         self.assertNotIn("renderTasks", save_body)
 
-        bind_body = _typescript_function_body(source, "bindEvents")
+        bind_body = _typescript_function_body(_history_source("history"), "bindEvents")
         scroll_start = bind_body.index('els.taskList?.addEventListener("scroll"')
-        scroll_end = bind_body.index("}, { passive: true });", scroll_start)
+        scroll_end = bind_body.index("signal: lifetime.signal", scroll_start)
         scroll_body = bind_body[scroll_start:scroll_end]
         self.assertIn("closeHistoryContextMenu()", scroll_body)
         self.assertIn("maybeLoadMoreFromScroll()", scroll_body)
         self.assertIn("historyPositionSaveController.schedule()", scroll_body)
         self.assertNotIn("renderTasks", scroll_body)
 
-        pagehide_start = source.index('window.addEventListener("pagehide"')
-        pagehide_end = source.index("}, { once: true });", pagehide_start)
+        pagehide_start = _history_source("history").index('window.addEventListener("pagehide"')
+        pagehide_end = _history_source("history").index('}, { once: true });', pagehide_start)
         pagehide_body = source[pagehide_start:pagehide_end]
         self.assertIn("historyPositionSaveController.flush()", pagehide_body)
 
@@ -129,13 +136,13 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('data-history-open-backup', action_panel)
         self.assertIn('data-history-open-import', action_panel)
         for mode in ("images_only", "images_with_prompts"):
-            self.assertIn(f'data-history-export-mode="{mode}"', source)
+            self.assertIn(f'data-history-export-mode="{mode}"', _history_source("history-organization-ui"))
         self.assertNotIn('data-history-export-mode="task_backup"', source)
         self.assertNotIn("data-history-import-overwrite", html.lower())
         self.assertNotRegex(html.lower(), r'<input[^>]+name="[^"]*overwrite')
         self.assertNotIn("覆盖现有", html)
 
-        filters_body = _typescript_function_body(source, "currentHistoryBackupFilters")
+        filters_body = _typescript_function_body(_history_source("history-filters-controller"), "currentHistoryBackupFilters")
         for marker in (
             "q: historyState.q", "month: historyState.month", "mode: historyState.mode",
             'status: ""', "prompt_mode: historyState.prompt_mode", 'size: ""',
@@ -147,17 +154,22 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ):
             self.assertIn(marker, filters_body)
         self.assertNotIn("loadedTaskIds", filters_body)
-        self.assertIn("MAX_MOUNTED_TASK_CARDS = 300", source)
-        for marker in (
-            'from "./history-backup"', 'from "./history-import"',
-            "createHistoryBackupController", "createHistoryImportController",
-            "backupController.resume()", "importController.resume()",
-            "backupController.download(job)",
-            "await backupController.dismiss",
-            "await loadSummary();", "await loadTasks({ reset: true });",
-            'event.key !== "Escape"', "restoreHistoryDialogFocus",
-        ):
-            self.assertIn(marker, source)
+        self.assertIn('MAX_MOUNTED_TASK_CARDS = 300', _history_source("history-list-controller"))
+        for module, marker in [
+            ('history-filters-controller', 'from "./history-backup"'),
+            ('history-transfer-ui', 'from "./history-import"'),
+            ('history-transfer-ui', 'createHistoryBackupController'),
+            ('history-transfer-ui', 'createHistoryImportController'),
+            ('history-transfer-ui', 'backupController.resume()'),
+            ('history-transfer-ui', 'importController.resume()'),
+            ('history-transfer-ui', 'backupController.download(job)'),
+            ('history-transfer-ui', 'await backupController.dismiss'),
+            ('history-filters-controller', 'await loadSummary();'),
+            ('history', 'await list.loadTasks({ reset: true });'),
+            ('history', 'event.key !== "Escape"'),
+            ('history-transfer-ui', 'restoreHistoryDialogFocus'),
+        ]:
+            self.assertIn(marker, _history_source(module))
 
         for marker in (
             ".history-backup-dialog", ".history-import-dialog",
@@ -176,7 +188,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ):
             self.assertIn(marker, styles)
 
-        render_body = _typescript_function_body(source, "renderHistoryBackupJob")
+        render_body = _typescript_function_body(_history_source("history-transfer-ui"), "renderHistoryBackupJob")
         for marker in (
             "historyBackupViewState(job)",
             "els.backupScopeFieldset.disabled = view.scopeLocked",
@@ -187,10 +199,10 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ):
             self.assertIn(marker, render_body)
 
-        downloaded_body = _typescript_function_body(source, "renderHistoryBackupDownloaded")
+        downloaded_body = _typescript_function_body(_history_source("history-transfer-ui"), "renderHistoryBackupDownloaded")
         self.assertIn("historyBackupDownloaded = true", downloaded_body)
         self.assertIn("renderHistoryBackupJob(null)", downloaded_body)
-        bind_body = _typescript_function_body(source, "bindEvents")
+        bind_body = _typescript_function_body(_history_source("history-transfer-ui"), "handleClick")
         download_branch = bind_body[
             bind_body.index('if (target?.closest("[data-history-download-backup]"))'):
             bind_body.index('if (target?.closest("[data-history-dismiss-backup]"))')
@@ -205,33 +217,33 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
     def test_history_backup_filters_never_enumerate_mounted_cards(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
-        body = _typescript_function_body(source, "historyBackupScope")
+        body = _typescript_function_body(_history_source("history-transfer-ui"), "historyBackupScope")
         self.assertIn("selectedTaskIdsSnapshot", body)
-        self.assertNotIn("historyState.selectedTaskIds", body)
-        self.assertIn("currentHistoryBackupFilters()", body)
+        self.assertNotIn('deps.selection.snapshot().selectedTaskIds', body)
+        self.assertIn("options.backupFilters()", body)
         self.assertNotIn("loadedTaskIds", body)
 
     def test_history_backup_selection_is_frozen_without_mutating_live_selection(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         action_panel = Path("codex_image/webui/frontend/src/history-action-panel.ts").read_text(encoding="utf-8")
-        open_body = _typescript_function_body(source, "openHistoryBackupDialog")
-        bind_body = _typescript_function_body(source, "bindEvents")
+        open_body = _typescript_function_body(_history_source("history-transfer-ui"), "openHistoryBackupDialog")
+        bind_body = _typescript_function_body(_history_source("history-transfer-ui"), "handleClick")
 
         self.assertIn("selectedTaskIdsSnapshot = [...taskIds]", open_body)
         self.assertIn('data-history-open-backup="selected"', action_panel)
         self.assertIn('const preferSelected = openBackup.dataset.historyOpenBackup === "selected"', bind_body)
-        self.assertIn("openHistoryBackupDialog(openBackup, [...historyState.selectedTaskIds], preferSelected)", bind_body)
+        self.assertIn("openHistoryBackupDialog(openBackup, options.selectedTaskIds(), preferSelected)", bind_body)
         self.assertNotIn('historyExportMode === "task_backup"', bind_body)
-        self.assertNotIn("historyState.selectedTaskIds =", bind_body)
+        self.assertNotIn('deps.selection.snapshot().selectedTaskIds =', bind_body)
 
-        scope_body = _typescript_function_body(source, "historyBackupScope").replace(
+        scope_body = _typescript_function_body(_history_source("history-transfer-ui"), "historyBackupScope").replace(
             "querySelector<HTMLInputElement>", "querySelector"
         )
         harness = textwrap.dedent(f"""
             let selectedTaskIdsSnapshot = ["detail-a", "detail-b"];
             const historyState = {{ selectedTaskIds: new Set(["detail-a", "detail-b", "other"]) }};
             const els = {{ backupDialog: {{ querySelector: () => ({{ value: "selected" }}) }} }};
-            const currentHistoryBackupFilters = () => ({{}});
+            const options = {{ backupFilters: () => ({{}}) }};
             function historyBackupScope() {scope_body}
             historyState.selectedTaskIds.delete("detail-a");
             historyState.selectedTaskIds.clear();
@@ -252,22 +264,22 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         html = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
 
-        choose_body = _typescript_function_body(source, "chooseHistoryImport")
-        cancel_import_body = _typescript_function_body(source, "cancelActiveHistoryImport")
-        cancel_backup_body = _typescript_function_body(source, "cancelActiveHistoryBackup")
-        clear_import_body = _typescript_function_body(source, "clearHistoryImportUI")
-        modal_body = _typescript_function_body(source, "syncHistoryTransferModalState")
-        trap_body = _typescript_function_body(source, "trapHistoryTransferFocus")
+        choose_body = _typescript_function_body(_history_source("history-transfer-ui"), "chooseHistoryImport")
+        cancel_import_body = _typescript_function_body(_history_source("history-transfer-ui"), "cancelActiveHistoryImport")
+        cancel_backup_body = _typescript_function_body(_history_source("history-transfer-ui"), "cancelActiveHistoryBackup")
+        clear_import_body = _typescript_function_body(_history_source("history-transfer-ui"), "clearHistoryImportUI")
+        modal_body = _typescript_function_body(_history_source("history-transfer-ui"), "syncHistoryTransferModalState")
+        trap_body = _typescript_function_body(_history_source("history-transfer-ui"), "trapHistoryTransferFocus")
         phase_text_body = " ".join(
-            _typescript_function_body(source, "historyImportPhaseText").split()
+            _typescript_function_body(_history_source("history-transfer-ui"), "historyImportPhaseText").split()
         )
-        preview_body = _typescript_function_body(source, "renderHistoryImportPreview")
-        reason_body = _typescript_function_body(source, "historyImportReasonText")
-        restore_body = _typescript_function_body(source, "restoreHistoryImportSelection")
-        resume_body = _typescript_function_body(source, "resumeHistoryTransfers")
-        refresh_body = _typescript_function_body(source, "refreshHistoryAfterImport")
+        preview_body = _typescript_function_body(_history_source("history-transfer-ui"), "renderHistoryImportPreview")
+        reason_body = _typescript_function_body(_history_source("history-transfer-ui"), "historyImportReasonText")
+        restore_body = _typescript_function_body(_history_source("history-transfer-ui"), "restoreHistoryImportSelection")
+        resume_body = _typescript_function_body(_history_source("history-transfer-ui"), "resumeHistoryTransfers")
+        refresh_body = _typescript_function_body(_history_source("history"), "refreshHistoryAfterImport")
 
-        self.assertIn('els.importFile.value = ""', bind_body := _typescript_function_body(source, "bindEvents"))
+        self.assertIn('els.importFile.value = ""', bind_body := _typescript_function_body(_history_source("history-transfer-ui"), "handleChange"))
         self.assertIn('phase === "idle" ? "historyBackup.idle"', phase_text_body)
         self.assertIn('phase === "creating" ? "historyImport.uploading"', phase_text_body)
         self.assertLess(bind_body.index('const file = els.importFile?.files?.[0]'), bind_body.index('els.importFile.value = ""'))
@@ -284,12 +296,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('"historyImport.reasonSensitive"', reason_body)
         self.assertIn('"historyImport.reasonMismatch"', reason_body)
         self.assertIn('focusHistoryTransferError("import", translate("historyImport.failed"))', restore_body)
-        self.assertIn("await refreshHistoryAfterImport", restore_body)
+        self.assertIn('await options.refreshAfterImport', restore_body)
         self.assertIn("await importController.acknowledgeTerminalAfterRefresh", resume_body)
-        self.assertIn("await loadSummary({ throwOnError: true })", refresh_body)
-        self.assertIn("await loadTasks({ reset: true, throwOnError: true })", refresh_body)
-        self.assertIn("if (!isTransientHistoryBackupError(error.status))", source)
-        self.assertIn("currentBackupJob = null", source)
+        self.assertIn('await filters.loadSummary({ throwOnError: true })', refresh_body)
+        self.assertIn('await list.loadTasks({ reset: true, throwOnError: true })', refresh_body)
+        self.assertIn('if (!isTransientHistoryBackupError(error.status))', _history_source("history-transfer-ui"))
+        self.assertIn('currentBackupJob = null', _history_source("history-transfer-ui"))
         self.assertIn("els.page.inert =", modal_body)
         self.assertIn("backupOpen || importOpen", modal_body)
         self.assertIn("event.shiftKey", trap_body)
@@ -298,7 +310,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('.history-transfer-panel[tabindex]', trap_body)
         self.assertIn("panel?.focus()", trap_body)
         self.assertNotIn("dialog.focus()", trap_body)
-        self.assertIn("syncHistoryTransferModalState()", source)
+        self.assertIn('syncHistoryTransferModalState()', _history_source("history-transfer-ui"))
         self.assertNotIn("data-history-import-overwrite", html)
 
     def test_history_backup_format_uses_canonical_organization_path_and_size_field(self) -> None:
@@ -310,7 +322,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
     def test_history_resume_pending_chooser_never_replaces_the_server_session(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
-        choose_body = _typescript_function_body(source, "chooseHistoryImport")
+        choose_body = _typescript_function_body(_history_source("history-transfer-ui"), "chooseHistoryImport")
         self.assertIn("if (historyImportResumePending)", choose_body)
         self.assertIn("importController.resumeUpload(file, file.name)", choose_body)
         resume_branch = choose_body[
@@ -383,7 +395,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "codex_image/webui/frontend/src/history-shell.ts"
         ).read_text(encoding="utf-8")
 
-        boot_body = _typescript_function_body(source, "bootHistoryPage")
+        boot_body = _typescript_function_body(_history_source("history"), "bootHistoryPage")
         callback_match = re.search(
             r"refreshHistoryTasks:\s*async\s*\((?P<args>[^)]*)\)\s*=>\s*\{(?P<body>[\s\S]*?)\n\s*\},",
             boot_body,
@@ -396,7 +408,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             callback_match.group("body"),
         )
         self.assertIn(
-            "await loadTasks({ reset: true });",
+            "await list.loadTasks({ reset: true });",
             callback_match.group("body"),
         )
         self.assertIn("refreshHistoryTasks?.(task)", shell_source)
@@ -503,12 +515,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             html,
         )
 
-        for marker in (
-            'from "./history-shell"',
-            "initializeHistoryShell({",
-            "selectHistoryTask: loadTaskDetail",
-        ):
-            self.assertIn(marker, source)
+        for module, marker in [
+            ('history', 'from "./history-shell"'),
+            ('history', 'initializeHistoryShell({'),
+            ('history', 'selectHistoryTask: details.loadTaskDetail'),
+        ]:
+            self.assertIn(marker, _history_source(module))
         for marker in (
             'import "../legacy-app.js";',
             "initTaskNotificationsFeature",
@@ -687,23 +699,23 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
         self.assertIn('data-history-toggle-action-section="export"', action_panel)
         self.assertNotIn('data-history-export-mode="task_backup"', source)
-        for marker in (
-            'from "./history-export"',
-            'data-history-open-export',
-            "historyExportPending",
-            "createHistoryExport(",
-            "triggerHistoryExportDownload(",
-            "historyExportTrigger?.focus()",
-            "historyState.selectedTaskIds",
-            "historyState.detailTask",
-            "outputs.zip",
-        ):
-            self.assertIn(marker, source)
+        for module, marker in [
+            ('history-organization-ui', 'from "./history-export"'),
+            ('history-detail-controller', 'data-history-open-export'),
+            ('history-organization-ui', 'historyExportPending'),
+            ('history-organization-ui', 'createHistoryExport('),
+            ('history-organization-ui', 'triggerHistoryExportDownload('),
+            ('history-organization-ui', 'historyExportTrigger?.focus()'),
+            ('history', 'selection.snapshot().selectedTaskIds'),
+            ('history-detail-controller', 'detailTask'),
+            ('history-detail-controller', 'outputs.zip'),
+        ]:
+            self.assertIn(marker, _history_source(module))
         self.assertIn('data-history-export-mode="images_only"', action_panel)
         self.assertIn('data-history-export-mode="images_with_prompts"', action_panel)
         self.assertEqual(
             _typescript_function_body(
-                source,
+                _history_source("history-organization-ui"),
                 "runHistoryExport",
             ).count("createHistoryExport("),
             1,
@@ -758,11 +770,11 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ):
             self.assertIn(marker, action_panel)
 
-        selection_body = _typescript_function_body(source, "renderSelectionDetail")
+        selection_body = _typescript_function_body(_history_source("history-detail-controller"), "renderSelectionDetail")
         self.assertNotIn("history-selection-actions", selection_body)
         self.assertIn("historySelectionPanelHtml", selection_body)
 
-        organize_body = _typescript_function_body(source, "openHistoryOrganizePicker")
+        organize_body = _typescript_function_body(_history_source("history-organization-ui"), "openHistoryOrganizePicker")
         for marker in (
             'data-history-bulk-favorite',
             'data-history-bulk-unfavorite',
@@ -775,7 +787,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
         self.assertNotRegex(source, r'class="drawer-close-button[^"\n]*"[^>]*>\s*×\s*</button>')
         self.assertNotRegex(html, r'class="drawer-close-button[^"\n]*"[^>]*>\s*×\s*</button>')
-        self.assertGreaterEqual(source.count('class="ghost-button drawer-close-button'), 2)
+        self.assertGreaterEqual(_history_source("history-detail-controller").count('class="ghost-button drawer-close-button'), 2)
         self.assertGreaterEqual(html.count('class="ghost-button drawer-close-button'), 3)
         self.assertIn(".history-action-icon", styles)
         self.assertRegex(
@@ -826,14 +838,14 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             'id="historyMobileFilterCount"',
         ):
             self.assertIn(marker, html)
-        for marker in (
-            'from "./history-active-filters"',
-            "collectHistoryActiveFilters(",
-            "removeHistoryActiveFilter(",
-            "clearHistoryActiveFilters(",
-            "renderHistoryActiveFilters()",
-        ):
-            self.assertIn(marker, source)
+        for module, marker in [
+            ('history-filters-controller', 'from "./history-active-filters"'),
+            ('history-filters-controller', 'collectHistoryActiveFilters('),
+            ('history-filters-controller', 'removeHistoryActiveFilter('),
+            ('history-filters-controller', 'clearHistoryActiveFilters('),
+            ('history', 'renderHistoryActiveFilters()'),
+        ]:
+            self.assertIn(marker, _history_source(module))
         self.assertRegex(
             styles,
             r"\.history-results\s*\{[^}]*grid-template-rows:\s*auto\s+auto\s+minmax\(0,\s*1fr\)",
@@ -926,28 +938,28 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             self.assertNotIn(f'id="{old_id}"', html)
         self.assertNotIn("history-tag-manager-modal", html)
 
-        for marker in (
-            'from "./history-organization"',
-            "readHistoryOrganizationFilters",
-            "writeHistoryOrganizationFilters",
-            "historyTaskPageQuery",
-            "taskMatchesHistoryOrganizationFilters",
-            "historyFavoriteButtonHtml",
-            "historyCardTagsHtml",
-            "organizeHistoryTasks",
-            "function applyHistoryOrganizations",
-            "function removeHistoryTaskCardPreservingAnchor",
-            'data-history-favorite-task',
-            'data-history-open-tag-picker',
-            "historyTagMutationErrorMessage",
-            "historyOrganizationSummarySupported",
-            "historyTaskRowsSupportOrganization",
-            "historyTagPickerCreateHtml",
-            "createHistoryTagForTasks",
-            "data-history-tag-create-inline",
-            "history.backendRestartRequired",
-        ):
-            self.assertIn(marker, source)
+        for module, marker in [
+            ('history', 'from "./history-organization"'),
+            ('history-filters-controller', 'readHistoryOrganizationFilters'),
+            ('history-filters-controller', 'writeHistoryOrganizationFilters'),
+            ('history-filters-controller', 'historyTaskPageQuery'),
+            ('history-list-controller', 'taskMatchesHistoryOrganizationFilters'),
+            ('history-card-view', 'historyFavoriteButtonHtml'),
+            ('history-card-view', 'historyCardTagsHtml'),
+            ('history-task-actions', 'organizeHistoryTasks'),
+            ('history-list-controller', 'function applyHistoryOrganizations'),
+            ('history-list-controller', 'function removeHistoryTaskCardPreservingAnchor'),
+            ('history', 'data-history-favorite-task'),
+            ('history-detail-controller', 'data-history-open-tag-picker'),
+            ('history-filters-controller', 'historyTagMutationErrorMessage'),
+            ('history-filters-controller', 'historyOrganizationSummarySupported'),
+            ('history-list-controller', 'historyTaskRowsSupportOrganization'),
+            ('history-organization-ui', 'historyTagPickerCreateHtml'),
+            ('history-organization-ui', 'createHistoryTagForTasks'),
+            ('history-organization-ui', 'data-history-tag-create-inline'),
+            ('history-filters-controller', 'history.backendRestartRequired'),
+        ]:
+            self.assertIn(marker, _history_source(module))
         self.assertIn(
             "class HistoryOrganizationRequestError",
             organization_source,
@@ -955,13 +967,13 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn(
             "error.status === 409",
             _typescript_function_body(
-                source,
+                _history_source("history-filters-controller"),
                 "historyTagMutationErrorMessage",
             ),
         )
         card_body = _typescript_function_body(
-            source,
-            "taskCardHtml",
+            _history_source("history-card-view"),
+            'historyTaskCardHtml',
         )
         self.assertIn("historyFavoriteButtonHtml", card_body)
         self.assertIn("historyCardTagsHtml", card_body)
@@ -972,7 +984,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             ),
         )
         organize_body = _typescript_function_body(
-            source,
+            _history_source("history-task-actions"),
             "organizeHistoryTaskIds",
         )
         self.assertEqual(
@@ -982,12 +994,12 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn(
             "taskMatchesHistoryOrganizationFilters",
             _typescript_function_body(
-                source,
+                _history_source("history-list-controller"),
                 "applyHistoryOrganizations",
             ),
         )
-        self.assertIn("event.key !== \"Escape\"", source)
-        self.assertIn("historyTagPickerTrigger?.focus()", source)
+        self.assertIn('event.key !== "Escape"', _history_source("history"))
+        self.assertIn('historyTagPickerTrigger?.focus()', _history_source("history-organization-ui"))
         self.assertRegex(
             styles,
             r"\.history-tag-picker\s*\{[^}]*position:\s*fixed",
@@ -1096,19 +1108,19 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         )
         self.assertIn(
             'class="history-tag-manager-row-field"',
-            source,
+            _history_source("history-filters-controller"),
         )
         self.assertIn(
             'class="history-tag-manager-row-actions"',
-            source,
+            _history_source("history-filters-controller"),
         )
         self.assertIn(
             'translate("history.confirmDelete")',
-            source,
+            _history_source("history-context-menu"),
         )
         self.assertIn(
             'aria-label="${escapeHtml(deleteAriaLabel)}"',
-            source,
+            _history_source("history-filters-controller"),
         )
         self.assertIn(
             ".history-tag-manager-row-actions",
@@ -1624,9 +1636,9 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
     def test_history_reference_file_handoff_resolves_current_task_by_safe_id(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
-        handoff = _typescript_function_body(source, "handoffReferenceFileToMain")
+        handoff = _typescript_function_body(_history_source("history-task-actions"), "handoffReferenceFileToMain")
         self.assertIn('/^[0-9a-f]{64}$/.test(assetId)', handoff)
-        self.assertIn("historyState.detailTask", handoff)
+        self.assertIn('deps.details.task()', handoff)
         self.assertIn("task.reference_files.find", handoff)
         self.assertIn("reference_file_id: assetId", handoff)
         self.assertNotIn("dataset.historyReferenceFileName", source)
@@ -1639,7 +1651,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         function_source = (
             "function handoffReferenceFileToMain(assetId: string): void "
-            + _typescript_function_body(source, "handoffReferenceFileToMain")
+            + _typescript_function_body(_history_source("history-task-actions"), "handoffReferenceFileToMain")
         )
         harness = textwrap.dedent(
             f"""
@@ -1658,7 +1670,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             const code = ts.transpileModule({function_source!r}, {{
               compilerOptions: {{ target: ts.ScriptTarget.ES2020 }},
             }}).outputText;
-            const context = {{ historyState, localStorage, window, HISTORY_REFERENCE_HANDOFF_KEY, JSON, String, Number }};
+            const deps = {{ details: {{ task: () => historyState.detailTask }} }};
+            const context = {{ deps, localStorage, window, HISTORY_REFERENCE_HANDOFF_KEY, JSON, String, Number }};
             vm.createContext(context);
             vm.runInContext(code, context);
             const handoff = context.handoffReferenceFileToMain;
@@ -1700,8 +1713,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
         self.assertIn('class="history-page"', html)
         self.assertIn('data-history-detail-close', Path("codex_image/webui/frontend/src/history-action-panel.ts").read_text(encoding="utf-8"))
-        self.assertIn("shouldClearHistoryTaskFromBlankSurface", source)
-        self.assertIn("isTaskListBlankSurface: target === els.taskList", source)
+        self.assertIn('shouldClearHistoryTaskFromBlankSurface', _history_source("history"))
+        self.assertIn('isTaskListBlankSurface: target === els.taskList', _history_source("history"))
         self.assertIn('data-history-resizer="left"', html)
         self.assertIn('data-history-resizer="right"', html)
         self.assertIn('role="separator"', html)
@@ -1710,7 +1723,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('data-i18n-attr="aria-label:history.resizeFilters"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeDetail"', html)
         self.assertIn('/static/styles.css?v=runtime-821', html)
-        self.assertIn('/static/history.js?v=history-146', html)
+        self.assertIn('/static/history.js?v=history-149', html)
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*height:\s*100dvh")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*--history-sidebar-width:\s*280px")
@@ -1812,7 +1825,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles/90-history.css").read_text(encoding="utf-8")
 
-        card_body = _typescript_function_body(source, "taskCardHtml")
+        card_body = _typescript_function_body(_history_source("history-card-view"), 'historyTaskCardHtml')
         self.assertIn("const imageCount = historyTaskGeneratedCount(task);", card_body)
         self.assertIn("const stackDepth = historyTaskStackDepth(imageCount);", card_body)
         self.assertIn('data-history-image-count="${String(imageCount)}"', card_body)
@@ -1823,10 +1836,10 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn('translate("history.viewing")', card_body)
         self.assertEqual(card_body.count("<img "), 1)
 
-        stack_depth_body = _typescript_function_body(source, "historyTaskStackDepth")
+        stack_depth_body = _typescript_function_body(_history_source("history-presentation"), "historyTaskStackDepth")
         self.assertIn("return Math.min(3, imageCount - 1);", stack_depth_body)
 
-        stack_layers_body = _typescript_function_body(source, "historyTaskStackLayers")
+        stack_layers_body = _typescript_function_body(_history_source("history-presentation"), "historyTaskStackLayers")
         self.assertIn("Array.from({ length: stackDepth }", stack_layers_body)
         self.assertIn('class="history-task-stack-layer"', stack_layers_body)
         self.assertNotIn("<img", stack_layers_body)
@@ -1914,160 +1927,160 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn('id="historyStatusList"', html)
         self.assertNotIn('id="historySizeList"', html)
 
-        for marker in [
-            "selectedTaskIds: new Set<string>()",
-            'selectionAnchorTaskId: ""',
-            "pendingDeleteTaskIds: [] as string[]",
-            "exhausted: false",
-            "newerExhausted: true",
-            "syncStateFromUrl()",
-            "updateHistoryUrl()",
-            'view: "grid"',
-            'mode: ""',
-            "HISTORY_FILTER_QUERY_KEYS,",
-            'from "./history-scroll-memory";',
-            "type HistoryFilterKey = (typeof HISTORY_FILTER_QUERY_KEYS)[number];",
-            'renderFacetButtons(els.modeList, "mode", summary.modes || [], translate("history.allTypes"))',
-            'translate("history.type.textToImage")',
-            'translate("history.type.imageToImage")',
-            '["backend", "provider"] as const',
-            "syncHistorySortMode()",
-            "syncHistoryViewMode()",
-            "applyHistorySort(",
-            "layoutJustifiedHistoryGrid",
-            "scheduleHistoryGridLayout",
-            "historyGridLayoutSettings",
-            "HISTORY_LAYOUT_STORAGE_KEY",
-            "HISTORY_LAYOUT_DEFAULTS",
-            "HISTORY_LAYOUT_LIMITS",
-            "restoreHistoryLayoutPreference()",
-            "bindHistoryResizerEvents()",
-            'from "./history-lightbox"',
-            'type HistoryLightboxTaskDirection',
-            'type HistoryLightboxTaskNavigationContext',
-            "initializeHistoryShell({",
-            "historyDetailImagesLayoutClass",
-            "startHistoryResize",
-            "updateHistoryResize",
-            "endHistoryResize",
-            "preserveActiveTask",
-            "activeHistoryTaskVisible",
-            "ensureHistoryTaskCardVisible",
-            'scrollIntoView({ block: "nearest", inline: "nearest" })',
-            "resizeHistoryLayoutByKeyboard",
-            "localStorage.setItem(HISTORY_LAYOUT_STORAGE_KEY",
-            "setPointerCapture",
-            "history-resizing",
-            "applyHistoryGridRowLayout",
-            "--history-task-card-width",
-            "--history-task-row-height",
-            'window.addEventListener("resize", () =>',
-            "closeHistoryContextMenu();",
-            "scheduleHistoryGridLayout();",
-            "data-history-view",
-            "history-view-grid",
-            "history-view-list",
-            "renderBulkToolbar()",
-            "clearHistoryDeleteConfirmation",
-            "renderSelectionDetail",
-            "syncHistorySelectionDetail",
-            'dataset.historyDetailMode = "selection"',
-            "history-bulk-selecting",
-            'els.page?.classList.toggle("history-bulk-selecting", count > 1 || historyState.selectionMode)',
-            "archiveSelectedTasks",
-            "deleteSelectedTasks",
-            "trimMountedTaskCards(position === \"prepend\" ? \"bottom\" : \"top\")",
-            "trimMountedTaskCards(edge: HistoryWindowEdge)",
-            "historyState.loadedTaskIds.delete(taskId)",
-            "taskWindowCursor",
-            "historyWindowEdgeCursor",
-            "captureHistoryScrollAnchor",
-            "restoreHistoryScrollAnchor",
-            "historyTaskCards",
-            "direction: \"previous\"",
-            "historyTaskPageQuery(",
-            'loadTasks({ direction: "previous" })',
-            'loadTasks({ direction: "next" })',
-            'data-history-created-at',
-            "historyState.exhausted",
-            "historyState.newerExhausted",
-            "historyState.selectedTaskIds",
-            "visibleHistoryTaskIds",
-            "applyHistoryTaskSelection",
-            "clearHistoryTaskSelection",
-            "toggleHistoryTaskSelection",
-            "selectHistoryTaskRange",
-            "handleHistoryTaskShortcutSelection",
-            "shouldDeleteCurrentHistorySelection",
-            "event.shiftKey",
-            "event.metaKey",
-            "event.ctrlKey",
-            "data-history-enter-selection-mode",
-            "historyState.selectionMode",
-            'draggable="false"',
-            "HISTORY_THUMBNAIL_CACHE_VERSION",
-            "historyThumbnailUrl",
-            "versionHistoryThumbnailUrl",
-            "historyThumbnailRatioStyle",
-            "formatHistorySizeLabel",
-            "parseAspectRatioParts",
-            "--history-task-thumb-ratio",
-            "--history-task-card-ratio",
-            "data-history-meta-kind",
-            'parseAspectRatioParts(task.size, "x")',
-            'parseAspectRatioParts(task.ratio, ":")',
-            'url.includes("/outputs/thumbnails/")',
-            'const separator = url.includes("?") ? "&" : "?";',
-            "thumb-768-fit",
-            "v=${HISTORY_THUMBNAIL_CACHE_VERSION}",
-            'els.taskList?.addEventListener("dragstart"',
-            "event.preventDefault()",
-            "aria-current",
-            "role=\"listitem\"",
-            "history-detail-title",
-            "history-detail-actions-result",
-            "history-detail-actions-management",
-            "const hasSelectedOutputs = selectedCount > 0",
-            'translate("history.downloadImage")',
-            "history-prompt-compare",
-            "outputs.zip",
-            "HISTORY_REFERENCE_HANDOFF_KEY",
-            "data-history-reference-handoff-url",
-            "data-history-input-lightbox-index",
-            "openHistoryInputLightbox",
-            "openHistoryDetailLightbox",
-            "openHistoryTaskLightbox",
-            "openHistoryTaskLightboxByDirection",
-            "historyAdjacentTaskId",
-            'openHistoryLightbox(urls, index, {',
-            'taskId: historyState.selectedTaskId',
-            "onTaskNavigate: openHistoryTaskLightboxByDirection",
-            'addEventListener("dblclick"',
-            "try {",
-            "catch (error)",
+        for module, marker in [
+            ('history-selection-model', 'selectedTaskIds: new Set()'),
+            ('history-selection-model', 'selectionAnchorTaskId: ""'),
+            ('history-task-actions', 'pendingDeleteTaskIds: [] as string[]'),
+            ('history-list-controller', 'exhausted: false'),
+            ('history-list-controller', 'newerExhausted: true'),
+            ('history', 'syncStateFromUrl()'),
+            ('history', 'updateHistoryUrl()'),
+            ('history-filters-controller', 'view: "grid"'),
+            ('history-filters-controller', 'mode: ""'),
+            ('history-filters-controller', 'HISTORY_FILTER_QUERY_KEYS,'),
+            ('history', 'from "./history-scroll-memory";'),
+            ('history-types', 'type HistoryFilterKey = (typeof HISTORY_FILTER_QUERY_KEYS)[number];'),
+            ('history-filters-controller', 'renderFacetButtons(els.modeList, "mode", summary.modes || [], translate("history.allTypes"))'),
+            ('history-presentation', 'translate("history.type.textToImage")'),
+            ('history-presentation', 'translate("history.type.imageToImage")'),
+            ('history-filters-controller', '["backend", "provider"] as const'),
+            ('history-filters-controller', 'syncHistorySortMode()'),
+            ('history', 'syncHistoryViewMode()'),
+            ('history-filters-controller', 'applyHistorySort('),
+            ('history-layout-controller', 'layoutJustifiedHistoryGrid'),
+            ('history', 'scheduleHistoryGridLayout'),
+            ('history-layout-controller', 'historyGridLayoutSettings'),
+            ('history-layout-controller', 'HISTORY_LAYOUT_STORAGE_KEY'),
+            ('history-layout-controller', 'HISTORY_LAYOUT_DEFAULTS'),
+            ('history-layout-controller', 'HISTORY_LAYOUT_LIMITS'),
+            ('history', 'restoreHistoryLayoutPreference()'),
+            ('history', 'bindHistoryResizerEvents()'),
+            ('history', 'from "./history-lightbox"'),
+            ('history-detail-controller', 'type HistoryLightboxTaskDirection'),
+            ('history-detail-controller', 'type HistoryLightboxTaskNavigationContext'),
+            ('history', 'initializeHistoryShell({'),
+            ('history-detail-controller', 'historyDetailImagesLayoutClass'),
+            ('history-layout-controller', 'startHistoryResize'),
+            ('history-layout-controller', 'updateHistoryResize'),
+            ('history', 'endHistoryResize'),
+            ('history', 'preserveActiveTask'),
+            ('history-layout-controller', 'activeHistoryTaskVisible'),
+            ('history', 'ensureHistoryTaskCardVisible'),
+            ('history-layout-controller', 'scrollIntoView({ block: "nearest", inline: "nearest" })'),
+            ('history-layout-controller', 'resizeHistoryLayoutByKeyboard'),
+            ('history-layout-controller', 'localStorage.setItem(HISTORY_LAYOUT_STORAGE_KEY'),
+            ('history-layout-controller', 'setPointerCapture'),
+            ('history-layout-controller', 'history-resizing'),
+            ('history-layout-controller', 'applyHistoryGridRowLayout'),
+            ('history-layout-controller', '--history-task-card-width'),
+            ('history-layout-controller', '--history-task-row-height'),
+            ('history', 'window.addEventListener("resize", () =>'),
+            ('history', 'closeHistoryContextMenu();'),
+            ('history-filters-controller', 'options.scheduleLayout();'),
+            ('history', 'data-history-view'),
+            ('history-filters-controller', 'history-view-grid'),
+            ('history-filters-controller', 'history-view-list'),
+            ('history', 'renderBulkToolbar()'),
+            ('history', 'clearHistoryDeleteConfirmation'),
+            ('history', 'renderSelectionDetail'),
+            ('history', 'syncHistorySelectionDetail'),
+            ('history-detail-controller', 'dataset.historyDetailMode = "selection"'),
+            ('history', 'history-bulk-selecting'),
+            ('history', 'els.page?.classList.toggle("history-bulk-selecting", count > 1 || selection.snapshot().selectionMode)'),
+            ('history', 'archiveSelectedTasks'),
+            ('history', 'deleteSelectedTasks'),
+            ('history-list-controller', 'trimMountedTaskCards(position === "prepend" ? "bottom" : "top")'),
+            ('history-list-controller', 'trimMountedTaskCards(edge: HistoryWindowEdge)'),
+            ('history-list-controller', 'historyState.loadedTaskIds.delete(taskId)'),
+            ('history-list-controller', 'taskWindowCursor'),
+            ('history-list-controller', 'historyWindowEdgeCursor'),
+            ('history', 'captureHistoryScrollAnchor'),
+            ('history-list-controller', 'restoreHistoryScrollAnchor'),
+            ('history-layout-controller', 'historyTaskCards'),
+            ('history-list-controller', 'direction: "previous"'),
+            ('history-filters-controller', 'historyTaskPageQuery('),
+            ('history-list-controller', 'loadTasks({ direction: "previous" })'),
+            ('history-list-controller', 'loadTasks({ direction: "next" })'),
+            ('history-card-view', 'data-history-created-at'),
+            ('history-list-controller', 'historyState.exhausted'),
+            ('history-list-controller', 'historyState.newerExhausted'),
+            ('history', 'selection.snapshot().selectedTaskIds'),
+            ('history', 'visibleHistoryTaskIds'),
+            ('history', 'applyHistoryTaskSelection'),
+            ('history', 'clearHistoryTaskSelection'),
+            ('history', 'toggleHistoryTaskSelection'),
+            ('history', 'selectHistoryTaskRange'),
+            ('history', 'handleHistoryTaskShortcutSelection'),
+            ('history', 'shouldDeleteCurrentHistorySelection'),
+            ('history', 'event.shiftKey'),
+            ('history', 'event.metaKey'),
+            ('history', 'event.ctrlKey'),
+            ('history', 'data-history-enter-selection-mode'),
+            ('history', 'selection.snapshot().selectionMode'),
+            ('history-card-view', 'draggable="false"'),
+            ('history-presentation', 'HISTORY_THUMBNAIL_CACHE_VERSION'),
+            ('history-card-view', 'historyThumbnailUrl'),
+            ('history-presentation', 'versionHistoryThumbnailUrl'),
+            ('history-card-view', 'historyThumbnailRatioStyle'),
+            ('history-card-view', 'formatHistorySizeLabel'),
+            ('history-presentation', 'parseAspectRatioParts'),
+            ('history-presentation', '--history-task-thumb-ratio'),
+            ('history-layout-controller', '--history-task-card-ratio'),
+            ('history-card-view', 'data-history-meta-kind'),
+            ('history-presentation', 'parseAspectRatioParts(task.size, "x")'),
+            ('history-presentation', 'parseAspectRatioParts(task.ratio, ":")'),
+            ('history-presentation', 'url.includes("/outputs/thumbnails/")'),
+            ('history-presentation', 'const separator = url.includes("?") ? "&" : "?";'),
+            ('history-presentation', 'thumb-768-fit'),
+            ('history-presentation', 'v=${HISTORY_THUMBNAIL_CACHE_VERSION}'),
+            ('history', 'els.taskList?.addEventListener("dragstart"'),
+            ('history', 'event.preventDefault()'),
+            ('history', 'aria-current'),
+            ('history-card-view', 'role="listitem"'),
+            ('history-detail-controller', 'history-detail-title'),
+            ('history-detail-controller', 'history-detail-actions-result'),
+            ('history-detail-controller', 'history-detail-actions-management'),
+            ('history-detail-controller', 'const hasSelectedOutputs = selectedCount > 0'),
+            ('history-detail-controller', 'translate("history.downloadImage")'),
+            ('history-presentation', 'history-prompt-compare'),
+            ('history-detail-controller', 'outputs.zip'),
+            ('history-task-actions', 'HISTORY_REFERENCE_HANDOFF_KEY'),
+            ('history', 'data-history-reference-handoff-url'),
+            ('history', 'data-history-input-lightbox-index'),
+            ('history', 'openHistoryInputLightbox'),
+            ('history', 'openHistoryDetailLightbox'),
+            ('history', 'openHistoryTaskLightbox'),
+            ('history-detail-controller', 'openHistoryTaskLightboxByDirection'),
+            ('history-detail-controller', 'historyAdjacentTaskId'),
+            ('history-detail-controller', 'openHistoryLightbox(urls, index, {'),
+            ('history-detail-controller', 'taskId: deps.selection.snapshot().selectedTaskId'),
+            ('history-detail-controller', 'onTaskNavigate: openHistoryTaskLightboxByDirection'),
+            ('history', 'addEventListener("dblclick"'),
+            ('history-context-menu', 'try {'),
+            ('history-context-menu', 'catch (error)'),
         ]:
-            self.assertIn(marker, source)
+            self.assertIn(marker, _history_source(module))
         for function_name in (
             "syncStateFromUrl",
             "updateHistoryUrl",
-            "bindEvents",
+            "handleClick",
         ):
             self.assertIn(
                 "for (const key of HISTORY_FILTER_QUERY_KEYS)",
-                _typescript_function_body(source, function_name),
+                _typescript_function_body(_history_source("history-filters-controller"), function_name),
             )
         self.assertIn(
             "for (const key of HISTORY_FILTER_QUERY_KEYS)",
-            _typescript_function_body(source, "historyPageQueryInput"),
+            _typescript_function_body(_history_source("history-filters-controller"), "historyPageQueryInput"),
         )
         self.assertIn('params.set("direction", input.direction)', position_runtime_source)
-        update_resize_body = _typescript_function_body(source, "updateHistoryResize")
-        apply_pending_resize_body = _typescript_function_body(source, "applyPendingHistoryResize")
-        start_resize_body = _typescript_function_body(source, "startHistoryResize")
-        end_resize_body = _typescript_function_body(source, "endHistoryResize")
-        self.assertIn("if (historyGridLayoutFrame) return;", source)
+        update_resize_body = _typescript_function_body(_history_source("history-layout-controller"), "updateHistoryResize")
+        apply_pending_resize_body = _typescript_function_body(_history_source("history-layout-controller"), "applyPendingHistoryResize")
+        start_resize_body = _typescript_function_body(_history_source("history-layout-controller"), "startHistoryResize")
+        end_resize_body = _typescript_function_body(_history_source("history-layout-controller"), "endHistoryResize")
+        self.assertIn('if (historyGridLayoutFrame) return;', _history_source("history-layout-controller"))
         self.assertNotIn("window.cancelAnimationFrame(historyGridLayoutFrame)", source)
-        self.assertIn("scheduleHistoryGridLayout({ keepTaskId });", source)
+        self.assertIn('scheduleHistoryGridLayout({ keepTaskId });', _history_source("history-layout-controller"))
         self.assertIn("activeHistoryResizer.latestX = event.clientX;", update_resize_body)
         self.assertIn("if (historyResizeFrame) return;", update_resize_body)
         self.assertIn("window.requestAnimationFrame(() => applyPendingHistoryResize())", update_resize_body)
@@ -2146,16 +2159,16 @@ class WebUIStaticHistoryTests(unittest.TestCase):
 
         self.assertRegex(
             source,
-            r"if \(taskButton\) \{[\s\S]*handleHistoryTaskShortcutSelection\(taskButton\.dataset\.historyTaskId \|\| \"\", event\)[\s\S]*historyState\.selectionMode[\s\S]*toggleHistoryTaskSelection\(taskId\)[\s\S]*applyHistoryTaskSelection\(\[taskId\], taskId, taskId\)",
+            r"if \(taskButton\) \{[\s\S]*handleHistoryTaskShortcutSelection\(taskButton\.dataset\.historyTaskId \|\| \"\", event\)[\s\S]*selection\.snapshot\(\)\.selectionMode[\s\S]*toggleHistoryTaskSelection\(taskId\)[\s\S]*applyHistoryTaskSelection\(\[taskId\], taskId, taskId\)",
         )
-        self.assertIn("function handleHistoryTaskArrowNavigation", source)
-        self.assertIn("isHistoryTaskArrowKey(event.key)", source)
-        self.assertIn("historyTaskArrowTargetCard(els.taskList, taskId, event.key, historyState.view)", source)
-        self.assertIn('historyState.view === "list" && (event.key === "ArrowLeft" || event.key === "ArrowRight")', source)
-        self.assertIn('event.preventDefault();\n  event.stopPropagation();', source)
-        self.assertIn('focusHistoryTaskButton(nextTaskId);', source)
-        self.assertIn('applyHistoryTaskSelection([nextTaskId], nextTaskId, nextTaskId);', source)
-        self.assertIn('if (handleHistoryTaskArrowNavigation(event)) return;', source)
+        self.assertIn('function handleHistoryTaskArrowNavigation', _history_source("history"))
+        self.assertIn('isHistoryTaskArrowKey(event.key)', _history_source("history"))
+        self.assertIn("historyTaskArrowTargetCard(els.taskList, taskId, event.key, filters.snapshot().view)", source)
+        self.assertIn('filters.snapshot().view === "list" && (event.key === "ArrowLeft" || event.key === "ArrowRight")', source)
+        self.assertIn('event.preventDefault();\n  event.stopPropagation();', _history_source("history"))
+        self.assertIn('focusHistoryTaskButton(nextTaskId);', _history_source("history"))
+        self.assertIn('applyHistoryTaskSelection([nextTaskId], nextTaskId, nextTaskId);', _history_source("history"))
+        self.assertIn('if (handleHistoryTaskArrowNavigation(event)) return;', _history_source("history"))
 
         for marker in [
             "export const HISTORY_TASK_ARROW_KEYS",
@@ -2182,41 +2195,41 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             self.assertIn(marker, window_source)
         self.assertNotIn("CSS.escape", window_source)
 
-        self.assertIn("backend", source)
-        self.assertIn("provider", source)
-        self.assertIn("function historyTaskSourceLabel", source)
-        self.assertIn("function historyBackendDisplayLabel", source)
-        self.assertIn("const source = historyTaskSourceLabel(task)", source)
-        self.assertIn("task.provider", source)
-        self.assertLess(source.index("task.provider"), source.index("task.backend"))
-        self.assertIn('if (value === "codex_images") return "Codex Image";', source)
-        self.assertIn('if (value === "codex_responses") return "Codex Responses";', source)
-        self.assertIn('if (value === "openai_images") return "API Image";', source)
-        self.assertIn('if (value === "openai_responses") return "API Responses";', source)
-        self.assertIn("function historyBackendChannelLabel", source)
-        self.assertIn('if (value === "openai_responses") return "Responses";', source)
-        self.assertIn('<span>${escapeHtml(historyTaskSourceLabel(task))}</span>', source)
-        self.assertIn("orientation", source)
-        self.assertIn("prompt_mode", source)
-        self.assertIn("quality", source)
-        self.assertIn("HISTORY_RATIO_OTHER_VALUE", source)
-        self.assertIn('translate("history.ratioOther")', source)
-        self.assertIn('if (key === "orientation")', source)
-        self.assertIn('translate("output.portrait")', source)
-        self.assertIn('translate("output.landscape")', source)
-        self.assertIn('translate("output.square")', source)
-        self.assertIn("historyOrientationIconHtml", source)
-        self.assertIn("historyFilterButtonLabelHtml", source)
-        self.assertIn("history-filter-icon", source)
-        self.assertIn("history-filter-icon-portrait", source)
-        self.assertIn("history-filter-icon-landscape", source)
-        self.assertIn("history-filter-icon-square", source)
-        self.assertIn('data-history-filter-key="${key}"', source)
+        self.assertIn('backend', _history_source("history-filters-controller"))
+        self.assertIn('provider', _history_source("history-filters-controller"))
+        self.assertIn('function historyTaskSourceLabel', _history_source("history-presentation"))
+        self.assertIn('function historyBackendDisplayLabel', _history_source("history-presentation"))
+        self.assertIn('const source = historyTaskSourceLabel(task)', _history_source("history-card-view"))
+        self.assertIn('task.provider', _history_source("history-presentation"))
+        self.assertLess(_history_source("history-presentation").index('task.provider'), _history_source("history-presentation").index('task.backend'))
+        self.assertIn('if (value === "codex_images") return "Codex Image";', _history_source("history-presentation"))
+        self.assertIn('if (value === "codex_responses") return "Codex Responses";', _history_source("history-presentation"))
+        self.assertIn('if (value === "openai_images") return "API Image";', _history_source("history-presentation"))
+        self.assertIn('if (value === "openai_responses") return "API Responses";', _history_source("history-presentation"))
+        self.assertIn('function historyBackendChannelLabel', _history_source("history-presentation"))
+        self.assertIn('if (value === "openai_responses") return "Responses";', _history_source("history-presentation"))
+        self.assertIn('<span>${escapeHtml(historyTaskSourceLabel(task))}</span>', _history_source("history-detail-controller"))
+        self.assertIn('orientation', _history_source("history-card-view"))
+        self.assertIn('prompt_mode', _history_source("history-card-view"))
+        self.assertIn('quality', _history_source("history-card-view"))
+        self.assertIn('HISTORY_RATIO_OTHER_VALUE', _history_source("history-presentation"))
+        self.assertIn('translate("history.ratioOther")', _history_source("history-presentation"))
+        self.assertIn('if (key === "orientation")', _history_source("history-presentation"))
+        self.assertIn('translate("output.portrait")', _history_source("history-presentation"))
+        self.assertIn('translate("output.landscape")', _history_source("history-presentation"))
+        self.assertIn('translate("output.square")', _history_source("history-presentation"))
+        self.assertIn('historyOrientationIconHtml', _history_source("history-filters-controller"))
+        self.assertIn('historyFilterButtonLabelHtml', _history_source("history-filters-controller"))
+        self.assertIn('history-filter-icon', _history_source("history-filters-controller"))
+        self.assertIn('history-filter-icon-portrait', _history_source("history-filters-controller"))
+        self.assertIn('history-filter-icon-landscape', _history_source("history-filters-controller"))
+        self.assertIn('history-filter-icon-square', _history_source("history-filters-controller"))
+        self.assertIn('data-history-filter-key="${key}"', _history_source("history-filters-controller"))
         self.assertNotIn('formatTranslation("history.windowNotice"', source)
         self.assertNotIn('notice.className = "history-window-notice"', source)
         self.assertNotIn("statusList", source)
         self.assertNotIn("sizeList", source)
-        self.assertIn("sort", source)
+        self.assertIn('sort', _history_source("history-filters-controller"))
 
     def test_history_resize_reuses_initial_grid_measurement(self) -> None:
         source = Path(
@@ -2224,27 +2237,27 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         self.assertIn(
-            "function captureHistoryGridLayoutSnapshot",
-            source,
+            'function captureHistoryGridLayoutSnapshot',
+            _history_source("history-layout-controller"),
         )
         capture_body = _typescript_function_body(
-            source,
+            _history_source("history-layout-controller"),
             "captureHistoryGridLayoutSnapshot",
         )
         start_body = _typescript_function_body(
-            source,
+            _history_source("history-layout-controller"),
             "startHistoryResize",
         )
         apply_body = _typescript_function_body(
-            source,
+            _history_source("history-layout-controller"),
             "applyPendingHistoryResize",
         )
         end_body = _typescript_function_body(
-            source,
+            _history_source("history-layout-controller"),
             "endHistoryResize",
         )
         layout_body = _typescript_function_body(
-            source,
+            _history_source("history-layout-controller"),
             "layoutJustifiedHistoryGrid",
         )
 
@@ -2257,31 +2270,31 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn("layoutJustifiedHistoryGrid", apply_body)
         self.assertIn("layoutHistoryGridAfterResize(resize);", end_body)
         self.assertIn(
-            "resize.startLeft + resize.startRight",
-            source,
+            'resize.startLeft + resize.startRight',
+            _history_source("history-layout-controller"),
         )
         self.assertNotIn("root.clientWidth", apply_body)
         self.assertNotIn("window.getComputedStyle", apply_body)
         self.assertIn(
-            "options.snapshot === undefined",
+            "layoutOptions.snapshot === undefined",
             layout_body,
         )
         self.assertIn(
-            ": options.snapshot",
+            ": layoutOptions.snapshot",
             layout_body,
         )
-        self.assertIn("bindHistoryGridResizeObserver()", source)
-        self.assertIn('resizer.addEventListener("lostpointercapture"', source)
-        self.assertIn('window.addEventListener("blur", endHistoryResize)', source)
-        self.assertIn('document.addEventListener("visibilitychange"', source)
+        self.assertIn('bindHistoryGridResizeObserver()', _history_source("history"))
+        self.assertIn('resizer.addEventListener("lostpointercapture"', _history_source("history-layout-controller"))
+        self.assertIn('window.addEventListener("blur", endHistoryResize, { signal: lifetime.signal })', _history_source("history-layout-controller"))
+        self.assertIn('document.addEventListener("visibilitychange"', _history_source("history-layout-controller"))
 
     def test_history_reference_handoff_is_consumed_by_main_page(self) -> None:
         history_source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         input_source = Path("codex_image/webui/frontend/src/input-sources.ts").read_text(encoding="utf-8")
         boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
 
-        self.assertIn('localStorage.setItem(HISTORY_REFERENCE_HANDOFF_KEY', history_source)
-        self.assertIn('window.location.href = "/"', history_source)
+        self.assertIn('localStorage.setItem(HISTORY_REFERENCE_HANDOFF_KEY', _history_source("history-task-actions"))
+        self.assertIn('window.location.href = "/"', _history_source("history-task-actions"))
         self.assertIn("function restoreHistoryReferenceHandoff()", input_source)
         self.assertIn("localStorage.removeItem(HISTORY_REFERENCE_HANDOFF_KEY)", input_source)
         self.assertIn("imageFileFromUrl(item.url", input_source)
@@ -2292,11 +2305,11 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         lightbox_source = Path("codex_image/webui/frontend/src/history-lightbox.ts").read_text(encoding="utf-8")
 
-        self.assertIn("function handleHistoryTaskArrowNavigation", source)
-        self.assertIn("if (isHistoryLightboxOpen()) return false;", source)
+        self.assertIn('function handleHistoryTaskArrowNavigation', _history_source("history"))
+        self.assertIn('if (isHistoryLightboxOpen()) return false;', _history_source("history"))
         self.assertLess(
-            source.index("if (isHistoryLightboxOpen()) return false;"),
-            source.index("if (!isHistoryTaskArrowKey(event.key)) return false;"),
+            _history_source("history").index('if (isHistoryLightboxOpen()) return false;'),
+            _history_source("history").index('if (!isHistoryTaskArrowKey(event.key)) return false;'),
         )
         self.assertIn("historyLightboxEl.tabIndex = -1;", lightbox_source)
         self.assertIn("lightbox.focus({ preventScroll: true });", lightbox_source)
@@ -2317,30 +2330,30 @@ class WebUIStaticHistoryTests(unittest.TestCase):
     def test_history_lightbox_task_navigation_skips_tasks_without_preview_images(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
 
-        self.assertIn("async function historyTaskLightboxDetail", source)
-        self.assertIn("const urls = historyLightboxUrlsFromTask(detail);", source)
+        self.assertIn('async function historyTaskLightboxDetail', _history_source("history-detail-controller"))
+        self.assertIn('const urls = historyLightboxUrlsFromTask(detail);', _history_source("history-detail-controller"))
         self.assertRegex(
-            source,
-            r"async function openHistoryTaskLightboxByDirection\([\s\S]*const visitedTaskIds = new Set<string>\(\[currentTaskId\]\);[\s\S]*for \(;;\) \{",
+            _history_source("history-detail-controller"),
+            r"async function openHistoryTaskLightboxByDirection\([\s\S]*const visitedTaskIds = new Set<string>\(\[currentTaskId\]\);[\s\S]*for \(; ?; ?\) \{",
         )
-        self.assertIn("if (visitedTaskIds.has(nextTaskId))", source)
-        self.assertIn("visitedTaskIds.add(nextTaskId);", source)
-        self.assertIn("if (!urls.length) {", source)
-        self.assertIn("cursorTaskId = nextTaskId;", source)
-        self.assertIn("continue;", source)
-        self.assertIn('setText(els.resultSummary, translate("history.noMore"));', source)
+        self.assertIn('if (visitedTaskIds.has(nextTaskId))', _history_source("history-detail-controller"))
+        self.assertIn('visitedTaskIds.add(nextTaskId);', _history_source("history-detail-controller"))
+        self.assertIn('if (!urls.length) {', _history_source("history-detail-controller"))
+        self.assertIn('cursorTaskId = nextTaskId;', _history_source("history-detail-controller"))
+        self.assertIn('continue;', _history_source("history-detail-controller"))
+        self.assertIn('setText(els.resultSummary, translate("history.noMore"));', _history_source("history-detail-controller"))
 
     def test_history_task_mutations_preserve_scroll_window(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
 
-        for marker in [
-            "removeHistoryTaskIdsFromWindow",
-            "upsertHistoryTaskSummaryCard",
-            "refreshHistoryWindowAfterMutation",
-            "captureHistoryScrollAnchor(els.taskList)",
-            "restoreHistoryScrollAnchor(els.taskList, anchor)",
+        for module, marker in [
+            ('history-list-controller', 'removeHistoryTaskIdsFromWindow'),
+            ('history', 'upsertHistoryTaskSummaryCard'),
+            ('history-list-controller', 'refreshHistoryWindowAfterMutation'),
+            ('history', 'captureHistoryScrollAnchor(els.taskList)'),
+            ('history-list-controller', 'restoreHistoryScrollAnchor(els.taskList, anchor)'),
         ]:
-            self.assertIn(marker, source)
+            self.assertIn(marker, _history_source(module))
 
         for function_name in [
             "archiveHistoryTaskIds",
@@ -2350,26 +2363,26 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             "deleteUnselectedOutputs",
         ]:
             with self.subTest(function_name=function_name):
-                body = _typescript_function_body(source, function_name)
+                body = _typescript_function_body(_history_source("history-task-actions"), function_name)
                 self.assertNotIn("loadTasks({ reset: true })", body)
 
-        delete_body = _typescript_function_body(source, "deleteSelectedTasks")
+        delete_body = _typescript_function_body(_history_source("history-task-actions"), "deleteSelectedTasks")
         self.assertIn("historyState.pendingDeleteTaskIds", delete_body)
         self.assertIn("Promise.allSettled", delete_body)
-        self.assertIn("historyState.selectedTaskIds = new Set(failedIds)", delete_body)
+        self.assertIn('deps.selection.dispatch({ type: "failed", ids: failedIds })', delete_body)
         self.assertNotIn("for (const taskId of ids)", delete_body)
 
-        context_body = _typescript_function_body(source, "handleHistoryContextMenuAction")
-        self.assertIn("shouldDeleteCurrentHistorySelection(taskId)", context_body)
-        self.assertIn("deleteHistoryContextSelectedTasks([...historyState.selectedTaskIds])", context_body)
+        context_body = _typescript_function_body(_history_source("history-context-menu"), "handleHistoryContextMenuAction")
+        self.assertIn('deps.actions.shouldDeleteCurrentHistorySelection(taskId)', context_body)
+        self.assertIn('deps.actions.deleteHistoryContextSelectedTasks([...deps.selection.snapshot().selectedTaskIds])', context_body)
 
-        guard_body = _typescript_function_body(source, "shouldDeleteCurrentHistorySelection")
-        self.assertIn("historyState.selectedTaskIds.size > 1", guard_body)
-        self.assertIn("historyState.selectedTaskIds.has(taskId)", guard_body)
+        guard_body = _typescript_function_body(_history_source("history-task-actions"), "shouldDeleteCurrentHistorySelection")
+        self.assertIn('deps.selection.snapshot().selectedTaskIds.size > 1', guard_body)
+        self.assertIn('deps.selection.snapshot().selectedTaskIds.has(taskId)', guard_body)
 
-        selection_visuals_body = _typescript_function_body(source, "updateTaskSelectionVisuals")
-        self.assertIn("historyState.selectedTaskIds.size === 1", selection_visuals_body)
-        self.assertIn("historyState.selectedTaskIds.has(cardTaskId)", selection_visuals_body)
+        selection_visuals_body = _typescript_function_body(_history_source("history"), "updateTaskSelectionVisuals")
+        self.assertIn('selection.snapshot().selectedTaskIds.size === 1', selection_visuals_body)
+        self.assertIn('selection.snapshot().selectedTaskIds.has(cardTaskId)', selection_visuals_body)
         self.assertIn('setAttribute("aria-pressed", selected ? "true" : "false")', selection_visuals_body)
 
     def test_history_page_polish_i18n_and_detail_actions_contracts(self) -> None:
@@ -2405,73 +2418,73 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn('class="brand-mark"', html)
         self.assertNotIn("⌘", html)
 
-        for marker in [
-            'import { LOCALE_CHANGE_EVENT, formatTranslation, translate } from "./i18n";',
-            'from "./history-shell";',
-            "initializeHistoryShell({",
-            'document.addEventListener(LOCALE_CHANGE_EVENT',
-            'HISTORY_TASK_REUSE_HANDOFF_KEY',
-            'data-history-reuse-task',
-            'data-history-archive-task',
-            'data-history-delete-task',
-            'data-history-copy-prompt-kind',
-            'data-history-copy-prompt-kind="${escapeHtml(kind)}"',
-            'copyPromptToClipboard',
-            'copyOutputPromptToClipboard',
-            'promptTextForKind',
-            'outputPromptTextForIndex',
-            'revisedPromptText',
-            'outputRevisedPromptTexts',
-            'hasDistinctOutputRevisedPrompts',
-            'uniquePromptTexts',
-            'normalizePromptForCompare',
-            'const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised"',
-            'if (task.generation_snapshot?.transparency_instruction)',
-            'addPanel("submitted", translate("history.promptSubmittedActual"), submittedPrompt)',
-            'translate("history.outputRevisedPromptNotice")',
-            'history-prompt-panel-header',
-            'data-history-copy-output-prompt-index',
-            'reuseHistoryTask',
-            'data-history-lightbox-url',
-            'openHistoryLightbox',
-            'closeHistoryLightbox',
-            'data-history-load-more',
-            'setLoadMoreState',
-            'function maybeLoadMoreFromScroll(',
-            'els.taskList?.addEventListener("scroll"',
-            'function openHistoryContextMenu',
-            'historyState.selectedTaskIds.has(clickedTaskId)',
-            'applyHistoryTaskSelection([clickedTaskId], clickedTaskId, clickedTaskId)',
-            'updateTaskSelectionVisuals()',
-            'historySingleContextMenuHtml',
-            'historyMultiContextMenuHtml',
-            'data-history-context-action="${escapeHtml(action)}"',
-            'els.taskList?.addEventListener("contextmenu"',
-            'event.key !== "ContextMenu"',
-            'event.shiftKey && event.key === "F10"',
-            'historyContextButton("reuse", translate("history.reuseTask"))',
-            'historyContextButton("download-selected", translate("history.downloadSelectedTasks"))',
-            'historyContextButton("archive-selected", translate("action.archive"))',
-            'historyContextButton("restore-selected", translate("archive.restore"))',
-            'historyContextButton("delete-selected", confirmingDelete ? translate("history.confirmDeleteSelected")',
-            'data-history-bulk-archive',
-            'data-history-bulk-restore',
-            'data-history-bulk-delete',
-            'data-history-bulk-clear',
-            'deleteSingleHistoryTask(taskId, { confirmInMenu: true })',
-            'downloadHistoryTasks(taskIds)',
+        for module, marker in [
+            ('history', 'import { LOCALE_CHANGE_EVENT, formatTranslation, translate } from "./i18n";'),
+            ('history', 'from "./history-shell";'),
+            ('history', 'initializeHistoryShell({'),
+            ('history', 'document.addEventListener(LOCALE_CHANGE_EVENT'),
+            ('history-task-actions', 'HISTORY_TASK_REUSE_HANDOFF_KEY'),
+            ('history', 'data-history-reuse-task'),
+            ('history', 'data-history-archive-task'),
+            ('history', 'data-history-delete-task'),
+            ('history', 'data-history-copy-prompt-kind'),
+            ('history-presentation', 'data-history-copy-prompt-kind="${escapeHtml(kind)}"'),
+            ('history', 'copyPromptToClipboard'),
+            ('history', 'copyOutputPromptToClipboard'),
+            ('history-detail-controller', 'promptTextForKind'),
+            ('history-detail-controller', 'outputPromptTextForIndex'),
+            ('history-detail-controller', 'revisedPromptText'),
+            ('history-presentation', 'outputRevisedPromptTexts'),
+            ('history-presentation', 'hasDistinctOutputRevisedPrompts'),
+            ('history-presentation', 'uniquePromptTexts'),
+            ('history-presentation', 'normalizePromptForCompare'),
+            ('history-presentation', 'const hasRevisedPanel = hasDistinctOutputPrompts ? false : addPanel("revised"'),
+            ('history-presentation', 'if (task.generation_snapshot?.transparency_instruction)'),
+            ('history-presentation', 'addPanel("submitted", translate("history.promptSubmittedActual"), submittedPrompt)'),
+            ('history-presentation', 'translate("history.outputRevisedPromptNotice")'),
+            ('history-presentation', 'history-prompt-panel-header'),
+            ('history', 'data-history-copy-output-prompt-index'),
+            ('history', 'reuseHistoryTask'),
+            ('history', 'data-history-lightbox-url'),
+            ('history-detail-controller', 'openHistoryLightbox'),
+            ('history', 'closeHistoryLightbox'),
+            ('history-list-controller', 'data-history-load-more'),
+            ('history', 'setLoadMoreState'),
+            ('history-list-controller', 'function maybeLoadMoreFromScroll('),
+            ('history', 'els.taskList?.addEventListener("scroll"'),
+            ('history-context-menu', 'function openHistoryContextMenu'),
+            ('history-context-menu', 'deps.selection.snapshot().selectedTaskIds.has(clickedTaskId)'),
+            ('history-context-menu', 'deps.applySelection([clickedTaskId], clickedTaskId, clickedTaskId)'),
+            ('history', 'updateTaskSelectionVisuals()'),
+            ('history-context-menu', 'historySingleContextMenuHtml'),
+            ('history-context-menu', 'historyMultiContextMenuHtml'),
+            ('history-context-menu', 'data-history-context-action="${escapeHtml(action)}"'),
+            ('history', 'els.taskList?.addEventListener("contextmenu"'),
+            ('history', 'event.key !== "ContextMenu"'),
+            ('history', 'event.shiftKey && event.key === "F10"'),
+            ('history-context-menu', 'historyContextButton("reuse", translate("history.reuseTask"))'),
+            ('history-context-menu', 'historyContextButton("download-selected", translate("history.downloadSelectedTasks"))'),
+            ('history-context-menu', 'historyContextButton("archive-selected", translate("action.archive"))'),
+            ('history-context-menu', 'historyContextButton("restore-selected", translate("archive.restore"))'),
+            ('history-context-menu', 'historyContextButton("delete-selected", confirmingDelete ? translate("history.confirmDeleteSelected")'),
+            ('history', 'data-history-bulk-archive'),
+            ('history', 'data-history-bulk-restore'),
+            ('history', 'data-history-bulk-delete'),
+            ('history', 'data-history-bulk-clear'),
+            ('history-context-menu', 'deleteSingleHistoryTask(taskId, { confirmInMenu: true })'),
+            ('history-context-menu', 'downloadHistoryTasks(taskIds)'),
         ]:
-            self.assertIn(marker, source)
+            self.assertIn(marker, _history_source(module))
         self.assertNotIn('historyContextButton("copy-prompts"', source)
         self.assertNotIn('historyContextButton("copy-ids"', source)
         self.assertNotIn('els.sentinel?.addEventListener("click"', source)
-        write_clipboard_body = _typescript_function_body(source, "writeClipboardText")
+        write_clipboard_body = _typescript_function_body(_history_source("history-task-actions"), "writeClipboardText")
         self.assertIn("return copyTextToClipboard(text)", write_clipboard_body)
         clipboard_source = Path("codex_image/webui/frontend/src/clipboard-text.ts").read_text(encoding="utf-8")
         self.assertIn("await navigator.clipboard.writeText(text)", clipboard_source)
         self.assertIn('document.execCommand?.("copy")', clipboard_source)
         self.assertIn("selectable.readOnly = true", clipboard_source)
-        self.assertIn("if (!await writeClipboardText(text)) return", source)
+        self.assertIn('if (!await writeClipboardText(text)) return', _history_source("history-task-actions"))
 
         for marker in [
             '"history.homeAria": "返回 iLab CONJURE 生成页"',
@@ -2544,10 +2557,10 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertRegex(styles, r"\.history-task-list\.history-view-grid \.history-task-copy\s*\{[^}]*min-height:\s*0")
         self.assertRegex(styles, r"\.history-task-list\.history-view-grid \.history-task-title\s*\{[^}]*white-space:\s*nowrap")
         self.assertNotRegex(styles, r"\.history-task-list\.history-view-grid \.history-task-title\s*\{[^}]*-webkit-line-clamp:\s*2")
-        self.assertIn("isHistorySelectAllTasksShortcut", source)
-        self.assertIn("historySelectAllTaskIds(visibleHistoryTaskIds())", source)
-        self.assertIn("handleHistorySelectAllShortcut(event)", source)
-        self.assertIn("window.getSelection()?.removeAllRanges()", source)
+        self.assertIn('isHistorySelectAllTasksShortcut', _history_source("history"))
+        self.assertIn('historySelectAllTaskIds(visibleHistoryTaskIds())', _history_source("history"))
+        self.assertIn('handleHistorySelectAllShortcut(event)', _history_source("history"))
+        self.assertIn('window.getSelection()?.removeAllRanges()', _history_source("history"))
         self.assertRegex(styles, r"\.history-task-list\.history-view-grid \.history-task-open\s*\{[^}]*gap:\s*0")
         self.assertNotIn(".history-task-select", styles)
         self.assertRegex(styles, r"\.history-detail-image-preview\s*\{[^}]*place-items:\s*center")
@@ -2598,15 +2611,15 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             r"@container history-detail \(max-width:\s*340px\)\s*\{[\s\S]*?"
             r"\.history-detail-actions-result\s*>\s*\*,\s*\.history-detail-actions-management\s*>\s*\*\s*\{[^}]*width:\s*100%",
         )
-        self.assertLess(source.index('class="history-detail-actions-result"'), source.index('class="history-detail-actions-management"'))
+        self.assertLess(_history_source("history-detail-controller").index('class="history-detail-actions-result"'), _history_source("history-detail-controller").index('class="history-detail-actions-management"'))
         self.assertNotIn("history-detail-actions-primary", source)
         self.assertNotIn("history-detail-actions-output", source)
         self.assertNotIn("history-detail-output-selection-actions", styles)
         self.assertNotIn('class="history-detail-output-selection-actions"', source)
-        self.assertIn('selectedCount > 1', source)
-        self.assertIn('translate("history.downloadSelected")', source)
-        self.assertIn('canDeleteUnselected && !deleteBlocked', source)
-        self.assertIn('historyState.deleteUnselectedConfirmTaskId = ""', _typescript_function_body(source, "updateOutputSelection"))
+        self.assertIn('selectedCount > 1', _history_source("history-detail-controller"))
+        self.assertIn('translate("history.downloadSelected")', _history_source("history-detail-controller"))
+        self.assertIn('canDeleteUnselected && !deleteBlocked', _history_source("history-detail-controller"))
+        self.assertIn('historyState.deleteUnselectedConfirmTaskId = ""', _typescript_function_body(_history_source("history-task-actions"), "updateOutputSelection"))
         self.assertRegex(styles, r"\.history-detail-actions a\s*\{[^}]*text-decoration:\s*none")
         self.assertRegex(styles, r"\.history-detail-image-media\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.history-detail-image-media\s*\{[^}]*overflow:\s*hidden")
@@ -2720,8 +2733,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
     def test_history_detail_switch_keeps_existing_preview_until_next_images_are_ready(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
 
-        load_body = _typescript_function_body(source, "loadTaskDetail")
-        self.assertIn("let historyDetailLoadToken = 0", source)
+        load_body = _typescript_function_body(_history_source("history-detail-controller"), "loadTaskDetail")
+        self.assertIn('let historyDetailLoadToken = 0', _history_source("history-detail-controller"))
         self.assertIn("const loadToken = ++historyDetailLoadToken", load_body)
         self.assertIn("const keepCurrentDetail", load_body)
         self.assertRegex(
@@ -2733,17 +2746,17 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn("if (!isCurrentHistoryDetailLoad(loadToken, taskId)) return;", load_body)
         self.assertIn('els.detail?.removeAttribute("aria-busy")', load_body)
 
-        current_guard_body = _typescript_function_body(source, "isCurrentHistoryDetailLoad")
+        current_guard_body = _typescript_function_body(_history_source("history-detail-controller"), "isCurrentHistoryDetailLoad")
         self.assertIn("loadToken === historyDetailLoadToken", current_guard_body)
-        self.assertIn("historyState.selectedTaskId === taskId", current_guard_body)
+        self.assertIn('deps.selection.snapshot().selectedTaskId === taskId', current_guard_body)
 
         self.assertRegex(
-            source,
+            _history_source("history-detail-controller"),
             r"async function preloadHistoryDetailImage\(url: string\): Promise<boolean> \{[\s\S]*document\.createElement\(\"img\"\)[\s\S]*image\.decoding = \"async\"[\s\S]*await image\.decode\?\.\(\)",
         )
 
-        shell_body = _typescript_function_body(source, "renderDetailShell")
-        self.assertIn("historyState.detailTask = null", shell_body)
+        shell_body = _typescript_function_body(_history_source("history-detail-controller"), "renderDetailShell")
+        self.assertIn('detailTask = null', shell_body)
         self.assertIn('history-detail-empty-title', shell_body)
         self.assertIn('translate("history.detail")', shell_body)
         self.assertNotIn('translate("history.detailTitle")', shell_body)
@@ -2756,8 +2769,8 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
         handoff_body = _typescript_function_body(selection_source, "restoreHistoryTaskReuseHandoff")
 
-        self.assertIn('localStorage.setItem(HISTORY_TASK_REUSE_HANDOFF_KEY', history_source)
-        self.assertIn('window.location.href = "/"', history_source)
+        self.assertIn('localStorage.setItem(HISTORY_TASK_REUSE_HANDOFF_KEY', _history_source("history-task-actions"))
+        self.assertIn('window.location.href = "/"', _history_source("history-task-actions"))
         self.assertIn("async function restoreHistoryTaskReuseHandoff()", selection_source)
         self.assertIn("localStorage.removeItem(HISTORY_TASK_REUSE_HANDOFF_KEY)", handoff_body)
         self.assertIn("applyTaskToFormWithOutputLock(task)", handoff_body)
@@ -2777,7 +2790,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('groupItems.style.maxHeight === "none"', tasks_source)
         self.assertIn('behavior: "auto"', tasks_source)
         self.assertIn("state.expandedTaskGroupAnimationPending = false", tasks_source)
-        self.assertIn('translate("taskGroup.current")', render_source)
+        self.assertIn('translate("taskGroup.current")', Path("codex_image/webui/frontend/src/task-list-model.ts").read_text(encoding="utf-8"))
         self.assertIn('restoreHistoryTaskReuseHandoff,', selection_source)
         self.assertIn('call(methods, "restoreHistoryTaskReuseHandoff")', boot_source)
 
@@ -2796,22 +2809,22 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('data-history-open-selection-actions', html)
         self.assertNotIn('data-history-task-select', source)
         self.assertNotIn('class="history-task-select"', source)
-        self.assertIn('from "./history-action-panel"', source)
-        self.assertIn("historyManagementPanelHtml", source)
-        self.assertIn("historySelectionPanelHtml", source)
-        self.assertIn("nextHistoryActionPanelSection", source)
-        selection_render = _typescript_function_body(source, "renderSelectionDetail")
-        selection_sync = _typescript_function_body(source, "syncHistorySelectionDetail")
-        current_load = _typescript_function_body(source, "isCurrentHistoryDetailLoad")
-        close_detail = _typescript_function_body(source, "closeDetail")
-        self.assertNotIn("historyState.detailTask = null", selection_render)
+        self.assertIn('from "./history-action-panel"', _history_source("history"))
+        self.assertIn('historyManagementPanelHtml', _history_source("history-detail-controller"))
+        self.assertIn('historySelectionPanelHtml', _history_source("history-detail-controller"))
+        self.assertIn('nextHistoryActionPanelSection', _history_source("history-detail-controller"))
+        selection_render = _typescript_function_body(_history_source("history-detail-controller"), "renderSelectionDetail")
+        selection_sync = _typescript_function_body(_history_source("history-detail-controller"), "syncHistorySelectionDetail")
+        current_load = _typescript_function_body(_history_source("history-detail-controller"), "isCurrentHistoryDetailLoad")
+        close_detail = _typescript_function_body(_history_source("history-detail-controller"), "closeDetail")
+        self.assertNotIn("detailTask = null", selection_render)
         self.assertIn("historySelectionDetailResolution", selection_sync)
-        self.assertIn("void loadTaskDetail(historyState.selectedTaskId)", selection_sync)
-        self.assertIn("historyState.selectedTaskIds.size === 1", current_load)
-        self.assertIn("historyState.selectedTaskIds.has(taskId)", current_load)
+        self.assertIn('void loadTaskDetail(deps.selection.snapshot().selectedTaskId)', selection_sync)
+        self.assertIn('deps.selection.snapshot().selectedTaskIds.size === 1', current_load)
+        self.assertIn('deps.selection.snapshot().selectedTaskIds.has(taskId)', current_load)
         self.assertIn("historyDetailCloseEffect", close_detail)
-        self.assertIn('historyState.selectedTaskId = ""', close_detail)
-        self.assertIn("historyState.detailTask = null", close_detail)
+        self.assertIn('deps.selection.dispatch({ type: "reset" })', close_detail)
+        self.assertIn("detailTask = null", close_detail)
         self.assertRegex(
             styles,
             r"\.history-action-row\s*\{[^}]*min-height:\s*44px[^}]*border:\s*0[^}]*border-radius:\s*var\(--radius\)",

@@ -21,6 +21,40 @@ def _png_bytes(size: tuple[int, int] = (400, 600)) -> bytes:
 
 
 class WebUIStorageTests(unittest.TestCase):
+    def test_delete_task_keeps_tasks_with_longer_legacy_id_prefixes(self) -> None:
+        from codex_image.webui.storage import TaskStorage
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = TaskStorage(Path(tmp) / "outputs")
+            for task_id in ("legacy", "legacy-other", "legacy.other", "legacy-image-1"):
+                storage.write_metadata(task_id, {"task_id": task_id, "status": "completed"})
+                storage.write_request(task_id, {"prompt": "keep"})
+                storage.write_output(task_id, b"image", "png")
+                storage.write_input(task_id, "input.png", b"input")
+            protected = {path: path.read_bytes() for path in Path(tmp).rglob("*")
+                         if path.is_file() and path.name.startswith(("legacy-other", "legacy.other", "legacy-image-1-", "legacy-image-1."))}
+            storage.delete_task("legacy")
+            for path, data in protected.items():
+                self.assertEqual(path.read_bytes(), data)
+
+    def test_delete_task_preflights_legacy_symlink_escape(self) -> None:
+        from codex_image.webui.storage import TaskStorage
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            storage = TaskStorage(root / "outputs", legacy_task_roots=(root / "legacy",))
+            task_id = storage.create_task("generate").task_id
+            metadata = storage.write_metadata(task_id, {"task_id": task_id})
+            output = storage.write_output(task_id, b"image", "png")
+            outside = root / "outside"
+            outside.mkdir()
+            (outside / "keep").write_text("keep")
+            (root / "legacy").mkdir()
+            (root / "legacy" / task_id).symlink_to(outside, target_is_directory=True)
+            with self.assertRaises(ValueError):
+                storage.delete_task(task_id)
+            self.assertTrue(metadata.is_file())
+            self.assertEqual(output.read_bytes(), b"image")
+            self.assertEqual((outside / "keep").read_text(), "keep")
+
     def test_restore_resource_metadata_failure_leaves_no_reference_blob(self) -> None:
         from codex_image.webui.reference_assets import ReferenceAssetStorage
         from codex_image.webui.reference_files import ReferenceFileStorage, validate_reference_file
@@ -256,7 +290,7 @@ class WebUIStorageTests(unittest.TestCase):
             target.write_text('{"status":"queued"}', encoding="utf-8")
 
             with patch(
-                "codex_image.webui.atomic_files.os.replace",
+                "codex_image.atomic_files.os.replace",
                 side_effect=OSError("replace failed"),
             ):
                 with self.assertRaises(OSError):
@@ -266,7 +300,7 @@ class WebUIStorageTests(unittest.TestCase):
             self.assertEqual(list(target.parent.glob(f".{target.name}.*.tmp")), [])
 
     def test_atomic_write_with_mode_succeeds_without_fchmod(self) -> None:
-        from codex_image.webui import atomic_files
+        from codex_image import atomic_files
 
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp) / "settings.json"

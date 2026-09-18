@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 import json
 import os
@@ -53,6 +54,91 @@ from tests.webui_helpers import (
 
 
 class WebUITaskTests(unittest.TestCase):
+    def test_viewed_mutation_reads_latest_state_after_acquiring_task_lock(self) -> None:
+        from codex_image.webui.app import create_app
+
+        for action, change in ((action, change) for action in ("viewed", "archive") for change in ("complete", "cancel", "delete")):
+            with self.subTest(action=action, change=change), tempfile.TemporaryDirectory() as tmp:
+                app = create_app(output_root=Path(tmp), auth_checker=lambda: True, auto_start_queue=False)
+                storage = app.state.storage
+                task_id = storage.create_task("generate").task_id
+                first = storage.output_file(storage.write_output(task_id, self._png_bytes(), "png", index=1))
+                initial = {"task_id": task_id, "status": "running", "generated_count": 1,
+                           "total_count": 2, "output_files": [first],
+                           "outputs": [{"index": 1, "status": "completed", "file": first}]}
+                storage.write_metadata(task_id, initial)
+                waiting, release = threading.Event(), threading.Event()
+                main = threading.current_thread()
+                original_lock = storage._task_write_lock
+
+                @contextmanager
+                def gated_lock(current_id):
+                    if threading.current_thread() is not main and not waiting.is_set():
+                        waiting.set()
+                        if not release.wait(5):
+                            raise RuntimeError("viewed test barrier timed out")
+                    with original_lock(current_id):
+                        yield
+
+                client = TestClient(app)
+                responses = []
+                with patch.object(storage, "_task_write_lock", side_effect=gated_lock):
+                    viewer = threading.Thread(target=lambda: responses.append(client.patch(f"/api/tasks/{task_id}/{action}", json={"archived": True})))
+                    viewer.start()
+                    try:
+                        self.assertTrue(waiting.wait(5))
+                        if change == "delete":
+                            storage.delete_task(task_id)
+                        else:
+                            second = storage.output_file(storage.write_output(task_id, self._png_bytes(), "png", index=2))
+                            completed = {**initial, "status": "completed", "generated_count": 2,
+                                         "output_files": [first, second],
+                                         "outputs": [*initial["outputs"], {"index": 2, "status": "completed", "file": second}]}
+                            if change == "cancel":
+                                completed.update(cancel_requested=True, cancelled_at="2026-09-16T00:00:00Z")
+                            storage.write_metadata(task_id, completed)
+                    finally:
+                        release.set()
+                        viewer.join(5)
+                self.assertFalse(viewer.is_alive())
+                self.assertEqual(responses[0].status_code, 404 if change == "delete" else 200)
+                if change == "delete":
+                    self.assertFalse(storage.metadata_path(task_id).exists())
+                    continue
+                final = storage.read_metadata(task_id)
+                self.assertEqual(final["generated_count"], 2)
+                self.assertEqual(final["status"], completed["status"])
+                self.assertTrue(final["viewed_at" if action == "viewed" else "archived_at"])
+                self.assertEqual(storage.task_index.list_summaries()[0]["generated_count"], 2)
+                self.assertEqual(client.get(f"/api/tasks/{task_id}/outputs/2/image").status_code, 200)
+                if change == "cancel":
+                    self.assertTrue(final["cancel_requested"])
+
+    def test_batch_delete_rejects_unsafe_ids_before_touching_any_task(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = create_app(output_root=root / "outputs", auth_checker=lambda: True, auto_start_queue=False)
+            storage = app.state.storage
+            storage.legacy_task_roots = (root / "outputs",)
+            task_id = storage.create_task("generate").task_id
+            storage.write_metadata(task_id, {"task_id": task_id, "status": "completed"})
+            image = storage.write_output(task_id, self._png_bytes(), "png")
+            sentinel = root / "unrelated.txt"
+            sentinel.write_text("keep")
+            before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+            client = TestClient(app, raise_server_exceptions=False)
+            for invalid in ("..", ".", "*", "?", "[abc]", "a/b", "a\\b", "bad\x00id"):
+                with self.subTest(task_id=invalid):
+                    response = client.post("/api/tasks/delete-batch", json={"task_ids": [task_id, invalid]})
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual({path: path.read_bytes() for path in before}, before)
+            response = client.post("/api/tasks/delete-batch", json={"task_ids": [task_id[:-1]]})
+            self.assertEqual(response.json()["failed"], [task_id[:-1]])
+            self.assertTrue(image.exists())
+            self.assertEqual(sentinel.read_text(), "keep")
+
     def _png_bytes(self, size: tuple[int, int] = (400, 640)) -> bytes:
         image = Image.new("RGB", size, (120, 180, 160))
         buffer = BytesIO()

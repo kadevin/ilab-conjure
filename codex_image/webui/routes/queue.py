@@ -4,21 +4,41 @@ from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
 
 from codex_image.webui.context import WebUIContext
 from codex_image.webui.events import event_key, event_snapshot, queue_event, queue_snapshot, queued_or_running_task_ids, sse_message, task_events
+from codex_image.webui.queue_snapshot_cache import QueueSnapshotCache
 
 EVENT_STREAM_CHECK_INTERVAL_SECONDS = 1.0
 
 
 def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
     h = ctx.route_helpers
+    snapshots = QueueSnapshotCache(ctx)
+
+    def read_queue() -> dict[str, Any]:
+        with app.state.state_sync_clock.capture() as sync:
+            return {**snapshots.get()[0], "sync": sync}
+
+    def initial_events():
+        snapshot = event_snapshot(ctx, queue_provider=lambda: snapshots.get()[0])
+        return sse_message(snapshot), event_key(snapshot["queue"]), queued_or_running_task_ids(snapshot["queue"])
+
+    def changed_events(previous_key: str, previous_ids: set[str]):
+        with app.state.state_sync_clock.capture() as sync:
+            queue, key, current_ids = snapshots.get()
+            if key == previous_key:
+                return [], key, current_ids
+            finished = task_events(ctx, previous_ids - current_ids)
+            messages = [sse_message({**queue_event(queue, finished), "sync": sync})]
+            messages.extend(sse_message({**payload, "sync": sync}) for payload in finished)
+            return messages, key, current_ids
 
     @app.get("/api/queue")
     async def get_queue() -> dict[str, Any]:
         h["ensure_queue_worker_running"]()
-        with app.state.state_sync_clock.capture() as sync:
-            return {**queue_snapshot(ctx), "sync": sync}
+        return await run_in_threadpool(read_queue)
 
     @app.get("/api/events", response_model=None)
     async def events(request: Request, stream: bool = False) -> StreamingResponse:
@@ -27,14 +47,11 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
         async def stream_events():
             h["ensure_queue_worker_running"]()
-            snapshot = event_snapshot(ctx)
-            yield sse_message(snapshot)
+            message, previous_queue_key, previous_task_ids = await run_in_threadpool(initial_events)
+            yield message
             if not should_stream:
                 return
 
-            previous_queue = snapshot["queue"]
-            previous_queue_key = event_key(previous_queue)
-            previous_task_ids = queued_or_running_task_ids(previous_queue)
             while True:
                 shutdown_coordinator = (
                     request.app.state.webui_shutdown_coordinator
@@ -46,19 +63,11 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
                 if await request.is_disconnected():
                     return
                 h["ensure_queue_worker_running"]()
-                with app.state.state_sync_clock.capture() as sync:
-                    queue = queue_snapshot(ctx)
-                    queue_key = event_key(queue)
-                    if queue_key == previous_queue_key:
-                        continue
-
-                    current_task_ids = queued_or_running_task_ids(queue)
-                    finished_events = task_events(ctx, previous_task_ids - current_task_ids)
-                yield sse_message({**queue_event(queue, finished_events), "sync": sync})
-                for task_payload in finished_events:
-                    yield sse_message({**task_payload, "sync": sync})
-                previous_queue_key = queue_key
-                previous_task_ids = current_task_ids
+                messages, previous_queue_key, previous_task_ids = await run_in_threadpool(
+                    changed_events, previous_queue_key, previous_task_ids,
+                )
+                for message in messages:
+                    yield message
 
         return StreamingResponse(
             stream_events(),

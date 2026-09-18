@@ -108,15 +108,11 @@ assert_replace_item_name() {
 }
 
 assert_in_bundle() {
-  "$PYTHON_BIN" - "$BUNDLE_DIR" "$1" <<'PY'
-import os
-import sys
-
-root = os.path.realpath(sys.argv[1])
-target = os.path.realpath(sys.argv[2])
-if target != root and not target.startswith(root + os.sep):
-    raise SystemExit(1)
-PY
+  # zsh resolves existing symlinks with :A, including for not-yet-created
+  # destinations. This guard must work after python/ has moved to .backup/.
+  local bundle_root="${BUNDLE_DIR:A}"
+  local target_path="${1:A}"
+  [[ "$target_path" != "$bundle_root" && "$target_path" == "$bundle_root"/* ]]
 }
 
 restore_backup() {

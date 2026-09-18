@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import http.client
 import socket
 import ssl
 import time
@@ -9,7 +10,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Mapping, Protocol
 from urllib import error, request
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
+
+from .asset_urls import resolve_asset_destination
 
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 600.0
 MAX_HTTP_RESPONSE_BYTES = 320 * 1024 * 1024
@@ -137,6 +140,29 @@ class _SameOriginRedirectHandler(request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
+class _NoRedirectHandler(request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+class _AssetHTTPSHandler(request.HTTPSHandler):
+    def __init__(self, server_hostname: str) -> None:
+        super().__init__(context=_https_ssl_context())
+        self.server_hostname = server_hostname
+
+    def https_open(self, req):
+        hostname = self.server_hostname
+
+        class AssetHTTPSConnection(http.client.HTTPSConnection):
+            def connect(self):
+                # The URL (including a proxy CONNECT target) is pinned to the
+                # checked IP. TLS still verifies the original hostname.
+                http.client.HTTPConnection.connect(self)
+                self.sock = self._context.wrap_socket(self.sock, server_hostname=hostname)
+
+        return self.do_open(AssetHTTPSConnection, req, context=self._context)
+
+
 class UrllibTransport:
     def __init__(
         self,
@@ -146,6 +172,43 @@ class UrllibTransport:
     ) -> None:
         self.timeout = _request_timeout_seconds(timeout)
         self.proxy_map = None if proxy_map is None else dict(proxy_map)
+
+    def request_asset_bounded(
+        self, *, url: str, headers: dict[str, str], max_response_bytes: int,
+        provider_base_url: str,
+    ) -> HTTPResponse:
+        authenticated = any(name.lower() in _CREDENTIAL_HEADER_NAMES for name in headers)
+        current_url = url
+        for _ in range(21):
+            destination = resolve_asset_destination(current_url, provider_base_url)
+            proxies = self.proxy_map
+            if proxies is None and request.proxy_bypass(destination.server_hostname):
+                proxies = {}
+            opener = request.build_opener(
+                request.ProxyHandler(proxies), _NoRedirectHandler(),
+                _AssetHTTPSHandler(destination.server_hostname),
+            )
+            for index, pinned_url in enumerate(destination.urls):
+                req = request.Request(pinned_url, headers={**headers, "Host": destination.host_header}, method="GET")
+                try:
+                    response = opener.open(req, timeout=self.timeout)
+                except error.HTTPError as exc:
+                    response = exc
+                except (error.URLError, ConnectionError, TimeoutError):
+                    if index == len(destination.urls) - 1:
+                        raise
+                    continue
+                break
+            with response:
+                status = response.code
+                location = _response_header(response.headers, "Location")
+                if status in {301, 302, 303, 307, 308} and location:
+                    redirect = urljoin(current_url, location)
+                    if not authenticated or _same_origin(url, redirect):
+                        current_url = redirect
+                        continue
+                return HTTPResponse(status, _read_response_body(response, status=status, max_response_bytes=max_response_bytes), dict(response.headers.items()))
+        raise RuntimeError("Too many generated asset redirects")
 
     def request(
         self,

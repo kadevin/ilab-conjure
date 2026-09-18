@@ -19,6 +19,26 @@ from codex_image.webui.shutdown_control import ShutdownCoordinator
 
 
 class WebUILanAccessTests(unittest.TestCase):
+    def setUp(self) -> None:
+        addresses = patch("codex_image.webui.security.lan_ipv4_addresses", return_value=["192.168.1.10"])
+        hostname = patch("codex_image.webui.security.socket.gethostname", return_value="studio")
+        addresses.start()
+        hostname.start()
+        self.addCleanup(addresses.stop)
+        self.addCleanup(hostname.stop)
+
+    def test_lan_rejects_attacker_hosts_even_with_matching_origin(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            WebUISettings(path).write_lan_access_enabled(True)
+            remote = self.remote(self.app(path))
+            for host in ("untrusted.example", "untrusted.local", "192.168.1.99", "0.0.0.0"):
+                headers = {"Host": host + ":8787", "Origin": "http://" + host + ":8787", "Sec-Fetch-Site": "same-origin"}
+                self.assertEqual(remote.get("/api/lan-access", headers=headers).status_code, 400)
+                self.assertEqual(remote.patch("/api/lan-access", json={"enabled": True}, headers=headers).status_code, 400)
+            self.assertEqual(remote.get("/api/lan-access", headers={"Host": "studio.local:8787"}).status_code, 200)
+            self.assertEqual(remote.get("/api/lan-access", headers={"Host": "localhost:8787"}).status_code, 200)
+
     def app(self, path: Path, *, host: str | None = None) -> FastAPI:
         settings = WebUISettings(path)
         app = FastAPI()

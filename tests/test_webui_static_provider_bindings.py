@@ -13,6 +13,7 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         self.provider_editor = Path(
             "codex_image/webui/frontend/src/api-provider-settings.ts"
         ).read_text(encoding="utf-8")
+        self.binding_editor = Path("codex_image/webui/frontend/src/api-provider-binding-editor.ts").read_text(encoding="utf-8")
         self.html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         self.styles = Path(
             "codex_image/webui/static/styles/74-api-system-settings.css"
@@ -256,8 +257,8 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertNotIn("data-binding-operation", source)
         self.assertNotIn("支持操作", source)
-        self.assertNotIn('model?.operations || ["generate", "edit"]', self.provider_editor)
-        self.assertIn("model?.operations || existingOperations", self.provider_editor)
+        self.assertNotIn('model?.operations || ["generate", "edit"]', self.binding_editor)
+        self.assertIn("model?.operations || existingOperations", self.binding_editor)
         self.assertIn("provider-binding-footer", source)
         self.assertIn('ratioPromptInput.dataset.bindingRatioPrompt = ""', source)
         self.assertRegex(source, r"footerSettings\.append\(ratioPromptField,\s*defaultField\)")

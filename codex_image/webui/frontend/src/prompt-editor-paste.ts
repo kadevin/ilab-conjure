@@ -26,9 +26,11 @@ function clipboardHasImageFile(data: DataTransfer): boolean {
 }
 
 export function promptPlainTextFromHtml(html: any): string {
-  const container = document.createElement("div");
+  // Template contents are inert: parsing must neither run handlers nor fetch
+  // resources. Never insert this fragment into the live document.
+  const container = document.createElement("template");
   container.innerHTML = String(html || "");
-  return normalizePromptPasteText(promptPlainTextFromHtmlNode(container));
+  return normalizePromptPasteText(promptPlainTextFromHtmlNode(container.content));
 }
 
 function promptPlainTextFromHtmlNode(node: any): string {
@@ -40,6 +42,7 @@ function promptPlainTextFromHtmlNode(node: any): string {
     }
     if (child.nodeType !== Node.ELEMENT_NODE) return;
     const tagName = child.tagName;
+    if (["SCRIPT", "STYLE", "NOSCRIPT"].includes(tagName)) return;
     if (tagName === "BR") {
       text += "\n";
       return;

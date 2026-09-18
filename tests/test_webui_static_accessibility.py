@@ -258,7 +258,7 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
             "codex_image/webui/static/history.html"
         ).read_text(encoding="utf-8")
         source = Path(
-            "codex_image/webui/frontend/src/history.ts"
+            "codex_image/webui/frontend/src/history-card-view.ts"
         ).read_text(encoding="utf-8")
 
         self.assertRegex(

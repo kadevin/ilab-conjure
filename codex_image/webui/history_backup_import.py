@@ -1,5 +1,36 @@
 from __future__ import annotations
 
+from .history_restore_metadata import (
+    _record_at,
+    _safe_asset_task_record,
+    _safe_gallery_task_record,
+    _rewrite_restored_metadata,
+    _rewrite_restored_request,
+    _drop_untrusted_local_paths,
+    _is_untrusted_local_value,
+)
+
+from .history_backup_import_types import (
+    BackupImportStatus,
+    BackupImportClassification,
+    BackupImportTaskResult,
+    BackupImportPreview,
+    BackupImportResult,
+    BackupImportSession,
+    BackupImportSnapshot,
+    _SessionRecord,
+)
+
+from .history_backup_validation import (
+    HistoryBackupArchiveValidator,
+    _validated_member_path,
+    _declared_entries,
+    _SUPPORTED_COMPRESSION,
+    _JSON_ROLES,
+    _RASTER_ROLES,
+    _STREAM_BYTES,
+)
+
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
@@ -50,27 +81,11 @@ from .resource_limits import (
 from .task_index import TERMINAL_TASK_STATUSES
 
 
-BackupImportStatus = Literal["uploading", "uploaded", "validated", "restoring", "restored", "failed", "interrupted"]
-BackupImportClassification = Literal[
-    "restorable",
-    "restored",
-    "duplicate",
-    "conflict",
-    "invalid",
-    "failed",
-    "thumbnail_warning",
-    "cleanup_warning",
-]
-
 _PREFIX = "history-backup-import-"
 _SESSION_ID_RE = re.compile(r"^[0-9a-f]{32}$")
 _TASK_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
-_JSON_ROLES = frozenset({"metadata", "request", "organization"})
-_RASTER_ROLES = frozenset({"output", "input", "mask", "reference_asset", "gallery_reference"})
-_SUPPORTED_COMPRESSION = frozenset({zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED})
 _DEFAULT_TASK_JSON_BYTES = 16 * 1024 * 1024
-_STREAM_BYTES = 1024 * 1024
 _STAGING_RE = re.compile(
     r"^\.history-backup-import-(?P<task_id>[A-Za-z0-9][A-Za-z0-9._-]{0,127})\."
     r"(?P<nonce>[0-9a-f]{32})\.staging$"
@@ -109,65 +124,17 @@ _SAFE_RESULT_REASON_CODES = frozenset({
 })
 
 
-@dataclass(frozen=True)
-class BackupImportTaskResult:
-    task_id: str
-    classification: BackupImportClassification
-    reason: str | None = None
-
-
-@dataclass(frozen=True)
-class BackupImportPreview:
-    session_id: str
-    whole_file_sha256: str
-    restorable: tuple[BackupImportTaskResult, ...]
-    duplicate: tuple[BackupImportTaskResult, ...]
-    conflict: tuple[BackupImportTaskResult, ...]
-    invalid: tuple[BackupImportTaskResult, ...]
-
-
-@dataclass(frozen=True)
-class BackupImportResult:
-    restored: tuple[BackupImportTaskResult, ...]
-    duplicates: tuple[BackupImportTaskResult, ...]
-    conflicts: tuple[BackupImportTaskResult, ...]
-    invalid: tuple[BackupImportTaskResult, ...]
-    failed: tuple[BackupImportTaskResult, ...]
-    thumbnail_warnings: tuple[BackupImportTaskResult, ...]
-    cleanup_warnings: tuple[BackupImportTaskResult, ...] = ()
-
-
-@dataclass(frozen=True)
-class BackupImportSession:
-    session_id: str
-    filename: str
-    size_bytes: int
-    uploaded_bytes: int
-    status: BackupImportStatus
-    created_at: str
-    updated_at: str
-    whole_file_sha256: str | None = None
-    error_code: str | None = None
-
-
-@dataclass(frozen=True)
-class BackupImportSnapshot:
-    session: BackupImportSession
-    result: BackupImportResult | None = None
-
-
-@dataclass
-class _SessionRecord:
-    session: BackupImportSession
-    digest: object
-    last_offset: int | None = None
-    last_size: int = 0
-    last_sha256: str | None = None
-    preview: BackupImportPreview | None = None
-    result: BackupImportResult | None = None
-
-
 class HistoryBackupImportService:
+    def _archive_validator(self) -> HistoryBackupArchiveValidator:
+        return HistoryBackupArchiveValidator(
+            max_entries=self._max_entries,
+            max_manifest_bytes=self._max_manifest_bytes,
+            max_member_bytes=self._max_member_bytes,
+            max_expanded_bytes=self._max_expanded_bytes,
+            max_compression_ratio=self._max_compression_ratio,
+            max_task_json_bytes=self._max_task_json_bytes,
+        )
+
     def __init__(
         self,
         planner: TaskBackupPlanner,
@@ -1121,82 +1088,10 @@ class HistoryBackupImportService:
         self,
         upload_path: Path,
     ) -> tuple[BackupManifest, dict[str, dict[str, object]], dict[str, str]]:
-        try:
-            with zipfile.ZipFile(upload_path, "r", allowZip64=True) as archive:
-                infos = archive.infolist()
-                info_by_path = self._validate_central_directory(infos)
-                manifest_info = info_by_path.get("manifest.json")
-                if manifest_info is None:
-                    raise ValueError("backup_import_manifest_missing")
-                if manifest_info.file_size > self._max_manifest_bytes:
-                    raise ValueError("backup_import_manifest_too_large")
-                with archive.open(manifest_info, "r") as source:
-                    manifest_payload = source.read(self._max_manifest_bytes + 1)
-                if len(manifest_payload) > self._max_manifest_bytes:
-                    raise ValueError("backup_import_manifest_too_large")
-                manifest = parse_backup_manifest(manifest_payload)
-                entries, task_for_path = _declared_entries(manifest_payload, manifest)
-                archive_members = set(info_by_path) - {"manifest.json"}
-                declared_members = set(entries)
-                if archive_members - declared_members:
-                    raise ValueError("backup_import_member_undeclared")
-                if declared_members - archive_members:
-                    raise ValueError("backup_import_member_missing")
-                if manifest.file_count > self._max_entries - 1:
-                    raise ValueError("backup_import_too_many_entries")
-                if manifest.uncompressed_bytes > self._max_expanded_bytes:
-                    raise ValueError("backup_import_expanded_too_large")
-                for entry in entries.values():
-                    if entry.size_bytes > self._max_member_bytes:
-                        raise ValueError("backup_import_member_too_large")
-                return self._validate_members(
-                    archive,
-                    manifest,
-                    info_by_path,
-                    entries,
-                    task_for_path,
-                )
-        except ValueError:
-            raise
-        except (OSError, RuntimeError, NotImplementedError, zipfile.BadZipFile, zipfile.LargeZipFile):
-            raise ValueError("backup_import_zip_invalid") from None
+        return self._archive_validator()._validate_zip(upload_path)
 
     def _validate_central_directory(self, infos: list[zipfile.ZipInfo]) -> dict[str, zipfile.ZipInfo]:
-        if len(infos) > self._max_entries:
-            raise ValueError("backup_import_too_many_entries")
-        paths: dict[str, zipfile.ZipInfo] = {}
-        normalized_paths: set[str] = set()
-        expanded = 0
-        for info in infos:
-            path = _validated_member_path(info.filename)
-            normalized_path = unicodedata.normalize("NFC", path).casefold()
-            if path in paths or normalized_path in normalized_paths:
-                raise ValueError("backup_import_duplicate_member_path")
-            paths[path] = info
-            normalized_paths.add(normalized_path)
-            mode = (info.external_attr >> 16) & 0xFFFF
-            file_type = stat.S_IFMT(mode)
-            if file_type == stat.S_IFLNK:
-                raise ValueError("backup_import_symlink_forbidden")
-            if file_type not in {0, stat.S_IFREG}:
-                raise ValueError("backup_import_special_file_forbidden")
-            if info.flag_bits & 0x1:
-                raise ValueError("backup_import_encrypted_forbidden")
-            if info.compress_type not in _SUPPORTED_COMPRESSION:
-                raise ValueError("backup_import_compression_unsupported")
-            if info.file_size < 0 or info.compress_size < 0:
-                raise ValueError("backup_import_zip_invalid")
-            if info.filename == "manifest.json" and info.file_size > self._max_manifest_bytes:
-                raise ValueError("backup_import_manifest_too_large")
-            if info.file_size > self._max_member_bytes:
-                raise ValueError("backup_import_member_too_large")
-            expanded += info.file_size
-            if expanded > self._max_expanded_bytes:
-                raise ValueError("backup_import_expanded_too_large")
-            ratio = info.file_size / max(1, info.compress_size)
-            if ratio > self._max_compression_ratio:
-                raise ValueError("backup_import_compression_ratio_too_high")
-        return paths
+        return self._archive_validator()._validate_central_directory(infos)
 
     def _validate_members(
         self,
@@ -1206,85 +1101,7 @@ class HistoryBackupImportService:
         entries: dict[str, BackupFileEntry],
         task_for_path: dict[str, str],
     ) -> tuple[BackupManifest, dict[str, dict[str, object]], dict[str, str]]:
-        task_json: dict[str, dict[str, object]] = {task.task_id: {} for task in manifest.tasks}
-        invalid_reasons: dict[str, str] = {}
-        expanded = 0
-        for path, entry in entries.items():
-            info = infos[path]
-            digest = hashlib.sha256()
-            actual_size = 0
-            collect_member = False
-            if entry.role in _JSON_ROLES:
-                collect_member = entry.size_bytes <= self._max_task_json_bytes
-                if not collect_member:
-                    invalid_reasons.setdefault(task_for_path[path], "backup_import_task_json_too_large")
-            elif entry.role in _RASTER_ROLES:
-                collect_member = entry.size_bytes <= MAX_RASTER_BYTES
-                if not collect_member:
-                    invalid_reasons.setdefault(task_for_path[path], "backup_import_raster_invalid")
-            elif entry.role == "reference_file":
-                collect_member = entry.size_bytes < MAX_REFERENCE_FILE_BYTES
-                if not collect_member:
-                    invalid_reasons.setdefault(task_for_path[path], "backup_import_reference_file_invalid")
-            collected = bytearray() if collect_member else None
-            try:
-                with archive.open(info, "r") as source:
-                    while True:
-                        chunk = source.read(_STREAM_BYTES)
-                        if not chunk:
-                            break
-                        actual_size += len(chunk)
-                        expanded += len(chunk)
-                        if actual_size > entry.size_bytes:
-                            raise ValueError("backup_import_member_size_mismatch")
-                        if actual_size > self._max_member_bytes:
-                            raise ValueError("backup_import_member_too_large")
-                        if expanded > self._max_expanded_bytes:
-                            raise ValueError("backup_import_expanded_too_large")
-                        digest.update(chunk)
-                        if collected is not None:
-                            collected.extend(chunk)
-            except ValueError:
-                raise
-            except (OSError, RuntimeError, NotImplementedError, zipfile.BadZipFile):
-                raise ValueError("backup_import_zip_invalid") from None
-            if actual_size != entry.size_bytes:
-                raise ValueError("backup_import_member_size_mismatch")
-            if digest.hexdigest() != entry.sha256:
-                raise ValueError("backup_import_member_hash_mismatch")
-            task_id = task_for_path[path]
-            if collected is None:
-                continue
-            payload = bytes(collected)
-            if entry.role in _JSON_ROLES:
-                if len(payload) > self._max_task_json_bytes:
-                    invalid_reasons.setdefault(task_id, "backup_import_task_json_too_large")
-                    continue
-                try:
-                    parsed = json.loads(payload.decode("utf-8"))
-                except (UnicodeDecodeError, json.JSONDecodeError):
-                    invalid_reasons.setdefault(task_id, "backup_import_task_json_invalid")
-                    continue
-                if not isinstance(parsed, dict):
-                    invalid_reasons.setdefault(task_id, "backup_import_task_json_invalid")
-                    continue
-                task_json[task_id][entry.role] = parsed
-            elif entry.role in _RASTER_ROLES:
-                try:
-                    validate_raster_image(payload, filename=Path(path).name)
-                except InvalidRasterImage:
-                    invalid_reasons.setdefault(task_id, "backup_import_raster_invalid")
-            elif entry.role == "reference_file":
-                try:
-                    validate_reference_file(
-                        Path(path).name,
-                        payload,
-                        None,
-                        max_bytes=MAX_REFERENCE_FILE_BYTES,
-                    )
-                except ValueError:
-                    invalid_reasons.setdefault(task_id, "backup_import_reference_file_invalid")
-        return manifest, task_json, invalid_reasons
+        return self._archive_validator()._validate_members(archive, manifest, infos, entries, task_for_path)
 
     def _classify(
         self,
@@ -2052,19 +1869,6 @@ def _validated_session_id(session_id: object) -> str:
     return session_id
 
 
-def _validated_member_path(value: object) -> str:
-    if not isinstance(value, str) or not value or "\\" in value:
-        raise ValueError("backup_import_member_path_invalid")
-    if value.startswith("/") or PureWindowsPath(value).is_absolute():
-        raise ValueError("backup_import_member_path_invalid")
-    if any(ord(character) < 32 or ord(character) == 127 for character in value):
-        raise ValueError("backup_import_member_path_invalid")
-    parts = value.split("/")
-    if any(part in {"", ".", ".."} for part in parts):
-        raise ValueError("backup_import_member_path_invalid")
-    return "/".join(parts)
-
-
 def _task_semantic_error(
     task: BackupTaskEntry,
     metadata: object,
@@ -2111,35 +1915,6 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _declared_entries(
-    manifest_payload: bytes,
-    manifest: BackupManifest,
-) -> tuple[dict[str, BackupFileEntry], dict[str, str]]:
-    # parse_backup_manifest already validated every raw file record, including
-    # paths and hashes for future optional roles that it intentionally omits.
-    raw = json.loads(manifest_payload.decode("utf-8"))
-    known = {entry.path: entry for task in manifest.tasks for entry in task.files}
-    entries: dict[str, BackupFileEntry] = {}
-    task_for_path: dict[str, str] = {}
-    for raw_task in raw["tasks"]:
-        task_id = raw_task["task_id"]
-        for raw_file in raw_task["files"]:
-            path = raw_file["path"]
-            entry = known.get(path)
-            if entry is None:
-                entry = BackupFileEntry(
-                    path=path,
-                    role=raw_file["role"],
-                    required=raw_file["required"],
-                    size_bytes=raw_file["size_bytes"],
-                    sha256=raw_file["sha256"].lower(),
-                    source_index=raw_file.get("source_index"),
-                )
-            entries[path] = entry
-            task_for_path[path] = task_id
-    return entries, task_for_path
-
-
 def _manifest_json(manifest: BackupManifest) -> dict[str, object]:
     return {
         "format": manifest.format,
@@ -2174,138 +1949,6 @@ def _fsync_directory(path: Path) -> None:
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
-
-
-def _record_at(records: list[object], source_index: int | None) -> dict[str, Any]:
-    index = int(source_index or 1) - 1
-    if 0 <= index < len(records) and isinstance(records[index], dict):
-        return dict(records[index])
-    return {}
-
-
-def _safe_asset_task_record(record: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: record[key]
-        for key in ("id", "filename", "mime_type", "size_bytes", "sha256")
-        if key in record
-    }
-
-
-def _safe_gallery_task_record(record: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: record[key]
-        for key in ("id", "name", "category", "filename", "mime_type", "size_bytes", "sha256", "prompt_note")
-        if key in record
-    }
-
-
-def _rewrite_restored_metadata(
-    raw: dict[str, Any],
-    task_id: str,
-    input_names: list[str],
-    mask_name: str | None,
-    output_names: list[str],
-    reference_assets: list[dict[str, Any]],
-    gallery_refs: list[dict[str, Any]],
-    reference_files: list[dict[str, Any]],
-) -> dict[str, Any]:
-    metadata = _drop_untrusted_local_paths(raw)
-    metadata["task_id"] = task_id
-    metadata["input_files"] = list(input_names)
-    if mask_name is None:
-        metadata.pop("mask_file", None)
-    else:
-        metadata["mask_file"] = mask_name
-    metadata["output_files"] = list(output_names)
-    if output_names:
-        metadata["output_file"] = output_names[0]
-    else:
-        metadata.pop("output_file", None)
-    raw_outputs = raw.get("outputs") if isinstance(raw.get("outputs"), list) else []
-    outputs: list[dict[str, Any]] = []
-    for index, filename in enumerate(output_names, start=1):
-        source = raw_outputs[index - 1] if index <= len(raw_outputs) and isinstance(raw_outputs[index - 1], dict) else {}
-        record = _drop_untrusted_local_paths(source)
-        record.update(index=index, file=filename)
-        record.pop("thumbnail_file", None)
-        record.pop("thumbnail_url", None)
-        outputs.append(record)
-    metadata["outputs"] = outputs
-    metadata["reference_assets"] = reference_assets
-    metadata["gallery_refs"] = gallery_refs
-    metadata["reference_files"] = reference_files
-    metadata.pop("input_urls", None)
-    metadata.pop("input_thumbnail_urls", None)
-    return metadata
-
-
-def _rewrite_restored_request(
-    raw: dict[str, Any],
-    input_names: list[str],
-    mask_name: str | None,
-    reference_assets: list[dict[str, Any]],
-    gallery_refs: list[dict[str, Any]],
-    reference_files: list[dict[str, Any]],
-) -> dict[str, Any]:
-    request = _drop_untrusted_local_paths(raw)
-    if "input_files" in raw or input_names:
-        request["input_files"] = list(input_names)
-    if mask_name is not None:
-        request["mask_file"] = mask_name
-    image_refs: dict[str, Any] = {
-        "input_files": list(input_names),
-        "gallery_refs": gallery_refs,
-        "reference_assets": reference_assets,
-    }
-    if mask_name is not None:
-        image_refs["mask_file"] = mask_name
-    request["webui_image_refs"] = image_refs
-    request["webui_file_refs"] = {"reference_files": reference_files}
-    return request
-
-
-def _drop_untrusted_local_paths(value: Any, key: str = "") -> Any:
-    if isinstance(value, dict):
-        cleaned: dict[str, Any] = {}
-        for child_key, child_value in value.items():
-            name = str(child_key)
-            if name in {
-                "input_files", "mask_file", "output_file", "output_files", "file",
-                "thumbnail_file", "thumbnail_url", "input_urls", "input_thumbnail_urls",
-                "url", "output_url", "output_urls", "input_sources",
-            }:
-                continue
-            if name.endswith("_path") or name.endswith("_paths"):
-                continue
-            cleaned_value = _drop_untrusted_local_paths(child_value, name)
-            if cleaned_value is not _UNSAFE_LOCAL_VALUE:
-                cleaned[name] = cleaned_value
-        return cleaned
-    if isinstance(value, list):
-        cleaned_items = [_drop_untrusted_local_paths(item, key) for item in value]
-        return [item for item in cleaned_items if item is not _UNSAFE_LOCAL_VALUE]
-    if isinstance(value, str) and _is_untrusted_local_value(value):
-        return _UNSAFE_LOCAL_VALUE
-    return value
-
-
-_UNSAFE_LOCAL_VALUE = object()
-
-
-def _is_untrusted_local_value(value: str) -> bool:
-    text = value.strip()
-    if not text:
-        return False
-    if text.startswith("/") or PureWindowsPath(text).is_absolute():
-        return True
-    parsed = urlparse(text)
-    if parsed.scheme.casefold() == "file":
-        return True
-    if parsed.scheme.casefold() in {"http", "https"}:
-        host = (parsed.hostname or "").casefold()
-        if host in {"localhost", "127.0.0.1", "::1"}:
-            return True
-    return False
 
 
 def _cleanup_restore_staging(path: Path) -> tuple[Path, ...]:

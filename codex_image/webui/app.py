@@ -839,13 +839,12 @@ def _dedupe_reference_assets(items: list[dict[str, Any]]) -> list[dict[str, Any]
 
 
 def _set_task_archived(storage: TaskStorage, task_id: str, archived: bool) -> dict[str, Any]:
-    metadata = storage.read_metadata(task_id)
-    if archived:
-        metadata["archived_at"] = str(metadata.get("archived_at") or utc_now())
-    else:
-        metadata.pop("archived_at", None)
-    storage.write_metadata(task_id, metadata)
-    return metadata
+    def mutate(metadata: dict[str, Any]) -> None:
+        if archived:
+            metadata["archived_at"] = str(metadata.get("archived_at") or utc_now())
+        else:
+            metadata.pop("archived_at", None)
+    return storage.mutate_metadata(task_id, mutate)
 
 
 _runtime_app: FastAPI | None = None

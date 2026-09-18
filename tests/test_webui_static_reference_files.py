@@ -277,7 +277,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
 
     def test_history_renders_files_outside_image_lightbox(self) -> None:
         media = (ROOT / "codex_image/webui/frontend/src/history-detail-media.ts").read_text(encoding="utf-8")
-        history = (ROOT / "codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
+        history = (ROOT / "codex_image/webui/frontend/src/history-detail-controller.ts").read_text(encoding="utf-8")
         self.assertIn("historyReferenceFilesHtml", media)
         self.assertIn("task.reference_files", media)
         self.assertIn("data-history-reference-file-id", media)

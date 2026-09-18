@@ -42,7 +42,6 @@ export interface ImageEditorState {
   konvaLayer: any;
   konvaTransformer: any;
   markNode: any;
-  previewNode: any;
   layers: ImageEditorLayer[];
   selectedLayerId: string | null;
   displayScale: number;
@@ -52,7 +51,4 @@ export interface ImageEditorState {
   crop: any;
   canvasScope: "base" | "fit";
   hasInstructionMarks: boolean;
-  history: ImageEditorSnapshot[];
-  historyIndex: number;
-  drawing: any;
 }

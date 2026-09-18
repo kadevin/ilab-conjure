@@ -3,7 +3,7 @@
   "scripts": {
     "build:webui:css": "node scripts/build-webui-css.mjs",
     "typecheck:webui": "tsc -p tsconfig.webui.json --noEmit",
-    "build:webui": "esbuild codex_image/webui/frontend/src/main.ts --bundle --format=iife --target=es2020 --outfile=codex_image/webui/static/app.js --sourcemap --log-level=warning && esbuild codex_image/webui/frontend/src/history.ts --bundle --format=iife --target=es2020 --outfile=codex_image/webui/static/history.js --sourcemap --log-level=warning",
+    "build:webui": "esbuild codex_image/webui/frontend/src/main.ts --bundle --format=iife --target=es2020 --outfile=codex_image/webui/static/app.js --sourcemap --log-level=warning && esbuild codex_image/webui/frontend/src/history.ts --bundle --format=iife --target=es2020 --outfile=codex_image/webui/static/history.js --sourcemap --log-level=warning && esbuild codex_image/webui/frontend/src/image-editor-fill-worker.ts --bundle --format=iife --target=es2020 --outfile=codex_image/webui/static/image-editor-fill-worker.js --sourcemap --log-level=warning",
     "check:webui": "npm run build:webui:css && npm run typecheck:webui && npm run build:webui"
   },
   "devDependencies": {
