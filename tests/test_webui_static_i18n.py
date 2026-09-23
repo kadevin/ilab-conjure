@@ -860,7 +860,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
         self.assertIn('translate(mode === "edit" ? "prompt.runEdit" : "prompt.run")', runtime_sources["form"])
         self.assertIn('formatTranslation("recentAssets.use"', runtime_sources["recent_assets"])
         self.assertIn('translate("recentAssets.deleteMessage")', runtime_sources["recent_assets"])
-        self.assertIn('document.addEventListener(LOCALE_CHANGE_EVENT, renderRecentAssets);', runtime_sources["recent_assets"])
+        self.assertIn('document.addEventListener(LOCALE_CHANGE_EVENT, () => renderRecentAssets());', runtime_sources["recent_assets"])
         self.assertIn('translate("inputSource.uploadFallback")', runtime_sources["input_sources"])
         self.assertIn('translate("status.missingRecentReference")', runtime_sources["task_submit"])
         self.assertIn('translate("status.emptyPrompt")', runtime_sources["task_submit"])

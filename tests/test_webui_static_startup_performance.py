@@ -14,10 +14,10 @@ class WebUIStaticStartupPerformanceTests(unittest.TestCase):
         self.templates = Path("codex_image/webui/frontend/src/prompt-templates.ts").read_text(encoding="utf-8")
         self.responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
 
-    def test_recent_assets_render_in_small_eager_batches(self) -> None:
+    def test_recent_assets_render_in_small_lazy_batches(self) -> None:
         self.assertIn("const RECENT_ASSET_RENDER_BATCH_SIZE = 12", self.recent_assets)
         self.assertIn("items.slice(0, recentAssetRenderLimit)", self.recent_assets)
-        self.assertIn('loading="eager" decoding="async"', self.recent_assets)
+        self.assertIn('loading="lazy" decoding="async"', self.recent_assets)
         self.assertIn('addEventListener("scroll", handleRecentAssetScroll', self.recent_assets)
         self.assertIn('addEventListener("click", handleRecentAssetClick)', self.recent_assets)
         self.assertNotIn('querySelectorAll("[data-reference-asset-id]").forEach', self.recent_assets)

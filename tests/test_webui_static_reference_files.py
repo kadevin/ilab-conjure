@@ -944,7 +944,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               constructor(tag = "div") {{
                 this.tagName = tag.toUpperCase(); this.children = []; this.parentElement = null;
                 this.attributes = {{}}; this.listeners = {{}}; this.className = "";
-                this.classList = new FakeClassList(this); this.title = ""; this.tabIndex = -1;
+                this.classList = new FakeClassList(this); this.title = ""; this.tabIndex = -1; this.style = {{}};
                 this.textContent = ""; this.value = ""; this.clientWidth = 0;
                 this.scrollWidth = 0; this.scrollLeft = 0;
                 this._innerHTML = "";
@@ -1034,6 +1034,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               if (name === "./dom") return dom;
               if (name === "./i18n") return i18n;
               if (name === "./state") return stateModule;
+              if (name === "./upload-thumbnails") return {{ uploadThumbnailUrl: () => Promise.resolve("data:image/webp;base64,cA==") }};
               throw new Error(`unexpected image require: ${{name}}`);
             }});
             imageApi.initImageStripFeature();
@@ -1182,6 +1183,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               if (name === "./dom") return dom;
               if (name === "./i18n") return i18n;
               if (name === "./state") return stateModule;
+              if (name === "./upload-thumbnails") return {{ uploadThumbnailUrl: () => Promise.resolve("data:image/webp;base64,cA==") }};
               throw new Error(`unexpected strip require: ${{name}}`);
             }});
             referenceApi.initReferenceFileInputsFeature();

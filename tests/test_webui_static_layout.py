@@ -916,8 +916,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
         self.assertIn('fetch("/api/reference-assets/recent?limit=50")', source)
         self.assertIn("const RECENT_ASSET_RENDER_BATCH_SIZE = 12", source)
-        self.assertIn('loading="eager"', source)
-        self.assertNotIn('loading="lazy"', source)
+        self.assertIn('loading="lazy" decoding="async"', source)
         self.assertIn("addReferenceAssetInput(item)", source)
         self.assertIn("Object.assign(getLegacyBridge().methods", source)
     def test_quick_gallery_feature_has_typescript_source_contract(self) -> None:

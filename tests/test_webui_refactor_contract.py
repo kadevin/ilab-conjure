@@ -470,6 +470,7 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/gallery/{item_id}/image", "PUT"),
                 ("/api/prompt-template-assets/{asset_id}/image", "GET"),
                 ("/api/reference-assets/recent", "GET"),
+                ("/api/reference-assets/{asset_id}/thumbnail", "GET"),
                 ("/api/reference-assets/{asset_id}/hide", "POST"),
                 ("/api/reference-assets/{asset_id}", "DELETE"),
                 ("/api/reference-assets/{asset_id}/image", "GET"),
