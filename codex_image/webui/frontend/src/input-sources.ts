@@ -59,6 +59,7 @@ function assetSource(item: any) {
     filename: item.filename || "",
     mime_type: item.mime_type || "",
     image_url: item.image_url || "",
+    thumbnail_url: item.thumbnail_url || "",
     previewUrl: item.image_url || "",
     missing: Boolean(item.missing),
   };

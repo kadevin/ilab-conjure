@@ -113,15 +113,16 @@ function renderRecentAssetStatus() {
   `;
 }
 
-function renderRecentAssets() {
+function renderRecentAssets(appendFrom = 0) {
   if (!els.recentAssetDock || !els.recentAssetList) return;
   const items = state.recentAssets.filter((item: any) => item?.id && item?.image_url);
   const visibleItems = items.slice(0, recentAssetRenderLimit);
+  const append = appendFrom > 0 && els.recentAssetList.childElementCount === appendFrom;
   els.recentAssetDock.classList.toggle("hidden", !items.length && recentAssetLoadState === "idle");
   els.recentAssetDock.classList.toggle("is-loading", recentAssetLoadState === "loading");
   renderRecentAssetStatus();
   syncRecentAssetPreviewVisibility();
-  els.recentAssetList.innerHTML = visibleItems.map((item: any) => {
+  const markup = (append ? visibleItems.slice(appendFrom) : visibleItems).map((item: any) => {
     const name = recentAssetName(item);
     const referenceCount = recentAssetReferenceCount(item);
     const hideOnly = recentAssetRequiresHide(item);
@@ -134,16 +135,28 @@ function renderRecentAssets() {
     const actionAttribute = hideOnly
       ? `data-reference-asset-hide="${escapeHtml(item.id)}"`
       : `data-reference-asset-delete="${escapeHtml(item.id)}"`;
+    const thumbnailUrl = item.thumbnail_url || item.image_url;
     return `
     <div class="recent-asset-button" title="${escapeHtml(name)}">
       <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(formatTranslation("recentAssets.use", { name }))}">
-        <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(name)}" loading="eager" decoding="async">
+        <img src="${escapeHtml(thumbnailUrl)}" data-full-src="${escapeHtml(item.image_url)}" alt="${escapeHtml(name)}" loading="lazy" decoding="async">
         <span>${escapeHtml(name)}</span>
       </button>
       <button class="recent-asset-delete${hideOnly ? " is-hide" : ""}" type="button" ${actionAttribute} aria-label="${escapeHtml(actionLabel)}" title="${escapeHtml(actionTitle)}">×</button>
     </div>
   `;
   }).join("");
+  if (append) els.recentAssetList.insertAdjacentHTML("beforeend", markup);
+  else els.recentAssetList.innerHTML = markup;
+}
+
+function handleRecentAssetImageError(event: Event) {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement)) return;
+  const originalUrl = image.dataset.fullSrc;
+  if (!originalUrl || image.getAttribute("src") === originalUrl) return;
+  image.removeAttribute("data-full-src");
+  image.src = originalUrl;
 }
 
 function handleRecentAssetClick(event: Event) {
@@ -190,8 +203,9 @@ function handleRecentAssetScroll() {
   const remaining = list.scrollWidth - list.clientWidth - list.scrollLeft;
   if (remaining > RECENT_ASSET_LOAD_AHEAD_PX) return;
   const scrollLeft = list.scrollLeft;
+  const previousLimit = recentAssetRenderLimit;
   recentAssetRenderLimit += RECENT_ASSET_RENDER_BATCH_SIZE;
-  renderRecentAssets();
+  renderRecentAssets(previousLimit);
   list.scrollLeft = scrollLeft;
 }
 
@@ -274,13 +288,14 @@ export function initRecentAssetsFeature() {
   els.recentAssetList?.addEventListener("wheel", handleRecentAssetWheel, { passive: false });
   els.recentAssetList?.addEventListener("scroll", handleRecentAssetScroll, { passive: true });
   els.recentAssetList?.addEventListener("click", handleRecentAssetClick);
+  els.recentAssetList?.addEventListener("error", handleRecentAssetImageError, true);
   els.recentAssetStatus?.addEventListener("click", (event: Event) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target?.closest("[data-recent-assets-retry]")) return;
     void refreshRecentAssets();
   });
   els.recentAssetVisibilityToggle?.addEventListener("click", toggleRecentAssetPreviews);
-  document.addEventListener(LOCALE_CHANGE_EVENT, renderRecentAssets);
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => renderRecentAssets());
   Object.assign(getLegacyBridge().methods, {
     refreshRecentAssets,
     renderRecentAssets,

@@ -75,7 +75,7 @@ test("draft restoration preserves prompt chips, files and image blobs across a d
   drafts.markComposerBaseline();
   const file = new File(['test'], 'reference.png', {type:'image/png'});
   prompt = 'draft @reference ~snippet #ffffff';
-  state.images = [{kind:'upload',file,name:file.name,previewUrl:URL.createObjectURL(file)}];
+  state.images = [{kind:'upload',file,name:file.name,previewUrl:URL.createObjectURL(file),thumbnail_url:'data:image/webp;base64,c2NyaXB0'}];
   state.referenceFiles = [{id:'document-1',filename:'notes.pdf'}];
   const fingerprint = drafts.composerFingerprint();
   drafts.preserveComposerDraft();
@@ -84,6 +84,7 @@ test("draft restoration preserves prompt chips, files and image blobs across a d
   drafts.restoreComposerDraft();
   assert.equal(prompt,'draft @reference ~snippet #ffffff');
   assert.equal(state.images[0].file,file); assert.equal(state.referenceFiles[0].id,'document-1');
+  assert.equal(state.images[0].thumbnail_url,'data:image/webp;base64,c2NyaXB0');
   assert.equal(await (await fetch(state.images[0].previewUrl)).text(),'test');
   assert.equal(state.selectedTaskId,null); assert.equal(state.taskInputRestoreSeq,1);
   assert.equal(drafts.composerFingerprint(), fingerprint, "recreating a preview URL does not change draft identity");

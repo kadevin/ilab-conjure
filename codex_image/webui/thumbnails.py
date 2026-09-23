@@ -71,7 +71,7 @@ def create_sidebar_thumbnail(source_path: Path, thumbnail_path: Path) -> Path | 
                 method=4,
             )
             return thumbnail_path
-    except (OSError, UnidentifiedImageError, ValueError):
+    except (OSError, UnidentifiedImageError, ValueError, Image.DecompressionBombError):
         return None
 
 

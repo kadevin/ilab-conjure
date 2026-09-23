@@ -20350,6 +20350,7 @@
       filename: item.filename || "",
       mime_type: item.mime_type || "",
       image_url: item.image_url || "",
+      thumbnail_url: item.thumbnail_url || "",
       previewUrl: item.image_url || "",
       missing: Boolean(item.missing)
     };
@@ -34362,6 +34363,58 @@ ${hint}` : hint;
     });
   }
 
+  // codex_image/webui/frontend/src/upload-thumbnails.ts
+  var MAX_PREVIEW_EDGE = 256;
+  var previewByFile = /* @__PURE__ */ new WeakMap();
+  var previousPreview = Promise.resolve();
+  async function createUploadThumbnail(file) {
+    let bitmap = null;
+    let image = null;
+    let imageUrl = "";
+    try {
+      if (typeof createImageBitmap === "function") {
+        try {
+          bitmap = await createImageBitmap(file, {
+            resizeWidth: MAX_PREVIEW_EDGE,
+            resizeQuality: "high"
+          });
+        } catch (_) {
+        }
+      }
+      if (!bitmap) {
+        imageUrl = URL.createObjectURL(file);
+        image = new Image();
+        image.decoding = "async";
+        image.src = imageUrl;
+        await image.decode();
+      }
+      const source = bitmap || image;
+      if (!source) throw new Error("Image preview unavailable");
+      const sourceWidth = bitmap?.width || image?.naturalWidth || 0;
+      const sourceHeight = bitmap?.height || image?.naturalHeight || 0;
+      if (!sourceWidth || !sourceHeight) throw new Error("Image preview has no dimensions");
+      const scale = Math.min(1, MAX_PREVIEW_EDGE / Math.max(sourceWidth, sourceHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+      canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image preview canvas unavailable");
+      context.drawImage(source, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL("image/webp", 0.82);
+    } finally {
+      bitmap?.close();
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+    }
+  }
+  function uploadThumbnailUrl(file) {
+    const existing = previewByFile.get(file);
+    if (existing) return existing;
+    const pending = previousPreview.then(() => createUploadThumbnail(file));
+    previousPreview = pending.then(() => void 0, () => void 0);
+    previewByFile.set(file, pending);
+    return pending;
+  }
+
   // codex_image/webui/frontend/src/image-strip.ts
   var imageStripFeatureInitialized = false;
   function legacyMethod5(name, ...args) {
@@ -34456,9 +34509,28 @@ ${hint}` : hint;
       const wrapper = document.createElement("div");
       wrapper.className = `thumb ${source.kind === "gallery" ? "gallery-thumb" : source.kind === "asset" ? "asset-thumb" : "upload-thumb"}${source.missing ? " missing-thumb" : ""}`;
       const image = document.createElement("img");
-      const previewUrl = legacyMethod5("sourcePreviewUrl", source);
+      const isUploadedImage = source.kind === "upload" && source.file instanceof File;
+      const preserveAnimation = isUploadedImage && (/^image\/gif$/i.test(source.file.type) || /\.gif$/i.test(source.file.name));
+      const previewUrl = source.kind === "asset" && source.thumbnail_url ? source.thumbnail_url : isUploadedImage && !preserveAnimation ? source.thumbnail_url || "" : legacyMethod5("sourcePreviewUrl", source);
       if (previewUrl) {
         image.src = previewUrl;
+        if (source.kind === "asset" && source.thumbnail_url && source.image_url) {
+          image.addEventListener("error", () => {
+            image.src = source.image_url;
+          }, { once: true });
+        }
+      } else if (isUploadedImage) {
+        image.style.visibility = "hidden";
+        void uploadThumbnailUrl(source.file).then((thumbnailUrl) => {
+          source.thumbnail_url = thumbnailUrl;
+          if (!image.isConnected || !state33.images.includes(source)) return;
+          image.src = thumbnailUrl;
+          image.style.visibility = "";
+        }).catch(() => {
+          if (!image.isConnected || !state33.images.includes(source)) return;
+          image.src = source.previewUrl;
+          image.style.visibility = "";
+        });
       }
       image.alt = legacyMethod5("sourceName", source);
       wrapper.title = source.missing ? source.kind === "asset" ? translate("imageInput.deletedRecent") : translate("imageInput.deletedGallery") : legacyMethod5("sourceName", source);
@@ -35293,31 +35365,43 @@ ${hint}` : hint;
     <button class="ghost-button text-sm" type="button" data-recent-assets-retry>${escapeHtml4(translate("action.refresh"))}</button>
   `;
   }
-  function renderRecentAssets() {
+  function renderRecentAssets(appendFrom = 0) {
     if (!els3.recentAssetDock || !els3.recentAssetList) return;
     const items = state3.recentAssets.filter((item) => item?.id && item?.image_url);
     const visibleItems = items.slice(0, recentAssetRenderLimit);
+    const append = appendFrom > 0 && els3.recentAssetList.childElementCount === appendFrom;
     els3.recentAssetDock.classList.toggle("hidden", !items.length && recentAssetLoadState === "idle");
     els3.recentAssetDock.classList.toggle("is-loading", recentAssetLoadState === "loading");
     renderRecentAssetStatus();
     syncRecentAssetPreviewVisibility();
-    els3.recentAssetList.innerHTML = visibleItems.map((item) => {
+    const markup = (append ? visibleItems.slice(appendFrom) : visibleItems).map((item) => {
       const name = recentAssetName(item);
       const referenceCount = recentAssetReferenceCount(item);
       const hideOnly = recentAssetRequiresHide(item);
       const actionLabel = hideOnly ? formatTranslation("recentAssets.hide", { name }) : formatTranslation("recentAssets.delete", { name });
       const actionTitle = hideOnly ? formatTranslation("recentAssets.inUse", { count: referenceCount }) : translate("recentAssets.deleteTitle");
       const actionAttribute = hideOnly ? `data-reference-asset-hide="${escapeHtml4(item.id)}"` : `data-reference-asset-delete="${escapeHtml4(item.id)}"`;
+      const thumbnailUrl = item.thumbnail_url || item.image_url;
       return `
     <div class="recent-asset-button" title="${escapeHtml4(name)}">
       <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml4(item.id)}" aria-label="${escapeHtml4(formatTranslation("recentAssets.use", { name }))}">
-        <img src="${escapeHtml4(item.image_url)}" alt="${escapeHtml4(name)}" loading="eager" decoding="async">
+        <img src="${escapeHtml4(thumbnailUrl)}" data-full-src="${escapeHtml4(item.image_url)}" alt="${escapeHtml4(name)}" loading="lazy" decoding="async">
         <span>${escapeHtml4(name)}</span>
       </button>
       <button class="recent-asset-delete${hideOnly ? " is-hide" : ""}" type="button" ${actionAttribute} aria-label="${escapeHtml4(actionLabel)}" title="${escapeHtml4(actionTitle)}">\xD7</button>
     </div>
   `;
     }).join("");
+    if (append) els3.recentAssetList.insertAdjacentHTML("beforeend", markup);
+    else els3.recentAssetList.innerHTML = markup;
+  }
+  function handleRecentAssetImageError(event) {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) return;
+    const originalUrl = image.dataset.fullSrc;
+    if (!originalUrl || image.getAttribute("src") === originalUrl) return;
+    image.removeAttribute("data-full-src");
+    image.src = originalUrl;
   }
   function handleRecentAssetClick(event) {
     const target = event.target instanceof Element ? event.target : null;
@@ -35362,8 +35446,9 @@ ${hint}` : hint;
     const remaining = list.scrollWidth - list.clientWidth - list.scrollLeft;
     if (remaining > RECENT_ASSET_LOAD_AHEAD_PX) return;
     const scrollLeft = list.scrollLeft;
+    const previousLimit = recentAssetRenderLimit;
     recentAssetRenderLimit += RECENT_ASSET_RENDER_BATCH_SIZE;
-    renderRecentAssets();
+    renderRecentAssets(previousLimit);
     list.scrollLeft = scrollLeft;
   }
   function wheelDeltaInPixels2(event) {
@@ -35437,13 +35522,14 @@ ${hint}` : hint;
     els3.recentAssetList?.addEventListener("wheel", handleRecentAssetWheel, { passive: false });
     els3.recentAssetList?.addEventListener("scroll", handleRecentAssetScroll, { passive: true });
     els3.recentAssetList?.addEventListener("click", handleRecentAssetClick);
+    els3.recentAssetList?.addEventListener("error", handleRecentAssetImageError, true);
     els3.recentAssetStatus?.addEventListener("click", (event) => {
       const target = event.target instanceof Element ? event.target : null;
       if (!target?.closest("[data-recent-assets-retry]")) return;
       void refreshRecentAssets();
     });
     els3.recentAssetVisibilityToggle?.addEventListener("click", toggleRecentAssetPreviews);
-    document.addEventListener(LOCALE_CHANGE_EVENT, renderRecentAssets);
+    document.addEventListener(LOCALE_CHANGE_EVENT, () => renderRecentAssets());
     Object.assign(getLegacyBridge().methods, {
       refreshRecentAssets,
       renderRecentAssets,

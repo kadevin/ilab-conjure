@@ -247,3 +247,13 @@ def register_gallery_routes(app: FastAPI, ctx: WebUIContext) -> None:
         if mime_type not in SUPPORTED_RASTER_MIME_TYPES:
             raise HTTPException(status_code=415, detail="Unsupported media type")
         return FileResponse(path, media_type=mime_type)
+
+    @app.get("/api/reference-assets/{asset_id}/thumbnail")
+    def get_reference_asset_thumbnail(asset_id: str) -> Response:
+        try:
+            path = ctx.reference_asset_storage.thumbnail_path(asset_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="Invalid reference asset thumbnail") from exc
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=f"Reference asset not found: {asset_id}") from exc
+        return FileResponse(path, media_type="image/webp", headers={"Cache-Control": "no-store"})

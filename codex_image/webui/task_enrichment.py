@@ -73,6 +73,7 @@ def _reference_asset_response(item: dict[str, Any]) -> dict[str, Any]:
     asset_id = str(item.get("id") or "")
     enriched = dict(item)
     enriched["image_url"] = f"/api/reference-assets/{quote(asset_id, safe='')}/image" if asset_id else ""
+    enriched["thumbnail_url"] = f"/api/reference-assets/{quote(asset_id, safe='')}/thumbnail" if asset_id else ""
     return enriched
 
 

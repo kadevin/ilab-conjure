@@ -13,6 +13,7 @@ from typing import Any, Callable, Mapping
 from .schemas import DEFAULT_WEBUI_INPUT_ROOT, DEFAULT_WEBUI_REFERENCE_ASSET_SUBDIR
 from .storage_utils import _guess_mime_type, _safe_filename, utc_now
 from .atomic_files import _fsync_parent, atomic_write_bytes, atomic_write_text
+from .thumbnails import create_sidebar_thumbnail
 
 REFERENCE_ASSET_SUFFIXES = {".png", ".jpg", ".webp", ".gif"}
 MAX_REFERENCE_ASSETS = 50
@@ -281,6 +282,21 @@ class ReferenceAssetStorage:
             raise FileNotFoundError(asset_id)
         return path
 
+    def thumbnail_path(self, asset_id: str) -> Path:
+        with self._lock:
+            source = self.image_path(asset_id)
+            thumbnail = self._shard_path(asset_id) / f"{asset_id}-recent.webp"
+            if thumbnail.is_file():
+                return thumbnail
+            temporary = thumbnail.with_name(f".{asset_id}-{uuid.uuid4().hex}-recent.webp")
+            try:
+                if create_sidebar_thumbnail(source, temporary) is None:
+                    raise ValueError("Reference asset thumbnail unavailable")
+                temporary.replace(thumbnail)
+            finally:
+                temporary.unlink(missing_ok=True)
+            return thumbnail
+
     def _touch_metadata(
         self,
         metadata: dict[str, Any],
@@ -364,6 +380,7 @@ class ReferenceAssetStorage:
         metadata_path = self._metadata_path(asset_id)
         if image_path is not None:
             image_path.unlink(missing_ok=True)
+        (self._shard_path(asset_id) / f"{asset_id}-recent.webp").unlink(missing_ok=True)
         metadata_path.unlink(missing_ok=True)
         self._restore_token_path(asset_id).unlink(missing_ok=True)
         shard_path = self._shard_path(asset_id)

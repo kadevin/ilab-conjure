@@ -1,6 +1,7 @@
 import { getEls } from "./dom";
 import { getLegacyBridge, getState } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
+import { uploadThumbnailUrl } from "./upload-thumbnails";
 
 let imageStripFeatureInitialized = false;
 
@@ -106,9 +107,30 @@ function renderImageStrip() {
     const wrapper = document.createElement("div");
     wrapper.className = `thumb ${source.kind === "gallery" ? "gallery-thumb" : source.kind === "asset" ? "asset-thumb" : "upload-thumb"}${source.missing ? " missing-thumb" : ""}`;
     const image = document.createElement("img");
-    const previewUrl = legacyMethod("sourcePreviewUrl", source);
+    const isUploadedImage = source.kind === "upload" && source.file instanceof File;
+    const preserveAnimation = isUploadedImage && (/^image\/gif$/i.test(source.file.type) || /\.gif$/i.test(source.file.name));
+    const previewUrl = source.kind === "asset" && source.thumbnail_url
+      ? source.thumbnail_url
+      : isUploadedImage && !preserveAnimation
+        ? source.thumbnail_url || ""
+        : legacyMethod("sourcePreviewUrl", source);
     if (previewUrl) {
       image.src = previewUrl;
+      if (source.kind === "asset" && source.thumbnail_url && source.image_url) {
+        image.addEventListener("error", () => { image.src = source.image_url; }, { once: true });
+      }
+    } else if (isUploadedImage) {
+      image.style.visibility = "hidden";
+      void uploadThumbnailUrl(source.file).then((thumbnailUrl) => {
+        source.thumbnail_url = thumbnailUrl;
+        if (!image.isConnected || !state.images.includes(source)) return;
+        image.src = thumbnailUrl;
+        image.style.visibility = "";
+      }).catch(() => {
+        if (!image.isConnected || !state.images.includes(source)) return;
+        image.src = source.previewUrl;
+        image.style.visibility = "";
+      });
     }
     image.alt = legacyMethod("sourceName", source);
     wrapper.title = source.missing

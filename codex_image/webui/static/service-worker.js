@@ -1,10 +1,10 @@
-const CACHE_NAME = "ilab-conjure-shell-v313";
+const CACHE_NAME = "ilab-conjure-shell-v315";
 const APP_SHELL_URLS = [
   "/",
   "/history",
   "/manifest.webmanifest",
   "/static/styles.css?v=runtime-821",
-  "/static/app.js?v=runtime-832",
+  "/static/app.js?v=runtime-834",
   "/static/history.js?v=history-149",
   "/static/pwa.js?v=pwa-1",
   "/static/image-editor-fill-worker.js?v=1",
