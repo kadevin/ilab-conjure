@@ -215,6 +215,10 @@ DEFAULT_PROMPT_FIDELITY = "off"
 class NoCacheStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope: dict[str, Any]) -> Response:
         response = await super().get_response(path, scope)
+        if isinstance(response, FileResponse) and Path(response.path).suffix.lower() == ".svg":
+            # Windows MIME registrations can map SVG files to a non-image type.
+            response.media_type = "image/svg+xml"
+            response.headers["Content-Type"] = response.media_type
         response.headers["Cache-Control"] = "no-store"
         return response
 
