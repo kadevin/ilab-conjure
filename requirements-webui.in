@@ -2,7 +2,7 @@
 # These transitive pins preserve the dependency set exercised by the release tests.
 annotated-doc==0.0.4
 annotated-types==0.7.0
-anyio==4.13.0
+anyio==4.14.2
 certifi==2026.4.22
 click==8.3.3
 colorama==0.4.6
