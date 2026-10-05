@@ -1237,21 +1237,26 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-850', html)
+        self.assertIn('/static/app.js?v=runtime-852', html)
         self.assertIn('/static/styles.css?v=runtime-835', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)
         self.assertIn("mainModelOptions: document.querySelector", script)
         self.assertIn("mainModelShowAllOptions: false", script)
+        self.assertIn('"gpt-6.1-sol",', script)
         self.assertIn('"gpt-6-astra",', script)
-        self.assertLess(script.index('"gpt-6-astra",'), script.index('"gpt-5.6-sol",'))
+        self.assertIn('"gpt-6-sol",', script)
+        self.assertIn('"gpt-6-luna",', script)
+        self.assertLess(script.index('"gpt-6.1-sol",'), script.index('"gpt-6-astra",'))
+        self.assertLess(script.index('"gpt-6-astra",'), script.index('"gpt-6-sol",'))
+        self.assertLess(script.index('"gpt-6-sol",'), script.index('"gpt-6-luna",'))
+        self.assertLess(script.index('"gpt-6-luna",'), script.index('"gpt-5.6-sol",'))
         self.assertIn('"gpt-5.6-sol",', script)
         self.assertIn('"gpt-5.6-terra",', script)
         self.assertIn('"gpt-5.6-luna",', script)
         self.assertLess(script.index('"gpt-5.6-sol",'), script.index('"gpt-5.6-terra",'))
         self.assertLess(script.index('"gpt-5.6-terra",'), script.index('"gpt-5.6-luna",'))
-        self.assertLess(script.index('"gpt-5.6-luna",'), script.index('"gpt-5.5",'))
         self.assertIn('const RETIRED_MAIN_MODEL_OPTIONS = new Set(["gpt-5.3-codex-spark"]);', script)
         self.assertIn("function mainModelOptionsForQuery", script)
         self.assertIn("function openMainModelCombobox", script)
@@ -1289,21 +1294,28 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
                 const codexMatches = mainModelOptionsForQuery("codex");
                 const gpt56Matches = mainModelOptionsForQuery("gpt-5.6");
                 const customMatches = mainModelOptionsForQuery("future-model-x");
-                for (const query of ["  ASTRA ", "gpt-6"]) {
+                for (const [query, expected] of [
+                  ["  ASTRA ", ["gpt-6-astra"]],
+                  ["gpt-6", ["gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna"]],
+                  ["  SOL ", ["gpt-6.1-sol", "gpt-6-sol", "gpt-5.6-sol"]],
+                  ["Luna", ["gpt-6-luna", "gpt-5.6-luna"]],
+                ]) {
                   const matches = mainModelOptionsForQuery(query);
-                  if (JSON.stringify(matches) !== JSON.stringify(["gpt-6-astra"])) {
-                    throw new Error(`expected Astra for ${query}, got ${matches.join(",")}`);
+                  if (JSON.stringify(matches) !== JSON.stringify(expected)) {
+                    throw new Error(`unexpected matches for ${query}: ${matches.join(",")}`);
                   }
                 }
                 const expectedGpt56 = ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"];
                 if (JSON.stringify(gpt56Matches) !== JSON.stringify(expectedGpt56)) {
                   throw new Error(`expected GPT-5.6 model family, got ${gpt56Matches.join(",")}`);
                 }
-                if (!codexMatches.includes("gpt-5.3-codex")) {
-                  throw new Error(`expected codex model matches, got ${codexMatches.join(",")}`);
+                if (codexMatches.length !== 0) {
+                  throw new Error(`removed codex models should not be offered, got ${codexMatches.join(",")}`);
                 }
-                if (codexMatches.includes("gpt-5.3-codex-spark")) {
-                  throw new Error(`spark should not be a built-in image tool option, got ${codexMatches.join(",")}`);
+                for (const model of ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.2", "gpt-5.3-codex-spark"]) {
+                  if (mainModelOptionsForQuery("").includes(model)) {
+                    throw new Error(`removed model should not be offered: ${model}`);
+                  }
                 }
                 if (customMatches.length !== 0) {
                   throw new Error(`custom input should remain valid without forced option, got ${customMatches.join(",")}`);
@@ -1348,10 +1360,10 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
                 }
                 delete storedValues[MAIN_MODEL_STORAGE_KEY];
                 restoreMainModel();
-                if (els.mainModel.value !== "gpt-5.6-luna") {
-                  throw new Error("new users must default to Luna");
+                if (els.mainModel.value !== "gpt-6-luna") {
+                  throw new Error("new users must default to GPT 6 Luna");
                 }
-                for (const model of ["gpt-5.4-mini", "provider-custom-model"]) {
+                for (const model of ["gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "gpt-5.6-luna", "gpt-5.4-mini", "provider-custom-model"]) {
                   storedValues[MAIN_MODEL_STORAGE_KEY] = model;
                   restoreMainModel();
                   if (els.mainModel.value !== model) throw new Error("saved model must survive");

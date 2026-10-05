@@ -280,6 +280,7 @@ class ClientTests(unittest.TestCase):
 
         request = transport.requests[0]
         payload = json.loads(request["body"].decode("utf-8"))
+        self.assertEqual(payload["model"], "gpt-6-luna")
         self.assertEqual(payload["tools"][0]["type"], "image_generation")
         self.assertEqual(payload["tools"][0]["size"], "3840x2160")
         self.assertEqual(payload["tools"][0]["quality"], "high")

@@ -52,7 +52,7 @@ Images API 或 Responses API 形态。
 
 标准包和过渡期免安装一键包下载见 [下载 / Releases](RELEASES.md)。
 
-Codex Responses 的默认主模型为 `gpt-5.6-luna`；已保存的主模型选择继续保留。若仍保存了`gpt-5.4-mini`，请在主模型输入框中切换为 `gpt-5.6-luna`。Image 直连通道不使用主模型。
+Codex Responses 的默认主模型为 `gpt-6-luna`；已保存的主模型选择继续保留。若仍保存了 `gpt-5.4-mini`，请在主模型输入框中切换为 `gpt-6-luna`。Image 直连通道不使用主模型。
 
 API 中转站可分别绑定 GPT Image 2、GPT Image 2.5 Flare 和 Sunburst，并自定义远端模型名。各版本共用 GPT Image 输出参数；配置多个版本后，生成页显示紧凑的版本选择框。现有 Image 2 绑定不会自动升级，Codex 通道仍保持 Image 2；历史任务保留所选版本、供应商和远端模型名。
 
