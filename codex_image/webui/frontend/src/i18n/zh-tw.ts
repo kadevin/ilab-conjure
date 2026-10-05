@@ -636,6 +636,7 @@ export const ZH_TW_DICTIONARY: TranslationDictionary = {
     "output.mainModelUnused": "主模型不參與本次請求",
     "output.transparencyFidelityHint": "透明背景是你選擇的輸出要求，原文和保真模式也會附加此要求。",
     "output.transparentBackground": "透明背景",
+    "output.transparencyUnavailable": "不支援透明",
     "output.transparencyFormat": "透明背景需使用 PNG 或 WebP。",
     "apiSettings.transparencyMode": "透明背景方式",
     "apiSettings.transparencyNative": "原生參數",

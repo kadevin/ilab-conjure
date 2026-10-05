@@ -1057,6 +1057,7 @@
     "output.mainModelUnused": "Main model is not used for this request",
     "output.transparencyFidelityHint": "Transparent background is an output requirement you selected. It is also added in Original and Faithful modes.",
     "output.transparentBackground": "Transparent background",
+    "output.transparencyUnavailable": "No transparency",
     "output.transparencyFormat": "Transparent output requires PNG or WebP.",
     "apiSettings.transparencyMode": "Transparent background method",
     "apiSettings.transparencyNative": "Native parameter",
@@ -13478,6 +13479,7 @@
     "output.mainModelUnused": "M\xF4 h\xECnh ch\xEDnh kh\xF4ng \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng cho y\xEAu c\u1EA7u n\xE0y",
     "output.transparencyFidelityHint": "N\u1EC1n trong su\u1ED1t l\xE0 y\xEAu c\u1EA7u \u0111\u1EA7u ra b\u1EA1n \u0111\xE3 ch\u1ECDn, \u0111\u01B0\u1EE3c b\u1ED5 sung c\u1EA3 \u1EDF ch\u1EBF \u0111\u1ED9 Nguy\xEAn v\u0103n v\xE0 Gi\u1EEF nguy\xEAn \xFD.",
     "output.transparentBackground": "N\u1EC1n trong su\u1ED1t",
+    "output.transparencyUnavailable": "Kh\xF4ng h\u1ED7 tr\u1EE3 trong su\u1ED1t",
     "output.transparencyFormat": "N\u1EC1n trong su\u1ED1t c\u1EA7n PNG ho\u1EB7c WebP.",
     "apiSettings.transparencyMode": "C\xE1ch t\u1EA1o n\u1EC1n trong su\u1ED1t",
     "apiSettings.transparencyNative": "Tham s\u1ED1 g\u1ED1c",
@@ -14856,6 +14858,7 @@
     "output.mainModelUnused": "\u76F4\u63A5\u4F7F\u7528\u6240\u9009\u56FE\u50CF\u6A21\u578B\u751F\u6210",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9009\u62E9\u7684\u8F93\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u4F1A\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u6301\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C2\u6570",
@@ -16211,6 +16214,7 @@
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
@@ -17507,6 +17511,7 @@
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
@@ -25046,9 +25051,11 @@
   }
 
   // codex_image/webui/frontend/src/background-controls.ts
+  var transparentPreference = false;
   function setBackgroundControl(value) {
     const { els: els9 } = getLegacyBridge();
     const background = value === "transparent" || value === "opaque" ? value : "auto";
+    transparentPreference = background === "transparent";
     if (els9.background) els9.background.value = background;
     if (els9.transparentBackground) els9.transparentBackground.checked = background === "transparent";
   }
@@ -25056,21 +25063,41 @@
     const { els: els9, state: state5 } = getLegacyBridge();
     if (!els9.transparentBackground) return;
     const supported = !state5.generationCatalog || isGptImageModel(state5.selectedModelId || "");
-    const enabled = supported && els9.background?.value === "transparent";
-    els9.transparentBackground.checked = els9.background?.value === "transparent";
-    els9.transparentBackground.disabled = !supported;
+    const formatSupported = els9.outputFormat?.value !== "jpeg";
+    if (els9.background?.value === "transparent") transparentPreference = true;
+    const enabled = supported && formatSupported && transparentPreference;
+    if (supported && els9.background) {
+      if (enabled) els9.background.value = "transparent";
+      else if (els9.background.value === "transparent") els9.background.value = "auto";
+    }
+    els9.transparentBackground.checked = enabled;
+    els9.transparentBackground.disabled = !supported || !formatSupported;
     els9.transparentBackgroundField?.classList.toggle("hidden", !supported);
-    const jpegOption = els9.outputFormat?.querySelector('option[value="jpeg"]');
-    const jpegButton = els9.outputFormatGroup?.querySelector('[data-val="jpeg"]');
-    if (jpegOption) jpegOption.disabled = enabled;
-    if (jpegButton) {
-      jpegButton.disabled = enabled;
-      jpegButton.title = enabled ? translate("output.transparencyFormat") : "";
+    const label = document.getElementById("transparentBackgroundLabel");
+    const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
+    if (label) {
+      label.dataset.i18n = labelKey;
+      label.textContent = translate(labelKey);
     }
-    if (enabled && els9.outputFormat?.value === "jpeg") {
-      els9.outputFormat.value = "png";
-      els9.outputFormat.dispatchEvent(new Event("change"));
+    if (els9.transparentBackgroundField) {
+      els9.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");
     }
+  }
+
+  // codex_image/webui/frontend/src/output-size-layout.ts
+  function setCustomSizeModeLayout(isCustom) {
+    const { els: els9, state: state5 } = getLegacyBridge();
+    const preset = document.getElementById("presetSizeFields");
+    if (preset) {
+      preset.inert = isCustom;
+      preset.setAttribute("aria-hidden", String(isCustom));
+    }
+    if (els9.customSize) {
+      els9.customSize.inert = !isCustom;
+      els9.customSize.setAttribute("aria-hidden", String(!isCustom));
+    }
+    els9.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
+    state5.customSizeMode = isCustom;
   }
 
   // codex_image/webui/frontend/src/aspect-ratio-controls.ts
@@ -25860,6 +25887,8 @@
     state5.customSizeTransitionSeq += 1;
     state5.customSizeMode = visibility.customSize;
     const legacyElements = [
+      document.getElementById("outputSizeSettings"),
+      document.getElementById("outputFileSettings"),
       els9.sizeModeGroup?.closest(".custom-size-control"),
       els9.orientation?.closest(".orientation-field"),
       els9.resolution?.closest(".resolution-field"),
@@ -25872,12 +25901,7 @@
     legacyElements.forEach((element) => {
       element.classList.toggle("hidden", !legacyGpt);
     });
-    if (els9.customSize) {
-      els9.customSize.classList.toggle("hidden", !visibility.customSize);
-      els9.customSize.classList.toggle("custom-size-collapsed", !visibility.customSize);
-      els9.customSize.setAttribute("aria-hidden", visibility.customSize ? "false" : "true");
-    }
-    els9.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
+    setCustomSizeModeLayout(visibility.customSize);
     els9.webSearchField?.classList.toggle("hidden", !legacyGpt);
     els9.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
     root.classList.toggle("hidden", legacyGpt);

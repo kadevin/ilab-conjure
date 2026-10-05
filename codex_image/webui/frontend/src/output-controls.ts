@@ -43,6 +43,7 @@ export function updateQuantity(): void {
 export function updateCompression(): void {
   updateTransparencyControls();
   const compressionEnabled = els.outputFormat.value !== "png";
+  document.getElementById("outputCompressionButton")?.classList.toggle("hidden", !compressionEnabled);
   els.compression.disabled = !compressionEnabled;
   if (!compressionEnabled) {
     closeCompressionPopover();
@@ -55,12 +56,14 @@ export function openCompressionPopover(): void {
   if (!els.compressionPopover || els.outputFormat.value === "png") return;
   els.compressionPopover.classList.remove("hidden");
   els.compressionPopover.setAttribute("aria-hidden", "false");
+  document.getElementById("outputCompressionButton")?.setAttribute("aria-expanded", "true");
 }
 
 export function closeCompressionPopover(): void {
   if (!els.compressionPopover) return;
   els.compressionPopover.classList.add("hidden");
   els.compressionPopover.setAttribute("aria-hidden", "true");
+  document.getElementById("outputCompressionButton")?.setAttribute("aria-expanded", "false");
 }
 
 export function handleOutputFormatDoubleClick(event: any): void {

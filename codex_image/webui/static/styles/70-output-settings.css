@@ -699,11 +699,9 @@
 
 /* Settings Grid */
 .settings-grid {
-  --custom-size-mode-card-height: 175px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  transition: height var(--motion-height);
 }
 
 .concrete-model-field {
@@ -803,6 +801,7 @@
 
 .mode-specific-settings {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -816,8 +815,8 @@
 }
 
 .main-model-field {
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
   min-width: 0;
   max-width: 100%;
@@ -829,14 +828,32 @@
 }
 
 .main-model-field .model-combobox {
-  flex: 0 1 190px;
-  width: 190px;
+  width: 100%;
   min-width: 0;
 }
 
 .main-model-field .control {
   min-height: 36px;
   text-overflow: ellipsis;
+}
+
+.main-model-field .model-combobox-input {
+  border-color: var(--line);
+}
+
+@media (hover: hover) {
+  .main-model-field .model-combobox:hover .model-combobox-input {
+    border-color: var(--control-border);
+  }
+}
+
+.main-model-field .model-combobox:focus-within .model-combobox-input {
+  border-color: var(--primary);
+}
+
+.main-model-field .model-combobox-input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .generation-output-options {
@@ -862,7 +879,7 @@
 }
 
 #promptFidelityField {
-  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .prompt-fidelity-label {
@@ -1400,8 +1417,8 @@ input:checked + .slider.round:before {
   align-items: center;
   gap: 22px;
   min-width: 0;
-  min-height: var(--custom-size-mode-card-height);
-  max-height: var(--custom-size-mode-card-height);
+  min-height: 0;
+  max-height: none;
   overflow: hidden;
   opacity: 1;
   transform: translateY(0);
@@ -1523,12 +1540,6 @@ input:checked + .slider.round:before {
 
 .custom-size.has-error .custom-size-hint {
   color: var(--danger);
-}
-
-.settings-grid.custom-size-mode .resolution-field,
-.settings-grid.custom-size-mode .ratio-field,
-.settings-grid.custom-size-mode .orientation-field {
-  display: none;
 }
 
 .settings-grid.custom-size-mode .custom-ratio-field {
@@ -1801,3 +1812,100 @@ input[type=range].slider:disabled::-moz-range-thumb {
 .status-text.ok { color: var(--primary); }
 .status-text.error { color: var(--danger); }
 .status-text.running { color: var(--primary-strong); }
+
+/* Output settings use field labels and spacing instead of repeated section titles. */
+.output-field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.output-field-heading > label { padding-inline-start: var(--control-label-optical-inset); }
+.output-field-heading .field { flex-direction: row; gap: 0; }
+.output-format-heading { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.output-compression-button {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.output-compression-button svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.output-compression-button:hover { color: var(--primary); }
+.web-search-toggle:has(input:disabled) { cursor: not-allowed; color: var(--text-muted); }
+.web-search-toggle:has(input:disabled) .web-search-toggle-track { opacity: .45; }
+.output-size-settings {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.output-file-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  min-width: 0;
+}
+
+.preset-size-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  min-width: 0;
+}
+
+.size-editors {
+  position: relative;
+  min-width: 0;
+}
+
+#presetSizeFields[aria-hidden="true"],
+#customSize[aria-hidden="true"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.size-editors > .custom-size {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  transition: none;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.size-editors > .custom-size::-webkit-scrollbar { width: 8px; height: 8px; }
+.size-editors > .custom-size::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.size-editors > .custom-size::-webkit-scrollbar-thumb {
+  border: 2px solid var(--scrollbar-track);
+  border-radius: var(--radius-pill);
+  background: var(--scrollbar-thumb);
+}
+.size-editors > .custom-size::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+.pixel-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

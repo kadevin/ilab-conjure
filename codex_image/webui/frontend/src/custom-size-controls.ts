@@ -1,5 +1,6 @@
 import { suggestLegalSize } from "./size-suggestion";
 import { getLegacyBridge } from "./state";
+import { setCustomSizeModeLayout } from "./output-size-layout";
 import {
   DEFAULT_ORIENTATION,
   DEFAULT_RATIO,
@@ -20,21 +21,12 @@ import {
 import { syncRadioButtons, updateRequestPreview } from "./output-controls";
 import { formatTranslation, LOCALE_CHANGE_EVENT } from "./i18n";
 
-const CUSTOM_SIZE_TRANSITION_MS = 220;
-const CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE = 4;
-
 const bridge = getLegacyBridge();
 const state = bridge.state;
 const els = bridge.els;
-const customSizeTransitionTimers = new WeakMap<HTMLElement, number>();
 
 function saveCurrentModelParameterDraft(): void {
   bridge.methods.saveCurrentModelParameterDraft?.();
-}
-
-function measuredElementHeight(element: any): number {
-  if (!element) return 0;
-  return Math.ceil(element.getBoundingClientRect().height);
 }
 
 export function handleSizeModeEvent(event: any): void {
@@ -408,177 +400,13 @@ export function syncSizeControlsFromSize(size: any): void {
 
 export { orientationForDimensions };
 
-function setCustomSizeModeLayout(isCustom: any): void {
-  els.customSize?.classList.toggle("hidden", !isCustom);
-  els.customSize?.classList.toggle("custom-size-collapsed", !isCustom);
-  els.customSize?.setAttribute("aria-hidden", isCustom ? "false" : "true");
-  els.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
-}
-
-function measureCustomSizeModeHeight(isCustom: any): number {
-  const grid = els.settingsGrid;
-  const customSize = els.customSize;
-  if (!grid) return 0;
-
-  const originalHeight = grid.style.height;
-  const originalGridTransition = grid.style.transition;
-  const originalCustomTransition = customSize?.style.transition || "";
-  const originalCustomMode = grid.classList.contains("custom-size-mode");
-  const originalCustomHidden = customSize?.classList.contains("hidden") || false;
-  const originalCustomCollapsed = customSize?.classList.contains("custom-size-collapsed") || false;
-  const originalCustomAriaHidden = customSize?.getAttribute("aria-hidden");
-
-  grid.style.transition = "none";
-  grid.style.height = "";
-  if (customSize) customSize.style.transition = "none";
-  if (isCustom && customSize) {
-    setCustomSizeModeLayout(false);
-    const presetFields = [
-      els.orientation?.closest(".orientation-field"),
-      els.resolution?.closest(".resolution-field"),
-      els.ratio?.closest(".ratio-field"),
-    ];
-    const rectangles = presetFields.map(field => field?.getBoundingClientRect());
-    if (rectangles.every(rectangle => rectangle && rectangle.height > 0)) {
-      const top = Math.min(...rectangles.map(rectangle => rectangle.top));
-      const bottom = Math.max(...rectangles.map(rectangle => rectangle.bottom));
-      customSize.style.setProperty("--custom-size-mode-card-height", `${bottom - top}px`);
-    }
-  }
-  setCustomSizeModeLayout(isCustom);
-  const height = measuredElementHeight(grid);
-
-  grid.classList.toggle("custom-size-mode", originalCustomMode);
-  if (customSize) {
-    customSize.classList.toggle("hidden", originalCustomHidden);
-    customSize.classList.toggle("custom-size-collapsed", originalCustomCollapsed);
-    if (originalCustomAriaHidden === null) {
-      customSize.removeAttribute("aria-hidden");
-    } else {
-      customSize.setAttribute("aria-hidden", originalCustomAriaHidden);
-    }
-    customSize.style.transition = originalCustomTransition;
-  }
-  grid.style.height = originalHeight;
-  grid.style.transition = originalGridTransition;
-  return height;
-}
-
-function transitionCustomSizeMode(isCustom: any, refreshLayout = false): void {
-  const grid = els.settingsGrid;
-  const customSize = els.customSize;
-  if (!grid || !customSize) {
-    setCustomSizeModeLayout(isCustom);
-    state.customSizeMode = isCustom;
-    return;
-  }
-
-  if (state.customSizeMode === null) {
-    if (isCustom) measureCustomSizeModeHeight(true);
-    state.customSizeMode = isCustom;
-    grid.style.height = "";
-    grid.classList.remove("is-size-transitioning");
-    setCustomSizeModeLayout(isCustom);
-    return;
-  }
-
-  const pendingTimerId = customSizeTransitionTimers.get(grid);
-  if (state.customSizeMode === isCustom && !pendingTimerId) {
-    if (refreshLayout && isCustom) measureCustomSizeModeHeight(true);
-    grid.style.height = "";
-    grid.classList.remove("is-size-transitioning");
-    setCustomSizeModeLayout(isCustom);
-    return;
-  }
-
-  const fromHeight = measuredElementHeight(grid);
-  const targetHeight = measureCustomSizeModeHeight(isCustom);
-  state.customSizeMode = isCustom;
-  state.customSizeTransitionSeq += 1;
-  const transitionSeq = state.customSizeTransitionSeq;
-  if (pendingTimerId) {
-    window.clearTimeout(pendingTimerId);
-    customSizeTransitionTimers.delete(grid);
-  }
-
-  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  if (reduceMotion) {
-    grid.style.height = "";
-    grid.classList.remove("is-size-transitioning");
-    setCustomSizeModeLayout(isCustom);
-    return;
-  }
-
-  if (Math.abs(targetHeight - fromHeight) <= CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE) {
-    grid.style.height = "";
-    grid.classList.remove("is-size-transitioning");
-    setCustomSizeModeLayout(isCustom);
-    return;
-  }
-
-  grid.style.height = `${fromHeight}px`;
-  grid.classList.add("is-size-transitioning");
-
-  if (isCustom) {
-    customSize.classList.remove("hidden");
-    customSize.classList.add("custom-size-collapsed");
-    customSize.setAttribute("aria-hidden", "false");
-    grid.classList.add("custom-size-mode");
-    void grid.offsetHeight;
-    window.requestAnimationFrame(() => {
-      if (transitionSeq !== state.customSizeTransitionSeq) return;
-      customSize.classList.remove("custom-size-collapsed");
-      grid.style.height = `${targetHeight}px`;
-    });
-  } else {
-    customSize.classList.remove("hidden");
-    customSize.classList.remove("custom-size-collapsed");
-    customSize.setAttribute("aria-hidden", "false");
-    grid.classList.add("custom-size-mode");
-
-    void grid.offsetHeight;
-    window.requestAnimationFrame(() => {
-      if (transitionSeq !== state.customSizeTransitionSeq) return;
-      customSize.classList.add("custom-size-collapsed");
-      grid.classList.remove("custom-size-mode");
-      grid.style.height = `${targetHeight}px`;
-    });
-  }
-
-  const timerId = window.setTimeout(() => {
-    if (transitionSeq !== state.customSizeTransitionSeq) return;
-    setCustomSizeModeLayout(isCustom);
-    grid.style.height = "";
-    grid.classList.remove("is-size-transitioning");
-    customSizeTransitionTimers.delete(grid);
-  }, CUSTOM_SIZE_TRANSITION_MS);
-  customSizeTransitionTimers.set(grid, timerId);
-}
-
 export function initCustomSizeLayout(): void {
-  const refresh = () => {
-    const control = els.sizeModeGroup?.closest(".custom-size-control");
-    if (els.size?.value === "custom" && control && !control.classList.contains("hidden")) {
-      transitionCustomSizeMode(true, true);
-    }
-  };
-  window.addEventListener("resize", refresh);
-  document.addEventListener(LOCALE_CHANGE_EVENT, refresh);
-  if (typeof ResizeObserver !== "undefined" && els.settingsGrid) {
-    let previousWidth = -1;
-    const observer = new ResizeObserver(entries => {
-      const width = entries[0]?.contentRect.width;
-      if (width === undefined || width === previousWidth) return;
-      previousWidth = width;
-      refresh();
-    });
-    observer.observe(els.settingsGrid);
-  }
+  setCustomSizeModeLayout(els.size?.value === "custom");
 }
 
 export function updateCustomSize(): void {
   const isCustom = els.size?.value === "custom";
-  transitionCustomSizeMode(isCustom);
+  setCustomSizeModeLayout(isCustom);
   if (els.customSizeToggle) els.customSizeToggle.checked = isCustom;
   els.sizeModeGroup?.querySelectorAll("[data-custom-size-mode]").forEach((button: any) => {
     const active = button.dataset.customSizeMode === (isCustom ? "custom" : "preset");

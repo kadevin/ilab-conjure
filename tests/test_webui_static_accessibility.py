@@ -77,12 +77,11 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
         html = Path(
             "codex_image/webui/static/index.html"
         ).read_text(encoding="utf-8")
-        pixel_preview = html[
-            html.index('id="pixelPreview"'):
-            html.index('id="size"', html.index('id="pixelPreview"'))
-        ]
-        self.assertIn("color: var(--text-secondary)", pixel_preview)
-        self.assertIn("background: var(--surface-soft)", pixel_preview)
+        self.assertIn('id="pixelPreview" class="pixel-preview full-width"', html)
+        pixel_preview = re.search(r"\.pixel-preview\s*\{([^}]*)\}", component_styles)
+        self.assertIsNotNone(pixel_preview)
+        self.assertIn("color: var(--text-secondary)", pixel_preview.group(1))
+        self.assertIn("background: var(--surface-soft)", pixel_preview.group(1))
 
     def test_static_segmented_controls_announce_group_and_pressed_state(
         self,
@@ -128,14 +127,10 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
             "codex_image/webui/static/styles/50-image-input-gallery.css"
         ).read_text(encoding="utf-8")
 
-        self.assertRegex(
-            responsive,
-            r"--compact-settings-control-height:\s*clamp\(\s*24px,",
-        )
-        self.assertRegex(
-            responsive,
-            r"--compact-settings-segment-height:\s*clamp\(\s*24px,",
-        )
+        for token in ("control", "segment"):
+            height = re.search(rf"--compact-settings-{token}-height:\s*(\d+)px", responsive)
+            self.assertIsNotNone(height)
+            self.assertGreaterEqual(int(height.group(1)), 24)
         delete_button = re.search(
             r"\.recent-asset-delete\s*\{(?P<body>[^}]*)\}",
             image_input,

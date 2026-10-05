@@ -659,6 +659,7 @@ export const EN_DICTIONARY: TranslationDictionary = {
     "output.mainModelUnused": "Main model is not used for this request",
     "output.transparencyFidelityHint": "Transparent background is an output requirement you selected. It is also added in Original and Faithful modes.",
     "output.transparentBackground": "Transparent background",
+    "output.transparencyUnavailable": "No transparency",
     "output.transparencyFormat": "Transparent output requires PNG or WebP.",
     "apiSettings.transparencyMode": "Transparent background method",
     "apiSettings.transparencyNative": "Native parameter",

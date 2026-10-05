@@ -174,7 +174,7 @@ button:disabled {
   }
 
   .controls-col .image-panel {
-    flex: 1 1 var(--compact-image-panel-height);
+    flex: 1 0 auto;
     min-height: var(--compact-image-panel-height);
   }
 
@@ -220,8 +220,9 @@ button:disabled {
   }
 
   .image-input-workspace {
+    /* Three 30px category buttons and two 6px gaps must remain visible. */
     --image-input-main-height: clamp(
-      60px,
+      102px,
       calc(14.47dvh - 51.1px - var(--compact-image-shell-adjustment, 0px)),
       150px
     );
@@ -242,8 +243,8 @@ button:disabled {
   }
 
   .controls-col .image-input-workspace {
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 1 0 auto;
+    min-height: var(--image-input-total-height);
   }
 
   .controls-col .image-input-left,
@@ -409,18 +410,10 @@ button:disabled {
   }
 
   .settings-grid {
-    --compact-settings-control-height: clamp(
-      24px,
-      calc(2.25dvh + 4.7px - var(--compact-settings-shell-adjustment, 0px)),
-      36px
-    );
-    --compact-settings-segment-height: clamp(
-      24px,
-      calc(1.93dvh + 3.2px - var(--compact-settings-shell-adjustment, 0px)),
-      30px
-    );
-    --compact-settings-gap: clamp(3px, calc(2.09dvh - 13.1px), 16px);
-    --compact-field-gap: clamp(2px, calc(0.96dvh - 5.4px), 8px);
+    --compact-settings-control-height: 36px;
+    --compact-settings-segment-height: 30px;
+    --compact-settings-gap: 16px;
+    --compact-field-gap: 6px;
     gap: var(--compact-settings-gap);
   }
 
@@ -429,7 +422,7 @@ button:disabled {
   }
 
   .settings-grid .field > span {
-    font-size: clamp(11px, calc(0.32dvh + 8.5px), 13px);
+    font-size: 13px;
   }
 
   .settings-grid .control {
@@ -1153,8 +1146,8 @@ button:disabled {
   .controls-col .prompt-panel { min-height: min-content; }
   .controls-col .prompt-compose { min-height: 140px; }
   .controls-col .prompt-box { min-height: 140px; }
-  .controls-col #promptFidelityField { flex-direction: row; align-items: center; }
-  .controls-col .prompt-fidelity-label { align-self: center; flex: 0 0 auto; }
+  .controls-col #promptFidelityField { flex-direction: column; align-items: stretch; }
+  .controls-col .prompt-fidelity-label { align-self: stretch; justify-content: space-between; min-height: 24px; }
   .controls-col #promptFidelityGroup { flex: 1; min-width: 0; }
   .controls-col .upload-title { font-size: 13px; line-height: 1.4; }
   .controls-col .upload-subtitle { font-size: 12px; line-height: 1.4; }
@@ -1188,4 +1181,29 @@ button:disabled {
   .main-model-field .control {
     min-height: 44px;
   }
+}
+
+/* Keep parameter labels and targets readable on short desktop viewports. */
+.output-panel .settings-grid { gap: 16px; }
+.output-panel .field { gap: 6px; min-width: 0; }
+.output-panel .mode-specific-settings { gap: 16px; }
+.output-panel .model-tool-row { display: block; }
+.output-panel .mode-settings-slot:not(:has(> .mode-collapsed)) { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.output-panel .main-model-field .model-combobox { width: 100%; }
+.output-panel .prompt-fidelity-label { align-self: stretch; justify-content: space-between; min-height: 24px; }
+.output-panel .output-field-heading .web-search-toggle { min-height: 24px; padding: 0; font-size: 12px; gap: 7px; }
+.output-panel .output-field-heading .generation-option-label { font-size: 12px; }
+.output-panel .field > span, .output-panel .field-label { font-size: 13px; }
+.output-panel .control { min-height: 36px; }
+.output-panel .radio-group { --segmented-control-height: 30px; --segmented-control-padding: 3px; }
+.output-panel #ratioGroup { grid-template-rows: repeat(2, 36px); gap: 6px; padding: 0; border: 0; background: transparent; }
+.output-panel #ratioGroup .radio-btn { height: 36px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); transform: none; }
+.output-panel #ratioGroup .radio-btn.active { background: var(--primary); border-color: var(--primary); }
+.output-panel #ratioGroup .radio-btn[data-val="1:1"] { height: 100%; }
+.output-panel .moderation-field > span { min-height: 24px; display: flex; align-items: center; }
+.output-panel .size-editors > .custom-size { min-height: 0; max-height: none; }
+.output-panel .custom-size-hint { font-size: 12px; }
+.output-panel .api-direct-settings-notice { min-height: 66px; align-items: center; }
+@container output-settings (max-width: 430px) {
+  .output-panel .mode-specific-settings { grid-template-columns: minmax(0, 1fr); }
 }

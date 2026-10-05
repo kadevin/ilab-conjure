@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { initOutputParameterKeyboard } from "./output-parameter-keyboard";
 import { handleTransparentBackgroundChange, updateTransparencyControls } from "./background-controls";
 import {
   closeMainModelCombobox,
@@ -63,6 +64,7 @@ function syncRunButtonLabel(): void {
 export function bindFormControlEvents(): void {
   if (formControlEventsBound) return;
   formControlEventsBound = true;
+  initOutputParameterKeyboard();
   els.transparentBackground?.addEventListener("change", handleTransparentBackgroundChange);
   document.addEventListener(LOCALE_CHANGE_EVENT, updateTransparencyControls);
 
@@ -150,6 +152,17 @@ export function bindFormControlEvents(): void {
     els.customSizeToggle.addEventListener("change", updateSizeFromPreset);
   }
   els.outputFormatGroup?.addEventListener("dblclick", handleOutputFormatDoubleClick);
+  const compressionButton = document.getElementById("outputCompressionButton");
+  compressionButton?.addEventListener("click", () => {
+    if (els.compressionPopover?.classList.contains("hidden")) openCompressionPopover();
+    else closeCompressionPopover();
+  });
+  els.outputFormatField?.addEventListener("keydown", (event: KeyboardEvent) => {
+    if (event.key !== "Escape" || els.compressionPopover?.classList.contains("hidden")) return;
+    event.stopPropagation();
+    closeCompressionPopover();
+    compressionButton?.focus();
+  });
 }
 
 export function setMode(mode: any): void {

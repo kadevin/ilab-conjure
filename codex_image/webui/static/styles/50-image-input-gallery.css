@@ -1190,7 +1190,7 @@
 }
 
 .quick-gallery-empty {
-  min-height: 110px;
+  min-height: min(110px, var(--quick-gallery-height));
   display: grid;
   place-items: center;
   border: 1px dashed color-mix(in srgb, var(--text-secondary) 30%, var(--line));

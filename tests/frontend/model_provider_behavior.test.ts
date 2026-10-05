@@ -605,10 +605,13 @@ test("health/auth races cannot override catalog provider availability", async ()
   }
 });
 
-test("transparent background controls preserve opaque history and restore JPEG availability", async () => {
+test("transparent background follows format compatibility and preserves opaque history", async () => {
   const { setBackgroundControl, updateTransparencyControls, handleTransparentBackgroundChange } = await import("../../codex_image/webui/frontend/src/background-controls");
   const previousWindow = (globalThis as any).window;
+  const previousDocument = (globalThis as any).document;
   const field = () => ({ classList: new FakeClassList(), dataset: {} as Record<string, string>, textContent: "" });
+  const label = field();
+  (globalThis as any).document = { getElementById: () => label };
   const jpegOption = { disabled: false };
   const jpegButton = { disabled: false, title: "" };
   let saved = 0;
@@ -625,20 +628,39 @@ test("transparent background controls preserve opaque history and restore JPEG a
     updateTransparencyControls();
     assert.equal(els.background.value, "opaque");
     assert.equal(els.transparentBackground.checked, false);
+    assert.equal(els.transparentBackground.disabled, true);
+    els.outputFormat.value = "png";
+    updateTransparencyControls();
     els.transparentBackground.checked = true;
     handleTransparentBackgroundChange();
     assert.equal(els.background.value, "transparent");
     assert.equal(els.outputFormat.value, "png");
-    assert.equal(jpegButton.disabled, true);
-    assert.equal(jpegOption.disabled, true);
-    assert.match(jpegButton.title, /PNG/);
+    assert.equal(jpegButton.disabled, false);
+    assert.equal(jpegOption.disabled, false);
     assert.equal(saved, 1);
+    els.outputFormat.value = "jpeg";
+    updateTransparencyControls();
+    assert.equal(els.outputFormat.value, "jpeg", "all formats remain selectable");
+    assert.equal(els.background.value, "auto", "JPEG cannot submit transparent background");
+    assert.equal(els.transparentBackground.disabled, true);
+    assert.equal(els.transparentBackground.checked, false);
+    assert.equal(label.dataset.i18n, "output.transparencyUnavailable");
+    els.outputFormat.value = "webp";
+    updateTransparencyControls();
+    assert.equal(els.background.value, "transparent", "restore the current-page preference");
+    assert.equal(els.transparentBackground.disabled, false);
+    assert.equal(els.transparentBackground.checked, true);
     els.transparentBackground.checked = false;
     handleTransparentBackgroundChange();
     assert.equal(els.background.value, "auto");
-    assert.equal(els.outputFormat.value, "png");
+    assert.equal(els.outputFormat.value, "webp");
     assert.equal(jpegButton.disabled, false);
     assert.equal(jpegOption.disabled, false);
+    for (const format of ["jpeg", "png"]) {
+      els.outputFormat.value = format;
+      updateTransparencyControls();
+      assert.equal(els.transparentBackground.checked, false, "explicit off stays off");
+    }
     setBackgroundControl("transparent");
     state.generationCatalog = { models: [], providers: [] };
     state.selectedModelId = "nano-banana-pro";
@@ -646,8 +668,13 @@ test("transparent background controls preserve opaque history and restore JPEG a
     assert.equal(els.transparentBackgroundField.classList.contains("hidden"), true);
     assert.equal(jpegOption.disabled, false);
     assert.equal(els.background.value, "transparent", "hidden GPT draft is preserved");
+    state.selectedModelId = "gpt-image-2";
+    setBackgroundControl("auto");
+    updateTransparencyControls();
+    assert.equal(els.transparentBackground.checked, false, "restoring a draft replaces the preference");
   } finally {
     (globalThis as any).window = previousWindow;
+    (globalThis as any).document = previousDocument;
   }
 });
 

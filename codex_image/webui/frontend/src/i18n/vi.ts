@@ -659,6 +659,7 @@ export const VI_DICTIONARY: TranslationDictionary = {
     "output.mainModelUnused": "Mô hình chính không được sử dụng cho yêu cầu này",
     "output.transparencyFidelityHint": "Nền trong suốt là yêu cầu đầu ra bạn đã chọn, được bổ sung cả ở chế độ Nguyên văn và Giữ nguyên ý.",
     "output.transparentBackground": "Nền trong suốt",
+    "output.transparencyUnavailable": "Không hỗ trợ trong suốt",
     "output.transparencyFormat": "Nền trong suốt cần PNG hoặc WebP.",
     "apiSettings.transparencyMode": "Cách tạo nền trong suốt",
     "apiSettings.transparencyNative": "Tham số gốc",

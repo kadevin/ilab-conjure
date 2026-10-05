@@ -1,3 +1,4 @@
+import { setCustomSizeModeLayout } from "./output-size-layout";
 import { isGptImageModel } from "./gpt-image-models";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { aspectRatioSlots, createAspectRatioIcon } from "./aspect-ratio-controls";
@@ -793,6 +794,8 @@ export function renderModelParameters(
   state.customSizeTransitionSeq += 1;
   state.customSizeMode = visibility.customSize;
   const legacyElements = [
+    document.getElementById("outputSizeSettings"),
+    document.getElementById("outputFileSettings"),
     els.sizeModeGroup?.closest(".custom-size-control"),
     els.orientation?.closest(".orientation-field"),
     els.resolution?.closest(".resolution-field"),
@@ -805,12 +808,7 @@ export function renderModelParameters(
   legacyElements.forEach((element) => {
     element.classList.toggle("hidden", !legacyGpt);
   });
-  if (els.customSize) {
-    els.customSize.classList.toggle("hidden", !visibility.customSize);
-    els.customSize.classList.toggle("custom-size-collapsed", !visibility.customSize);
-    els.customSize.setAttribute("aria-hidden", visibility.customSize ? "false" : "true");
-  }
-  els.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
+  setCustomSizeModeLayout(visibility.customSize);
   els.webSearchField?.classList.toggle("hidden", !legacyGpt);
   els.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
   root.classList.toggle("hidden", legacyGpt);

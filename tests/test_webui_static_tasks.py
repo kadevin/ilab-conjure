@@ -44,7 +44,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-156', history_html)
+        self.assertIn('/static/history.js?v=history-157', history_html)
         filters = Path("codex_image/webui/frontend/src/history-filters-controller.ts").read_text(encoding="utf-8")
         window = Path("codex_image/webui/frontend/src/history-list-controller.ts").read_text(encoding="utf-8")
         detail = Path("codex_image/webui/frontend/src/history-detail-controller.ts").read_text(encoding="utf-8")

@@ -28,7 +28,7 @@ class WebUIShortHeightContractTests(unittest.TestCase):
         )
         self.assertRegex(
             block,
-            r"\.controls-col\s+\.image-panel\s*\{[^}]*flex:\s*1\s+1\s+var\(--compact-image-panel-height\)"
+            r"\.controls-col\s+\.image-panel\s*\{[^}]*flex:\s*1\s+0\s+auto"
             r"[^}]*min-height:\s*var\(--compact-image-panel-height\)",
         )
         self.assertRegex(
@@ -65,7 +65,7 @@ class WebUIShortHeightContractTests(unittest.TestCase):
         )
         self.assertRegex(
             block,
-            r"\.controls-col\s+\.image-panel\s*\{[^}]*flex:\s*1\s+1\s+var\(--compact-image-panel-height\)",
+            r"\.controls-col\s+\.image-panel\s*\{[^}]*flex:\s*1\s+0\s+auto",
         )
         self.assertRegex(
             block,

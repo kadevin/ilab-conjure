@@ -10,6 +10,10 @@ export function initMobileWorkspace(): void {
   if (!output || !run || !dashboard || !preview) return;
   const query = window.matchMedia(MOBILE_WORKSPACE_QUERY);
   const sheet = createMobileSheet("mobileParameters", "outputSettings.title");
+  const lock = document.getElementById("outputSettingsLockButton");
+  const lockOrigin = document.createComment("mobile-output-lock-origin");
+  lock?.before(lockOrigin);
+  const sheetHeader = sheet.root.querySelector(".mobile-sheet-heading");
   const outputOrigin = document.createComment("mobile-output-origin");
   const runOrigin = document.createComment("mobile-run-origin");
   output.before(outputOrigin); run.before(runOrigin);
@@ -57,9 +61,11 @@ export function initMobileWorkspace(): void {
     sheet.close();
     if (query.matches) {
       sheet.content.append(output); dock.append(run);
+      if (lock && sheetHeader) sheetHeader.insertBefore(lock, sheetHeader.lastElementChild);
       if (feedback) summary.before(feedback);
     } else {
       outputOrigin.after(output); runOrigin.after(run);
+      if (lock) lockOrigin.after(lock);
       if (feedback) feedbackOrigin.after(feedback);
     }
   };

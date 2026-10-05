@@ -674,7 +674,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.image-input-main\s*\{[^}]*border-color var\(--motion-base\)")
         self.assertRegex(styles, r"\.quick-gallery-item\s*\{[^}]*opacity var\(--motion-base\)")
         self.assertRegex(styles, r"\.resource-sheet\s*\{[^}]*transform var\(--motion-fast\)")
-        self.assertRegex(styles, r"\.settings-grid\s*\{[^}]*transition:\s*height var\(--motion-height\)")
+        self.assertRegex(styles, r"\.size-editors\s*>\s*\.custom-size\s*\{[^}]*transition:\s*none")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*max-height var\(--motion-height\)")
         self.assertRegex(styles, r"\.gallery-grid\s*\{[^}]*transition:\s*height var\(--motion-height\)")
         self.assertRegex(styles, r"\.preview-overlay\s*\{[^}]*transition:\s*opacity var\(--motion-base\)")
@@ -704,8 +704,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-850', html)
-        self.assertIn('/static/styles.css?v=runtime-835', html)
+        self.assertIn('/static/app.js?v=runtime-855', html)
+        self.assertIn('/static/styles.css?v=runtime-855', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -1523,7 +1523,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(
             compact,
             r"\.controls-col\s+\.image-panel\s*\{[^}]*"
-            r"flex:\s*1\s+1\s+var\(--compact-image-panel-height\)",
+            r"flex:\s*1\s+0\s+auto",
         )
         self.assertRegex(
             compact,
@@ -1543,7 +1543,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"\.controls-col\s+\.output-settings-header\s+h2\s*\{[^}]*clip:",
         )
         self.assertIn(
-            ".controls-col .image-input-workspace {\n    flex: 1 1 auto;",
+            ".controls-col .image-input-workspace {\n    flex: 1 0 auto;",
             compact,
         )
         self.assertIn(
@@ -1916,7 +1916,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(
             compact,
             r"\.image-input-workspace\s*\{[^}]*--image-input-main-height:\s*clamp\("
-            r"[\s\S]*60px,[\s\S]*150px",
+            r"[\s\S]*102px,[\s\S]*150px",
         )
         self.assertRegex(
             compact,
@@ -1950,8 +1950,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         )
         self.assertRegex(
             compact,
-            r"\.settings-grid\s*\{[^}]*--compact-settings-control-height:\s*clamp\("
-            r"[\s\S]*--compact-settings-segment-height:\s*clamp\("
+            r"\.settings-grid\s*\{[^}]*--compact-settings-control-height:\s*36px"
+            r"[\s\S]*--compact-settings-segment-height:\s*30px"
             r"[\s\S]*gap:\s*var\(--compact-settings-gap\)",
         )
         self.assertRegex(
@@ -2012,7 +2012,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(
             responsive,
             r"\.controls-col\s+\.image-panel\s*\{[^}]*"
-            r"flex:\s*1\s+1\s+var\(--compact-image-panel-height\)",
+            r"flex:\s*1\s+0\s+auto",
         )
         self.assertRegex(output, r"\.output-settings-locked-summary\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0")
         self.assertNotIn("--output-settings-editor-height", responsive + output + lock_source)
@@ -2744,9 +2744,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         for control_id, label_id in (("webSearch", "webSearchLabel"), ("transparentBackground", "transparentBackgroundLabel")):
             self.assertRegex(
                 html,
-                rf'<label class="web-search-toggle"[^>]*>\s*<span id="{label_id}"[^>]*>[^<]+</span>\s*'
+                rf'<label class="web-search-toggle"[^>]*>\s*'
                 rf'<input id="{control_id}"[^>]*aria-labelledby="{label_id}"[^>]*>\s*'
-                r'<span class="web-search-toggle-track" aria-hidden="true"></span>\s*</label>',
+                r'<span class="web-search-toggle-track" aria-hidden="true"></span>\s*'
+                rf'<span id="{label_id}"[^>]*>[^<]+</span>\s*</label>',
             )
         self.assertNotIn('data-i18n="output.webSearchToggle"', html)
         self.assertIn(".web-search-toggle:has(input:focus-visible)", styles)
@@ -2860,8 +2861,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             html,
             r'<div class="field orientation-field">[\s\S]*id="orientationGroup"[\s\S]*</div>\s*'
             r'<div class="field resolution-field">[\s\S]*id="resolutionGroup"[\s\S]*</div>\s*'
-            r'<div id="customSize" class="custom-size hidden"[\s\S]*id="customWidth"[\s\S]*id="customHeight"[\s\S]*</div>\s*'
-            r'<div class="field full-width ratio-field">[\s\S]*id="ratioGroup"',
+            r'<div class="field full-width ratio-field">[\s\S]*id="ratioGroup"[\s\S]*'
+            r'<div id="customSize" class="custom-size"[^>]*inert[^>]*aria-hidden="true"[\s\S]*id="customWidth"[\s\S]*id="customHeight"',
         )
         self.assertRegex(
             html,
@@ -2951,7 +2952,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('DEFAULT_RATIO = "1:1"', script)
         self.assertIn('DEFAULT_ORIENTATION = "square"', script)
         self.assertIn("syncRatioAndOrientation", script)
-    def test_transparent_background_toggle_is_next_to_search_and_quantity_stays_with_quality(self) -> None:
+    def test_transparent_background_toggle_is_with_format_and_quantity_stays_with_quality(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -2960,7 +2961,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn("transparencyHint", html)
         self.assertNotIn("<span>背景</span>", html)
         self.assertIn("els.background", script)
-        self.assertRegex(html, r'class="generation-output-options"[\s\S]*id="webSearchField"[\s\S]*id="transparentBackground"')
+        self.assertRegex(html, r'id="mainModelField"[\s\S]*id="webSearchField"[\s\S]*id="mainModelCombobox"')
+        self.assertRegex(html, r'id="outputFormatField"[\s\S]*id="transparentBackground"[\s\S]*id="outputFormatGroup"')
+        self.assertLess(html.index('id="pixelPreview"'), html.index('id="outputFileSettings"'))
         self.assertNotIn('form.append("background"', script)
         self.assertRegex(html, r'class="field-pair full-width quantity-quality-row"[\s\S]*id="quality"[\s\S]*id="quantityGroup"')
         self.assertRegex(styles, r"\.field-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*1fr\)")
@@ -2969,90 +2972,47 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         if node is None:
             self.skipTest("node is required for frontend behavior checks")
         script = self._frontend_script_source()
+        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
+        self.assertRegex(styles, r"\.size-editors\s*\{[^}]*position:\s*relative")
+        self.assertRegex(styles, r"\.size-editors\s*>\s*\.custom-size\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0")
+        self.assertRegex(styles, r'#presetSizeFields\[aria-hidden="true"\][^{]*\{[^}]*visibility:\s*hidden')
+        self.assertNotRegex(styles, r'#presetSizeFields\[aria-hidden="true"\][^{]*\{[^}]*display:\s*none')
         harness = "\n".join([
             """
             const assert = require('node:assert/strict');
-            const CUSTOM_SIZE_TRANSITION_MS = 220;
-            const CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE = 4;
-            const customSizeTransitionTimers = new WeakMap();
-            const state = { customSizeMode: false, customSizeTransitionSeq: 0 };
-            let scheduledAnimations = 0;
-            let reducedMotion = false;
-            let layoutReads = 0;
-            const window = {
-              matchMedia: () => ({ matches: reducedMotion }),
-              clearTimeout() {},
-              requestAnimationFrame() { scheduledAnimations += 1; },
-              setTimeout() { scheduledAnimations += 1; return 1; },
-            };
-            const classes = () => {
+            const state = { customSizeMode: false };
+            const element = () => {
               const values = new Set();
+              const attrs = new Map();
               return {
-                contains: name => values.has(name),
-                add: name => values.add(name),
-                remove: name => values.delete(name),
-                toggle(name, active) { if (active) values.add(name); else values.delete(name); },
+                inert: false,
+                classList: {
+                  contains: name => values.has(name),
+                  remove: (...names) => names.forEach(name => values.delete(name)),
+                  toggle(name, active) { if (active) values.add(name); else values.delete(name); },
+                },
+                setAttribute: (name, value) => attrs.set(name, value),
+                getAttribute: name => attrs.get(name),
+                getBoundingClientRect() { throw Error('mode changes must not measure layout'); },
               };
             };
-            const properties = new Map();
-            const customSize = {
-              classList: classes(),
-              style: { transition: '', setProperty: (name, value) => properties.set(name, value) },
-              getAttribute: () => 'true', setAttribute() {}, removeAttribute() {},
-            };
-            const grid = {
-              classList: classes(), style: { height: '', transition: '' },
-              getBoundingClientRect() {
-                layoutReads += 1;
-                const card = Number.parseFloat(properties.get('--custom-size-mode-card-height') || '175px');
-                return { height: 480 + (this.classList.contains('custom-size-mode') ? card - presetSpan : 0) };
-              },
-            };
-            let presetSpan = 123;
-            let rectangles = [];
-            const field = index => ({ closest: () => ({
-              getBoundingClientRect: () => {
-                layoutReads += 1;
-                return grid.classList.contains('custom-size-mode')
-                  ? { top: 0, bottom: 0, height: 0 } : rectangles[index];
-              },
-            }) });
-            const els = { settingsGrid: grid, customSize, orientation: field(0), resolution: field(1), ratio: field(2) };
+            const preset = element();
+            const els = { customSize: element(), settingsGrid: element() };
+            const getLegacyBridge = () => ({ els, state });
+            const document = { getElementById: id => id === 'presetSizeFields' ? preset : null };
             """,
-            self._extract_javascript_function(script, "measuredElementHeight"),
             self._extract_javascript_function(script, "setCustomSizeModeLayout"),
-            self._extract_javascript_function(script, "measureCustomSizeModeHeight"),
-            self._extract_javascript_function(script, "transitionCustomSizeMode"),
             """
-            for (const rows of [
-              [[0, 47], [0, 47], [50, 73]],
-              [[0, 57.796875], [0, 57.796875], [70.359375, 86.6953125]],
-              [[0, 60], [68, 60], [136, 200]],
-            ]) {
-              rectangles = rows.map(([top, height]) => ({ top, height, bottom: top + height }));
-              presetSpan = Math.max(...rectangles.map(rect => rect.bottom));
-              for (const [initialMode, reduceMotion] of [[false, false], [null, false], [false, true]]) {
-                state.customSizeMode = initialMode;
-                reducedMotion = reduceMotion;
-                setCustomSizeModeLayout(false);
-                transitionCustomSizeMode(true);
-                assert.equal(grid.getBoundingClientRect().height, 480, 'switching modes must preserve the output grid height');
-                assert.equal(scheduledAnimations, 0, 'equal-height modes must not stretch the grid during an animation');
-                assert.equal(grid.style.height, '');
-                assert.equal(grid.classList.contains('is-size-transitioning'), false);
-                const readsBeforeParameterInput = layoutReads;
-                for (let input = 0; input < 20; input++) transitionCustomSizeMode(true);
-                assert.equal(layoutReads, readsBeforeParameterInput, 'unchanged size mode must not force layout reads on every parameter input');
-                properties.set('--custom-size-mode-card-height', '175px');
-                transitionCustomSizeMode(true, true);
-                assert.equal(grid.getBoundingClientRect().height, 480, 'refreshing an active custom layout must follow the current preset geometry');
-                transitionCustomSizeMode(false);
-                assert.equal(grid.getBoundingClientRect().height, 480);
-                assert.equal(customSize.classList.contains('hidden'), true);
-                assert.equal(customSize.classList.contains('custom-size-collapsed'), true);
-                assert.equal(grid.style.transition, '');
-                assert.equal(customSize.style.transition, '');
-              }
+            for (const mode of [false, true, true, false, true, false]) {
+              setCustomSizeModeLayout(mode);
+              assert.equal(preset.inert, mode);
+              assert.equal(preset.getAttribute('aria-hidden'), String(mode));
+              assert.equal(preset.classList.contains('hidden'), false, 'preset remains the layout height source');
+              assert.equal(els.customSize.inert, !mode);
+              assert.equal(els.customSize.getAttribute('aria-hidden'), String(!mode));
+              assert.equal(els.customSize.classList.contains('hidden'), false);
+              assert.equal(els.settingsGrid.classList.contains('custom-size-mode'), mode);
+              assert.equal(state.customSizeMode, mode);
             }
             """,
         ])
@@ -3068,10 +3028,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(html, r'class="field-group full-width custom-size-control"[\s\S]*id="sizeModeGroup"[\s\S]*data-custom-size-mode="preset"[\s\S]*data-custom-size-mode="custom"')
         self.assertRegex(
             html,
-            r'class="field-group full-width custom-size-control"[\s\S]*id="customSizeToggle"[\s\S]*</div>\s*'
+            r'class="field-group full-width custom-size-control"[\s\S]*id="customSizeToggle"[\s\S]*id="sizeEditors"[\s\S]*id="presetSizeFields"[\s\S]*'
             r'<div class="field orientation-field">[\s\S]*id="orientationGroup"[\s\S]*</div>\s*'
             r'<div class="field resolution-field">[\s\S]*id="resolutionGroup"[\s\S]*</div>\s*'
-            r'<div id="customSize" class="custom-size hidden"[\s\S]*class="custom-size-main"[\s\S]*class="field custom-ratio-field"',
+            r'<div class="field full-width ratio-field">[\s\S]*id="ratioGroup"[\s\S]*'
+            r'<div id="customSize" class="custom-size"[\s\S]*class="custom-size-main"[\s\S]*class="field custom-ratio-field"',
         )
         self.assertRegex(html, r'id="customSizeToggle" class="hidden"')
         custom_ratio_markup = re.search(r'<div class="field custom-ratio-field">[\s\S]*?<p id="customRatioHint"[^>]*>[^<]*</p>\s*</div>', html)
@@ -3089,7 +3050,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('placeholder="宽"', custom_ratio_markup.group(0))
         self.assertNotIn('placeholder="高"', custom_ratio_markup.group(0))
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHint" class="custom-ratio-hint"[\s\S]*留空则自由宽高 · 填满后同步')
-        custom_size_markup = re.search(r'<div id="customSize" class="custom-size hidden"[\s\S]*?</div>\s*<div class="field full-width ratio-field">', html)
+        custom_size_markup = re.search(r'<div id="customSize" class="custom-size"[\s\S]*?<div id="pixelPreview"', html)
         self.assertIsNotNone(custom_size_markup)
         self.assertRegex(custom_size_markup.group(0), r'class="custom-size-main"[\s\S]*class="custom-size-header"[\s\S]*<span[^>]*>像素尺寸</span>')
         self.assertRegex(custom_size_markup.group(0), r'class="custom-measure-row custom-size-row"')
@@ -3123,27 +3084,27 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function swapCustomSizeDimensions", script)
         self.assertIn("function populateCustomSizeFromCurrentPreset", script)
         self.assertIn("function customSizeValidationMessage", script)
-        self.assertIn("const CUSTOM_SIZE_TRANSITION_MS = 220", script)
-        self.assertIn("const CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE = 4", script)
-        self.assertIn("const customSizeTransitionTimers = new WeakMap", script)
+        self.assertIn("preset.inert = isCustom", script)
+        self.assertIn("els.customSize.inert = !isCustom", script)
+        self.assertNotIn("customSizeTransitionTimers", script)
         self.assertIn("customSizeTransitionSeq: 0", script)
         self.assertIn("customSizeMode: null", script)
         self.assertIn("customAspectRatioLocked: false", script)
         self.assertIn("customAspectRatioValue: null", script)
         self.assertIn('customAspectRatioSource: "manual"', script)
         self.assertIn("function setCustomSizeModeLayout", script)
-        self.assertIn("function measureCustomSizeModeHeight", script)
-        self.assertIn("function transitionCustomSizeMode", script)
-        self.assertIn("transitionCustomSizeMode(isCustom)", script)
-        self.assertIn("Math.abs(targetHeight - fromHeight) <= CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE", script)
+        self.assertNotIn("function measureCustomSizeModeHeight", script)
+        self.assertNotIn("function transitionCustomSizeMode", script)
+        self.assertIn("setCustomSizeModeLayout(isCustom)", script)
+        self.assertNotIn("CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE", script)
         self.assertIn("setStatus(customSizeError", script)
         self.assertRegex(styles, r"\.custom-size-control\s*\{[^}]*display:\s*grid")
-        self.assertRegex(styles, r"\.settings-grid\s*\{[^}]*transition:\s*height var\(--motion-height\)")
+        self.assertRegex(styles, r"\.size-editors\s*>\s*\.custom-size\s*\{[^}]*transition:\s*none")
         self.assertRegex(styles, r"\.settings-grid\.is-size-transitioning\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.settings-grid\.is-size-transitioning\s*\{[^}]*will-change:\s*height")
-        self.assertNotRegex(styles, r"\.custom-size\s*\{[^}]*position:\s*absolute")
+        self.assertRegex(styles, r"\.size-editors\s*>\s*\.custom-size\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0")
         self.assertNotRegex(styles, r"\.custom-size::before\s*\{")
-        self.assertRegex(styles, r"\.settings-grid\s*\{[^}]*--custom-size-mode-card-height:\s*175px")
+        self.assertRegex(styles, r"\.size-editors\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
         self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*align-content:\s*center")
@@ -3182,8 +3143,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.custom-ratio-field\s*\{[^}]*display:\s*grid")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.08fr\)\s+minmax\(242px,\s*0\.92fr\)")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*align-items:\s*center")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*min-height:\s*var\(--custom-size-mode-card-height\)")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*max-height:\s*var\(--custom-size-mode-card-height\)")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*min-height:\s*0")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*max-height:\s*none")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*padding:\s*18px 20px")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*transition:[^}]*max-height var\(--motion-height\)")
         self.assertRegex(styles, r"\.custom-size\.custom-size-collapsed\s*\{[^}]*max-height:\s*0")
@@ -3199,7 +3160,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.custom-size-input\s*\{[^}]*width:\s*var\(--measure-input-width\)")
         self.assertRegex(styles, r"\.custom-size-input\s*\{[^}]*text-align:\s*center")
         self.assertRegex(styles, r"\.custom-size-input\s*\{[^}]*font-variant-numeric:\s*tabular-nums")
-        self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.resolution-field\s*,\s*\.settings-grid\.custom-size-mode\s+\.ratio-field\s*,\s*\.settings-grid\.custom-size-mode\s+\.orientation-field\s*\{[^}]*display:\s*none")
+        self.assertRegex(styles, r'#presetSizeFields\[aria-hidden="true"\][^{]*\{[^}]*visibility:\s*hidden')
         self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.custom-size\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertNotRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.quantity-field\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"@media \(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.settings-grid\s*,\s*[\s\S]*\.custom-size\s*\{[\s\S]*transition:\s*none")
@@ -3873,8 +3834,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-850', html)
-        self.assertIn('/static/styles.css?v=runtime-835', html)
+        self.assertIn('/static/app.js?v=runtime-855', html)
+        self.assertIn('/static/styles.css?v=runtime-855', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4334,8 +4295,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-850", html)
-        self.assertIn("/static/styles.css?v=runtime-835", html)
+        self.assertIn("/static/app.js?v=runtime-855", html)
+        self.assertIn("/static/styles.css?v=runtime-855", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

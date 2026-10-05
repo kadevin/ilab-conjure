@@ -742,6 +742,7 @@
     "output.mainModelUnused": "Main model is not used for this request",
     "output.transparencyFidelityHint": "Transparent background is an output requirement you selected. It is also added in Original and Faithful modes.",
     "output.transparentBackground": "Transparent background",
+    "output.transparencyUnavailable": "No transparency",
     "output.transparencyFormat": "Transparent output requires PNG or WebP.",
     "apiSettings.transparencyMode": "Transparent background method",
     "apiSettings.transparencyNative": "Native parameter",
@@ -13163,6 +13164,7 @@
     "output.mainModelUnused": "M\xF4 h\xECnh ch\xEDnh kh\xF4ng \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng cho y\xEAu c\u1EA7u n\xE0y",
     "output.transparencyFidelityHint": "N\u1EC1n trong su\u1ED1t l\xE0 y\xEAu c\u1EA7u \u0111\u1EA7u ra b\u1EA1n \u0111\xE3 ch\u1ECDn, \u0111\u01B0\u1EE3c b\u1ED5 sung c\u1EA3 \u1EDF ch\u1EBF \u0111\u1ED9 Nguy\xEAn v\u0103n v\xE0 Gi\u1EEF nguy\xEAn \xFD.",
     "output.transparentBackground": "N\u1EC1n trong su\u1ED1t",
+    "output.transparencyUnavailable": "Kh\xF4ng h\u1ED7 tr\u1EE3 trong su\u1ED1t",
     "output.transparencyFormat": "N\u1EC1n trong su\u1ED1t c\u1EA7n PNG ho\u1EB7c WebP.",
     "apiSettings.transparencyMode": "C\xE1ch t\u1EA1o n\u1EC1n trong su\u1ED1t",
     "apiSettings.transparencyNative": "Tham s\u1ED1 g\u1ED1c",
@@ -14541,6 +14543,7 @@
     "output.mainModelUnused": "\u76F4\u63A5\u4F7F\u7528\u6240\u9009\u56FE\u50CF\u6A21\u578B\u751F\u6210",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9009\u62E9\u7684\u8F93\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u4F1A\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u6301\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C2\u6570",
@@ -15896,6 +15899,7 @@
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
@@ -17192,6 +17196,7 @@
     "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
     "output.transparencyFormat": "\u900F\u660E\u80CC\u666F\u9700\u4F7F\u7528 PNG \u6216 WebP\u3002",
     "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u65B9\u5F0F",
     "apiSettings.transparencyNative": "\u539F\u751F\u53C3\u6578",
@@ -18592,6 +18597,10 @@
     if (!output || !run || !dashboard || !preview) return;
     const query = window.matchMedia(MOBILE_WORKSPACE_QUERY);
     const sheet = createMobileSheet("mobileParameters", "outputSettings.title");
+    const lock = document.getElementById("outputSettingsLockButton");
+    const lockOrigin = document.createComment("mobile-output-lock-origin");
+    lock?.before(lockOrigin);
+    const sheetHeader = sheet.root.querySelector(".mobile-sheet-heading");
     const outputOrigin = document.createComment("mobile-output-origin");
     const runOrigin = document.createComment("mobile-run-origin");
     output.before(outputOrigin);
@@ -18643,10 +18652,12 @@
       if (query.matches) {
         sheet.content.append(output);
         dock.append(run);
+        if (lock && sheetHeader) sheetHeader.insertBefore(lock, sheetHeader.lastElementChild);
         if (feedback2) summary.before(feedback2);
       } else {
         outputOrigin.after(output);
         runOrigin.after(run);
+        if (lock) lockOrigin.after(lock);
         if (feedback2) feedbackOrigin.after(feedback2);
       }
     };
@@ -37073,9 +37084,11 @@ ${hint}` : hint;
   }
 
   // codex_image/webui/frontend/src/background-controls.ts
+  var transparentPreference = false;
   function setBackgroundControl(value) {
     const { els: els44 } = getLegacyBridge();
     const background = value === "transparent" || value === "opaque" ? value : "auto";
+    transparentPreference = background === "transparent";
     if (els44.background) els44.background.value = background;
     if (els44.transparentBackground) els44.transparentBackground.checked = background === "transparent";
   }
@@ -37083,20 +37096,24 @@ ${hint}` : hint;
     const { els: els44, state: state33 } = getLegacyBridge();
     if (!els44.transparentBackground) return;
     const supported = !state33.generationCatalog || isGptImageModel(state33.selectedModelId || "");
-    const enabled = supported && els44.background?.value === "transparent";
-    els44.transparentBackground.checked = els44.background?.value === "transparent";
-    els44.transparentBackground.disabled = !supported;
-    els44.transparentBackgroundField?.classList.toggle("hidden", !supported);
-    const jpegOption = els44.outputFormat?.querySelector('option[value="jpeg"]');
-    const jpegButton = els44.outputFormatGroup?.querySelector('[data-val="jpeg"]');
-    if (jpegOption) jpegOption.disabled = enabled;
-    if (jpegButton) {
-      jpegButton.disabled = enabled;
-      jpegButton.title = enabled ? translate("output.transparencyFormat") : "";
+    const formatSupported = els44.outputFormat?.value !== "jpeg";
+    if (els44.background?.value === "transparent") transparentPreference = true;
+    const enabled = supported && formatSupported && transparentPreference;
+    if (supported && els44.background) {
+      if (enabled) els44.background.value = "transparent";
+      else if (els44.background.value === "transparent") els44.background.value = "auto";
     }
-    if (enabled && els44.outputFormat?.value === "jpeg") {
-      els44.outputFormat.value = "png";
-      els44.outputFormat.dispatchEvent(new Event("change"));
+    els44.transparentBackground.checked = enabled;
+    els44.transparentBackground.disabled = !supported || !formatSupported;
+    els44.transparentBackgroundField?.classList.toggle("hidden", !supported);
+    const label = document.getElementById("transparentBackgroundLabel");
+    const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
+    if (label) {
+      label.dataset.i18n = labelKey;
+      label.textContent = translate(labelKey);
+    }
+    if (els44.transparentBackgroundField) {
+      els44.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");
     }
   }
   function handleTransparentBackgroundChange() {
@@ -37107,6 +37124,22 @@ ${hint}` : hint;
     methods.saveCurrentModelParameterDraft?.();
     methods.updateRequestPreview?.();
     methods.refreshOutputSettingsLock?.();
+  }
+
+  // codex_image/webui/frontend/src/output-size-layout.ts
+  function setCustomSizeModeLayout(isCustom) {
+    const { els: els44, state: state33 } = getLegacyBridge();
+    const preset = document.getElementById("presetSizeFields");
+    if (preset) {
+      preset.inert = isCustom;
+      preset.setAttribute("aria-hidden", String(isCustom));
+    }
+    if (els44.customSize) {
+      els44.customSize.inert = !isCustom;
+      els44.customSize.setAttribute("aria-hidden", String(!isCustom));
+    }
+    els44.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
+    state33.customSizeMode = isCustom;
   }
 
   // codex_image/webui/frontend/src/aspect-ratio-controls.ts
@@ -37929,6 +37962,8 @@ ${hint}` : hint;
     state33.customSizeTransitionSeq += 1;
     state33.customSizeMode = visibility.customSize;
     const legacyElements = [
+      document.getElementById("outputSizeSettings"),
+      document.getElementById("outputFileSettings"),
       els44.sizeModeGroup?.closest(".custom-size-control"),
       els44.orientation?.closest(".orientation-field"),
       els44.resolution?.closest(".resolution-field"),
@@ -37941,12 +37976,7 @@ ${hint}` : hint;
     legacyElements.forEach((element2) => {
       element2.classList.toggle("hidden", !legacyGpt);
     });
-    if (els44.customSize) {
-      els44.customSize.classList.toggle("hidden", !visibility.customSize);
-      els44.customSize.classList.toggle("custom-size-collapsed", !visibility.customSize);
-      els44.customSize.setAttribute("aria-hidden", visibility.customSize ? "false" : "true");
-    }
-    els44.settingsGrid?.classList.toggle("custom-size-mode", visibility.customSize);
+    setCustomSizeModeLayout(visibility.customSize);
     els44.webSearchField?.classList.toggle("hidden", !legacyGpt);
     els44.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
     root.classList.toggle("hidden", legacyGpt);
@@ -48060,6 +48090,47 @@ ${galleryText}`;
     document.addEventListener("keydown", handlePromptFindShortcut);
   }
 
+  // codex_image/webui/frontend/src/output-parameter-keyboard.ts
+  function syncOutputRadioGroup(group) {
+    const buttons = Array.from(group.querySelectorAll(".radio-btn"));
+    const enabled = buttons.filter((button) => !button.disabled);
+    const selected = enabled.find((button) => button.classList.contains("active")) || enabled[0];
+    group.setAttribute("role", "radiogroup");
+    buttons.forEach((button) => {
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-checked", String(button.classList.contains("active")));
+      button.removeAttribute("aria-pressed");
+      button.tabIndex = button === selected ? 0 : -1;
+    });
+    return enabled;
+  }
+  function initOutputParameterKeyboard() {
+    const root = document.getElementById("settingsGrid");
+    if (!root) return;
+    const sync = () => root.querySelectorAll(".radio-group").forEach(syncOutputRadioGroup);
+    root.addEventListener("keydown", (event) => {
+      const button = event.target.closest(".radio-btn");
+      const group = button?.closest(".radio-group");
+      if (!button || !group || !root.contains(group)) return;
+      const direction = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : ["ArrowLeft", "ArrowUp"].includes(event.key) ? -1 : 0;
+      if (!direction) return;
+      const buttons = syncOutputRadioGroup(group);
+      if (!buttons.length) return;
+      event.preventDefault();
+      const next = buttons[(buttons.indexOf(button) + direction + buttons.length) % buttons.length];
+      next.focus();
+      next.click();
+      syncOutputRadioGroup(group);
+    });
+    new MutationObserver(sync).observe(root, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["class", "disabled"]
+    });
+    sync();
+  }
+
   // codex_image/webui/frontend/src/generation-request.ts
   function sortedRecord(values) {
     return Object.fromEntries(Object.keys(values).sort().map((key2) => [key2, values[key2]]));
@@ -48148,6 +48219,7 @@ ${galleryText}`;
   function updateCompression() {
     updateTransparencyControls();
     const compressionEnabled = els23.outputFormat.value !== "png";
+    document.getElementById("outputCompressionButton")?.classList.toggle("hidden", !compressionEnabled);
     els23.compression.disabled = !compressionEnabled;
     if (!compressionEnabled) {
       closeCompressionPopover();
@@ -48159,11 +48231,13 @@ ${galleryText}`;
     if (!els23.compressionPopover || els23.outputFormat.value === "png") return;
     els23.compressionPopover.classList.remove("hidden");
     els23.compressionPopover.setAttribute("aria-hidden", "false");
+    document.getElementById("outputCompressionButton")?.setAttribute("aria-expanded", "true");
   }
   function closeCompressionPopover() {
     if (!els23.compressionPopover) return;
     els23.compressionPopover.classList.add("hidden");
     els23.compressionPopover.setAttribute("aria-hidden", "true");
+    document.getElementById("outputCompressionButton")?.setAttribute("aria-expanded", "false");
   }
   function handleOutputFormatDoubleClick(event) {
     const button = event.target.closest("[data-val]");
@@ -48550,18 +48624,11 @@ ${galleryText}`;
   }
 
   // codex_image/webui/frontend/src/custom-size-controls.ts
-  var CUSTOM_SIZE_TRANSITION_MS = 220;
-  var CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE = 4;
   var bridge23 = getLegacyBridge();
   var state17 = bridge23.state;
   var els26 = bridge23.els;
-  var customSizeTransitionTimers = /* @__PURE__ */ new WeakMap();
   function saveCurrentModelParameterDraft2() {
     bridge23.methods.saveCurrentModelParameterDraft?.();
-  }
-  function measuredElementHeight2(element2) {
-    if (!element2) return 0;
-    return Math.ceil(element2.getBoundingClientRect().height);
   }
   function handleSizeModeEvent(event) {
     const button = event.target.closest?.("[data-custom-size-mode]");
@@ -48882,161 +48949,12 @@ ${galleryText}`;
       updateRequestPreview10();
     }
   }
-  function setCustomSizeModeLayout(isCustom) {
-    els26.customSize?.classList.toggle("hidden", !isCustom);
-    els26.customSize?.classList.toggle("custom-size-collapsed", !isCustom);
-    els26.customSize?.setAttribute("aria-hidden", isCustom ? "false" : "true");
-    els26.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
-  }
-  function measureCustomSizeModeHeight(isCustom) {
-    const grid = els26.settingsGrid;
-    const customSize = els26.customSize;
-    if (!grid) return 0;
-    const originalHeight = grid.style.height;
-    const originalGridTransition = grid.style.transition;
-    const originalCustomTransition = customSize?.style.transition || "";
-    const originalCustomMode = grid.classList.contains("custom-size-mode");
-    const originalCustomHidden = customSize?.classList.contains("hidden") || false;
-    const originalCustomCollapsed = customSize?.classList.contains("custom-size-collapsed") || false;
-    const originalCustomAriaHidden = customSize?.getAttribute("aria-hidden");
-    grid.style.transition = "none";
-    grid.style.height = "";
-    if (customSize) customSize.style.transition = "none";
-    if (isCustom && customSize) {
-      setCustomSizeModeLayout(false);
-      const presetFields = [
-        els26.orientation?.closest(".orientation-field"),
-        els26.resolution?.closest(".resolution-field"),
-        els26.ratio?.closest(".ratio-field")
-      ];
-      const rectangles = presetFields.map((field) => field?.getBoundingClientRect());
-      if (rectangles.every((rectangle) => rectangle && rectangle.height > 0)) {
-        const top = Math.min(...rectangles.map((rectangle) => rectangle.top));
-        const bottom = Math.max(...rectangles.map((rectangle) => rectangle.bottom));
-        customSize.style.setProperty("--custom-size-mode-card-height", `${bottom - top}px`);
-      }
-    }
-    setCustomSizeModeLayout(isCustom);
-    const height = measuredElementHeight2(grid);
-    grid.classList.toggle("custom-size-mode", originalCustomMode);
-    if (customSize) {
-      customSize.classList.toggle("hidden", originalCustomHidden);
-      customSize.classList.toggle("custom-size-collapsed", originalCustomCollapsed);
-      if (originalCustomAriaHidden === null) {
-        customSize.removeAttribute("aria-hidden");
-      } else {
-        customSize.setAttribute("aria-hidden", originalCustomAriaHidden);
-      }
-      customSize.style.transition = originalCustomTransition;
-    }
-    grid.style.height = originalHeight;
-    grid.style.transition = originalGridTransition;
-    return height;
-  }
-  function transitionCustomSizeMode(isCustom, refreshLayout = false) {
-    const grid = els26.settingsGrid;
-    const customSize = els26.customSize;
-    if (!grid || !customSize) {
-      setCustomSizeModeLayout(isCustom);
-      state17.customSizeMode = isCustom;
-      return;
-    }
-    if (state17.customSizeMode === null) {
-      if (isCustom) measureCustomSizeModeHeight(true);
-      state17.customSizeMode = isCustom;
-      grid.style.height = "";
-      grid.classList.remove("is-size-transitioning");
-      setCustomSizeModeLayout(isCustom);
-      return;
-    }
-    const pendingTimerId = customSizeTransitionTimers.get(grid);
-    if (state17.customSizeMode === isCustom && !pendingTimerId) {
-      if (refreshLayout && isCustom) measureCustomSizeModeHeight(true);
-      grid.style.height = "";
-      grid.classList.remove("is-size-transitioning");
-      setCustomSizeModeLayout(isCustom);
-      return;
-    }
-    const fromHeight = measuredElementHeight2(grid);
-    const targetHeight = measureCustomSizeModeHeight(isCustom);
-    state17.customSizeMode = isCustom;
-    state17.customSizeTransitionSeq += 1;
-    const transitionSeq = state17.customSizeTransitionSeq;
-    if (pendingTimerId) {
-      window.clearTimeout(pendingTimerId);
-      customSizeTransitionTimers.delete(grid);
-    }
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if (reduceMotion) {
-      grid.style.height = "";
-      grid.classList.remove("is-size-transitioning");
-      setCustomSizeModeLayout(isCustom);
-      return;
-    }
-    if (Math.abs(targetHeight - fromHeight) <= CUSTOM_SIZE_HEIGHT_SNAP_TOLERANCE) {
-      grid.style.height = "";
-      grid.classList.remove("is-size-transitioning");
-      setCustomSizeModeLayout(isCustom);
-      return;
-    }
-    grid.style.height = `${fromHeight}px`;
-    grid.classList.add("is-size-transitioning");
-    if (isCustom) {
-      customSize.classList.remove("hidden");
-      customSize.classList.add("custom-size-collapsed");
-      customSize.setAttribute("aria-hidden", "false");
-      grid.classList.add("custom-size-mode");
-      void grid.offsetHeight;
-      window.requestAnimationFrame(() => {
-        if (transitionSeq !== state17.customSizeTransitionSeq) return;
-        customSize.classList.remove("custom-size-collapsed");
-        grid.style.height = `${targetHeight}px`;
-      });
-    } else {
-      customSize.classList.remove("hidden");
-      customSize.classList.remove("custom-size-collapsed");
-      customSize.setAttribute("aria-hidden", "false");
-      grid.classList.add("custom-size-mode");
-      void grid.offsetHeight;
-      window.requestAnimationFrame(() => {
-        if (transitionSeq !== state17.customSizeTransitionSeq) return;
-        customSize.classList.add("custom-size-collapsed");
-        grid.classList.remove("custom-size-mode");
-        grid.style.height = `${targetHeight}px`;
-      });
-    }
-    const timerId = window.setTimeout(() => {
-      if (transitionSeq !== state17.customSizeTransitionSeq) return;
-      setCustomSizeModeLayout(isCustom);
-      grid.style.height = "";
-      grid.classList.remove("is-size-transitioning");
-      customSizeTransitionTimers.delete(grid);
-    }, CUSTOM_SIZE_TRANSITION_MS);
-    customSizeTransitionTimers.set(grid, timerId);
-  }
   function initCustomSizeLayout() {
-    const refresh = () => {
-      const control = els26.sizeModeGroup?.closest(".custom-size-control");
-      if (els26.size?.value === "custom" && control && !control.classList.contains("hidden")) {
-        transitionCustomSizeMode(true, true);
-      }
-    };
-    window.addEventListener("resize", refresh);
-    document.addEventListener(LOCALE_CHANGE_EVENT, refresh);
-    if (typeof ResizeObserver !== "undefined" && els26.settingsGrid) {
-      let previousWidth = -1;
-      const observer = new ResizeObserver((entries) => {
-        const width = entries[0]?.contentRect.width;
-        if (width === void 0 || width === previousWidth) return;
-        previousWidth = width;
-        refresh();
-      });
-      observer.observe(els26.settingsGrid);
-    }
+    setCustomSizeModeLayout(els26.size?.value === "custom");
   }
   function updateCustomSize() {
     const isCustom = els26.size?.value === "custom";
-    transitionCustomSizeMode(isCustom);
+    setCustomSizeModeLayout(isCustom);
     if (els26.customSizeToggle) els26.customSizeToggle.checked = isCustom;
     els26.sizeModeGroup?.querySelectorAll("[data-custom-size-mode]").forEach((button) => {
       const active = button.dataset.customSizeMode === (isCustom ? "custom" : "preset");
@@ -49098,6 +49016,7 @@ ${galleryText}`;
   function bindFormControlEvents() {
     if (formControlEventsBound) return;
     formControlEventsBound = true;
+    initOutputParameterKeyboard();
     els27.transparentBackground?.addEventListener("change", handleTransparentBackgroundChange);
     document.addEventListener(LOCALE_CHANGE_EVENT, updateTransparencyControls);
     document.querySelectorAll("[data-mode]").forEach((button) => {
@@ -49181,6 +49100,17 @@ ${galleryText}`;
       els27.customSizeToggle.addEventListener("change", updateSizeFromPreset);
     }
     els27.outputFormatGroup?.addEventListener("dblclick", handleOutputFormatDoubleClick);
+    const compressionButton = document.getElementById("outputCompressionButton");
+    compressionButton?.addEventListener("click", () => {
+      if (els27.compressionPopover?.classList.contains("hidden")) openCompressionPopover();
+      else closeCompressionPopover();
+    });
+    els27.outputFormatField?.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || els27.compressionPopover?.classList.contains("hidden")) return;
+      event.stopPropagation();
+      closeCompressionPopover();
+      compressionButton?.focus();
+    });
   }
   function setMode4(mode) {
     saveCurrentModelParameterDraft();

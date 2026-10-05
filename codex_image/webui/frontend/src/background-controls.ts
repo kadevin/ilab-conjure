@@ -2,9 +2,12 @@ import { isGptImageModel } from "./gpt-image-models";
 import { translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 
+let transparentPreference = false;
+
 export function setBackgroundControl(value: unknown): void {
   const { els } = getLegacyBridge();
   const background = value === "transparent" || value === "opaque" ? value : "auto";
+  transparentPreference = background === "transparent";
   if (els.background) els.background.value = background;
   if (els.transparentBackground) els.transparentBackground.checked = background === "transparent";
 }
@@ -13,22 +16,25 @@ export function updateTransparencyControls(): void {
   const { els, state } = getLegacyBridge();
   if (!els.transparentBackground) return;
   const supported = !state.generationCatalog || isGptImageModel(state.selectedModelId || "");
-  const enabled = supported && els.background?.value === "transparent";
-  els.transparentBackground.checked = els.background?.value === "transparent";
-  els.transparentBackground.disabled = !supported;
+  const formatSupported = els.outputFormat?.value !== "jpeg";
+  if (els.background?.value === "transparent") transparentPreference = true;
+  const enabled = supported && formatSupported && transparentPreference;
+  if (supported && els.background) {
+    if (enabled) els.background.value = "transparent";
+    else if (els.background.value === "transparent") els.background.value = "auto";
+  }
+  els.transparentBackground.checked = enabled;
+  els.transparentBackground.disabled = !supported || !formatSupported;
   els.transparentBackgroundField?.classList.toggle("hidden", !supported);
-  const jpegOption = els.outputFormat?.querySelector('option[value="jpeg"]');
-  const jpegButton = els.outputFormatGroup?.querySelector('[data-val="jpeg"]');
-  if (jpegOption) jpegOption.disabled = enabled;
-  if (jpegButton) {
-    jpegButton.disabled = enabled;
-    jpegButton.title = enabled ? translate("output.transparencyFormat") : "";
+  const label = document.getElementById("transparentBackgroundLabel");
+  const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
+  if (label) {
+    label.dataset.i18n = labelKey;
+    label.textContent = translate(labelKey);
   }
-  if (enabled && els.outputFormat?.value === "jpeg") {
-    els.outputFormat.value = "png";
-    els.outputFormat.dispatchEvent(new Event("change"));
+  if (els.transparentBackgroundField) {
+    els.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");
   }
-
 }
 
 export function handleTransparentBackgroundChange(): void {
