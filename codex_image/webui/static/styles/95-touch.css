@@ -349,6 +349,7 @@
 }
 
 /* The mobile parameter sheet reuses the same controls and shared size footprint. */
+#mobileParameters .mode-specific-settings { --mode-settings-segment-height: 44px; }
 #mobileParameters .output-file-settings, #mobileParameters .preset-size-fields { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 #mobileParameters .output-field-heading, #mobileParameters .prompt-fidelity-label { min-height: 44px; }
 #mobileParameters .output-field-heading .web-search-toggle { min-height: 44px; }

@@ -1238,7 +1238,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
         self.assertIn('/static/app.js?v=runtime-859', html)
-        self.assertIn('/static/styles.css?v=runtime-859', html)
+        self.assertIn('/static/styles.css?v=runtime-860', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)

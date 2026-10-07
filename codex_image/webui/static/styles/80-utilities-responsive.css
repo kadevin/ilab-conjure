@@ -1186,10 +1186,13 @@ button:disabled {
 /* Keep parameter labels and targets readable on short desktop viewports. */
 .output-panel .settings-grid { gap: 16px; }
 .output-panel .field { gap: 6px; min-width: 0; }
-.output-panel .mode-specific-settings { gap: 16px; }
-.output-panel .model-tool-row { display: block; }
+.output-panel .mode-specific-settings { --mode-settings-segment-height: 30px; gap: 16px; }
+.output-panel .model-tool-row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; }
 .output-panel .mode-settings-slot:not(:has(> .mode-collapsed)) { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .output-panel .main-model-field .model-combobox { width: 100%; }
+/* Match the segmented control's button, padding, and two border edges. */
+.output-panel .main-model-field .control { height: calc(var(--mode-settings-segment-height) + 8px); }
+.output-panel #promptFidelityGroup { --segmented-control-height: var(--mode-settings-segment-height); }
 .output-panel .prompt-fidelity-label { align-self: stretch; justify-content: space-between; min-height: 24px; }
 .output-panel .output-field-heading .web-search-toggle { min-height: 24px; padding: 0; font-size: 12px; gap: 7px; }
 .output-panel .output-field-heading .generation-option-label { font-size: 12px; }
@@ -1203,7 +1206,7 @@ button:disabled {
 .output-panel .moderation-field > span { min-height: 24px; display: flex; align-items: center; }
 .output-panel .size-editors > .custom-size { min-height: 0; max-height: none; }
 .output-panel .custom-size-hint { font-size: 12px; }
-.output-panel .api-direct-settings-notice { min-height: 66px; align-items: center; }
+.output-panel .api-direct-settings-notice { min-height: calc(var(--mode-settings-segment-height) + 8px); align-items: center; padding-inline-start: var(--control-label-optical-inset); }
 @container output-settings (max-width: 430px) {
   .output-panel .mode-specific-settings { grid-template-columns: minmax(0, 1fr); }
 }
