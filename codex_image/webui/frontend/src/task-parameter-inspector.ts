@@ -311,6 +311,7 @@ export function adoptTaskParameters(task: WebUITask): ParameterMigrationReport {
   restoreCurrentModelParameterDraft();
   methods.updateRequestPreview?.();
   methods.persistModelSelection?.();
+  methods.refreshOutputSettingsLock?.();
   notifyParameterMigration(report);
   return report;
 }

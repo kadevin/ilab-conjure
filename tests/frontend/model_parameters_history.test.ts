@@ -32,6 +32,7 @@ import {
 } from "../../codex_image/webui/frontend/src/task-parameter-inspector";
 import { appendCanonicalGenerationFields, currentGenerationSelection } from "../../codex_image/webui/frontend/src/generation-request";
 import { translate } from "../../codex_image/webui/frontend/src/i18n";
+import { initOutputSettingsLockFeature, restoreOutputSettingsLock } from "../../codex_image/webui/frontend/src/output-settings-lock";
 
 const parameters: CatalogModel["parameters"] = [
   { id: "canvas.resolution", label_key: "canvas.resolution", group: "canvas", control: "segmented", value_type: "string", default: "1K", allowed_values: ["1K", "2K"], scope: "model", minimum: null, maximum: null, step: null, visible_when: [], operations: ["generate"], full_width: false },
@@ -181,6 +182,48 @@ test("adopted GPT parameters reach the controls and request after provider selec
       } finally { restore(); }
     }
   }
+});
+
+test("adopting history while locked persists the new values through restore and unlock", () => {
+  const { els, restore } = installGptAdoptionBridge("gpt-image-2");
+  const previousStorage = globalThis.localStorage;
+  const values = new Map<string, string>();
+  let toggle = () => {};
+  const bridge = (globalThis as any).window.__codexImageWebUI;
+  els.outputSettingsLockButton = {
+    addEventListener(_name: string, action: () => void) { toggle = action; },
+    classList: { toggle() {} }, setAttribute() {},
+  };
+  (globalThis as any).document.addEventListener = () => {};
+  (globalThis as any).localStorage = {
+    setItem: (key: string, value: string) => values.set(key, value),
+    getItem: (key: string) => values.get(key) ?? null,
+    removeItem: (key: string) => values.delete(key),
+  };
+  Object.assign(bridge.methods, {
+    currentAuthSource: () => "api", currentApiMode: () => "responses",
+    currentCanonicalParameters: () => currentGenerationSelection()?.parameters,
+    applyTaskOutputParams: ({ params }: any) => { els.size.value = params.size; els.nInput.value = String(params.n); },
+  });
+  try {
+    initOutputSettingsLockFeature();
+    toggle();
+    adoptTaskParameters({ task_id: "historical", mode: "generate", generation_snapshot: {
+      canonical_model_id: "gpt-image-2", requested_parameters: { "canvas.size": "1536x1024", "output.count": 4 },
+    } } as any);
+    assert.equal(els.size.value, "1536x1024");
+    const saved = JSON.parse(values.get("codex-image-output-settings-lock-v1")!);
+    assert.equal(saved.snapshot.size, "1536x1024");
+    assert.equal(saved.snapshot.n, 4);
+    els.size.value = "1024x1024";
+    els.nInput.value = "1";
+    restoreOutputSettingsLock();
+    assert.equal(els.size.value, "1536x1024");
+    toggle();
+    assert.equal(els.size.value, "1536x1024");
+    assert.equal(els.nInput.value, "4");
+    assert.equal(values.size, 0);
+  } finally { restore(); (globalThis as any).localStorage = previousStorage; }
 });
 
 test("draft initialization preserves valid values, defaults invalid values, and reports drops", () => {
