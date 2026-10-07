@@ -207,16 +207,15 @@ function historyDetailImageHtml(
         </button>
         ${transparencyStatusHtml(record.hasTransparency, Boolean(record.requestedTransparency))}
         <div class="history-detail-image-actions" aria-label="${escapeHtml(translate("history.outputActions"))}">
-          <button
+          ${totalCount > 1 ? `<button
             class="history-detail-overlay-button"
             type="button"
             aria-pressed="${record.selected ? "true" : "false"}"
             data-history-output-selected-task-id="${escapeHtml(taskId)}"
             data-history-output-selected-index="${record.index}"
-          >${selectedText}</button>
+          >${selectedText}</button>` : ""}
           <a class="history-detail-overlay-button" href="${escapeHtml(record.url)}" download>${escapeHtml(formatTranslation("history.downloadIndex", { index: index + 1 }))}</a>
           <button class="history-detail-overlay-button primary" type="button" data-history-reference-handoff-url="${escapeHtml(record.url)}">${escapeHtml(translate("history.addReference"))}</button>
-          ${selectedCount === 1 && record.selected ? `<a class="history-detail-overlay-button" href="${escapeHtml(record.url)}" download>${escapeHtml(translate("history.downloadSelected"))}</a>` : ""}
         </div>
       </div>
       ${revisedPrompt}

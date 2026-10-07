@@ -49,10 +49,14 @@ export function initMobileWorkspace(): void {
       preview.focus({ preventScroll: true });
     });
   };
-  back.addEventListener("click", () => {
+  const showEditor = () => {
     dashboard.scrollTop = editorScroll;
-    document.getElementById("promptEditor")?.focus({ preventScroll: true });
-  });
+    const prompt = document.getElementById("promptEditor");
+    prompt?.scrollIntoView({ block: "nearest" });
+    prompt?.focus({ preventScroll: true });
+  };
+  back.addEventListener("click", showEditor);
+  getLegacyBridge().methods.showGenerationEditor = showEditor;
   getLegacyBridge().methods.showMobilePreview = showPreview;
   const feedback = document.getElementById("statusText");
   const feedbackOrigin = document.createComment("mobile-feedback-origin");

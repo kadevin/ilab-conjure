@@ -457,11 +457,9 @@ export function showLockedOutputSettings(): void {
 
 export function showTaskOutputSettings(task: any): void {
   if (!locked) return;
-  taskSnapshot = snapshotFromTask(task);
-  taskContext = taskSummaryContext(task);
-  renderSummary(taskSnapshot, taskContext);
-  setLockedViewVisible(true);
-  updateLockButton();
+  // The output panel always describes the next submission, including when locked.
+  showLockedOutputSettings();
+  legacyMethod("inspectTaskParameters", task);
 }
 
 export function refreshOutputSettingsLock(): void {

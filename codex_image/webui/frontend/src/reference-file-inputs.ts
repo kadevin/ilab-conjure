@@ -131,10 +131,6 @@ function storedSource(item: any): ReferenceFileSource | null {
 }
 
 export function addReferenceFileInput(input: File | ReferenceFileSource | any): boolean {
-  if (!responsesEnabled()) {
-    showResponsesRequirement();
-    return false;
-  }
   const state = getState();
   let source: ReferenceFileSource | null = null;
   if (input instanceof File) {
@@ -152,7 +148,8 @@ export function addReferenceFileInput(input: File | ReferenceFileSource | any): 
   }
   requirementActionVisible = false;
   state.referenceFiles.push(source);
-  renderReferenceFiles();
+  if (!responsesEnabled()) showResponsesRequirement();
+  else renderReferenceFiles();
   legacyMethod("updateRequestPreview");
   return true;
 }
@@ -192,6 +189,7 @@ export function renderReferenceFiles(): void {
   requirementFeedback = null;
   container.replaceChildren();
   const sources = getState().referenceFiles as ReferenceFileSource[];
+  requirementActionVisible = sources.length > 0 && !responsesEnabled();
   if (!sources.length && !requirementActionVisible) {
     container.classList.add("hidden");
     legacyMethod("updateImageStripDensity");
@@ -210,8 +208,34 @@ export function renderReferenceFiles(): void {
       ? translate("referenceFiles.openApiSettings")
       : translate("referenceFiles.switchToResponses");
     action.addEventListener("click", activateResponsesRequirementAction);
-    feedback.append(message, action);
-    els.imageUploaderGrid?.append(feedback);
+    feedback.append(message);
+    const state = getState();
+    const compatible = state.generationCatalog
+      ? (legacyMethod("eligibleProviderBindings", state.generationCatalog, state.selectedModelId, state.mode) || [])
+        .filter((entry: any) => entry.binding.protocol_profile.endsWith("_responses"))
+      : [];
+    if (compatible.length) {
+      const select = document.createElement("select");
+      select.className = "control reference-file-provider";
+      select.setAttribute("aria-label", translate("referenceFiles.chooseResponses"));
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = translate("referenceFiles.chooseResponses");
+      select.append(placeholder);
+      compatible.forEach((entry: any) => {
+        const option = document.createElement("option");
+        option.value = entry.selectionKey;
+        option.textContent = entry.binding.display_name || entry.provider.name;
+        select.append(option);
+      });
+      select.addEventListener("change", () => {
+        if (!select.value) return;
+        legacyMethod("selectGenerationProvider", select.value);
+        syncReferenceFileAvailability();
+      });
+      feedback.append(select);
+    } else feedback.append(action);
+    els.imageUploaderGrid?.after(feedback);
     requirementFeedback = feedback;
   }
   sources.forEach((source, index) => {
@@ -250,6 +274,8 @@ export function syncReferenceFileAvailability(): void {
     if (status?.textContent === translate("referenceFiles.requiresResponses")) {
       legacyMethod("setStatus", translate("status.waiting"), "");
     }
+  } else if (!supported && getState().referenceFiles.length) {
+    renderReferenceFiles();
   }
 }
 

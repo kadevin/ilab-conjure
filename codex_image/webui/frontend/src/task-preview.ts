@@ -122,8 +122,9 @@ function renderPreview(task: any = null) {
     clearPreviewGridLayout();
     els.previewGrid.innerHTML = `
       <div class="empty-preview error-preview">
-        <p>${escapeHtml(taskFailureMessage(selected) || translate("preview.taskFailed"))}</p>
+        <strong>${escapeHtml(translate("preview.taskFailed"))}</strong>
         ${retryFailureSummaryButton(selected)}
+        ${failureDetailsHtml(selected)}
       </div>
     `;
     bindPreviewRetryButtons();
@@ -519,6 +520,10 @@ function handlePreviewGridClick(event: any) {
   if (!target) return;
   if (target.closest("[data-download-output-url]")) return;
   if (target.closest("[data-preview-provider-settings]")) { legacyMethod("openApiSettingsModal"); return; }
+  if (target.closest("[data-preview-edit-inputs]")) {
+    getLegacyBridge().methods.showGenerationEditor?.();
+    return;
+  }
   const retryButton = target.closest("[data-preview-retry-failed-task-id]") as HTMLElement | null;
   if (retryButton) {
     retryFailedTask(retryButton.dataset.previewRetryFailedTaskId);
@@ -839,7 +844,6 @@ function failureSummaryCard(task: any, visibleOutputCount: any) {
   const failed = Number.parseInt(task?.failed_count ?? "", 10);
   const failedCount = Number.isNaN(failed) ? Math.max(0, taskTotalCount(task) - generated) : failed;
   const total = taskTotalCount(task);
-  const message = escapeHtml(taskFailureMessage(task) || translate("preview.partialFailed"));
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
   return `
@@ -847,10 +851,15 @@ function failureSummaryCard(task: any, visibleOutputCount: any) {
       <strong>${escapeHtml(task.status === "partial_failed" ? translate("preview.partialFailed") : translate("preview.taskFailed"))}</strong>
       <p>${escapeHtml(formatTranslation("preview.failureLine", { generated, total, failed: failedCount }))}</p>
       ${retryStateHtml}
-      <p>${message}</p>
       ${retryFailureSummaryButton(task)}
+      ${failureDetailsHtml(task)}
     </div>
   `;
+}
+
+function failureDetailsHtml(task: any): string {
+  const message = taskFailureMessage(task);
+  return message ? `<details class="failure-details"><summary>${escapeHtml(translate("ux.errorDetails"))}</summary><p>${escapeHtml(message)}</p></details>` : "";
 }
 
 function retryFailureSummaryButton(task: any) {
@@ -859,6 +868,9 @@ function retryFailureSummaryButton(task: any) {
   actions.push(`<p class="recovery-guidance">${escapeHtml(taskRecoveryMessage(task))}</p>`);
   if (taskRecoveryKind(task) === "credentials" || taskRecoveryKind(task) === "quota") {
     actions.push(`<button type="button" class="ghost-button text-sm" data-preview-provider-settings>${escapeHtml(translate("ux.checkProvider"))}</button>`);
+  }
+  if (taskRecoveryKind(task) === "input") {
+    actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs>${escapeHtml(translate("ux.editInputs"))}</button>`);
   }
   if (canRetryFailedTask(task)) {
     actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml(translate("preview.retryFailed"))}</button>`);

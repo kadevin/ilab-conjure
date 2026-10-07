@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-855" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-858" />
   </head>
   <body>
     <div class="layout-container">
@@ -546,7 +546,8 @@
                 </div>
                 <div class="prompt-heading-actions">
                   <p id="executionSummary" class="execution-summary" aria-live="polite"></p>
-                  <button id="restoreComposerDraft" type="button" class="ghost-button text-sm" hidden data-i18n="ux.restoreDraft">恢复草稿</button>
+                  <button id="restoreComposerDraft" type="button" class="ghost-button text-sm" hidden data-i18n="ux.restoreDraft" aria-describedby="restoreComposerInputsHint">恢复输入</button>
+                  <span id="restoreComposerInputsHint" class="sr-only" data-i18n="ux.restoreInputsHint">仅恢复提示词和参考输入，生成参数保持当前选择。</span>
                 </div>
               </div>
               <div class="prompt-compose">
@@ -637,11 +638,6 @@
                     <button id="adoptTaskOutputSettingsButton" class="ghost-button" type="button" data-i18n="output.lock.adoptTask">使用此任务参数</button>
                   </div>
                 </div>
-                <section id="taskParameterInspector" class="task-parameter-inspector hidden" aria-live="polite" aria-hidden="true">
-                  <div id="taskParameterInspectorHeader" class="task-parameter-inspector-header"></div>
-                  <div id="taskParameterInspectorGrid" class="model-parameter-grid model-parameter-grid-readonly"></div>
-                  <dl id="taskParameterInspectorUnknown" class="task-parameter-unknown-list"></dl>
-                </section>
                 <div id="settingsGrid" class="settings-grid">
                   <div class="field concrete-model-field full-width">
                     <select id="concreteModelSelect" class="control" aria-label="具体型号" data-i18n-attr="aria-label:modelSelection.concreteModel" disabled></select>
@@ -993,6 +989,13 @@
                   <button id="refreshButton" class="ghost-button icon-button" type="button" data-i18n="action.refresh">↻ 刷新</button>
                 </div>
               </div>
+              <details id="taskParameterInspector" class="task-parameter-inspector hidden" aria-hidden="true">
+                <summary data-i18n="modelParameters.historyConfiguration">历史配置</summary>
+                <p class="task-parameter-inspector-hint" data-i18n="ux.historyParametersHint">以下是所选任务的历史参数。本次生成以“输出设置”为准。</p>
+                <div id="taskParameterInspectorHeader" class="task-parameter-inspector-header"></div>
+                <div id="taskParameterInspectorGrid" class="model-parameter-grid model-parameter-grid-readonly"></div>
+                <dl id="taskParameterInspectorUnknown" class="task-parameter-unknown-list"></dl>
+              </details>
               <div id="previewGrid" class="preview-grid">
                 <div class="empty-preview" data-i18n="preview.empty">暂无图片</div>
               </div>
@@ -1673,7 +1676,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-855"></script>
+  <script src="/static/app.js?v=runtime-858"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

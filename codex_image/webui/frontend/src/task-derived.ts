@@ -566,7 +566,7 @@ function taskCardRetryStateText(task: any) {
 function taskHasNonRetryableError(task: any) {
   const message = String(task?.error || task?.last_error || "").toLowerCase();
   if (!message) return false;
-  if (taskRecoveryKind(task) === "credentials") return true;
+  if (["credentials", "quota", "input"].includes(taskRecoveryKind(task))) return true;
   if (message.includes("usage limit") || message.includes("quota") || message.includes("rate limit")) return true;
   if (!message.includes("http 400")) return false;
   return [

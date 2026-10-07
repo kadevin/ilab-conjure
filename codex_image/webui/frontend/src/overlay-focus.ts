@@ -1,12 +1,16 @@
 /** Shared keyboard lifecycle for the existing modal and side-sheet components. */
-const layerSelector = ".modal-overlay, .resource-sheet, .confirm-popover, .history-lightbox, .task-context-menu, .mobile-sheet, #compactTaskDrawer";
+const layerSelector = ".modal-overlay, .resource-sheet, .confirm-popover, .history-lightbox, .history-export-picker, .history-tag-picker, .history-organize-picker, .task-context-menu, .mobile-sheet, #compactTaskDrawer, #historyDetail";
 const focusSelector = 'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
 export function initOverlayFocus(): void {
   const stack: HTMLElement[] = [];
   let previousFocus = document.activeElement as HTMLElement;
   let syncing = false;
   const triggers = new WeakMap<HTMLElement, HTMLElement>();
-  const visible = (element: HTMLElement) => !element.classList.contains("hidden") && !element.hidden
+  const narrowHistory = window.matchMedia("(max-width: 1100px)");
+  const historyBackground = new Map<HTMLElement, boolean>();
+  const visible = (element: HTMLElement) => element.id === "historyDetail"
+    ? narrowHistory.matches && Boolean(element.closest(".history-detail-open"))
+    : !element.classList.contains("hidden") && !element.hidden
     && (!element.matches(".resource-sheet") || element.classList.contains("open"));
   const ownedPopovers = (root: HTMLElement) => Array.from(root.querySelectorAll<HTMLElement>('[aria-controls][aria-expanded="true"]'))
     .flatMap(trigger => (trigger.getAttribute("aria-controls") || "").split(/\s+/).map(id => document.getElementById(id)))
@@ -20,6 +24,12 @@ export function initOverlayFocus(): void {
     syncing = true;
     document.querySelectorAll<HTMLElement>(layerSelector).forEach(layer => {
       const open = visible(layer);
+      if (layer.id === "historyDetail" && !narrowHistory.matches) {
+        layer.inert = false;
+        layer.removeAttribute("role");
+        layer.removeAttribute("aria-modal");
+        return;
+      }
       layer.inert = !open;
       if (open && !stack.includes(layer)) {
         if (document.activeElement instanceof HTMLElement) triggers.set(layer, layer.contains(document.activeElement) ? previousFocus : document.activeElement);
@@ -31,6 +41,27 @@ export function initOverlayFocus(): void {
     });
     const topVisible = [...stack].reverse().find(layer => layer.isConnected && visible(layer));
     document.querySelectorAll<HTMLElement>(".layout-container, .history-page").forEach(root => { root.inert = Boolean(topVisible && !root.contains(topVisible)); });
+    const history = document.getElementById("historyDetail");
+    if (history && visible(history)) {
+      Array.from(history.parentElement?.children || []).forEach(sibling => {
+        if (!(sibling instanceof HTMLElement) || sibling === history) return;
+        if (!historyBackground.has(sibling)) {
+          // Responsive drawers own their existing inert state; do not restore a
+          // stale mobile value after their desktop breakpoint has changed.
+          if (sibling.inert) return;
+          historyBackground.set(sibling, false);
+        }
+        sibling.inert = true;
+      });
+      const heading = history.querySelector<HTMLElement>(".history-detail-title");
+      if (heading) {
+        heading.id = "historyDetailHeading";
+        history.setAttribute("aria-labelledby", heading.id);
+      }
+    } else {
+      historyBackground.forEach((inert, sibling) => { sibling.inert = inert; });
+      historyBackground.clear();
+    }
     for (let index = stack.length - 1; index >= 0; index--) {
       const layer = stack[index]!;
       if (layer.isConnected && visible(layer)) continue;
@@ -42,9 +73,12 @@ export function initOverlayFocus(): void {
         else if (stack.length) focusFirst(stack[stack.length - 1]!);
       }
     }
+    // Async detail rendering may replace the focused loading-shell control.
+    if (topVisible?.id === "historyDetail" && !containsFocus(topVisible, document.activeElement)) focusFirst(topVisible);
     syncing = false;
   };
   new MutationObserver(sync).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
+  narrowHistory.addEventListener("change", sync);
   sync();
   document.addEventListener("focusin", event => {
     sync();

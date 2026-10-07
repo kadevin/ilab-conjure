@@ -34,7 +34,7 @@ export function preserveComposerDraft(): void {
 }
 function renderRestoreButton(): void {
   const button = document.getElementById("restoreComposerDraft") as HTMLButtonElement | null;
-  if (button) { button.hidden = !drafts.length; button.textContent = translate("ux.restoreDraft"); }
+  if (button) { button.hidden = !drafts.length; button.textContent = translate("ux.restoreDraft"); button.title = translate("ux.restoreInputsHint"); }
 }
 export function restoreComposerDraft(): void {
   const draft = drafts.pop();

@@ -151,6 +151,7 @@
 .mobile-ui .history-detail-actions-result { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .mobile-ui .history-detail-actions-result > :only-child { grid-column: 1 / -1; }
 .mobile-ui .history-detail-actions-management { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mobile-ui .history-detail-actions-management:has([data-history-delete-unselected]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .mobile-ui .history-detail-actions .ghost-button, .mobile-ui .history-detail-organization > .ghost-button {
   width: 100%; min-width: 0; height: 44px; padding: 0 8px; border-radius: 8px;
   font-size: 13px; line-height: 1.2; justify-content: center;

@@ -225,6 +225,7 @@ export function createHistoryDetailController(deps: {
     const canZip = urls.length > 1;
     const singleDownloadHref = urls.length === 1 ? String(urls[0]?.url || "") : "";
     const hasSelectedOutputs = selectedCount > 0;
+    const selectedDownloadHref = urls.length > 1 && selectedCount === 1 ? urls.find(record => record.selected)?.url : "";
     const canDeleteUnselected = selectedCount > 0 && selectedCount < urls.length;
     const confirmingDeleteUnselected = deps.confirmations().deleteUnselectedConfirmTaskId === taskId;
     const archived = historyTaskArchived(task);
@@ -280,6 +281,8 @@ export function createHistoryDetailController(deps: {
         <button class="ghost-button text-sm" type="button" data-history-reuse-task="${escapeHtml(taskId)}">${escapeHtml(translate("history.reuseTask"))}</button>
         ${selectedCount > 1
         ? `<a class="ghost-button text-sm" href="${escapeHtml(zipHref)}?selected=1" download>${escapeHtml(translate("history.downloadSelected"))}</a>`
+        : selectedDownloadHref
+          ? `<a class="ghost-button text-sm" href="${escapeHtml(selectedDownloadHref)}" download>${escapeHtml(translate("history.downloadSelected"))}</a>`
         : canZip
           ? `<a class="ghost-button text-sm" href="${escapeHtml(zipHref)}" download>${escapeHtml(translate("history.downloadAll"))}</a>`
           : singleDownloadHref
@@ -289,9 +292,9 @@ export function createHistoryDetailController(deps: {
       <div class="history-detail-actions-management">
         <button class="ghost-button text-sm" type="button" data-history-open-export="${escapeHtml(taskId)}">${escapeHtml(translate("history.export"))}</button>
         <button class="ghost-button text-sm" type="button" data-history-archive-task="${escapeHtml(taskId)}" data-history-archive-value="${archived ? "false" : "true"}">${escapeHtml(archived ? translate("archive.restore") : translate("action.archive"))}</button>
-        ${hasSelectedOutputs
-        ? `<button class="ghost-button text-sm danger-button" type="button" ${canDeleteUnselected && !deleteBlocked ? `data-history-delete-unselected="${escapeHtml(taskId)}"` : "disabled"}>${escapeHtml(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>`
-        : `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml(confirmingDeleteTask ? translate("history.confirmDelete") : translate("action.delete"))}</button>`}
+        ${hasSelectedOutputs && canDeleteUnselected
+        ? `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-unselected="${escapeHtml(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>` : ""}
+        <button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml(confirmingDeleteTask ? translate("history.confirmDelete") : translate("taskContext.delete"))}</button>
       </div>
     </div>
     ${["failed", "partial_failed"].includes(task.status) ? `<div class="history-recovery"><p>${escapeHtml(taskRecoveryMessage(task))}</p><details><summary>${escapeHtml(translate("ux.errorDetails"))}</summary><p>${escapeHtml(String(task.error || task.last_error || ""))}</p></details><button type="button" class="ghost-button text-sm" data-history-reuse-task="${escapeHtml(taskId)}">${escapeHtml(translate("ux.openRecovery"))}</button></div>` : ""}

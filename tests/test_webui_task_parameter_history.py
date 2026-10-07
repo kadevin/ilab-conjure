@@ -34,6 +34,16 @@ class TaskParameterHistoryFrontendTests(WebUIStaticTestCase):
         self.assertNotIn("selectGenerationProvider", inspect_body)
         self.assertNotIn("parameterDraftsByModel", inspect_body)
 
+    def test_history_parameters_leave_current_output_settings_visible(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        styles = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
+        source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
+        self.assertGreater(html.index('id="taskParameterInspector"'), html.index('class="panel preview-panel"'))
+        self.assertNotIn(".output-settings-stage.is-inspecting-task", styles)
+        body = source[source.index("export function showTaskOutputSettings"):source.index("export function refreshOutputSettingsLock")]
+        self.assertIn("showLockedOutputSettings()", body)
+        self.assertNotIn("renderSummary(taskSnapshot", body)
+
     def test_history_and_parameter_migration_behavior(self) -> None:
         node = shutil.which("node")
         esbuild = Path("node_modules/.bin/esbuild")

@@ -160,30 +160,30 @@
 }
 
 .reference-file-requirement {
-  position: absolute;
-  z-index: 18;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
+  margin-top: 8px;
   padding: 8px 10px;
   border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
-  box-shadow: var(--shadow-popover);
   color: var(--text-secondary);
   font-size: 12px;
 }
 
 .reference-file-requirement > span {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1 1 180px;
+}
+
+.reference-file-provider {
+  width: auto;
+  max-width: 100%;
+  flex: 1 1 200px;
 }
 
 .image-input-actions .ghost-button,

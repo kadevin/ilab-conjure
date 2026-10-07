@@ -44,7 +44,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-157', history_html)
+        self.assertIn('/static/history.js?v=history-160', history_html)
         filters = Path("codex_image/webui/frontend/src/history-filters-controller.ts").read_text(encoding="utf-8")
         window = Path("codex_image/webui/frontend/src/history-list-controller.ts").read_text(encoding="utf-8")
         detail = Path("codex_image/webui/frontend/src/history-detail-controller.ts").read_text(encoding="utf-8")
@@ -977,7 +977,8 @@ console.log(JSON.stringify({{
 
         self.assertIn("function taskFailureMessage", script)
         self.assertIn("task.error || task.last_error", script)
-        self.assertIn('taskFailureMessage(selected) || translate("preview.taskFailed")', preview_source)
+        self.assertIn("failureDetailsHtml(selected)", preview_source)
+        self.assertIn('<details class="failure-details">', preview_source)
         self.assertIn("const backend = taskCardProviderLabel(task)", meta_details_source)
         self.assertIn("taskCanvasSummaryParts(task)", meta_details_source)
         self.assertIn('return [...taskCanvasSummaryParts(task), backend].filter(Boolean).join(" · ");', meta_details_source)

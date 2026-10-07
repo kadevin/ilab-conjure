@@ -3,6 +3,7 @@ import { preserveComposerDraft, markComposerBaseline } from "./composer-draft";
 import { formatTranslation, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
 import { taskOutputSettingsView } from "./task-model-summary";
+import { taskRecoveryMessage } from "./task-recovery";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -92,7 +93,7 @@ function renderSelectedTask(task, taskId) {
   renderPreview(task);
   if (wasBrowsingTasks) getLegacyBridge().methods.showMobilePreview?.();
   if (task.status === "failed") {
-    setStatus(taskFailureMessage(task) || translate("taskActions.failedFallback"), "error");
+    setStatus(taskRecoveryMessage(task), "error");
   } else if (!["running", "cancelling"].includes(String(task.status || ""))) {
     setStatus(formatTranslation("status.loadedTask", { taskId }), "ok");
   }

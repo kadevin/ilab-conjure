@@ -58,6 +58,9 @@ test("credential errors require account repair while transient errors remain ret
   assert.equal(taskRecoveryKind({error:'HTTP 503 upstream unavailable'}),'temporary');
   assert.equal(taskRecoveryKind({last_error:'insufficient_quota'}),'quota');
   assert.equal(taskRecoveryKind({error:'unsupported mime type'}),'input');
+  for (const error of ['HTTP 400: {"error":{"message":"fixture invalid parameters"}}', 'invalid_parameters', 'HTTP 422 Unprocessable Entity']) {
+    assert.equal(taskRecoveryKind({error}), 'input');
+  }
 });
 
 test("draft restoration preserves prompt chips, files and image blobs across a destructive switch", async () => {

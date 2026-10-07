@@ -4172,30 +4172,30 @@ select.themed-select-native {
 }
 
 .reference-file-requirement {
-  position: absolute;
-  z-index: 18;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
+  margin-top: 8px;
   padding: 8px 10px;
   border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
-  box-shadow: var(--shadow-popover);
   color: var(--text-secondary);
   font-size: 12px;
 }
 
 .reference-file-requirement > span {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1 1 180px;
+}
+
+.reference-file-provider {
+  width: auto;
+  max-width: 100%;
+  flex: 1 1 200px;
 }
 
 .image-input-actions .ghost-button,
@@ -7168,9 +7168,24 @@ select.themed-select-native {
 }
 
 .task-parameter-inspector {
-  display: grid;
-  gap: 14px;
   min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.task-parameter-inspector > summary {
+  cursor: pointer;
+}
+
+.task-parameter-inspector > * + * {
+  margin-top: 14px;
+}
+
+.task-parameter-inspector-hint {
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .task-parameter-inspector-header {
@@ -7218,11 +7233,6 @@ select.themed-select-native {
 
 .task-parameter-unknown-list dt {
   color: var(--text-muted);
-}
-
-.output-settings-stage.is-inspecting-task > #settingsGrid,
-.output-settings-stage.is-inspecting-task > .output-settings-locked-summary {
-  display: none;
 }
 
 .output-panel.is-locked-view .settings-grid {
@@ -16110,6 +16120,10 @@ button:disabled {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .history-detail-actions-management:has([data-history-delete-unselected]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .history-detail-actions-result > *,
   .history-detail-actions-management > * {
     min-width: 0;
@@ -18083,6 +18097,7 @@ body.history-lightbox-open {
 .mobile-ui .history-detail-actions-result { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .mobile-ui .history-detail-actions-result > :only-child { grid-column: 1 / -1; }
 .mobile-ui .history-detail-actions-management { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mobile-ui .history-detail-actions-management:has([data-history-delete-unselected]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .mobile-ui .history-detail-actions .ghost-button, .mobile-ui .history-detail-organization > .ghost-button {
   width: 100%; min-width: 0; height: 44px; padding: 0 8px; border-radius: 8px;
   font-size: 13px; line-height: 1.2; justify-content: center;

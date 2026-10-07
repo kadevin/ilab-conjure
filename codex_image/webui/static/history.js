@@ -425,7 +425,9 @@
     "lanAccess.copyAddress": "Copy {address}",
     "lanAccess.copied": "Address copied.",
     "lanAccess.copyManually": "Address selected. Copy it manually.",
-    "ux.restoreDraft": "Restore draft",
+    "ux.restoreDraft": "Restore inputs",
+    "ux.restoreInputsHint": "Restore only the prompt and references; keep current generation settings.",
+    "ux.historyParametersHint": "These are the selected task\u2019s historical parameters. Output settings control the next generation.",
     "ux.draftRestored": "Prompt and references restored; generation settings keep the current selection.",
     "ux.historyDraftSaveFailed": "Could not preserve the draft. You are still on the generation page. Please try again.",
     "ux.historyDraftRestoreFailed": "Could not restore the draft. The temporary copy is retained. Refresh to try again.",
@@ -445,6 +447,7 @@
     "ux.recovery.temporary": "Generation did not complete. Successful images are retained; retry failed images when available.",
     "ux.checkProvider": "Check provider settings",
     "ux.acceptDetail": "Keep successful images and finish the task without filling the failed slots.",
+    "ux.editInputs": "Edit inputs and settings",
     "ux.errorDetails": "Error details",
     "ux.openRecovery": "Resolve on generation page",
     "ux.useSize": "Use {width} \xD7 {height}",
@@ -1721,6 +1724,7 @@
     "referenceFiles.switchTitle": "Remove reference files?",
     "referenceFiles.switchMessage": "Reference files work only with Responses. Remove the selected files before switching to Images.",
     "referenceFiles.removeAndSwitch": "Remove files and switch",
+    "referenceFiles.chooseResponses": "Choose a Responses channel",
     "referenceFiles.requiresResponses": "Reference files require Responses",
     "referenceFiles.switchToResponses": "Switch to Responses",
     "referenceFiles.openApiSettings": "Open API settings",
@@ -12847,7 +12851,9 @@
     "lanAccess.copyAddress": "Sao ch\xE9p {address}",
     "lanAccess.copied": "\u0110\xE3 sao ch\xE9p \u0111\u1ECBa ch\u1EC9.",
     "lanAccess.copyManually": "\u0110\xE3 ch\u1ECDn \u0111\u1ECBa ch\u1EC9. H\xE3y sao ch\xE9p th\u1EE7 c\xF4ng.",
-    "ux.restoreDraft": "Kh\xF4i ph\u1EE5c b\u1EA3n nh\xE1p",
+    "ux.restoreDraft": "Kh\xF4i ph\u1EE5c \u0111\u1EA7u v\xE0o",
+    "ux.restoreInputsHint": "Ch\u1EC9 kh\xF4i ph\u1EE5c l\u1EDDi nh\u1EAFc v\xE0 t\xE0i li\u1EC7u tham chi\u1EBFu; gi\u1EEF thi\u1EBFt l\u1EADp t\u1EA1o \u1EA3nh hi\u1EC7n t\u1EA1i.",
+    "ux.historyParametersHint": "\u0110\xE2y l\xE0 tham s\u1ED1 c\u1EE7a t\xE1c v\u1EE5 \u0111\xE3 ch\u1ECDn. Thi\u1EBFt l\u1EADp \u0111\u1EA7u ra \xE1p d\u1EE5ng cho l\u1EA7n t\u1EA1o \u1EA3nh ti\u1EBFp theo.",
     "ux.draftRestored": "\u0110\xE3 kh\xF4i ph\u1EE5c l\u1EDDi nh\u1EAFc v\xE0 t\xE0i li\u1EC7u tham chi\u1EBFu; gi\u1EEF nguy\xEAn thi\u1EBFt l\u1EADp t\u1EA1o \u1EA3nh hi\u1EC7n t\u1EA1i.",
     "ux.historyDraftSaveFailed": "Kh\xF4ng th\u1EC3 gi\u1EEF b\u1EA3n nh\xE1p. B\u1EA1n v\u1EABn \u1EDF trang t\u1EA1o \u1EA3nh. Vui l\xF2ng th\u1EED l\u1EA1i.",
     "ux.historyDraftRestoreFailed": "Kh\xF4ng th\u1EC3 kh\xF4i ph\u1EE5c b\u1EA3n nh\xE1p. B\u1EA3n sao t\u1EA1m v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF. H\xE3y t\u1EA3i l\u1EA1i \u0111\u1EC3 th\u1EED l\u1EA1i.",
@@ -12867,6 +12873,7 @@
     "ux.recovery.temporary": "T\u1EA1o \u1EA3nh ch\u01B0a ho\xE0n t\u1EA5t. \u1EA2nh th\xE0nh c\xF4ng \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i; c\xF3 th\u1EC3 th\u1EED l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
     "ux.checkProvider": "Ki\u1EC3m tra nh\xE0 cung c\u1EA5p",
     "ux.acceptDetail": "Gi\u1EEF \u1EA3nh th\xE0nh c\xF4ng v\xE0 k\u1EBFt th\xFAc t\xE1c v\u1EE5 m\xE0 kh\xF4ng t\u1EA1o l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
+    "ux.editInputs": "S\u1EEDa \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp",
     "ux.errorDetails": "Chi ti\u1EBFt l\u1ED7i",
     "ux.openRecovery": "X\u1EED l\xFD tr\xEAn trang t\u1EA1o \u1EA3nh",
     "ux.useSize": "D\xF9ng {width} \xD7 {height}",
@@ -14143,6 +14150,7 @@
     "referenceFiles.switchTitle": "X\xF3a t\u1EC7p tham chi\u1EBFu?",
     "referenceFiles.switchMessage": "T\u1EC7p tham chi\u1EBFu ch\u1EC9 ho\u1EA1t \u0111\u1ED9ng v\u1EDBi Responses. H\xE3y x\xF3a c\xE1c t\u1EC7p \u0111\xE3 ch\u1ECDn tr\u01B0\u1EDBc khi chuy\u1EC3n sang Images.",
     "referenceFiles.removeAndSwitch": "X\xF3a t\u1EC7p v\xE0 chuy\u1EC3n",
+    "referenceFiles.chooseResponses": "Ch\u1ECDn k\xEAnh Responses",
     "referenceFiles.requiresResponses": "T\u1EC7p tham chi\u1EBFu ch\u1EC9 h\u1ED7 tr\u1EE3 Responses",
     "referenceFiles.switchToResponses": "Chuy\u1EC3n sang Responses",
     "referenceFiles.openApiSettings": "M\u1EDF c\xE0i \u0111\u1EB7t API",
@@ -14226,7 +14234,9 @@
     "lanAccess.copyAddress": "\u590D\u5236 {address}",
     "lanAccess.copied": "\u5730\u5740\u5DF2\u590D\u5236\u3002",
     "lanAccess.copyManually": "\u5DF2\u9009\u4E2D\u5730\u5740\uFF0C\u8BF7\u624B\u52A8\u590D\u5236\u3002",
-    "ux.restoreDraft": "\u6062\u590D\u8349\u7A3F",
+    "ux.restoreDraft": "\u6062\u590D\u8F93\u5165",
+    "ux.restoreInputsHint": "\u4EC5\u6062\u590D\u63D0\u793A\u8BCD\u548C\u53C2\u8003\u8F93\u5165\uFF0C\u751F\u6210\u53C2\u6570\u4FDD\u6301\u5F53\u524D\u9009\u62E9\u3002",
+    "ux.historyParametersHint": "\u4EE5\u4E0B\u662F\u6240\u9009\u4EFB\u52A1\u7684\u5386\u53F2\u53C2\u6570\u3002\u672C\u6B21\u751F\u6210\u4EE5\u201C\u8F93\u51FA\u8BBE\u7F6E\u201D\u4E3A\u51C6\u3002",
     "ux.draftRestored": "\u5DF2\u6062\u590D\u63D0\u793A\u8BCD\u4E0E\u53C2\u8003\u8F93\u5165\uFF1B\u751F\u6210\u53C2\u6570\u4FDD\u6301\u5F53\u524D\u9009\u62E9\u3002",
     "ux.historyDraftSaveFailed": "\u672A\u80FD\u4FDD\u7559\u5F53\u524D\u8349\u7A3F\uFF0C\u5DF2\u7559\u5728\u751F\u6210\u9875\u3002\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002",
     "ux.historyDraftRestoreFailed": "\u8349\u7A3F\u6062\u590D\u5931\u8D25\uFF0C\u5DF2\u4FDD\u7559\u4E34\u65F6\u526F\u672C\u3002\u8BF7\u5237\u65B0\u91CD\u8BD5\u3002",
@@ -14246,6 +14256,7 @@
     "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u56FE\u7247\u4F1A\u4FDD\u7559\uFF1B\u53EF\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u3002",
     "ux.checkProvider": "\u68C0\u67E5\u4F9B\u5E94\u5546\u8BBE\u7F6E",
     "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F\u4EFB\u52A1\uFF0C\u4E0D\u518D\u8865\u9F50\u5931\u8D25\u56FE\u7247\u3002",
+    "ux.editInputs": "\u4FEE\u6539\u8F93\u5165\u4E0E\u53C2\u6570",
     "ux.errorDetails": "\u9519\u8BEF\u8BE6\u60C5",
     "ux.openRecovery": "\u8FDB\u5165\u751F\u6210\u9875\u5904\u7406",
     "ux.useSize": "\u91C7\u7528 {width} \xD7 {height}",
@@ -15522,6 +15533,7 @@
     "referenceFiles.switchTitle": "\u79FB\u9664\u53C2\u8003\u6587\u4EF6\uFF1F",
     "referenceFiles.switchMessage": "\u53C2\u8003\u6587\u4EF6\u4EC5\u652F\u6301 Responses\uFF0C\u5207\u6362\u5230 Images \u524D\u9700\u8981\u79FB\u9664\u5DF2\u9009\u6587\u4EF6\u3002",
     "referenceFiles.removeAndSwitch": "\u79FB\u9664\u6587\u4EF6\u5E76\u5207\u6362",
+    "referenceFiles.chooseResponses": "\u9009\u62E9 Responses \u901A\u9053",
     "referenceFiles.requiresResponses": "\u53C2\u8003\u6587\u4EF6\u4EC5\u652F\u6301 Responses",
     "referenceFiles.switchToResponses": "\u5207\u6362\u5230 Responses",
     "referenceFiles.openApiSettings": "\u6253\u5F00 API \u8BBE\u7F6E",
@@ -18928,16 +18940,15 @@
         </button>
         ${transparencyStatusHtml(record2.hasTransparency, Boolean(record2.requestedTransparency))}
         <div class="history-detail-image-actions" aria-label="${escapeHtml2(translate("history.outputActions"))}">
-          <button
+          ${totalCount > 1 ? `<button
             class="history-detail-overlay-button"
             type="button"
             aria-pressed="${record2.selected ? "true" : "false"}"
             data-history-output-selected-task-id="${escapeHtml2(taskId)}"
             data-history-output-selected-index="${record2.index}"
-          >${selectedText}</button>
+          >${selectedText}</button>` : ""}
           <a class="history-detail-overlay-button" href="${escapeHtml2(record2.url)}" download>${escapeHtml2(formatTranslation("history.downloadIndex", { index: index + 1 }))}</a>
           <button class="history-detail-overlay-button primary" type="button" data-history-reference-handoff-url="${escapeHtml2(record2.url)}">${escapeHtml2(translate("history.addReference"))}</button>
-          ${selectedCount === 1 && record2.selected ? `<a class="history-detail-overlay-button" href="${escapeHtml2(record2.url)}" download>${escapeHtml2(translate("history.downloadSelected"))}</a>` : ""}
         </div>
       </div>
       ${revisedPrompt}
@@ -19032,7 +19043,7 @@
     const text = String(task?.error || task?.last_error || "").toLowerCase();
     if (/\b401\b|invalid_api_key|authentication_error|unauthorized|incorrect api key/.test(text)) return "credentials";
     if (/quota|usage limit|insufficient_quota|billing/.test(text)) return "quota";
-    if (/invalid_value|unsupported mime|base64-encoded data url/.test(text)) return "input";
+    if (/\b(?:400|422)\b|invalid[_ ](?:parameters?|value)|unsupported mime|base64-encoded data url/.test(text)) return "input";
     return "temporary";
   }
   function taskRecoveryMessage(task) {
@@ -20590,6 +20601,7 @@
       const canZip = urls.length > 1;
       const singleDownloadHref = urls.length === 1 ? String(urls[0]?.url || "") : "";
       const hasSelectedOutputs = selectedCount > 0;
+      const selectedDownloadHref = urls.length > 1 && selectedCount === 1 ? urls.find((record2) => record2.selected)?.url : "";
       const canDeleteUnselected = selectedCount > 0 && selectedCount < urls.length;
       const confirmingDeleteUnselected = deps.confirmations().deleteUnselectedConfirmTaskId === taskId;
       const archived = historyTaskArchived(task);
@@ -20641,12 +20653,13 @@
     <div class="history-detail-actions">
       <div class="history-detail-actions-result">
         <button class="ghost-button text-sm" type="button" data-history-reuse-task="${escapeHtml3(taskId)}">${escapeHtml3(translate("history.reuseTask"))}</button>
-        ${selectedCount > 1 ? `<a class="ghost-button text-sm" href="${escapeHtml3(zipHref)}?selected=1" download>${escapeHtml3(translate("history.downloadSelected"))}</a>` : canZip ? `<a class="ghost-button text-sm" href="${escapeHtml3(zipHref)}" download>${escapeHtml3(translate("history.downloadAll"))}</a>` : singleDownloadHref ? `<a class="ghost-button text-sm" href="${escapeHtml3(singleDownloadHref)}" download>${escapeHtml3(translate("history.downloadImage"))}</a>` : ""}
+        ${selectedCount > 1 ? `<a class="ghost-button text-sm" href="${escapeHtml3(zipHref)}?selected=1" download>${escapeHtml3(translate("history.downloadSelected"))}</a>` : selectedDownloadHref ? `<a class="ghost-button text-sm" href="${escapeHtml3(selectedDownloadHref)}" download>${escapeHtml3(translate("history.downloadSelected"))}</a>` : canZip ? `<a class="ghost-button text-sm" href="${escapeHtml3(zipHref)}" download>${escapeHtml3(translate("history.downloadAll"))}</a>` : singleDownloadHref ? `<a class="ghost-button text-sm" href="${escapeHtml3(singleDownloadHref)}" download>${escapeHtml3(translate("history.downloadImage"))}</a>` : ""}
       </div>
       <div class="history-detail-actions-management">
         <button class="ghost-button text-sm" type="button" data-history-open-export="${escapeHtml3(taskId)}">${escapeHtml3(translate("history.export"))}</button>
         <button class="ghost-button text-sm" type="button" data-history-archive-task="${escapeHtml3(taskId)}" data-history-archive-value="${archived ? "false" : "true"}">${escapeHtml3(archived ? translate("archive.restore") : translate("action.archive"))}</button>
-        ${hasSelectedOutputs ? `<button class="ghost-button text-sm danger-button" type="button" ${canDeleteUnselected && !deleteBlocked ? `data-history-delete-unselected="${escapeHtml3(taskId)}"` : "disabled"}>${escapeHtml3(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>` : `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml3(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml3(confirmingDeleteTask ? translate("history.confirmDelete") : translate("action.delete"))}</button>`}
+        ${hasSelectedOutputs && canDeleteUnselected ? `<button class="ghost-button text-sm danger-button" type="button" data-history-delete-unselected="${escapeHtml3(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml3(confirmingDeleteUnselected ? translate("history.confirmDeleteUnselected") : translate("history.deleteUnselected"))}</button>` : ""}
+        <button class="ghost-button text-sm danger-button" type="button" data-history-delete-task="${escapeHtml3(taskId)}" ${deleteBlocked ? "disabled" : ""}>${escapeHtml3(confirmingDeleteTask ? translate("history.confirmDelete") : translate("taskContext.delete"))}</button>
       </div>
     </div>
     ${["failed", "partial_failed"].includes(task.status) ? `<div class="history-recovery"><p>${escapeHtml3(taskRecoveryMessage(task))}</p><details><summary>${escapeHtml3(translate("ux.errorDetails"))}</summary><p>${escapeHtml3(String(task.error || task.last_error || ""))}</p></details><button type="button" class="ghost-button text-sm" data-history-reuse-task="${escapeHtml3(taskId)}">${escapeHtml3(translate("ux.openRecovery"))}</button></div>` : ""}
@@ -23582,14 +23595,16 @@
   }
 
   // codex_image/webui/frontend/src/overlay-focus.ts
-  var layerSelector = ".modal-overlay, .resource-sheet, .confirm-popover, .history-lightbox, .task-context-menu, .mobile-sheet, #compactTaskDrawer";
+  var layerSelector = ".modal-overlay, .resource-sheet, .confirm-popover, .history-lightbox, .history-export-picker, .history-tag-picker, .history-organize-picker, .task-context-menu, .mobile-sheet, #compactTaskDrawer, #historyDetail";
   var focusSelector = 'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
   function initOverlayFocus() {
     const stack = [];
     let previousFocus = document.activeElement;
     let syncing = false;
     const triggers = /* @__PURE__ */ new WeakMap();
-    const visible = (element) => !element.classList.contains("hidden") && !element.hidden && (!element.matches(".resource-sheet") || element.classList.contains("open"));
+    const narrowHistory = window.matchMedia("(max-width: 1100px)");
+    const historyBackground = /* @__PURE__ */ new Map();
+    const visible = (element) => element.id === "historyDetail" ? narrowHistory.matches && Boolean(element.closest(".history-detail-open")) : !element.classList.contains("hidden") && !element.hidden && (!element.matches(".resource-sheet") || element.classList.contains("open"));
     const ownedPopovers = (root) => Array.from(root.querySelectorAll('[aria-controls][aria-expanded="true"]')).flatMap((trigger) => (trigger.getAttribute("aria-controls") || "").split(/\s+/).map((id) => document.getElementById(id))).filter((popover) => Boolean(popover && !root.contains(popover) && visible(popover) && popover.getClientRects().length));
     const containsFocus = (root, target) => root.contains(target) || ownedPopovers(root).some((popover) => popover.contains(target));
     const focusables = (root) => [root, ...ownedPopovers(root)].flatMap((layer) => Array.from(layer.querySelectorAll(focusSelector))).filter((item) => !item.closest('[inert], [hidden], .hidden, [aria-hidden="true"]') && item.getClientRects().length > 0);
@@ -23602,6 +23617,12 @@
       syncing = true;
       document.querySelectorAll(layerSelector).forEach((layer) => {
         const open = visible(layer);
+        if (layer.id === "historyDetail" && !narrowHistory.matches) {
+          layer.inert = false;
+          layer.removeAttribute("role");
+          layer.removeAttribute("aria-modal");
+          return;
+        }
         layer.inert = !open;
         if (open && !stack.includes(layer)) {
           if (document.activeElement instanceof HTMLElement) triggers.set(layer, layer.contains(document.activeElement) ? previousFocus : document.activeElement);
@@ -23615,6 +23636,27 @@
       document.querySelectorAll(".layout-container, .history-page").forEach((root) => {
         root.inert = Boolean(topVisible && !root.contains(topVisible));
       });
+      const history = document.getElementById("historyDetail");
+      if (history && visible(history)) {
+        Array.from(history.parentElement?.children || []).forEach((sibling) => {
+          if (!(sibling instanceof HTMLElement) || sibling === history) return;
+          if (!historyBackground.has(sibling)) {
+            if (sibling.inert) return;
+            historyBackground.set(sibling, false);
+          }
+          sibling.inert = true;
+        });
+        const heading = history.querySelector(".history-detail-title");
+        if (heading) {
+          heading.id = "historyDetailHeading";
+          history.setAttribute("aria-labelledby", heading.id);
+        }
+      } else {
+        historyBackground.forEach((inert, sibling) => {
+          sibling.inert = inert;
+        });
+        historyBackground.clear();
+      }
       for (let index = stack.length - 1; index >= 0; index--) {
         const layer = stack[index];
         if (layer.isConnected && visible(layer)) continue;
@@ -23626,9 +23668,11 @@
           else if (stack.length) focusFirst(stack[stack.length - 1]);
         }
       }
+      if (topVisible?.id === "historyDetail" && !containsFocus(topVisible, document.activeElement)) focusFirst(topVisible);
       syncing = false;
     };
     new MutationObserver(sync).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
+    narrowHistory.addEventListener("change", sync);
     sync();
     document.addEventListener("focusin", (event) => {
       sync();
@@ -23801,6 +23845,7 @@
     if (button) {
       button.hidden = !drafts.length;
       button.textContent = translate("ux.restoreDraft");
+      button.title = translate("ux.restoreInputsHint");
     }
   }
 

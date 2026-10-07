@@ -138,3 +138,23 @@ test("disposing a list completes queued anchor promises and prevents new request
   list.dispose(); assert.equal((await pending).taskCount, 0); assert.equal(frames.size, 0);
   await list.loadTasks({ reset: true }); assert.equal(requests, 1); assert.equal(list.status().loading, false);
 });
+
+
+test("curation keeps task deletion available and single outputs avoid duplicate actions", t => {
+  const panel = element(); environment(t, { "#historyDetail": panel });
+  const details = createHistoryDetailController(detailPorts());
+  const task = { task_id: "curated", status: "completed", outputs: [{ index: 1, url: "/output/one.png" }], selected_output_indexes: [1] };
+  details.renderTaskDetail(task);
+  assert.match(panel.innerHTML, /data-history-delete-task="curated"/);
+  assert.doesNotMatch(panel.innerHTML, /data-history-delete-unselected/);
+  assert.doesNotMatch(panel.innerHTML, /data-history-output-selected-index/);
+  assert.equal((panel.innerHTML.match(/href="\/output\/one.png" download/g) || []).length, 2, "one task download and one image download, with no duplicate curated download");
+  details.renderTaskDetail({ ...task, outputs: [...task.outputs, { index: 2, url: "/output/two.png" }] });
+  assert.match(panel.innerHTML, /data-history-delete-task="curated"/);
+  assert.match(panel.innerHTML, /data-history-delete-unselected="curated"/);
+  assert.match(panel.innerHTML, /data-history-output-selected-index="2"/);
+  assert.equal((panel.innerHTML.match(/href="\/output\/one.png" download/g) || []).length, 2);
+  details.renderTaskDetail({ ...task, outputs: [...task.outputs, { index: 2, url: "/output/two.png" }], selected_output_indexes: [1, 2] });
+  assert.match(panel.innerHTML, /data-history-delete-task="curated"/);
+  assert.doesNotMatch(panel.innerHTML, /data-history-delete-unselected/);
+});

@@ -65,7 +65,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
             r"@media\s*\(hover:\s*none\),\s*\(pointer:\s*coarse\)\s*\{[\s\S]*?"
             r"\.reference-file-thumb \.reference-file-remove\s*\{[^}]*opacity:\s*1[^}]*pointer-events:\s*auto",
         )
-        self.assertRegex(styles, r"\.reference-file-requirement\s*\{[^}]*position:\s*absolute")
+        self.assertNotRegex(styles, r"\.reference-file-requirement\s*\{[^}]*position:\s*absolute")
         self.assertNotIn(".reference-file-row", styles)
 
     def test_selected_docx_renders_icon_filename_summary_and_accessible_tile(self) -> None:
@@ -96,6 +96,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
               }}
               append(...children) {{ this.children.push(...children); }}
               replaceChildren(...children) {{ this.children = [...children]; }}
+              after(child) {{ this.followingSibling = child; }}
               setAttribute(name, value) {{ this.attributes[name] = String(value); }}
               addEventListener() {{}}
               closest(selector) {{ return selector === ".image-input-workspace" ? this.workspace : null; }}
@@ -572,6 +573,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
                 if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
+                if (name === "./task-recovery") return {{ taskRecoveryMessage: () => "input error" }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
@@ -632,6 +634,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
                 if (name === "./i18n") return {{ formatTranslation: (key) => key, translate: (key) => key }};
                 if (name === "./state") return {{ getLegacyBridge: () => bridge }};
                 if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
+                if (name === "./task-recovery") return {{ taskRecoveryMessage: () => "input error" }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
@@ -961,6 +964,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
                 this.children.forEach((child) => {{ child.parentElement = null; }}); this.children = [];
                 this.append(...children);
               }}
+              after(child) {{ this.followingSibling = child; }}
               setAttribute(name, value) {{ this.attributes[name] = String(value); }}
               getAttribute(name) {{ return this.attributes[name] ?? null; }}
               addEventListener(name, handler) {{ (this.listeners[name] ||= []).push(handler); }}
@@ -1075,14 +1079,32 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
             state.images = []; state.referenceFiles = []; codexMode = "images";
             referenceApi.clearReferenceFiles();
             referenceApi.addReferenceFileInput(new File("guarded.docx", docx.type));
-            const requirement = imageUploaderGrid.children.find((child) => child.className === "reference-file-requirement");
-            check(Boolean(requirement) && requirement?.parentElement === imageUploaderGrid, "zero-input requirement CTA was not rendered outside the thumbnail flex tree");
+            const requirement = imageUploaderGrid.followingSibling;
+            check(Boolean(requirement) && requirement.className === "reference-file-requirement", "zero-input requirement CTA was not rendered outside the thumbnail flex tree");
             check(imageUploaderGrid.classList.contains("has-inputs"), "zero-input requirement CTA was not made visible");
             const action = requirement?.children.find((child) => child.tagName === "BUTTON");
             check(Boolean(action), "zero-input requirement CTA was not clickable");
             action?.click();
             check(codexMode === "responses", "requirement CTA did not switch to Responses");
-            check(referenceFileSelection.classList.contains("hidden") && !imageUploaderGrid.classList.contains("has-inputs"), "requirement CTA did not clear its visible state");
+            check(!referenceFileSelection.classList.contains("hidden") && state.referenceFiles[0]?.filename === "guarded.docx", "Responses switch discarded the staged file");
+
+            const retainedFile = state.referenceFiles[0].file;
+            codexMode = "images";
+            state.generationCatalog = {{}};
+            state.selectedModelId = "gpt-image-2";
+            let chosenBinding = "";
+            bridge.methods.eligibleProviderBindings = () => [
+              {{ selectionKey: "relay::images", provider: {{ name: "Relay" }}, binding: {{ protocol_profile: "openai_images" }} }},
+              {{ selectionKey: "relay::responses", provider: {{ name: "Relay" }}, binding: {{ protocol_profile: "openai_responses" }} }},
+            ];
+            bridge.methods.selectGenerationProvider = (key) => {{ chosenBinding = key; codexMode = "responses"; }};
+            referenceApi.syncReferenceFileAvailability();
+            const compatibleSelect = imageUploaderGrid.followingSibling.children.find(child => child.tagName === "SELECT");
+            check(compatibleSelect?.children.length === 2, "recovery picker must offer only the compatible binding plus its placeholder");
+            compatibleSelect.value = "relay::responses";
+            compatibleSelect.listeners.change[0]();
+            check(chosenBinding === "relay::responses", "recovery picker did not select the exact compatible binding");
+            check(state.referenceFiles[0].file === retainedFile, "recovery picker replaced the retained File object");
 
             if (errors.length) throw new Error(errors.join("\\n"));
             """
@@ -1117,6 +1139,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               replaceChildren(...children) {{ this.children = children; this.renderCount = (this.renderCount || 0) + 1; }}
               append(...children) {{ this.children.push(...children); }}
               remove() {{}}
+              after(child) {{ this.followingSibling = child; }}
               setAttribute() {{}}
               removeAttribute() {{}}
               closest() {{ return null; }}
@@ -1206,7 +1229,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
             const imagesFiles = files("images");
             pick(imagesFiles);
             if (state.images.length !== 1 || state.images[0].file !== imagesFiles[0]) throw new Error("Images mode did not add PNG exactly once");
-            if (state.referenceFiles.length !== 0) throw new Error("Images mode accepted DOCX");
+            if (state.referenceFiles.length !== 1 || state.referenceFiles[0].file !== imagesFiles[1]) throw new Error("Images mode did not retain DOCX");
             if (!statuses.some(([message]) => message === "referenceFiles.requiresResponses")) throw new Error("Images mode did not guard DOCX");
             if (statuses[statuses.length - 1][0] !== "referenceFiles.errorUnsupported") throw new Error("unsupported was not final picker error");
 

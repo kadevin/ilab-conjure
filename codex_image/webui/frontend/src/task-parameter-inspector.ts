@@ -232,11 +232,9 @@ export function renderTaskParameterInspector(): void {
   const { state, els } = getLegacyBridge();
   const snapshot = state.inspectedGenerationSnapshot;
   const inspector = els.taskParameterInspector as HTMLElement | null;
-  const stage = els.outputSettingsStage as HTMLElement | null;
   if (!inspector) return;
   inspector.classList.toggle("hidden", !snapshot);
   inspector.setAttribute("aria-hidden", snapshot ? "false" : "true");
-  stage?.classList.toggle("is-inspecting-task", Boolean(snapshot));
   if (!snapshot) {
     els.taskParameterInspectorHeader?.replaceChildren();
     els.taskParameterInspectorGrid?.replaceChildren();
