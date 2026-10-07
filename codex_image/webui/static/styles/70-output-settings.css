@@ -851,19 +851,9 @@
   border-color: var(--line);
 }
 
-@media (hover: hover) {
-  .main-model-field .model-combobox:hover .model-combobox-input {
-    border-color: var(--control-border);
-  }
-}
-
-.main-model-field .model-combobox:focus-within .model-combobox-input {
-  border-color: var(--primary);
-}
-
 .main-model-field .model-combobox-input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+  background: var(--surface-soft);
+  outline: none;
 }
 
 .generation-output-options {

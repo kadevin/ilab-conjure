@@ -3496,14 +3496,12 @@ select.themed-select-native {
 }
 
 .themed-select-trigger:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--primary) 42%, var(--line));
   background: color-mix(in srgb, var(--surface) 92%, var(--primary-light));
 }
 
 .themed-select-trigger:focus-visible {
-  border-color: var(--primary);
-  outline: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
-  outline-offset: 2px;
+  background: var(--surface-soft);
+  outline: none;
 }
 
 .themed-select-trigger:disabled {
@@ -7724,19 +7722,9 @@ select.themed-select-native {
   border-color: var(--line);
 }
 
-@media (hover: hover) {
-  .main-model-field .model-combobox:hover .model-combobox-input {
-    border-color: var(--control-border);
-  }
-}
-
-.main-model-field .model-combobox:focus-within .model-combobox-input {
-  border-color: var(--primary);
-}
-
 .main-model-field .model-combobox-input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+  background: var(--surface-soft);
+  outline: none;
 }
 
 .generation-output-options {

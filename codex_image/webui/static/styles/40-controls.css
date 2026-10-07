@@ -261,14 +261,12 @@ select.themed-select-native {
 }
 
 .themed-select-trigger:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--primary) 42%, var(--line));
   background: color-mix(in srgb, var(--surface) 92%, var(--primary-light));
 }
 
 .themed-select-trigger:focus-visible {
-  border-color: var(--primary);
-  outline: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
-  outline-offset: 2px;
+  background: var(--surface-soft);
+  outline: none;
 }
 
 .themed-select-trigger:disabled {
