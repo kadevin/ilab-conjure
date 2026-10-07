@@ -209,10 +209,18 @@ class TaskStorage:
         task_source_dir.mkdir(parents=True, exist_ok=True)
         return CreatedTask(task_id=task_id, path=task_source_dir, mode=mode)
 
-    def write_metadata(self, task_id: str, metadata: dict[str, Any]) -> Path:
+    def write_metadata(
+        self, task_id: str, metadata: dict[str, Any], *, reset_cancellation: bool = False,
+    ) -> Path:
         path = self.metadata_path(task_id)
         with self._task_write_lock(task_id):
-            _preserve_sticky_task_cancellation(path, metadata)
+            if reset_cancellation:
+                # Only an explicit retry after the previous execution stopped
+                # may clear cancellation; ordinary progress writes stay sticky.
+                for key in ("cancel_requested", "cancel_requested_at", "cancelled_at"):
+                    metadata.pop(key, None)
+            else:
+                _preserve_sticky_task_cancellation(path, metadata)
             _stabilize_task_terminal_timestamp(path, metadata)
             atomic_write_text(
                 path,

@@ -828,7 +828,6 @@ class HistoryBackupImportService:
 
             binaries: list[RestoredTaskBinary] = []
             input_names: list[str] = []
-            output_names: list[str] = []
             output_names_by_index: dict[int, str] = {}
             mask_name: str | None = None
             for role in ("input", "mask", "output"):
@@ -858,11 +857,10 @@ class HistoryBackupImportService:
                                 / _task_date_directory(task.task_id)
                                 / f"{task.task_id}-image-{index}.{suffix}"
                         )
-                        output_names.append(local_output_name)
                         output_names_by_index[index] = local_output_name
 
             metadata = _rewrite_restored_metadata(
-                metadata, task.task_id, input_names, mask_name, output_names,
+                metadata, task.task_id, input_names, mask_name, output_names_by_index,
                 reference_records, gallery_records, native_records,
             )
             metadata["backup_import_fingerprint"] = task.fingerprint

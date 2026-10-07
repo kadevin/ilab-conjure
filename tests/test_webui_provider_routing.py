@@ -775,6 +775,60 @@ class WebUIProviderRoutingTests(unittest.TestCase):
         self.assertEqual(fake.generate_calls[0]["output_compression"], 61)
         self.assertIs(fake.generate_calls[0]["web_search"], True)
 
+    def test_gemini_partial_retry_requests_only_remaining_outputs(self) -> None:
+        import asyncio
+        from unittest.mock import patch
+        from codex_image.generation.types import GeneratedAsset, GenerationResult
+        from codex_image.providers.registry import ProviderRegistry, default_registry
+
+        for profile, codec in (("openai_images", "gemini_openai_images"),
+                               ("gemini_generate_content", "gemini_generate_content_image")):
+            with self.subTest(profile=profile), tempfile.TemporaryDirectory() as tmp:
+                counts = []
+                png = self._png_bytes()
+
+                class PartialProtocol:
+                    def execute(self, plan):
+                        body = plan.protocol_request.json_body
+                        count = body["n"] if profile == "openai_images" else body["generationConfig"]["candidateCount"]
+                        counts.append(count)
+                        if len(counts) == 2:
+                            raise RuntimeError("HTTP 503: temporary provider failure")
+                        returned = 1 if len(counts) == 1 else count
+                        return GenerationResult(assets=tuple(GeneratedAsset(png, "image/png") for _ in range(returned)), usage={})
+
+                registry = ProviderRegistry(protocols={profile: PartialProtocol()}, codecs={codec: default_registry().codec(codec)})
+                app = self._app(Path(tmp), api_settings={
+                    "schema_version": 2, "active_provider_id": "relay", "codex_mode": "images",
+                    "default_provider_by_model": {"nano-banana-pro": "relay"},
+                    "providers": [{"id": "relay", "name": "Relay", "base_url": "https://relay.example/v1",
+                                   "api_key": "synthetic-only", "concurrency": 2,
+                                   "bindings": [{"id": "gemini", "canonical_model_id": "nano-banana-pro",
+                                                 "remote_model_id": "gemini", "protocol_profile": profile,
+                                                 "parameter_codec": codec, "operations": ["generate"]}]}],
+                })
+                client = TestClient(app)
+                created = client.post("/api/generate", data={
+                    "prompt": "partial count", "canonical_model_id": "nano-banana-pro", "provider_id": "relay",
+                    "parameters_json": json.dumps({"canvas.aspect_ratio": "1:1", "canvas.resolution": "1K", "output.count": 2}),
+                })
+                self.assertEqual(created.status_code, 200)
+                task_id = created.json()["task"]["task_id"]
+                with patch("codex_image.webui.execution_plan_client.default_registry", return_value=registry):
+                    asyncio.run(app.state.queue_manager.run_available_once())
+                    initial = app.state.storage.read_metadata(task_id)
+                    self.assertEqual(initial["status"], "partial_failed")
+                    self.assertEqual(initial["generated_count"], 1)
+                    saved = app.state.storage.output_path(initial["output_file"])
+                    self.assertEqual(client.post(f"/api/tasks/{task_id}/retry-failed").status_code, 200)
+                    asyncio.run(app.state.queue_manager.run_available_once())
+                final = app.state.storage.read_metadata(task_id)
+                self.assertEqual(counts, [2, 1, 1])
+                self.assertEqual(final["status"], "completed")
+                self.assertEqual(final["generated_count"], 2)
+                self.assertEqual(saved.read_bytes(), png)
+                self.assertEqual(final["generation_snapshot"]["requested_parameters"]["output.count"], 2)
+
     def test_queued_snapshot_keeps_remote_model_after_settings_change(self) -> None:
         settings = {
             "schema_version": 2, "codex_mode": "images", "active_provider_id": "relay",
@@ -1031,9 +1085,50 @@ class WebUIProviderRoutingTests(unittest.TestCase):
                 asyncio.run(app.state.queue_manager.run_available_once())
             metadata = app.state.storage.read_metadata(task_id)
 
-        persisted = f"{metadata.get('error', '')} {metadata.get('last_error', '')}"
+        persisted = " ".join(str(value or "") for value in [
+            metadata.get("error"), metadata.get("last_error"),
+            *[record.get("error") for record in metadata.get("outputs", [])],
+        ])
         for marker in (prompt, "bearer-secret", "api-key-secret", secret, "\x1b", "\x00"):
             self.assertNotIn(marker, persisted)
+
+    def test_partial_output_errors_are_redacted_in_storage_and_api(self) -> None:
+        import asyncio
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from tests.webui_helpers import FakeImageClient
+
+        prompt = "PRIVATE-PARTIAL-PROMPT"
+        credential = "synthetic-configured-secret"
+
+        class PartialClient(FakeImageClient):
+            def generate_image(self, **kwargs):
+                if self.generate_calls:
+                    raise RuntimeError(
+                        f"HTTP 500: {credential} Authorization: Bearer synthetic-bearer {prompt}"
+                    )
+                return super().generate_image(**kwargs)
+
+        for mode in ("images", "responses"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tmp:
+                app = self._app(Path(tmp))
+                fake = PartialClient()
+                app.state.ctx.client_factory = lambda: fake
+                client = TestClient(app)
+                created = client.post("/api/generate", data={
+                    "prompt": prompt, "n": 2, "codex_mode": mode,
+                })
+                task_id = created.json()["task"]["task_id"]
+                with patch.object(app.state.api_settings, "read_connections", return_value=[SimpleNamespace(api_key=credential)]):
+                    asyncio.run(app.state.queue_manager.run_available_once())
+                stored = app.state.storage.read_metadata(task_id)
+                returned = client.get(f"/api/tasks/{task_id}").json()["task"]
+                for task in (stored, returned):
+                    self.assertEqual(task["status"], "partial_failed")
+                    errors = [task.get("last_error", ""), *[record.get("error", "") for record in task["outputs"]]]
+                    for error in errors:
+                        for secret in (credential, "synthetic-bearer", prompt):
+                            self.assertNotIn(secret, error)
 
     def test_snapshot_redacts_gemini_contents_part_text(self) -> None:
         from codex_image.generation.catalog import get_model_manifest

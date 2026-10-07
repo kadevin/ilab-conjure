@@ -932,6 +932,7 @@ async def execute_task(
                     execution_contract.image_request_timeout_seconds
                 ),
                 image_request_retry_count=execution_contract.image_request_retry_count,
+                error_sanitizer=lambda exc: _structured_task_error(ctx, metadata, exc)[1],
             )
         )
         # Stop the task's requests without cancelling its queue channel worker.

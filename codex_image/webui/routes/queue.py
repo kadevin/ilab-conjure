@@ -153,18 +153,23 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.delete("/api/queue/{task_id}")
     async def delete_queue_task(task_id: str) -> dict[str, Any]:
-        state = ctx.queue_storage.read_state()
-        if task_id in state["waiting"]:
-            ctx.storage.delete_task(task_id)
-            ctx.queue_storage.remove_waiting(task_id)
-            return {"ok": True, "task_id": task_id, "cancelled": False}
-        running_channel_id = h["running_channel_for_task"](task_id)
-        if running_channel_id is None:
-            raise HTTPException(status_code=409, detail="Only waiting or running tasks can be cancelled from queue")
-        try:
-            h["request_task_cancellation"](task_id)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail="Task not found") from exc
+        with (
+            ctx.storage._history_organization_lock,
+            ctx.storage._task_write_lock(task_id),
+            ctx.queue_storage.exclusive(),
+        ):
+            state = ctx.queue_storage.read_state()
+            if task_id in state["waiting"]:
+                ctx.storage.delete_task(task_id)
+                ctx.queue_storage.remove_waiting(task_id)
+                return {"ok": True, "task_id": task_id, "cancelled": False}
+            running_channel_id = h["running_channel_for_task"](task_id)
+            if running_channel_id is None:
+                raise HTTPException(status_code=409, detail="Only waiting or running tasks can be cancelled from queue")
+            try:
+                h["request_task_cancellation"](task_id)
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail="Task not found") from exc
         return {
             "ok": True,
             "task_id": task_id,

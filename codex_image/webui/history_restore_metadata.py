@@ -32,7 +32,7 @@ def _rewrite_restored_metadata(
     task_id: str,
     input_names: list[str],
     mask_name: str | None,
-    output_names: list[str],
+    output_names_by_index: dict[int, str],
     reference_assets: list[dict[str, Any]],
     gallery_refs: list[dict[str, Any]],
     reference_files: list[dict[str, Any]],
@@ -44,21 +44,29 @@ def _rewrite_restored_metadata(
         metadata.pop("mask_file", None)
     else:
         metadata["mask_file"] = mask_name
-    metadata["output_files"] = list(output_names)
+    output_names = [output_names_by_index[index] for index in sorted(output_names_by_index)]
+    metadata["output_files"] = output_names
     if output_names:
         metadata["output_file"] = output_names[0]
     else:
         metadata.pop("output_file", None)
     raw_outputs = raw.get("outputs") if isinstance(raw.get("outputs"), list) else []
-    outputs: list[dict[str, Any]] = []
-    for index, filename in enumerate(output_names, start=1):
-        source = raw_outputs[index - 1] if index <= len(raw_outputs) and isinstance(raw_outputs[index - 1], dict) else {}
+    records_by_index: dict[int, dict[str, Any]] = {}
+    for fallback_index, source in enumerate(raw_outputs, start=1):
+        if not isinstance(source, dict):
+            continue
+        index = source.get("index", fallback_index)
+        if isinstance(index, bool) or not isinstance(index, int) or index < 1:
+            continue
         record = _drop_untrusted_local_paths(source)
-        record.update(index=index, file=filename)
-        record.pop("thumbnail_file", None)
-        record.pop("thumbnail_url", None)
-        outputs.append(record)
-    metadata["outputs"] = outputs
+        record["index"] = index
+        for key in ("thumbnail_file", "thumbnail_url", "sidebar_thumbnail_file", "sidebar_thumbnail_url"):
+            record.pop(key, None)
+        records_by_index[index] = record
+    for index, filename in output_names_by_index.items():
+        record = records_by_index.setdefault(index, {})
+        record.update(index=index, file=filename, status="completed")
+    metadata["outputs"] = [records_by_index[index] for index in sorted(records_by_index)]
     metadata["reference_assets"] = reference_assets
     metadata["gallery_refs"] = gallery_refs
     metadata["reference_files"] = reference_files

@@ -234,12 +234,17 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         skipped: list[str] = []
         failed: list[str] = []
         for task_id in task_ids:
-            if task_id in ctx.active_task_ids or h["queue_has_running_task"](task_id):
-                skipped.append(task_id)
-                continue
             try:
-                ctx.storage.delete_task(task_id)
-                ctx.queue_storage.remove_waiting(task_id)
+                with (
+                    ctx.storage._history_organization_lock,
+                    ctx.storage._task_write_lock(task_id),
+                    ctx.queue_storage.exclusive(),
+                ):
+                    if task_id in ctx.active_task_ids or h["queue_has_running_task"](task_id):
+                        skipped.append(task_id)
+                        continue
+                    ctx.storage.delete_task(task_id)
+                    ctx.queue_storage.remove_waiting(task_id)
                 deleted.append(task_id)
             except (FileNotFoundError, ValueError, OSError):
                 failed.append(task_id)
@@ -438,9 +443,10 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
     @app.patch("/api/tasks/{task_id}/outputs/{output_index}/selected")
     def update_task_output_selection(task_id: str, output_index: int, payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
         try:
-            metadata = ctx.storage.read_metadata(task_id)
-            _ensure_outputs_mutable(task_id, metadata)
-            metadata = _set_task_output_selected(ctx.storage, task_id, metadata, output_index, bool(payload.get("selected")))
+            with ctx.storage._task_write_lock(task_id):
+                metadata = ctx.storage.read_metadata(task_id)
+                _ensure_outputs_mutable(task_id, metadata)
+                metadata = _set_task_output_selected(ctx.storage, task_id, metadata, output_index, bool(payload.get("selected")))
             return {
                 "task": _with_file_urls(
                     metadata,
@@ -458,9 +464,10 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
     @app.post("/api/tasks/{task_id}/outputs/delete-unselected")
     def delete_unselected_task_outputs(task_id: str) -> dict[str, Any]:
         try:
-            metadata = ctx.storage.read_metadata(task_id)
-            _ensure_outputs_mutable(task_id, metadata)
-            metadata = _delete_unselected_task_outputs(ctx.storage, task_id, metadata)
+            with ctx.storage._task_write_lock(task_id):
+                metadata = ctx.storage.read_metadata(task_id)
+                _ensure_outputs_mutable(task_id, metadata)
+                metadata = _delete_unselected_task_outputs(ctx.storage, task_id, metadata)
             return {
                 "task": _with_file_urls(
                     metadata,
@@ -493,54 +500,55 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.post("/api/tasks/{task_id}/retry-failed")
     def retry_failed_task(task_id: str, payload: dict[str, Any] | None = Body(None)) -> dict[str, Any]:
-        try:
-            metadata = ctx.storage.read_metadata(task_id)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail="Task not found") from exc
-        if h["queue_has_running_task"](task_id) or task_id in ctx.active_task_ids:
-            raise HTTPException(status_code=409, detail="Running task cannot be retried")
-        if task_id in ctx.queue_storage.read_state()["waiting"]:
-            raise HTTPException(status_code=409, detail="Task is already queued")
-        metadata = h["materialize_orphaned_running_failure"](task_id, metadata)
-        if metadata.get("status") not in {"failed", "partial_failed"}:
-            raise HTTPException(status_code=409, detail="Only failed tasks can retry failed image slots")
+        with ctx.storage._task_write_lock(task_id):
+            try:
+                metadata = ctx.storage.read_metadata(task_id)
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail="Task not found") from exc
+            if h["queue_has_running_task"](task_id) or task_id in ctx.active_task_ids:
+                raise HTTPException(status_code=409, detail="Running task cannot be retried")
+            if task_id in ctx.queue_storage.read_state()["waiting"]:
+                raise HTTPException(status_code=409, detail="Task is already queued")
+            metadata = h["materialize_orphaned_running_failure"](task_id, metadata)
+            if metadata.get("status") not in {"failed", "partial_failed"}:
+                raise HTTPException(status_code=409, detail="Only failed tasks can retry failed image slots")
 
-        retry_slots = _retryable_failed_output_indexes(metadata)
-        if not retry_slots:
-            raise HTTPException(status_code=409, detail="No retryable failed image slots")
+            retry_slots = _retryable_failed_output_indexes(metadata)
+            if not retry_slots:
+                raise HTTPException(status_code=409, detail="No retryable failed image slots")
 
-        now = utc_now()
-        metadata["status"] = "queued"
-        metadata["queued_at"] = now
-        metadata["updated_at"] = now
-        metadata["attempts"] = 0
-        metadata["max_attempts"] = ctx.queue_manager.max_attempts if ctx.queue_manager is not None else 1
-        metadata["retrying_failed_slots"] = retry_slots
-        metadata["retry_failed_slots"] = retry_slots
-        metadata["retry_requested_at"] = now
-        metadata["error"] = ""
-        h["apply_retry_api_provider"](task_id, metadata, str((payload or {}).get("api_provider_id") or "").strip() or None)
-        ctx.storage.write_metadata(task_id, metadata)
-        if ctx.queue_manager is not None:
-            ctx.queue_manager.attempts.pop(task_id, None)
-            ctx.queue_manager.failed_channels.pop(task_id, None)
-        ctx.queue_storage.enqueue(task_id)
-        if ctx.queue_manager is not None:
-            snapshot = (
-                metadata.get("generation_snapshot")
-                if isinstance(metadata.get("generation_snapshot"), dict)
-                else {}
-            )
-            source = (
-                "codex"
-                if str(snapshot.get("provider_id") or "") == "codex"
-                else "api"
-            )
-            channels = h["queue_channels_for_source"](source)
-            ctx.queue_manager.channels = channels
-            ctx.queue_manager.max_attempts = h["queue_max_attempts_for_channels"](
-                channels
-            )
+            now = utc_now()
+            metadata["status"] = "queued"
+            metadata["queued_at"] = now
+            metadata["updated_at"] = now
+            metadata["attempts"] = 0
+            metadata["max_attempts"] = ctx.queue_manager.max_attempts if ctx.queue_manager is not None else 1
+            metadata["retrying_failed_slots"] = retry_slots
+            metadata["retry_failed_slots"] = retry_slots
+            metadata["retry_requested_at"] = now
+            metadata["error"] = ""
+            h["apply_retry_api_provider"](task_id, metadata, str((payload or {}).get("api_provider_id") or "").strip() or None)
+            ctx.storage.write_metadata(task_id, metadata, reset_cancellation=True)
+            if ctx.queue_manager is not None:
+                ctx.queue_manager.attempts.pop(task_id, None)
+                ctx.queue_manager.failed_channels.pop(task_id, None)
+            ctx.queue_storage.enqueue(task_id)
+            if ctx.queue_manager is not None:
+                snapshot = (
+                    metadata.get("generation_snapshot")
+                    if isinstance(metadata.get("generation_snapshot"), dict)
+                    else {}
+                )
+                source = (
+                    "codex"
+                    if str(snapshot.get("provider_id") or "") == "codex"
+                    else "api"
+                )
+                channels = h["queue_channels_for_source"](source)
+                ctx.queue_manager.channels = channels
+                ctx.queue_manager.max_attempts = h["queue_max_attempts_for_channels"](
+                    channels
+                )
         h["wake_queue_worker"]()
         return {
             "task": _with_file_urls(
@@ -582,11 +590,18 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.delete("/api/tasks/{task_id}")
     def delete_task(task_id: str) -> dict[str, Any]:
-        if task_id in ctx.active_task_ids or h["queue_has_running_task"](task_id):
-            raise HTTPException(status_code=409, detail="Running task cannot be deleted")
         try:
-            ctx.storage.delete_task(task_id)
-            ctx.queue_storage.remove_waiting(task_id)
+            # Match storage's lock order, then exclude queue claims until the
+            # files and waiting entry have both been removed.
+            with (
+                ctx.storage._history_organization_lock,
+                ctx.storage._task_write_lock(task_id),
+                ctx.queue_storage.exclusive(),
+            ):
+                if task_id in ctx.active_task_ids or h["queue_has_running_task"](task_id):
+                    raise HTTPException(status_code=409, detail="Running task cannot be deleted")
+                ctx.storage.delete_task(task_id)
+                ctx.queue_storage.remove_waiting(task_id)
         except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=404, detail="Task not found") from exc
         return {"ok": True, "task_id": task_id}

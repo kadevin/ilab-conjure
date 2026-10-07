@@ -145,6 +145,60 @@ class WebUITaskTests(unittest.TestCase):
         image.save(buffer, format="PNG")
         return buffer.getvalue()
 
+    def test_output_mutations_read_latest_selection_under_task_lock(self) -> None:
+        from codex_image.webui.app import create_app
+
+        for action in ("select", "prune"):
+            with self.subTest(action=action), tempfile.TemporaryDirectory() as tmp:
+                app = create_app(output_root=Path(tmp), auth_checker=lambda: True, auto_start_queue=False)
+                storage = app.state.storage
+                task_id = storage.create_task("generate").task_id
+                paths = [storage.write_output(task_id, self._png_bytes(), "png", index=i) for i in (1, 2, 3)]
+                storage.write_metadata(task_id, {
+                    "task_id": task_id, "status": "completed", "total_count": 3, "generated_count": 3,
+                    "outputs": [{"index": i, "status": "completed", "file": storage.output_file(path)}
+                                for i, path in enumerate(paths, 1)],
+                    "selected_output_indexes": [1],
+                })
+                waiting, release = threading.Event(), threading.Event()
+                main = threading.current_thread()
+                original_lock = storage._task_write_lock
+
+                @contextmanager
+                def gated_lock(current_id):
+                    if threading.current_thread() is not main and not waiting.is_set():
+                        waiting.set()
+                        if not release.wait(5):
+                            raise RuntimeError("output mutation barrier timed out")
+                    with original_lock(current_id):
+                        yield
+
+                client = TestClient(app)
+                responses = []
+                def mutate():
+                    responses.append(
+                        client.patch(f"/api/tasks/{task_id}/outputs/3/selected", json={"selected": True})
+                        if action == "select" else client.post(f"/api/tasks/{task_id}/outputs/delete-unselected")
+                    )
+                with patch.object(storage, "_task_write_lock", side_effect=gated_lock):
+                    worker = threading.Thread(target=mutate)
+                    worker.start()
+                    try:
+                        self.assertTrue(waiting.wait(5))
+                        storage.mutate_metadata(task_id, lambda task: task.update(selected_output_indexes=[1, 2]))
+                    finally:
+                        release.set()
+                        worker.join(5)
+                self.assertFalse(worker.is_alive())
+                self.assertEqual(responses[0].status_code, 200)
+                final = storage.read_metadata(task_id)
+                self.assertTrue(paths[1].is_file(), "a newly selected image must survive pruning")
+                if action == "select":
+                    self.assertEqual(final["selected_output_indexes"], [1, 2, 3])
+                else:
+                    self.assertEqual(final["generated_count"], 2)
+                    self.assertFalse(paths[2].exists())
+
     def test_task_history_api_returns_summary_and_cursor_pages(self) -> None:
         from codex_image.webui.app import create_app
         from codex_image.webui.storage import TaskStorage
@@ -1327,6 +1381,59 @@ class WebUITaskTests(unittest.TestCase):
         self.assertEqual([task["task_id"] for task in queue["waiting"]], [second])
         self.assertEqual(reordered.status_code, 200)
 
+    def test_deleting_waiting_task_cannot_be_claimed_during_file_removal(self) -> None:
+        from codex_image.webui.app import create_app
+
+        for endpoint in ("task", "batch", "queue"):
+            with self.subTest(endpoint=endpoint), tempfile.TemporaryDirectory() as tmp:
+                app = create_app(output_root=Path(tmp), client_factory=lambda: FakeImageClient(),
+                                 auth_checker=lambda: True, auto_start_queue=False)
+                client = TestClient(app)
+                task_id = client.post("/api/generate", data={"prompt": "delete race"}).json()["task"]["task_id"]
+                entered, release, claim_started, claim_done = (threading.Event() for _ in range(4))
+                original_delete = app.state.storage.delete_task
+                responses, claims = [], []
+
+                def gated_delete(current_id):
+                    entered.set()
+                    if not release.wait(5):
+                        raise RuntimeError("delete barrier timed out")
+                    original_delete(current_id)
+
+                def delete():
+                    responses.append(
+                        client.post("/api/tasks/delete-batch", json={"task_ids": [task_id]})
+                        if endpoint == "batch" else client.delete(f"/api/{'tasks' if endpoint == 'task' else 'queue'}/{task_id}")
+                    )
+
+                def claim():
+                    claim_started.set()
+                    claims.append(app.state.queue_storage.claim_waiting(task_id, "codex:local", auth_source="codex"))
+                    claim_done.set()
+
+                with patch.object(app.state.storage, "delete_task", side_effect=gated_delete):
+                    deletion = threading.Thread(target=delete)
+                    deletion.start()
+                    claimant = threading.Thread(target=claim)
+                    try:
+                        self.assertTrue(entered.wait(5))
+                        claimant.start()
+                        self.assertTrue(claim_started.wait(5))
+                        claim_done.wait(0.1)
+                    finally:
+                        release.set()
+                        deletion.join(5)
+                        if claimant.ident is not None:
+                            claimant.join(5)
+                self.assertFalse(deletion.is_alive())
+                self.assertFalse(claimant.is_alive())
+                self.assertEqual(responses[0].status_code, 200)
+                self.assertEqual(claims, [False])
+                self.assertFalse(app.state.storage.metadata_path(task_id).exists())
+                state = app.state.queue_storage.read_state()
+                self.assertNotIn(task_id, state["waiting"])
+                self.assertFalse(state["running"])
+
     def test_waiting_task_stays_queued_when_physical_delete_fails(self) -> None:
         from codex_image.webui.app import create_app
 
@@ -1775,6 +1882,40 @@ class WebUITaskTests(unittest.TestCase):
         self.assertEqual(task["failed_count"], 1)
         self.assertEqual(task["outputs"][0]["status"], "failed")
         self.assertEqual(task["outputs"][0]["error"], "Service restarted before this task completed.")
+
+    def test_cancelled_task_can_retry_without_regenerating_completed_outputs(self) -> None:
+        from codex_image.webui.app import create_app
+
+        for completed_count in (0, 1):
+            with self.subTest(completed_count=completed_count), tempfile.TemporaryDirectory() as tmp:
+                fake = FakeImageClient()
+                app = create_app(output_root=Path(tmp), client_factory=lambda: fake,
+                                 auth_checker=lambda: True, batch_delay_seconds=0, auto_start_queue=False)
+                client = TestClient(app)
+                task_id = client.post("/api/generate", data={"prompt": "retry cancelled", "n": 2}).json()["task"]["task_id"]
+                storage = app.state.storage
+                if completed_count:
+                    saved_bytes = self._png_bytes()
+                    saved = storage.write_output(task_id, saved_bytes, "png", index=1)
+                    storage.mutate_metadata(task_id, lambda task: task.update(
+                        outputs=[{"index": 1, "status": "completed", "file": storage.output_file(saved)}],
+                        generated_count=1,
+                    ))
+                cancelled = client.post("/api/queue/cancel-batch", json={"task_ids": [task_id]})
+                self.assertEqual(cancelled.status_code, 200)
+                self.assertTrue(storage.read_metadata(task_id)["cancel_requested"])
+                retried = client.post(f"/api/tasks/{task_id}/retry-failed")
+                self.assertEqual(retried.status_code, 200)
+                for key in ("cancel_requested", "cancel_requested_at", "cancelled_at"):
+                    self.assertFalse(key in storage.read_metadata(task_id), key)
+                asyncio.run(app.state.queue_manager.run_available_once())
+                final = storage.read_metadata(task_id)
+                self.assertEqual(final["status"], "completed")
+                self.assertEqual(final["generated_count"], 2)
+                self.assertEqual(len(fake.generate_calls), 2 - completed_count)
+                if completed_count:
+                    self.assertEqual(saved.read_bytes(), saved_bytes)
+
     def test_retry_failed_outputs_requeues_only_failed_slots(self) -> None:
         from codex_image.webui.app import create_app
 

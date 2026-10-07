@@ -6,6 +6,7 @@ import time
 from typing import Any, AsyncContextManager, Callable
 
 from codex_image.client import DEFAULT_MAIN_MODEL, CodexImagesImageClient, ImageResult, OpenAIImagesImageClient
+from codex_image.generation.errors import sanitize_generation_error_text
 from codex_image.prompt_guard import build_prompt_guard_instructions
 
 from .executor_inputs import (
@@ -20,6 +21,7 @@ from .executor_inputs import (
     _task_cancel_requested,
 )
 from .executor_progress import _restore_completed_output_progress
+from .execution_plan_client import ExecutionPlanImageClient
 from .executor_transport import (
     DEFAULT_API_IMAGES_CONCURRENCY,
     DEFAULT_API_MODE,
@@ -67,8 +69,11 @@ def _elapsed_seconds(started_at: float) -> float:
     return round(max(0.0, time.monotonic() - started_at), 3)
 
 
-def _output_error_message(exc: Exception, *, elapsed_seconds: float, timeout_seconds: float | None) -> str:
-    message = str(exc)
+def _output_error_message(
+    exc: Exception, *, elapsed_seconds: float, timeout_seconds: float | None,
+    error_sanitizer: Callable[[BaseException], str] = sanitize_generation_error_text,
+) -> str:
+    message = error_sanitizer(exc)
     if timeout_seconds is None:
         return message
     legacy_timeout = f"Image request timed out after {timeout_seconds:g}s"
@@ -90,6 +95,7 @@ async def _execute_stored_task(
     request_context: Callable[[dict[str, Any]], AsyncContextManager[None]] | None = None,
     image_request_timeout_seconds: float | None = None,
     image_request_retry_count: int = DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
+    error_sanitizer: Callable[[BaseException], str] = sanitize_generation_error_text,
 ) -> dict[str, Any]:
     metadata = storage.read_metadata(task_id)
     request = json.loads(storage.request_path(task_id).read_text(encoding="utf-8"))
@@ -224,6 +230,8 @@ async def _execute_stored_task(
 
     candidate_output_numbers = retrying_failed_slots or list(range(1, count + 1))
     remaining_output_numbers = [index for index in candidate_output_numbers if index not in completed_output_numbers]
+    if isinstance(client, ExecutionPlanImageClient):
+        client.prepare_output_count(len(remaining_output_numbers))
     if _direct_images_concurrent_enabled(client, assigned_auth_source, effective_api_mode) and remaining_output_numbers:
         concurrency_limit = _normalize_api_images_concurrency(params.get("api_images_concurrency"))
         semaphore = asyncio.Semaphore(concurrency_limit)
@@ -263,6 +271,7 @@ async def _execute_stored_task(
                         exc,
                         elapsed_seconds=elapsed_seconds,
                         timeout_seconds=effective_image_request_timeout_seconds,
+                        error_sanitizer=error_sanitizer,
                     ),
                     "attempts": _image_request_attempts(exc),
                     "started_at": slot_started_at,
@@ -512,6 +521,7 @@ async def _execute_stored_task(
                                     exc,
                                     elapsed_seconds=elapsed_seconds,
                                     timeout_seconds=effective_image_request_timeout_seconds,
+                                    error_sanitizer=error_sanitizer,
                                 ),
                                 "attempts": _image_request_attempts(exc, attempt),
                                 "started_at": slot_started_at,
