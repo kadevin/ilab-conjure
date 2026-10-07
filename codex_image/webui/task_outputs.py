@@ -105,29 +105,7 @@ def _append_output_record_state(output_records: list[dict[str, Any]], record: di
 
 
 def _completed_output_records_for_accept(metadata: dict[str, Any]) -> list[dict[str, Any]]:
-    output_records = metadata.get("outputs")
-    if isinstance(output_records, list):
-        completed = [
-            dict(record)
-            for record in output_records
-            if isinstance(record, dict) and record.get("status") == "completed"
-        ]
-        if completed:
-            return completed
-
-    urls = metadata.get("output_urls") if isinstance(metadata.get("output_urls"), list) else []
-    files = metadata.get("output_files") if isinstance(metadata.get("output_files"), list) else []
-    if not urls and metadata.get("output_url"):
-        urls = [metadata.get("output_url")]
-    if not files and metadata.get("output_file"):
-        files = [metadata.get("output_file")]
-    completed = []
-    for index, url in enumerate(urls, start=1):
-        record: dict[str, Any] = {"index": index, "status": "completed", "url": url}
-        if index <= len(files):
-            record["file"] = files[index - 1]
-        completed.append(record)
-    return completed
+    return _visible_completed_output_records(metadata)
 
 
 def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata: dict[str, Any]) -> dict[str, Any]:
@@ -151,12 +129,19 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
     if cleared_failed_count <= 0:
         cleared_failed_count = max(0, original_total_count - success_count)
 
+    selected_indexes = set(_task_selected_output_indexes(metadata))
+    accepted_selected_indexes: list[int] = []
     accepted_outputs: list[dict[str, Any]] = []
     for new_index, record in enumerate(completed_records, start=1):
+        if _positive_int(record.get("index")) in selected_indexes:
+            accepted_selected_indexes.append(new_index)
         accepted_record = dict(record)
         accepted_record["index"] = new_index
         accepted_record["status"] = "completed"
         accepted_record.pop("error", None)
+        output_path = _safe_output_path(storage, task_id, _output_record_filename(record))
+        if output_path is not None and output_path.is_file():
+            accepted_record.update(_output_thumbnail_fields(storage, task_id, new_index, output_path))
         accepted_outputs.append(accepted_record)
 
     output_files = [str(record.get("file")) for record in accepted_outputs if record.get("file")]
@@ -173,6 +158,8 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
             "outputs": accepted_outputs,
             "output_files": output_files,
             "output_urls": output_urls,
+            "selected_output_indexes": accepted_selected_indexes,
+            "deleted_output_indexes": [],
             "original_total_count": original_total_count,
             "cleared_failed_count": cleared_failed_count,
             "partial_failure_cleared_at": accepted_at,
@@ -187,8 +174,15 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
     else:
         metadata.pop("output_url", None)
 
-    for key in ("output_sizes", "output_formats", "qualities", "backgrounds", "revised_prompts", "usages", "tool_usages"):
-        if isinstance(metadata.get(key), list):
+    for key, record_key in (
+        ("output_sizes", "size"), ("output_formats", "format"), ("qualities", "quality"),
+        ("backgrounds", "background"), ("revised_prompts", "revised_prompt"),
+        ("usages", "usage"), ("tool_usages", "tool_usage"),
+    ):
+        values = [record[record_key] for record in accepted_outputs if record.get(record_key) is not None]
+        if values:
+            metadata[key] = values
+        elif isinstance(metadata.get(key), list):
             metadata[key] = metadata[key][:success_count]
     scalar_sources = {
         "output_size": "output_sizes",
@@ -204,9 +198,9 @@ def _accept_partial_task_successes(storage: TaskStorage, task_id: str, metadata:
         if isinstance(values, list) and values:
             metadata[scalar_key] = values[0]
 
-    for key in ("error", "last_error", "retrying_failed_slots", "retry_failed_slots", "retry_requested_at"):
+    for key in ("error", "last_error", "generation_error", "retrying_failed_slots", "retry_failed_slots", "retry_requested_at"):
         metadata.pop(key, None)
-    storage.write_metadata(task_id, metadata)
+    storage.write_metadata(task_id, metadata, reset_cancellation=True)
     return metadata
 
 
@@ -342,6 +336,16 @@ def _output_thumbnail_fields(storage: TaskStorage, task_id: str, output_index: i
     if has_transparency:
         thumbnail_path = thumbnail_path.with_suffix(".webp")
     sidebar_thumbnail_path = storage.output_sidebar_thumbnail_path(task_id, output_index)
+    source_index = _output_index_from_url(output_path.name)
+    if source_index is not None and source_index != output_index:
+        # Slot numbers change after accepting or pruning outputs. Give the new
+        # slot/source pair its own cache path instead of reusing another image.
+        thumbnail_path = thumbnail_path.with_name(
+            thumbnail_path.name.replace("-thumb.", f"-source-{source_index}-thumb.")
+        )
+        sidebar_thumbnail_path = sidebar_thumbnail_path.with_name(
+            sidebar_thumbnail_path.name.replace("-sidebar.", f"-source-{source_index}-sidebar.")
+        )
     if thumbnail_needs_refresh(output_path, thumbnail_path):
         create_image_thumbnail(output_path, thumbnail_path)
     if thumbnail_needs_refresh(
@@ -397,9 +401,13 @@ def _task_selected_output_indexes(metadata: dict[str, Any]) -> list[int]:
 
 def _task_deleted_output_indexes(metadata: dict[str, Any]) -> set[int]:
     raw_indexes = metadata.get("deleted_output_indexes")
-    if not isinstance(raw_indexes, list):
-        return set()
-    return {index for value in raw_indexes if (index := _positive_int(value)) is not None}
+    indexes = {index for value in raw_indexes if (index := _positive_int(value)) is not None} if isinstance(raw_indexes, list) else set()
+    raw_outputs = metadata.get("outputs")
+    if isinstance(raw_outputs, list):
+        for fallback_index, record in enumerate(raw_outputs, start=1):
+            if isinstance(record, dict) and (record.get("deleted") or record.get("status") == "deleted"):
+                indexes.add(_positive_int(record.get("index")) or fallback_index)
+    return indexes
 
 
 def _output_record_is_deleted(record: dict[str, Any], deleted_indexes: set[int], fallback_index: int) -> bool:

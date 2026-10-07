@@ -265,6 +265,8 @@ def _with_output_thumbnail_urls(enriched: dict[str, Any], metadata: dict[str, An
         return
     deleted_indexes = _task_deleted_output_indexes(metadata)
     thumbnail_urls_by_index: dict[int, str] = {}
+    represented_urls: set[str] = set()
+    represented_files: set[str] = set()
     raw_outputs = enriched.get("outputs")
     if isinstance(raw_outputs, list):
         enriched_outputs: list[Any] = []
@@ -275,6 +277,10 @@ def _with_output_thumbnail_urls(enriched: dict[str, Any], metadata: dict[str, An
             record = dict(raw_record)
             index = _positive_int(record.get("index")) or fallback_index
             if record.get("status") == "completed" and index not in deleted_indexes and (record.get("url") or record.get("file")):
+                if record.get("url"):
+                    represented_urls.add(str(record["url"]))
+                if record.get("file"):
+                    represented_files.add(str(record["file"]))
                 if not record.get("url") and record.get("file"):
                     record["url"] = _output_image_route_url(task_id, index)
                 thumbnail_url = _output_record_thumbnail_url(task_id, record, fallback_index)
@@ -288,7 +294,7 @@ def _with_output_thumbnail_urls(enriched: dict[str, Any], metadata: dict[str, An
     if not output_urls and metadata.get("output_url"):
         output_urls = [metadata.get("output_url")]
     for fallback_index, url in enumerate(output_urls, start=1):
-        if not url:
+        if not url or str(url) in represented_urls:
             continue
         index = _output_index_from_url(url) or fallback_index
         if index in deleted_indexes:
@@ -299,7 +305,7 @@ def _with_output_thumbnail_urls(enriched: dict[str, Any], metadata: dict[str, An
     if not output_files and metadata.get("output_file"):
         output_files = [metadata.get("output_file")]
     for fallback_index, filename in enumerate(output_files, start=1):
-        if not filename:
+        if not filename or str(filename) in represented_files:
             continue
         index = _output_index_from_url(filename) or fallback_index
         if index in deleted_indexes:

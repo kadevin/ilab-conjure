@@ -11,6 +11,7 @@ import zipfile
 from fastapi import Body, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 
+from codex_image.webui.cancellation import USER_CANCELLATION_ERROR
 from codex_image.webui.context import WebUIContext
 from codex_image.webui.events import generation_page_payload
 from codex_image.webui.resource_limits import (
@@ -409,7 +410,7 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         return FileResponse(
             thumbnail_path,
             media_type="image/webp" if thumbnail_path.suffix == ".webp" else "image/jpeg",
-            headers={"Cache-Control": "public, max-age=31536000, immutable"},
+            headers={"Cache-Control": "no-cache"},
         )
 
     @app.get("/api/tasks/{task_id}/outputs/{output_index}/sidebar-thumbnail")
@@ -437,7 +438,7 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         return FileResponse(
             thumbnail_path,
             media_type="image/webp",
-            headers={"Cache-Control": "public, max-age=31536000, immutable"},
+            headers={"Cache-Control": "no-cache"},
         )
 
     @app.patch("/api/tasks/{task_id}/outputs/{output_index}/selected")
@@ -527,6 +528,9 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
             metadata["retry_failed_slots"] = retry_slots
             metadata["retry_requested_at"] = now
             metadata["error"] = ""
+            if metadata.get("last_error") == USER_CANCELLATION_ERROR:
+                metadata.pop("last_error", None)
+            metadata.pop("generation_error", None)
             h["apply_retry_api_provider"](task_id, metadata, str((payload or {}).get("api_provider_id") or "").strip() or None)
             ctx.storage.write_metadata(task_id, metadata, reset_cancellation=True)
             if ctx.queue_manager is not None:
@@ -562,22 +566,23 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.post("/api/tasks/{task_id}/accept-successes")
     def accept_task_successes(task_id: str) -> dict[str, Any]:
-        try:
-            metadata = ctx.storage.read_metadata(task_id)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail="Task not found") from exc
-        if h["queue_has_running_task"](task_id) or task_id in ctx.active_task_ids:
-            raise HTTPException(status_code=409, detail="Running task cannot be accepted")
-        if task_id in ctx.queue_storage.read_state()["waiting"]:
-            raise HTTPException(status_code=409, detail="Queued task cannot be accepted")
-        metadata = h["materialize_orphaned_running_failure"](task_id, metadata)
-        if metadata.get("status") not in {"failed", "partial_failed"}:
-            raise HTTPException(status_code=409, detail="Only failed tasks can accept successful outputs")
+        with ctx.storage._task_write_lock(task_id):
+            try:
+                metadata = ctx.storage.read_metadata(task_id)
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail="Task not found") from exc
+            if h["queue_has_running_task"](task_id) or task_id in ctx.active_task_ids:
+                raise HTTPException(status_code=409, detail="Running task cannot be accepted")
+            if task_id in ctx.queue_storage.read_state()["waiting"]:
+                raise HTTPException(status_code=409, detail="Queued task cannot be accepted")
+            metadata = h["materialize_orphaned_running_failure"](task_id, metadata)
+            if metadata.get("status") not in {"failed", "partial_failed"}:
+                raise HTTPException(status_code=409, detail="Only failed tasks can accept successful outputs")
 
-        try:
-            metadata = _accept_partial_task_successes(ctx.storage, task_id, metadata)
-        except ValueError as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            try:
+                metadata = _accept_partial_task_successes(ctx.storage, task_id, metadata)
+            except ValueError as exc:
+                raise HTTPException(status_code=409, detail=str(exc)) from exc
         return {
             "task": _with_file_urls(
                 metadata,

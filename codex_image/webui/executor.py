@@ -232,6 +232,12 @@ async def _execute_stored_task(
     remaining_output_numbers = [index for index in candidate_output_numbers if index not in completed_output_numbers]
     if isinstance(client, ExecutionPlanImageClient):
         client.prepare_output_count(len(remaining_output_numbers))
+
+    async def call_image_client(*args: Any, **kwargs: Any) -> ImageResult:
+        if isinstance(client, ExecutionPlanImageClient):
+            return await client.call_output(lambda: _call_image_client(*args, **kwargs))
+        return await _call_image_client(*args, **kwargs)
+
     if _direct_images_concurrent_enabled(client, assigned_auth_source, effective_api_mode) and remaining_output_numbers:
         concurrency_limit = _normalize_api_images_concurrency(params.get("api_images_concurrency"))
         semaphore = asyncio.Semaphore(concurrency_limit)
@@ -309,7 +315,7 @@ async def _execute_stored_task(
                                     )
                                     response_file_kwargs["reference_files"] = response_input_files
                                 if mode == "edit":
-                                    result = await _call_image_client(
+                                    result = await call_image_client(
                                         None,
                                         params,
                                         client.edit_image,
@@ -332,7 +338,7 @@ async def _execute_stored_task(
                                         debug_sse_path=debug_sse_path,
                                     )
                                 else:
-                                    result = await _call_image_client(
+                                    result = await call_image_client(
                                         None,
                                         params,
                                         client.generate_image,
@@ -455,7 +461,7 @@ async def _execute_stored_task(
                             )
                             response_file_kwargs["reference_files"] = response_input_files
                         if mode == "edit":
-                            result = await _call_image_client(
+                            result = await call_image_client(
                                 request_context,
                                 params,
                                 client.edit_image,
@@ -478,7 +484,7 @@ async def _execute_stored_task(
                                 debug_sse_path=debug_sse_path,
                             )
                         else:
-                            result = await _call_image_client(
+                            result = await call_image_client(
                                 request_context,
                                 params,
                                 client.generate_image,

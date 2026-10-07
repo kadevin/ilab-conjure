@@ -690,6 +690,53 @@ class GeminiRegistrationTests(unittest.TestCase):
 
 
 class GeminiExecutionPlanClientTests(unittest.TestCase):
+    def test_batch_timeout_and_cancellation_drain_the_single_inflight_request(self) -> None:
+        import asyncio
+        import threading
+        from codex_image.providers.codecs.gemini_image import GeminiGenerateContentImageCodec
+        from codex_image.providers.registry import ProviderRegistry
+        from codex_image.webui.execution_plan_client import ExecutionPlanImageClient
+        from codex_image.webui.executor_transport import _call_image_client
+
+        for cancel in (False, True):
+            with self.subTest(cancel=cancel):
+                entered, release = threading.Event(), threading.Event()
+                calls = []
+
+                class BlockingProtocol:
+                    def execute(self, plan):
+                        calls.append(plan)
+                        entered.set()
+                        if not release.wait(5):
+                            raise RuntimeError("batch drain barrier timed out")
+                        return GenerationResult(assets=(GeneratedAsset(b"one", "image/png"), GeneratedAsset(b"two", "image/png")), usage={})
+
+                registry = ProviderRegistry(protocols={"gemini_generate_content": BlockingProtocol()},
+                                            codecs={"gemini_generate_content_image": GeminiGenerateContentImageCodec()})
+                client = ExecutionPlanImageClient(_plan(profile="gemini_generate_content", codec="gemini_generate_content_image",
+                                                       base_url="https://relay.example/v1beta"), object(), registry=registry)
+
+                async def run():
+                    requests = [asyncio.create_task(client.call_output(lambda: _call_image_client(
+                        None, {}, client.generate_image, timeout_seconds=None if cancel else 0.01,
+                    ))) for _ in range(2)]
+                    try:
+                        self.assertTrue(await asyncio.to_thread(entered.wait, 2))
+                        if cancel:
+                            for request in requests:
+                                request.cancel()
+                        await asyncio.sleep(0.03)
+                        self.assertFalse(requests[0].done(), "provider work must drain before releasing the caller")
+                        self.assertEqual(len(calls), 1)
+                    finally:
+                        release.set()
+                    results = await asyncio.wait_for(asyncio.gather(*requests, return_exceptions=True), 2)
+                    for result in results:
+                        self.assertIsInstance(result, asyncio.CancelledError if cancel else TimeoutError)
+                    self.assertEqual(len(calls), 1)
+
+                asyncio.run(run())
+
     def test_batch_assets_are_distributed_without_duplicate_upstream_request(self) -> None:
         from codex_image.providers.codecs.gemini_image import GeminiGenerateContentImageCodec
         from codex_image.providers.registry import ProviderRegistry

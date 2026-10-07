@@ -215,8 +215,8 @@ class TaskStorage:
         path = self.metadata_path(task_id)
         with self._task_write_lock(task_id):
             if reset_cancellation:
-                # Only an explicit retry after the previous execution stopped
-                # may clear cancellation; ordinary progress writes stay sticky.
+                # Explicit recovery after execution stops may clear cancellation;
+                # ordinary progress writes keep it sticky.
                 for key in ("cancel_requested", "cancel_requested_at", "cancelled_at"):
                     metadata.pop(key, None)
             else:
