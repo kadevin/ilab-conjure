@@ -1,4 +1,4 @@
 """Shared application version metadata."""
 
-APP_VERSION = "0.9.5"
+APP_VERSION = "0.9.6"
 APP_VERSION_TAG = f"v{APP_VERSION}"
