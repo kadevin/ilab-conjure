@@ -410,4 +410,5 @@ class NetworkEgressManager:
             ),
             proxy_map=snapshot.proxy_map,
             asset_fake_ip_dns_fallback=snapshot.asset_fake_ip_dns_fallback,
+            connect_retry_count=snapshot.image_request_retry_count,
         )

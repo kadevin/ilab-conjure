@@ -7,6 +7,7 @@ from typing import Any, AsyncContextManager, Callable
 
 from codex_image.client import DEFAULT_MAIN_MODEL, CodexImagesImageClient, ImageResult, OpenAIImagesImageClient
 from codex_image.generation.errors import sanitize_generation_error_text
+from codex_image.http_connection import HTTPTransportFailure, transport_failure
 from codex_image.prompt_guard import build_prompt_guard_instructions
 
 from .reference_image_order import ordered_reference_data_urls
@@ -194,6 +195,7 @@ async def _execute_stored_task(
         else image_request_timeout_seconds
     )
     results, output_paths, output_records = _restore_completed_output_progress(storage, metadata, params, count)
+    transport_failures: list[HTTPTransportFailure] = []
     completed_output_numbers = {
         int(record["index"])
         for record in output_records
@@ -272,6 +274,9 @@ async def _execute_stored_task(
 
             def failed_output(exc: Exception) -> dict[str, Any]:
                 _raise_if_task_cancelled(storage, task_id)
+                failure = transport_failure(exc)
+                if failure is not None:
+                    transport_failures.append(failure)
                 elapsed_seconds = _elapsed_seconds(slot_started_monotonic)
                 failed_at = utc_now()
                 failed_record = {
@@ -514,6 +519,9 @@ async def _execute_stored_task(
                     break
                 except Exception as exc:
                     _raise_if_task_cancelled(storage, task_id)
+                    failure = transport_failure(exc)
+                    if failure is not None:
+                        transport_failures.append(failure)
                     if is_explicit_file_input_rejection(exc) or _is_reference_file_missing_error(exc):
                         raise
                     if _is_non_retryable_error(exc):
@@ -620,7 +628,12 @@ async def _execute_stored_task(
 
     if not results and any(record.get("status") == "failed" for record in output_records):
         failure_messages = [str(record.get("error") or "") for record in output_records if record.get("status") == "failed"]
-        raise RuntimeError("; ".join(message for message in failure_messages if message) or "All outputs failed")
+        error = RuntimeError("; ".join(message for message in failure_messages if message) or "All outputs failed")
+        if transport_failures:
+            # Keep the retry boundary through output aggregation; the queue must
+            # not replay a generation whose HTTP retries were already exhausted.
+            raise error from transport_failures[0]
+        raise error
 
     return _finalize_generated_task(
         storage,

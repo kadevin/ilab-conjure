@@ -9,6 +9,7 @@ import httpx
 from codex_image.asset_dns import resolve_fake_ip_hostname
 from codex_image.asset_urls import FakeIPAssetURLError, UnsafeAssetURLError, resolve_asset_destination
 from codex_image.httpx_transport import HttpxTransport
+from codex_image.http_connection import HTTPTransportFailure
 
 
 def dns_entries(*addresses):
@@ -86,8 +87,84 @@ class AssetDNSResolverTests(unittest.IsolatedAsyncioTestCase):
                 await task
         self.assertEqual(active, 0)
 
+    async def test_connection_retries_are_per_query_and_exhaustion_keeps_dns_stage(self):
+        for failures in (1, 10):
+            calls = {"A": 0, "AAAA": 0}
+
+            def handler(request):
+                record = request.url.params["type"]
+                calls[record] += 1
+                if calls[record] <= failures:
+                    raise httpx.ConnectError("private-host secret-token")
+                number, address = (1, "8.8.8.8") if record == "A" else (28, "2001:4860:4860::8888")
+                return httpx.Response(200, json={
+                    "Status": 0, "Question": [{"name": "cdn.example.", "type": number}],
+                    "Answer": [{"type": number, "data": address}],
+                })
+
+            with self.subTest(failures=failures), self.mock_client(handler), \
+                 patch("codex_image.http_connection.connection_retry_delay", return_value=0):
+                if failures == 1:
+                    self.assertEqual(await resolve_fake_ip_hostname("cdn.example", connect_retry_count=2),
+                                     ("8.8.8.8", "2001:4860:4860::8888"))
+                    self.assertEqual(calls, {"A": 2, "AAAA": 2})
+                else:
+                    with self.assertRaises(HTTPTransportFailure) as caught:
+                        await resolve_fake_ip_hostname("cdn.example", connect_retry_count=2)
+                    self.assertIn("stage=image_dns_lookup", str(caught.exception))
+                    self.assertIn("host=cloudflare-dns.com", str(caught.exception))
+                    self.assertIn("attempts=3", str(caught.exception))
+                    self.assertNotIn("secret-token", str(caught.exception))
+                    self.assertTrue(all(value <= 3 for value in calls.values()))
+
+    async def test_cancellation_during_connection_backoff_stops_both_queries(self):
+        calls = []
+        backoff_started = asyncio.Event()
+
+        def handler(request):
+            calls.append(request)
+            raise httpx.ConnectError("synthetic")
+
+        def delay(_round):
+            if len(calls) == 2:
+                backoff_started.set()
+            return 60
+
+        with self.mock_client(handler), patch("codex_image.http_connection.connection_retry_delay", side_effect=delay):
+            task = asyncio.create_task(resolve_fake_ip_hostname("cdn.example", connect_retry_count=2))
+            await asyncio.wait_for(backoff_started.wait(), 1)
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+        self.assertEqual(len(calls), 2)
+
 
 class FakeIPDownloadTests(unittest.TestCase):
+    def test_connection_retries_preserve_validated_address_order_host_and_tls_name(self):
+        client_class = httpx.AsyncClient
+        requests = []
+
+        def handler(request):
+            requests.append(request)
+            if len(requests) < 3:
+                raise httpx.ConnectError("synthetic")
+            return httpx.Response(200, content=b"synthetic")
+
+        with patch("socket.getaddrinfo", return_value=dns_entries("8.8.8.8", "1.1.1.1")), \
+             patch("codex_image.httpx_transport.httpx.AsyncClient", side_effect=lambda **options:
+                   client_class(transport=httpx.MockTransport(handler), **options)), \
+             patch("codex_image.http_connection.connection_retry_delay", return_value=0):
+            result = HttpxTransport(proxy_map={}, connect_retry_count=2).request_asset_bounded(
+                url="https://cdn.example/image", headers={}, max_response_bytes=100,
+                provider_base_url="https://provider.example",
+            )
+        self.assertEqual(result.body, b"synthetic")
+        self.assertEqual([request.url.host for request in requests], ["8.8.8.8", "1.1.1.1", "8.8.8.8"])
+        for request in requests:
+            self.assertEqual(request.headers["host"], "cdn.example")
+            self.assertEqual(request.extensions["sni_hostname"], "cdn.example")
+            self.assertNotIn("authorization", request.headers)
+
     def test_only_domain_answers_entirely_in_fake_ip_range_trigger_fallback_signal(self):
         with patch("socket.getaddrinfo", return_value=dns_entries("198.18.1.2", "198.19.1.2")):
             with self.assertRaises(FakeIPAssetURLError) as caught:
@@ -123,7 +200,7 @@ class FakeIPDownloadTests(unittest.TestCase):
                 max_response_bytes=100, provider_base_url="https://provider.example/v1",
             )
         self.assertEqual(result.status, 200)
-        independent.assert_awaited_once_with("cdn.example", proxy=None)
+        independent.assert_awaited_once_with("cdn.example", proxy=None, connect_retry_count=0)
         self.assertEqual(requests[0].url.host, "8.8.8.8")
         self.assertEqual(requests[0].headers["host"], "cdn.example")
         self.assertEqual(requests[0].extensions["sni_hostname"], "cdn.example")

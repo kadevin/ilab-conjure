@@ -909,6 +909,28 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(transport.requests[1]["url"], "https://cdn.example.com/generated.jpg")
         self.assertNotIn("Authorization", transport.requests[1]["headers"])
 
+    def test_codex_images_download_uses_oauth_only_for_same_origin_auth_retry(self) -> None:
+        from codex_image.client import CodexImagesImageClient
+
+        for host in ("chatgpt.com", "cdn.example.com"):
+            transport = FakeTransport([
+                FakeResponse(status=200, body=json.dumps({"data": [{"url": f"https://{host}/generated.jpg"}]}).encode()),
+                FakeResponse(status=403, body=b"forbidden"),
+                FakeResponse(status=200, body=TEST_JPEG_BYTES, headers={"Content-Type": "image/jpeg"}),
+            ])
+            client = CodexImagesImageClient(_auth_state(access_token="synthetic-oauth", account_id="synthetic-account"), transport=transport)
+            with self.subTest(host=host):
+                if host == "chatgpt.com":
+                    result = client.generate_image(prompt="synthetic")
+                    self.assertEqual(result.image_bytes, TEST_JPEG_BYTES)
+                    self.assertEqual(len(transport.requests), 3)
+                    self.assertEqual(transport.requests[2]["headers"]["Authorization"], "Bearer synthetic-oauth")
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "invalid image URL asset"):
+                        client.generate_image(prompt="synthetic")
+                    self.assertEqual(len(transport.requests), 2)
+                self.assertNotIn("Authorization", transport.requests[1]["headers"])
+
     def test_openai_images_client_retries_url_download_with_api_key_after_forbidden(self) -> None:
         jpeg_bytes = TEST_JPEG_BYTES
         transport = FakeTransport(

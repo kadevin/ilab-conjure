@@ -5,7 +5,7 @@ import concurrent.futures
 import contextvars
 import threading
 import time
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import contextmanager
 from typing import Any, Coroutine, Iterator, Mapping, TypeVar
 from urllib.parse import urljoin, urlsplit
 from urllib.request import getproxies, proxy_bypass
@@ -14,6 +14,7 @@ import httpx
 
 from .asset_urls import FakeIPAssetURLError, resolve_asset_destination
 from .asset_dns import resolve_fake_ip_hostname
+from .http_connection import stream_with_connection_retries
 
 from .http import (
     HTTPResponse,
@@ -124,10 +125,12 @@ class HttpxTransport:
         timeout: float | None = None,
         proxy_map: Mapping[str, str] | None = None,
         asset_fake_ip_dns_fallback: bool = False,
+        connect_retry_count: int = 0,
     ) -> None:
         self.timeout = _request_timeout_seconds(timeout)
         self.proxy_map = None if proxy_map is None else dict(proxy_map)
         self.asset_fake_ip_dns_fallback = asset_fake_ip_dns_fallback
+        self.connect_retry_count = max(0, min(5, int(connect_retry_count)))
 
     def request(
         self,
@@ -248,6 +251,8 @@ class HttpxTransport:
         if max_response_bytes <= 0:
             raise ValueError("max_response_bytes must be positive")
         started_at = time.monotonic()
+        phase = "image_download" if asset_provider_base_url is not None else "upstream_request"
+        route = "system" if self.proxy_map is None else "proxy" if self._proxy_for_url(url) else "direct"
         try:
             proxy = self._proxy_for_url(url)
             trust_env = self.proxy_map is None
@@ -263,7 +268,9 @@ class HttpxTransport:
                 timeout=httpx.Timeout(self.timeout),
                 proxy=proxy,
                 trust_env=trust_env,
-                follow_redirects=not same_origin_redirects and asset_provider_base_url is None,
+                # Handle each redirect separately so a connection failure at the
+                # destination cannot replay a POST that already returned a redirect.
+                follow_redirects=False,
                 **client_options,
             ) as client:
                 current_method = method
@@ -280,23 +287,26 @@ class HttpxTransport:
                         except FakeIPAssetURLError as exc:
                             if not self.asset_fake_ip_dns_fallback:
                                 raise
-                            addresses = await resolve_fake_ip_hostname(exc.hostname, proxy=proxy)
+                            addresses = await resolve_fake_ip_hostname(
+                                exc.hostname, proxy=proxy, connect_retry_count=self.connect_retry_count,
+                            )
                             destination = resolve_asset_destination(
                                 current_url, asset_provider_base_url, resolved_addresses=addresses,
                             )
                         request_urls = destination.urls
                         request_headers = {**current_headers, "Host": destination.host_header}
                         extensions = {"sni_hostname": destination.server_hostname}
-                    async with _stream_with_address_fallback(
+                    async with stream_with_connection_retries(
                         client, current_method, request_urls,
+                        retry_count=self.connect_retry_count, phase=phase,
+                        hostname=urlsplit(current_url).hostname or "", route=route,
                         headers=request_headers,
                         content=current_body,
                         extensions=extensions,
                     ) as response:
                         location = response.headers.get("location", "")
                         if (
-                            (same_origin_redirects or asset_provider_base_url is not None)
-                            and response.status_code in self._REDIRECT_STATUSES
+                            response.status_code in self._REDIRECT_STATUSES
                             and location
                         ):
                             redirected_url = urljoin(current_url, location)
@@ -314,6 +324,13 @@ class HttpxTransport:
                                     "Exceeded maximum allowed redirects",
                                     request=response.request,
                                 )
+                            if not same_origin_redirects and asset_provider_base_url is None:
+                                redirected_request = response.next_request
+                                current_url = str(redirected_request.url)
+                                current_method = redirected_request.method
+                                current_headers = dict(redirected_request.headers)
+                                current_body = await redirected_request.aread()
+                                continue
                             current_url = redirected_url
                             if response.status_code == 303 or (
                                 response.status_code in {301, 302}
@@ -370,20 +387,6 @@ class HttpxTransport:
                 f"HTTP response exceeded the {limit}-byte limit"
             )
         return bytes(payload[:limit])
-
-
-@asynccontextmanager
-async def _stream_with_address_fallback(client, method, urls, **kwargs):
-    for index, url in enumerate(urls):
-        opened = False
-        try:
-            async with client.stream(method, url, **kwargs) as response:
-                opened = True
-                yield response
-                return
-        except (httpx.ConnectError, httpx.ConnectTimeout):
-            if opened or index == len(urls) - 1:
-                raise
 
 
 __all__ = (

@@ -13,6 +13,7 @@ from urllib import error as urllib_error
 
 from codex_image.client import CodexImagesImageClient, ImageResult, OpenAIImagesImageClient, OpenAIResponsesImageClient
 from codex_image.httpx_transport import cancellable_http_request_scope
+from codex_image.http_connection import transport_failure
 from codex_image.prompt_guard import build_guarded_prompt
 
 from .network_egress import (
@@ -113,6 +114,9 @@ def _exception_chain(exc: BaseException) -> list[BaseException]:
 
 def _is_retryable_transient_image_error(exc: BaseException) -> bool:
     chain = _exception_chain(exc)
+    if transport_failure(exc) is not None:
+        # Connection retries belong to the individual HTTP request, including asset downloads.
+        return False
     message = "\n".join(str(item).lower() for item in chain)
     if (
         "http 502" in message

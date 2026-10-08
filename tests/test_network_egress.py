@@ -287,6 +287,7 @@ class NetworkEgressSnapshotTests(unittest.TestCase):
         )
         self.assertNotIn("proxy.example.test", repr(snapshot.task_metadata()))
         self.assertEqual(manager.transport(snapshot).timeout, 900)
+        self.assertEqual(manager.transport(snapshot).connect_retry_count, 4)
 
 
 class NetworkEgressTransportTests(unittest.TestCase):

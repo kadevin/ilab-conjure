@@ -109,7 +109,10 @@ Download standard app packages and portable transition packages from
   per-request image timeouts (1–30 minutes, default 10) and retries after
   retryable transient failures (0–5, default 2). The settings are persisted in
   the app data directory, apply to generation and editing across every
-  provider, and affect later task executions without restart; each retry gets a
+  provider, and affect later task executions without restart. Connection failures
+  retry the current HTTP request within the active image operation's timeout;
+  retries for image downloads or independent DNS lookups do not resubmit generation.
+  Other supported transient failures that retry the whole operation still get a
   fresh full timeout window.
 - API provider cards for fast selection, read-only details by default, explicit
   editing, provider copy, delete confirmation, multi-provider sorting, and an

@@ -18,6 +18,7 @@ from codex_image.generation.errors import (
 )
 from codex_image.generation.snapshot import execution_plan_from_snapshot
 from codex_image.generation.types import GenerationCommand, ImageInput
+from codex_image.http_connection import transport_failure
 from codex_image.prompt_guard import build_prompt_guard_instructions
 from codex_image.providers.registry import ProviderRegistry, default_registry
 
@@ -865,7 +866,7 @@ def _structured_task_error(
         if isinstance(item, str) and item
     )
     safe = sanitize_generation_error_text(
-        exc,
+        transport_failure(exc) or exc,
         sensitive_values=tuple(credentials),
         prompt_values=prompts,
     )
@@ -995,7 +996,11 @@ async def execute_task(
             else "task_execution_failed"
         )
         provider_non_retryable = isinstance(exc, GenerationProviderError) and not exc.detail.retryable
-        non_retryable = reference_file_missing or explicit_file_rejection or provider_non_retryable or _is_non_retryable_error(exc) or local_usage_limit_error
+        non_retryable = (
+            reference_file_missing or explicit_file_rejection or provider_non_retryable
+            or _is_non_retryable_error(exc) or local_usage_limit_error
+            or transport_failure(exc) is not None
+        )
         metadata["status"] = "failed" if is_final_attempt or non_retryable else "queued"
         metadata["updated_at"] = utc_now()
         metadata["last_error"] = safe_error

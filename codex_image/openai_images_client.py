@@ -397,7 +397,7 @@ class OpenAIImagesImageClient:
                 url,
                 transport=self.transport,
                 provider_base_url=self.base_url,
-                authorization=f"Bearer {self.api_key}",
+                authorization=self._build_image_download_headers(include_auth=True).get("Authorization", ""),
             ).image_bytes
         except AssetLoadError as exc:
             raise RuntimeError("OpenAI-compatible images returned an invalid image URL asset") from exc

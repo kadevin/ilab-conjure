@@ -9,6 +9,7 @@ import httpx
 
 from .asset_urls import UnsafeAssetURLError
 from .http import _https_ssl_context
+from .http_connection import stream_with_connection_retries, transport_failure
 
 
 ASSET_DNS_ENDPOINT = "https://cloudflare-dns.com/dns-query"
@@ -16,7 +17,9 @@ ASSET_DNS_TIMEOUT_SECONDS = 8
 MAX_ASSET_DNS_RESPONSE_BYTES = 64 * 1024
 
 
-async def resolve_fake_ip_hostname(hostname: str, *, proxy: str | None = None) -> tuple[str, ...]:
+async def resolve_fake_ip_hostname(
+    hostname: str, *, proxy: str | None = None, connect_retry_count: int = 0,
+) -> tuple[str, ...]:
     name = hostname.encode("idna").decode("ascii").rstrip(".").lower()
     try:
         async with httpx.AsyncClient(
@@ -24,8 +27,10 @@ async def resolve_fake_ip_hostname(hostname: str, *, proxy: str | None = None) -
             verify=_https_ssl_context() or True, follow_redirects=False,
         ) as client:
             async def query(record_type: str, number: int) -> list[str]:
-                async with client.stream(
-                    "GET", ASSET_DNS_ENDPOINT, params={"name": name, "type": record_type},
+                async with stream_with_connection_retries(
+                    client, "GET", (ASSET_DNS_ENDPOINT,), retry_count=connect_retry_count,
+                    phase="image_dns_lookup", hostname="cloudflare-dns.com", route="proxy" if proxy else "direct",
+                    params={"name": name, "type": record_type},
                     headers={"Accept": "application/dns-json"},
                 ) as response:
                     if response.status_code != 200:
@@ -61,4 +66,7 @@ async def resolve_fake_ip_hostname(hostname: str, *, proxy: str | None = None) -
     except asyncio.CancelledError:
         raise
     except Exception as exc:
+        failure = transport_failure(exc)
+        if failure is not None:
+            raise failure from None
         raise UnsafeAssetURLError("independent image DNS could not resolve the asset hostname") from exc
