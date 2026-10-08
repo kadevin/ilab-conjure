@@ -155,7 +155,7 @@ def _png_bytes(color: tuple[int, int, int]) -> bytes:
     return target.getvalue()
 
 
-def _full_restore_archive(task_id: str = "restore-all") -> tuple[bytes, dict[str, bytes]]:
+def _full_restore_archive(task_id: str = "restore-all", *, ordered: bool = False) -> tuple[bytes, dict[str, bytes]]:
     binaries = {
         "output": _png_bytes((255, 0, 0)),
         "input": _png_bytes((0, 255, 0)),
@@ -200,6 +200,11 @@ def _full_restore_archive(task_id: str = "restore-all") -> tuple[bytes, dict[str
         },
         "nested": {"unknown": "file:///archive/secret.png", "safe": "keep"},
     }
+    if ordered:
+        metadata["reference_image_order"] = [
+            {"kind": "gallery", "id": "old-gallery"}, {"kind": "asset", "id": "a" * 64},
+        ]
+        request["webui_image_refs"]["reference_image_order"] = metadata["reference_image_order"]
     organization = {"favorite": True, "tags": [{"tag_id": "archive-local-id", "name": "  Travel  "}]}
     payloads = {
         f"tasks/{task_id}/source/metadata.json": _json_bytes(metadata),
@@ -351,6 +356,26 @@ class HistoryBackupImportTests(unittest.TestCase):
         second_session = self._upload(payload, service=service)
         second_preview = service.validate(second_session)
         self.assertEqual([item.task_id for item in second_preview.duplicate], ["restore-all"])
+
+    def test_restore_remaps_reference_order_to_restored_image_ids(self) -> None:
+        from codex_image.webui.task_enrichment import _with_file_urls
+
+        payload, _ = _full_restore_archive(ordered=True)
+        service, planner = self._restore_service(payload)
+        session_id = self._upload(payload, service=service)
+        service.validate(session_id)
+        result = service.restore(session_id)
+        self.assertEqual([item.task_id for item in result.restored], ["restore-all"])
+        metadata = planner.task_storage.read_metadata("restore-all")
+        expected = [
+            {"kind": "gallery", "id": metadata["gallery_refs"][0]["id"]},
+            {"kind": "asset", "id": metadata["reference_assets"][0]["id"]},
+        ]
+        self.assertEqual(metadata["reference_image_order"], expected)
+        request = json.loads(planner.task_storage.request_path("restore-all").read_text())
+        self.assertEqual(request["webui_image_refs"]["reference_image_order"], expected)
+        enriched = _with_file_urls(metadata, gallery_storage=planner.gallery_storage, reference_asset_storage=planner.reference_asset_storage)
+        self.assertEqual([source["kind"] for source in enriched["input_sources"]], ["upload", "gallery", "asset"])
 
     def test_partial_task_roundtrip_preserves_output_slots_and_selection(self) -> None:
         from codex_image.webui.task_outputs import (

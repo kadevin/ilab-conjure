@@ -1,6 +1,6 @@
 import { isGptImageModel } from "./gpt-image-models";
 import { getLegacyBridge } from "./state";
-import { formatTranslation, translate } from "./i18n";
+import { translate } from "./i18n";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
@@ -16,42 +16,36 @@ function legacyMethod(name: string, ...args: any[]): any {
 function getPromptText(): string { return legacyMethod("getPromptText"); }
 function expandPromptSnippets(prompt: any): string { return legacyMethod("expandPromptSnippets", prompt); }
 function galleryInputs(): any[] { return legacyMethod("galleryInputs"); }
-function uploadInputs(): any[] { return legacyMethod("uploadInputs"); }
-function referenceAssetInputs(): any[] { return legacyMethod("referenceAssetInputs"); }
 function categoryPromptRole(category: any): string { return legacyMethod("categoryPromptRole", category); }
 export function promptTokenReplacement(prompt: any): string {
   return expandPromptSnippets(prompt);
 }
 
-export function galleryPromptText(galleries: any[] = galleryInputs()): string {
-  if (!galleries.length) return "";
-  const referenceOffset = uploadInputs().length + referenceAssetInputs().length;
-  const lines = galleries.map((source: any, index: any) => galleryReferenceInstruction(source, referenceOffset + index + 1));
-  return `${translate("promptModel.galleryHeader")}\n${lines.join("\n")}`;
+export function galleryPrompt() {
+  const galleries = galleryInputs();
+  if (!galleries.length || currentPromptFidelity() === "original") return null;
+  return {
+    header: translate("promptModel.galleryHeader"),
+    template: translate("promptModel.galleryInstruction"),
+    references: galleries.map((source: any) => {
+      const promptNote = String(source.prompt_note || "").trim();
+      return {
+        id: source.id,
+        name: source.name,
+        role: source.category_prompt_role || categoryPromptRole(source.category),
+        note: promptNote ? ` ${promptNote}` : "",
+      };
+    }),
+  };
 }
 
 export function buildPromptForModel(): string {
-  const prompt = expandPromptSnippets(getPromptText());
-  const galleries = galleryInputs();
-  const galleryText = galleryPromptText(galleries);
-  if (!galleryText) return prompt;
-  return `${prompt}\n\n${galleryText}`;
-}
-
-export function galleryReferenceInstruction(source: any, number: any): string {
-  const role = source.category_prompt_role || categoryPromptRole(source.category);
-  const promptNote = String(source.prompt_note || "").trim();
-  return formatTranslation("promptModel.galleryInstruction", {
-    number,
-    name: source.name,
-    role,
-    note: promptNote ? ` ${promptNote}` : "",
-  });
+  // Gallery guidance stays structured until the server resolves duplicate image identities.
+  return expandPromptSnippets(getPromptText());
 }
 
 export function currentPromptForModel(): string {
-  if (!supportsGptPromptProcessing()) return buildPromptForModel();
-  return currentPromptFidelity() === "original" ? expandPromptSnippets(getPromptText()) : buildPromptForModel();
+  return buildPromptForModel();
 }
 
 export function currentPromptFidelity(): string {
@@ -68,9 +62,8 @@ export function supportsGptPromptProcessing(): boolean {
 export function initPromptModelFeature(): void {
   Object.assign(getLegacyBridge().methods, {
     promptTokenReplacement,
-    galleryPromptText,
+    galleryPrompt,
     buildPromptForModel,
-    galleryReferenceInstruction,
     currentPromptForModel,
     currentPromptFidelity,
     supportsGptPromptProcessing,

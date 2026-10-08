@@ -47047,15 +47047,19 @@ ${hint}` : hint;
     const chips = Array.from(els17.promptEditor?.querySelectorAll(".gallery-chip[data-gallery-id]") || []);
     const mentionedIds = new Set(chips.map((chip) => chip.dataset.galleryId).filter(Boolean));
     const beforeKey = imageSourcesKey(state14.images);
-    const uploads = state14.images.filter((source) => source.kind !== "gallery");
-    const existingById = new Map(state14.images.filter((source) => source.kind === "gallery").map((source) => [source.id, source]));
-    const galleries = chips.map((chip) => {
+    const retainedIds = /* @__PURE__ */ new Set();
+    const sources = state14.images.filter((source) => {
+      if (source.kind !== "gallery") return true;
+      if (!mentionedIds.has(source.id) || retainedIds.has(source.id)) return false;
+      retainedIds.add(source.id);
+      return true;
+    });
+    for (const chip of chips) {
       const itemId = chip.dataset.galleryId;
-      const existing = existingById.get(itemId);
-      if (existing) return existing;
+      if (!itemId || retainedIds.has(itemId)) continue;
+      retainedIds.add(itemId);
       const item = findGalleryItem5(itemId);
-      if (item) return gallerySource3(item);
-      return gallerySource3({
+      sources.push(gallerySource3(item || {
         id: itemId,
         name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || translate("gallery.imageFallback"),
         category: chip.dataset.galleryCategory || "",
@@ -47064,9 +47068,9 @@ ${hint}` : hint;
         prompt_note: chip.dataset.galleryPromptNote || "",
         image_url: chip.dataset.galleryImageUrl || "",
         missing: true
-      });
-    }).filter((source) => source.id && mentionedIds.has(source.id));
-    state14.images = [...uploads, ...galleries];
+      }));
+    }
+    state14.images = sources;
     if (imageSourcesKey(state14.images) === beforeKey) return false;
     if (!state14.images.length) {
       setMode3("generate");
@@ -47726,47 +47730,34 @@ ${hint}` : hint;
   function galleryInputs3() {
     return legacyMethod24("galleryInputs");
   }
-  function uploadInputs2() {
-    return legacyMethod24("uploadInputs");
-  }
-  function referenceAssetInputs2() {
-    return legacyMethod24("referenceAssetInputs");
-  }
   function categoryPromptRole3(category) {
     return legacyMethod24("categoryPromptRole", category);
   }
   function promptTokenReplacement(prompt) {
     return expandPromptSnippets2(prompt);
   }
-  function galleryPromptText(galleries = galleryInputs3()) {
-    if (!galleries.length) return "";
-    const referenceOffset = uploadInputs2().length + referenceAssetInputs2().length;
-    const lines = galleries.map((source, index) => galleryReferenceInstruction(source, referenceOffset + index + 1));
-    return `${translate("promptModel.galleryHeader")}
-${lines.join("\n")}`;
+  function galleryPrompt() {
+    const galleries = galleryInputs3();
+    if (!galleries.length || currentPromptFidelity() === "original") return null;
+    return {
+      header: translate("promptModel.galleryHeader"),
+      template: translate("promptModel.galleryInstruction"),
+      references: galleries.map((source) => {
+        const promptNote = String(source.prompt_note || "").trim();
+        return {
+          id: source.id,
+          name: source.name,
+          role: source.category_prompt_role || categoryPromptRole3(source.category),
+          note: promptNote ? ` ${promptNote}` : ""
+        };
+      })
+    };
   }
   function buildPromptForModel() {
-    const prompt = expandPromptSnippets2(getPromptText8());
-    const galleries = galleryInputs3();
-    const galleryText = galleryPromptText(galleries);
-    if (!galleryText) return prompt;
-    return `${prompt}
-
-${galleryText}`;
-  }
-  function galleryReferenceInstruction(source, number) {
-    const role = source.category_prompt_role || categoryPromptRole3(source.category);
-    const promptNote = String(source.prompt_note || "").trim();
-    return formatTranslation("promptModel.galleryInstruction", {
-      number,
-      name: source.name,
-      role,
-      note: promptNote ? ` ${promptNote}` : ""
-    });
+    return expandPromptSnippets2(getPromptText8());
   }
   function currentPromptForModel() {
-    if (!supportsGptPromptProcessing()) return buildPromptForModel();
-    return currentPromptFidelity() === "original" ? expandPromptSnippets2(getPromptText8()) : buildPromptForModel();
+    return buildPromptForModel();
   }
   function currentPromptFidelity() {
     if (!supportsGptPromptProcessing()) return "off";
@@ -47780,9 +47771,8 @@ ${galleryText}`;
   function initPromptModelFeature() {
     Object.assign(getLegacyBridge().methods, {
       promptTokenReplacement,
-      galleryPromptText,
+      galleryPrompt,
       buildPromptForModel,
-      galleryReferenceInstruction,
       currentPromptForModel,
       currentPromptFidelity,
       supportsGptPromptProcessing
@@ -53086,13 +53076,13 @@ ${galleryText}`;
   function currentTaskParams2(...args) {
     return legacyMethod36("currentTaskParams", ...args);
   }
-  function uploadInputs3(...args) {
+  function uploadInputs2(...args) {
     return legacyMethod36("uploadInputs", ...args);
   }
   function galleryInputs4(...args) {
     return legacyMethod36("galleryInputs", ...args);
   }
-  function referenceAssetInputs3(...args) {
+  function referenceAssetInputs2(...args) {
     return legacyMethod36("referenceAssetInputs", ...args);
   }
   function currentCodexMode4(...args) {
@@ -53205,6 +53195,10 @@ ${galleryText}`;
       missing: Boolean(source.missing)
     };
   }
+  function referenceImageOrder() {
+    let uploadIndex = 0;
+    return state24.images.map((source) => source.kind === "upload" ? { kind: "upload", index: uploadIndex++ } : { kind: source.kind, id: source.id });
+  }
   function applyTaskOutputParams(task) {
     const params = task.params || {};
     const request = task.request || {};
@@ -53258,9 +53252,9 @@ ${galleryText}`;
   }
   function buildPreviewRequest2() {
     const params = currentTaskParams2();
-    const uploads = uploadInputs3();
+    const uploads = uploadInputs2();
     const galleries = galleryInputs4();
-    const assets = referenceAssetInputs3();
+    const assets = referenceAssetInputs2();
     const fileUploads = referenceFileUploads2();
     const storedFiles = storedReferenceFileInputs2();
     const { authSource, requestedBackend } = selectedRoutingFields();
@@ -53269,6 +53263,7 @@ ${galleryText}`;
     const codexMode = isCodex ? currentCodexMode4() : null;
     const parameters = currentCanonicalParameters();
     const selection = currentGenerationSelection();
+    const galleryContext = galleryPrompt();
     const payload2 = {
       mode: state24.mode,
       auth_source: authSource,
@@ -53280,9 +53275,11 @@ ${galleryText}`;
       ui_language: currentLocaleCode(),
       prompt: getPromptText9(),
       prompt_for_model: currentPromptForModel2(),
+      ...galleryContext ? { gallery_prompt: galleryContext } : {},
       images: uploads.map((source) => source.name),
       gallery_image_ids: galleries.map((source) => source.id),
       reference_asset_ids: assets.map((source) => source.id),
+      reference_image_order: referenceImageOrder(),
       reference_files: fileUploads.map((source) => source.filename),
       reference_file_ids: storedFiles.map((source) => source.id)
     };
@@ -53348,9 +53345,9 @@ ${galleryText}`;
     syncGalleryInputsFromPrompt3();
     const prompt = getPromptText9();
     const promptForModel = currentPromptForModel2();
-    const uploads = uploadInputs3();
+    const uploads = uploadInputs2();
     const galleries = galleryInputs4();
-    const assets = referenceAssetInputs3();
+    const assets = referenceAssetInputs2();
     const fileUploads = referenceFileUploads2();
     const storedFiles = storedReferenceFileInputs2();
     if (missingGalleryInputs2().length) {
@@ -53396,6 +53393,8 @@ ${galleryText}`;
     const form = new FormData();
     form.append("prompt", prompt);
     form.append("prompt_for_model", promptForModel);
+    const galleryContext = galleryPrompt();
+    if (galleryContext) form.append("gallery_prompt", JSON.stringify(galleryContext));
     form.append("ui_language", currentLocaleCode());
     appendCanonicalGenerationFields(form, currentGenerationSelection());
     if (!state24.generationCatalog || isGptImageModel(state24.selectedModelId)) {
@@ -53404,6 +53403,7 @@ ${galleryText}`;
     }
     galleries.forEach((source) => form.append("gallery_image_ids", source.id));
     assets.forEach((source) => form.append("reference_asset_ids", source.id));
+    form.append("reference_image_order", JSON.stringify(referenceImageOrder()));
     fileUploads.forEach((source) => form.append("reference_files", source.file));
     storedFiles.forEach((source) => form.append("reference_file_ids", source.id));
     if (state24.mode === "generate") {

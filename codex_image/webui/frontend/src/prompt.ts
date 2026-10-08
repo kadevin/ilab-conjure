@@ -63,8 +63,7 @@ import {
   buildPromptForModel,
   currentPromptFidelity,
   currentPromptForModel,
-  galleryPromptText,
-  galleryReferenceInstruction,
+  galleryPrompt,
   initPromptModelFeature,
   promptTokenReplacement,
 } from "./prompt-model";
@@ -122,8 +121,7 @@ void ensurePromptChipLeadingBoundary;
 void ensurePromptChipTrailingBoundary;
 void ensurePromptGalleryMention;
 void findGalleryRefMentionAt;
-void galleryPromptText;
-void galleryReferenceInstruction;
+void galleryPrompt;
 void galleryRefsByMentionLength;
 void getPromptText;
 void handlePromptChipDragEnd;

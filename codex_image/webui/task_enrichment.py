@@ -7,6 +7,7 @@ from urllib.parse import quote, unquote, urlsplit
 from codex_image.client import DEFAULT_MAIN_MODEL
 
 from .reference_files import ReferenceFileStorage, reference_file_task_record
+from .reference_image_order import order_reference_sources
 from .storage import GalleryStorage, ReferenceAssetStorage
 
 
@@ -171,6 +172,7 @@ def _input_sources(
     input_files: list[str],
     gallery_refs: list[dict[str, Any]],
     reference_assets: list[dict[str, Any]] | None = None,
+    reference_image_order: Any = None,
 ) -> list[dict[str, Any]]:
     sources = [
         {
@@ -209,7 +211,7 @@ def _input_sources(
         }
         for ref in gallery_refs
     )
-    return sources
+    return order_reference_sources(sources, reference_image_order)
 
 
 def _positive_int(value: Any) -> int | None:
@@ -391,7 +393,11 @@ def _with_file_urls(
         enriched["input_thumbnail_urls"] = _input_thumbnail_urls(task_id, input_names)
 
     raw_gallery_refs = metadata.get("gallery_refs")
-    if (not isinstance(raw_gallery_refs, list) or not raw_gallery_refs) and gallery_storage is not None:
+    if (
+        metadata.get("reference_image_order") is None
+        and (not isinstance(raw_gallery_refs, list) or not raw_gallery_refs)
+        and gallery_storage is not None
+    ):
         raw_gallery_refs = _infer_gallery_refs_from_prompt(metadata, gallery_storage)
     gallery_refs = _enrich_gallery_refs(raw_gallery_refs, gallery_storage)
 
@@ -408,7 +414,7 @@ def _with_file_urls(
     if gallery_refs:
         enriched["gallery_refs"] = gallery_refs
     if reference_assets or gallery_refs:
-        enriched["input_sources"] = _input_sources(task_id, input_names, gallery_refs, reference_assets)
+        enriched["input_sources"] = _input_sources(task_id, input_names, gallery_refs, reference_assets, metadata.get("reference_image_order"))
     _with_output_thumbnail_urls(enriched, metadata, task_id)
     return enriched
 

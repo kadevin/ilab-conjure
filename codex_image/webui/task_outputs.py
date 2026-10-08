@@ -819,6 +819,7 @@ def _write_running_metadata(
     storage.write_metadata(
         task_id,
         {
+            **({"reference_image_order": existing_metadata["reference_image_order"]} if "reference_image_order" in existing_metadata else {}),
             "task_id": task_id,
             "created_at": created_at,
             "updated_at": utc_now(),
@@ -834,7 +835,7 @@ def _write_running_metadata(
             "reference_assets": reference_assets or [],
             "reference_files": file_references,
             "reference_file_count": len(file_references),
-            "input_sources": _input_sources(task_id, input_files, gallery_refs, reference_assets or []),
+            "input_sources": _input_sources(task_id, input_files, gallery_refs, reference_assets or [], existing_metadata.get("reference_image_order")),
         },
     )
 
@@ -857,6 +858,7 @@ def _write_queued_metadata(
     gallery_refs: list[dict[str, Any]],
     reference_assets: list[dict[str, Any]] | None = None,
     reference_files: list[dict[str, Any]] | None = None,
+    reference_image_order: list[dict[str, str]] | None = None,
     prompt_constraints: list[str] | None = None,
     requested_backend: str | None = None,
     max_attempts: int = 2,
@@ -880,11 +882,13 @@ def _write_queued_metadata(
         "reference_assets": reference_assets or [],
         "reference_files": file_references,
         "reference_file_count": len(file_references),
-        "input_sources": _input_sources(task_id, input_files, gallery_refs, reference_assets or []),
+        "input_sources": _input_sources(task_id, input_files, gallery_refs, reference_assets or [], reference_image_order),
         "attempts": 0,
         "max_attempts": max_attempts,
         "last_error": "",
     }
+    if reference_image_order is not None:
+        metadata["reference_image_order"] = reference_image_order
     if requested_backend:
         metadata["requested_backend"] = requested_backend
     if execution_prompt is not None:
@@ -946,7 +950,7 @@ def _write_progress_metadata(
             "reference_assets": reference_assets or [],
             "reference_files": file_references,
             "reference_file_count": len(file_references),
-            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or []),
+            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or [], metadata.get("reference_image_order")),
             "generated_count": len(results),
             "failed_count": len(failed_records),
             "total_count": total_count,
@@ -1079,7 +1083,7 @@ def _finalize_generated_task(
             "reference_assets": reference_assets or [],
             "reference_files": file_references,
             "reference_file_count": len(file_references),
-            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or []),
+            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or [], metadata.get("reference_image_order")),
             "generated_count": len(results),
             "failed_count": len(failed_records),
             "total_count": total_count,
@@ -1182,7 +1186,7 @@ def _complete_task(
             "reference_assets": reference_assets or [],
             "reference_files": file_references,
             "reference_file_count": len(file_references),
-            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or []),
+            "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or [], metadata.get("reference_image_order")),
             "generated_count": len(result_list),
             "total_count": total_count,
             "output_file": storage.output_file(first_output_path),
@@ -1235,6 +1239,7 @@ def _fail_task(
         existing_metadata = {}
     file_references = _reference_files_for_metadata(reference_files, existing_metadata)
     metadata = {
+        **({"reference_image_order": existing_metadata["reference_image_order"]} if "reference_image_order" in existing_metadata else {}),
         "task_id": task_id,
         "created_at": created_at,
         "updated_at": utc_now(),
@@ -1249,7 +1254,7 @@ def _fail_task(
         "reference_assets": reference_assets or [],
         "reference_files": file_references,
         "reference_file_count": len(file_references),
-        "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or []),
+        "input_sources": _input_sources(task_id, input_names, gallery_refs, reference_assets or [], existing_metadata.get("reference_image_order")),
         "error": str(exc),
     }
     storage.write_metadata(task_id, metadata)

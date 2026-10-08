@@ -704,7 +704,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-859', html)
+        self.assertIn('/static/app.js?v=runtime-863', html)
         self.assertIn('/static/styles.css?v=runtime-861', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
@@ -728,8 +728,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function addReferenceAssetInput(item)", script)
         self.assertIn("function canAddSourceToGallery(source)", script)
         self.assertIn("function galleryImageFileForSource(source)", script)
-        self.assertIn("const referenceOffset = uploadInputs().length + referenceAssetInputs().length", script)
-        self.assertIn("galleryReferenceInstruction(source, referenceOffset + index + 1)", script)
+        self.assertIn('gallery_prompt: galleryContext', script)
         self.assertIn('source.kind === "asset"', script)
         self.assertRegex(script, r"function canAddSourceToGallery\(source\)\s*\{[\s\S]*source\.kind === \"asset\"[\s\S]*sourcePreviewUrl\(source\)")
         self.assertRegex(script, r"async function saveUploadToGallery\(\)\s*\{[\s\S]*await galleryImageFileForSource\(source\)[\s\S]*form\.append\(\"image\", imageFile\)")
@@ -3834,7 +3833,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-859', html)
+        self.assertIn('/static/app.js?v=runtime-863', html)
         self.assertIn('/static/styles.css?v=runtime-861', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
@@ -4295,7 +4294,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-859", html)
+        self.assertIn("/static/app.js?v=runtime-863", html)
         self.assertIn("/static/styles.css?v=runtime-861", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)

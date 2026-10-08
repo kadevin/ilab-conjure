@@ -57,6 +57,7 @@ from .history_organizer import HistoryOrganizerError
 from .gallery_storage import GalleryRestore
 from .image_uploads import InvalidRasterImage, validate_raster_image
 from .reference_assets import ReferenceAssetRestore
+from .reference_image_order import remap_reference_image_order
 from .reference_files import MAX_REFERENCE_FILE_BYTES, ReferenceFileRestore, validate_reference_file
 from .storage import (
     RestoredTaskBinary,
@@ -786,6 +787,7 @@ class HistoryBackupImportService:
         for lock in resource_locks:
             lock.acquire()
         try:
+            image_identities: dict[tuple[str, str], str] = {}
             reference_records: list[dict[str, Any]] = []
             original_reference_records = metadata.get("reference_assets") if isinstance(metadata.get("reference_assets"), list) else []
             for entry, staged_path in sorted(members.get("reference_asset", []), key=lambda item: item[0].source_index or 0):
@@ -796,6 +798,7 @@ class HistoryBackupImportService:
                 asset_handles.append(handle)
                 record = handle.record
                 reference_records.append(_safe_asset_task_record(record))
+                image_identities[("asset", str(source.get("id") or ""))] = str(record["id"])
 
             gallery_records: list[dict[str, Any]] = []
             original_gallery_records = metadata.get("gallery_refs") if isinstance(metadata.get("gallery_refs"), list) else []
@@ -813,6 +816,7 @@ class HistoryBackupImportService:
                 gallery_handles.append(handle)
                 record = handle.record
                 gallery_records.append(_safe_gallery_task_record(record))
+                image_identities[("gallery", str(source.get("id") or ""))] = str(record["id"])
 
             native_records: list[dict[str, Any]] = []
             original_native_records = metadata.get("reference_files") if isinstance(metadata.get("reference_files"), list) else []
@@ -872,6 +876,10 @@ class HistoryBackupImportService:
                 gallery_records,
                 native_records,
             )
+            restored_order = remap_reference_image_order(metadata.get("reference_image_order"), image_identities)
+            if restored_order is not None:
+                metadata["reference_image_order"] = restored_order
+                request["webui_image_refs"]["reference_image_order"] = restored_order
             journal = task_storage.restore_task_files(RestoredTaskFilesPlan(
                 task_id=task.task_id,
                 metadata=metadata,

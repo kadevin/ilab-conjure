@@ -21,6 +21,7 @@ from codex_image.generation.types import GenerationCommand, ImageInput
 from codex_image.prompt_guard import build_prompt_guard_instructions
 from codex_image.providers.registry import ProviderRegistry, default_registry
 
+from .reference_image_order import ordered_reference_data_urls
 from .auth_routing import (
     DEFAULT_API_PROVIDER_ID,
     _apply_api_execution_snapshot,
@@ -509,10 +510,10 @@ def _validated_snapshot_plan(
         str(item.get("id"))
         for item in raw_assets if isinstance(item, dict) and item.get("id")
     ] if isinstance(raw_assets, list) else []
-    _, asset_data_urls = _resolve_reference_assets(
+    reference_assets, asset_data_urls = _resolve_reference_assets(
         ctx.reference_asset_storage, asset_ids, touch=False
     )
-    _, gallery_data_urls = _resolve_gallery_refs(
+    gallery_refs, gallery_data_urls = _resolve_gallery_refs(
         ctx.gallery_storage,
         [
             str(item.get("id"))
@@ -522,7 +523,10 @@ def _validated_snapshot_plan(
     )
     image_data_urls = [
         _file_to_data_url(path) for path in input_paths if path.exists()
-    ] + asset_data_urls + gallery_data_urls
+    ] + ordered_reference_data_urls(
+        reference_assets, asset_data_urls, gallery_refs, gallery_data_urls,
+        metadata.get("reference_image_order"),
+    )
     mask_data_url = None
     mask_name = metadata.get("mask_file")
     if isinstance(mask_name, str) and mask_name:

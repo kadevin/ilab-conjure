@@ -106,9 +106,10 @@ async def read_validated_raster_uploads(
     uploads: list[Any],
     *,
     max_bytes: int = MAX_RASTER_BYTES,
+    deduplicate: bool = True,
 ) -> list[ValidatedRasterImage]:
     validated: list[ValidatedRasterImage] = []
-    seen: set[str] = set()
+    seen: dict[str, ValidatedRasterImage] = {}
     try:
         for upload in uploads:
             try:
@@ -120,10 +121,10 @@ async def read_validated_raster_uploads(
                 if str(exc) == "Image is required":
                     continue
                 raise
-            if image.sha256 in seen:
+            if deduplicate and image.sha256 in seen:
                 continue
-            seen.add(image.sha256)
-            validated.append(image)
+            # Preserve multipart positions without letting a later duplicate replace its filename.
+            validated.append(seen.setdefault(image.sha256, image))
         return validated
     finally:
         for upload in uploads:

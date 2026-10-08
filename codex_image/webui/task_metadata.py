@@ -95,6 +95,7 @@ class TaskMetadata(TypedDict, total=False):
     reference_assets: list[dict[str, Any]]
     reference_files: list[dict[str, Any]]
     reference_file_count: int
+    reference_image_order: list[dict[str, str]]
     input_sources: list[dict[str, Any]]
     generated_count: int
     failed_count: int

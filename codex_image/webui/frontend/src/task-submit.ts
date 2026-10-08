@@ -6,6 +6,7 @@ import { currentLocaleCode, translate } from "./i18n";
 import { selectedProviderBinding } from "./provider-selection";
 import { appendCanonicalGenerationFields, currentGenerationSelection } from "./generation-request";
 import { taskOutputControlValues } from "./task-model-summary";
+import { galleryPrompt } from "./prompt-model";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -124,6 +125,13 @@ function referenceFileMetadata(source: any) {
   };
 }
 
+function referenceImageOrder() {
+  let uploadIndex = 0;
+  return state.images.map((source: any) => source.kind === "upload"
+    ? { kind: "upload", index: uploadIndex++ }
+    : { kind: source.kind, id: source.id });
+}
+
 export function applyTaskOutputParams(task: any): void {
   const params = task.params || {};
   const request = task.request || {};
@@ -194,6 +202,7 @@ function buildPreviewRequest() {
   const codexMode = isCodex ? currentCodexMode() : null;
   const parameters = currentCanonicalParameters();
   const selection = currentGenerationSelection();
+  const galleryContext = galleryPrompt();
   const payload: Record<string, any> = {
     mode: state.mode,
     auth_source: authSource,
@@ -205,9 +214,11 @@ function buildPreviewRequest() {
     ui_language: currentLocaleCode(),
     prompt: getPromptText(),
     prompt_for_model: currentPromptForModel(),
+    ...(galleryContext ? { gallery_prompt: galleryContext } : {}),
     images: uploads.map((source: any) => source.name),
     gallery_image_ids: galleries.map((source: any) => source.id),
     reference_asset_ids: assets.map((source: any) => source.id),
+    reference_image_order: referenceImageOrder(),
     reference_files: fileUploads.map((source: any) => source.filename),
     reference_file_ids: storedFiles.map((source: any) => source.id),
   };
@@ -322,6 +333,8 @@ async function runTask() {
   const form = new FormData();
   form.append("prompt", prompt);
   form.append("prompt_for_model", promptForModel);
+  const galleryContext = galleryPrompt();
+  if (galleryContext) form.append("gallery_prompt", JSON.stringify(galleryContext));
   form.append("ui_language", currentLocaleCode());
   appendCanonicalGenerationFields(form, currentGenerationSelection());
   if (!state.generationCatalog || isGptImageModel(state.selectedModelId)) {
@@ -330,6 +343,7 @@ async function runTask() {
   }
   galleries.forEach((source: any) => form.append("gallery_image_ids", source.id));
   assets.forEach((source: any) => form.append("reference_asset_ids", source.id));
+  form.append("reference_image_order", JSON.stringify(referenceImageOrder()));
   fileUploads.forEach((source: any) => form.append("reference_files", source.file));
   storedFiles.forEach((source: any) => form.append("reference_file_ids", source.id));
 

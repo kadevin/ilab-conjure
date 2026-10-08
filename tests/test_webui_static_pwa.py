@@ -86,11 +86,11 @@ class WebUIPWATests(unittest.TestCase):
         self.assertTrue(worker_path.exists())
         source = worker_path.read_text(encoding="utf-8")
 
-        self.assertIn('const CACHE_NAME = "ilab-conjure-shell-v324";', source)
+        self.assertIn('const CACHE_NAME = "ilab-conjure-shell-v326";', source)
         self.assertIn('"/"', source)
         self.assertIn('"/history"', source)
         self.assertIn('"/manifest.webmanifest"', source)
-        self.assertIn('"/static/app.js?v=runtime-859"', source)
+        self.assertIn('"/static/app.js?v=runtime-863"', source)
         self.assertIn('"/static/history.js?v=history-161"', source)
         self.assertIn('"/static/image-editor-fill-worker.js?v=1"', source)
         self.assertIn('"/static/styles.css?v=runtime-861"', source)

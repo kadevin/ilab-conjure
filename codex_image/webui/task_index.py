@@ -43,6 +43,7 @@ SUMMARY_KEYS = {
     "mask_file",
     "gallery_refs",
     "reference_assets",
+    "reference_image_order",
     "reference_file_count",
     "generated_count",
     "failed_count",

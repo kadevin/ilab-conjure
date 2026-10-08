@@ -9,6 +9,7 @@ from codex_image.client import DEFAULT_MAIN_MODEL, CodexImagesImageClient, Image
 from codex_image.generation.errors import sanitize_generation_error_text
 from codex_image.prompt_guard import build_prompt_guard_instructions
 
+from .reference_image_order import ordered_reference_data_urls
 from .executor_inputs import (
     _file_to_data_url,
     _image_mime_type,
@@ -181,7 +182,10 @@ async def _execute_stored_task(
         gallery_storage,
         [str(ref.get("id")) for ref in metadata.get("gallery_refs", []) if isinstance(ref, dict)],
     )
-    data_urls = [_file_to_data_url(path) for path in input_paths if path.exists()] + reference_asset_data_urls + gallery_data_urls
+    data_urls = [_file_to_data_url(path) for path in input_paths if path.exists()] + ordered_reference_data_urls(
+        reference_assets, reference_asset_data_urls, gallery_refs, gallery_data_urls,
+        metadata.get("reference_image_order"),
+    )
     count = int(params.get("n") or 1)
     debug_sse_path = _debug_sse_path(storage, task_id)
     effective_image_request_timeout_seconds = (

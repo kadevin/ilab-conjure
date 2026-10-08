@@ -13,6 +13,7 @@ from codex_image.generation.service import redacted_protocol_request
 from codex_image.client_types import ResponsesInputFile
 from codex_image.generation.types import ImageInput
 from codex_image.webui.context import WebUIContext
+from codex_image.webui.gallery_prompt import resolve_gallery_prompt
 from codex_image.webui.generation_request import (
     generation_command_from_form,
     parse_parameters_json,
@@ -61,6 +62,10 @@ from codex_image.webui.reference_files import (
     reference_file_task_record,
     resolve_reference_file_ids,
     validate_reference_file_total,
+)
+from codex_image.webui.reference_image_order import (
+    normalize_reference_image_order,
+    ordered_reference_data_urls,
 )
 from codex_image.webui.storage import utc_now
 from codex_image.webui.task_metadata import _dedupe_preserve_order, _params, _with_file_urls, _write_queued_metadata
@@ -477,6 +482,7 @@ def _persist_generation_submission(
     gallery_refs: list[dict[str, Any]],
     reference_assets: list[dict[str, Any]],
     file_references: list[dict[str, Any]],
+    reference_image_order: list[dict[str, str]] | None,
 ) -> dict[str, Any]:
     h = ctx.route_helpers
     stored_request_payload = h["slim_request_payload"](
@@ -487,6 +493,8 @@ def _persist_generation_submission(
         reference_files=file_references,
         mask_file=mask_file,
     )
+    if reference_image_order is not None:
+        stored_request_payload["webui_image_refs"]["reference_image_order"] = reference_image_order
     stored_request_payload["webui_requested_backend"] = requested_backend
     if effective_api_provider_id is not None:
         stored_request_payload["webui_api_provider_id"] = effective_api_provider_id
@@ -515,6 +523,7 @@ def _persist_generation_submission(
         gallery_refs=gallery_refs,
         reference_assets=reference_assets,
         reference_files=file_references,
+        reference_image_order=reference_image_order,
         prompt_constraints=prepared.prompt_constraints,
         requested_backend=requested_backend,
         max_attempts=ctx.queue_manager.max_attempts if ctx.queue_manager is not None else 1,
@@ -654,9 +663,10 @@ def _commit_reference_files(
 
 async def _prepare_raster_uploads(
     uploads: list[UploadFile],
+    *, preserve_positions: bool = False,
 ) -> list[ValidatedRasterImage]:
     try:
-        return await read_validated_raster_uploads(uploads)
+        return await read_validated_raster_uploads(uploads, deduplicate=not preserve_positions)
     except InvalidRasterImage as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -805,9 +815,11 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         binding_id: str | None = Form(None),
         parameters_json: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
+        gallery_prompt: str | None = Form(None),
         prompt_fidelity: str = Form(DEFAULT_PROMPT_FIDELITY),
         gallery_image_ids: list[str] | None = Form(None),
         reference_asset_ids: list[str] | None = Form(None),
+        reference_image_order: str | None = Form(None),
         reference_file_ids: list[str] | None = Form(None),
         reference_images: list[UploadFile] | None = File(None),
         reference_files: list[UploadFile] | None = File(None),
@@ -850,7 +862,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             gallery_image_ids or [],
             include_data_urls=False,
         )
-        uploaded_images = await _prepare_raster_uploads(reference_images or [])
+        uploaded_images = await _prepare_raster_uploads(reference_images or [], preserve_positions=reference_image_order is not None)
         predicted_uploaded_assets = [
             _prepared_reference_asset(image)
             for image in uploaded_images
@@ -861,6 +873,10 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             touch=False,
             include_data_urls=False,
         )
+        image_order = normalize_reference_image_order(
+            reference_image_order, predicted_uploaded_assets, selected_assets, gallery_refs,
+        )
+        prompt_for_model = resolve_gallery_prompt(prompt_for_model or prompt, gallery_prompt, image_order)
         predicted_assets = h["dedupe_reference_assets"](
             predicted_uploaded_assets + selected_assets
         )
@@ -879,7 +895,9 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             predicted_assets=predicted_assets,
         )
         gallery_data_urls = _gallery_data_urls(ctx, gallery_refs)
-        all_reference_data_urls = reference_data_urls + gallery_data_urls
+        all_reference_data_urls = ordered_reference_data_urls(
+            predicted_assets, reference_data_urls, gallery_refs, gallery_data_urls, image_order,
+        )
         prepared_submission = _prepare_generation_submission(
             ctx,
             operation="generate",
@@ -945,6 +963,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             gallery_refs=gallery_refs,
             reference_assets=reference_assets,
             file_references=file_references,
+            reference_image_order=image_order,
         )
 
     @app.post("/api/edit")
@@ -974,9 +993,11 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
         binding_id: str | None = Form(None),
         parameters_json: str | None = Form(None),
         prompt_for_model: str | None = Form(None),
+        gallery_prompt: str | None = Form(None),
         prompt_fidelity: str = Form(DEFAULT_PROMPT_FIDELITY),
         gallery_image_ids: list[str] | None = Form(None),
         reference_asset_ids: list[str] | None = Form(None),
+        reference_image_order: str | None = Form(None),
         reference_file_ids: list[str] | None = Form(None),
         images: list[UploadFile] | None = File(None),
         mask: UploadFile | None = File(None),
@@ -1020,7 +1041,7 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             gallery_image_ids or [],
             include_data_urls=False,
         )
-        uploaded_images = await _prepare_raster_uploads(images or [])
+        uploaded_images = await _prepare_raster_uploads(images or [], preserve_positions=reference_image_order is not None)
         prepared_masks = await _prepare_raster_uploads(
             [mask] if mask is not None else []
         )
@@ -1035,6 +1056,10 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             touch=False,
             include_data_urls=False,
         )
+        image_order = normalize_reference_image_order(
+            reference_image_order, predicted_uploaded_assets, selected_assets, gallery_refs,
+        )
+        prompt_for_model = resolve_gallery_prompt(prompt_for_model or prompt, gallery_prompt, image_order)
         predicted_assets = h["dedupe_reference_assets"](
             predicted_uploaded_assets + selected_assets
         )
@@ -1056,7 +1081,9 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             predicted_assets=predicted_assets,
         )
         gallery_data_urls = _gallery_data_urls(ctx, gallery_refs)
-        all_image_data_urls = image_data_urls + gallery_data_urls
+        all_image_data_urls = ordered_reference_data_urls(
+            predicted_assets, image_data_urls, gallery_refs, gallery_data_urls, image_order,
+        )
         mask_data_url = (
             _bytes_to_data_url(
                 prepared_mask.data,
@@ -1146,4 +1173,5 @@ def register_generation_routes(app: FastAPI, ctx: WebUIContext) -> None:
             gallery_refs=gallery_refs,
             reference_assets=reference_assets,
             file_references=file_references,
+            reference_image_order=image_order,
         )

@@ -72,7 +72,8 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn("promptFidelity: document.querySelector", script)
         self.assertIn("function currentPromptFidelity()", script)
         self.assertIn("function currentPromptForModel()", script)
-        self.assertIn('currentPromptFidelity() === "original" ? expandPromptSnippets(getPromptText()) : buildPromptForModel()', script)
+        self.assertIn('currentPromptFidelity() === "original") return null', script)
+        self.assertIn('form.append("gallery_prompt", JSON.stringify(galleryContext))', script)
         self.assertIn("params.prompt_fidelity = currentPromptFidelity()", script)
         self.assertIn('isGptImageModel(state.selectedModelId)', script)
         self.assertIn('form.append("prompt_fidelity", currentPromptFidelity())', script)
@@ -144,7 +145,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
             "export function initPromptFeature",
             "function createGalleryChip",
             "function buildPromptForModel",
-            "function galleryReferenceInstruction",
+            "function galleryPrompt",
             "function syncPromptGalleryMentionsFromInputs",
             "function handlePromptChipDrop",
             "function getPromptText",
@@ -672,7 +673,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         for symbol in (
             "currentPromptForModel",
             "promptTokenReplacement",
-            "galleryPromptText",
+            "galleryPrompt",
         ):
             self.assertIn(f"export function {symbol}", model_source)
             self.assertIn(symbol, prompt_source)
@@ -703,9 +704,9 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn('event.key === "Backspace" || event.key === "Delete"', script)
         self.assertIn("data-remove-gallery-chip", script)
         self.assertIn("prompt_for_model", script)
-        self.assertIn("function galleryReferenceInstruction", script)
+        self.assertIn("function galleryPrompt", script)
         self.assertIn('translate("promptModel.galleryHeader")', script)
-        self.assertIn('formatTranslation("promptModel.galleryInstruction"', script)
+        self.assertIn('template: translate("promptModel.galleryInstruction")', script)
         self.assertIn("categoryPromptRole(source.category)", script)
         self.assertIn("source.prompt_note", script)
         self.assertIn("syncGalleryInputsFromPrompt()", script)
@@ -719,10 +720,10 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
 
         self.assertIn('querySelectorAll(".gallery-chip[data-gallery-id]")', script)
-        self.assertIn("const existingById = new Map", script)
+        self.assertIn("const retainedIds = new Set", script)
         self.assertIn("const item = findGalleryItem(itemId)", script)
-        self.assertIn("if (item) return gallerySource(item)", script)
-        self.assertIn("state.images = [...uploads, ...galleries]", script)
+        self.assertIn("sources.push(gallerySource(item || {", script)
+        self.assertIn("state.images = sources", script)
         self.assertIn("function imageSourcesKey", script)
     def test_prompt_dragged_gallery_chips_keep_text_boundaries(self) -> None:
         script = self._frontend_script_source()
@@ -942,7 +943,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertRegex(script, r"PROMPT_SNIPPET_TRIGGER_PATTERN\s*=\s*/[\s\S]*\(\[~～〜∼˜\]\+\)")
         self.assertRegex(script, r"function activePromptSnippetMatch\(\)\s*\{[\s\S]*normalizePromptSnippetTrigger\(match\[2\]\)")
         self.assertRegex(script, r"promptTextFromNode\(node\)\s*\{[\s\S]*child\.classList\.contains\(\"prompt-snippet-chip\"\)[\s\S]*`~\$\{child\.dataset\.promptSnippetTag")
-        self.assertRegex(script, r"function currentPromptForModel\(\)\s*\{[\s\S]*expandPromptSnippets\(getPromptText\(\)\)")
+        self.assertRegex(script, r"function currentPromptForModel\(\)\s*\{\s*return buildPromptForModel\(\)")
         self.assertRegex(script, r"function buildPromptForModel\(\)\s*\{[\s\S]*expandPromptSnippets\(getPromptText\(\)\)")
         self.assertRegex(styles, r"\.prompt-snippet-chip\s*\{[^}]*display:\s*inline-flex")
         self.assertRegex(styles, r"\.prompt-snippet-suggest\s*\{[^}]*position:\s*fixed")
@@ -1237,7 +1238,7 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-859', html)
+        self.assertIn('/static/app.js?v=runtime-863', html)
         self.assertIn('/static/styles.css?v=runtime-861', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)

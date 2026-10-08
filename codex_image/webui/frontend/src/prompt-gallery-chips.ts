@@ -239,15 +239,19 @@ export function syncGalleryInputsFromPrompt(): boolean {
   const chips = Array.from(els.promptEditor?.querySelectorAll(".gallery-chip[data-gallery-id]") || []);
   const mentionedIds = new Set(chips.map((chip: any) => chip.dataset.galleryId).filter(Boolean));
   const beforeKey = imageSourcesKey(state.images);
-  const uploads = state.images.filter((source: any) => source.kind !== "gallery");
-  const existingById = new Map(state.images.filter((source: any) => source.kind === "gallery").map((source: any) => [source.id, source]));
-  const galleries = chips.map((chip: any) => {
+  const retainedIds = new Set<string>();
+  const sources = state.images.filter((source: any) => {
+    if (source.kind !== "gallery") return true;
+    if (!mentionedIds.has(source.id) || retainedIds.has(source.id)) return false;
+    retainedIds.add(source.id);
+    return true;
+  });
+  for (const chip of chips as any[]) {
     const itemId = chip.dataset.galleryId;
-    const existing = existingById.get(itemId);
-    if (existing) return existing;
+    if (!itemId || retainedIds.has(itemId)) continue;
+    retainedIds.add(itemId);
     const item = findGalleryItem(itemId);
-    if (item) return gallerySource(item);
-    return gallerySource({
+    sources.push(gallerySource(item || {
       id: itemId,
       name: chip.dataset.galleryName || chip.textContent.replace(/^@/, "").trim() || translate("gallery.imageFallback"),
       category: chip.dataset.galleryCategory || "",
@@ -256,9 +260,9 @@ export function syncGalleryInputsFromPrompt(): boolean {
       prompt_note: chip.dataset.galleryPromptNote || "",
       image_url: chip.dataset.galleryImageUrl || "",
       missing: true,
-    });
-  }).filter((source: any) => source.id && mentionedIds.has(source.id));
-  state.images = [...uploads, ...galleries];
+    }));
+  }
+  state.images = sources;
   if (imageSourcesKey(state.images) === beforeKey) return false;
   if (!state.images.length) {
     setMode("generate");
