@@ -1,3 +1,4 @@
+import { handleImageMentionKey } from "./prompt-mention-menu";
 import { getLegacyBridge } from "./state";
 import {
   handlePromptEditorPaste,
@@ -42,8 +43,6 @@ function openPromptSnippetChipPopover(chip: any): void { legacyMethod("openPromp
 function updatePromptCount(): void { legacyMethod("updatePromptCount"); }
 function updateRequestPreview(): void { legacyMethod("updateRequestPreview"); }
 function removePromptGalleryChip(chip: any): void { legacyMethod("removePromptGalleryChip", chip); }
-function findGalleryItem(itemId: any): any { return legacyMethod("findGalleryItem", itemId); }
-function insertGalleryMention(item: any): void { legacyMethod("insertGalleryMention", item); }
 
 export function handlePromptEditorCopy(event: any): void {
   if (!event.clipboardData) return;
@@ -80,6 +79,8 @@ export function syncPromptFromEditor(): void {
 }
 
 export function handlePromptEditorKeydown(event: any): void {
+  if (event.isComposing || event.keyCode === 229) return;
+  if (handleImageMentionKey(event)) return;
   if (isPromptEditorArrowKey(event.key)) {
     event.stopPropagation();
     return;
@@ -109,15 +110,6 @@ export function handlePromptEditorKeydown(event: any): void {
     event.preventDefault();
     const input = els.colorSuggest.querySelector("[data-color-hex-input]");
     insertColorCode((input as any)?.value || state.selectedColorCode);
-    return;
-  }
-  if (event.key === "Enter" && !els.mentionSuggest.classList.contains("hidden")) {
-    const first = els.mentionSuggest.querySelector("[data-mention-id]");
-    if (first) {
-      event.preventDefault();
-      const item = findGalleryItem((first as any).dataset.mentionId);
-      if (item) insertGalleryMention(item);
-    }
     return;
   }
   const promptSnippetSuggest = promptSnippetSuggestElement();
@@ -190,7 +182,7 @@ export function promptChipAtCaretForDeletion(key: any): any {
 
 export function promptChipFallbackForDeletion(key: any): any {
   if (!els.promptEditor) return null;
-  const chips = Array.from(els.promptEditor.querySelectorAll(".gallery-chip[data-gallery-id], .color-chip[data-color-code], .prompt-snippet-chip[data-prompt-snippet-tag]"));
+  const chips = Array.from(els.promptEditor.querySelectorAll(".gallery-chip, .color-chip[data-color-code], .prompt-snippet-chip[data-prompt-snippet-tag]"));
   if (!chips.length) return null;
   const textWithoutChips = Array.from(els.promptEditor.childNodes).reduce<string>((text: string, child: any) => {
     if (child.nodeType === Node.ELEMENT_NODE && isPromptAtomicChip(child)) {
@@ -384,7 +376,7 @@ export function setCaretAfterNode(node: any): void {
 }
 
 export function bindPromptEditorEvents(): void {
-  els.promptEditor?.addEventListener("input", () => {
+  const updateAfterInput = () => {
     syncPromptFromEditor();
     updatePromptCount();
     const galleryInputsChanged = syncGalleryInputsFromPrompt();
@@ -392,9 +384,13 @@ export function bindPromptEditorEvents(): void {
     updateColorSuggest();
     updatePromptSnippetSuggest();
     if (!galleryInputsChanged) updateRequestPreview();
+  };
+  els.promptEditor?.addEventListener("input", (event: InputEvent) => {
+    if (!event.isComposing) updateAfterInput();
   });
+  els.promptEditor?.addEventListener("compositionend", updateAfterInput);
   els.promptEditor?.addEventListener("keyup", (event: KeyboardEvent) => {
-    if (event.key === "Escape") return;
+    if (event.isComposing || event.keyCode === 229 || ["Escape", "ArrowUp", "ArrowDown", "Enter"].includes(event.key)) return;
     updateMentionSuggest();
     updateColorSuggest();
     updatePromptSnippetSuggest();
@@ -411,7 +407,7 @@ export function bindPromptEditorEvents(): void {
   els.promptEditor?.addEventListener("mouseup", updatePromptSnippetSelectionButton);
   els.promptEditor?.addEventListener("blur", () => {
     window.setTimeout(() => {
-      hideMentionSuggest();
+      if (!els.mentionSuggest?.contains(document.activeElement)) hideMentionSuggest();
       hidePromptSnippetSuggest();
       if (!els.colorSuggest?.contains(document.activeElement) && !promptEditorFocusInside()) hideColorSuggest();
     }, 160);

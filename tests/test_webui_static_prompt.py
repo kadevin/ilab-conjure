@@ -164,7 +164,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         )
         self.assertRegex(
             core_source,
-            r"function setPromptWithGalleryRefs\(text: any,\s*refs: any\): void\s*\{[\s\S]*const promptText = normalizePromptEditorText\(text\)",
+            r"function setPromptWithGalleryRefs\(text: any,\s*refs: any, mentions\?: ImageMentionContext, sources: any\[\] = \[\]\): void\s*\{[\s\S]*const promptText = normalizePromptEditorText\(text\)",
         )
 
         for function_name in [
@@ -738,9 +738,9 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
 
         self.assertIn("function galleryRefsByMentionLength(refs)", script)
         self.assertIn("function findGalleryRefMentionAt(promptText, cursor, refs)", script)
-        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs\)\s*\{[\s\S]*const sortedRefs = galleryRefsByMentionLength\(refList\)")
-        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs\)\s*\{[\s\S]*const refMatch = findGalleryRefMentionAt\(promptText, cursor, sortedRefs\)")
-        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs\)\s*\{[\s\S]*if \(refMatch\) \{[\s\S]*els\.promptEditor\.append\(createGalleryChip\(refMatch\.ref\)\)")
+        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]*const sortedRefs = galleryRefsByMentionLength\(refList\)")
+        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]*const refMatch = findGalleryRefMentionAt\(promptText, cursor, sortedRefs\)")
+        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text, refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]*if \(refMatch\) \{[\s\S]*els\.promptEditor\.append\(createGalleryChip\(refMatch\.ref\)\)")
         self.assertIn("cursor = refMatch.end", script)
     def test_prompt_mention_suggestions_close_after_insert_and_follow_caret(self) -> None:
         script = self._frontend_script_source()
@@ -749,7 +749,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn("positionMentionSuggestAtCaret(match)", script)
         self.assertIn("function setCaretAfterNode(node)", script)
         self.assertRegex(script, r"function setCaretAfterNode\(node\)\s*\{[\s\S]*node\.nodeType === Node\.TEXT_NODE[\s\S]*range\.setStart\(node,\s*\(node\.textContent \|\| \"\"\)\.length\)")
-        self.assertIn('if (event.key === "Escape") return;', script)
+        self.assertIn('["Escape", "ArrowUp", "ArrowDown", "Enter"].includes(event.key)', script)
         self.assertRegex(script, r"function activeMentionMatch\(\)\s*\{[\s\S]*window\.getSelection\(\)")
         self.assertRegex(script, r"function activeMentionMatch\(\)\s*\{[\s\S]*range\.setStart\(container,\s*tokenStart\)")
         self.assertNotRegex(script, r"function activeMentionMatch\(\)\s*\{[\s\S]{0,260}getPromptText\(\)")
@@ -819,7 +819,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertIn("data-color-code", script)
         self.assertIn("data-remove-color-chip", script)
         self.assertIn("promptTextFromNode", script)
-        self.assertRegex(script, r"promptTextFromNode\(node\)\s*\{[\s\S]*child\.classList\.contains\(\"color-chip\"\)[\s\S]*child\.dataset\.colorCode")
+        self.assertRegex(script, r"promptTextFromNode\(node, imageRenderer[^\n]+\{[\s\S]*child\.classList\.contains\(\"color-chip\"\)[\s\S]*child\.dataset\.colorCode")
         self.assertRegex(script, r"function activeColorMatch\(\)\s*\{[\s\S]*window\.getSelection\(\)")
         self.assertIn("textBeforeCaret.match(/#([0-9a-fA-F]{0,6})$/)", script)
         self.assertRegex(script, r"function insertColorCode\(colorCode\)\s*\{[\s\S]*match\.range\.deleteContents\(\)")
@@ -899,10 +899,10 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
     def test_history_prompt_restore_rebuilds_hex_color_chips(self) -> None:
         script = self._frontend_script_source()
 
-        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs\)\s*\{[\s\S]*createColorChip\(colorCode\)")
-        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs\)\s*\{[\s\S]*normalizeHexColor\(match\[0\]\)")
+        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]*createColorChip\(colorCode\)")
+        self.assertRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]*normalizeHexColor\(match\[0\]\)")
         self.assertIn("/@([^\\s@，。,.#~～〜∼˜]+)|#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-fA-F])|(?:^|[\\s\\n，。,.；;：:！？!?、（）()\\[\\]【】\"'“”‘’])([~～〜∼˜]+)([^\\s~～〜∼˜@#，。,.；;：:！？!?、（）()\\[\\]【】\"'“”‘’]+)/g", script)
-        self.assertNotRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs\)\s*\{[\s\S]{0,160}!Array\.isArray\(refs\) \|\| !refs\.length")
+        self.assertNotRegex(script, r"function setPromptWithGalleryRefs\(text,\s*refs, mentions\?: ImageMentionContext, sources = \[\]\)\s*\{[\s\S]{0,160}!Array\.isArray\(refs\) \|\| !refs\.length")
     def test_color_chip_swatch_reopens_picker_for_editing(self) -> None:
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -942,7 +942,7 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertRegex(script, r"PROMPT_SNIPPET_TRIGGER_PATTERN\s*=\s*/\(\^\|\[\\s\\n，。")
         self.assertRegex(script, r"PROMPT_SNIPPET_TRIGGER_PATTERN\s*=\s*/[\s\S]*\(\[~～〜∼˜\]\+\)")
         self.assertRegex(script, r"function activePromptSnippetMatch\(\)\s*\{[\s\S]*normalizePromptSnippetTrigger\(match\[2\]\)")
-        self.assertRegex(script, r"promptTextFromNode\(node\)\s*\{[\s\S]*child\.classList\.contains\(\"prompt-snippet-chip\"\)[\s\S]*`~\$\{child\.dataset\.promptSnippetTag")
+        self.assertRegex(script, r"promptTextFromNode\(node, imageRenderer[^\n]+\{[\s\S]*child\.classList\.contains\(\"prompt-snippet-chip\"\)[\s\S]*`~\$\{child\.dataset\.promptSnippetTag")
         self.assertRegex(script, r"function currentPromptForModel\(\)\s*\{\s*return buildPromptForModel\(\)")
         self.assertRegex(script, r"function buildPromptForModel\(\)\s*\{[\s\S]*expandPromptSnippets\(getPromptText\(\)\)")
         self.assertRegex(styles, r"\.prompt-snippet-chip\s*\{[^}]*display:\s*inline-flex")
@@ -1238,8 +1238,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         self.assertIn('id="mainModelToggle"', html)
         self.assertIn('id="mainModelOptions"', html)
         self.assertIn('role="listbox"', html)
-        self.assertIn('/static/app.js?v=runtime-863', html)
-        self.assertIn('/static/styles.css?v=runtime-861', html)
+        self.assertIn('/static/app.js?v=runtime-864', html)
+        self.assertIn('/static/styles.css?v=runtime-862', html)
         self.assertIn("mainModel: document.querySelector", script)
         self.assertIn("mainModelCombobox: document.querySelector", script)
         self.assertIn("mainModelToggle: document.querySelector", script)

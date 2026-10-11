@@ -1,3 +1,4 @@
+import { restoreImageMentions, validImageMentionContext, type ImageMentionContext } from "./prompt-image-mentions";
 import { getLegacyBridge } from "./state";
 
 const bridge = getLegacyBridge();
@@ -52,7 +53,7 @@ export function createPromptTextFragment(text: any): { fragment: DocumentFragmen
   return { fragment, lastNode };
 }
 
-export function promptTextFromNode(node: any): string {
+export function promptTextFromNode(node: any, imageRenderer?: (chip: HTMLElement) => string): string {
   let text = "";
   node.childNodes.forEach((child: any) => {
     if (child.nodeType === Node.TEXT_NODE) {
@@ -61,7 +62,7 @@ export function promptTextFromNode(node: any): string {
     }
     if (child.nodeType !== Node.ELEMENT_NODE) return;
     if (child.classList.contains("gallery-chip")) {
-      text += `@${child.dataset.galleryName || child.textContent.trim()}`;
+      text += imageRenderer ? imageRenderer(child) : child.dataset.imageRefText || `@${child.dataset.galleryName || child.textContent.trim()}`;
       return;
     }
     if (child.classList.contains("color-chip")) {
@@ -76,7 +77,7 @@ export function promptTextFromNode(node: any): string {
       text += "\n";
       return;
     }
-    text += promptTextFromNode(child);
+    text += promptTextFromNode(child, imageRenderer);
     if (child.tagName === "DIV" || child.tagName === "P") {
       text += "\n";
     }
@@ -137,7 +138,7 @@ export function setPromptText(text: any): void {
   closePromptSnippetPopover();
 }
 
-export function setPromptWithGalleryRefs(text: any, refs: any): void {
+export function setPromptWithGalleryRefs(text: any, refs: any, mentions?: ImageMentionContext, sources: any[] = []): void {
   if (!els.promptEditor) {
     setPromptText(text);
     return;
@@ -147,6 +148,20 @@ export function setPromptWithGalleryRefs(text: any, refs: any): void {
   const promptText = normalizePromptEditorText(text);
   clearPromptEditorSelection();
   els.promptEditor.innerHTML = "";
+  if (validImageMentionContext(mentions, promptText)) {
+    restoreImageMentions(mentions, sources, part => appendRestoredPromptText(part, []));
+  } else {
+    appendRestoredPromptText(promptText, mentions ? [] : sortedRefs);
+  }
+  syncPromptFromEditor();
+  hideMentionSuggest();
+  hideColorSuggest();
+  hidePromptSnippetSuggest();
+  hidePromptSnippetSelectionButton();
+  closePromptSnippetPopover();
+}
+
+function appendRestoredPromptText(promptText: string, sortedRefs: any[]): void {
   let cursor = 0;
   let plainStart = 0;
   while (cursor < promptText.length) {
@@ -179,12 +194,6 @@ export function setPromptWithGalleryRefs(text: any, refs: any): void {
     cursor += 1;
   }
   appendPromptText(promptText.slice(plainStart));
-  syncPromptFromEditor();
-  hideMentionSuggest();
-  hideColorSuggest();
-  hidePromptSnippetSuggest();
-  hidePromptSnippetSelectionButton();
-  closePromptSnippetPopover();
 }
 
 function clearPromptEditorSelection(): void {

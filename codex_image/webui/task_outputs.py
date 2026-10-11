@@ -859,6 +859,7 @@ def _write_queued_metadata(
     reference_assets: list[dict[str, Any]] | None = None,
     reference_files: list[dict[str, Any]] | None = None,
     reference_image_order: list[dict[str, str]] | None = None,
+    prompt_image_mentions: dict[str, Any] | None = None,
     prompt_constraints: list[str] | None = None,
     requested_backend: str | None = None,
     max_attempts: int = 2,
@@ -889,6 +890,8 @@ def _write_queued_metadata(
     }
     if reference_image_order is not None:
         metadata["reference_image_order"] = reference_image_order
+    if prompt_image_mentions is not None:
+        metadata["prompt_image_mentions"] = prompt_image_mentions
     if requested_backend:
         metadata["requested_backend"] = requested_backend
     if execution_prompt is not None:

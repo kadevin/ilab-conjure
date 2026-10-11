@@ -5684,6 +5684,18 @@ select.themed-select-native {
   background: var(--primary-light);
 }
 
+.mention-option.is-active { background: var(--primary-light); }
+.mention-option { min-height: 44px; }
+.mention-option > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mention-group-label { padding: 6px 8px; color: var(--text-muted); font-size: 12px; }
+.mention-more { width: 100%; min-height: 44px; border: 0; border-radius: 8px; background: var(--surface-soft); color: var(--text); cursor: pointer; }
+.image-mention-missing { outline: 1px solid var(--danger); color: var(--danger); }
+.mention-suggest { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+.mention-suggest::-webkit-scrollbar { width: 8px; }
+.mention-suggest::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.mention-suggest::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+.mention-suggest::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
 .mention-option img {
   width: 30px;
   height: 30px;

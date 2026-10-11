@@ -1,4 +1,5 @@
-export type ComposerDraft = { prompt: string; images: any[]; files: any[]; mode: string };
+import type { ImageMentionContext } from "./prompt-image-mentions";
+export type ComposerDraft = { prompt: string; prompt_image_mentions?: ImageMentionContext | null; images: any[]; files: any[]; mode: string };
 export type ComposerNavigationSnapshot = { current: ComposerDraft; drafts: ComposerDraft[]; baseline: string };
 export interface ComposerNavigationStore {
   hasPending(): boolean;

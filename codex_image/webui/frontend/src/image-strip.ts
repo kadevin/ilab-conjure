@@ -1,3 +1,5 @@
+import { imageMentionLabel, refreshImageMentionChips } from "./prompt-image-mentions";
+import { preserveComposerDraft } from "./composer-draft";
 import { getEls } from "./dom";
 import { getLegacyBridge, getState } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
@@ -15,6 +17,7 @@ function addImages(event: any) {
 }
 
 function clearImages() {
+  preserveComposerDraft(true);
   const state = getState();
   legacyMethod("revokeUploadPreviewUrls", state.images);
   state.images = [];
@@ -90,6 +93,7 @@ function handleImageStripWheel(event: WheelEvent) {
 }
 
 function renderImageStrip() {
+  refreshImageMentionChips();
   const state = getState();
   const els = getEls();
   const hasImages = Boolean(state.images.length);
@@ -160,6 +164,7 @@ function renderImageStrip() {
       : source.kind === "asset"
         ? translate("imageInput.recentBadge")
         : translate("imageInput.uploadBadge");
+    if (source.kind !== "gallery") badge.textContent = imageMentionLabel(source);
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "thumb-remove";
@@ -168,6 +173,7 @@ function renderImageStrip() {
     remove.append(createThumbRemoveIcon());
     remove.addEventListener("click", (event) => {
       event.stopPropagation();
+      preserveComposerDraft(true);
       const removedSource = state.images[index];
       legacyMethod("revokeUploadPreviewUrl", removedSource, { ignoredCurrentSources: new Set([removedSource]) });
       state.images.splice(index, 1);

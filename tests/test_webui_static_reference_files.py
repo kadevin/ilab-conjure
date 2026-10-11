@@ -1039,6 +1039,8 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               if (name === "./i18n") return i18n;
               if (name === "./state") return stateModule;
               if (name === "./upload-thumbnails") return {{ uploadThumbnailUrl: () => Promise.resolve("data:image/webp;base64,cA==") }};
+              if (name === "./prompt-image-mentions") return {{ refreshImageMentionChips() {{}}, imageMentionLabel: (source) => `Image ${{state.images.indexOf(source) + 1}}` }};
+              if (name === "./composer-draft") return {{ preserveComposerDraft() {{}} }};
               throw new Error(`unexpected image require: ${{name}}`);
             }});
             imageApi.initImageStripFeature();
@@ -1207,6 +1209,8 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               if (name === "./i18n") return i18n;
               if (name === "./state") return stateModule;
               if (name === "./upload-thumbnails") return {{ uploadThumbnailUrl: () => Promise.resolve("data:image/webp;base64,cA==") }};
+              if (name === "./prompt-image-mentions") return {{ refreshImageMentionChips() {{}}, imageMentionLabel: (source) => `Image ${{state.images.indexOf(source) + 1}}` }};
+              if (name === "./composer-draft") return {{ preserveComposerDraft() {{}} }};
               throw new Error(`unexpected strip require: ${{name}}`);
             }});
             referenceApi.initReferenceFileInputsFeature();

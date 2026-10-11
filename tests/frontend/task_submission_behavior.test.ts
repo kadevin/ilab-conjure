@@ -388,6 +388,7 @@ function referenceFixture() {
   let chips: any[] = [];
   els.promptEditor = { querySelectorAll: () => chips };
   Object.assign(methods, {
+    promptTextFromNode: () => methods.getPromptText(),
     galleryInputs: () => state.images.filter((source: any) => source.kind === "gallery"),
     referenceAssetInputs: () => state.images.filter((source: any) => source.kind === "asset"),
     uploadInputs: () => state.images.filter((source: any) => source.kind === "upload"),

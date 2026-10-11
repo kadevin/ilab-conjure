@@ -86,6 +86,7 @@ function handlePromptSnippetDocumentClick(target: any): void { legacyMethod("han
 
 function handlePromptDocumentClick(event: any): void {
   const target = event.target;
+  if (!els.promptEditor?.contains(target) && !els.mentionSuggest?.contains(target)) hideMentionSuggest();
   if (els.colorSuggest && !els.colorSuggest.classList.contains("hidden")) {
     const clickedColorSuggest = els.colorSuggest.contains(target);
     const clickedPromptEditor = els.promptEditor?.contains(target);

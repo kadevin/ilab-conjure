@@ -58,6 +58,7 @@ from .gallery_storage import GalleryRestore
 from .image_uploads import InvalidRasterImage, validate_raster_image
 from .reference_assets import ReferenceAssetRestore
 from .reference_image_order import remap_reference_image_order
+from .prompt_image_mentions import remap_prompt_image_mentions
 from .reference_files import MAX_REFERENCE_FILE_BYTES, ReferenceFileRestore, validate_reference_file
 from .storage import (
     RestoredTaskBinary,
@@ -863,6 +864,11 @@ class HistoryBackupImportService:
                         )
                         output_names_by_index[index] = local_output_name
 
+            # Parts contain prompt text, not resource paths. Project the supported
+            # schema before the generic path scrubber removes path-like prose.
+            image_mentions = remap_prompt_image_mentions(
+                metadata["prompt_image_mentions"], image_identities,
+            ) if "prompt_image_mentions" in metadata else None
             metadata = _rewrite_restored_metadata(
                 metadata, task.task_id, input_names, mask_name, output_names_by_index,
                 reference_records, gallery_records, native_records,
@@ -877,6 +883,8 @@ class HistoryBackupImportService:
                 native_records,
             )
             restored_order = remap_reference_image_order(metadata.get("reference_image_order"), image_identities)
+            if image_mentions is not None:
+                metadata["prompt_image_mentions"] = image_mentions
             if restored_order is not None:
                 metadata["reference_image_order"] = restored_order
                 request["webui_image_refs"]["reference_image_order"] = restored_order

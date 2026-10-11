@@ -1,3 +1,4 @@
+import { rebindEditedImageMentions } from "./prompt-image-mentions";
 import Konva from "konva";
 import { captureImageEditorCanvas, rememberImageEditorCanvasSnapshot } from "./image-editor-canvas";
 import { editedUploadFilename, imageEditorCanvasFromImage, imageEditorCanvasSnapshot, imageEditorClampedCanvasDimensions, imageEditorExportBlob, imageEditorExportDimensions, imageEditorLayerAttrs, loadImageEditorImage, resizeImageEditorBackingCanvas } from "./image-editor-canvas";
@@ -788,8 +789,8 @@ function ensureImageEditorPromptHint() {
   const current = legacyMethod("getPromptText");
   const hint = translate("imageEditor.promptHint");
   if (current.includes(hint) || current.includes(IMAGE_EDITOR_PROMPT_HINT_LEGACY)) return;
-  const next = current ? `${current}\n${hint}` : hint;
-  legacyMethod("setPromptText", next);
+  legacyMethod("appendPromptText", current ? `\n${hint}` : hint);
+  legacyMethod("syncPromptFromEditor");
   legacyMethod("updatePromptCount");
 }
 
@@ -833,6 +834,7 @@ async function saveImageEdit() {
       edited: true,
     };
     state.images[sourceIndex] = nextSource;
+    rebindEditedImageMentions(source, nextSource);
     legacyMethod("revokeUploadPreviewUrl", source);
     legacyMethod("syncPromptGalleryMentionsFromInputs");
     if (imageEditorState.hasInstructionMarks) ensureImageEditorPromptHint();

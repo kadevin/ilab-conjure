@@ -1,3 +1,4 @@
+import { captureImageMentions, imageMentionPayload, imageMentionsValid } from "./prompt-image-mentions";
 import { composerFingerprint, markComposerSubmitted } from "./composer-draft";
 import { isGptImageModel } from "./gpt-image-models";
 import { setBackgroundControl } from "./background-controls";
@@ -183,7 +184,7 @@ function applyTaskToForm(task: any, options?: ApplyTaskToFormOptions) {
     return;
   }
   setMode(task.mode || "generate");
-  setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || []);
+  setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || [], task.prompt_image_mentions, task.input_sources || task.local_input_files || []);
   if (!options?.preserveOutputSettings) applyTaskOutputParams(task);
   updatePromptCount();
   updateRequestPreview();
@@ -215,6 +216,7 @@ function buildPreviewRequest() {
     prompt: getPromptText(),
     prompt_for_model: currentPromptForModel(),
     ...(galleryContext ? { gallery_prompt: galleryContext } : {}),
+    ...(imageMentionPayload() ? { prompt_image_mentions: imageMentionPayload() } : {}),
     images: uploads.map((source: any) => source.name),
     gallery_image_ids: galleries.map((source: any) => source.id),
     reference_asset_ids: assets.map((source: any) => source.id),
@@ -292,6 +294,10 @@ async function runTask() {
   const assets = referenceAssetInputs();
   const fileUploads = referenceFileUploads();
   const storedFiles = storedReferenceFileInputs();
+  if (!imageMentionsValid()) {
+    setStatus(translate("promptMention.missing"), "error");
+    return;
+  }
   if (missingGalleryInputs().length) {
     setStatus(translate("status.missingGalleryReference"), "error");
     return;
@@ -333,6 +339,8 @@ async function runTask() {
   const form = new FormData();
   form.append("prompt", prompt);
   form.append("prompt_for_model", promptForModel);
+  const imageMentions = imageMentionPayload();
+  if (imageMentions) form.append("prompt_image_mentions", JSON.stringify(imageMentions));
   const galleryContext = galleryPrompt();
   if (galleryContext) form.append("gallery_prompt", JSON.stringify(galleryContext));
   form.append("ui_language", currentLocaleCode());
@@ -354,7 +362,7 @@ async function runTask() {
   }
 
   const submittedComposer = composerFingerprint();
-  const pendingTask = createPendingTask();
+  const pendingTask = { ...createPendingTask(), prompt_image_mentions: captureImageMentions() };
   addPendingTask(pendingTask);
   if (els.requestJson) {
     els.requestJson.textContent = JSON.stringify(pendingTask.request, null, 2);

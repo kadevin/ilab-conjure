@@ -44,7 +44,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-161', history_html)
+        self.assertIn('/static/history.js?v=history-162', history_html)
         filters = Path("codex_image/webui/frontend/src/history-filters-controller.ts").read_text(encoding="utf-8")
         window = Path("codex_image/webui/frontend/src/history-list-controller.ts").read_text(encoding="utf-8")
         detail = Path("codex_image/webui/frontend/src/history-detail-controller.ts").read_text(encoding="utf-8")
@@ -1369,7 +1369,7 @@ console.log(JSON.stringify({{
             source,
         )
         self.assertIn(
-            'setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || []);',
+            'setPromptWithGalleryRefs(task.prompt || task.prompt_for_model || "", task.gallery_refs || [], task.prompt_image_mentions, task.input_sources || task.local_input_files || []);',
             submit_source,
         )
 

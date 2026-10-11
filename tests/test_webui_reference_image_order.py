@@ -132,6 +132,50 @@ class ReferenceImageOrderTests(unittest.TestCase):
                         restored = self.client.get(f"/api/tasks/{task_id}").json()["task"]
                         self.assertEqual(self.source_names(restored["input_sources"]), list(names))
 
+    def test_explicit_mentions_survive_queue_retry_and_history_in_all_prompt_modes(self):
+        from codex_image.webui.queue import RetryableTaskError
+
+        for mode in ("generate", "edit"):
+            for fidelity in ("original", "strict", "off"):
+                for snapshot in (True, False):
+                    with self.subTest(mode=mode, fidelity=fidelity, snapshot=snapshot):
+                        parts = ["Use ", {"text": "@same", "source": {"kind": "upload", "index": 1}},
+                                 " beside ", {"text": "@same", "source": {"kind": "gallery", "id": self.galleries["D"]}}]
+                        response = self.submit(mode, "CCD", prompt_fields={
+                            "prompt": "Use @same beside @same", "prompt_for_model": "Use @same beside @same",
+                            "prompt_fidelity": fidelity,
+                            "prompt_image_mentions": json.dumps({"version": 1, "template": "reference image {number}",
+                                                                  "parts": parts, "model_parts": parts}),
+                        })
+                        self.assertEqual(response.status_code, 200, response.text)
+                        task = response.json()["task"]
+                        task_id = task["task_id"]
+                        if not snapshot:
+                            metadata = self.app.state.storage.read_metadata(task_id)
+                            metadata.pop("generation_snapshot", None)
+                            self.app.state.storage.write_metadata(task_id, metadata)
+                        with patch.object(self.fake, f"{mode}_image", side_effect=RuntimeError("synthetic transient failure")):
+                            with self.assertRaises(RetryableTaskError):
+                                asyncio.run(self.app.state.queue_manager.run_available_once())
+                        retried = self.client.post(f"/api/tasks/{task_id}/retry-failed")
+                        self.assertEqual(retried.status_code, 200, retried.text)
+                        asyncio.run(self.app.state.queue_manager.run_available_once())
+                        call = (self.fake.edit_calls if mode == "edit" else self.fake.generate_calls)[-1]
+                        self.assertIn("Use reference image 1 beside reference image 2", call["prompt"])
+                        restored = self.client.get(f"/api/tasks/{task_id}").json()["task"]
+                        self.assertEqual(restored["prompt"], "Use @same beside @same")
+                        self.assertEqual(restored["prompt_image_mentions"]["parts"][1]["source"],
+                                         {"kind": "asset", "id": hashlib.sha256(self.images["C"]).hexdigest()})
+
+    def test_invalid_image_mentions_do_not_commit_uploads(self):
+        for mode in ("generate", "edit"):
+            response = self.submit(mode, "CD", prompt_fields={"prompt_image_mentions": "{}"})
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json()["detail"]["code"], "prompt_image_mentions_invalid")
+        self.assertEqual(self.app.state.storage.list_tasks(), [])
+        with self.assertRaises(FileNotFoundError):
+            self.app.state.reference_asset_storage.read_item(hashlib.sha256(self.images["C"]).hexdigest())
+
     def test_legacy_request_without_order_keeps_existing_dedup_and_grouping(self):
         response = self.submit("edit", "ADCCABE", send_order=False)
         self.assertEqual(response.status_code, 200, response.text)
@@ -314,8 +358,15 @@ class ReferenceImageOrderTests(unittest.TestCase):
                     transport = FakeTransport([FakeResponse(status=200, body=body)])
                     client_type = OpenAIImagesImageClient if protocol == "images" else OpenAIResponsesImageClient
                     self.fake = client_type(api_key="synthetic", base_url="https://upstream.invalid", transport=transport)
+                    fields = self.gallery_prompt_fields()
+                    parts = ["Use ", {"text": "@upload", "source": {"kind": "upload", "index": 1}}, " with ",
+                             {"text": "@D", "source": {"kind": "gallery", "id": self.galleries["D"]}}, " and ",
+                             {"text": "@E", "source": {"kind": "gallery", "id": self.galleries["E"]}}]
+                    fields.update(prompt="Use @upload with @D and @E", prompt_for_model="Use @upload with @D and @E",
+                                  prompt_image_mentions=json.dumps({"version": 1, "template": "reference image {number}",
+                                                                    "parts": parts, "model_parts": parts}))
                     response = self.submit(mode, "CCDAE", binding_id=f"codex-gpt-image-2-{protocol}",
-                                           prompt_fields=self.gallery_prompt_fields())
+                                           prompt_fields=fields)
                     self.assertEqual(response.status_code, 200, response.text)
                     asyncio.run(self.app.state.queue_manager.run_available_once())
                     self.assertEqual(len(transport.requests), 1)
@@ -333,6 +384,7 @@ class ReferenceImageOrderTests(unittest.TestCase):
                     self.assertEqual(image_bytes, [self.images[name] for name in "CDAE"])
                     self.assertIn("Image 2: D", model_prompt)
                     self.assertIn("Image 4: E", model_prompt)
+                    self.assertIn("Use reference image 1 with reference image 2 and reference image 4", model_prompt)
 
     def test_missing_reference_keeps_its_history_slot_and_blocks_execution(self):
         from codex_image.webui.queue import RetryableTaskError

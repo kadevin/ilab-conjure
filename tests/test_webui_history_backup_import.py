@@ -205,6 +205,11 @@ def _full_restore_archive(task_id: str = "restore-all", *, ordered: bool = False
             {"kind": "gallery", "id": "old-gallery"}, {"kind": "asset", "id": "a" * 64},
         ]
         request["webui_image_refs"]["reference_image_order"] = metadata["reference_image_order"]
+        parts = ["/literal prompt path ", {"text": "@Pose", "source": {"kind": "gallery", "id": "old-gallery"}},
+                 " beside ", {"text": "@portrait", "source": {"kind": "asset", "id": "a" * 64}},
+                 " and ", {"text": "@missing", "source": {"kind": "gallery", "id": "absent"}}]
+        metadata["prompt"] = "".join(part if isinstance(part, str) else part["text"] for part in parts)
+        metadata["prompt_image_mentions"] = {"version": 1, "parts": parts}
     organization = {"favorite": True, "tags": [{"tag_id": "archive-local-id", "name": "  Travel  "}]}
     payloads = {
         f"tasks/{task_id}/source/metadata.json": _json_bytes(metadata),
@@ -372,6 +377,12 @@ class HistoryBackupImportTests(unittest.TestCase):
             {"kind": "asset", "id": metadata["reference_assets"][0]["id"]},
         ]
         self.assertEqual(metadata["reference_image_order"], expected)
+        parts = metadata["prompt_image_mentions"]["parts"]
+        self.assertEqual(parts[0], "/literal prompt path ")
+        self.assertEqual(parts[1]["source"], {**expected[0], "missing": False})
+        self.assertEqual(parts[3]["source"], {**expected[1], "missing": False})
+        self.assertTrue(parts[5]["source"]["missing"])
+        self.assertEqual(metadata["prompt"], "".join(part if isinstance(part, str) else part["text"] for part in parts))
         request = json.loads(planner.task_storage.request_path("restore-all").read_text())
         self.assertEqual(request["webui_image_refs"]["reference_image_order"], expected)
         enriched = _with_file_urls(metadata, gallery_storage=planner.gallery_storage, reference_asset_storage=planner.reference_asset_storage)

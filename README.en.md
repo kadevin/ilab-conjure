@@ -392,8 +392,9 @@ products, brand assets, style references, and any image you want to reuse.
 
 The prompt editor supports three atomic chip types:
 
-- `@` gallery chip: searches the public gallery, inserts the selected image into
-  reference inputs, and adds visible reference notes for the model.
+- `@` image chip: searches current references first, followed by the public gallery.
+  Selecting an upload inserts a mention; selecting a gallery image also attaches it.
+  Use arrow keys to choose, Enter to confirm, and Esc to dismiss.
 - `#` color chip: inserts a hexadecimal color value such as `#FF6600`; useful
   for product, poster, brand, material, or background color constraints.
 - `~` snippet chip: inserts a saved prompt snippet by short tag. The editor keeps
@@ -403,6 +404,15 @@ The prompt editor supports three atomic chip types:
 Snippet chips can be created from selected prompt text and can later be viewed,
 expanded into plain text, edited, or reused with `~`, `～`, or common tilde
 variants.
+
+Image mentions resolve to reference numbers after the server orders and deduplicates
+images, including in Original mode, which adds no gallery usage notes. Repeated
+mentions share one image; equal names do not merge identities. Removing an upload
+chip keeps its image; removing the last gallery chip also detaches that gallery
+reference. Removing an image removes its mentions, with Restore inputs available
+to recover the inputs together. History and drafts retain identities and block
+missing references. Pasted plain `@Image 1` text does not bind to an image. Saving
+a template turns upload mentions into placeholders such as `{{Image 1}}`.
 
 ## Prompt templates
 

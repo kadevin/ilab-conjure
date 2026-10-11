@@ -704,8 +704,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-863', html)
-        self.assertIn('/static/styles.css?v=runtime-861', html)
+        self.assertIn('/static/app.js?v=runtime-864', html)
+        self.assertIn('/static/styles.css?v=runtime-862', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -3833,8 +3833,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-863', html)
-        self.assertIn('/static/styles.css?v=runtime-861', html)
+        self.assertIn('/static/app.js?v=runtime-864', html)
+        self.assertIn('/static/styles.css?v=runtime-862', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4294,8 +4294,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-863", html)
-        self.assertIn("/static/styles.css?v=runtime-861", html)
+        self.assertIn("/static/app.js?v=runtime-864", html)
+        self.assertIn("/static/styles.css?v=runtime-862", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

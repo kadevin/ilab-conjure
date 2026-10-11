@@ -1,3 +1,4 @@
+import { imageMentionTemplateText } from "./prompt-image-mentions";
 import { getLegacyBridge } from "./state";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 
@@ -469,7 +470,7 @@ function renderPromptTemplateForm(template: any = null) {
     id: "",
     title: "",
     short_title: "",
-    content: getPromptText(),
+    content: imageMentionTemplateText(),
     category: PROMPT_TEMPLATE_CATEGORY_COMMON,
     tags: [],
     notes: "",

@@ -1,3 +1,4 @@
+import { captureImageMentions } from "./prompt-image-mentions";
 import { getLegacyBridge } from "./state";
 import { translate } from "./i18n";
 import { composerNavigationStore, type ComposerDraft as Draft, type ComposerNavigationSnapshot, type ComposerNavigationStore } from "./composer-navigation-storage";
@@ -6,10 +7,10 @@ let baseline = "";
 let drafts: Draft[] = [];
 function capture(): Draft {
   const { state, methods } = getLegacyBridge();
-  return { prompt: methods.getPromptText?.() || "", images: (state.images || []).map((item: any) => ({ ...item })), files: (state.referenceFiles || []).map((item: any) => ({ ...item })), mode: state.mode };
+  return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state.images || []).map((item: any) => ({ ...item })), files: (state.referenceFiles || []).map((item: any) => ({ ...item })), mode: state.mode };
 }
 function key(draft: Draft): string {
-  return JSON.stringify([draft.prompt, draft.images.map(item => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
+  return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map(item => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
 }
 export function composerFingerprint(): string { return key(capture()); }
 export function markComposerSubmitted(fingerprint: string): void {
@@ -26,8 +27,8 @@ export function composerHasChanges(): boolean {
   const draft = capture();
   return Boolean(draft.prompt || draft.images.length || draft.files.length) && key(draft) !== baseline;
 }
-export function preserveComposerDraft(): void {
-  if (!composerHasChanges()) return;
+export function preserveComposerDraft(force = false): void {
+  if (!force && !composerHasChanges()) return;
   const draft = capture();
   if (key(drafts[drafts.length - 1] || { prompt: "", images: [], files: [], mode: "generate" }) !== key(draft)) drafts.push(draft);
   renderRestoreButton();
@@ -53,7 +54,8 @@ function applyDraft(draft: Draft): void {
   methods.revokeUploadPreviewUrls?.(state.images);
   state.images = draft.images.map(item => item.kind === "upload" && item.file ? { ...item, previewUrl: URL.createObjectURL(item.file) } : { ...item });
   state.referenceFiles = draft.files.map(item => ({ ...item }));
-  methods.setPromptText?.(draft.prompt);
+  if (draft.prompt_image_mentions) methods.setPromptWithGalleryRefs?.(draft.prompt, [], draft.prompt_image_mentions, state.images);
+  else methods.setPromptText?.(draft.prompt);
   methods.setMode?.(draft.mode);
   methods.clearTaskParameterInspection?.();
   methods.renderImageStrip?.();

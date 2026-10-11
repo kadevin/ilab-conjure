@@ -1,3 +1,4 @@
+import { imageMentionPayload } from "./prompt-image-mentions";
 import { isGptImageModel } from "./gpt-image-models";
 import { getLegacyBridge } from "./state";
 import { translate } from "./i18n";
@@ -41,7 +42,9 @@ export function galleryPrompt() {
 
 export function buildPromptForModel(): string {
   // Gallery guidance stays structured until the server resolves duplicate image identities.
-  return expandPromptSnippets(getPromptText());
+  const mentions = imageMentionPayload();
+  return mentions ? mentions.model_parts.map((part: any) => typeof part === "string" ? part : part.text).join("")
+    : expandPromptSnippets(getPromptText());
 }
 
 export function currentPromptForModel(): string {

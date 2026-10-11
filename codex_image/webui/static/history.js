@@ -1013,7 +1013,16 @@
     "promptGallery.remove": "Remove @{name}",
     "prompt.title": "Prompt",
     "prompt.editorLabel": "Prompt",
-    "prompt.placeholder": "Describe the image you want to generate or edit. Type @ for gallery references, # for color codes, and ~ for prompt snippets.",
+    "promptMention.image": "Image {number}",
+    "promptMention.reference": "reference image {number}",
+    "promptMention.remove": "Remove mention, keep reference image",
+    "promptMention.missing": "A referenced image is missing. Select it again or remove its mention.",
+    "promptMention.choose": "Choose a reference image",
+    "promptMention.current": "Current reference images",
+    "promptMention.gallery": "Public gallery",
+    "promptMention.empty": "No matching images",
+    "promptMention.more": "More gallery images\u2026",
+    "prompt.placeholder": "Describe the image you want to generate or edit. Type @ for current images or gallery references, # for color codes, and ~ for prompt snippets.",
     "prompt.run": "Generate",
     "prompt.runEdit": "Start editing",
     "prompt.runTitle": "Generate (Cmd+Enter)",
@@ -1079,10 +1088,10 @@
     "output.promptHelpTitle": "Prompt handling",
     "output.promptHelp.responsesChannel": "Responses \xB7 main model involved",
     "output.promptHelp.imagesChannel": "Images \xB7 direct generation",
-    "output.promptHelp.responses.original": "Sends your exact original text without app-added prompt rules; the provider may still return a revised prompt or interpret the result differently.",
+    "output.promptHelp.responses.original": "Resolves image mentions to reference numbers and sends your original text without app-added prompt rules; the provider may still return a revised prompt or interpret the result differently.",
     "output.promptHelp.responses.strict": "Lets the main model organize or expand the prompt, while preserving hard constraints such as subjects, text, colors, and composition.",
     "output.promptHelp.responses.automatic": "Adds no extra constraints, allowing the main model to interpret and optimize the prompt before calling the image tool.",
-    "output.promptHelp.images.original": "Adds no app-level prompt rules and submits your original text directly to the image endpoint.",
+    "output.promptHelp.images.original": "Resolves image mentions to reference numbers, adds no app-level prompt rules, and submits the rest of your original text directly.",
     "output.promptHelp.images.strict": "Submits fidelity rules together with the original prompt to emphasize every hard constraint.",
     "output.promptHelp.images.automatic": "Uses the image endpoint's default handling; required gallery-reference notes are still included.",
     "output.size": "Output size",
@@ -2328,7 +2337,16 @@
     "promptGallery.remove": "Entfernen Sie @{name}",
     "prompt.title": "Prompt",
     "prompt.editorLabel": "Prompt",
-    "prompt.placeholder": "Beschreiben Sie das Bild, das Sie erstellen oder bearbeiten m\xF6chten. Geben Sie @ f\xFCr Galeriereferenzen, # f\xFCr Farbcodes und ~ f\xFCr Eingabeaufforderungsausschnitte ein.",
+    "promptMention.image": "Bild {number}",
+    "promptMention.reference": "Referenzbild {number}",
+    "promptMention.remove": "Erw\xE4hnung entfernen, Bild behalten",
+    "promptMention.missing": "Ein Referenzbild fehlt. Erneut ausw\xE4hlen oder die Erw\xE4hnung entfernen.",
+    "promptMention.choose": "Referenzbild ausw\xE4hlen",
+    "promptMention.current": "Aktuelle Referenzbilder",
+    "promptMention.gallery": "\xD6ffentliche Galerie",
+    "promptMention.empty": "Keine passenden Bilder",
+    "promptMention.more": "Weitere Galeriebilder\u2026",
+    "prompt.placeholder": "Beschreiben Sie das Bild, das Sie erstellen oder bearbeiten m\xF6chten. Geben Sie @ f\xFCr aktuelle Referenzbilder oder Galeriebilder, # f\xFCr Farbcodes und ~ f\xFCr Eingabeaufforderungsausschnitte ein.",
     "prompt.run": "Generieren",
     "prompt.runEdit": "Beginnen Sie mit der Bearbeitung",
     "prompt.runTitle": "Generieren (Cmd+Enter)",
@@ -3555,7 +3573,16 @@
     "promptGallery.remove": "Quitar @{name}",
     "prompt.title": "r\xE1pido",
     "prompt.editorLabel": "r\xE1pido",
-    "prompt.placeholder": "Describe la imagen que deseas generar o editar. Escriba @ para referencias de galer\xEDa, # para c\xF3digos de color y ~ para fragmentos de mensajes.",
+    "promptMention.image": "Imagen {number}",
+    "promptMention.reference": "imagen de referencia {number}",
+    "promptMention.remove": "Quitar menci\xF3n, conservar imagen",
+    "promptMention.missing": "Falta una imagen de referencia. Selecci\xF3nala de nuevo o quita su menci\xF3n.",
+    "promptMention.choose": "Elegir imagen de referencia",
+    "promptMention.current": "Referencias actuales",
+    "promptMention.gallery": "Galer\xEDa p\xFAblica",
+    "promptMention.empty": "No hay im\xE1genes coincidentes",
+    "promptMention.more": "M\xE1s im\xE1genes de la galer\xEDa\u2026",
+    "prompt.placeholder": "Describe la imagen que deseas generar o editar. Escriba @ para im\xE1genes de referencia actuales o de la galer\xEDa, # para c\xF3digos de color y ~ para fragmentos de mensajes.",
     "prompt.run": "generar",
     "prompt.runEdit": "Empezar a editar",
     "prompt.runTitle": "Generar (Cmd+Enter)",
@@ -4782,7 +4809,16 @@
     "promptGallery.remove": "Supprimer @{name}",
     "prompt.title": "Invite",
     "prompt.editorLabel": "Invite",
-    "prompt.placeholder": "D\xE9crivez l'image que vous souhaitez g\xE9n\xE9rer ou modifier. Tapez @ pour les r\xE9f\xE9rences de galerie, # pour les codes de couleur et ~ pour les extraits d'invite.",
+    "promptMention.image": "Image {number}",
+    "promptMention.reference": "image de r\xE9f\xE9rence {number}",
+    "promptMention.remove": "Supprimer la mention, garder l\u2019image",
+    "promptMention.missing": "Image de r\xE9f\xE9rence manquante. S\xE9lectionnez-la \xE0 nouveau ou retirez sa mention.",
+    "promptMention.choose": "Choisir une image de r\xE9f\xE9rence",
+    "promptMention.current": "R\xE9f\xE9rences actuelles",
+    "promptMention.gallery": "Galerie publique",
+    "promptMention.empty": "Aucune image correspondante",
+    "promptMention.more": "Plus d\u2019images de la galerie\u2026",
+    "prompt.placeholder": "D\xE9crivez l'image que vous souhaitez g\xE9n\xE9rer ou modifier. Tapez @ pour les images actuelles ou celles de la galerie, # pour les codes de couleur et ~ pour les extraits d'invite.",
     "prompt.run": "G\xE9n\xE9rer",
     "prompt.runEdit": "Commencer l'\xE9dition",
     "prompt.runTitle": "G\xE9n\xE9rer (Cmd+Enter)",
@@ -6009,7 +6045,16 @@
     "promptGallery.remove": "@{name}\u3092\u524A\u9664",
     "prompt.title": "\u30D7\u30ED\u30F3\u30D7\u30C8",
     "prompt.editorLabel": "\u30D7\u30ED\u30F3\u30D7\u30C8",
-    "prompt.placeholder": "\u751F\u6210\u307E\u305F\u306F\u7DE8\u96C6\u3059\u308B\u753B\u50CF\u3092\u8A18\u8FF0\u3057\u307E\u3059\u3002\u30AE\u30E3\u30E9\u30EA\u30FC\u53C2\u7167\u306E\u5834\u5408\u306F @\u3001\u30AB\u30E9\u30FC \u30B3\u30FC\u30C9\u306E\u5834\u5408\u306F #\u3001\u30D7\u30ED\u30F3\u30D7\u30C8 \u30B9\u30CB\u30DA\u30C3\u30C8\u306E\u5834\u5408\u306F ~ \u3068\u5165\u529B\u3057\u307E\u3059\u3002",
+    "promptMention.image": "\u753B\u50CF{number}",
+    "promptMention.reference": "\u53C2\u7167\u753B\u50CF {number}",
+    "promptMention.remove": "\u53C2\u7167\u753B\u50CF\u3092\u6B8B\u3057\u3066\u8A00\u53CA\u3092\u524A\u9664",
+    "promptMention.missing": "\u53C2\u7167\u753B\u50CF\u304C\u3042\u308A\u307E\u305B\u3093\u3002\u518D\u9078\u629E\u3059\u308B\u304B\u8A00\u53CA\u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "promptMention.choose": "\u53C2\u7167\u753B\u50CF\u3092\u9078\u629E",
+    "promptMention.current": "\u73FE\u5728\u306E\u53C2\u7167\u753B\u50CF",
+    "promptMention.gallery": "\u5171\u6709\u30AE\u30E3\u30E9\u30EA\u30FC",
+    "promptMention.empty": "\u4E00\u81F4\u3059\u308B\u753B\u50CF\u304C\u3042\u308A\u307E\u305B\u3093",
+    "promptMention.more": "\u30AE\u30E3\u30E9\u30EA\u30FC\u3092\u3082\u3063\u3068\u8868\u793A\u2026",
+    "prompt.placeholder": "\u751F\u6210\u307E\u305F\u306F\u7DE8\u96C6\u3059\u308B\u753B\u50CF\u3092\u8A18\u8FF0\u3057\u307E\u3059\u3002\u73FE\u5728\u306E\u53C2\u7167\u753B\u50CF\u3084\u30AE\u30E3\u30E9\u30EA\u30FC\u753B\u50CF\u306B\u306F @\u3001\u30AB\u30E9\u30FC \u30B3\u30FC\u30C9\u306E\u5834\u5408\u306F #\u3001\u30D7\u30ED\u30F3\u30D7\u30C8 \u30B9\u30CB\u30DA\u30C3\u30C8\u306E\u5834\u5408\u306F ~ \u3068\u5165\u529B\u3057\u307E\u3059\u3002",
     "prompt.run": "\u751F\u6210\u3092\u958B\u59CB",
     "prompt.runEdit": "\u7DE8\u96C6\u3092\u958B\u59CB",
     "prompt.runTitle": "\u751F\u6210 (Cmd+Enter)",
@@ -7236,7 +7281,16 @@
     "promptGallery.remove": "@{name}\uC81C\uAC70",
     "prompt.title": "\uD504\uB86C\uD504\uD2B8",
     "prompt.editorLabel": "\uD504\uB86C\uD504\uD2B8",
-    "prompt.placeholder": "\uC0DD\uC131\uD558\uAC70\uB098 \uD3B8\uC9D1\uD558\uB824\uB294 \uC774\uBBF8\uC9C0\uB97C \uC124\uBA85\uD558\uC138\uC694. \uAC24\uB7EC\uB9AC \uCC38\uC870\uC758 \uACBD\uC6B0 @, \uC0C9\uC0C1 \uCF54\uB4DC\uC758 \uACBD\uC6B0 #, \uD504\uB86C\uD504\uD2B8 \uC2A4\uB2C8\uD3AB\uC758 \uACBD\uC6B0 ~\uB97C \uC785\uB825\uD569\uB2C8\uB2E4.",
+    "promptMention.image": "\uC774\uBBF8\uC9C0 {number}",
+    "promptMention.reference": "\uCC38\uC870 \uC774\uBBF8\uC9C0 {number}",
+    "promptMention.remove": "\uC774\uBBF8\uC9C0\uB97C \uC720\uC9C0\uD558\uACE0 \uCC38\uC870 \uBB38\uAD6C \uC0AD\uC81C",
+    "promptMention.missing": "\uCC38\uC870 \uC774\uBBF8\uC9C0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC120\uD0DD\uD558\uAC70\uB098 \uCC38\uC870\uB97C \uC0AD\uC81C\uD558\uC138\uC694.",
+    "promptMention.choose": "\uCC38\uC870 \uC774\uBBF8\uC9C0 \uC120\uD0DD",
+    "promptMention.current": "\uD604\uC7AC \uCC38\uC870 \uC774\uBBF8\uC9C0",
+    "promptMention.gallery": "\uACF5\uC6A9 \uAC24\uB7EC\uB9AC",
+    "promptMention.empty": "\uC77C\uCE58\uD558\uB294 \uC774\uBBF8\uC9C0 \uC5C6\uC74C",
+    "promptMention.more": "\uAC24\uB7EC\uB9AC \uB354 \uBCF4\uAE30\u2026",
+    "prompt.placeholder": "\uC0DD\uC131\uD558\uAC70\uB098 \uD3B8\uC9D1\uD558\uB824\uB294 \uC774\uBBF8\uC9C0\uB97C \uC124\uBA85\uD558\uC138\uC694. \uD604\uC7AC \uCC38\uC870 \uC774\uBBF8\uC9C0 \uB610\uB294 \uAC24\uB7EC\uB9AC \uC774\uBBF8\uC9C0\uC758 \uACBD\uC6B0 @, \uC0C9\uC0C1 \uCF54\uB4DC\uC758 \uACBD\uC6B0 #, \uD504\uB86C\uD504\uD2B8 \uC2A4\uB2C8\uD3AB\uC758 \uACBD\uC6B0 ~\uB97C \uC785\uB825\uD569\uB2C8\uB2E4.",
     "prompt.run": "\uC0DD\uC131 \uC2DC\uC791",
     "prompt.runEdit": "\uD3B8\uC9D1 \uC2DC\uC791",
     "prompt.runTitle": "\uC0DD\uC131(Cmd+Enter)",
@@ -8463,7 +8517,16 @@
     "promptGallery.remove": "Remover @{name}",
     "prompt.title": "Alerta",
     "prompt.editorLabel": "Alerta",
-    "prompt.placeholder": "Descreva a imagem que voc\xEA deseja gerar ou editar. Digite @ para refer\xEAncias de galeria, # para c\xF3digos de cores e ~ para trechos de prompt.",
+    "promptMention.image": "Imagem {number}",
+    "promptMention.reference": "imagem de refer\xEAncia {number}",
+    "promptMention.remove": "Remover men\xE7\xE3o, manter imagem",
+    "promptMention.missing": "Falta uma imagem de refer\xEAncia. Selecione-a novamente ou remova a men\xE7\xE3o.",
+    "promptMention.choose": "Escolher imagem de refer\xEAncia",
+    "promptMention.current": "Refer\xEAncias atuais",
+    "promptMention.gallery": "Galeria p\xFAblica",
+    "promptMention.empty": "Nenhuma imagem correspondente",
+    "promptMention.more": "Mais imagens da galeria\u2026",
+    "prompt.placeholder": "Descreva a imagem que voc\xEA deseja gerar ou editar. Digite @ para imagens de refer\xEAncia atuais ou da galeria, # para c\xF3digos de cores e ~ para trechos de prompt.",
     "prompt.run": "Gerar",
     "prompt.runEdit": "Comece a editar",
     "prompt.runTitle": "Gerar (Cmd+Enter)",
@@ -9690,7 +9753,16 @@
     "promptGallery.remove": "\u0423\u0434\u0430\u043B\u0438\u0442\u044C @{name}",
     "prompt.title": "\u041F\u043E\u0434\u0441\u043A\u0430\u0436\u0438\u0442\u0435",
     "prompt.editorLabel": "\u041F\u043E\u0434\u0441\u043A\u0430\u0436\u0438\u0442\u0435",
-    "prompt.placeholder": "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 image, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u0432\u044B \u0445\u043E\u0442\u0438\u0442\u0435 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0438\u043B\u0438 \u043E\u0442\u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 @ \u0434\u043B\u044F \u0441\u0441\u044B\u043B\u043A\u0438 \u043D\u0430 \u0433\u0430\u043B\u0435\u0440\u0435\u044E, # \u0434\u043B\u044F \u0446\u0432\u0435\u0442\u043E\u0432\u044B\u0445 \u043A\u043E\u0434\u043E\u0432 \u0438 ~ \u0434\u043B\u044F \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E\u0434\u0441\u043A\u0430\u0437\u043E\u043A.",
+    "promptMention.image": "\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 {number}",
+    "promptMention.reference": "\u0440\u0435\u0444\u0435\u0440\u0435\u043D\u0441 {number}",
+    "promptMention.remove": "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0443\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u0435, \u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435",
+    "promptMention.missing": "\u0420\u0435\u0444\u0435\u0440\u0435\u043D\u0441 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0435\u0433\u043E \u0441\u043D\u043E\u0432\u0430 \u0438\u043B\u0438 \u0443\u0434\u0430\u043B\u0438\u0442\u0435 \u0443\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u0435.",
+    "promptMention.choose": "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0440\u0435\u0444\u0435\u0440\u0435\u043D\u0441",
+    "promptMention.current": "\u0422\u0435\u043A\u0443\u0449\u0438\u0435 \u0440\u0435\u0444\u0435\u0440\u0435\u043D\u0441\u044B",
+    "promptMention.gallery": "\u041E\u0431\u0449\u0430\u044F \u0433\u0430\u043B\u0435\u0440\u0435\u044F",
+    "promptMention.empty": "\u041D\u0435\u0442 \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439",
+    "promptMention.more": "\u0414\u0440\u0443\u0433\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0433\u0430\u043B\u0435\u0440\u0435\u0438\u2026",
+    "prompt.placeholder": "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 image, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u0432\u044B \u0445\u043E\u0442\u0438\u0442\u0435 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0438\u043B\u0438 \u043E\u0442\u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 @ \u0434\u043B\u044F \u0442\u0435\u043A\u0443\u0449\u0438\u0445 \u0440\u0435\u0444\u0435\u0440\u0435\u043D\u0441\u043E\u0432 \u0438\u043B\u0438 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439 \u0433\u0430\u043B\u0435\u0440\u0435\u0438, # \u0434\u043B\u044F \u0446\u0432\u0435\u0442\u043E\u0432\u044B\u0445 \u043A\u043E\u0434\u043E\u0432 \u0438 ~ \u0434\u043B\u044F \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E\u0434\u0441\u043A\u0430\u0437\u043E\u043A.",
     "prompt.run": "\u0413\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
     "prompt.runEdit": "\u041D\u0430\u0447\u0430\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435",
     "prompt.runTitle": "\u0421\u043E\u0437\u0434\u0430\u0442\u044C (Cmd+Enter)",
@@ -10917,7 +10989,16 @@
     "promptGallery.remove": "Rimuovi @{name}",
     "prompt.title": "Richiedi",
     "prompt.editorLabel": "Richiedi",
-    "prompt.placeholder": "Descrivi il image che desideri generare o modificare. Digita @ per i riferimenti alla galleria, # per i codici colore e ~ per i frammenti di prompt.",
+    "promptMention.image": "Immagine {number}",
+    "promptMention.reference": "immagine di riferimento {number}",
+    "promptMention.remove": "Rimuovi menzione, conserva immagine",
+    "promptMention.missing": "Manca un\u2019immagine di riferimento. Riselezionala o rimuovi la menzione.",
+    "promptMention.choose": "Scegli immagine di riferimento",
+    "promptMention.current": "Riferimenti attuali",
+    "promptMention.gallery": "Galleria pubblica",
+    "promptMention.empty": "Nessuna immagine corrispondente",
+    "promptMention.more": "Altre immagini della galleria\u2026",
+    "prompt.placeholder": "Descrivi il image che desideri generare o modificare. Digita @ per le immagini di riferimento attuali o della galleria, # per i codici colore e ~ per i frammenti di prompt.",
     "prompt.run": "Genera",
     "prompt.runEdit": "Inizia a modificare",
     "prompt.runTitle": "Genera (Cmd+Invio)",
@@ -12144,7 +12225,16 @@
     "promptGallery.remove": "@{name} \u0939\u091F\u093E\u090F\u0902",
     "prompt.title": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F",
     "prompt.editorLabel": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F",
-    "prompt.placeholder": "\u091C\u093F\u0938 \u091A\u093F\u0924\u094D\u0930 \u0915\u094B \u092C\u0928\u093E\u0928\u093E \u092F\u093E \u0938\u0902\u092A\u093E\u0926\u093F\u0924 \u0915\u0930\u0928\u093E \u091A\u093E\u0939\u0924\u0947 \u0939\u0948\u0902 \u0909\u0938\u0915\u093E \u0935\u0930\u094D\u0923\u0928 \u0915\u0930\u0947\u0902\u0964 \u0917\u0948\u0932\u0930\u0940 \u0938\u0902\u0926\u0930\u094D\u092D\u094B\u0902 \u0915\u0947 \u0932\u093F\u090F @, \u0930\u0902\u0917 \u0915\u094B\u0921 \u0915\u0947 \u0932\u093F\u090F # \u0914\u0930 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u094D\u0928\u093F\u092A\u0947\u091F \u0915\u0947 \u0932\u093F\u090F ~ \u091F\u093E\u0907\u092A \u0915\u0930\u0947\u0902\u0964",
+    "promptMention.image": "\u091A\u093F\u0924\u094D\u0930 {number}",
+    "promptMention.reference": "\u0938\u0902\u0926\u0930\u094D\u092D \u091A\u093F\u0924\u094D\u0930 {number}",
+    "promptMention.remove": "\u0909\u0932\u094D\u0932\u0947\u0916 \u0939\u091F\u093E\u090F\u0901, \u091A\u093F\u0924\u094D\u0930 \u0930\u0916\u0947\u0902",
+    "promptMention.missing": "\u0938\u0902\u0926\u0930\u094D\u092D \u091A\u093F\u0924\u094D\u0930 \u0928\u0939\u0940\u0902 \u092E\u093F\u0932\u093E\u0964 \u092B\u093F\u0930 \u0938\u0947 \u091A\u0941\u0928\u0947\u0902 \u092F\u093E \u0909\u0938\u0915\u093E \u0909\u0932\u094D\u0932\u0947\u0916 \u0939\u091F\u093E\u090F\u0901\u0964",
+    "promptMention.choose": "\u0938\u0902\u0926\u0930\u094D\u092D \u091A\u093F\u0924\u094D\u0930 \u091A\u0941\u0928\u0947\u0902",
+    "promptMention.current": "\u092E\u094C\u091C\u0942\u0926\u093E \u0938\u0902\u0926\u0930\u094D\u092D \u091A\u093F\u0924\u094D\u0930",
+    "promptMention.gallery": "\u0938\u093E\u091D\u093E \u0917\u0948\u0932\u0930\u0940",
+    "promptMention.empty": "\u0915\u094B\u0908 \u092E\u0947\u0932 \u0916\u093E\u0924\u093E \u091A\u093F\u0924\u094D\u0930 \u0928\u0939\u0940\u0902",
+    "promptMention.more": "\u0917\u0948\u0932\u0930\u0940 \u0915\u0947 \u0914\u0930 \u091A\u093F\u0924\u094D\u0930\u2026",
+    "prompt.placeholder": "\u091C\u093F\u0938 \u091A\u093F\u0924\u094D\u0930 \u0915\u094B \u092C\u0928\u093E\u0928\u093E \u092F\u093E \u0938\u0902\u092A\u093E\u0926\u093F\u0924 \u0915\u0930\u0928\u093E \u091A\u093E\u0939\u0924\u0947 \u0939\u0948\u0902 \u0909\u0938\u0915\u093E \u0935\u0930\u094D\u0923\u0928 \u0915\u0930\u0947\u0902\u0964 \u092E\u094C\u091C\u0942\u0926\u093E \u0938\u0902\u0926\u0930\u094D\u092D \u091A\u093F\u0924\u094D\u0930\u094B\u0902 \u092F\u093E \u0917\u0948\u0932\u0930\u0940 \u091A\u093F\u0924\u094D\u0930\u094B\u0902 \u0915\u0947 \u0932\u093F\u090F @, \u0930\u0902\u0917 \u0915\u094B\u0921 \u0915\u0947 \u0932\u093F\u090F # \u0914\u0930 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u094D\u0928\u093F\u092A\u0947\u091F \u0915\u0947 \u0932\u093F\u090F ~ \u091F\u093E\u0907\u092A \u0915\u0930\u0947\u0902\u0964",
     "prompt.run": "\u091C\u0928\u0930\u0947\u091F \u0915\u0930\u0947\u0902",
     "prompt.runEdit": "\u0938\u0902\u092A\u093E\u0926\u0928 \u092A\u094D\u0930\u093E\u0930\u0902\u092D \u0915\u0930\u0947\u0902",
     "prompt.runTitle": "\u091C\u0928\u0930\u0947\u091F \u0915\u0930\u0947\u0902 (Cmd+Enter)",
@@ -13439,7 +13529,16 @@
     "promptGallery.remove": "X\xF3a @{name}",
     "prompt.title": "L\u1EDDi nh\u1EAFc",
     "prompt.editorLabel": "L\u1EDDi nh\u1EAFc",
-    "prompt.placeholder": "M\xF4 t\u1EA3 h\xECnh \u1EA3nh b\u1EA1n mu\u1ED1n t\u1EA1o ho\u1EB7c ch\u1EC9nh s\u1EEDa. Nh\u1EADp @ \u0111\u1EC3 tham kh\u1EA3o th\u01B0 vi\u1EC7n, # cho m\xE3 m\xE0u v\xE0 ~ cho \u0111o\u1EA1n l\u1EDDi nh\u1EAFc.",
+    "promptMention.image": "\u1EA2nh {number}",
+    "promptMention.reference": "\u1EA3nh tham kh\u1EA3o {number}",
+    "promptMention.remove": "X\xF3a nh\u1EAFc \u0111\u1EBFn, gi\u1EEF \u1EA3nh tham kh\u1EA3o",
+    "promptMention.missing": "Thi\u1EBFu \u1EA3nh tham kh\u1EA3o. Ch\u1ECDn l\u1EA1i ho\u1EB7c x\xF3a nh\u1EAFc \u0111\u1EBFn.",
+    "promptMention.choose": "Ch\u1ECDn \u1EA3nh tham kh\u1EA3o",
+    "promptMention.current": "\u1EA2nh tham kh\u1EA3o hi\u1EC7n t\u1EA1i",
+    "promptMention.gallery": "Th\u01B0 vi\u1EC7n chung",
+    "promptMention.empty": "Kh\xF4ng c\xF3 \u1EA3nh ph\xF9 h\u1EE3p",
+    "promptMention.more": "Xem th\xEAm \u1EA3nh th\u01B0 vi\u1EC7n\u2026",
+    "prompt.placeholder": "M\xF4 t\u1EA3 h\xECnh \u1EA3nh b\u1EA1n mu\u1ED1n t\u1EA1o ho\u1EB7c ch\u1EC9nh s\u1EEDa. Nh\u1EADp @ \u0111\u1EC3 tham chi\u1EBFu \u1EA3nh hi\u1EC7n t\u1EA1i ho\u1EB7c \u1EA3nh trong th\u01B0 vi\u1EC7n, # cho m\xE3 m\xE0u v\xE0 ~ cho \u0111o\u1EA1n l\u1EDDi nh\u1EAFc.",
     "prompt.run": "T\u1EA1o",
     "prompt.runEdit": "B\u1EAFt \u0111\u1EA7u ch\u1EC9nh s\u1EEDa",
     "prompt.runTitle": "T\u1EA1o (Cmd+Enter)",
@@ -14822,7 +14921,16 @@
     "promptGallery.remove": "\u79FB\u9664 @{name}",
     "prompt.title": "\u63D0\u793A\u8BCD",
     "prompt.editorLabel": "\u63D0\u793A\u8BCD",
-    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u751F\u6210\u6216\u7F16\u8F91\u7684\u56FE\u7247\uFF0C\u8F93\u5165 @ \u53EF\u8C03\u7528\u56FE\u5E93\u53C2\u8003\u56FE\uFF0C\u8F93\u5165 # \u53EF\u63D2\u5165\u989C\u8272\u7801\uFF0C\u8F93\u5165 ~ \u6216 \uFF5E \u53EF\u8C03\u7528\u63D0\u793A\u8BCD\u7247\u6BB5",
+    "promptMention.image": "\u56FE{number}",
+    "promptMention.reference": "\u53C2\u8003\u56FE {number}",
+    "promptMention.remove": "\u79FB\u9664\u5F15\u7528\uFF0C\u4FDD\u7559\u53C2\u8003\u56FE",
+    "promptMention.missing": "\u5F15\u7528\u56FE\u7247\u5DF2\u7F3A\u5931\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u6216\u79FB\u9664\u5F15\u7528",
+    "promptMention.choose": "\u9009\u62E9\u53C2\u8003\u56FE\u7247",
+    "promptMention.current": "\u5F53\u524D\u53C2\u8003\u56FE",
+    "promptMention.gallery": "\u516C\u7528\u56FE\u5E93",
+    "promptMention.empty": "\u6CA1\u6709\u5339\u914D\u7684\u56FE\u7247",
+    "promptMention.more": "\u6D4F\u89C8\u66F4\u591A\u56FE\u5E93\u2026",
+    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u751F\u6210\u6216\u7F16\u8F91\u7684\u56FE\u7247\uFF0C\u8F93\u5165 @ \u53EF\u5F15\u7528\u5F53\u524D\u56FE\u7247\u6216\u516C\u7528\u56FE\u5E93\uFF0C\u8F93\u5165 # \u53EF\u63D2\u5165\u989C\u8272\u7801\uFF0C\u8F93\u5165 ~ \u6216 \uFF5E \u53EF\u8C03\u7528\u63D0\u793A\u8BCD\u7247\u6BB5",
     "prompt.run": "\u5F00\u59CB\u751F\u6210",
     "prompt.runEdit": "\u5F00\u59CB\u7F16\u8F91",
     "prompt.runTitle": "\u5F00\u59CB\u751F\u6210\uFF08Cmd+Enter\uFF09",
@@ -14888,10 +14996,10 @@
     "output.promptHelpTitle": "\u63D0\u793A\u8BCD\u5904\u7406",
     "output.promptHelp.responsesChannel": "Responses \xB7 \u4E3B\u6A21\u578B\u53C2\u4E0E",
     "output.promptHelp.imagesChannel": "Images \xB7 \u76F4\u63A5\u751F\u6210",
-    "output.promptHelp.responses.original": "\u6309\u539F\u6587\u53D1\u9001\uFF0C\u4E0D\u6DFB\u52A0\u5E94\u7528\u7EA7\u63D0\u793A\u8BCD\u89C4\u5219\uFF1B\u670D\u52A1\u5546\u4ECD\u53EF\u80FD\u8FD4\u56DE revised prompt\uFF0C\u751F\u6210\u7ED3\u679C\u4E5F\u53EF\u80FD\u4E0E\u6587\u5B57\u7EA6\u675F\u6709\u504F\u5DEE\u3002",
+    "output.promptHelp.responses.original": "\u6309\u539F\u6587\u53D1\u9001\uFF0C\u56FE\u7247\u5F15\u7528\u89E3\u6790\u4E3A\u53C2\u8003\u56FE\u7F16\u53F7\uFF0C\u4E0D\u6DFB\u52A0\u5E94\u7528\u7EA7\u63D0\u793A\u8BCD\u89C4\u5219\uFF1B\u670D\u52A1\u5546\u4ECD\u53EF\u80FD\u8FD4\u56DE revised prompt\uFF0C\u751F\u6210\u7ED3\u679C\u4E5F\u53EF\u80FD\u4E0E\u6587\u5B57\u7EA6\u675F\u6709\u504F\u5DEE\u3002",
     "output.promptHelp.responses.strict": "\u5141\u8BB8\u4E3B\u6A21\u578B\u6574\u7406\u6216\u6269\u5199\uFF0C\u4F46\u5FC5\u987B\u4FDD\u7559\u5BF9\u8C61\u3001\u6587\u5B57\u3001\u989C\u8272\u3001\u6784\u56FE\u7B49\u786C\u6027\u7EA6\u675F\u3002",
     "output.promptHelp.responses.automatic": "\u4E0D\u6DFB\u52A0\u989D\u5916\u7EA6\u675F\uFF0C\u7531\u4E3B\u6A21\u578B\u7406\u89E3\u5E76\u4F18\u5316\u540E\u8C03\u7528\u56FE\u50CF\u5DE5\u5177\u3002",
-    "output.promptHelp.images.original": "\u5E94\u7528\u4E0D\u6DFB\u52A0\u63D0\u793A\u8BCD\u89C4\u5219\uFF0C\u6309\u7528\u6237\u539F\u6587\u76F4\u63A5\u63D0\u4EA4\u7ED9\u56FE\u50CF\u63A5\u53E3\u3002",
+    "output.promptHelp.images.original": "\u5E94\u7528\u4E0D\u6DFB\u52A0\u63D0\u793A\u8BCD\u89C4\u5219\uFF1B\u56FE\u7247\u5F15\u7528\u89E3\u6790\u4E3A\u53C2\u8003\u56FE\u7F16\u53F7\uFF0C\u5176\u4F59\u539F\u6587\u76F4\u63A5\u63D0\u4EA4\u7ED9\u56FE\u50CF\u63A5\u53E3\u3002",
     "output.promptHelp.images.strict": "\u5E94\u7528\u5C06\u4FDD\u771F\u89C4\u5219\u4E0E\u539F\u63D0\u793A\u8BCD\u4E00\u5E76\u63D0\u4EA4\uFF0C\u5F3A\u8C03\u4FDD\u7559\u6240\u6709\u786C\u6027\u7EA6\u675F\u3002",
     "output.promptHelp.images.automatic": "\u6309\u56FE\u50CF\u63A5\u53E3\u9ED8\u8BA4\u65B9\u5F0F\u63D0\u4EA4\uFF1B\u56FE\u5E93\u5F15\u7528\u7B49\u5FC5\u8981\u8BF4\u660E\u4ECD\u4F1A\u968F\u63D0\u793A\u8BCD\u53D1\u9001\u3002",
     "output.size": "\u8F93\u51FA\u5C3A\u5BF8",
@@ -16179,7 +16287,16 @@
     "promptGallery.remove": "\u79FB\u9664 @{name}",
     "prompt.title": "\u63D0\u793A\u8A5E",
     "prompt.editorLabel": "\u63D0\u793A\u8A5E",
-    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u7522\u751F\u6216\u7DE8\u8F2F\u7684\u5716\u7247\uFF0C\u8F38\u5165 @ \u53EF\u8ABF\u7528\u5716\u5EAB\u53C3\u8003\u5716\uFF0C\u8F38\u5165 # \u53EF\u63D2\u5165\u984F\u8272\u78BC\uFF0C\u8F38\u5165 ~ \u6216 \uFF5E \u53EF\u8ABF\u7528\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "promptMention.image": "\u5716{number}",
+    "promptMention.reference": "\u53C3\u8003\u5716 {number}",
+    "promptMention.remove": "\u79FB\u9664\u5F15\u7528\uFF0C\u4FDD\u7559\u53C3\u8003\u5716",
+    "promptMention.missing": "\u5F15\u7528\u5716\u7247\u5DF2\u907A\u5931\uFF0C\u8ACB\u91CD\u65B0\u9078\u64C7\u6216\u79FB\u9664\u5F15\u7528",
+    "promptMention.choose": "\u9078\u64C7\u53C3\u8003\u5716\u7247",
+    "promptMention.current": "\u76EE\u524D\u53C3\u8003\u5716",
+    "promptMention.gallery": "\u516C\u7528\u5716\u5EAB",
+    "promptMention.empty": "\u6C92\u6709\u7B26\u5408\u7684\u5716\u7247",
+    "promptMention.more": "\u700F\u89BD\u66F4\u591A\u5716\u5EAB\u2026",
+    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u7522\u751F\u6216\u7DE8\u8F2F\u7684\u5716\u7247\uFF0C\u8F38\u5165 @ \u53EF\u5F15\u7528\u76EE\u524D\u5716\u7247\u6216\u516C\u7528\u5716\u5EAB\uFF0C\u8F38\u5165 # \u53EF\u63D2\u5165\u984F\u8272\u78BC\uFF0C\u8F38\u5165 ~ \u6216 \uFF5E \u53EF\u8ABF\u7528\u63D0\u793A\u8A5E\u7247\u6BB5",
     "prompt.run": "\u958B\u59CB\u751F\u6210",
     "prompt.runEdit": "\u958B\u59CB\u7DE8\u8F2F",
     "prompt.runTitle": "\u958B\u59CB\u7522\u751F\uFF08Cmd+Enter\uFF09",
@@ -17476,7 +17593,16 @@
     "promptGallery.remove": "\u79FB\u9664 @{name}",
     "prompt.title": "\u63D0\u793A\u8A5E",
     "prompt.editorLabel": "\u63D0\u793A\u8A5E",
-    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u751F\u6210\u6216\u7DE8\u8F2F\u7684\u5716\u7247\uFF0C\u8F38\u5165 @ \u53EF\u547C\u53EB\u5716\u5EAB\u53C3\u8003\u5716\uFF0C\u8F38\u5165 # \u53EF\u63D2\u5165\u984F\u8272\u78BC\uFF0C\u8F38\u5165 ~ \u6216 \uFF5E \u53EF\u547C\u53EB\u63D0\u793A\u8A5E\u7247\u6BB5",
+    "promptMention.image": "\u5716{number}",
+    "promptMention.reference": "\u53C3\u8003\u5716 {number}",
+    "promptMention.remove": "\u79FB\u9664\u5F15\u7528\uFF0C\u4FDD\u7559\u53C3\u8003\u5716",
+    "promptMention.missing": "\u5F15\u7528\u5716\u7247\u5DF2\u907A\u5931\uFF0C\u8ACB\u91CD\u65B0\u9078\u64C7\u6216\u79FB\u9664\u5F15\u7528",
+    "promptMention.choose": "\u9078\u64C7\u53C3\u8003\u5716\u7247",
+    "promptMention.current": "\u76EE\u524D\u53C3\u8003\u5716",
+    "promptMention.gallery": "\u516C\u7528\u5716\u5EAB",
+    "promptMention.empty": "\u6C92\u6709\u7B26\u5408\u7684\u5716\u7247",
+    "promptMention.more": "\u700F\u89BD\u66F4\u591A\u5716\u5EAB\u2026",
+    "prompt.placeholder": "\u63CF\u8FF0\u4F60\u8981\u751F\u6210\u6216\u7DE8\u8F2F\u7684\u5716\u7247\uFF0C\u8F38\u5165 @ \u53EF\u5F15\u7528\u76EE\u524D\u5716\u7247\u6216\u516C\u7528\u5716\u5EAB\uFF0C\u8F38\u5165 # \u53EF\u63D2\u5165\u984F\u8272\u78BC\uFF0C\u8F38\u5165 ~ \u6216 \uFF5E \u53EF\u547C\u53EB\u63D0\u793A\u8A5E\u7247\u6BB5",
     "prompt.run": "\u958B\u59CB\u751F\u6210",
     "prompt.runEdit": "\u958B\u59CB\u7DE8\u8F2F",
     "prompt.runTitle": "\u958B\u59CB\u7522\u751F\uFF08Cmd+Enter\uFF09",
@@ -23817,6 +23943,44 @@
     updateViewport();
   }
 
+  // codex_image/webui/frontend/src/prompt-image-mentions.ts
+  function imageReferenceKey(source) {
+    if (source.prompt_ref_key) return source.prompt_ref_key;
+    source.prompt_ref_key = source.kind === "upload" ? `local:${Array.from(crypto.getRandomValues(new Uint32Array(4))).join("-")}` : `${source.kind}:${source.id}`;
+    return source.prompt_ref_key;
+  }
+  function sourcePointer(source) {
+    return source.kind === "upload" ? { kind: "local", id: imageReferenceKey(source) } : { kind: source.kind, id: source.id };
+  }
+  function captureImageMentions() {
+    const { els: els9, state: state5, methods } = getLegacyBridge();
+    if (!els9.promptEditor) return null;
+    const mentions = [];
+    let marker = "\0image-mention:";
+    while (methods.getPromptText().includes(marker)) marker += ":";
+    const marked = methods.promptTextFromNode(els9.promptEditor, (chip) => {
+      const key2 = chip.dataset.imageRefKey;
+      const stored = chip.dataset.imageRefSource ? JSON.parse(chip.dataset.imageRefSource) : null;
+      const source = !stored?.missing && state5.images.find((item) => key2 ? imageReferenceKey(item) === key2 : item.kind === "gallery" && item.id === chip.dataset.galleryId);
+      const pointer = source ? sourcePointer(source) : stored || { kind: "gallery", id: chip.dataset.galleryId };
+      const text = (chip.dataset.imageRefText || `@${chip.dataset.galleryName}`).replace(/\u00a0/g, " ").replace(/\r\n?/g, "\n");
+      mentions.push({ text, source: pointer });
+      return `${marker}${mentions.length - 1}\0`;
+    }).replace(/\u00a0/g, " ").replace(/\r\n?/g, "\n").trim();
+    if (!mentions.length) return null;
+    const parts = [];
+    let cursor = 0;
+    for (let index = 0; index < mentions.length; index++) {
+      const token = `${marker}${index}\0`;
+      const position = marked.indexOf(token, cursor);
+      if (position > cursor) parts.push(marked.slice(cursor, position));
+      parts.push(mentions[index]);
+      cursor = position + token.length;
+    }
+    if (cursor < marked.length) parts.push(marked.slice(cursor));
+    return { version: 1, parts };
+  }
+
   // codex_image/webui/frontend/src/composer-navigation-storage.ts
   var MAX_AGE = 7 * 24 * 60 * 60 * 1e3;
 
@@ -23825,10 +23989,10 @@
   var drafts = [];
   function capture() {
     const { state: state5, methods } = getLegacyBridge();
-    return { prompt: methods.getPromptText?.() || "", images: (state5.images || []).map((item) => ({ ...item })), files: (state5.referenceFiles || []).map((item) => ({ ...item })), mode: state5.mode };
+    return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state5.images || []).map((item) => ({ ...item })), files: (state5.referenceFiles || []).map((item) => ({ ...item })), mode: state5.mode };
   }
   function key(draft) {
-    return JSON.stringify([draft.prompt, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
+    return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
   }
   function markComposerBaseline(prompt) {
     const draft = capture();
@@ -23839,8 +24003,8 @@
     const draft = capture();
     return Boolean(draft.prompt || draft.images.length || draft.files.length) && key(draft) !== baseline;
   }
-  function preserveComposerDraft() {
-    if (!composerHasChanges()) return;
+  function preserveComposerDraft(force = false) {
+    if (!force && !composerHasChanges()) return;
     const draft = capture();
     if (key(drafts[drafts.length - 1] || { prompt: "", images: [], files: [], mode: "generate" }) !== key(draft)) drafts.push(draft);
     renderRestoreButton();
