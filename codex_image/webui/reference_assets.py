@@ -6,6 +6,8 @@ import mimetypes
 import re
 import threading
 import uuid
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Mapping
@@ -51,6 +53,37 @@ class ReferenceAssetStorage:
         self._reference_counts_provider = reference_counts_provider
         self._lock = threading.RLock()
         self._restore_versions: dict[str, int] = {}
+        self._submission_asset_counts: dict[str, int] = {}
+
+    @contextmanager
+    def retain_for_submission(self, asset_ids: Iterable[str]) -> Iterator[None]:
+        """Reserve references across preflight awaits without holding a thread lock."""
+        protected = set(asset_ids)
+        for asset_id in protected:
+            self._validate_asset_id(asset_id)
+        with self._lock:
+            for asset_id in protected:
+                self._submission_asset_counts[asset_id] = self._submission_asset_counts.get(asset_id, 0) + 1
+        try:
+            yield
+        finally:
+            with self._lock:
+                for asset_id in protected:
+                    remaining = self._submission_asset_counts[asset_id] - 1
+                    if remaining:
+                        self._submission_asset_counts[asset_id] = remaining
+                    else:
+                        del self._submission_asset_counts[asset_id]
+
+    @contextmanager
+    def protect_submission(self, asset_ids: Iterable[str]) -> Iterator[None]:
+        """Protect a synchronous upload batch until its task metadata is indexed.
+
+        The same lock serializes explicit deletion with the commit, so deletion
+        checks the durable task references after the submission completes.
+        """
+        with self._lock, self.retain_for_submission(asset_ids):
+            yield
 
     def create_or_touch(
         self,
@@ -358,10 +391,10 @@ class ReferenceAssetStorage:
             excess -= 1
 
     def _reference_counts(self) -> dict[str, int]:
+        counts = dict(self._submission_asset_counts)
         if self._reference_counts_provider is None:
-            return {}
+            return counts
         raw_counts = self._reference_counts_provider()
-        counts: dict[str, int] = {}
         for raw_asset_id, raw_count in raw_counts.items():
             asset_id = str(raw_asset_id or "")
             if not re.fullmatch(r"[0-9a-f]{64}", asset_id):
@@ -371,7 +404,7 @@ class ReferenceAssetStorage:
             except (TypeError, ValueError):
                 continue
             if count > 0:
-                counts[asset_id] = count
+                counts[asset_id] = counts.get(asset_id, 0) + count
         return counts
 
     def _delete_item_files(self, asset_id: str, metadata: dict[str, Any]) -> None:
