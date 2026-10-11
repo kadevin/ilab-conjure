@@ -199,6 +199,7 @@ class TaskStorage:
         self._history_organization_lock = threading.RLock()
         self._task_index_repair_lock = threading.Lock()
         self._task_write_locks = tuple(threading.RLock() for _ in range(64))
+        self._reference_asset_index_untrusted = False
 
     def create_task(self, mode: str) -> CreatedTask:
         task_id = datetime.now(UTC).strftime("%Y%m%d%H%M%S") + "-" + uuid.uuid4().hex[:8]
@@ -222,12 +223,18 @@ class TaskStorage:
             else:
                 _preserve_sticky_task_cancellation(path, metadata)
             _stabilize_task_terminal_timestamp(path, metadata)
-            atomic_write_text(
-                path,
-                json.dumps(metadata, indent=2, ensure_ascii=False),
-                mode=0o600,
-            )
-            self.task_index.upsert(metadata)
+            try:
+                atomic_write_text(
+                    path,
+                    json.dumps(metadata, indent=2, ensure_ascii=False),
+                    mode=0o600,
+                )
+                self.task_index.upsert(metadata)
+            except Exception:
+                # A failed write can leave durable metadata absent from the index,
+                # including an atomic replace followed by a failed directory fsync.
+                self._reference_asset_index_untrusted = True
+                raise
         return path
 
     def read_metadata(self, task_id: str) -> dict[str, Any]:
@@ -702,6 +709,11 @@ class TaskStorage:
         return self.rebuild_task_index()
 
     def reference_asset_reference_counts(self) -> dict[str, int]:
+        if self._reference_asset_index_untrusted:
+            # Stay on authoritative disk records for this storage instance. Startup
+            # recovery reconciles missing index entries before accepting requests.
+            # An unreadable record raises, so callers cannot prune uncertain inputs.
+            return self.resource_reference_counts("reference_asset")
         counts: dict[str, int] = {}
         for task in self.task_index.list_summaries():
             raw_references = task.get("reference_assets")
