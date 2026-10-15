@@ -1,14 +1,56 @@
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from fastapi.testclient import TestClient
 
 
 class WebUIPWATests(unittest.TestCase):
+    def test_page_assets_match_service_worker_cache_versions(self) -> None:
+        static = Path("codex_image/webui/static")
+        source = (static / "service-worker.js").read_text(encoding="utf-8")
+        match = re.search(r"const APP_SHELL_URLS = (\[[\s\S]*?\]);", source)
+        self.assertIsNotNone(match)
+        cached = json.loads(match.group(1))
+        self.assertEqual(len(cached), len(set(cached)))
+        self.assertRegex(source, r'const CACHE_NAME = "ilab-conjure-shell-v\d+";')
+
+        class PageAssets(HTMLParser):
+            def __init__(self) -> None:
+                super().__init__()
+                self.urls: list[str] = []
+
+            def handle_starttag(self, tag, attrs) -> None:
+                attributes = dict(attrs)
+                url = attributes.get("src") if tag == "script" else (
+                    attributes.get("href") if tag == "link" and attributes.get("rel") == "stylesheet" else None
+                )
+                if url:
+                    self.urls.append(url)
+
+        for page, entry in (("index.html", "app.js"), ("history.html", "history.js")):
+            with self.subTest(page=page):
+                parser = PageAssets()
+                parser.feed((static / page).read_text(encoding="utf-8"))
+                self.assertTrue(
+                    {f"/static/{entry}", "/static/styles.css", "/static/pwa.js"}
+                    .issubset({urlsplit(url).path for url in parser.urls})
+                )
+                for url in parser.urls:
+                    self.assertIn(url, cached, f"{page} and service worker use different asset versions")
+                    self.assertTrue(parse_qs(urlsplit(url).query).get("v"), url)
+
+        for url in cached:
+            path = urlsplit(url).path
+            if path.startswith("/static/"):
+                self.assertTrue((static / path.removeprefix("/static/")).is_file(), url)
+
     def test_static_pages_expose_pwa_manifest_and_service_worker_registration(self) -> None:
         index_html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         history_html = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
@@ -86,14 +128,10 @@ class WebUIPWATests(unittest.TestCase):
         self.assertTrue(worker_path.exists())
         source = worker_path.read_text(encoding="utf-8")
 
-        self.assertIn('const CACHE_NAME = "ilab-conjure-shell-v327";', source)
         self.assertIn('"/"', source)
         self.assertIn('"/history"', source)
         self.assertIn('"/manifest.webmanifest"', source)
-        self.assertIn('"/static/app.js?v=runtime-864"', source)
-        self.assertIn('"/static/history.js?v=history-162"', source)
         self.assertIn('"/static/image-editor-fill-worker.js?v=1"', source)
-        self.assertIn('"/static/styles.css?v=runtime-862"', source)
         self.assertIn("request.mode === \"navigate\"", source)
         self.assertIn("caches.match(request).then", source)
         self.assertIn("catch(() => caches.match(request, { ignoreSearch: true }))", source)

@@ -575,6 +575,14 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
                 if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
                 if (name === "./task-recovery") return {{ taskRecoveryMessage: () => "input error" }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
+                if (name === "./state-sync") {{
+                  const sync = {{ exports: {{}} }};
+                  const syncCode = ts.transpileModule(fs.readFileSync({str(module_path.with_name('state-sync.ts'))!r}, "utf8"), {{
+                    compilerOptions: {{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }},
+                  }}).outputText;
+                  vm.runInNewContext(syncCode, {{ module: sync, exports: sync.exports }});
+                  return sync.exports;
+                }}
                 throw new Error(`unexpected require: ${{name}}`);
               }},
             }});
@@ -636,6 +644,14 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
                 if (name === "./composer-draft") return {{ preserveComposerDraft() {{}}, markComposerBaseline() {{}} }};
                 if (name === "./task-recovery") return {{ taskRecoveryMessage: () => "input error" }};
                 if (name === "./task-model-summary") return {{ taskOutputSettingsView: () => "locked-summary" }};
+                if (name === "./state-sync") {{
+                  const sync = {{ exports: {{}} }};
+                  const syncCode = ts.transpileModule(fs.readFileSync({str(module_path.with_name('state-sync.ts'))!r}, "utf8"), {{
+                    compilerOptions: {{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }},
+                  }}).outputText;
+                  vm.runInNewContext(syncCode, {{ module: sync, exports: sync.exports }});
+                  return sync.exports;
+                }}
                 throw new Error(`unexpected require: ${{name}}`);
               }},
             }});

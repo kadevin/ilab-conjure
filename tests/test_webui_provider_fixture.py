@@ -11,9 +11,11 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from codex_image.raster_validation import inspect_raster_image
+from tests.helpers import assert_no_api_key
 
 
 SCRIPT_PATH = Path(__file__).parents[1] / "scripts" / "run-webui-provider-fixture.py"
+
 
 
 def _fixture_module():
@@ -37,7 +39,10 @@ class ProviderFixtureTests(unittest.TestCase):
                 second_page = client.get("/mock/gemini/v1beta/models", params={"pageToken": first_page.json()["nextPageToken"]})
         self.assertIn({"id": "vendor/custom.image:2"}, openai.json()["data"])
         self.assertEqual(empty.json()["data"], [])
-        self.assertEqual(second_page.json()["models"], [{"name": "models/gemini-3.1-flash-image"}])
+        self.assertEqual(second_page.json()["models"], [
+            {"name": "models/gemini-3.1-flash-image"},
+            {"name": "models/gemini-nano-banana-2.1"},
+        ])
 
     def test_fixture_png_is_fully_decodable_for_thumbnail_generation(self) -> None:
         module = _fixture_module()
@@ -77,6 +82,7 @@ class ProviderFixtureTests(unittest.TestCase):
                 {
                     "gpt-image-2",
                     "nano-banana-pro",
+                    "nano-banana-2.1",
                     "nano-banana-2",
                     "nano-banana-2-lite",
                 },
@@ -84,16 +90,8 @@ class ProviderFixtureTests(unittest.TestCase):
             self.assertIn("google-native", providers)
             self.assertIn("gemini-openai", providers)
             self.assertIn("gpt-only", providers)
-            def assert_no_api_key(value) -> None:
-                if isinstance(value, dict):
-                    self.assertNotIn("api_key", value)
-                    for nested in value.values():
-                        assert_no_api_key(nested)
-                elif isinstance(value, list):
-                    for nested in value:
-                        assert_no_api_key(nested)
 
-            assert_no_api_key(payload)
+            assert_no_api_key(self, payload)
             self.assertEqual(len(recent.json()["tasks"]), 3)
 
             index_bytes = (root / "source-data" / "webui-task-index.db").read_bytes()

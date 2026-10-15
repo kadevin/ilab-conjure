@@ -57,6 +57,8 @@ from tests.webui_helpers import (
     output_url,
     request_path,
 )
+from tests.helpers import assert_no_api_key
+
 
 
 def _fake_jwt(payload: dict[str, object]) -> str:
@@ -568,15 +570,6 @@ class WebUISettingsTests(unittest.TestCase):
     def test_api_settings_post_and_patch_share_v2_save_contract_without_key_echo(self) -> None:
         from codex_image.webui.app import create_app
 
-        def assert_no_api_key(value: object) -> None:
-            if isinstance(value, dict):
-                self.assertNotIn("api_key", value)
-                for nested in value.values():
-                    assert_no_api_key(nested)
-            elif isinstance(value, list):
-                for nested in value:
-                    assert_no_api_key(nested)
-
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             api_settings_path = root / "api-settings.json"
@@ -640,9 +633,9 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(persisted["providers"][0]["api_key"], "test-api-key-post-v2-secret")
         self.assertNotIn("auth_scheme", persisted["providers"][0])
         self.assertNotIn("auth_scheme", posted.json()["settings"]["providers"][0])
-        assert_no_api_key(posted.json())
-        assert_no_api_key(patched.json())
-        assert_no_api_key(reported.json())
+        assert_no_api_key(self, posted.json())
+        assert_no_api_key(self, patched.json())
+        assert_no_api_key(self, reported.json())
 
     def test_api_settings_preserve_custom_root_base_url_after_save_and_reload(self) -> None:
         from codex_image.webui.app import create_app

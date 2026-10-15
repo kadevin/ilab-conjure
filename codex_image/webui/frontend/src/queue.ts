@@ -6,6 +6,9 @@ import { acceptQueueSnapshot, acceptTaskUpdate, type StateSyncVersion } from "./
 
 const REALTIME_EVENTS_URL = "/api/events?stream=1";
 const QUEUE_DISPATCH_RESYNC_DELAY_MS = 1500;
+const REALTIME_FALLBACK_INTERVAL_MS = 5000;
+const REALTIME_STALE_TIMEOUT_MS = 45000;
+const REALTIME_RESYNC_TIMEOUT_MS = 10000;
 
 type QueueTask = WebUITask & {
   output_size?: string;
@@ -22,6 +25,12 @@ let queueFeatureInitialized = false;
 let realtimeConnectionNeedsResync = false;
 let realtimeResyncRequested = false;
 let realtimeResyncPromise: Promise<void> | null = null;
+let realtimeUpdatesEnabled = false;
+let realtimeGeneration = 0;
+let realtimeFallbackTimerId: number | null = null;
+let realtimeWatchdogTimerId: number | null = null;
+let realtimeResyncController: AbortController | null = null;
+let realtimePollingHealthy = false;
 
 export function initializeQueueFeature(): void {
   if (queueFeatureInitialized) return;
@@ -47,21 +56,43 @@ function bindQueueControls(): void {
 
 export function startRealtimeUpdates({ migrateLegacyArchives = false } = {}): boolean {
   const state = getState();
-  if (!window.EventSource) return false;
   closeRealtimeUpdates();
+  realtimeUpdatesEnabled = true;
   state.realtimeSnapshotNeedsArchiveMigration = migrateLegacyArchives;
-  realtimeConnectionNeedsResync = false;
+  if (!window.EventSource) {
+    realtimeConnectionNeedsResync = true;
+    void requestRealtimeResync();
+    return false;
+  }
+  connectRealtimeSource();
+  return true;
+}
+
+function connectRealtimeSource(): void {
+  const state = getState();
+  state.realtimeSource?.close();
   const source = new EventSource(REALTIME_EVENTS_URL);
   state.realtimeSource = source;
+  resetRealtimeWatchdog(source);
   source.onopen = () => {
     if (state.realtimeSource !== source) return;
+    resetRealtimeWatchdog(source);
     if (!realtimeConnectionNeedsResync) return;
     realtimeConnectionNeedsResync = false;
+    realtimePollingHealthy = false;
+    stopRealtimeFallback();
+    cancelRealtimeResync();
     void requestRealtimeResync();
     clearRealtimeReconnectStatus();
   };
+  source.addEventListener("heartbeat", () => {
+    if (state.realtimeSource === source) resetRealtimeWatchdog(source);
+  });
   source.onmessage = (event) => {
+    if (state.realtimeSource !== source) return;
+    resetRealtimeWatchdog(source);
     handleRealtimeMessage(event).catch((error: unknown) => {
+      if (state.realtimeSource !== source) return;
       console.error(error);
       getLegacyBridge().methods.setStatus(errorMessage(error, translate("queue.realtimeUpdateFailed")), "error");
     });
@@ -70,45 +101,124 @@ export function startRealtimeUpdates({ migrateLegacyArchives = false } = {}): bo
     if (state.realtimeSource !== source) return;
     realtimeConnectionNeedsResync = true;
     void requestRealtimeResync();
-    getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+    if (!realtimePollingHealthy) {
+      getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+    }
   };
-  return true;
+}
+
+function resetRealtimeWatchdog(source: EventSource): void {
+  if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+  realtimeWatchdogTimerId = window.setTimeout(() => {
+    realtimeWatchdogTimerId = null;
+    if (!realtimeUpdatesEnabled || getState().realtimeSource !== source) return;
+    // A buffered or half-open stream may never dispatch an error event.
+    realtimeConnectionNeedsResync = true;
+    connectRealtimeSource();
+    void requestRealtimeResync();
+  }, REALTIME_STALE_TIMEOUT_MS);
+}
+
+function stopRealtimeFallback(): void {
+  if (realtimeFallbackTimerId !== null) window.clearTimeout(realtimeFallbackTimerId);
+  realtimeFallbackTimerId = null;
+}
+
+function scheduleRealtimeFallback(): void {
+  if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync || realtimeFallbackTimerId !== null) return;
+  realtimeFallbackTimerId = window.setTimeout(() => {
+    realtimeFallbackTimerId = null;
+    if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync) return;
+    // CLOSED sources do not participate in the browser's automatic retry loop.
+    if (window.EventSource && getState().realtimeSource?.readyState === window.EventSource.CLOSED) connectRealtimeSource();
+    void requestRealtimeResync();
+  }, REALTIME_FALLBACK_INTERVAL_MS);
+}
+
+function cancelRealtimeResync(): void {
+  realtimeGeneration += 1;
+  realtimeResyncRequested = false;
+  realtimeResyncController?.abort();
+  realtimeResyncController = null;
+  realtimeResyncPromise = null;
 }
 
 export function closeRealtimeUpdates(): void {
   const state = getState();
+  realtimeUpdatesEnabled = false;
+  realtimePollingHealthy = false;
   realtimeConnectionNeedsResync = false;
-  realtimeResyncRequested = false;
+  cancelRealtimeResync();
+  stopRealtimeFallback();
+  if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+  realtimeWatchdogTimerId = null;
   if (!state.realtimeSource) return;
   state.realtimeSource.close();
   state.realtimeSource = null;
 }
 
-async function resyncRealtimeState(): Promise<void> {
+async function resyncRealtimeState(signal: AbortSignal): Promise<void> {
   const bridge = getLegacyBridge();
   const state = bridge.state;
   const shouldMigrateArchives = state.realtimeSnapshotNeedsArchiveMigration;
-  await Promise.all([refreshQueue(), bridge.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives })]);
+  // Commit the queue before asking for a newer task revision. Parallel reads
+  // can reject every delayed queue response against the newer task snapshot.
+  await refreshQueue({ signal, throwOnError: true });
+  signal.throwIfAborted();
+  await bridge.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives, signal });
 }
 
 function requestRealtimeResync(): Promise<void> {
   realtimeResyncRequested = true;
   if (realtimeResyncPromise) return realtimeResyncPromise;
+  const generation = realtimeGeneration;
   const resyncPromise = (async () => {
-    while (realtimeResyncRequested) {
+    while (realtimeResyncRequested && generation === realtimeGeneration) {
       realtimeResyncRequested = false;
-      await resyncRealtimeState();
+      const controller = new AbortController();
+      realtimeResyncController = controller;
+      let onAbort: () => void;
+      const aborted = new Promise<never>((_resolve, reject) => {
+        onAbort = () => reject(controller.signal.reason);
+        controller.signal.addEventListener("abort", onAbort, { once: true });
+      });
+      const timeoutId = window.setTimeout(() => controller.abort(), REALTIME_RESYNC_TIMEOUT_MS);
+      try {
+        // Bound the whole refresh, including bridge callbacks that may still
+        // be waiting on shared work initiated without this AbortSignal.
+        await Promise.race([resyncRealtimeState(controller.signal), aborted]);
+      } finally {
+        window.clearTimeout(timeoutId);
+        controller.signal.removeEventListener("abort", onAbort!);
+        controller.abort();
+        if (realtimeResyncController === controller) realtimeResyncController = null;
+      }
+      if (generation !== realtimeGeneration) return;
+      if (realtimeConnectionNeedsResync) {
+        realtimePollingHealthy = true;
+        const bridge = getLegacyBridge();
+        if (["", translate("status.waiting"), translate("queue.realtimeDisconnected")].includes(bridge.els.statusText?.textContent || "")) {
+          bridge.methods.setStatus(translate("queue.realtimePolling"), "");
+        }
+      }
     }
   })().catch((error: unknown) => {
+    if (generation !== realtimeGeneration) return;
     const bridge = getLegacyBridge();
     if (realtimeConnectionNeedsResync) {
+      realtimePollingHealthy = false;
       bridge.methods.setStatus(translate("queue.realtimeDisconnected"), "error");
       return;
     }
+    // A healthy push connection can finish recovery before an optional HTTP
+    // reconciliation times out. Cancellation is not a new connection error.
+    if (error instanceof DOMException && error.name === "AbortError") return;
     console.error(error);
     bridge.methods.setStatus(errorMessage(error, translate("queue.realtimeUpdateFailed")), "error");
   }).finally(() => {
+    if (generation !== realtimeGeneration) return;
     realtimeResyncPromise = null;
+    scheduleRealtimeFallback();
   });
   realtimeResyncPromise = resyncPromise;
   return resyncPromise;
@@ -116,7 +226,7 @@ function requestRealtimeResync(): Promise<void> {
 
 function clearRealtimeReconnectStatus(): void {
   const bridge = getLegacyBridge();
-  if (bridge.els.statusText?.textContent !== translate("queue.realtimeDisconnected")) return;
+  if (![translate("queue.realtimeDisconnected"), translate("queue.realtimePolling")].includes(bridge.els.statusText?.textContent || "")) return;
   bridge.methods.setStatus("", "");
 }
 
@@ -126,7 +236,8 @@ export async function handleRealtimeMessage(event: MessageEvent): Promise<void> 
   await handleRealtimePayload(payload);
 }
 
-export async function handleRealtimePayload(payload: RealtimePayload | null | undefined): Promise<void> {
+export async function handleRealtimePayload(payload: RealtimePayload | null | undefined, { signal }: { signal?: AbortSignal | undefined } = {}): Promise<void> {
+  signal?.throwIfAborted();
   const bridge = getLegacyBridge();
   const state = bridge.state;
   if (payload?.type === "snapshot") {
@@ -135,7 +246,9 @@ export async function handleRealtimePayload(payload: RealtimePayload | null | un
       migrateLegacyArchives: state.realtimeSnapshotNeedsArchiveMigration,
       ...(payload.task_groups ? { taskGroups: payload.task_groups } : {}),
       sync: payload.sync,
+      signal,
     });
+    signal?.throwIfAborted();
     if (acceptQueueSnapshot(state, payload.sync)) applyQueueTasks(state.queue);
     return;
   }
@@ -146,7 +259,7 @@ export async function handleRealtimePayload(payload: RealtimePayload | null | un
     await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
     if (!acceptQueueSnapshot(state, payload.sync)) return;
     if (queueMutated && !updatedTasks.length && !queueTaskCount(payload.queue)) {
-      await bridge.methods.refreshTasks();
+      await bridge.methods.refreshTasks({ signal });
       return;
     }
     applyQueueTasks(state.queue);
@@ -171,20 +284,30 @@ async function applyRealtimeTaskPayloads(tasks: WebUITask[], sync?: StateSyncVer
   }
 }
 
-export async function refreshQueue(): Promise<void> {
+export async function refreshQueue({ signal, throwOnError = false }: { signal?: AbortSignal; throwOnError?: boolean } = {}): Promise<void> {
   const bridge = getLegacyBridge();
   const state = bridge.state;
-  const requestSeq = ++state.queueRequestSeq;
+  let requestSeq = ++state.queueRequestSeq;
+  const generation = realtimeGeneration;
+  let expectedQueue = state.queue;
   try {
-    const response = await fetch("/api/queue");
+    const response = await fetch("/api/queue", { signal: signal ?? null });
     const data = await response.json();
+    signal?.throwIfAborted();
     if (requestSeq !== state.queueRequestSeq) return;
     if (!response.ok) {
       throw new Error(data.detail || translate("queue.readFailed"));
     }
     if (!acceptQueueSnapshot(state, data.sync)) return;
-    await handleRealtimePayload({ type: "queue", queue: data, sync: data.sync });
+    const applying = handleRealtimePayload({ type: "queue", queue: data, sync: data.sync }, { signal });
+    expectedQueue = state.queue;
+    requestSeq = state.queueRequestSeq;
+    await applying;
   } catch (error: unknown) {
+    if (signal?.aborted) throw error;
+    if (requestSeq !== state.queueRequestSeq || generation !== realtimeGeneration
+      || state.queue !== expectedQueue) return;
+    if (throwOnError) throw error;
     bridge.methods.setStatus(errorMessage(error, translate("queue.readFailed")), "error");
   }
 }

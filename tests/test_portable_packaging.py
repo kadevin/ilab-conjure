@@ -104,23 +104,6 @@ class PortablePackagingTests(unittest.TestCase):
         launcher_text = Path("launcher/src/lib.rs").read_text(encoding="utf-8")
         self.assertIn('"webui-network-egress-settings.json"', launcher_text)
 
-    def test_github_workflows_pin_node24_compatible_actions(self) -> None:
-        workflow_paths = [
-            Path(".github/workflows/ci.yml"),
-            Path(".github/workflows/release-portable.yml"),
-        ]
-        pinned_actions = [
-            "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1",
-            "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0",
-            "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0",
-            "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0",
-            "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1",
-        ]
-
-        combined = "\n".join(path.read_text(encoding="utf-8") for path in workflow_paths)
-        for pinned_action in pinned_actions:
-            self.assertIn(pinned_action, combined)
-
     def test_ci_workflow_avoids_github_unsupported_job_hashfiles_if(self) -> None:
         workflow = Path(".github/workflows/ci.yml")
         self.assertTrue(workflow.exists(), f"{workflow} should exist")

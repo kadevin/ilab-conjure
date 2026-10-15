@@ -44,9 +44,6 @@ class WebUIRefactorContractTests(unittest.TestCase):
         self.assertIs(ApiSettings, ProviderSettings)
         self.assertIs(LegacyProviderSettings, ProviderSettings)
 
-    def test_create_app_remains_callable(self) -> None:
-        self.assertTrue(callable(create_app))
-
     def test_auth_routing_backend_contract(self) -> None:
         from codex_image.webui import auth_routing
 
@@ -291,12 +288,14 @@ class WebUIRefactorContractTests(unittest.TestCase):
     def test_client_modules_keep_legacy_import_contract(self) -> None:
         from codex_image import client
         from codex_image.client_types import ImageResult, image_model_supports_input_fidelity
+        from codex_image.codex_images_client import CodexImagesImageClient
         from codex_image.codex_responses_client import CodexImageClient
         from codex_image.openai_images_client import OpenAIImagesImageClient
         from codex_image.openai_responses_client import OpenAIResponsesImageClient
 
         self.assertIs(client.ImageResult, ImageResult)
         self.assertIs(client.CodexImageClient, CodexImageClient)
+        self.assertIs(client.CodexImagesImageClient, CodexImagesImageClient)
         self.assertIs(client.OpenAIImagesImageClient, OpenAIImagesImageClient)
         self.assertIs(client.OpenAIResponsesImageClient, OpenAIResponsesImageClient)
         self.assertIs(client.image_model_supports_input_fidelity, image_model_supports_input_fidelity)
@@ -406,6 +405,7 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/tasks/delete-batch", "POST"),
                 ("/api/task-history/summary", "GET"),
                 ("/api/task-history/tasks", "GET"),
+                ("/api/task-history/tasks/refresh", "POST"),
                 ("/api/task-history/tags", "GET"),
                 ("/api/task-history/tags", "POST"),
                 ("/api/task-history/tags/{tag_id}", "PATCH"),

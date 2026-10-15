@@ -24,6 +24,7 @@ class GenerationCatalogTests(unittest.TestCase):
                 "gpt-image-2.5-flare",
                 "gpt-image-2.5-sunburst",
                 "nano-banana-pro",
+                "nano-banana-2.1",
                 "nano-banana-2",
                 "nano-banana-2-lite",
             },
@@ -70,14 +71,19 @@ class GenerationCatalogTests(unittest.TestCase):
 
     def test_nano_banana_models_have_model_specific_resolutions(self) -> None:
         pro = get_model_manifest("nano-banana-pro")
+        flash_21 = get_model_manifest("nano-banana-2.1")
         flash = get_model_manifest("nano-banana-2")
         lite = get_model_manifest("nano-banana-2-lite")
         self.assertEqual(pro.parameter("canvas.resolution").allowed_values, ("1K", "2K", "4K"))
+        self.assertEqual(flash_21.parameter("canvas.resolution").allowed_values, ("1K", "2K", "4K"))
+        self.assertEqual(flash_21.parameter("canvas.resolution").default, "1K")
+        self.assertEqual(flash_21.official_model_id, "gemini-nano-banana-2.1")
+        self.assertEqual(flash_21.display_name, "Nano Banana 2.1")
         self.assertEqual(flash.parameter("canvas.resolution").allowed_values, ("512", "1K", "2K", "4K"))
         self.assertEqual(lite.parameter("canvas.resolution").allowed_values, ("1K",))
 
     def test_new_model_manifests_use_image2_style_compact_controls(self) -> None:
-        for model_id in ("nano-banana-pro", "nano-banana-2", "nano-banana-2-lite"):
+        for model_id in ("nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite"):
             with self.subTest(model=model_id):
                 model = get_model_manifest(model_id)
                 aspect_ratio = model.parameter("canvas.aspect_ratio")
@@ -109,7 +115,7 @@ class GenerationCatalogTests(unittest.TestCase):
         self.assertTrue(all(model.family_id in family_ids for model in list_model_manifests()))
         self.assertEqual(
             {model.id for model in manifests_for_family("gemini-image")},
-            {"nano-banana-pro", "nano-banana-2", "nano-banana-2-lite"},
+            {"nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite"},
         )
 
     def test_unknown_model_does_not_fall_back_to_gpt(self) -> None:
@@ -119,6 +125,7 @@ class GenerationCatalogTests(unittest.TestCase):
     def test_nano_banana_models_have_approved_aspect_ratios_and_search_options(self) -> None:
         common_ratios = ("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9")
         pro = get_model_manifest("nano-banana-pro")
+        flash_21 = get_model_manifest("nano-banana-2.1")
         flash = get_model_manifest("nano-banana-2")
         lite = get_model_manifest("nano-banana-2-lite")
 
@@ -128,6 +135,13 @@ class GenerationCatalogTests(unittest.TestCase):
             common_ratios + ("1:4", "1:8", "4:1", "8:1"),
         )
         self.assertEqual(lite.parameter("canvas.aspect_ratio").allowed_values, common_ratios)
+        self.assertEqual(
+            flash_21.parameter("canvas.aspect_ratio").allowed_values,
+            flash.parameter("canvas.aspect_ratio").allowed_values,
+        )
+        self.assertEqual(flash_21.input_constraints.max_images, 14)
+        self.assertEqual(flash_21.operations, frozenset({"generate", "edit"}))
+        self.assertIsNotNone(flash_21.parameter("gemini.google_search"))
         self.assertEqual(pro.input_constraints.max_images, 14)
         self.assertEqual(flash.input_constraints.max_images, 14)
         self.assertEqual(lite.input_constraints.max_images, 14)
@@ -157,7 +171,7 @@ class GenerationCatalogTests(unittest.TestCase):
             "BLOCK_MEDIUM_AND_ABOVE",
             "BLOCK_LOW_AND_ABOVE",
         )
-        for model_id in ("nano-banana-pro", "nano-banana-2", "nano-banana-2-lite"):
+        for model_id in ("nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite"):
             with self.subTest(model=model_id):
                 model = get_model_manifest(model_id)
                 self.assertTrue(model.expand_advanced_parameters)

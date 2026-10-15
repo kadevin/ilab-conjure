@@ -34,11 +34,29 @@ export function createHistoryListView(taskList: HTMLElement | null, sentinel: HT
     els.taskList.innerHTML = `<div class="${className}">${escapeHtml(message)}</div>`;
   }
 
+  function captureFocus(): { taskId: string; selector: string } | null {
+    const active = document.activeElement;
+    if (!active || !els.taskList?.contains(active)) return null;
+    const taskId = active.closest<HTMLElement>("[data-history-task-card-id]")?.dataset.historyTaskCardId;
+    const selector = ["[data-history-task-id]", "[data-history-favorite-task]"].find(value => active.matches(value));
+    return taskId && selector ? { taskId, selector } : null;
+  }
+
+  function restoreFocus(focus: ReturnType<typeof captureFocus>): void {
+    if (focus) historyTaskCardElement(focus.taskId)?.querySelector<HTMLElement>(focus.selector)?.focus({ preventScroll: true });
+  }
+
   function replaceCard(card: HTMLElement, html: string): void {
+    const focusSelector = card.contains(document.activeElement)
+      ? ["[data-history-task-id]", "[data-history-favorite-task]"].find(selector => document.activeElement?.matches(selector))
+      : undefined;
     const template = document.createElement("template");
     template.innerHTML = html.trim();
     const replacement = template.content.firstElementChild;
-    if (replacement) card.replaceWith(replacement);
+    if (replacement) {
+      card.replaceWith(replacement);
+      if (focusSelector) replacement.querySelector<HTMLElement>(focusSelector)?.focus({ preventScroll: true });
+    }
   }
-  return { historyTaskCardElement, setLoadMoreState, captureHistoryScrollAnchorSkipping, renderTaskListMessage, replaceCard };
+  return { historyTaskCardElement, setLoadMoreState, captureHistoryScrollAnchorSkipping, renderTaskListMessage, replaceCard, captureFocus, restoreFocus };
 }

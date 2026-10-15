@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from time import monotonic
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
@@ -11,6 +12,7 @@ from codex_image.webui.events import event_key, event_snapshot, queue_event, que
 from codex_image.webui.queue_snapshot_cache import QueueSnapshotCache
 
 EVENT_STREAM_CHECK_INTERVAL_SECONDS = 1.0
+EVENT_STREAM_HEARTBEAT_SECONDS = 15.0
 
 
 def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
@@ -48,6 +50,7 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
         async def stream_events():
             h["ensure_queue_worker_running"]()
             message, previous_queue_key, previous_task_ids = await run_in_threadpool(initial_events)
+            last_sent = monotonic()
             yield message
             if not should_stream:
                 return
@@ -67,7 +70,11 @@ def register_queue_routes(app: FastAPI, ctx: WebUIContext) -> None:
                     changed_events, previous_queue_key, previous_task_ids,
                 )
                 for message in messages:
+                    last_sent = monotonic()
                     yield message
+                if monotonic() - last_sent >= EVENT_STREAM_HEARTBEAT_SECONDS:
+                    last_sent = monotonic()
+                    yield "event: heartbeat\ndata: {}\n\n"
 
         return StreamingResponse(
             stream_events(),

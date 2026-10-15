@@ -164,6 +164,7 @@
     "ux.checkProvider": "Check provider settings",
     "ux.acceptDetail": "Keep successful images and finish the task without filling the failed slots.",
     "ux.editInputs": "Edit inputs and settings",
+    "ux.editInputsReady": "Task inputs and settings loaded. Edit them before generating again.",
     "ux.errorDetails": "Error details",
     "ux.openRecovery": "Resolve on generation page",
     "ux.useSize": "Use {width} \xD7 {height}",
@@ -262,6 +263,7 @@
     "queue.reorderFailed": "Failed to reorder queue",
     "queue.realtimeUpdateFailed": "Failed to update live status",
     "queue.realtimeDisconnected": "Live status connection was interrupted. Reconnecting automatically\u2026",
+    "queue.realtimePolling": "Task status is updating periodically. Restoring the live connection\u2026",
     "queue.readFailed": "Failed to load queue",
     "status.waiting": "Waiting",
     "status.shownActiveTasks": "Showing active tasks",
@@ -657,6 +659,7 @@
     "status.loadedTask": "Loaded task {taskId}",
     "status.reusedTask": "Opened task {taskId} in generator",
     "status.loadingHistoryInputs": "Loading historical input images...",
+    "status.taskChangedDuringLoad": "The task changed while loading. Please select it again.",
     "status.historyInputLoadFailed": "Failed to load historical input image: {url}",
     "referenceCollector.alreadyStaged": "Already staged as a reference",
     "referenceCollector.staged": "Staged {count} reference images",
@@ -12680,6 +12683,7 @@
     "ux.checkProvider": "Ki\u1EC3m tra nh\xE0 cung c\u1EA5p",
     "ux.acceptDetail": "Gi\u1EEF \u1EA3nh th\xE0nh c\xF4ng v\xE0 k\u1EBFt th\xFAc t\xE1c v\u1EE5 m\xE0 kh\xF4ng t\u1EA1o l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
     "ux.editInputs": "S\u1EEDa \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp",
+    "ux.editInputsReady": "\u0110\xE3 t\u1EA3i \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp c\u1EE7a t\xE1c v\u1EE5. B\u1EA1n c\xF3 th\u1EC3 ch\u1EC9nh s\u1EEDa r\u1ED3i t\u1EA1o l\u1EA1i.",
     "ux.errorDetails": "Chi ti\u1EBFt l\u1ED7i",
     "ux.openRecovery": "X\u1EED l\xFD tr\xEAn trang t\u1EA1o \u1EA3nh",
     "ux.useSize": "D\xF9ng {width} \xD7 {height}",
@@ -12778,6 +12782,7 @@
     "queue.reorderFailed": "Kh\xF4ng th\u1EC3 s\u1EAFp x\u1EBFp l\u1EA1i h\xE0ng \u0111\u1EE3i",
     "queue.realtimeUpdateFailed": "Kh\xF4ng c\u1EADp nh\u1EADt \u0111\u01B0\u1EE3c tr\u1EA1ng th\xE1i tr\u1EF1c ti\u1EBFp",
     "queue.realtimeDisconnected": "K\u1EBFt n\u1ED1i tr\u1EA1ng th\xE1i tr\u1EF1c ti\u1EBFp b\u1ECB gi\xE1n \u0111o\u1EA1n. \u0110ang t\u1EF1 \u0111\u1ED9ng k\u1EBFt n\u1ED1i l\u1EA1i\u2026",
+    "queue.realtimePolling": "Tr\u1EA1ng th\xE1i t\xE1c v\u1EE5 \u0111ang \u0111\u01B0\u1EE3c c\u1EADp nh\u1EADt \u0111\u1ECBnh k\u1EF3. \u0110ang kh\xF4i ph\u1EE5c k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp\u2026",
     "queue.readFailed": "Kh\xF4ng th\u1EC3 t\u1EA3i h\xE0ng \u0111\u1EE3i",
     "status.waiting": "\u0110ang ch\u1EDD",
     "status.shownActiveTasks": "Hi\u1EC3n th\u1ECB c\xE1c t\xE1c v\u1EE5 \u0111ang ch\u1EA1y",
@@ -13173,6 +13178,7 @@
     "status.loadedTask": "\u0110\xE3 t\u1EA3i t\xE1c v\u1EE5 {taskId}",
     "status.reusedTask": "\u0110\xE3 m\u1EDF t\xE1c v\u1EE5 {taskId} trong tr\xECnh t\u1EA1o",
     "status.loadingHistoryInputs": "\u0110ang t\u1EA3i h\xECnh \u1EA3nh \u0111\u1EA7u v\xE0o l\u1ECBch s\u1EED...",
+    "status.taskChangedDuringLoad": "T\xE1c v\u1EE5 \u0111\xE3 thay \u0111\u1ED5i trong khi t\u1EA3i. Vui l\xF2ng ch\u1ECDn l\u1EA1i t\xE1c v\u1EE5.",
     "status.historyInputLoadFailed": "Kh\xF4ng t\u1EA3i \u0111\u01B0\u1EE3c h\xECnh \u1EA3nh \u0111\u1EA7u v\xE0o l\u1ECBch s\u1EED: {url}",
     "referenceCollector.alreadyStaged": "\u0110\xE3 t\u1EA1m gi\u1EEF l\xE0m \u1EA3nh tham kh\u1EA3o",
     "referenceCollector.staged": "\u0110\xE3 t\u1EA1m gi\u1EEF {count} \u1EA3nh tham kh\u1EA3o",
@@ -14072,6 +14078,7 @@
     "ux.checkProvider": "\u68C0\u67E5\u4F9B\u5E94\u5546\u8BBE\u7F6E",
     "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F\u4EFB\u52A1\uFF0C\u4E0D\u518D\u8865\u9F50\u5931\u8D25\u56FE\u7247\u3002",
     "ux.editInputs": "\u4FEE\u6539\u8F93\u5165\u4E0E\u53C2\u6570",
+    "ux.editInputsReady": "\u5DF2\u8F7D\u5165\u4EFB\u52A1\u8F93\u5165\u4E0E\u53C2\u6570\uFF0C\u53EF\u4FEE\u6539\u540E\u91CD\u65B0\u751F\u6210\u3002",
     "ux.errorDetails": "\u9519\u8BEF\u8BE6\u60C5",
     "ux.openRecovery": "\u8FDB\u5165\u751F\u6210\u9875\u5904\u7406",
     "ux.useSize": "\u91C7\u7528 {width} \xD7 {height}",
@@ -14170,6 +14177,7 @@
     "queue.reorderFailed": "\u961F\u5217\u6392\u5E8F\u5931\u8D25",
     "queue.realtimeUpdateFailed": "\u5B9E\u65F6\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
     "queue.realtimeDisconnected": "\u5B9E\u65F6\u72B6\u6001\u8FDE\u63A5\u5DF2\u4E2D\u65AD\uFF0C\u6B63\u5728\u81EA\u52A8\u91CD\u8FDE\u2026",
+    "queue.realtimePolling": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u5207\u6362\u4E3A\u5B9A\u65F6\u66F4\u65B0\uFF0C\u6B63\u5728\u6062\u590D\u5B9E\u65F6\u8FDE\u63A5\u2026",
     "queue.readFailed": "\u961F\u5217\u8BFB\u53D6\u5931\u8D25",
     "status.waiting": "\u7B49\u5F85\u4EFB\u52A1",
     "status.shownActiveTasks": "\u5DF2\u663E\u793A\u8FDB\u884C\u4E2D\u4EFB\u52A1",
@@ -14565,6 +14573,7 @@
     "status.loadedTask": "\u5DF2\u8F7D\u5165\u4EFB\u52A1 {taskId}",
     "status.reusedTask": "\u5DF2\u5728\u751F\u6210\u9875\u6253\u5F00\u4EFB\u52A1 {taskId}",
     "status.loadingHistoryInputs": "\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...",
+    "status.taskChangedDuringLoad": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u8BE5\u4EFB\u52A1\u3002",
     "status.historyInputLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: {url}",
     "referenceCollector.alreadyStaged": "\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
     "referenceCollector.staged": "\u5DF2\u6682\u5B58 {count} \u5F20\u53C2\u8003\u56FE",
@@ -49954,6 +49963,7 @@ ${hint}` : hint);
     updateLockButton();
   }
   function unlockOutputSettings() {
+    if (!locked) return;
     if (lockedSnapshot) applySnapshot(lockedSnapshot);
     locked = false;
     lockedSnapshot = null;
@@ -49987,6 +49997,7 @@ ${hint}` : hint);
     initialized5 = true;
     Object.assign(getLegacyBridge().methods, {
       isOutputSettingsLocked,
+      unlockOutputSettings,
       restoreOutputSettingsLock,
       refreshOutputSettingsLock,
       showLockedOutputSettings,
@@ -54244,10 +54255,19 @@ ${hint}` : hint);
   // codex_image/webui/frontend/src/queue.ts
   var REALTIME_EVENTS_URL = "/api/events?stream=1";
   var QUEUE_DISPATCH_RESYNC_DELAY_MS = 1500;
+  var REALTIME_FALLBACK_INTERVAL_MS = 5e3;
+  var REALTIME_STALE_TIMEOUT_MS = 45e3;
+  var REALTIME_RESYNC_TIMEOUT_MS = 1e4;
   var queueFeatureInitialized = false;
   var realtimeConnectionNeedsResync = false;
   var realtimeResyncRequested = false;
   var realtimeResyncPromise = null;
+  var realtimeUpdatesEnabled = false;
+  var realtimeGeneration = 0;
+  var realtimeFallbackTimerId = null;
+  var realtimeWatchdogTimerId = null;
+  var realtimeResyncController = null;
+  var realtimePollingHealthy = false;
   function initializeQueueFeature() {
     if (queueFeatureInitialized) return;
     queueFeatureInitialized = true;
@@ -54269,21 +54289,42 @@ ${hint}` : hint);
   }
   function startRealtimeUpdates({ migrateLegacyArchives = false } = {}) {
     const state33 = getState();
-    if (!window.EventSource) return false;
     closeRealtimeUpdates();
+    realtimeUpdatesEnabled = true;
     state33.realtimeSnapshotNeedsArchiveMigration = migrateLegacyArchives;
-    realtimeConnectionNeedsResync = false;
+    if (!window.EventSource) {
+      realtimeConnectionNeedsResync = true;
+      void requestRealtimeResync();
+      return false;
+    }
+    connectRealtimeSource();
+    return true;
+  }
+  function connectRealtimeSource() {
+    const state33 = getState();
+    state33.realtimeSource?.close();
     const source = new EventSource(REALTIME_EVENTS_URL);
     state33.realtimeSource = source;
+    resetRealtimeWatchdog(source);
     source.onopen = () => {
       if (state33.realtimeSource !== source) return;
+      resetRealtimeWatchdog(source);
       if (!realtimeConnectionNeedsResync) return;
       realtimeConnectionNeedsResync = false;
+      realtimePollingHealthy = false;
+      stopRealtimeFallback();
+      cancelRealtimeResync();
       void requestRealtimeResync();
       clearRealtimeReconnectStatus();
     };
+    source.addEventListener("heartbeat", () => {
+      if (state33.realtimeSource === source) resetRealtimeWatchdog(source);
+    });
     source.onmessage = (event) => {
+      if (state33.realtimeSource !== source) return;
+      resetRealtimeWatchdog(source);
       handleRealtimeMessage(event).catch((error) => {
+        if (state33.realtimeSource !== source) return;
         console.error(error);
         getLegacyBridge().methods.setStatus(errorMessage5(error, translate("queue.realtimeUpdateFailed")), "error");
       });
@@ -54292,49 +54333,116 @@ ${hint}` : hint);
       if (state33.realtimeSource !== source) return;
       realtimeConnectionNeedsResync = true;
       void requestRealtimeResync();
-      getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+      if (!realtimePollingHealthy) {
+        getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+      }
     };
-    return true;
+  }
+  function resetRealtimeWatchdog(source) {
+    if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+    realtimeWatchdogTimerId = window.setTimeout(() => {
+      realtimeWatchdogTimerId = null;
+      if (!realtimeUpdatesEnabled || getState().realtimeSource !== source) return;
+      realtimeConnectionNeedsResync = true;
+      connectRealtimeSource();
+      void requestRealtimeResync();
+    }, REALTIME_STALE_TIMEOUT_MS);
+  }
+  function stopRealtimeFallback() {
+    if (realtimeFallbackTimerId !== null) window.clearTimeout(realtimeFallbackTimerId);
+    realtimeFallbackTimerId = null;
+  }
+  function scheduleRealtimeFallback() {
+    if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync || realtimeFallbackTimerId !== null) return;
+    realtimeFallbackTimerId = window.setTimeout(() => {
+      realtimeFallbackTimerId = null;
+      if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync) return;
+      if (window.EventSource && getState().realtimeSource?.readyState === window.EventSource.CLOSED) connectRealtimeSource();
+      void requestRealtimeResync();
+    }, REALTIME_FALLBACK_INTERVAL_MS);
+  }
+  function cancelRealtimeResync() {
+    realtimeGeneration += 1;
+    realtimeResyncRequested = false;
+    realtimeResyncController?.abort();
+    realtimeResyncController = null;
+    realtimeResyncPromise = null;
   }
   function closeRealtimeUpdates() {
     const state33 = getState();
+    realtimeUpdatesEnabled = false;
+    realtimePollingHealthy = false;
     realtimeConnectionNeedsResync = false;
-    realtimeResyncRequested = false;
+    cancelRealtimeResync();
+    stopRealtimeFallback();
+    if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+    realtimeWatchdogTimerId = null;
     if (!state33.realtimeSource) return;
     state33.realtimeSource.close();
     state33.realtimeSource = null;
   }
-  async function resyncRealtimeState() {
+  async function resyncRealtimeState(signal) {
     const bridge40 = getLegacyBridge();
     const state33 = bridge40.state;
     const shouldMigrateArchives = state33.realtimeSnapshotNeedsArchiveMigration;
-    await Promise.all([refreshQueue(), bridge40.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives })]);
+    await refreshQueue({ signal, throwOnError: true });
+    signal.throwIfAborted();
+    await bridge40.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives, signal });
   }
   function requestRealtimeResync() {
     realtimeResyncRequested = true;
     if (realtimeResyncPromise) return realtimeResyncPromise;
+    const generation = realtimeGeneration;
     const resyncPromise = (async () => {
-      while (realtimeResyncRequested) {
+      while (realtimeResyncRequested && generation === realtimeGeneration) {
         realtimeResyncRequested = false;
-        await resyncRealtimeState();
+        const controller = new AbortController();
+        realtimeResyncController = controller;
+        let onAbort;
+        const aborted = new Promise((_resolve, reject) => {
+          onAbort = () => reject(controller.signal.reason);
+          controller.signal.addEventListener("abort", onAbort, { once: true });
+        });
+        const timeoutId = window.setTimeout(() => controller.abort(), REALTIME_RESYNC_TIMEOUT_MS);
+        try {
+          await Promise.race([resyncRealtimeState(controller.signal), aborted]);
+        } finally {
+          window.clearTimeout(timeoutId);
+          controller.signal.removeEventListener("abort", onAbort);
+          controller.abort();
+          if (realtimeResyncController === controller) realtimeResyncController = null;
+        }
+        if (generation !== realtimeGeneration) return;
+        if (realtimeConnectionNeedsResync) {
+          realtimePollingHealthy = true;
+          const bridge40 = getLegacyBridge();
+          if (["", translate("status.waiting"), translate("queue.realtimeDisconnected")].includes(bridge40.els.statusText?.textContent || "")) {
+            bridge40.methods.setStatus(translate("queue.realtimePolling"), "");
+          }
+        }
       }
     })().catch((error) => {
+      if (generation !== realtimeGeneration) return;
       const bridge40 = getLegacyBridge();
       if (realtimeConnectionNeedsResync) {
+        realtimePollingHealthy = false;
         bridge40.methods.setStatus(translate("queue.realtimeDisconnected"), "error");
         return;
       }
+      if (error instanceof DOMException && error.name === "AbortError") return;
       console.error(error);
       bridge40.methods.setStatus(errorMessage5(error, translate("queue.realtimeUpdateFailed")), "error");
     }).finally(() => {
+      if (generation !== realtimeGeneration) return;
       realtimeResyncPromise = null;
+      scheduleRealtimeFallback();
     });
     realtimeResyncPromise = resyncPromise;
     return resyncPromise;
   }
   function clearRealtimeReconnectStatus() {
     const bridge40 = getLegacyBridge();
-    if (bridge40.els.statusText?.textContent !== translate("queue.realtimeDisconnected")) return;
+    if (![translate("queue.realtimeDisconnected"), translate("queue.realtimePolling")].includes(bridge40.els.statusText?.textContent || "")) return;
     bridge40.methods.setStatus("", "");
   }
   async function handleRealtimeMessage(event) {
@@ -54342,7 +54450,8 @@ ${hint}` : hint);
     const payload2 = JSON.parse(String(event.data));
     await handleRealtimePayload(payload2);
   }
-  async function handleRealtimePayload(payload2) {
+  async function handleRealtimePayload(payload2, { signal } = {}) {
+    signal?.throwIfAborted();
     const bridge40 = getLegacyBridge();
     const state33 = bridge40.state;
     if (payload2?.type === "snapshot") {
@@ -54350,8 +54459,10 @@ ${hint}` : hint);
       await bridge40.methods.applyTasksSnapshot(payload2.tasks || [], {
         migrateLegacyArchives: state33.realtimeSnapshotNeedsArchiveMigration,
         ...payload2.task_groups ? { taskGroups: payload2.task_groups } : {},
-        sync: payload2.sync
+        sync: payload2.sync,
+        signal
       });
+      signal?.throwIfAborted();
       if (acceptQueueSnapshot(state33, payload2.sync)) applyQueueTasks(state33.queue);
       return;
     }
@@ -54362,7 +54473,7 @@ ${hint}` : hint);
       await applyRealtimeTaskPayloads(updatedTasks, payload2.sync);
       if (!acceptQueueSnapshot(state33, payload2.sync)) return;
       if (queueMutated && !updatedTasks.length && !queueTaskCount(payload2.queue)) {
-        await bridge40.methods.refreshTasks();
+        await bridge40.methods.refreshTasks({ signal });
         return;
       }
       applyQueueTasks(state33.queue);
@@ -54385,20 +54496,29 @@ ${hint}` : hint);
       await bridge40.methods.applyTaskUpdate(task);
     }
   }
-  async function refreshQueue() {
+  async function refreshQueue({ signal, throwOnError = false } = {}) {
     const bridge40 = getLegacyBridge();
     const state33 = bridge40.state;
-    const requestSeq = ++state33.queueRequestSeq;
+    let requestSeq = ++state33.queueRequestSeq;
+    const generation = realtimeGeneration;
+    let expectedQueue = state33.queue;
     try {
-      const response = await fetch("/api/queue");
+      const response = await fetch("/api/queue", { signal: signal ?? null });
       const data = await response.json();
+      signal?.throwIfAborted();
       if (requestSeq !== state33.queueRequestSeq) return;
       if (!response.ok) {
         throw new Error(data.detail || translate("queue.readFailed"));
       }
       if (!acceptQueueSnapshot(state33, data.sync)) return;
-      await handleRealtimePayload({ type: "queue", queue: data, sync: data.sync });
+      const applying = handleRealtimePayload({ type: "queue", queue: data, sync: data.sync }, { signal });
+      expectedQueue = state33.queue;
+      requestSeq = state33.queueRequestSeq;
+      await applying;
     } catch (error) {
+      if (signal?.aborted) throw error;
+      if (requestSeq !== state33.queueRequestSeq || generation !== realtimeGeneration || state33.queue !== expectedQueue) return;
+      if (throwOnError) throw error;
       bridge40.methods.setStatus(errorMessage5(error, translate("queue.readFailed")), "error");
     }
   }
@@ -57083,8 +57203,9 @@ ${hint}` : hint);
       legacyMethod41("openApiSettingsModal");
       return;
     }
-    if (target.closest("[data-preview-edit-inputs]")) {
-      getLegacyBridge().methods.showGenerationEditor?.();
+    const editButton = target.closest("[data-preview-edit-inputs]");
+    if (editButton) {
+      void legacyMethod41("editTaskInputs", editButton.dataset.previewEditInputs);
       return;
     }
     const retryButton = target.closest("[data-preview-retry-failed-task-id]");
@@ -57400,7 +57521,7 @@ ${hint}` : hint);
       actions.push(`<button type="button" class="ghost-button text-sm" data-preview-provider-settings>${escapeHtml18(translate("ux.checkProvider"))}</button>`);
     }
     if (taskRecoveryKind(task) === "input") {
-      actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs>${escapeHtml18(translate("ux.editInputs"))}</button>`);
+      actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs="${taskId}">${escapeHtml18(translate("ux.editInputs"))}</button>`);
     }
     if (canRetryFailedTask3(task)) {
       actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml18(translate("preview.retryFailed"))}</button>`);
@@ -57519,6 +57640,7 @@ ${hint}` : hint);
   var TASK_SIDEBAR_REVEAL_PAGE_SIZE = 100;
   var HISTORY_TASK_REVEAL_LAYOUT_TIMEOUT_MS = 5e3;
   var taskSearchHistoryTimerId = 0;
+  var tasksStateRevision = 0;
   function activeHistoryTaskReveal() {
     const reveal = state30.historyTaskReveal;
     if (!reveal?.ready) return null;
@@ -57560,46 +57682,61 @@ ${hint}` : hint);
   function normalizedTaskSearchResultQuery(query) {
     return String(query || "").trim().toLowerCase();
   }
-  async function refreshTasks({ migrateLegacyArchives = false, preserveExpandedGroup = true } = {}) {
+  async function refreshTasks({ migrateLegacyArchives = false, preserveExpandedGroup = true, signal } = {}) {
     const groupKey = preserveExpandedGroup ? String(state30.expandedTaskGroupKey || "") : "";
     const loadedCount = Number(state30.taskSidebarGroupLoadedCounts?.[groupKey] || 0);
     const requestSeq = ++state30.tasksRequestSeq;
-    const response = await fetch("/api/tasks/sidebar?limit=50");
-    const data = await response.json();
-    if (requestSeq !== state30.tasksRequestSeq) return false;
-    if (!response.ok) throw new Error(data.detail || "Task history loading failed");
-    const group = Array.isArray(data.task_groups) ? data.task_groups.find((item) => String(item?.key || "") === groupKey) : null;
-    if (group && Array.isArray(group.tasks)) {
-      let offset = group.tasks.length;
-      while (offset < Math.min(loadedCount, Number(group.count || 0))) {
-        const limit2 = Math.min(TASK_SIDEBAR_REVEAL_PAGE_SIZE, loadedCount - offset);
-        const pageResponse = await fetch(
-          `/api/tasks/sidebar/groups/${encodeURIComponent(groupKey)}?offset=${offset}&limit=${limit2}`
-        );
-        const page = await pageResponse.json();
-        if (requestSeq !== state30.tasksRequestSeq) return false;
-        if (!pageResponse.ok) throw new Error(page.detail || "Task group loading failed");
-        const incoming = Array.isArray(page.tasks) ? page.tasks : [];
-        group.count = Number(page.count ?? group.count);
-        if (!incoming.length) break;
-        group.tasks = mergeSidebarTasks(group.tasks, incoming);
-        data.tasks = mergeSidebarTasks(data.tasks || [], incoming);
-        offset = Math.max(offset + incoming.length, Number(page.next_offset || 0));
+    let expectedRevision = tasksStateRevision;
+    try {
+      const response = await fetch("/api/tasks/sidebar?limit=50", { signal });
+      const data = await response.json();
+      signal?.throwIfAborted();
+      if (requestSeq !== state30.tasksRequestSeq) return false;
+      if (!response.ok) throw new Error(data.detail || "Task history loading failed");
+      const group = Array.isArray(data.task_groups) ? data.task_groups.find((item) => String(item?.key || "") === groupKey) : null;
+      if (group && Array.isArray(group.tasks)) {
+        let offset = group.tasks.length;
+        while (offset < Math.min(loadedCount, Number(group.count || 0))) {
+          const limit2 = Math.min(TASK_SIDEBAR_REVEAL_PAGE_SIZE, loadedCount - offset);
+          const pageResponse = await fetch(
+            `/api/tasks/sidebar/groups/${encodeURIComponent(groupKey)}?offset=${offset}&limit=${limit2}`,
+            { signal }
+          );
+          const page = await pageResponse.json();
+          signal?.throwIfAborted();
+          if (requestSeq !== state30.tasksRequestSeq) return false;
+          if (!pageResponse.ok) throw new Error(page.detail || "Task group loading failed");
+          const incoming = Array.isArray(page.tasks) ? page.tasks : [];
+          group.count = Number(page.count ?? group.count);
+          if (!incoming.length) break;
+          group.tasks = mergeSidebarTasks(group.tasks, incoming);
+          data.tasks = mergeSidebarTasks(data.tasks || [], incoming);
+          offset = Math.max(offset + incoming.length, Number(page.next_offset || 0));
+        }
       }
+      const applying = applyTasksSnapshot(data.tasks || [], {
+        migrateLegacyArchives,
+        requestSeq,
+        taskGroups: data.task_groups,
+        sync: data.sync,
+        signal
+      });
+      expectedRevision = tasksStateRevision;
+      return await applying;
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      if (requestSeq !== state30.tasksRequestSeq || expectedRevision !== tasksStateRevision) return false;
+      throw error;
     }
-    return await applyTasksSnapshot(data.tasks || [], {
-      migrateLegacyArchives,
-      requestSeq,
-      taskGroups: data.task_groups,
-      sync: data.sync
-    });
   }
   async function applyTasksSnapshot(tasks, {
     migrateLegacyArchives = false,
     requestSeq = state30.tasksRequestSeq,
     taskGroups,
-    sync
+    sync,
+    signal
   } = {}) {
+    signal?.throwIfAborted();
     const incoming = Array.isArray(tasks) ? tasks : [];
     const snapshot2 = reconcileTaskSnapshot(
       state30,
@@ -57610,6 +57747,7 @@ ${hint}` : hint);
     const previousLocalPendingTasks = state30.tasks.filter((task) => task?.local_pending);
     const pendingTask = state30.pendingTaskId ? state30.tasks.find((task) => task.task_id === state30.pendingTaskId) : null;
     state30.tasks = snapshot2;
+    tasksStateRevision += 1;
     if (Array.isArray(taskGroups)) {
       state30.taskSidebarGroupLoadError = null;
       state30.taskSidebarGroupCounts = Object.fromEntries(
@@ -57629,6 +57767,7 @@ ${hint}` : hint);
     });
     if (migrateLegacyArchives) {
       const migrated = await migrateLegacyArchivedTasks2();
+      signal?.throwIfAborted();
       if (migrated !== false) state30.realtimeSnapshotNeedsArchiveMigration = false;
       if (requestSeq !== state30.tasksRequestSeq) return;
     }
@@ -57636,7 +57775,7 @@ ${hint}` : hint);
     renderTasks8({ preserveScroll: true });
     renderArchiveButton4();
     renderArchiveModal4();
-    await renderSelectedTaskPreview(requestSeq);
+    await renderSelectedTaskPreview(requestSeq, signal);
     return true;
   }
   function mergeActiveQueueTaskDetails(tasks) {
@@ -57827,6 +57966,7 @@ ${hint}` : hint);
       previousTask && ["submitting", "queued", "running"].includes(String(previousTask.status || "")) && !["submitting", "queued", "running"].includes(String(task?.status || ""))
     );
     if (!updateTaskInState4(task)) return;
+    tasksStateRevision += 1;
     if (String(task.task_id) === String(state30.selectedTaskId) && taskHasViewableUpdate2(task)) {
       void markTaskViewed2(task.task_id);
     }
@@ -57946,17 +58086,18 @@ ${hint}` : hint);
       });
     }, TASK_SEARCH_HISTORY_DEBOUNCE_MS);
   }
-  async function renderSelectedTaskPreview(requestSeq = null) {
+  async function renderSelectedTaskPreview(requestSeq = null, signal) {
     const selectedTask = state30.tasks.find((item) => String(item.task_id) === String(state30.selectedTaskId));
     if (selectedTask?.summary_only) {
       try {
-        const detailedTask = await ensureSelectedTaskDetail(selectedTask.task_id);
+        const detailedTask = await ensureSelectedTaskDetail(selectedTask.task_id, { signal });
         if (requestSeq !== null && requestSeq !== state30.tasksRequestSeq) return;
         if (detailedTask) {
           renderPreview6(detailedTask);
           return;
         }
       } catch (error) {
+        if (signal?.aborted) throw error;
         console.warn(error);
         if (requestSeq !== null && requestSeq !== state30.tasksRequestSeq) return;
       }
@@ -58116,32 +58257,46 @@ ${hint}` : hint);
     }
     return urls;
   }
-  async function loadFullTaskDetail(taskId) {
-    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+  async function loadFullTaskDetail(taskId, { signal } = {}) {
+    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { signal });
     const data = await response.json().catch(() => ({}));
+    signal?.throwIfAborted();
     if (!response.ok) throw new Error(data.detail || translate("notifications.taskMissing"));
     return data.task;
   }
-  async function ensureSelectedTaskDetail2(taskId = state31.selectedTaskId) {
+  async function ensureSelectedTaskDetail2(taskId = state31.selectedTaskId, { signal } = {}) {
     const normalizedTaskId = String(taskId || "").trim();
     if (!normalizedTaskId) return null;
     const task = state31.tasks.find((item) => String(item.task_id) === normalizedTaskId);
     if (!task) return null;
     if (!task.summary_only) return task;
     const detailSeq = ++selectedTaskDetailRequestSeq;
-    const fullTask = await loadFullTaskDetail(normalizedTaskId);
-    if (detailSeq !== selectedTaskDetailRequestSeq) return null;
-    if (String(state31.selectedTaskId) !== normalizedTaskId) return null;
-    return replaceSelectedTaskDetail(normalizedTaskId, fullTask);
+    return loadCurrentTaskDetail(normalizedTaskId, {
+      signal,
+      isCurrent: () => detailSeq === selectedTaskDetailRequestSeq && String(state31.selectedTaskId) === normalizedTaskId
+    });
   }
-  function replaceSelectedTaskDetail(taskId, task) {
+  async function loadCurrentTaskDetail(taskId, { signal, isCurrent }) {
+    for (let attempt = 0; attempt < 2 && isCurrent(); attempt += 1) {
+      signal?.throwIfAborted();
+      const expectedTask = state31.tasks.find((item) => String(item.task_id) === String(taskId));
+      if (!expectedTask || !expectedTask.summary_only) return expectedTask;
+      const fullTask = await loadFullTaskDetail(taskId, { signal });
+      if (!isCurrent()) return null;
+      const current = replaceSelectedTaskDetail(taskId, fullTask, expectedTask);
+      if (!current?.summary_only) return current;
+    }
+    if (isCurrent()) throw new Error(translate("status.taskChangedDuringLoad"));
+    return null;
+  }
+  function replaceSelectedTaskDetail(taskId, task, expectedTask) {
     if (!task?.task_id) return task;
     const index = state31.tasks.findIndex((item) => String(item.task_id) === String(taskId));
-    if (index >= 0) {
-      state31.tasks.splice(index, 1, task);
-    } else {
-      state31.tasks.unshift(task);
-    }
+    if (index < 0) return null;
+    const current = state31.tasks[index];
+    const sameSummaryVersion = current.summary_only && current.updated_at && current.updated_at === task.updated_at && current.status === task.status;
+    if (current !== expectedTask && !sameSummaryVersion || taskUpdateIsOlder(current, task)) return current;
+    state31.tasks.splice(index, 1, task);
     return task;
   }
   async function restoreTaskReferenceFiles(task, options = {}) {
@@ -58269,9 +58424,10 @@ ${hint}` : hint);
       updateTaskSelectionVisuals3(taskId);
       setStatus22(translate("status.loadingHistoryInputs"), "");
       try {
-        const fullTask = await loadFullTaskDetail(taskId);
-        if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
-        task = replaceSelectedTaskDetail(taskId, fullTask);
+        task = await loadCurrentTaskDetail(taskId, {
+          isCurrent: () => selectedTaskInputRestoreCurrent(taskId, detailSeq)
+        });
+        if (!task) return;
       } catch (error) {
         if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
         setStatus22(error.message || translate("notifications.taskMissing"), "error");
@@ -58300,6 +58456,17 @@ ${hint}` : hint);
     markComposerBaseline(restoredPrompt);
     applySelectedTaskRequestPreview(task);
     if (!["running", "cancelling"].includes(String(task.status || ""))) renderSelectedTask(task, taskId);
+    return task;
+  }
+  async function editTaskInputs(taskId) {
+    const task = await selectTask2(taskId);
+    if (!task || String(state31.selectedTaskId) !== String(taskId)) return;
+    legacyMethod43("unlockOutputSettings");
+    legacyMethod43("adoptTaskParameters", task);
+    if (taskModelFamilyId(task) === "gpt-image") legacyMethod43("applyTaskOutputParams", task);
+    updateRequestPreview12();
+    legacyMethod43("showGenerationEditor");
+    setStatus22(translate("ux.editInputsReady"), "ok");
   }
   function mainLightboxTaskIds() {
     const root = els40.taskHistoryShell || els40.sidebarContent || els40.taskList;
@@ -58382,6 +58549,7 @@ ${hint}` : hint);
       ensureSelectedTaskDetail: ensureSelectedTaskDetail2,
       openMainTaskLightboxByDirection,
       selectTask: selectTask2,
+      editTaskInputs,
       restoreHistoryTaskReuseHandoff
     });
   }

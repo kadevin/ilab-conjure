@@ -27,7 +27,7 @@ _TASK_OUTPUT_FILENAME_RE = re.compile(
     re.IGNORECASE,
 )
 _TASK_OUTPUT_THUMBNAIL_RE = re.compile(
-    rf"^(?P<task_id>{_TASK_ID_PATTERN})-image-(?P<index>\d+)-(?P<kind>thumb|sidebar)\.[a-z0-9]+$",
+    rf"^(?P<task_id>{_TASK_ID_PATTERN})-image-(?P<index>\d+)(?:-source-\d+)?-(?P<kind>thumb|sidebar)\.[a-z0-9]+$",
     re.IGNORECASE,
 )
 _TASK_INPUT_THUMBNAIL_RE = re.compile(
@@ -189,9 +189,20 @@ def _legacy_output_path(ctx: WebUIContext, filename: str) -> Path | None:
         ) is None:
             return None
         if output_thumbnail_match.group("kind").lower() == "sidebar":
+            field = "sidebar_thumbnail_file"
             expected = ctx.storage.output_sidebar_thumbnail_path(task_id, output_index)
         else:
+            field = "thumbnail_file"
             expected = ctx.storage.output_thumbnail_path(task_id, output_index)
+        record = next(
+            item for item in _visible_completed_output_records(metadata)
+            if item.get("index") == output_index
+        )
+        # Reindexed and transparent outputs have distinct cache filenames.
+        # Only serve the current visible output's recorded cache, never an
+        # arbitrary file that happens to match the thumbnail naming scheme.
+        if record.get(field):
+            expected = ctx.storage.output_path(str(record[field]))
         if ctx.storage.output_file(expected) != normalized:
             return None
         return _contained_file(expected, ctx.storage.output_root)

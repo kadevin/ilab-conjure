@@ -63,7 +63,9 @@ Download standard app packages and portable transition packages from
 ## Features
 
 - GPT Image and Gemini image workflows in one model catalog, including
-  text-to-image, supported reference-image generation, and image editing.
+  text-to-image, supported reference-image generation, and image editing. Gemini
+  includes Nano Banana Pro, 2.1, 2, and 2 Lite; Nano Banana 2.1 supports
+  1K / 2K / 4K output, up to 14 reference images, and Google Search.
 - Stopping a task interrupts its local requests and waiting image slots while
   keeping generated images and history; the provider may still generate and bill.
 - Codex Image, Codex Responses, and OpenAI-compatible API access, with the API
@@ -220,16 +222,16 @@ require a secure context may be unavailable.
 
 ## App packages
 
-The current version is `v0.9.7`. Published packages are listed in
+The current version is `v0.9.8`. Published packages are listed in
 [Downloads / Releases](RELEASES.md) and the
 [latest official GitHub release](https://github.com/kadevin/ilab-conjure/releases/latest).
 
 New users should choose the standard packages:
 
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.9.7.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.9.7.dmg`
+1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.9.8.dmg`
+   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.9.8.dmg`
    for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.9.7.zip`,
+2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.9.8.zip`,
    extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
 
 Standard packages store user data in `~/Library/Application Support/iLab GPT

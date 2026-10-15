@@ -18,7 +18,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         sidebar_styles = Path("codex_image/webui/static/styles/10-sidebar.css").read_text(encoding="utf-8")
         task_styles = Path("codex_image/webui/static/styles/20-tasks.css").read_text(encoding="utf-8")
 
-        self.assertIn('fetch("/api/tasks/sidebar?limit=50")', tasks_source)
+        self.assertIn('fetch("/api/tasks/sidebar?limit=50",', tasks_source)
         self.assertNotIn('fetch("/api/tasks")', tasks_source)
         self.assertNotIn('["older", translate("taskGroup.older")]', render_source)
         self.assertNotIn("olderCount", render_source)
@@ -44,11 +44,10 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('id="historyMonthList"', history_html)
         self.assertIn('id="historyTaskList"', history_html)
         self.assertIn('id="historyDetail"', history_html)
-        self.assertIn('/static/history.js?v=history-162', history_html)
         filters = Path("codex_image/webui/frontend/src/history-filters-controller.ts").read_text(encoding="utf-8")
         window = Path("codex_image/webui/frontend/src/history-list-controller.ts").read_text(encoding="utf-8")
         detail = Path("codex_image/webui/frontend/src/history-detail-controller.ts").read_text(encoding="utf-8")
-        self.assertIn('fetch("/api/task-history/summary")', filters)
+        self.assertIn('fetch("/api/task-history/summary",', filters)
         self.assertIn('new URLSearchParams', filters)
         self.assertIn('/api/task-history/tasks?', window)
         self.assertIn('/api/tasks/${encodeURIComponent(taskId)}', detail)
@@ -1817,7 +1816,7 @@ console.log(JSON.stringify({{
         self.assertNotIn("queueDrawer: document.querySelector(\"#queueDrawer\")", elements_source)
         self.assertIn("export function getEls", dom_source)
         self.assertIn("refreshQueue", queue_source)
-        self.assertIn('fetch("/api/queue")', queue_source)
+        self.assertIn('fetch("/api/queue",', queue_source)
         self.assertIn("renderQueue", queue_source)
         self.assertIn("renderQueueStatusChip", queue_source)
         self.assertIn("function jumpToActiveTaskGroup", queue_source)
@@ -2051,7 +2050,7 @@ console.log(JSON.stringify({{
         self.assertIn("clearRealtimeReconnectStatus()", open_handler.group("body"))
 
         self.assertIn("async function resyncRealtimeState", queue_source)
-        self.assertIn("await Promise.all([refreshQueue()", queue_source)
+        self.assertIn("refreshQueue({ signal, throwOnError: true })", queue_source)
         self.assertIn("bridge.methods.refreshTasks", queue_source)
         self.assertIn("if (realtimeConnectionNeedsResync)", queue_source)
         self.assertIn("function clearRealtimeReconnectStatus", queue_source)
@@ -2143,9 +2142,9 @@ console.log(JSON.stringify({{
             "async function renderSelectedTaskPreview",
         ]:
             self.assertIn(marker, task_source)
-        self.assertIn("ensureSelectedTaskDetail(selectedTask.task_id)", task_source)
+        self.assertIn("ensureSelectedTaskDetail(selectedTask.task_id, { signal })", task_source)
         self.assertIn("renderPreview(detailedTask)", task_source)
-        self.assertIn("await renderSelectedTaskPreview(requestSeq)", task_source)
+        self.assertIn("await renderSelectedTaskPreview(requestSeq, signal)", task_source)
         self.assertIn("await renderSelectedTaskPreview()", task_source)
 
         for function_name in [

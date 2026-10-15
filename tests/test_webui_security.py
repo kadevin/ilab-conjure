@@ -203,6 +203,47 @@ class WebUISecurityTests(unittest.TestCase):
         self.assertEqual(stale_physical_slot.status_code, 404)
         self.assertEqual(legacy_unowned.status_code, 404)
 
+    def test_recorded_thumbnail_variants_require_a_visible_owned_output(self) -> None:
+        from codex_image.webui.task_outputs import _output_thumbnail_fields
+
+        for mode in ("RGB", "RGBA"):
+            for source_index in (1, 2):
+                with self.subTest(mode=mode, source_index=source_index), tempfile.TemporaryDirectory() as tmp:
+                    app = self._create_app(Path(tmp))
+                    storage = app.state.storage
+                    task_id = storage.create_task("generate").task_id
+                    buffer = BytesIO()
+                    Image.new(mode, (16, 16), (48, 96, 144, 100) if mode == "RGBA" else (48, 96, 144)).save(buffer, format="PNG")
+                    original = buffer.getvalue()
+                    output = storage.write_output(task_id, original, "png", index=source_index)
+                    record = {"index": source_index, "status": "completed", "file": storage.output_file(output)}
+                    record.update(_output_thumbnail_fields(storage, task_id, source_index, output))
+                    storage.write_metadata(task_id, {
+                        "task_id": task_id, "status": "partial_failed", "total_count": 2,
+                        "outputs": [record, {"index": 3 - source_index, "status": "failed", "error": "HTTP 400"}],
+                    })
+                    client = TestClient(app)
+                    accepted = client.post(f"/api/tasks/{task_id}/accept-successes")
+                    self.assertEqual(accepted.status_code, 200)
+                    accepted_record = accepted.json()["task"]["outputs"][0]
+                    for field in ("thumbnail_url", "sidebar_thumbnail_url"):
+                        url = accepted_record[field]
+                        response = client.get(url)
+                        self.assertEqual(response.status_code, 200, url)
+                        with Image.open(BytesIO(response.content)) as thumbnail:
+                            self.assertEqual("A" in thumbnail.getbands(), mode == "RGBA")
+                        unowned = storage.output_path(url.removeprefix("/outputs/")).with_name(
+                            f"{task_id}-image-1-source-999-thumb.jpg"
+                        )
+                        unowned.write_bytes(original)
+                        self.assertEqual(client.get(f"/outputs/{storage.output_file(unowned)}").status_code, 404)
+                    self.assertEqual(output.read_bytes(), original)
+                    metadata = storage.read_metadata(task_id)
+                    metadata["deleted_output_indexes"] = [1]
+                    storage.write_metadata(task_id, metadata)
+                    for field in ("thumbnail_url", "sidebar_thumbnail_url"):
+                        self.assertEqual(client.get(accepted_record[field]).status_code, 404)
+
     def test_webui_rejects_non_loopback_hosts_clients_and_cross_origin_writes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

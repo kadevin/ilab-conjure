@@ -2,8 +2,9 @@
 import { preserveComposerDraft, markComposerBaseline } from "./composer-draft";
 import { formatTranslation, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
-import { taskOutputSettingsView } from "./task-model-summary";
+import { taskModelFamilyId, taskOutputSettingsView } from "./task-model-summary";
 import { taskRecoveryMessage } from "./task-recovery";
+import { taskUpdateIsOlder } from "./state-sync";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -118,34 +119,51 @@ function historyInputCandidateUrls(sourceUrl, fallbackUrl) {
   return urls;
 }
 
-async function loadFullTaskDetail(taskId) {
-  const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+async function loadFullTaskDetail(taskId, { signal } = {}) {
+  const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { signal });
   const data = await response.json().catch(() => ({}));
+  signal?.throwIfAborted();
   if (!response.ok) throw new Error(data.detail || translate("notifications.taskMissing"));
   return data.task;
 }
 
-async function ensureSelectedTaskDetail(taskId = state.selectedTaskId) {
+async function ensureSelectedTaskDetail(taskId = state.selectedTaskId, { signal } = {}) {
   const normalizedTaskId = String(taskId || "").trim();
   if (!normalizedTaskId) return null;
   const task = state.tasks.find((item) => String(item.task_id) === normalizedTaskId);
   if (!task) return null;
   if (!task.summary_only) return task;
   const detailSeq = ++selectedTaskDetailRequestSeq;
-  const fullTask = await loadFullTaskDetail(normalizedTaskId);
-  if (detailSeq !== selectedTaskDetailRequestSeq) return null;
-  if (String(state.selectedTaskId) !== normalizedTaskId) return null;
-  return replaceSelectedTaskDetail(normalizedTaskId, fullTask);
+  return loadCurrentTaskDetail(normalizedTaskId, {
+    signal,
+    isCurrent: () => detailSeq === selectedTaskDetailRequestSeq && String(state.selectedTaskId) === normalizedTaskId,
+  });
 }
 
-function replaceSelectedTaskDetail(taskId, task) {
+async function loadCurrentTaskDetail(taskId, { signal, isCurrent }) {
+  for (let attempt = 0; attempt < 2 && isCurrent(); attempt += 1) {
+    signal?.throwIfAborted();
+    const expectedTask = state.tasks.find((item) => String(item.task_id) === String(taskId));
+    if (!expectedTask || !expectedTask.summary_only) return expectedTask;
+    const fullTask = await loadFullTaskDetail(taskId, { signal });
+    if (!isCurrent()) return null;
+    const current = replaceSelectedTaskDetail(taskId, fullTask, expectedTask);
+    if (!current?.summary_only) return current;
+    // A changed summary needs fresh detail before restoring composer inputs.
+  }
+  if (isCurrent()) throw new Error(translate("status.taskChangedDuringLoad"));
+  return null;
+}
+
+function replaceSelectedTaskDetail(taskId, task, expectedTask) {
   if (!task?.task_id) return task;
   const index = state.tasks.findIndex((item) => String(item.task_id) === String(taskId));
-  if (index >= 0) {
-    state.tasks.splice(index, 1, task);
-  } else {
-    state.tasks.unshift(task);
-  }
+  if (index < 0) return null;
+  const current = state.tasks[index];
+  const sameSummaryVersion = current.summary_only && current.updated_at
+    && current.updated_at === task.updated_at && current.status === task.status;
+  if ((current !== expectedTask && !sameSummaryVersion) || taskUpdateIsOlder(current, task)) return current;
+  state.tasks.splice(index, 1, task);
   return task;
 }
 
@@ -284,9 +302,10 @@ async function selectTask(taskId) {
     updateTaskSelectionVisuals(taskId);
     setStatus(translate("status.loadingHistoryInputs"), "");
     try {
-      const fullTask = await loadFullTaskDetail(taskId);
-      if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
-      task = replaceSelectedTaskDetail(taskId, fullTask);
+      task = await loadCurrentTaskDetail(taskId, {
+        isCurrent: () => selectedTaskInputRestoreCurrent(taskId, detailSeq),
+      });
+      if (!task) return;
     } catch (error) {
       if (!selectedTaskInputRestoreCurrent(taskId, detailSeq)) return;
       setStatus(error.message || translate("notifications.taskMissing"), "error");
@@ -315,6 +334,18 @@ async function selectTask(taskId) {
   markComposerBaseline(restoredPrompt);
   applySelectedTaskRequestPreview(task);
   if (!["running", "cancelling"].includes(String(task.status || ""))) renderSelectedTask(task, taskId);
+  return task;
+}
+
+async function editTaskInputs(taskId) {
+  const task = await selectTask(taskId);
+  if (!task || String(state.selectedTaskId) !== String(taskId)) return;
+  legacyMethod("unlockOutputSettings");
+  legacyMethod("adoptTaskParameters", task);
+  if (taskModelFamilyId(task) === "gpt-image") legacyMethod("applyTaskOutputParams", task);
+  updateRequestPreview();
+  legacyMethod("showGenerationEditor");
+  setStatus(translate("ux.editInputsReady"), "ok");
 }
 
 function mainLightboxTaskIds() {
@@ -405,6 +436,7 @@ export function initTaskSelectionFeature() {
     ensureSelectedTaskDetail,
     openMainTaskLightboxByDirection,
     selectTask,
+    editTaskInputs,
     restoreHistoryTaskReuseHandoff,
   });
 }

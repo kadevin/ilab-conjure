@@ -10,6 +10,8 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
+from tests.helpers import assert_no_api_key
+
 
 
 class ProviderSettingsV2Tests(unittest.TestCase):
@@ -93,16 +95,7 @@ class ProviderSettingsV2Tests(unittest.TestCase):
 
         public = self.settings.public_settings()
 
-        def assert_no_api_key(value: Any) -> None:
-            if isinstance(value, dict):
-                self.assertNotIn("api_key", value)
-                for nested in value.values():
-                    assert_no_api_key(nested)
-            elif isinstance(value, list):
-                for nested in value:
-                    assert_no_api_key(nested)
-
-        assert_no_api_key(public)
+        assert_no_api_key(self, public)
         self.assertTrue(public["providers"][0]["api_key_set"])
         self.assertEqual(public["providers"][0]["api_key_masked"], "********")
 

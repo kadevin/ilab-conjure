@@ -10,11 +10,13 @@ import type { createHistorySelectionModel } from "./history-selection-model";
 import { formatTranslation, translate } from "./i18n";
 import { localizedTaskStatus, taskRecoveryMessage } from "./task-recovery";
 import { submittedPromptForTask } from "./transparency-status";
+import { taskUpdateIsOlder } from "./state-sync";
+import type { WebUITask } from "./types";
 
 export function createHistoryDetailController(deps: {
   selection: ReturnType<typeof createHistorySelectionModel>;
   filters: Pick<ReturnType<typeof createHistoryFiltersController>, "updateHistoryUrl">;
-  list: Pick<ReturnType<typeof createHistoryListController>, "loadTasks" | "status">;
+  list: Pick<ReturnType<typeof createHistoryListController>, "loadTasks" | "status" | "historyTaskSummary">;
   confirmations(): { deleteConfirming: boolean; deleteConfirmTaskId: string; deleteUnselectedConfirmTaskId: string };
   resetTaskConfirmations(): void;
   renderToolbar(): void;
@@ -73,14 +75,48 @@ export function createHistoryDetailController(deps: {
     }
   }
 
-  async function fetchHistoryTaskDetail(taskId: string): Promise<any> {
-    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+  async function fetchHistoryTaskDetail(taskId: string, { signal }: { signal?: AbortSignal | undefined } = {}): Promise<any> {
+    const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { signal: signal ?? null });
     const data = await response.json().catch(() => ({}));
+    signal?.throwIfAborted();
     if (!response.ok) throw new Error(data.detail || translate("history.detailFailed"));
     return {
       ...(data.task || {}),
       ...(data.organization || {}),
     };
+  }
+
+  async function refreshTaskDetail({ task, signal }: { task?: WebUITask | null | undefined; signal?: AbortSignal | undefined } = {}): Promise<void> {
+    const previous = detailTask;
+    const taskId = String(previous?.task_id || "");
+    if (!taskId || !isCurrentHistoryDetailLoad(historyDetailLoadToken, taskId)) return;
+    if (task && String(task.task_id) !== taskId) return;
+    const summary = task || deps.list.historyTaskSummary(taskId);
+    if (!summary || taskUpdateIsOlder(previous, summary)) return;
+    if (!task && summary.updated_at && summary.updated_at === previous.updated_at && summary.status === previous.status) return;
+    const token = ++historyDetailLoadToken;
+    try {
+      const incoming = task && !task.summary_only ? task : await fetchHistoryTaskDetail(taskId, { signal });
+      signal?.throwIfAborted();
+      if (!isCurrentHistoryDetailLoad(token, taskId) || detailTask !== previous || taskUpdateIsOlder(previous, incoming)) return;
+      const current = { ...incoming, favorite: incoming.favorite ?? previous.favorite, tags: incoming.tags ?? previous.tags };
+      if (JSON.stringify(current) !== JSON.stringify(previous)) {
+        const active = document.activeElement;
+        const focused = active && els.detail?.contains(active) ? active : null;
+        const identity = focused ? [...focused.attributes].filter(attr => attr.name === "id" || attr.name.startsWith("data-history-")) : [];
+        renderTaskDetail(current);
+        if (identity.length) {
+          [...els.detail?.querySelectorAll<HTMLElement>("button, input, a, [tabindex]") || []]
+            .find(element => element.tagName === focused?.tagName && identity.every(attr => element.getAttribute(attr.name) === attr.value))
+            ?.focus({ preventScroll: true });
+        }
+      }
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      if (isCurrentHistoryDetailLoad(token, taskId) && detailTask === previous) {
+        setText(els.resultSummary, errorMessage(error, translate("history.detailFailed")));
+      }
+    }
   }
 
   function isCurrentHistoryDetailLoad(loadToken: number, taskId: string): boolean {
@@ -476,6 +512,7 @@ export function createHistoryDetailController(deps: {
   return {
     loadTaskDetail,
     fetchHistoryTaskDetail,
+    refreshTaskDetail,
     renderHistoryManagementDetail,
     renderSelectionDetail,
     syncHistorySelectionDetail,

@@ -37,6 +37,7 @@ const TASK_SIDEBAR_GROUP_PAGE_SIZE = 50;
 const TASK_SIDEBAR_REVEAL_PAGE_SIZE = 100;
 const HISTORY_TASK_REVEAL_LAYOUT_TIMEOUT_MS = 5000;
 let taskSearchHistoryTimerId = 0;
+let tasksStateRevision = 0;
 
 function activeHistoryTaskReveal() {
   const reveal = state.historyTaskReveal;
@@ -85,41 +86,54 @@ function normalizedTaskSearchResultQuery(query: string): string {
   return String(query || "").trim().toLowerCase();
 }
 
-async function refreshTasks({ migrateLegacyArchives = false, preserveExpandedGroup = true }: any = {}) {
+async function refreshTasks({ migrateLegacyArchives = false, preserveExpandedGroup = true, signal }: any = {}) {
   const groupKey = preserveExpandedGroup ? String(state.expandedTaskGroupKey || "") : "";
   const loadedCount = Number(state.taskSidebarGroupLoadedCounts?.[groupKey] || 0);
   const requestSeq = ++state.tasksRequestSeq;
-  const response = await fetch("/api/tasks/sidebar?limit=50");
-  const data = await response.json();
-  if (requestSeq !== state.tasksRequestSeq) return false;
-  if (!response.ok) throw new Error(data.detail || "Task history loading failed");
-  const group = Array.isArray(data.task_groups)
-    ? data.task_groups.find((item: any) => String(item?.key || "") === groupKey)
-    : null;
-  if (group && Array.isArray(group.tasks)) {
-    let offset = group.tasks.length;
-    while (offset < Math.min(loadedCount, Number(group.count || 0))) {
-      const limit = Math.min(TASK_SIDEBAR_REVEAL_PAGE_SIZE, loadedCount - offset);
-      const pageResponse = await fetch(
-        `/api/tasks/sidebar/groups/${encodeURIComponent(groupKey)}?offset=${offset}&limit=${limit}`,
-      );
-      const page = await pageResponse.json();
-      if (requestSeq !== state.tasksRequestSeq) return false;
-      if (!pageResponse.ok) throw new Error(page.detail || "Task group loading failed");
-      const incoming = Array.isArray(page.tasks) ? page.tasks : [];
-      group.count = Number(page.count ?? group.count);
-      if (!incoming.length) break;
-      group.tasks = mergeSidebarTasks(group.tasks, incoming);
-      data.tasks = mergeSidebarTasks(data.tasks || [], incoming);
-      offset = Math.max(offset + incoming.length, Number(page.next_offset || 0));
+  let expectedRevision = tasksStateRevision;
+  try {
+    const response = await fetch("/api/tasks/sidebar?limit=50", { signal });
+    const data = await response.json();
+    signal?.throwIfAborted();
+    if (requestSeq !== state.tasksRequestSeq) return false;
+    if (!response.ok) throw new Error(data.detail || "Task history loading failed");
+    const group = Array.isArray(data.task_groups)
+      ? data.task_groups.find((item: any) => String(item?.key || "") === groupKey)
+      : null;
+    if (group && Array.isArray(group.tasks)) {
+      let offset = group.tasks.length;
+      while (offset < Math.min(loadedCount, Number(group.count || 0))) {
+        const limit = Math.min(TASK_SIDEBAR_REVEAL_PAGE_SIZE, loadedCount - offset);
+        const pageResponse = await fetch(
+          `/api/tasks/sidebar/groups/${encodeURIComponent(groupKey)}?offset=${offset}&limit=${limit}`,
+          { signal },
+        );
+        const page = await pageResponse.json();
+        signal?.throwIfAborted();
+        if (requestSeq !== state.tasksRequestSeq) return false;
+        if (!pageResponse.ok) throw new Error(page.detail || "Task group loading failed");
+        const incoming = Array.isArray(page.tasks) ? page.tasks : [];
+        group.count = Number(page.count ?? group.count);
+        if (!incoming.length) break;
+        group.tasks = mergeSidebarTasks(group.tasks, incoming);
+        data.tasks = mergeSidebarTasks(data.tasks || [], incoming);
+        offset = Math.max(offset + incoming.length, Number(page.next_offset || 0));
+      }
     }
+    const applying = applyTasksSnapshot(data.tasks || [], {
+      migrateLegacyArchives,
+      requestSeq,
+      taskGroups: data.task_groups,
+      sync: data.sync,
+      signal,
+    });
+    expectedRevision = tasksStateRevision;
+    return await applying;
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    if (requestSeq !== state.tasksRequestSeq || expectedRevision !== tasksStateRevision) return false;
+    throw error;
   }
-  return await applyTasksSnapshot(data.tasks || [], {
-    migrateLegacyArchives,
-    requestSeq,
-    taskGroups: data.task_groups,
-    sync: data.sync,
-  });
 }
 
 async function applyTasksSnapshot(
@@ -129,8 +143,10 @@ async function applyTasksSnapshot(
     requestSeq = state.tasksRequestSeq,
     taskGroups,
     sync,
+    signal,
   }: any = {},
 ) {
+  signal?.throwIfAborted();
   const incoming = Array.isArray(tasks) ? tasks : [];
   const snapshot = reconcileTaskSnapshot(
     state, queueSnapshotIsNewer(state, sync) ? mergeActiveQueueTaskDetails(incoming) : incoming, sync,
@@ -139,6 +155,7 @@ async function applyTasksSnapshot(
   const previousLocalPendingTasks = state.tasks.filter((task: any) => task?.local_pending);
   const pendingTask = state.pendingTaskId ? state.tasks.find((task: any) => task.task_id === state.pendingTaskId) : null;
   state.tasks = snapshot;
+  tasksStateRevision += 1;
   if (Array.isArray(taskGroups)) {
     state.taskSidebarGroupLoadError = null;
     state.taskSidebarGroupCounts = Object.fromEntries(
@@ -158,6 +175,7 @@ async function applyTasksSnapshot(
   });
   if (migrateLegacyArchives) {
     const migrated = await migrateLegacyArchivedTasks();
+    signal?.throwIfAborted();
     if (migrated !== false) state.realtimeSnapshotNeedsArchiveMigration = false;
     if (requestSeq !== state.tasksRequestSeq) return;
   }
@@ -165,7 +183,7 @@ async function applyTasksSnapshot(
   renderTasks({ preserveScroll: true });
   renderArchiveButton();
   renderArchiveModal();
-  await renderSelectedTaskPreview(requestSeq);
+  await renderSelectedTaskPreview(requestSeq, signal);
   return true;
 }
 
@@ -373,6 +391,7 @@ async function applyTaskUpdate(task: any) {
     && !["submitting", "queued", "running"].includes(String(task?.status || "")),
   );
   if (!updateTaskInState(task)) return;
+  tasksStateRevision += 1;
   if (String(task.task_id) === String(state.selectedTaskId) && taskHasViewableUpdate(task)) {
     void markTaskViewed(task.task_id);
   }
@@ -504,17 +523,18 @@ async function syncTaskSearchHistoryResults() {
   }, TASK_SEARCH_HISTORY_DEBOUNCE_MS);
 }
 
-async function renderSelectedTaskPreview(requestSeq: number | null = null) {
+async function renderSelectedTaskPreview(requestSeq: number | null = null, signal?: AbortSignal) {
   const selectedTask = state.tasks.find((item: any) => String(item.task_id) === String(state.selectedTaskId));
   if (selectedTask?.summary_only) {
     try {
-      const detailedTask = await ensureSelectedTaskDetail(selectedTask.task_id);
+      const detailedTask = await ensureSelectedTaskDetail(selectedTask.task_id, { signal });
       if (requestSeq !== null && requestSeq !== state.tasksRequestSeq) return;
       if (detailedTask) {
         renderPreview(detailedTask);
         return;
       }
     } catch (error) {
+      if (signal?.aborted) throw error;
       console.warn(error);
       if (requestSeq !== null && requestSeq !== state.tasksRequestSeq) return;
     }

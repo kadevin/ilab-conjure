@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -123,6 +124,8 @@ class WebUIStaticBuildTests(WebUIStaticTestCase):
         self.assertEqual(expected, actual)
 
     def test_generated_frontend_bundle_matches_typescript_entrypoint(self) -> None:
+        if os.environ.get("ILAB_SKIP_PURE_FRONTEND_TESTS") == "1":
+            self.skipTest("WebUI CI job rebuilds and checks all generated assets")
         esbuild = Path("node_modules/.bin/esbuild")
         if not esbuild.exists():
             self.skipTest("npm install is required for frontend bundle parity checks")

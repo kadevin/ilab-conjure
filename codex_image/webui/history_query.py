@@ -76,6 +76,29 @@ class HistoryQueryService:
         connection.execute("pragma busy_timeout = 5000")
         return connection
 
+    def summaries_for_task_ids(self, task_ids: list[str]) -> list[dict[str, Any]]:
+        ids = list(dict.fromkeys(task_ids))
+        if not ids:
+            return []
+        if len(ids) > 300:
+            raise ValueError("At most 300 task summaries can be refreshed at once")
+        placeholders = ", ".join("?" for _ in ids)
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                f"{_HISTORY_SELECT_SQL} where task_id in ({placeholders})",
+                ids,
+            ).fetchall()
+            organizations = _organization_payloads(
+                connection, [str(row["task_id"]) for row in rows],
+            )
+        tasks = {
+            str(row["task_id"]): {
+                **_history_row_response(row), **organizations[str(row["task_id"])],
+            }
+            for row in rows
+        }
+        return [tasks[task_id] for task_id in ids if task_id in tasks]
+
     def query(
         self,
         *,

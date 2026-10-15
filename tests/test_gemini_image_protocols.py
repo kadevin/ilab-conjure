@@ -104,6 +104,72 @@ def _plan(*, profile: str, codec: str, base_url: str, operation: str = "generate
 
 
 class GeminiImageCodecTests(unittest.TestCase):
+    def test_nano_banana_21_routes_generation_and_edits_with_model_specific_limits(self) -> None:
+        from codex_image.generation.snapshot import generation_snapshot
+        from codex_image.webui.generation_request import preview_generation_command
+
+        for profile, codec in (
+            ("gemini_generate_content", "gemini_generate_content_image"),
+            ("gemini_generate_content", "gemini_generate_content_image_config"),
+            ("openai_images", "gemini_openai_images"),
+        ):
+            for operation in ("generate", "edit"):
+                for remote_id in ("gemini-nano-banana-2.1", "vendor/custom-nano-21"):
+                    with self.subTest(codec=codec, operation=operation, remote_id=remote_id):
+                        binding = replace(
+                            _binding(profile=profile, codec=codec),
+                            canonical_model_id="nano-banana-2.1",
+                            remote_model_id=remote_id,
+                        )
+                        provider = _provider(binding, base_url="https://relay.example/v1beta")
+                        command = GenerationCommand(
+                            operation=operation,
+                            canonical_model_id="nano-banana-2.1",
+                            provider_id=provider.id,
+                            prompt="draw a rabbit",
+                            parameters={
+                                "canvas.aspect_ratio": "8:1",
+                                "canvas.resolution": "4K",
+                                "gemini.google_search": True,
+                            },
+                            image_inputs=_command().image_inputs * 14 if operation == "edit" else (),
+                        )
+
+                        def preview(value):
+                            return preview_generation_command(
+                                value, codex_mode="images", provider_connections=[provider],
+                            )
+
+                        plan = preview(command)
+                        request = plan.protocol_request
+                        if profile == "gemini_generate_content":
+                            self.assertEqual(
+                                request.path,
+                                f"/models/{remote_id.replace('/', '%2F')}:generateContent",
+                            )
+                            config = request.json_body["generationConfig"]
+                            image = config.get("imageConfig") or config["responseFormat"]["image"]
+                            self.assertEqual(
+                                len(request.json_body["contents"][0]["parts"]),
+                                15 if operation == "edit" else 1,
+                            )
+                        else:
+                            body = request.form_fields if operation == "edit" else request.json_body
+                            self.assertEqual(body["model"], remote_id)
+                            config = body["generation_config"]
+                            if isinstance(config, str):
+                                config = json.loads(config)
+                            image = config["responseFormat"]["image"]
+                            self.assertEqual(len(request.files), 14 if operation == "edit" else 0)
+                        self.assertEqual(image, {"aspectRatio": "8:1", "imageSize": "4K"})
+                        snapshot = generation_snapshot(plan)
+                        self.assertEqual(snapshot["canonical_model_id"], "nano-banana-2.1")
+                        self.assertEqual(snapshot["remote_model_id"], remote_id)
+                        with self.assertRaisesRegex(ValueError, "canvas.resolution"):
+                            preview(replace(command, parameters={"canvas.resolution": "512"}))
+                        with self.assertRaisesRegex(ValueError, "image_input_limit_exceeded"):
+                            preview(replace(command, image_inputs=_command().image_inputs * 15))
+
     def test_native_codec_encodes_both_four_category_safety_presets(self) -> None:
         from codex_image.providers.codecs.gemini_image import GeminiGenerateContentImageCodec
 

@@ -448,6 +448,7 @@
     "ux.checkProvider": "Check provider settings",
     "ux.acceptDetail": "Keep successful images and finish the task without filling the failed slots.",
     "ux.editInputs": "Edit inputs and settings",
+    "ux.editInputsReady": "Task inputs and settings loaded. Edit them before generating again.",
     "ux.errorDetails": "Error details",
     "ux.openRecovery": "Resolve on generation page",
     "ux.useSize": "Use {width} \xD7 {height}",
@@ -546,6 +547,7 @@
     "queue.reorderFailed": "Failed to reorder queue",
     "queue.realtimeUpdateFailed": "Failed to update live status",
     "queue.realtimeDisconnected": "Live status connection was interrupted. Reconnecting automatically\u2026",
+    "queue.realtimePolling": "Task status is updating periodically. Restoring the live connection\u2026",
     "queue.readFailed": "Failed to load queue",
     "status.waiting": "Waiting",
     "status.shownActiveTasks": "Showing active tasks",
@@ -941,6 +943,7 @@
     "status.loadedTask": "Loaded task {taskId}",
     "status.reusedTask": "Opened task {taskId} in generator",
     "status.loadingHistoryInputs": "Loading historical input images...",
+    "status.taskChangedDuringLoad": "The task changed while loading. Please select it again.",
     "status.historyInputLoadFailed": "Failed to load historical input image: {url}",
     "referenceCollector.alreadyStaged": "Already staged as a reference",
     "referenceCollector.staged": "Staged {count} reference images",
@@ -12964,6 +12967,7 @@
     "ux.checkProvider": "Ki\u1EC3m tra nh\xE0 cung c\u1EA5p",
     "ux.acceptDetail": "Gi\u1EEF \u1EA3nh th\xE0nh c\xF4ng v\xE0 k\u1EBFt th\xFAc t\xE1c v\u1EE5 m\xE0 kh\xF4ng t\u1EA1o l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
     "ux.editInputs": "S\u1EEDa \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp",
+    "ux.editInputsReady": "\u0110\xE3 t\u1EA3i \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp c\u1EE7a t\xE1c v\u1EE5. B\u1EA1n c\xF3 th\u1EC3 ch\u1EC9nh s\u1EEDa r\u1ED3i t\u1EA1o l\u1EA1i.",
     "ux.errorDetails": "Chi ti\u1EBFt l\u1ED7i",
     "ux.openRecovery": "X\u1EED l\xFD tr\xEAn trang t\u1EA1o \u1EA3nh",
     "ux.useSize": "D\xF9ng {width} \xD7 {height}",
@@ -13062,6 +13066,7 @@
     "queue.reorderFailed": "Kh\xF4ng th\u1EC3 s\u1EAFp x\u1EBFp l\u1EA1i h\xE0ng \u0111\u1EE3i",
     "queue.realtimeUpdateFailed": "Kh\xF4ng c\u1EADp nh\u1EADt \u0111\u01B0\u1EE3c tr\u1EA1ng th\xE1i tr\u1EF1c ti\u1EBFp",
     "queue.realtimeDisconnected": "K\u1EBFt n\u1ED1i tr\u1EA1ng th\xE1i tr\u1EF1c ti\u1EBFp b\u1ECB gi\xE1n \u0111o\u1EA1n. \u0110ang t\u1EF1 \u0111\u1ED9ng k\u1EBFt n\u1ED1i l\u1EA1i\u2026",
+    "queue.realtimePolling": "Tr\u1EA1ng th\xE1i t\xE1c v\u1EE5 \u0111ang \u0111\u01B0\u1EE3c c\u1EADp nh\u1EADt \u0111\u1ECBnh k\u1EF3. \u0110ang kh\xF4i ph\u1EE5c k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp\u2026",
     "queue.readFailed": "Kh\xF4ng th\u1EC3 t\u1EA3i h\xE0ng \u0111\u1EE3i",
     "status.waiting": "\u0110ang ch\u1EDD",
     "status.shownActiveTasks": "Hi\u1EC3n th\u1ECB c\xE1c t\xE1c v\u1EE5 \u0111ang ch\u1EA1y",
@@ -13457,6 +13462,7 @@
     "status.loadedTask": "\u0110\xE3 t\u1EA3i t\xE1c v\u1EE5 {taskId}",
     "status.reusedTask": "\u0110\xE3 m\u1EDF t\xE1c v\u1EE5 {taskId} trong tr\xECnh t\u1EA1o",
     "status.loadingHistoryInputs": "\u0110ang t\u1EA3i h\xECnh \u1EA3nh \u0111\u1EA7u v\xE0o l\u1ECBch s\u1EED...",
+    "status.taskChangedDuringLoad": "T\xE1c v\u1EE5 \u0111\xE3 thay \u0111\u1ED5i trong khi t\u1EA3i. Vui l\xF2ng ch\u1ECDn l\u1EA1i t\xE1c v\u1EE5.",
     "status.historyInputLoadFailed": "Kh\xF4ng t\u1EA3i \u0111\u01B0\u1EE3c h\xECnh \u1EA3nh \u0111\u1EA7u v\xE0o l\u1ECBch s\u1EED: {url}",
     "referenceCollector.alreadyStaged": "\u0110\xE3 t\u1EA1m gi\u1EEF l\xE0m \u1EA3nh tham kh\u1EA3o",
     "referenceCollector.staged": "\u0110\xE3 t\u1EA1m gi\u1EEF {count} \u1EA3nh tham kh\u1EA3o",
@@ -14356,6 +14362,7 @@
     "ux.checkProvider": "\u68C0\u67E5\u4F9B\u5E94\u5546\u8BBE\u7F6E",
     "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F\u4EFB\u52A1\uFF0C\u4E0D\u518D\u8865\u9F50\u5931\u8D25\u56FE\u7247\u3002",
     "ux.editInputs": "\u4FEE\u6539\u8F93\u5165\u4E0E\u53C2\u6570",
+    "ux.editInputsReady": "\u5DF2\u8F7D\u5165\u4EFB\u52A1\u8F93\u5165\u4E0E\u53C2\u6570\uFF0C\u53EF\u4FEE\u6539\u540E\u91CD\u65B0\u751F\u6210\u3002",
     "ux.errorDetails": "\u9519\u8BEF\u8BE6\u60C5",
     "ux.openRecovery": "\u8FDB\u5165\u751F\u6210\u9875\u5904\u7406",
     "ux.useSize": "\u91C7\u7528 {width} \xD7 {height}",
@@ -14454,6 +14461,7 @@
     "queue.reorderFailed": "\u961F\u5217\u6392\u5E8F\u5931\u8D25",
     "queue.realtimeUpdateFailed": "\u5B9E\u65F6\u72B6\u6001\u66F4\u65B0\u5931\u8D25",
     "queue.realtimeDisconnected": "\u5B9E\u65F6\u72B6\u6001\u8FDE\u63A5\u5DF2\u4E2D\u65AD\uFF0C\u6B63\u5728\u81EA\u52A8\u91CD\u8FDE\u2026",
+    "queue.realtimePolling": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u5207\u6362\u4E3A\u5B9A\u65F6\u66F4\u65B0\uFF0C\u6B63\u5728\u6062\u590D\u5B9E\u65F6\u8FDE\u63A5\u2026",
     "queue.readFailed": "\u961F\u5217\u8BFB\u53D6\u5931\u8D25",
     "status.waiting": "\u7B49\u5F85\u4EFB\u52A1",
     "status.shownActiveTasks": "\u5DF2\u663E\u793A\u8FDB\u884C\u4E2D\u4EFB\u52A1",
@@ -14849,6 +14857,7 @@
     "status.loadedTask": "\u5DF2\u8F7D\u5165\u4EFB\u52A1 {taskId}",
     "status.reusedTask": "\u5DF2\u5728\u751F\u6210\u9875\u6253\u5F00\u4EFB\u52A1 {taskId}",
     "status.loadingHistoryInputs": "\u6B63\u5728\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE...",
+    "status.taskChangedDuringLoad": "\u4EFB\u52A1\u72B6\u6001\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u8BE5\u4EFB\u52A1\u3002",
     "status.historyInputLoadFailed": "\u65E0\u6CD5\u8F7D\u5165\u5386\u53F2\u8F93\u5165\u56FE: {url}",
     "referenceCollector.alreadyStaged": "\u5DF2\u5728\u5F85\u52A0\u5165\u53C2\u8003\u56FE",
     "referenceCollector.staged": "\u5DF2\u6682\u5B58 {count} \u5F20\u53C2\u8003\u56FE",
@@ -20549,6 +20558,44 @@
     return isHistoryLightboxActive();
   }
 
+  // codex_image/webui/frontend/src/state-sync.ts
+  var syncStates = /* @__PURE__ */ new WeakMap();
+  function taskUpdateIsOlder(previous, incoming) {
+    const previousTime = Date.parse(previous?.updated_at || previous?.created_at || "");
+    const incomingTime = Date.parse(incoming?.updated_at || incoming?.created_at || "");
+    return Number.isFinite(previousTime) && Number.isFinite(incomingTime) && incomingTime < previousTime;
+  }
+  function versionState(state5, version) {
+    if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
+    let current = syncStates.get(state5);
+    if (current?.retired.has(version.instance)) return false;
+    if (!current || current.instance !== version.instance) {
+      const retired = current?.retired || /* @__PURE__ */ new Set();
+      if (current) retired.add(current.instance);
+      current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
+      syncStates.set(state5, current);
+    }
+    return current;
+  }
+  function acceptQueueSnapshot(state5, version) {
+    const current = versionState(state5, version);
+    if (current === false) return false;
+    if (!current || !version) return true;
+    if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
+    current.queue = version.revision;
+    return true;
+  }
+  function acceptTaskUpdate(state5, task, version) {
+    const current = versionState(state5, version);
+    if (current === false || !task?.task_id) return false;
+    if (!current || !version) return true;
+    const id = String(task.task_id);
+    if (version.revision < current.tasks || version.revision < (current.changes.get(id)?.revision || 0)) return false;
+    current.lastChange = Math.max(current.lastChange, version.revision);
+    current.changes.set(id, { revision: version.revision, task });
+    return true;
+  }
+
   // codex_image/webui/frontend/src/history-detail-controller.ts
   function createHistoryDetailController(deps) {
     const els9 = {
@@ -20597,14 +20644,45 @@
         }
       }
     }
-    async function fetchHistoryTaskDetail(taskId) {
-      const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`);
+    async function fetchHistoryTaskDetail(taskId, { signal } = {}) {
+      const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { signal: signal ?? null });
       const data = await response.json().catch(() => ({}));
+      signal?.throwIfAborted();
       if (!response.ok) throw new Error(data.detail || translate("history.detailFailed"));
       return {
         ...data.task || {},
         ...data.organization || {}
       };
+    }
+    async function refreshTaskDetail({ task, signal } = {}) {
+      const previous = detailTask;
+      const taskId = String(previous?.task_id || "");
+      if (!taskId || !isCurrentHistoryDetailLoad(historyDetailLoadToken, taskId)) return;
+      if (task && String(task.task_id) !== taskId) return;
+      const summary = task || deps.list.historyTaskSummary(taskId);
+      if (!summary || taskUpdateIsOlder(previous, summary)) return;
+      if (!task && summary.updated_at && summary.updated_at === previous.updated_at && summary.status === previous.status) return;
+      const token = ++historyDetailLoadToken;
+      try {
+        const incoming = task && !task.summary_only ? task : await fetchHistoryTaskDetail(taskId, { signal });
+        signal?.throwIfAborted();
+        if (!isCurrentHistoryDetailLoad(token, taskId) || detailTask !== previous || taskUpdateIsOlder(previous, incoming)) return;
+        const current = { ...incoming, favorite: incoming.favorite ?? previous.favorite, tags: incoming.tags ?? previous.tags };
+        if (JSON.stringify(current) !== JSON.stringify(previous)) {
+          const active = document.activeElement;
+          const focused = active && els9.detail?.contains(active) ? active : null;
+          const identity = focused ? [...focused.attributes].filter((attr) => attr.name === "id" || attr.name.startsWith("data-history-")) : [];
+          renderTaskDetail(current);
+          if (identity.length) {
+            [...els9.detail?.querySelectorAll("button, input, a, [tabindex]") || []].find((element) => element.tagName === focused?.tagName && identity.every((attr) => element.getAttribute(attr.name) === attr.value))?.focus({ preventScroll: true });
+          }
+        }
+      } catch (error) {
+        if (signal?.aborted) throw error;
+        if (isCurrentHistoryDetailLoad(token, taskId) && detailTask === previous) {
+          setText(els9.resultSummary, errorMessage(error, translate("history.detailFailed")));
+        }
+      }
     }
     function isCurrentHistoryDetailLoad(loadToken, taskId) {
       return loadToken === historyDetailLoadToken && deps.selection.snapshot().selectedTaskId === taskId && deps.selection.snapshot().selectedTaskIds.size === 1 && deps.selection.snapshot().selectedTaskIds.has(taskId);
@@ -20953,6 +21031,7 @@
     return {
       loadTaskDetail,
       fetchHistoryTaskDetail,
+      refreshTaskDetail,
       renderHistoryManagementDetail,
       renderSelectionDetail,
       syncHistorySelectionDetail,
@@ -21360,6 +21439,7 @@
     };
     let historyTags = [];
     let historySummary = null;
+    let summaryRequestId = 0;
     let historyOrganizationFilters = {
       favorite: false,
       tagIds: [],
@@ -21616,9 +21696,13 @@
       });
     }
     async function loadSummary(options2 = {}) {
+      const requestId = ++summaryRequestId;
+      const isCurrent = () => requestId === summaryRequestId && !lifetime2.signal.aborted;
       try {
-        const response = await fetch("/api/task-history/summary");
+        const response = await fetch("/api/task-history/summary", { signal: options2.signal ?? null });
         const summary = await response.json();
+        options2.signal?.throwIfAborted();
+        if (!isCurrent()) return;
         if (!response.ok) throw new Error(summary.detail || translate("history.summaryFailed"));
         if (!historyOrganizationSummarySupported(summary)) {
           historyOrganizationApiSupported = false;
@@ -21643,6 +21727,11 @@
         syncArchiveButtons();
         renderHistoryActiveFilters();
       } catch (error) {
+        if (options2.signal?.aborted) {
+          if (options2.throwOnError) throw error;
+          return;
+        }
+        if (!isCurrent()) return;
         const message = errorMessage(
           error,
           translate("history.summaryFailed")
@@ -22729,13 +22818,27 @@
       if (!els9.taskList) return;
       els9.taskList.innerHTML = `<div class="${className}">${escapeHtml3(message)}</div>`;
     }
+    function captureFocus() {
+      const active = document.activeElement;
+      if (!active || !els9.taskList?.contains(active)) return null;
+      const taskId = active.closest("[data-history-task-card-id]")?.dataset.historyTaskCardId;
+      const selector = ["[data-history-task-id]", "[data-history-favorite-task]"].find((value) => active.matches(value));
+      return taskId && selector ? { taskId, selector } : null;
+    }
+    function restoreFocus(focus) {
+      if (focus) historyTaskCardElement(focus.taskId)?.querySelector(focus.selector)?.focus({ preventScroll: true });
+    }
     function replaceCard(card, html) {
+      const focusSelector2 = card.contains(document.activeElement) ? ["[data-history-task-id]", "[data-history-favorite-task]"].find((selector) => document.activeElement?.matches(selector)) : void 0;
       const template = document.createElement("template");
       template.innerHTML = html.trim();
       const replacement = template.content.firstElementChild;
-      if (replacement) card.replaceWith(replacement);
+      if (replacement) {
+        card.replaceWith(replacement);
+        if (focusSelector2) replacement.querySelector(focusSelector2)?.focus({ preventScroll: true });
+      }
     }
-    return { historyTaskCardElement, setLoadMoreState, captureHistoryScrollAnchorSkipping, renderTaskListMessage, replaceCard };
+    return { historyTaskCardElement, setLoadMoreState, captureHistoryScrollAnchorSkipping, renderTaskListMessage, replaceCard, captureFocus, restoreFocus };
   }
 
   // codex_image/webui/frontend/src/history-list-controller.ts
@@ -22754,10 +22857,12 @@
       exhausted: false,
       loadedTaskIds: /* @__PURE__ */ new Set(),
       loadedTaskSummaries: /* @__PURE__ */ new Map(),
-      requestId: 0
+      requestId: 0,
+      windowRevision: 0
     };
     const MAX_MOUNTED_TASK_CARDS = 300;
     let disposed = false;
+    let mountedRefreshId = 0;
     const pendingFrames = /* @__PURE__ */ new Map();
     function requestWindowFrame(callback) {
       const frame = window.requestAnimationFrame(() => {
@@ -22791,7 +22896,9 @@
       direction = "next",
       anchorTaskId: rawAnchorTaskId = "",
       anchor = null,
-      throwOnError = false
+      throwOnError = false,
+      signal,
+      preserveSelection = false
     } = {}) {
       const emptyResult = {
         anchorFound: null,
@@ -22817,13 +22924,23 @@
       }
       historyState.loading = true;
       const requestId = ++historyState.requestId;
-      if (reset) {
+      const backgroundReset = reset && preserveSelection;
+      const initialWindowRevision = historyState.windowRevision;
+      const initialScrollTop = els9.taskList?.scrollTop ?? 0;
+      const restoreLoadMore = () => setLoadMoreState(historyState.exhausted ? translate("history.noMore") : "", {
+        hidden: !historyState.exhausted,
+        busy: false
+      });
+      const clearWindow = () => {
         historyState.nextCursor = null;
         historyState.newerExhausted = true;
         historyState.exhausted = false;
         historyState.loadedTaskIds.clear();
         historyState.loadedTaskSummaries.clear();
-        deps.resetSelectionForLoad();
+      };
+      if (reset && !backgroundReset) {
+        clearWindow();
+        if (!preserveSelection) deps.resetSelectionForLoad();
         if (els9.taskList) els9.taskList.innerHTML = "";
         deps.renderToolbar();
       }
@@ -22836,8 +22953,9 @@
           );
         }
         const requestPage = async (url) => {
-          const response = await fetch(url);
+          const response = await fetch(url, { signal: signal ?? null });
           const data2 = await response.json();
+          signal?.throwIfAborted();
           if (!response.ok) {
             throw new Error(data2.detail || translate("history.tasksFailed"));
           }
@@ -22886,7 +23004,14 @@
         if (requestId !== historyState.requestId) return emptyResult;
         const tasks = data.tasks || [];
         validateOrganizationRows(tasks);
+        if (backgroundReset && (historyState.windowRevision !== initialWindowRevision || Math.abs((els9.taskList?.scrollTop ?? 0) - initialScrollTop) > 8)) {
+          restoreLoadMore();
+          return emptyResult;
+        }
+        const focus = backgroundReset ? view.captureFocus() : null;
+        if (backgroundReset) clearWindow();
         renderTasks3(tasks, { position: reset ? "replace" : direction === "previous" ? "prepend" : "append" });
+        view.restoreFocus(focus);
         if (direction === "previous") {
           historyState.newerExhausted = !data.previous_cursor || !tasks.length;
         } else {
@@ -22905,6 +23030,16 @@
           taskCount: tasks.length
         };
       } catch (error) {
+        if (signal?.aborted) {
+          if (requestId === historyState.requestId) restoreLoadMore();
+          if (throwOnError) throw error;
+          return emptyResult;
+        }
+        if (requestId !== historyState.requestId) return emptyResult;
+        if (backgroundReset && historyState.windowRevision !== initialWindowRevision) {
+          restoreLoadMore();
+          return emptyResult;
+        }
         if (requestId === historyState.requestId) {
           const message = errorMessage(error, translate("history.tasksFailed"));
           if (els9.taskList && historyTaskCards(els9.taskList).length) {
@@ -22912,9 +23047,9 @@
           } else {
             renderTaskListMessage("history-error", message);
           }
-          if (direction === "previous") {
+          if (!backgroundReset && direction === "previous") {
             historyState.newerExhausted = false;
-          } else {
+          } else if (!backgroundReset) {
             historyState.exhausted = false;
           }
           setLoadMoreState(translate("history.loadFailed"));
@@ -22924,6 +23059,51 @@
       } finally {
         if (requestId === historyState.requestId) historyState.loading = false;
       }
+    }
+    async function refreshMountedTasks({ signal } = {}) {
+      if (disposed || historyState.loading || !historyState.loadedTaskSummaries.size) return;
+      const requestId = historyState.requestId;
+      const refreshId = ++mountedRefreshId;
+      const before = new Map(historyState.loadedTaskSummaries);
+      const beforeKeys = new Map([...before].map(([id, task]) => [id, JSON.stringify(task)]));
+      const response = await fetch("/api/task-history/tasks/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task_ids: [...before.keys()] }),
+        signal: signal ?? null
+      });
+      const data = await response.json();
+      signal?.throwIfAborted();
+      if (disposed || requestId !== historyState.requestId || refreshId !== mountedRefreshId) return;
+      if (!response.ok || !Array.isArray(data.tasks)) throw new Error(data.detail || translate("history.tasksFailed"));
+      const incoming = new Map(data.tasks.map((task) => [task.task_id, task]));
+      const updates = [];
+      const removedTaskIds = [];
+      for (const [taskId, previous] of before) {
+        if (historyState.loadedTaskSummaries.get(taskId) !== previous || JSON.stringify(previous) !== beforeKeys.get(taskId)) continue;
+        const task = incoming.get(taskId);
+        if (task && taskUpdateIsOlder(previous, task)) continue;
+        if (!task || !historyTaskMatchesCurrentArchiveFilter(task) || !taskMatchesHistoryOrganizationFilters(task, deps.filters.organization())) {
+          removedTaskIds.push(taskId);
+        } else if (JSON.stringify(task) !== beforeKeys.get(taskId)) {
+          updates.push(task);
+        }
+      }
+      if (!updates.length && !removedTaskIds.length) return;
+      refreshHistoryWindowAfterMutation(() => {
+        for (const taskId of removedTaskIds) {
+          historyState.loadedTaskIds.delete(taskId);
+          historyState.loadedTaskSummaries.delete(taskId);
+          deps.dropSelection(taskId);
+          historyTaskCardElement(taskId)?.remove();
+        }
+        for (const task of updates) {
+          historyState.loadedTaskSummaries.set(task.task_id, task);
+          const card = historyTaskCardElement(task.task_id);
+          if (card) view.replaceCard(card, deps.renderCard(task));
+        }
+      }, { removedTaskIds });
+      deps.reconcileSelection();
     }
     function taskWindowCursor(reset, direction) {
       if (reset || !els9.taskList) return null;
@@ -22960,6 +23140,7 @@
       deps.renderSelection();
     }
     function refreshHistoryWindowAfterMutation(mutate, options = {}) {
+      historyState.windowRevision++;
       if (!els9.taskList) {
         mutate();
         return;
@@ -23105,6 +23286,7 @@
       setLoadMoreState,
       maybeLoadMoreFromScroll,
       loadTasks,
+      refreshMountedTasks,
       removeHistoryTaskIdsFromWindow,
       applyHistoryOrganizations,
       upsertHistoryTaskSummaryCard,
@@ -23650,16 +23832,19 @@
     scroller,
     loadSummary,
     reloadNewestWindow,
+    refreshCurrentWindow,
     upsertTask
   }) {
-    const preserveCurrentWindow = Boolean(
-      scroller && scroller.scrollTop > HISTORY_REALTIME_TOP_THRESHOLD
-    );
     const taskId = String(task?.task_id || "");
     if (task && taskId) upsertTask(taskId, task);
     await loadSummary();
+    const preserveCurrentWindow = Boolean(
+      scroller && scroller.scrollTop > HISTORY_REALTIME_TOP_THRESHOLD
+    );
     if (!preserveCurrentWindow) {
       await reloadNewestWindow();
+    } else if (!taskId) {
+      await refreshCurrentWindow();
     }
   }
 
@@ -24563,44 +24748,6 @@
   }
   function taskCancellationPending(task) {
     return Boolean(task?.cancel_requested && !taskWasCancelled(task));
-  }
-
-  // codex_image/webui/frontend/src/state-sync.ts
-  var syncStates = /* @__PURE__ */ new WeakMap();
-  function taskUpdateIsOlder(previous, incoming) {
-    const previousTime = Date.parse(previous?.updated_at || previous?.created_at || "");
-    const incomingTime = Date.parse(incoming?.updated_at || incoming?.created_at || "");
-    return Number.isFinite(previousTime) && Number.isFinite(incomingTime) && incomingTime < previousTime;
-  }
-  function versionState(state5, version) {
-    if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
-    let current = syncStates.get(state5);
-    if (current?.retired.has(version.instance)) return false;
-    if (!current || current.instance !== version.instance) {
-      const retired = current?.retired || /* @__PURE__ */ new Set();
-      if (current) retired.add(current.instance);
-      current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
-      syncStates.set(state5, current);
-    }
-    return current;
-  }
-  function acceptQueueSnapshot(state5, version) {
-    const current = versionState(state5, version);
-    if (current === false) return false;
-    if (!current || !version) return true;
-    if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
-    current.queue = version.revision;
-    return true;
-  }
-  function acceptTaskUpdate(state5, task, version) {
-    const current = versionState(state5, version);
-    if (current === false || !task?.task_id) return false;
-    if (!current || !version) return true;
-    const id = String(task.task_id);
-    if (version.revision < current.tasks || version.revision < (current.changes.get(id)?.revision || 0)) return false;
-    current.lastChange = Math.max(current.lastChange, version.revision);
-    current.changes.set(id, { revision: version.revision, task });
-    return true;
   }
 
   // codex_image/webui/frontend/src/runtime-feedback.ts
@@ -30466,10 +30613,19 @@
   // codex_image/webui/frontend/src/queue.ts
   var REALTIME_EVENTS_URL = "/api/events?stream=1";
   var QUEUE_DISPATCH_RESYNC_DELAY_MS = 1500;
+  var REALTIME_FALLBACK_INTERVAL_MS = 5e3;
+  var REALTIME_STALE_TIMEOUT_MS = 45e3;
+  var REALTIME_RESYNC_TIMEOUT_MS = 1e4;
   var queueFeatureInitialized = false;
   var realtimeConnectionNeedsResync = false;
   var realtimeResyncRequested = false;
   var realtimeResyncPromise = null;
+  var realtimeUpdatesEnabled = false;
+  var realtimeGeneration = 0;
+  var realtimeFallbackTimerId = null;
+  var realtimeWatchdogTimerId = null;
+  var realtimeResyncController = null;
+  var realtimePollingHealthy = false;
   function initializeQueueFeature() {
     if (queueFeatureInitialized) return;
     queueFeatureInitialized = true;
@@ -30491,21 +30647,42 @@
   }
   function startRealtimeUpdates({ migrateLegacyArchives = false } = {}) {
     const state5 = getState();
-    if (!window.EventSource) return false;
     closeRealtimeUpdates();
+    realtimeUpdatesEnabled = true;
     state5.realtimeSnapshotNeedsArchiveMigration = migrateLegacyArchives;
-    realtimeConnectionNeedsResync = false;
+    if (!window.EventSource) {
+      realtimeConnectionNeedsResync = true;
+      void requestRealtimeResync();
+      return false;
+    }
+    connectRealtimeSource();
+    return true;
+  }
+  function connectRealtimeSource() {
+    const state5 = getState();
+    state5.realtimeSource?.close();
     const source = new EventSource(REALTIME_EVENTS_URL);
     state5.realtimeSource = source;
+    resetRealtimeWatchdog(source);
     source.onopen = () => {
       if (state5.realtimeSource !== source) return;
+      resetRealtimeWatchdog(source);
       if (!realtimeConnectionNeedsResync) return;
       realtimeConnectionNeedsResync = false;
+      realtimePollingHealthy = false;
+      stopRealtimeFallback();
+      cancelRealtimeResync();
       void requestRealtimeResync();
       clearRealtimeReconnectStatus();
     };
+    source.addEventListener("heartbeat", () => {
+      if (state5.realtimeSource === source) resetRealtimeWatchdog(source);
+    });
     source.onmessage = (event) => {
+      if (state5.realtimeSource !== source) return;
+      resetRealtimeWatchdog(source);
       handleRealtimeMessage(event).catch((error) => {
+        if (state5.realtimeSource !== source) return;
         console.error(error);
         getLegacyBridge().methods.setStatus(errorMessage2(error, translate("queue.realtimeUpdateFailed")), "error");
       });
@@ -30514,49 +30691,116 @@
       if (state5.realtimeSource !== source) return;
       realtimeConnectionNeedsResync = true;
       void requestRealtimeResync();
-      getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+      if (!realtimePollingHealthy) {
+        getLegacyBridge().methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+      }
     };
-    return true;
+  }
+  function resetRealtimeWatchdog(source) {
+    if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+    realtimeWatchdogTimerId = window.setTimeout(() => {
+      realtimeWatchdogTimerId = null;
+      if (!realtimeUpdatesEnabled || getState().realtimeSource !== source) return;
+      realtimeConnectionNeedsResync = true;
+      connectRealtimeSource();
+      void requestRealtimeResync();
+    }, REALTIME_STALE_TIMEOUT_MS);
+  }
+  function stopRealtimeFallback() {
+    if (realtimeFallbackTimerId !== null) window.clearTimeout(realtimeFallbackTimerId);
+    realtimeFallbackTimerId = null;
+  }
+  function scheduleRealtimeFallback() {
+    if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync || realtimeFallbackTimerId !== null) return;
+    realtimeFallbackTimerId = window.setTimeout(() => {
+      realtimeFallbackTimerId = null;
+      if (!realtimeUpdatesEnabled || !realtimeConnectionNeedsResync) return;
+      if (window.EventSource && getState().realtimeSource?.readyState === window.EventSource.CLOSED) connectRealtimeSource();
+      void requestRealtimeResync();
+    }, REALTIME_FALLBACK_INTERVAL_MS);
+  }
+  function cancelRealtimeResync() {
+    realtimeGeneration += 1;
+    realtimeResyncRequested = false;
+    realtimeResyncController?.abort();
+    realtimeResyncController = null;
+    realtimeResyncPromise = null;
   }
   function closeRealtimeUpdates() {
     const state5 = getState();
+    realtimeUpdatesEnabled = false;
+    realtimePollingHealthy = false;
     realtimeConnectionNeedsResync = false;
-    realtimeResyncRequested = false;
+    cancelRealtimeResync();
+    stopRealtimeFallback();
+    if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
+    realtimeWatchdogTimerId = null;
     if (!state5.realtimeSource) return;
     state5.realtimeSource.close();
     state5.realtimeSource = null;
   }
-  async function resyncRealtimeState() {
+  async function resyncRealtimeState(signal) {
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
     const shouldMigrateArchives = state5.realtimeSnapshotNeedsArchiveMigration;
-    await Promise.all([refreshQueue(), bridge7.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives })]);
+    await refreshQueue({ signal, throwOnError: true });
+    signal.throwIfAborted();
+    await bridge7.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives, signal });
   }
   function requestRealtimeResync() {
     realtimeResyncRequested = true;
     if (realtimeResyncPromise) return realtimeResyncPromise;
+    const generation = realtimeGeneration;
     const resyncPromise = (async () => {
-      while (realtimeResyncRequested) {
+      while (realtimeResyncRequested && generation === realtimeGeneration) {
         realtimeResyncRequested = false;
-        await resyncRealtimeState();
+        const controller = new AbortController();
+        realtimeResyncController = controller;
+        let onAbort;
+        const aborted = new Promise((_resolve, reject) => {
+          onAbort = () => reject(controller.signal.reason);
+          controller.signal.addEventListener("abort", onAbort, { once: true });
+        });
+        const timeoutId = window.setTimeout(() => controller.abort(), REALTIME_RESYNC_TIMEOUT_MS);
+        try {
+          await Promise.race([resyncRealtimeState(controller.signal), aborted]);
+        } finally {
+          window.clearTimeout(timeoutId);
+          controller.signal.removeEventListener("abort", onAbort);
+          controller.abort();
+          if (realtimeResyncController === controller) realtimeResyncController = null;
+        }
+        if (generation !== realtimeGeneration) return;
+        if (realtimeConnectionNeedsResync) {
+          realtimePollingHealthy = true;
+          const bridge7 = getLegacyBridge();
+          if (["", translate("status.waiting"), translate("queue.realtimeDisconnected")].includes(bridge7.els.statusText?.textContent || "")) {
+            bridge7.methods.setStatus(translate("queue.realtimePolling"), "");
+          }
+        }
       }
     })().catch((error) => {
+      if (generation !== realtimeGeneration) return;
       const bridge7 = getLegacyBridge();
       if (realtimeConnectionNeedsResync) {
+        realtimePollingHealthy = false;
         bridge7.methods.setStatus(translate("queue.realtimeDisconnected"), "error");
         return;
       }
+      if (error instanceof DOMException && error.name === "AbortError") return;
       console.error(error);
       bridge7.methods.setStatus(errorMessage2(error, translate("queue.realtimeUpdateFailed")), "error");
     }).finally(() => {
+      if (generation !== realtimeGeneration) return;
       realtimeResyncPromise = null;
+      scheduleRealtimeFallback();
     });
     realtimeResyncPromise = resyncPromise;
     return resyncPromise;
   }
   function clearRealtimeReconnectStatus() {
     const bridge7 = getLegacyBridge();
-    if (bridge7.els.statusText?.textContent !== translate("queue.realtimeDisconnected")) return;
+    if (![translate("queue.realtimeDisconnected"), translate("queue.realtimePolling")].includes(bridge7.els.statusText?.textContent || "")) return;
     bridge7.methods.setStatus("", "");
   }
   async function handleRealtimeMessage(event) {
@@ -30564,7 +30808,8 @@
     const payload = JSON.parse(String(event.data));
     await handleRealtimePayload(payload);
   }
-  async function handleRealtimePayload(payload) {
+  async function handleRealtimePayload(payload, { signal } = {}) {
+    signal?.throwIfAborted();
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
     if (payload?.type === "snapshot") {
@@ -30572,8 +30817,10 @@
       await bridge7.methods.applyTasksSnapshot(payload.tasks || [], {
         migrateLegacyArchives: state5.realtimeSnapshotNeedsArchiveMigration,
         ...payload.task_groups ? { taskGroups: payload.task_groups } : {},
-        sync: payload.sync
+        sync: payload.sync,
+        signal
       });
+      signal?.throwIfAborted();
       if (acceptQueueSnapshot(state5, payload.sync)) applyQueueTasks(state5.queue);
       return;
     }
@@ -30584,7 +30831,7 @@
       await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
       if (!acceptQueueSnapshot(state5, payload.sync)) return;
       if (queueMutated && !updatedTasks.length && !queueTaskCount(payload.queue)) {
-        await bridge7.methods.refreshTasks();
+        await bridge7.methods.refreshTasks({ signal });
         return;
       }
       applyQueueTasks(state5.queue);
@@ -30607,20 +30854,29 @@
       await bridge7.methods.applyTaskUpdate(task);
     }
   }
-  async function refreshQueue() {
+  async function refreshQueue({ signal, throwOnError = false } = {}) {
     const bridge7 = getLegacyBridge();
     const state5 = bridge7.state;
-    const requestSeq = ++state5.queueRequestSeq;
+    let requestSeq = ++state5.queueRequestSeq;
+    const generation = realtimeGeneration;
+    let expectedQueue = state5.queue;
     try {
-      const response = await fetch("/api/queue");
+      const response = await fetch("/api/queue", { signal: signal ?? null });
       const data = await response.json();
+      signal?.throwIfAborted();
       if (requestSeq !== state5.queueRequestSeq) return;
       if (!response.ok) {
         throw new Error(data.detail || translate("queue.readFailed"));
       }
       if (!acceptQueueSnapshot(state5, data.sync)) return;
-      await handleRealtimePayload({ type: "queue", queue: data, sync: data.sync });
+      const applying = handleRealtimePayload({ type: "queue", queue: data, sync: data.sync }, { signal });
+      expectedQueue = state5.queue;
+      requestSeq = state5.queueRequestSeq;
+      await applying;
     } catch (error) {
+      if (signal?.aborted) throw error;
+      if (requestSeq !== state5.queueRequestSeq || generation !== realtimeGeneration || state5.queue !== expectedQueue) return;
+      if (throwOnError) throw error;
       bridge7.methods.setStatus(errorMessage2(error, translate("queue.readFailed")), "error");
     }
   }
@@ -31917,8 +32173,8 @@
           await options.refreshHistoryTasks?.(task);
         }
       },
-      refreshTasks: async () => {
-        await options.refreshHistoryTasks?.();
+      refreshTasks: async ({ signal } = {}) => {
+        await options.refreshHistoryTasks?.(void 0, signal);
       },
       selectTask: async (taskId) => {
         bridge7.state.selectedTaskId = String(taskId);
@@ -34932,16 +35188,19 @@
     });
     initializeHistoryShell({
       selectHistoryTask: details.loadTaskDetail,
-      refreshHistoryTasks: async (task) => {
+      refreshHistoryTasks: async (task, signal) => {
+        if (task) await details.refreshTaskDetail({ task, signal });
         await refreshHistoryForRealtimeTask({
           task,
           scroller: els8.taskList,
-          loadSummary: filters.loadSummary,
+          loadSummary: () => filters.loadSummary({ signal, throwOnError: true }),
           reloadNewestWindow: async () => {
-            await list.loadTasks({ reset: true });
+            await list.loadTasks({ reset: true, signal, throwOnError: true, preserveSelection: true });
           },
+          refreshCurrentWindow: () => list.refreshMountedTasks({ signal }),
           upsertTask: list.upsertHistoryTaskSummaryCard
         });
+        if (!task) await details.refreshTaskDetail({ signal });
       }
     });
     applyHistoryLocale();

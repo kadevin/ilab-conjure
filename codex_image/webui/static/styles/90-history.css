@@ -2453,10 +2453,6 @@ body.history-lightbox-open {
   background: var(--surface-soft);
 }
 
-.history-tag-picker-option input {
-  accent-color: var(--primary);
-}
-
 :root[data-theme="dark"] .history-favorite-button {
   background: color-mix(in srgb, var(--surface) 78%, #000 22%);
 }
@@ -2648,10 +2644,6 @@ body.history-lightbox-open {
     opacity var(--motion-base);
 }
 
-.history-backup-scopes input {
-  accent-color: var(--primary);
-}
-
 .history-backup-scope-copy {
   display: grid;
   min-width: 0;
@@ -2674,11 +2666,6 @@ body.history-lightbox-open {
 .history-backup-scopes label:has(input:focus-visible),
 .history-transfer-live:focus-visible,
 .history-transfer-actions button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.history-import-file-field input[type="file"]:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -2823,58 +2810,6 @@ body.history-lightbox-open {
 .history-import-file-field > span {
   font-size: 13px;
   font-weight: 700;
-}
-
-.history-import-file-field input[type="file"] {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  min-height: 48px;
-  padding: 6px;
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  background: var(--surface-soft);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-}
-
-.history-import-file-field input[type="file"]::file-selector-button {
-  min-height: 34px;
-  margin-inline-end: 10px;
-  padding: 0 14px;
-  border: 1px solid color-mix(in srgb, var(--primary) 38%, var(--panel-border));
-  border-radius: calc(var(--radius) - 2px);
-  background: var(--primary-light);
-  color: var(--primary-strong);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  transition:
-    border-color var(--motion-base),
-    background var(--motion-base),
-    color var(--motion-base);
-}
-
-.history-import-file-field input[type="file"]:hover::file-selector-button,
-.history-import-file-field input[type="file"]:focus-visible::file-selector-button {
-  border-color: var(--primary);
-  background: color-mix(in srgb, var(--primary-light) 68%, var(--surface));
-  color: var(--text);
-}
-
-.history-import-file-field input[type="file"]:active::file-selector-button {
-  background: color-mix(in srgb, var(--primary-light) 82%, var(--primary) 18%);
-}
-
-.history-import-file-field input[type="file"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.56;
-}
-
-.history-import-file-field input[type="file"]:disabled::file-selector-button {
-  cursor: not-allowed;
 }
 
 .history-import-summary {

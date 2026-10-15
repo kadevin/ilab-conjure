@@ -549,16 +549,19 @@ async function bootHistoryPage(): Promise<void> {
   });
   initializeHistoryShell({
     selectHistoryTask: details.loadTaskDetail,
-    refreshHistoryTasks: async (task) => {
+    refreshHistoryTasks: async (task, signal) => {
+      if (task) await details.refreshTaskDetail({ task, signal });
       await refreshHistoryForRealtimeTask({
         task,
         scroller: els.taskList,
-        loadSummary: filters.loadSummary,
+        loadSummary: () => filters.loadSummary({ signal, throwOnError: true }),
         reloadNewestWindow: async () => {
-          await list.loadTasks({ reset: true });
+          await list.loadTasks({ reset: true, signal, throwOnError: true, preserveSelection: true });
         },
+        refreshCurrentWindow: () => list.refreshMountedTasks({ signal }),
         upsertTask: list.upsertHistoryTaskSummaryCard,
       });
+      if (!task) await details.refreshTaskDetail({ signal });
     },
   });
   applyHistoryLocale();

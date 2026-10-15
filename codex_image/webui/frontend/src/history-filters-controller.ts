@@ -67,6 +67,7 @@ export function createHistoryFiltersController(options: {
   let historyTags: HistoryTag[] = [];
 
   let historySummary: HistorySummary | null = null;
+  let summaryRequestId = 0;
 
   let historyOrganizationFilters: HistoryOrganizationFilters = {
     favorite: false,
@@ -361,10 +362,14 @@ export function createHistoryFiltersController(options: {
     });
   }
 
-  async function loadSummary(options: { throwOnError?: boolean } = {}): Promise<void> {
+  async function loadSummary(options: { throwOnError?: boolean; signal?: AbortSignal | undefined } = {}): Promise<void> {
+    const requestId = ++summaryRequestId;
+    const isCurrent = () => requestId === summaryRequestId && !lifetime.signal.aborted;
     try {
-      const response = await fetch("/api/task-history/summary");
+      const response = await fetch("/api/task-history/summary", { signal: options.signal ?? null });
       const summary = await response.json() as HistorySummary;
+      options.signal?.throwIfAborted();
+      if (!isCurrent()) return;
       if (!response.ok) throw new Error((summary as any).detail || translate("history.summaryFailed"));
       if (!historyOrganizationSummarySupported(summary)) {
         historyOrganizationApiSupported = false;
@@ -389,6 +394,11 @@ export function createHistoryFiltersController(options: {
       syncArchiveButtons();
       renderHistoryActiveFilters();
     } catch (error) {
+      if (options.signal?.aborted) {
+        if (options.throwOnError) throw error;
+        return;
+      }
+      if (!isCurrent()) return;
       const message = errorMessage(
         error,
         translate("history.summaryFailed"),

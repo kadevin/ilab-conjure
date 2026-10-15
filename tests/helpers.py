@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from unittest import TestCase
 
 
 TEST_PNG_BASE64 = (
@@ -32,6 +33,25 @@ TEST_WEBP_BASE64 = (
     "UklGRjAAAABXRUJQVlA4ICQAAABQAQCdASoCAAEAAUAmJQBOgC6gAP77LkvF3YjjJ4dVU9ffoAA="
 )
 TEST_WEBP_BYTES = base64.b64decode(TEST_WEBP_BASE64)
+
+
+def history_storage(root: Path):
+    from codex_image.webui.storage import TaskStorage
+
+    return TaskStorage(
+        root / "outputs", input_root=root / "inputs",
+        source_data_root=root / "source-data",
+    )
+
+
+def assert_no_api_key(case: TestCase, value: object) -> None:
+    if isinstance(value, dict):
+        case.assertNotIn("api_key", value)
+        for nested in value.values():
+            assert_no_api_key(case, nested)
+    elif isinstance(value, list):
+        for nested in value:
+            assert_no_api_key(case, nested)
 
 
 @dataclass

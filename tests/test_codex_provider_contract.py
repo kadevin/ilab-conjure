@@ -2,12 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from codex_image import client
 from codex_image.client import (
     CodexImageClient,
     CodexImagesImageClient,
-    OpenAIImagesImageClient,
-    OpenAIResponsesImageClient,
 )
 
 
@@ -45,9 +42,3 @@ class CodexProviderContractTests(unittest.TestCase):
         self.assertEqual(payload["tool_choice"], "required")
         self.assertEqual(payload["tools"][0]["type"], "web_search")
         self.assertEqual(payload["tools"][1]["model"], "gpt-image-2")
-
-    def test_compatibility_imports_expose_codex_clients(self) -> None:
-        self.assertIs(client.CodexImageClient, CodexImageClient)
-        self.assertIs(client.CodexImagesImageClient, CodexImagesImageClient)
-        self.assertIs(client.OpenAIImagesImageClient, OpenAIImagesImageClient)
-        self.assertIs(client.OpenAIResponsesImageClient, OpenAIResponsesImageClient)

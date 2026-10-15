@@ -684,6 +684,175 @@ class WebUIQueueTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_idle_event_stream_sends_heartbeats_and_stops_on_shutdown(self) -> None:
+        from contextlib import chdir
+        from types import SimpleNamespace
+        from codex_image.webui.app import create_app
+
+        async def exercise(app):
+            clock = 0.0
+            checks = 0
+
+            async def wait(_delay):
+                nonlocal clock, checks
+                checks += 1
+                clock += 15.0
+                return checks > 2
+
+            async def is_disconnected():
+                return False
+
+            app.state.webui_shutdown_coordinator = SimpleNamespace(wait=wait)
+            endpoint = next(route.endpoint for route in app.routes if route.path == "/api/events")
+            request = SimpleNamespace(app=app, is_disconnected=is_disconnected)
+            with patch("codex_image.webui.routes.queue.monotonic", side_effect=lambda: clock):
+                response = await endpoint(request, stream=True)
+                messages = [message async for message in response.body_iterator]
+            self.assertEqual(json.loads(messages[0].removeprefix("data: "))["type"], "snapshot")
+            self.assertEqual(messages[1:], ["event: heartbeat\ndata: {}\n\n"] * 2)
+
+        with tempfile.TemporaryDirectory() as tmp, chdir(tmp):
+            root = Path(tmp)
+            app = create_app(
+                output_root=root / "outputs", api_settings_path=root / "api.json",
+                auth_settings_path=root / "auth.json", webui_settings_path=root / "webui.json",
+                auth_checker=lambda: True, auto_start_queue=False,
+            )
+            asyncio.run(exercise(app))
+
+    def test_unreadable_task_does_not_break_status_sync_or_modify_local_data(self) -> None:
+        from contextlib import chdir
+        from types import SimpleNamespace
+        from codex_image.webui.app import create_app
+
+        async def snapshot(app):
+            endpoint = next(route.endpoint for route in app.routes if route.path == "/api/events")
+            response = await endpoint(SimpleNamespace(app=app), stream=False)
+            try:
+                return json.loads((await anext(response.body_iterator)).removeprefix("data: "))
+            finally:
+                await response.body_iterator.aclose()
+
+        for damaged in ('{"truncated":', '[]', 'null', '{"status": []}', '{"status": "running", "params": [1]}'):
+            with self.subTest(damaged=damaged), tempfile.TemporaryDirectory() as tmp, chdir(tmp):
+                root = Path(tmp)
+                app = create_app(output_root=root / "outputs", api_settings_path=root / "api.json",
+                    auth_settings_path=root / "auth.json", webui_settings_path=root / "webui.json",
+                    auth_checker=lambda: True, auto_start_queue=False)
+                good, bad = "20261015000000-good", "20261015000001-bad"
+                for task_id in (good, bad):
+                    app.state.storage.write_metadata(task_id, {"task_id": task_id, "status": "queued",
+                        "prompt": "synthetic", "created_at": "2026-10-15T00:00:00Z", "updated_at": "2026-10-15T00:00:00Z"})
+                    app.state.queue_storage.enqueue(task_id)
+                metadata = app.state.storage.metadata_path(bad)
+                metadata.write_text(damaged, encoding="utf-8")
+                before = app.state.queue_storage.read_state()
+                with TestClient(app, raise_server_exceptions=False) as client, self.assertLogs("codex_image.webui.events", level="WARNING") as logs:
+                    queue = client.get("/api/queue")
+                    self.assertEqual(queue.status_code, 200)
+                    self.assertEqual([task["task_id"] for task in queue.json()["waiting"]], [good])
+                    self.assertEqual(client.get("/api/tasks/sidebar").status_code, 200)
+                    detail = client.get(f"/api/tasks/{bad}")
+                    self.assertEqual(detail.status_code, 503)
+                    self.assertIn(bad, detail.json()["detail"])
+                    self.assertEqual([task["task_id"] for task in asyncio.run(snapshot(app))["queue"]["waiting"]], [good])
+                self.assertTrue(any(bad in message for message in logs.output))
+                self.assertEqual(metadata.read_text(encoding="utf-8"), damaged)
+                self.assertEqual(app.state.queue_storage.read_state(), before)
+
+    def test_temporary_metadata_read_failure_keeps_queue_membership_and_recovers(self) -> None:
+        from contextlib import chdir
+        from codex_image.webui.app import create_app
+
+        with tempfile.TemporaryDirectory() as tmp, chdir(tmp):
+            root = Path(tmp)
+            app = create_app(output_root=root / "outputs", api_settings_path=root / "api.json",
+                auth_settings_path=root / "auth.json", webui_settings_path=root / "webui.json",
+                auth_checker=lambda: True, auto_start_queue=False)
+            task_id = "20261015000000-transient"
+            storage = app.state.storage
+            storage.write_metadata(task_id, {"task_id": task_id, "status": "running"})
+            app.state.queue_storage.set_running("codex:999", task_id, auth_source="codex")
+            before = app.state.queue_storage.read_state()
+            with TestClient(app, raise_server_exceptions=False) as client:
+                with patch.object(storage, "read_metadata", side_effect=PermissionError("synthetic sharing violation")), self.assertLogs("codex_image.webui.events"):
+                    self.assertEqual(client.get("/api/queue").status_code, 200)
+                    self.assertEqual(client.get(f"/api/tasks/{task_id}").status_code, 503)
+                self.assertEqual(app.state.queue_storage.read_state(), before)
+                self.assertEqual(storage.read_metadata(task_id)["status"], "running")
+                with patch("codex_image.webui.queue_snapshot_cache.monotonic", return_value=float("inf")):
+                    self.assertEqual(client.get("/api/queue").status_code, 200)
+                self.assertEqual(client.get(f"/api/tasks/{task_id}").status_code, 200)
+
+    def test_event_stream_survives_task_deletion_during_metadata_read(self) -> None:
+        from contextlib import chdir
+        from types import SimpleNamespace
+        from codex_image.webui.app import create_app
+
+        async def exercise(app, phase):
+            storage = app.state.storage
+            task_id = "20261013120000-synthetic"
+            metadata = {
+                "task_id": task_id, "status": "queued", "prompt": "synthetic",
+                "created_at": "2026-10-13T12:00:00+00:00",
+                "updated_at": "2026-10-13T12:00:00+00:00",
+                "size": "1024x1024",
+            }
+            storage.write_metadata(task_id, metadata)
+            app.state.queue_storage.enqueue(task_id)
+            checks = 0
+
+            async def wait(_delay):
+                nonlocal checks
+                checks += 1
+                return checks > 1
+
+            async def is_disconnected():
+                return False
+
+            app.state.webui_shutdown_coordinator = SimpleNamespace(wait=wait)
+            endpoint = next(r.endpoint for r in app.routes if r.path == "/api/events")
+            delete = next(r.endpoint for r in app.routes if r.path == "/api/tasks/{task_id}" and "DELETE" in r.methods)
+            request = SimpleNamespace(app=app, is_disconnected=is_disconnected)
+            response = await endpoint(request, stream=True)
+            stream = response.body_iterator
+            original_read = storage.read_metadata
+            deleted = False
+
+            def read_after_delete(requested_id):
+                nonlocal deleted
+                if requested_id == task_id and not deleted:
+                    deleted = True
+                    self.assertTrue(delete(task_id)["ok"])
+                return original_read(requested_id)
+
+            try:
+                if phase == "terminal":
+                    await anext(stream)
+                    storage.write_metadata(task_id, {**metadata, "status": "completed"})
+                    app.state.queue_storage.remove_waiting(task_id)
+                with patch.object(storage, "read_metadata", side_effect=read_after_delete):
+                    message = json.loads((await anext(stream)).removeprefix("data: "))
+                self.assertTrue(deleted)
+                self.assertEqual(message["queue"]["waiting"], [])
+                self.assertEqual(message["queue"]["running"], [])
+                self.assertEqual(message.get("tasks", []), [])
+                # Drain until the explicit shutdown instead of an exception.
+                async for _message in stream:
+                    pass
+            finally:
+                await stream.aclose()
+
+        for phase in ("initial", "terminal"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as tmp, chdir(tmp):
+                root = Path(tmp)
+                app = create_app(
+                    output_root=root / "outputs", api_settings_path=root / "api.json",
+                    auth_settings_path=root / "auth.json", webui_settings_path=root / "webui.json",
+                    auth_checker=lambda: True, auto_start_queue=False,
+                )
+                asyncio.run(exercise(app, phase))
+
     def test_queue_event_embeds_finished_tasks_for_terminal_realtime_update(self) -> None:
         from codex_image.webui.app import create_app
         from codex_image.webui.events import queue_event, task_events

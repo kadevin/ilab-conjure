@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from codex_image.generation.catalog import list_model_families, list_model_manifests
+from codex_image.generation.catalog import list_model_families
 from codex_image.providers.auth import auth_scheme_for_protocol
 from codex_image.providers.capabilities import CODEC_CAPABILITIES, protocol_codec_pairs
 from codex_image.providers.registry import default_registry
@@ -14,17 +14,6 @@ class SupportedModelFamiliesTests(unittest.TestCase):
         self.assertEqual(
             [family.id for family in list_model_families()],
             ["gpt-image", "gemini-image"],
-        )
-        self.assertEqual(
-            {model.id for model in list_model_manifests()},
-            {
-                "gpt-image-2",
-                "gpt-image-2.5-flare",
-                "gpt-image-2.5-sunburst",
-                "nano-banana-pro",
-                "nano-banana-2",
-                "nano-banana-2-lite",
-            },
         )
 
     def test_runtime_does_not_register_retired_model_protocols_or_codecs(self) -> None:

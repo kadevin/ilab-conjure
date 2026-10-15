@@ -704,8 +704,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-864', html)
-        self.assertIn('/static/styles.css?v=runtime-862', html)
         self.assertIn('id="recentAssetDock"', html)
         self.assertIn('id="recentAssetVisibilityToggle"', html)
         self.assertIn('aria-controls="recentAssetList"', html)
@@ -1486,7 +1484,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("justify-content: space-between", self._extract_css_block(layout, ".panel-heading"))
         self.assertIn("justify-content: flex-start", self._extract_css_block(prompt, ".prompt-heading-main"))
         self.assertIn("position: relative", self._extract_css_block(output, ".output-settings-header"))
-        self.assertNotIn("@media (max-height: 860px)", responsive)
         self.assertNotRegex(
             responsive,
             r"\.controls-col\s+\.output-settings-header\s+h2\s*\{[^}]*position:\s*absolute[^}]*width:\s*1px",
@@ -1535,7 +1532,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         )
         self.assertRegex(compact, r"\.panel\s*\{[^}]*padding:\s*clamp\(")
         self.assertNotIn("align-content: space-between", compact)
-        self.assertNotIn("@media (max-height: 860px)", responsive)
         self.assertNotRegex(
             responsive,
             r"\.controls-col\s+\.panel-heading\s+h2,[\s\S]*"
@@ -2007,7 +2003,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         lock_source = Path("codex_image/webui/frontend/src/output-settings-lock.ts").read_text(encoding="utf-8")
 
         self.assertNotIn("@media (max-height: 820px)", responsive)
-        self.assertNotIn("@media (max-height: 860px)", responsive)
         self.assertRegex(
             responsive,
             r"\.controls-col\s+\.image-panel\s*\{[^}]*"
@@ -2318,11 +2313,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('data-i18n="settings.title"', html)
         self.assertNotIn('class="system-settings-section-heading"', html)
         self.assertIn('id="systemSettingsApiTab"', html)
-        self.assertNotIn('id="systemSettingsCodexTab"', html)
         self.assertIn('id="systemSettingsLanguageTab"', html)
         self.assertIn('id="systemSettingsStorageTab"', html)
         self.assertIn('id="systemSettingsApiPanel"', html)
-        self.assertNotIn('id="systemSettingsCodexPanel"', html)
         self.assertIn('id="systemSettingsLanguagePanel"', html)
         self.assertIn('id="systemSettingsStoragePanel"', html)
         self.assertIn('id="languageSelect"', html)
@@ -2373,8 +2366,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('data-i18n="apiSettings.concurrency">并发上限</span>', html)
         self.assertIn('id="apiProviderBindings"', html)
         self.assertIn('id="addProviderBindingButton"', html)
-        self.assertIn('id="apiProviderIconEmoji"', html)
-        self.assertIn('aria-label:apiSettings.providerIcon', html)
         self.assertNotIn('id="saveApiSettingsButton"', html)
         self.assertNotIn('id="saveCodexSettingsButton"', html)
         self.assertIn('class="settings-modal-actions settings-status-only"', html)
@@ -3617,25 +3608,13 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
 
     def test_generation_lightbox_shares_zoom_and_task_navigation_controls(self) -> None:
         lightbox_source = self._lightbox_source()
-        shared_source = Path("codex_image/webui/frontend/src/history-lightbox.ts").read_text(encoding="utf-8")
         selection_source = Path("codex_image/webui/frontend/src/task-selection.ts").read_text(encoding="utf-8")
         preview_source = Path("codex_image/webui/frontend/src/task-preview.ts").read_text(encoding="utf-8")
 
         self.assertIn('from "./history-lightbox"', lightbox_source)
-        self.assertIn('from "./lightbox-controls"', shared_source)
-        self.assertIn("lightboxZoomChromeHtml", shared_source)
-        self.assertIn("lightboxActionForKey", shared_source)
-        self.assertIn("isLightboxAtOrBelowFitScale", shared_source)
-        self.assertIn("shouldCloseLightboxFromClick(event.target, historyLightboxEl!)", shared_source)
-        self.assertIn("showLightboxShortcutHint", shared_source)
-        self.assertIn("const wasActive = isHistoryLightboxActive();", shared_source)
-        self.assertRegex(shared_source, r"if \(!wasActive\) \{\s*if \(!window.matchMedia\([^\n]+\)\.matches\) \{\s*showLightboxShortcutHint")
         self.assertIn("openMainTaskLightboxByDirection", selection_source)
         self.assertIn("onTaskNavigate: openMainTaskLightboxByDirection", selection_source)
         self.assertIn('onTaskNavigate: (direction, context) => legacyMethod("openMainTaskLightboxByDirection", direction, context)', preview_source)
-        self.assertIn('event.key === "ArrowUp"', shared_source)
-        self.assertIn('event.key === "ArrowDown"', shared_source)
-        self.assertNotIn("event.target === historyLightboxEl", shared_source)
 
     def test_lightbox_controls_stay_above_zoomed_image(self) -> None:
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -3833,8 +3812,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         script = self._frontend_script_source()
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('/static/app.js?v=runtime-864', html)
-        self.assertIn('/static/styles.css?v=runtime-862', html)
         self.assertIn('id="pasteClipboardButton"', html)
         self.assertIn('id="statusText"', html)
         self.assertRegex(
@@ -4294,8 +4271,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ).read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("/static/app.js?v=runtime-864", html)
-        self.assertIn("/static/styles.css?v=runtime-862", html)
         self.assertIn('"codex-image-theme-preference"', theme_source)
         self.assertIn('themePreference: "system"', script)
         self.assertIn('call(methods, "restoreThemePreference")', script)

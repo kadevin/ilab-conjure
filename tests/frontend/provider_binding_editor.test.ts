@@ -65,6 +65,22 @@ test("three direct protocols map explicitly by canonical model", () => {
   );
 });
 
+test("Nano Banana 2.1 bindings use Gemini codecs and keep custom remote models", () => {
+  assert.deepEqual(availableProtocolsForModel("nano-banana-2.1"), ["gemini", "openai_images"]);
+  for (const protocol of ["gemini", "openai_images"] as const) {
+    const binding = bindingFromProtocol("nano-21", "nano-banana-2.1", "gemini-nano-banana-2.1", protocol);
+    assert.equal(binding.canonical_model_id, "nano-banana-2.1");
+    assert.equal(binding.parameter_codec, protocol === "gemini"
+      ? "gemini_generate_content_image" : "gemini_openai_images");
+  }
+  assert.equal(remoteModelAfterSelection(
+    "gemini-3.1-flash-image", "gemini-3.1-flash-image", "gemini-nano-banana-2.1",
+  ), "gemini-nano-banana-2.1");
+  assert.equal(remoteModelAfterSelection(
+    "vendor/custom", "gemini-3.1-flash-image", "gemini-nano-banana-2.1",
+  ), "vendor/custom");
+});
+
 test("compatibility layers stay binding-scoped and map to explicit transports", () => {
   assert.deepEqual(
     availableCompatibilityLayers("nano-banana-2", "gemini"),

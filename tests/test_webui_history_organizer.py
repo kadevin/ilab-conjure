@@ -8,6 +8,8 @@ from tempfile import TemporaryDirectory
 import threading
 import unittest
 from unittest.mock import patch
+from tests.helpers import history_storage
+
 
 
 class HistoryOrganizerTests(unittest.TestCase):
@@ -234,14 +236,6 @@ class HistoryOrganizerTests(unittest.TestCase):
 
 
 class HistoryOrganizerTaskStorageTests(unittest.TestCase):
-    def _storage(self, root: Path):
-        from codex_image.webui.storage import TaskStorage
-
-        return TaskStorage(
-            root / "outputs",
-            input_root=root / "inputs",
-            source_data_root=root / "source-data",
-        )
 
     def _write_task(self, storage, task_id: str) -> None:
         storage.write_metadata(
@@ -258,7 +252,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
 
     def test_task_index_checks_existing_task_ids_in_one_batch(self) -> None:
         with TemporaryDirectory() as tmp:
-            storage = self._storage(Path(tmp))
+            storage = history_storage(Path(tmp))
             self._write_task(storage, "task-a")
             self._write_task(storage, "task-b")
 
@@ -272,7 +266,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
         from codex_image.webui.storage import HistoryTaskNotFoundError
 
         with TemporaryDirectory() as tmp:
-            storage = self._storage(Path(tmp))
+            storage = history_storage(Path(tmp))
             self._write_task(storage, "task-a")
             tag = storage.history_organizer.create_tag("有效")
 
@@ -291,7 +285,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
 
     def test_storage_limits_history_organization_to_three_hundred_tasks(self) -> None:
         with TemporaryDirectory() as tmp:
-            storage = self._storage(Path(tmp))
+            storage = history_storage(Path(tmp))
 
             with self.assertRaisesRegex(
                 ValueError,
@@ -306,7 +300,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
 
     def test_delete_task_removes_history_organization(self) -> None:
         with TemporaryDirectory() as tmp:
-            storage = self._storage(Path(tmp))
+            storage = history_storage(Path(tmp))
             self._write_task(storage, "task-a")
             tag = storage.history_organizer.create_tag("待清理")
             storage.organize_history_tasks(
@@ -325,7 +319,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
     def test_rebuilding_task_index_preserves_history_organization(self) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             self._write_task(storage, "task-a")
             tag = storage.history_organizer.create_tag("长期")
             storage.organize_history_tasks(
@@ -337,7 +331,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
             index_path = storage.task_index.path
             index_path.unlink()
 
-            restarted = self._storage(root)
+            restarted = history_storage(root)
             restarted.rebuild_task_index()
             snapshot = restarted.history_organizations(["task-a"])["task-a"]
 
@@ -346,7 +340,7 @@ class HistoryOrganizerTaskStorageTests(unittest.TestCase):
 
     def test_organize_validation_and_delete_share_one_lock(self) -> None:
         with TemporaryDirectory() as tmp:
-            storage = self._storage(Path(tmp))
+            storage = history_storage(Path(tmp))
             self._write_task(storage, "task-a")
             tag = storage.history_organizer.create_tag("互斥")
             validation_started = threading.Event()

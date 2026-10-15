@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -253,8 +254,13 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
 
     @app.get("/api/tasks/{task_id}")
     def get_task(task_id: str) -> dict[str, Any]:
+        unavailable = f"Task {task_id} metadata is unreadable; local files have been preserved."
         try:
-            metadata = h["with_stored_request_payload"](task_id, ctx.storage.read_metadata(task_id))
+            metadata = ctx.storage.read_metadata(task_id)
+            if (not isinstance(metadata, dict) or not isinstance(metadata.get("status", ""), str)
+                    or (metadata.get("params") is not None and not isinstance(metadata["params"], dict))):
+                raise HTTPException(status_code=503, detail=unavailable)
+            metadata = h["with_stored_request_payload"](task_id, metadata)
             return {
                 "task": _with_file_urls(
                     metadata,
@@ -271,6 +277,8 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
             }
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail="Task not found") from exc
+        except (OSError, json.JSONDecodeError, UnicodeError) as exc:
+            raise HTTPException(status_code=503, detail=unavailable) from exc
 
     @app.patch("/api/tasks/{task_id}/viewed")
     def mark_task_viewed(task_id: str) -> dict[str, Any]:

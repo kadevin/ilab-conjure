@@ -48,6 +48,18 @@ class TagMutation(BaseModel):
     name: str
 
 
+class RefreshHistoryTasksRequest(BaseModel):
+    task_ids: list[str] = Field(min_length=1, max_length=300)
+
+    @field_validator("task_ids")
+    @classmethod
+    def validate_task_ids(cls, values: list[str]) -> list[str]:
+        ids = _unique_nonempty(values)
+        if not ids or any(not _SAFE_ANCHOR_TASK_ID_RE.fullmatch(task_id) for task_id in ids):
+            raise ValueError("Invalid task ids")
+        return ids
+
+
 class OrganizeHistoryTasksRequest(BaseModel):
     task_ids: list[str]
     favorite: bool | None = None
@@ -162,6 +174,10 @@ def register_history_routes(
     @app.get("/api/task-history/summary")
     def task_history_summary() -> dict[str, Any]:
         return ctx.storage.task_history_summary()
+
+    @app.post("/api/task-history/tasks/refresh")
+    def refresh_history_tasks(payload: RefreshHistoryTasksRequest) -> dict[str, Any]:
+        return {"tasks": ctx.storage.task_history_summaries(payload.task_ids)}
 
     @app.get("/api/task-history/tasks")
     def task_history_tasks(

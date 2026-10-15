@@ -299,12 +299,33 @@ test("Gemini model switches carry valid shared values and default unsupported ch
     family_id: "gemini-image",
     parameters: [
       parameter("canvas.aspect_ratio", "1:1", ["1:1", "1:8"]),
-      parameter("canvas.resolution", "1K", ["1K", "2K"]),
+      parameter("canvas.resolution", "1K", ["512", "1K", "2K", "4K"]),
       parameter("output.count", 1, [1, 2, 3, 4]),
       parameter("gemini.safety_settings", {}),
       parameter("gemini.google_search", "off", ["off", "on"]),
     ],
   } as any;
+  const flash21 = {
+    ...source,
+    id: "nano-banana-2.1",
+    parameters: source.parameters.map((definition: any) => definition.id === "canvas.resolution"
+      ? parameter("canvas.resolution", "1K", ["1K", "2K", "4K"])
+      : definition),
+  } as any;
+  const draft = {
+    "canvas.aspect_ratio": "1:8",
+    "canvas.resolution": "512",
+    "output.count": 3,
+    "gemini.safety_settings": { HARM_CATEGORY_HARASSMENT: "OFF" },
+    "gemini.google_search": "on",
+  };
+  assert.deepEqual(migratePortableModelDraft(source, flash21, draft, {}), {
+    ...draft,
+    "canvas.resolution": "1K",
+  }, "2.1 defaults unsupported 512 while preserving other shared choices");
+  assert.equal(migratePortableModelDraft(source, flash21, {
+    ...draft, "canvas.resolution": "4K",
+  }, {})["canvas.resolution"], "4K");
   const lite = {
     ...source,
     id: "nano-banana-2-lite",
@@ -361,7 +382,7 @@ test("GPT-only controls stay hidden for Gemini even without an eligible provider
     showPromptFidelity: true,
   });
 
-  for (const modelId of ["nano-banana-pro", "nano-banana-2", "nano-banana-2-lite"]) {
+  for (const modelId of ["nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite"]) {
     for (const protocolProfile of [null, "gemini_generate_content", "openai_images"]) {
       assert.deepEqual(resolveModeSettingsVisibility({
         catalogAvailable: true,

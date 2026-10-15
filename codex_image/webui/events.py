@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 import json
+import logging
 from typing import Any, Callable, Iterable
 
 from .context import WebUIContext
@@ -10,6 +11,26 @@ from .task_metadata import _gallery_item_response, _with_file_urls
 
 
 GENERATION_PAGE_TASK_LIMIT = 50
+logger = logging.getLogger(__name__)
+
+
+def _read_task_if_present(ctx: WebUIContext, task_id: str, *, unreadable: list[str] | None = None) -> dict[str, Any] | None:
+    # Deletion can finish between a queue read and its metadata read.
+    try:
+        metadata = ctx.storage.read_metadata(task_id)
+        if (not isinstance(metadata, dict) or not isinstance(metadata.get("status", ""), str)
+                or (metadata.get("params") is not None and not isinstance(metadata["params"], dict))):
+            raise ValueError("Invalid task metadata")
+        return metadata
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError) as exc:
+        # One unreadable record must not terminate the stream or its HTTP fallback.
+        # Keep its files and queue membership intact; never log metadata contents.
+        logger.warning("Task metadata unavailable task_id=%r error_type=%s", task_id, type(exc).__name__)
+        if unreadable is not None:
+            unreadable.append(task_id)
+        return None
 
 
 def _running_queue_order(entry: tuple[str, Any]) -> tuple[float, str, str]:
@@ -47,9 +68,12 @@ def _prune_inactive_running_channels(ctx: WebUIContext) -> None:
             task_id = str(item.get("task_id") or "")
             if task_id and task_id in ctx.active_task_ids:
                 continue
-            if task_id and ctx.storage.metadata_path(task_id).exists():
-                metadata = ctx.storage.read_metadata(task_id)
-                if metadata.get("status") == "running":
+            if task_id:
+                unreadable: list[str] = []
+                metadata = _read_task_if_present(ctx, task_id, unreadable=unreadable)
+                if unreadable:
+                    continue
+                if metadata is not None and metadata.get("status") == "running":
                     message = "Service restarted before this task completed."
                     metadata["status"] = "failed"
                     metadata["updated_at"] = utc_now()
@@ -75,18 +99,20 @@ def queue_snapshot(ctx: WebUIContext) -> dict[str, Any]:
             ctx.reference_file_storage,
             include_request=False,
         )
-        for task in (ctx.storage.read_metadata(task_id) for task_id in state["waiting"] if ctx.storage.metadata_path(task_id).exists())
+        for task in (_read_task_if_present(ctx, task_id) for task_id in state["waiting"])
+        if task is not None
     ]
     running = []
     for channel_id, item in sorted(
         state["running"].items(),
         key=_running_queue_order,
     ):
-        metadata_path = ctx.storage.metadata_path(str(item.get("task_id") or "")) if isinstance(item, dict) else None
-        if metadata_path is None or not metadata_path.exists():
+        task_id = str(item.get("task_id") or "") if isinstance(item, dict) else ""
+        metadata = _read_task_if_present(ctx, task_id) if task_id else None
+        if metadata is None:
             continue
         task = _with_file_urls(
-            ctx.storage.read_metadata(str(item["task_id"])),
+            metadata,
             active_ids,
             ctx.gallery_storage,
             ctx.reference_asset_storage,
@@ -170,12 +196,13 @@ def queued_or_running_task_ids(queue: dict[str, Any]) -> set[str]:
 
 
 def task_event(ctx: WebUIContext, task_id: str) -> dict[str, Any] | None:
-    if not ctx.storage.metadata_path(task_id).exists():
+    metadata = _read_task_if_present(ctx, task_id)
+    if metadata is None:
         return None
     return {
         "type": "task",
         "task": _with_file_urls(
-            ctx.storage.read_metadata(task_id),
+            metadata,
             ctx.route_helpers["visible_running_task_ids"](),
             ctx.gallery_storage,
             ctx.reference_asset_storage,

@@ -58,7 +58,7 @@ API 中转站可分别绑定 GPT Image 2、GPT Image 2.5 Flare 和 Sunburst，�
 
 ## 功能
 
-- 在同一模型目录中使用 GPT Image 与 Gemini，覆盖文生图及模型支持的参考图生成、图像编辑工作流。
+- 在同一模型目录中使用 GPT Image 与 Gemini，覆盖文生图及模型支持的参考图生成、图像编辑工作流。Gemini 包含 Nano Banana Pro、2.1、2 和 2 Lite；Nano Banana 2.1 支持 1K / 2K / 4K、最多 14 张参考图及 Google 搜索。
 - 支持 Codex Image、Codex Responses 和 OpenAI 兼容 API 接入；公开或共享使用优先选择 API 模式。
 - 多任务并发、本地队列状态、分页历史库、缩略图和结果归档。
 - 停止任务会中断本地请求及等待中的图片槽位，保留已生成图片和历史记录；服务商可能仍继续生成并计费。
@@ -162,15 +162,15 @@ http://127.0.0.1:8787/
 
 ## 应用包下载
 
-当前版本为 `v0.9.7`。正式安装包见
+当前版本为 `v0.9.8`。正式安装包见
 [下载 / Releases](RELEASES.md) 或 [GitHub 最新正式版](https://github.com/kadevin/ilab-conjure/releases/latest)。
 
 新用户建议优先下载标准包：
 
-1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.9.7.dmg`，
-   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.9.7.dmg`，然后把
+1. macOS：Apple Silicon 下载 `iLab-GPT-CONJURE-macos-arm64-0.9.8.dmg`，
+   Intel 下载 `iLab-GPT-CONJURE-macos-x64-0.9.8.dmg`，然后把
    `iLab GPT CONJURE.app` 拖到 Applications。
-2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.9.7.zip`，
+2. Windows：下载 `iLab-GPT-CONJURE-windows-x64_0.9.8.zip`，
    解压到普通用户目录，双击 `iLab GPT CONJURE.exe`。
 
 标准包的用户数据会写入 macOS 的

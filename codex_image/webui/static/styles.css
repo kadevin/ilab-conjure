@@ -3233,6 +3233,201 @@ button, input, select, textarea {
 }
 
 /* source: styles/40-controls.css */
+/* Shared native checkbox/radio semantics with theme-owned rendering. */
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: grid;
+  place-content: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--primary-foreground);
+  cursor: pointer;
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input::after {
+  content: "";
+  width: 4px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+  visibility: hidden;
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+):hover > input:not(:disabled) {
+  border-color: var(--primary);
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input:checked {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input:checked::after {
+  visibility: visible;
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+:is(
+  .provider-binding-toggle,
+  .notification-option-row,
+  .prompt-template-check,
+  .user-config-section-row,
+  .user-config-sensitive-row,
+  .user-config-replace-ack,
+  .history-tag-picker-option,
+  .history-backup-scopes label
+) > input:disabled {
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.history-backup-scopes input[type="radio"] {
+  border-radius: 50%;
+}
+
+.history-backup-scopes input[type="radio"]::after {
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: currentColor;
+  transform: none;
+}
+
+.history-import-file-field input[type="file"],
+#userConfigRestoreFile {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.history-import-file-field input[type="file"]::file-selector-button,
+#userConfigRestoreFile::file-selector-button {
+  min-height: 34px;
+  margin-inline-end: 10px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 38%, var(--panel-border));
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--primary-light);
+  color: var(--primary-strong);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition:
+    border-color var(--motion-base),
+    background var(--motion-base),
+    color var(--motion-base);
+}
+
+.history-import-file-field input[type="file"]:hover::file-selector-button,
+.history-import-file-field input[type="file"]:focus-visible::file-selector-button,
+#userConfigRestoreFile:hover::file-selector-button,
+#userConfigRestoreFile:focus-visible::file-selector-button {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary-light) 68%, var(--surface));
+  color: var(--text);
+}
+
+.history-import-file-field input[type="file"]:active::file-selector-button,
+#userConfigRestoreFile:active::file-selector-button {
+  background: color-mix(in srgb, var(--primary-light) 82%, var(--primary) 18%);
+}
+
+.history-import-file-field input[type="file"]:focus-visible,
+#userConfigRestoreFile:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.history-import-file-field input[type="file"]:disabled,
+#userConfigRestoreFile:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.history-import-file-field input[type="file"]:disabled::file-selector-button,
+#userConfigRestoreFile:disabled::file-selector-button {
+  cursor: not-allowed;
+}
+
 /* Buttons */
 .primary-button {
   background: var(--primary);
@@ -11133,12 +11328,6 @@ input[type=range].slider:disabled::-moz-range-thumb {
   white-space: nowrap;
 }
 
-.notification-option-row input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary);
-}
-
 .api-settings-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -11361,11 +11550,14 @@ input[type=range].slider:disabled::-moz-range-thumb {
   align-items: center;
   gap: 6px;
   min-width: 0;
+  min-height: 28px;
+  padding: 4px;
   overflow: hidden;
   color: var(--text-secondary);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .provider-binding-toggle span {
@@ -11375,11 +11567,9 @@ input[type=range].slider:disabled::-moz-range-thumb {
   white-space: nowrap;
 }
 
-.provider-binding-toggle input {
-  flex: 0 0 auto;
-  width: 15px;
-  height: 15px;
-  accent-color: var(--primary);
+.provider-binding-toggle:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 @media (max-width: 620px) {
@@ -13274,11 +13464,7 @@ body.api-provider-sort-dragging * {
 .user-config-section-row input,
 .user-config-sensitive-row input,
 .user-config-replace-ack input {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
   margin: 2px 0 0;
-  accent-color: var(--primary);
 }
 
 .user-config-sensitive-row {
@@ -13376,13 +13562,6 @@ body.api-provider-sort-dragging * {
 .user-config-stage-heading span {
   color: var(--text-muted);
   font-size: 12px;
-}
-
-#userConfigRestoreFile {
-  max-width: 100%;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 13px;
 }
 
 .user-config-restore-stage {
@@ -17109,10 +17288,6 @@ body.history-lightbox-open {
   background: var(--surface-soft);
 }
 
-.history-tag-picker-option input {
-  accent-color: var(--primary);
-}
-
 :root[data-theme="dark"] .history-favorite-button {
   background: color-mix(in srgb, var(--surface) 78%, #000 22%);
 }
@@ -17304,10 +17479,6 @@ body.history-lightbox-open {
     opacity var(--motion-base);
 }
 
-.history-backup-scopes input {
-  accent-color: var(--primary);
-}
-
 .history-backup-scope-copy {
   display: grid;
   min-width: 0;
@@ -17330,11 +17501,6 @@ body.history-lightbox-open {
 .history-backup-scopes label:has(input:focus-visible),
 .history-transfer-live:focus-visible,
 .history-transfer-actions button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.history-import-file-field input[type="file"]:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -17479,58 +17645,6 @@ body.history-lightbox-open {
 .history-import-file-field > span {
   font-size: 13px;
   font-weight: 700;
-}
-
-.history-import-file-field input[type="file"] {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  min-height: 48px;
-  padding: 6px;
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  background: var(--surface-soft);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-}
-
-.history-import-file-field input[type="file"]::file-selector-button {
-  min-height: 34px;
-  margin-inline-end: 10px;
-  padding: 0 14px;
-  border: 1px solid color-mix(in srgb, var(--primary) 38%, var(--panel-border));
-  border-radius: calc(var(--radius) - 2px);
-  background: var(--primary-light);
-  color: var(--primary-strong);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  transition:
-    border-color var(--motion-base),
-    background var(--motion-base),
-    color var(--motion-base);
-}
-
-.history-import-file-field input[type="file"]:hover::file-selector-button,
-.history-import-file-field input[type="file"]:focus-visible::file-selector-button {
-  border-color: var(--primary);
-  background: color-mix(in srgb, var(--primary-light) 68%, var(--surface));
-  color: var(--text);
-}
-
-.history-import-file-field input[type="file"]:active::file-selector-button {
-  background: color-mix(in srgb, var(--primary-light) 82%, var(--primary) 18%);
-}
-
-.history-import-file-field input[type="file"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.56;
-}
-
-.history-import-file-field input[type="file"]:disabled::file-selector-button {
-  cursor: not-allowed;
 }
 
 .history-import-summary {

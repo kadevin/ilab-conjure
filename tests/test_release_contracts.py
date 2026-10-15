@@ -233,7 +233,7 @@ class ReleaseContractTests(unittest.TestCase):
             for path in sorted((ROOT / ".github" / "workflows").glob("*.yml"))
         )
         uses = re.findall(r"^\s*uses:\s*([^@\s]+)@([^\s#]+)(?:\s+#\s*(\S+))?", workflows, re.MULTILINE)
-        self.assertGreater(len(uses), 0)
+        self.assertTrue(set(PINNED_ACTIONS).issubset({action for action, _, _ in uses}))
 
         for action, revision, comment in uses:
             self.assertRegex(revision, r"^[0-9a-f]{40}$", action)

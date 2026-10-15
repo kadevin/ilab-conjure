@@ -13,12 +13,13 @@ export interface LegacyMethods {
       requestSeq?: number;
       taskGroups?: Array<{ key: string; count: number; tasks?: WebUITask[] }>;
       sync?: { instance: string; revision: number } | undefined;
+      signal?: AbortSignal | undefined;
     },
   ): Promise<boolean | void>;
   applyTaskUpdate(task: WebUITask | null | undefined): void;
-  ensureSelectedTaskDetail(taskId?: string | null): Promise<WebUITask | null> | WebUITask | null;
+  ensureSelectedTaskDetail(taskId?: string | null, options?: { signal?: AbortSignal | undefined }): Promise<WebUITask | null> | WebUITask | null;
   notifyTaskUpdate(previousTask: WebUITask | null | undefined, nextTask: WebUITask | null | undefined): void;
-  refreshTasks(options?: { migrateLegacyArchives?: boolean }): Promise<boolean | void>;
+  refreshTasks(options?: { migrateLegacyArchives?: boolean; signal?: AbortSignal | undefined }): Promise<boolean | void>;
   updateDocumentTitle(): void;
   updateTaskInState(task: WebUITask | null | undefined): boolean;
   taskHasViewableUpdate(task: WebUITask | null | undefined): boolean;

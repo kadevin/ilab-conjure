@@ -106,6 +106,18 @@ class WebUIShortHeightContractTests(unittest.TestCase):
             self.responsive,
             r"\.controls-col\s+\.panel-heading h2[\s\S]*clip-path:\s*inset\(50%\)",
         )
+        self.assertNotRegex(
+            self.responsive,
+            r"\.controls-col\s+\.panel-heading h2\s*,\s*\.controls-col\s+\.output-settings-header h2\s*\{[^}]*clip",
+        )
+        self.assertRegex(
+            self.responsive,
+            r"\.controls-col\s+\.upload-tile\s+\.icon\s*\{[^}]*width:\s*clamp\(22px,[^}]*30px\)",
+        )
+        self.assertRegex(
+            self.responsive,
+            r"\.controls-col\s+\.upload-title\s*\{[^}]*font-size:\s*clamp\(11px,[^}]*13px\)[^}]*line-height:\s*1\.1",
+        )
 
     def test_compact_topbar_subtracts_its_real_height_from_both_columns(self) -> None:
         marker = "@media (max-height: 1390px) and (min-width: 900px) and (max-width: 1180px)"

@@ -314,6 +314,25 @@ MODEL_MANIFESTS = (
         expand_advanced_parameters=True,
     ),
     ModelManifest(
+        id="nano-banana-2.1",
+        family_id="gemini-image",
+        display_name="Nano Banana 2.1",
+        official_model_id="gemini-nano-banana-2.1",
+        version=MODEL_MANIFEST_VERSION,
+        operations=_ALL_OPERATIONS,
+        parameters=_nano_parameters(
+            ("1K", "2K", "4K"),
+            _NANO_COMMON_ASPECT_RATIOS + ("1:4", "1:8", "4:1", "8:1"),
+            google_search=True,
+        ),
+        input_constraints=InputConstraints(
+            max_images=14,
+            supports_mask=False,
+            supports_reference_files=False,
+        ),
+        expand_advanced_parameters=True,
+    ),
+    ModelManifest(
         id="nano-banana-2",
         family_id="gemini-image",
         display_name="Nano Banana 2",

@@ -25,7 +25,7 @@ PNG_B64 = (
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgaPgPAAIDAYAkYfWXAAAAAElFTkSuQmCC"
 )
 PNG_BYTES = base64.b64decode(PNG_B64)
-LONG_RELAY_NAME = "Fixture Multi-Model Relay — GPT Image 2 + Nano Banana Pro/2/Lite"
+LONG_RELAY_NAME = "Fixture Multi-Model Relay — GPT Image 2 + Nano Banana Pro/2.1/2/Lite"
 
 
 def _binding(
@@ -64,7 +64,7 @@ def fixture_settings(base_url: str) -> dict[str, Any]:
                 "openai_images",
                 "gemini_openai_images",
             )
-            for model_id in ("nano-banana-pro", "nano-banana-2", "nano-banana-2-lite")
+            for model_id in ("nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite")
         ],
     ]
     native_gemini_bindings = [
@@ -75,7 +75,7 @@ def fixture_settings(base_url: str) -> dict[str, Any]:
             "gemini_generate_content",
             "gemini_generate_content_image",
         )
-        for model_id in ("nano-banana-pro", "nano-banana-2", "nano-banana-2-lite")
+        for model_id in ("nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite")
     ]
     openai_gemini_bindings = [
         _binding(
@@ -85,7 +85,7 @@ def fixture_settings(base_url: str) -> dict[str, Any]:
             "openai_images",
             "gemini_openai_images",
         )
-        for model_id in ("nano-banana-pro", "nano-banana-2", "nano-banana-2-lite")
+        for model_id in ("nano-banana-pro", "nano-banana-2.1", "nano-banana-2", "nano-banana-2-lite")
     ]
     providers = [
         {
@@ -138,6 +138,7 @@ def fixture_settings(base_url: str) -> dict[str, Any]:
             for model_id in (
                 "gpt-image-2",
                 "nano-banana-pro",
+                "nano-banana-2.1",
                 "nano-banana-2",
                 "nano-banana-2-lite",
             )
@@ -400,7 +401,12 @@ def build_fixture_app(root: Path, *, host: str, port: int, auto_start_queue: boo
     def gemini_models(request: Request):
         record(request, {}, 200)
         if request.query_params.get("pageToken") == "fixture-page-2":
-            return {"models": [{"name": "models/gemini-3.1-flash-image"}]}
+            return {
+                "models": [
+                    {"name": "models/gemini-3.1-flash-image"},
+                    {"name": "models/gemini-nano-banana-2.1"},
+                ],
+            }
         return {
             "models": [{"name": "models/gemini-3-pro-image"}],
             "nextPageToken": "fixture-page-2",

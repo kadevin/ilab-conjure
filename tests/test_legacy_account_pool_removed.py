@@ -1,51 +1,89 @@
 from __future__ import annotations
 
-import unittest
+import argparse
+from contextlib import chdir
+from html.parser import HTMLParser
+import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+
+from codex_image.cli import build_parser
+from codex_image.webui.app import create_app
+from tests.helpers import TEST_PNG_BYTES
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class LegacyAccountPoolRemovalTests(unittest.TestCase):
-    def test_removed_account_pool_name_does_not_appear_in_tracked_sources(self) -> None:
-        forbidden = ("Cock" + "pit", "cock" + "pit")
-        ignored_dirs = {
-            ".git",
-            ".mypy_cache",
-            ".playwright-cli",
-            ".pytest_cache",
-            ".venv",
-            ".worktrees",
-            ".dist",
-            "dist",
-            "node_modules",
-            "output",
-            "outputs",
-            "public-repos",
-        }
-        ignored_suffixes = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".db", ".sqlite", ".zip"}
-        allowed_paths = {Path("tests/test_legacy_account_pool_removed.py")}
-        hits: list[str] = []
+    def test_entrypoint_check_preserves_callers_legacy_data(self) -> None:
+        with TemporaryDirectory(prefix="conjure-entrypoint-isolation-") as temporary:
+            root = Path(temporary)
+            task = Path("output/webui/isolation-task")
+            gallery = Path("output/webui-gallery/isolation-gallery")
+            expected = {
+                task / "metadata.json": json.dumps({
+                    "task_id": "isolation-task", "status": "completed",
+                    "output_files": ["image.png"], "params": {},
+                }).encode(),
+                task / "image.png": TEST_PNG_BYTES,
+                gallery / "metadata.json": b'{"id":"isolation-gallery"}',
+                gallery / "image.png": TEST_PNG_BYTES,
+            }
+            for relative, content in expected.items():
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(content)
 
-        for path in Path(".").rglob("*"):
-            if path.is_dir():
-                continue
-            if not path.is_file():
-                continue
-            if allowed_paths.intersection(path.parents) or path in allowed_paths:
-                continue
-            if any(part in ignored_dirs for part in path.parts):
-                continue
-            if path.suffix.lower() in ignored_suffixes:
-                continue
-            try:
-                text = path.read_text(encoding="utf-8")
-            except UnicodeDecodeError:
-                continue
-            for term in forbidden:
-                if term in text:
-                    hits.append(str(path))
-                    break
+            result = unittest.TestResult()
+            with chdir(root):
+                type(self)("test_retired_account_pool_has_no_cli_route_or_ui_entry").run(result)
+                self.assertEqual(Path.cwd(), root.resolve())
 
-        self.assertEqual([], sorted(hits))
+            for relative, content in expected.items():
+                path = root / relative
+                self.assertTrue(path.is_file(), f"Entrypoint check removed caller data: {relative}")
+                self.assertEqual(path.read_bytes(), content, str(relative))
+            self.assertTrue(result.wasSuccessful(), result.errors + result.failures)
+
+    def test_retired_account_pool_has_no_cli_route_or_ui_entry(self) -> None:
+        retired = ("cockpit", "account-pool", "account_pool", "accountpool")
+        commands = [
+            name
+            for action in build_parser()._actions
+            if isinstance(action, argparse._SubParsersAction)
+            for name in action.choices
+        ]
+        # create_app also migrates legacy data from paths relative to cwd.
+        with TemporaryDirectory() as temporary, chdir(temporary):
+            root = Path(temporary)
+            app = create_app(
+                output_root=root / "outputs",
+                api_settings_path=root / "api.json",
+                auth_settings_path=root / "auth.json",
+                webui_settings_path=root / "webui.json",
+                auth_checker=lambda: True, auto_start_queue=False,
+            )
+            routes = [route.path for route in app.routes]
+
+        class UIEntries(HTMLParser):
+            def __init__(self) -> None:
+                super().__init__()
+                self.entries: list[str] = []
+
+            def handle_starttag(self, tag, attrs) -> None:
+                self.entries.extend(
+                    value for name, value in attrs
+                    if name in ("id", "href", "action") and value
+                )
+
+        parser = UIEntries()
+        for page in ("index.html", "history.html"):
+            parser.feed((ROOT / "codex_image/webui/static" / page).read_text(encoding="utf-8"))
+        for entry in commands + routes + parser.entries:
+            with self.subTest(entry=entry):
+                self.assertFalse(any(name in entry.lower() for name in retired))
 
 
 if __name__ == "__main__":

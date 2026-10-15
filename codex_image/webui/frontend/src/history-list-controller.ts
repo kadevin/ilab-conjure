@@ -8,6 +8,7 @@ import { type HistoryLoadOptions, type HistoryLoadResult } from "./history-scrol
 import { type HistoryRenderPosition, type HistoryTask, type HistoryTaskPage } from "./history-types";
 import { captureHistoryScrollAnchor, historyTaskCards, historyWindowEdgeCursor, restoreHistoryScrollAnchor, type HistoryWindowDirection, type HistoryWindowEdge } from "./history-window";
 import { formatTranslation, translate } from "./i18n";
+import { taskUpdateIsOlder } from "./state-sync";
 
 export function createHistoryListController(deps: {
   filters: Pick<ReturnType<typeof createHistoryFiltersController>, "organization" | "supported" | "markUnsupported" | "historyPageQueryInput" | "queryParams" | "syncHistoryViewMode" | "snapshot">;
@@ -38,9 +39,11 @@ export function createHistoryListController(deps: {
     loadedTaskIds: new Set<string>(),
     loadedTaskSummaries: new Map<string, HistoryTask>(),
     requestId: 0,
+    windowRevision: 0,
   };
   const MAX_MOUNTED_TASK_CARDS = 300;
   let disposed = false;
+  let mountedRefreshId = 0;
   const pendingFrames = new Map<number, () => void>();
   function requestWindowFrame(callback: () => void): number {
     const frame = window.requestAnimationFrame(() => {
@@ -79,7 +82,9 @@ export function createHistoryListController(deps: {
       anchorTaskId: rawAnchorTaskId = "",
       anchor = null,
       throwOnError = false,
-    }: HistoryLoadOptions & { throwOnError?: boolean } = {},
+      signal,
+      preserveSelection = false,
+    }: HistoryLoadOptions & { throwOnError?: boolean; signal?: AbortSignal | undefined; preserveSelection?: boolean } = {},
   ): Promise<HistoryLoadResult> {
     const emptyResult: HistoryLoadResult = {
       anchorFound: null,
@@ -105,13 +110,22 @@ export function createHistoryListController(deps: {
     }
     historyState.loading = true;
     const requestId = ++historyState.requestId;
-    if (reset) {
+    const backgroundReset = reset && preserveSelection;
+    const initialWindowRevision = historyState.windowRevision;
+    const initialScrollTop = els.taskList?.scrollTop ?? 0;
+    const restoreLoadMore = () => setLoadMoreState(historyState.exhausted ? translate("history.noMore") : "", {
+      hidden: !historyState.exhausted, busy: false,
+    });
+    const clearWindow = () => {
       historyState.nextCursor = null;
       historyState.newerExhausted = true;
       historyState.exhausted = false;
       historyState.loadedTaskIds.clear();
       historyState.loadedTaskSummaries.clear();
-      deps.resetSelectionForLoad();
+    };
+    if (reset && !backgroundReset) {
+      clearWindow();
+      if (!preserveSelection) deps.resetSelectionForLoad();
       if (els.taskList) els.taskList.innerHTML = "";
       deps.renderToolbar();
     }
@@ -130,8 +144,9 @@ export function createHistoryListController(deps: {
         );
       }
       const requestPage = async (url: string): Promise<HistoryTaskPage> => {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: signal ?? null });
         const data = await response.json() as HistoryTaskPage;
+        signal?.throwIfAborted();
         if (!response.ok) {
           throw new Error(data.detail || translate("history.tasksFailed"));
         }
@@ -183,7 +198,17 @@ export function createHistoryListController(deps: {
       if (requestId !== historyState.requestId) return emptyResult;
       const tasks = data.tasks || [];
       validateOrganizationRows(tasks);
+      // Commit a background replacement only after a successful read. A user
+      // who scrolls, edits or receives a push keeps that newer window.
+      if (backgroundReset && (historyState.windowRevision !== initialWindowRevision
+        || Math.abs((els.taskList?.scrollTop ?? 0) - initialScrollTop) > 8)) {
+        restoreLoadMore();
+        return emptyResult;
+      }
+      const focus = backgroundReset ? view.captureFocus() : null;
+      if (backgroundReset) clearWindow();
       renderTasks(tasks, { position: reset ? "replace" : direction === "previous" ? "prepend" : "append" });
+      view.restoreFocus(focus);
       if (direction === "previous") {
         historyState.newerExhausted = !data.previous_cursor || !tasks.length;
       } else {
@@ -202,6 +227,16 @@ export function createHistoryListController(deps: {
         taskCount: tasks.length,
       };
     } catch (error) {
+      if (signal?.aborted) {
+        if (requestId === historyState.requestId) restoreLoadMore();
+        if (throwOnError) throw error;
+        return emptyResult;
+      }
+      if (requestId !== historyState.requestId) return emptyResult;
+      if (backgroundReset && historyState.windowRevision !== initialWindowRevision) {
+        restoreLoadMore();
+        return emptyResult;
+      }
       if (requestId === historyState.requestId) {
         const message = errorMessage(error, translate("history.tasksFailed"));
         if (els.taskList && historyTaskCards(els.taskList).length) {
@@ -209,9 +244,9 @@ export function createHistoryListController(deps: {
         } else {
           renderTaskListMessage("history-error", message);
         }
-        if (direction === "previous") {
+        if (!backgroundReset && direction === "previous") {
           historyState.newerExhausted = false;
-        } else {
+        } else if (!backgroundReset) {
           historyState.exhausted = false;
         }
         setLoadMoreState(translate("history.loadFailed"));
@@ -221,6 +256,55 @@ export function createHistoryListController(deps: {
     } finally {
       if (requestId === historyState.requestId) historyState.loading = false;
     }
+  }
+
+  async function refreshMountedTasks({ signal }: { signal?: AbortSignal | undefined } = {}): Promise<void> {
+    if (disposed || historyState.loading || !historyState.loadedTaskSummaries.size) return;
+    const requestId = historyState.requestId;
+    const refreshId = ++mountedRefreshId;
+    const before = new Map(historyState.loadedTaskSummaries);
+    const beforeKeys = new Map([...before].map(([id, task]) => [id, JSON.stringify(task)]));
+    const response = await fetch("/api/task-history/tasks/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task_ids: [...before.keys()] }),
+      signal: signal ?? null,
+    });
+    const data = await response.json();
+    signal?.throwIfAborted();
+    if (disposed || requestId !== historyState.requestId || refreshId !== mountedRefreshId) return;
+    if (!response.ok || !Array.isArray(data.tasks)) throw new Error(data.detail || translate("history.tasksFailed"));
+    const incoming = new Map<string, HistoryTask>(data.tasks.map((task: HistoryTask) => [task.task_id, task]));
+    const updates: HistoryTask[] = [];
+    const removedTaskIds: string[] = [];
+    for (const [taskId, previous] of before) {
+      // A newer push or user action owns any card changed during this request.
+      if (historyState.loadedTaskSummaries.get(taskId) !== previous
+        || JSON.stringify(previous) !== beforeKeys.get(taskId)) continue;
+      const task = incoming.get(taskId);
+      if (task && taskUpdateIsOlder(previous, task)) continue;
+      if (!task || !historyTaskMatchesCurrentArchiveFilter(task)
+        || !taskMatchesHistoryOrganizationFilters(task, deps.filters.organization())) {
+        removedTaskIds.push(taskId);
+      } else if (JSON.stringify(task) !== beforeKeys.get(taskId)) {
+        updates.push(task);
+      }
+    }
+    if (!updates.length && !removedTaskIds.length) return;
+    refreshHistoryWindowAfterMutation(() => {
+      for (const taskId of removedTaskIds) {
+        historyState.loadedTaskIds.delete(taskId);
+        historyState.loadedTaskSummaries.delete(taskId);
+        deps.dropSelection(taskId);
+        historyTaskCardElement(taskId)?.remove();
+      }
+      for (const task of updates) {
+        historyState.loadedTaskSummaries.set(task.task_id, task);
+        const card = historyTaskCardElement(task.task_id);
+        if (card) view.replaceCard(card, deps.renderCard(task));
+      }
+    }, { removedTaskIds });
+    deps.reconcileSelection();
   }
 
   function taskWindowCursor(reset: boolean, direction: HistoryWindowDirection): string | null {
@@ -264,6 +348,7 @@ export function createHistoryListController(deps: {
     mutate: () => void,
     options: { removedTaskIds?: string[] } = {},
   ): void {
+    historyState.windowRevision++;
     if (!els.taskList) {
       mutate();
       return;
@@ -429,6 +514,7 @@ export function createHistoryListController(deps: {
     setLoadMoreState,
     maybeLoadMoreFromScroll,
     loadTasks,
+    refreshMountedTasks,
     removeHistoryTaskIdsFromWindow,
     applyHistoryOrganizations,
     upsertHistoryTaskSummaryCard,

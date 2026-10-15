@@ -19,6 +19,8 @@ jobs:
     name: Python tests (${{ matrix.python-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      ILAB_SKIP_PURE_FRONTEND_TESTS: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -118,6 +120,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Python for the frontend test runner
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.13"
+
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
@@ -126,6 +133,9 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Run pure frontend behavior tests
+        run: python -m tests.frontend_runner
 
       - name: Check WebUI frontend
         run: npm run check:webui

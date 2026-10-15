@@ -520,8 +520,9 @@ function handlePreviewGridClick(event: any) {
   if (!target) return;
   if (target.closest("[data-download-output-url]")) return;
   if (target.closest("[data-preview-provider-settings]")) { legacyMethod("openApiSettingsModal"); return; }
-  if (target.closest("[data-preview-edit-inputs]")) {
-    getLegacyBridge().methods.showGenerationEditor?.();
+  const editButton = target.closest("[data-preview-edit-inputs]") as HTMLElement | null;
+  if (editButton) {
+    void legacyMethod("editTaskInputs", editButton.dataset.previewEditInputs);
     return;
   }
   const retryButton = target.closest("[data-preview-retry-failed-task-id]") as HTMLElement | null;
@@ -870,7 +871,7 @@ function retryFailureSummaryButton(task: any) {
     actions.push(`<button type="button" class="ghost-button text-sm" data-preview-provider-settings>${escapeHtml(translate("ux.checkProvider"))}</button>`);
   }
   if (taskRecoveryKind(task) === "input") {
-    actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs>${escapeHtml(translate("ux.editInputs"))}</button>`);
+    actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs="${taskId}">${escapeHtml(translate("ux.editInputs"))}</button>`);
   }
   if (canRetryFailedTask(task)) {
     actions.push(`<button class="ghost-button text-sm" type="button" data-preview-retry-failed-task-id="${taskId}">${escapeHtml(translate("preview.retryFailed"))}</button>`);

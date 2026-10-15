@@ -175,11 +175,7 @@
 .user-config-section-row input,
 .user-config-sensitive-row input,
 .user-config-replace-ack input {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
   margin: 2px 0 0;
-  accent-color: var(--primary);
 }
 
 .user-config-sensitive-row {
@@ -277,13 +273,6 @@
 .user-config-stage-heading span {
   color: var(--text-muted);
   font-size: 12px;
-}
-
-#userConfigRestoreFile {
-  max-width: 100%;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 13px;
 }
 
 .user-config-restore-stage {

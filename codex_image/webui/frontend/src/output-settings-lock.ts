@@ -497,6 +497,7 @@ function lockOutputSettings(): void {
 }
 
 function unlockOutputSettings(): void {
+  if (!locked) return;
   if (lockedSnapshot) applySnapshot(lockedSnapshot);
   locked = false;
   lockedSnapshot = null;
@@ -533,6 +534,7 @@ export function initOutputSettingsLockFeature(): void {
   initialized = true;
   Object.assign(getLegacyBridge().methods, {
     isOutputSettingsLocked,
+    unlockOutputSettings,
     restoreOutputSettingsLock,
     refreshOutputSettingsLock,
     showLockedOutputSettings,

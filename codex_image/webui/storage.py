@@ -869,6 +869,10 @@ class TaskStorage:
         self.refresh_stale_task_index()
         return self.history_query.summary()
 
+    def task_history_summaries(self, task_ids: list[str]) -> list[dict[str, Any]]:
+        self.refresh_stale_task_index()
+        return self.history_query.summaries_for_task_ids(task_ids)
+
     def query_task_history(
         self,
         *,

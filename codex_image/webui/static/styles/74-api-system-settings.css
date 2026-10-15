@@ -250,12 +250,6 @@
   white-space: nowrap;
 }
 
-.notification-option-row input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary);
-}
-
 .api-settings-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -478,11 +472,14 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
+  min-height: 28px;
+  padding: 4px;
   overflow: hidden;
   color: var(--text-secondary);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .provider-binding-toggle span {
@@ -492,11 +489,9 @@
   white-space: nowrap;
 }
 
-.provider-binding-toggle input {
-  flex: 0 0 auto;
-  width: 15px;
-  height: 15px;
-  accent-color: var(--primary);
+.provider-binding-toggle:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 @media (max-width: 620px) {

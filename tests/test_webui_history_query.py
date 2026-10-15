@@ -4,17 +4,42 @@ from contextlib import closing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+from tests.helpers import history_storage
+
 
 
 class HistoryQueryTests(unittest.TestCase):
-    def _storage(self, root: Path):
-        from codex_image.webui.storage import TaskStorage
 
-        return TaskStorage(
-            root / "outputs",
-            input_root=root / "inputs",
-            source_data_root=root / "source-data",
-        )
+    def test_refresh_mounted_summaries_is_bounded_and_preserves_history_shape(self) -> None:
+        from contextlib import chdir
+        from fastapi.testclient import TestClient
+        from codex_image.webui.app import create_app
+
+        with TemporaryDirectory() as tmp, chdir(tmp):
+            root = Path(tmp)
+            app = create_app(
+                output_root=root / "outputs", api_settings_path=root / "api.json",
+                auth_settings_path=root / "auth.json", webui_settings_path=root / "webui.json",
+                auth_checker=lambda: True, auto_start_queue=False,
+            )
+            storage = app.state.storage
+            for number in range(3):
+                self._write_task(storage, f"task-{number}", f"2026-10-13T10:0{number}:00Z")
+            storage.mutate_metadata("task-0", lambda task: task.update(status="failed", failed_count=1))
+            client = TestClient(app)
+            page = client.get("/api/task-history/tasks").json()["tasks"]
+            refreshed = client.post("/api/task-history/tasks/refresh", json={
+                "task_ids": ["task-0", "missing", "task-2", "task-0"],
+            })
+            self.assertEqual(refreshed.status_code, 200)
+            tasks = refreshed.json()["tasks"]
+            self.assertEqual([task["task_id"] for task in tasks], ["task-0", "task-2"])
+            by_id = {task["task_id"]: task for task in page}
+            self.assertEqual(tasks, [by_id["task-0"], by_id["task-2"]])
+            self.assertEqual(tasks[0]["status"], "failed")
+            for ids in ([], ["../invalid"], [f"task-{n}" for n in range(301)]):
+                self.assertEqual(client.post("/api/task-history/tasks/refresh", json={"task_ids": ids}).status_code, 422)
+            self.assertEqual(client.post("/api/task-history/tasks/refresh", json={"task_ids": [f"task-{n}" for n in range(300)]}).status_code, 200)
 
     def _write_task(
         self,
@@ -48,7 +73,7 @@ class HistoryQueryTests(unittest.TestCase):
         storage.write_metadata(task_id, metadata)
 
     def _organized_storage(self, root: Path):
-        storage = self._storage(root)
+        storage = history_storage(root)
         self._write_task(
             storage,
             "task-a",
@@ -235,7 +260,7 @@ class HistoryQueryTests(unittest.TestCase):
     def test_history_page_batches_organization_queries(self) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_ids = []
             for index in range(100):
                 task_id = f"task-{index:03d}"
@@ -292,7 +317,7 @@ class HistoryQueryTests(unittest.TestCase):
     ) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             with closing(
                 storage.task_index._connect()
             ) as connection:

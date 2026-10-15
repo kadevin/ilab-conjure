@@ -78,6 +78,93 @@ test("failed ordinary pagination remains retryable and does not claim exhaustion
   const list = createHistoryListController(listPorts()); await assert.rejects(list.loadTasks({ reset: true, throwOnError: true }), /offline/);
   assert.equal(list.status().exhausted, false); await list.loadTasks({ reset: true }); assert.equal(n, 2);
 });
+test("realtime history requests honor cancellation and release loading for retry", async t => {
+  environment(t);
+  const list = createHistoryListController(listPorts());
+  const filters = createHistoryFiltersController({
+    selectedTaskId: () => "", selectLocationTask: noop, resetSelection: noop,
+    clearDeleteConfirmation: noop, loadTasks: list.loadTasks, scheduleLayout: noop,
+    loadedTasks: () => [], applyOrganizations: noop,
+  });
+  t.mock.method(globalThis, "fetch", (_url, options) => new Promise<Response>((_resolve, reject) => {
+    options?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
+  }));
+  const controller = new AbortController();
+  const summary = filters.loadSummary({ signal: controller.signal, throwOnError: true });
+  const page = list.loadTasks({ reset: true, signal: controller.signal, throwOnError: true });
+  controller.abort();
+  await assert.rejects(summary, { name: "AbortError" });
+  await assert.rejects(page, { name: "AbortError" });
+  assert.equal(list.status().loading, false);
+  assert.equal(list.status().exhausted, false);
+});
+
+test("mounted refresh updates summaries, drops deleted cards and rejects results after a new query", async t => {
+  const taskList = { ...element(), getBoundingClientRect: () => ({ top: 0 }) };
+  environment(t, { "#historyTaskList": taskList });
+  const ports = listPorts();
+  const dropped: string[] = [];
+  ports.dropSelection = (id: string) => dropped.push(id);
+  const list = createHistoryListController(ports);
+  const tasks = [{ task_id: "a", status: "running", tags: [] }, { task_id: "b", status: "completed", tags: [] }];
+  t.mock.method(globalThis, "fetch", async () => response({ tasks, next_cursor: "next" }));
+  await list.loadTasks({ reset: true });
+  t.mock.method(globalThis, "fetch", async (_url, options) => {
+    assert.deepEqual(JSON.parse(String(options?.body)).task_ids, ["a", "b"]);
+    return response({ tasks: [{ ...tasks[0], status: "completed" }] });
+  });
+  await list.refreshMountedTasks();
+  assert.equal(list.historyTaskSummary("a")?.status, "completed");
+  assert.equal(list.historyTaskSummary("b"), null);
+  assert.deepEqual(dropped, ["b"]);
+  assert.equal(list.status().exhausted, false);
+  const pending = deferred<Response>();
+  t.mock.method(globalThis, "fetch", () => pending.promise);
+  const stale = list.refreshMountedTasks();
+  t.mock.method(globalThis, "fetch", async () => response({ tasks: [{ task_id: "c", status: "failed", tags: [] }], next_cursor: null }));
+  await list.loadTasks({ reset: true });
+  pending.resolve(response({ tasks: [] }));
+  await stale;
+  assert.equal(list.historyTaskSummary("c")?.status, "failed");
+});
+test("mounted refresh preserves user edits made in flight and ignores canceled results", async t => {
+  const taskList = { ...element(), getBoundingClientRect: () => ({ top: 0 }) };
+  environment(t, { "#historyTaskList": taskList });
+  const list = createHistoryListController(listPorts());
+  t.mock.method(globalThis, "fetch", async () => response({ tasks: [{ task_id: "a", status: "running", tags: [], favorite: false }], next_cursor: null }));
+  await list.loadTasks({ reset: true });
+  const pending = deferred<Response>();
+  t.mock.method(globalThis, "fetch", () => pending.promise);
+  const refresh = list.refreshMountedTasks();
+  list.applyHistoryOrganizations({ a: { favorite: true, tags: [] } });
+  pending.resolve(response({ tasks: [{ task_id: "a", status: "running", tags: [], favorite: false }] }));
+  await refresh;
+  assert.equal(list.historyTaskSummary("a")?.favorite, true);
+  const canceled = deferred<Response>();
+  const controller = new AbortController();
+  t.mock.method(globalThis, "fetch", () => canceled.promise);
+  const result = list.refreshMountedTasks({ signal: controller.signal });
+  controller.abort();
+  canceled.resolve(response({ tasks: [] }));
+  await assert.rejects(result, { name: "AbortError" });
+  assert.equal(list.historyTaskSummary("a")?.favorite, true);
+});
+test("background top reload preserves multi-selection and touch mode while explicit reload resets them", async t => {
+  environment(t);
+  const selection = createHistorySelectionModel();
+  const ports = listPorts();
+  ports.resetSelectionForLoad = () => selection.dispatch({ type: "reload" });
+  const list = createHistoryListController(ports);
+  selection.dispatch({ type: "replace", ids: ["a", "b"], primary: "b", anchor: "b" });
+  selection.dispatch({ type: "enter-touch" });
+  t.mock.method(globalThis, "fetch", async () => response({ tasks: [], next_cursor: null }));
+  await list.loadTasks({ reset: true, preserveSelection: true });
+  assert.deepEqual([...selection.snapshot().selectedTaskIds], ["a", "b"]);
+  assert.equal(selection.snapshot().selectionMode, true);
+  await list.loadTasks({ reset: true });
+  assert.deepEqual([...selection.snapshot().selectedTaskIds], ["b"]);
+  assert.equal(selection.snapshot().selectionMode, false);
+});
 test("detail B then A renders B and rejects A's late result", async t => {
   const panel = element(); environment(t, { "#historyDetail": panel });
   const a = deferred<Response>(), b = deferred<Response>(); let n = 0;
@@ -86,6 +173,116 @@ test("detail B then A renders B and rejects A's late result", async t => {
   b.resolve(response({ task: { task_id: "b", status: "completed" } })); await current;
   a.resolve(response({ task: { task_id: "a" } })); await old;
   assert.equal(details.task().task_id, "b"); assert.equal(panel.dataset.historyDetailMode, "task");
+});
+
+test("failed and canceled background reloads retain the loaded history window", async t => {
+  const taskList = { ...element(), getBoundingClientRect: () => ({ top: 0 }) };
+  environment(t, { "#historyTaskList": taskList });
+  const list = createHistoryListController(listPorts());
+  t.mock.method(globalThis, "fetch", async () => response({ tasks: [{ task_id: "a", status: "running", tags: [] }], next_cursor: "next" }));
+  await list.loadTasks({ reset: true });
+  const before = list.summaries();
+  const pending = deferred<Response>();
+  t.mock.method(globalThis, "fetch", () => pending.promise);
+  const load = list.loadTasks({ reset: true, preserveSelection: true, throwOnError: true });
+  assert.deepEqual(list.summaries(), before, "keep the current window while reading");
+  pending.resolve(response({ detail: "offline" }, false));
+  await assert.rejects(load, /offline/);
+  assert.deepEqual(list.summaries(), before);
+  const controller = new AbortController();
+  t.mock.method(globalThis, "fetch", async () => { controller.abort(); return response({ tasks: [] }); });
+  await assert.rejects(list.loadTasks({ reset: true, preserveSelection: true, signal: controller.signal, throwOnError: true }), { name: "AbortError" });
+  assert.deepEqual(list.summaries(), before);
+  assert.ok(!taskList.innerHTML.includes("aborted"));
+});
+
+test("history detail follows refreshed task data and rejects an older background read", async t => {
+  const panel = element(); environment(t, { "#historyDetail": panel });
+  let summary = { task_id: "a", status: "running", updated_at: "2026-10-15T00:00:00Z" };
+  const ports = detailPorts(); ports.list.historyTaskSummary = () => summary;
+  const details = createHistoryDetailController(ports);
+  t.mock.method(globalThis, "fetch", async () => response({ task: summary }));
+  await details.loadTaskDetail("a");
+  summary = { ...summary, status: "completed", updated_at: "2026-10-15T00:01:00Z" };
+  t.mock.method(globalThis, "fetch", async () => response({ task: { ...summary, output_urls: ["/synthetic.png"] } }));
+  await details.refreshTaskDetail();
+  assert.equal(details.task().status, "completed");
+  assert.deepEqual(details.task().output_urls, ["/synthetic.png"]);
+  summary = { ...summary, status: "queued", updated_at: "2026-10-15T00:02:00Z" };
+  const pending = deferred<Response>(); t.mock.method(globalThis, "fetch", () => pending.promise);
+  const old = details.refreshTaskDetail();
+  const newest = { ...summary, status: "failed", updated_at: "2026-10-15T00:03:00Z" };
+  await details.refreshTaskDetail({ task: newest });
+  pending.resolve(response({ task: summary })); await old;
+  assert.equal(details.task().status, "failed");
+  assert.equal(details.task().updated_at, newest.updated_at);
+  assert.equal(details.task().output_urls, undefined, "removed output fields must not survive a full update");
+});
+
+test("background reload does not pull a user back after scrolling during the request", async t => {
+  const taskList = { ...element(), scrollTop: 0, getBoundingClientRect: () => ({ top: 0 }) };
+  environment(t, { "#historyTaskList": taskList });
+  const list = createHistoryListController(listPorts());
+  t.mock.method(globalThis, "fetch", async () => response({ tasks: [{ task_id: "a", tags: [] }], next_cursor: "next" }));
+  await list.loadTasks({ reset: true });
+  const pending = deferred<Response>(); t.mock.method(globalThis, "fetch", () => pending.promise);
+  const load = list.loadTasks({ reset: true, preserveSelection: true });
+  taskList.scrollTop = 420;
+  pending.resolve(response({ tasks: [{ task_id: "new", tags: [] }], next_cursor: null })); await load;
+  assert.equal(list.summaries()[0].task_id, "a");
+  assert.equal(taskList.scrollTop, 420); assert.equal(list.status().loading, false);
+});
+
+test("background top reload cannot undo a favorite edit or resurrect a removed task", async t => {
+  const taskList = { ...element(), scrollTop: 0, getBoundingClientRect: () => ({ top: 0 }) };
+  environment(t, { "#historyTaskList": taskList });
+  const list = createHistoryListController(listPorts());
+  const tasks = [{ task_id: "a", status: "completed", tags: [], favorite: false }];
+  for (const mutation of ["favorite", "remove"]) {
+    t.mock.method(globalThis, "fetch", async () => response({ tasks: structuredClone(tasks), next_cursor: "next" }));
+    await list.loadTasks({ reset: true });
+    const pending = deferred<Response>(); t.mock.method(globalThis, "fetch", () => pending.promise);
+    const load = list.loadTasks({ reset: true, preserveSelection: true });
+    if (mutation === "favorite") list.applyHistoryOrganizations({ a: { favorite: true, tags: [] } });
+    else list.removeHistoryTaskIdsFromWindow(["a"]);
+    pending.resolve(response({ tasks: structuredClone(tasks), next_cursor: null })); await load;
+    if (mutation === "favorite") assert.equal(list.historyTaskSummary("a")?.favorite, true);
+    else assert.equal(list.historyTaskSummary("a"), null);
+    assert.equal(list.status().loading, false);
+  }
+});
+
+test("a failed background detail read preserves the open detail and honors cancellation", async t => {
+  const panel = element(), result = element(); environment(t, { "#historyDetail": panel, "#historyResultSummary": result });
+  const ports = detailPorts(); ports.list.historyTaskSummary = () => ({ task_id: "a", updated_at: "2026-10-15T00:01:00Z" });
+  const details = createHistoryDetailController(ports);
+  t.mock.method(globalThis, "fetch", async () => response({ task: { task_id: "a", status: "running" } }));
+  await details.loadTaskDetail("a"); const before = panel.innerHTML;
+  t.mock.method(globalThis, "fetch", async () => response({ detail: "local detail unavailable" }, false));
+  await details.refreshTaskDetail(); assert.equal(panel.innerHTML, before); assert.equal(result.textContent, "local detail unavailable");
+  const controller = new AbortController();
+  t.mock.method(globalThis, "fetch", async () => { controller.abort(); return response({ task: { task_id: "a", status: "failed" } }); });
+  await assert.rejects(details.refreshTaskDetail({ signal: controller.signal }), { name: "AbortError" });
+  assert.equal(panel.innerHTML, before); assert.equal(result.textContent, "local detail unavailable");
+});
+
+test("history summary rejects old results and canceled error messages", async t => {
+  const total = element(); environment(t, { "#historyTotal": total });
+  const filters = createHistoryFiltersController({ selectedTaskId: () => "", selectLocationTask: noop, resetSelection: noop,
+    clearDeleteConfirmation: noop, loadTasks: async () => ({ anchorFound: null, taskCount: 0 }), scheduleLayout: noop,
+    loadedTasks: () => [], applyOrganizations: noop });
+  const summary = (name: string, count: number) => ({ total: count, archived_total: 0, favorite_total: 0, untagged_total: 0,
+    tags: [{ tag_id: name, name }], months: [], ratios: [], orientations: [], backends: [] });
+  const pending = deferred<Response>(); t.mock.method(globalThis, "fetch", () => pending.promise);
+  const old = filters.loadSummary();
+  t.mock.method(globalThis, "fetch", async () => response(summary("new", 2)));
+  await filters.loadSummary(); const currentTotal = total.textContent;
+  pending.resolve(response(summary("old", 1))); await old;
+  assert.equal(total.textContent, currentTotal); assert.equal(filters.tags()[0].name, "new");
+  const controller = new AbortController();
+  t.mock.method(globalThis, "fetch", async () => { controller.abort(); throw controller.signal.reason; });
+  await assert.rejects(filters.loadSummary({ signal: controller.signal, throwOnError: true }), { name: "AbortError" });
+  assert.equal(total.textContent, currentTotal);
 });
 test("closing detail invalidates an outstanding request and clears selection", async t => {
   const panel = element(); environment(t, { "#historyDetail": panel }); const pending = deferred<Response>();

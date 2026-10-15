@@ -10,17 +10,11 @@ import unittest
 import zipfile
 
 from fastapi.testclient import TestClient
+from tests.helpers import history_storage
+
 
 
 class HistoryExportServiceTests(unittest.TestCase):
-    def _storage(self, root: Path):
-        from codex_image.webui.storage import TaskStorage
-
-        return TaskStorage(
-            root / "outputs",
-            input_root=root / "inputs",
-            source_data_root=root / "source-data",
-        )
 
     def _write_task(
         self,
@@ -91,7 +85,7 @@ class HistoryExportServiceTests(unittest.TestCase):
     ) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_id = "20260726100000-aaaaaaaa"
             self._write_task(
                 storage,
@@ -156,7 +150,7 @@ class HistoryExportServiceTests(unittest.TestCase):
     ) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_id = "20260726100000-bbbbbbbb"
             self._write_task(
                 storage,
@@ -186,7 +180,7 @@ class HistoryExportServiceTests(unittest.TestCase):
     ) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_id = "20260726100000-cccccccc"
             self._write_task(
                 storage,
@@ -222,7 +216,7 @@ class HistoryExportServiceTests(unittest.TestCase):
     ) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             first = "20260726100000-dddddddd"
             second = "20260726100000-eeeeeeee"
             self._write_task(
@@ -266,7 +260,7 @@ class HistoryExportServiceTests(unittest.TestCase):
 
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             valid = "20260726100000-ffffffff"
             missing_file = "20260726100000-11111111"
             empty = "20260726100000-22222222"
@@ -318,7 +312,7 @@ class HistoryExportServiceTests(unittest.TestCase):
 
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             unsafe = "20260726100000-33333333"
             storage.write_metadata(
                 unsafe,
@@ -371,7 +365,7 @@ class HistoryExportServiceTests(unittest.TestCase):
 
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_id = "20260726100000-44444444"
             self._write_task(
                 storage,
@@ -414,7 +408,7 @@ class HistoryExportServiceTests(unittest.TestCase):
 
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            storage = self._storage(root)
+            storage = history_storage(root)
             task_id = "20260726100000-45454545"
             self._write_task(
                 storage,

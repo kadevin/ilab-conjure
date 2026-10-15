@@ -106,7 +106,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         html = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         action_panel = Path("codex_image/webui/frontend/src/history-action-panel.ts").read_text(encoding="utf-8")
-        styles = Path("codex_image/webui/static/styles/90-history.css").read_text(encoding="utf-8")
+        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
         for marker in (
             'id="historyBackupDialog"',
@@ -165,7 +165,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             ('history-transfer-ui', 'backupController.download(job)'),
             ('history-transfer-ui', 'await backupController.dismiss'),
             ('history-filters-controller', 'await loadSummary();'),
-            ('history', 'await list.loadTasks({ reset: true });'),
+            ('history', 'await list.loadTasks({ reset: true, throwOnError: true });'),
             ('history', 'event.key !== "Escape"'),
             ('history-transfer-ui', 'restoreHistoryDialogFocus'),
         ]:
@@ -408,7 +408,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             callback_match.group("body"),
         )
         self.assertIn(
-            "await list.loadTasks({ reset: true });",
+            "await list.loadTasks({ reset: true, signal, throwOnError: true, preserveSelection: true });",
             callback_match.group("body"),
         )
         self.assertIn("refreshHistoryTasks?.(task)", shell_source)
@@ -1496,6 +1496,9 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertRegex(source, r"if \(!wasActive\) \{\s*if \(!window.matchMedia\([^\n]+\)\.matches\) \{\s*showLightboxShortcutHint")
         self.assertNotIn("historyLightboxState.scale !== 1", source)
         self.assertNotIn("event.target === historyLightboxEl", source)
+        self.assertIn("lightboxActionForKey", source)
+        self.assertIn('event.key === "ArrowUp"', source)
+        self.assertIn('event.key === "ArrowDown"', source)
 
     def test_history_lightbox_peek_carousel_runtime_contract(self) -> None:
         node = shutil.which("node")
@@ -1722,8 +1725,6 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('class="history-filter-heading-icon"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeFilters"', html)
         self.assertIn('data-i18n-attr="aria-label:history.resizeDetail"', html)
-        self.assertIn('/static/styles.css?v=runtime-862', html)
-        self.assertIn('/static/history.js?v=history-162', html)
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*height:\s*100dvh")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.history-page\s*\{[^}]*--history-sidebar-width:\s*280px")

@@ -1661,6 +1661,10 @@ class WebUITaskTests(unittest.TestCase):
             accepted = client.post(f"/api/tasks/{task_id}/accept-successes")
             self.assertEqual(accepted.status_code, 200)
             self.assertEqual(len(accepted.json()["task"]["thumbnail_urls"]), 2)
+            for record in accepted.json()["task"]["outputs"]:
+                for field in ("thumbnail_url", "sidebar_thumbnail_url"):
+                    response = client.get(record[field])
+                    self.assertEqual(response.status_code, 200, record[field])
             for kind in ("thumbnail", "sidebar-thumbnail"):
                 response = client.get(f"/api/tasks/{task_id}/outputs/2/{kind}")
                 self.assertEqual(response.status_code, 200)

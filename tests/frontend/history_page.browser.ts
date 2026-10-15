@@ -1,6 +1,8 @@
 /** Real-page acceptance runner. Serve with /qa, /qa-baseline and 675 synthetic tasks.
  * The iframe uses the application's actual history bundle and backend. No user data.
  */
+import { loadAcceptanceFrame, prepareFixtureOrigin } from "./browser_acceptance";
+
 const variant = new URLSearchParams(location.search).get("variant") || "current";
 const frame = document.querySelector<HTMLIFrameElement>("#historyFrame")!;
 const output = document.querySelector<HTMLElement>("#results")!;
@@ -9,7 +11,11 @@ const errors: string[] = [];
 const pause = (ms = 60) => new Promise(done => setTimeout(done, ms));
 async function until(check: () => boolean, name: string, timeout = 12000) {
   const end = Date.now() + timeout;
-  while (!check()) { if (Date.now() > end) throw new Error(`Timeout: ${name}`); await pause(40); }
+  while (!check()) {
+    if (errors.length) throw new Error(`Application runtime failed: ${errors.join("; ")}`);
+    if (Date.now() > end) throw new Error(`Timeout: ${name}`);
+    await pause(40);
+  }
   await pause();
 }
 function check(name: string, condition: boolean, detail?: unknown) {
@@ -18,13 +24,11 @@ function check(name: string, condition: boolean, detail?: unknown) {
   if (!condition) throw new Error(name + ": " + JSON.stringify(detail));
 }
 async function run() {
+  await prepareFixtureOrigin();
   localStorage.removeItem("codex-image-history-location");
   localStorage.setItem("codex-image-locale-preference", "en");
-  frame.src = `${variant === "baseline" ? "/qa-baseline" : "/history"}?sort=oldest&view=list`;
-  await new Promise(done => frame.addEventListener("load", done, { once: true }));
+  await loadAcceptanceFrame(frame, `${variant === "baseline" ? "/qa-baseline" : "/qa-history"}?sort=oldest&view=list`, errors);
   const w = frame.contentWindow!, d = frame.contentDocument!;
-  w.addEventListener("error", event => errors.push(event.message));
-  w.addEventListener("unhandledrejection", event => errors.push(String(event.reason)));
   const find = (selector: string) => d.querySelector<HTMLElement>(selector)!;
   const list = find("#historyTaskList");
   const cards = () => Array.from(list.querySelectorAll<HTMLElement>(".history-task-card"));
@@ -37,8 +41,76 @@ async function run() {
   check("shared shell and desktop list loaded", Boolean(find(".history-top-nav")) && w.innerWidth === 1440 && cards().length >= 50);
   click('[data-history-task-id="qa-history-0000"]');
   await until(() => detail.dataset.historyDetailMode === "task", "single detail");
+  const methods = (w as any).__codexImageWebUI.methods;
+  const reuseControl = () => find('[data-history-reuse-task="qa-history-0000"]');
+  reuseControl().focus({ preventScroll: true });
+  const changedDetail = await fetch("/api/tasks/qa-history-0000/outputs/1/selected", {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selected: true }),
+  });
+  if (!changedDetail.ok) throw new Error("Could not update synthetic detail");
+  await methods.refreshTasks();
+  check("background polling updates the open detail and preserves its focus", Boolean(detail.querySelector(".history-detail-output-card.selected"))
+    && d.activeElement === reuseControl());
   click('[data-history-task-id="qa-history-0001"]', { ctrlKey: true });
   check("Ctrl selection switches detail to bulk panel", detail.dataset.historyDetailMode === "selection" && cards().filter(c => c.classList.contains("selected")).length === 2);
+  await (w as any).__codexImageWebUI.methods.refreshTasks();
+  check("background refresh at the top preserves multi-selection", list.scrollTop === 0
+    && cards().slice(0, 2).every(c => c.classList.contains("selected"))
+    && detail.dataset.historyDetailMode === "selection");
+  const originalFetch = w.fetch;
+  const focusedTop = () => find('[data-history-task-id="qa-history-0001"]');
+  focusedTop().focus({ preventScroll: true });
+  const beforeFailure = cards()[0];
+  try {
+    w.fetch = (input, options) => String(input).startsWith("/api/task-history/tasks?")
+      ? Promise.reject(new TypeError("synthetic background failure")) : originalFetch(input, options);
+    let failed = false;
+    try { await methods.refreshTasks(); } catch { failed = true; }
+    check("failed background top reload preserves cards, selection and focus", failed && cards()[0] === beforeFailure
+      && cards().slice(0, 2).every(card => card.classList.contains("selected")) && d.activeElement === focusedTop());
+  } finally { w.fetch = originalFetch; }
+  await methods.refreshTasks();
+  check("successful background top reload restores the focused task control", d.activeElement === focusedTop());
+  let releasePage: (() => void) | undefined;
+  let concurrentRefresh: Promise<void> | undefined;
+  try {
+    w.fetch = async (input, options) => {
+      const response = await originalFetch(input, options);
+      if (!String(input).startsWith("/api/task-history/tasks?")) return response;
+      return new Promise<Response>(resolve => { releasePage = () => resolve(response); });
+    };
+    concurrentRefresh = methods.refreshTasks();
+    await until(() => Boolean(releasePage), "delayed background page");
+    const favoriteSelector = '[data-history-favorite-task="qa-history-0001"]';
+    click(favoriteSelector);
+    await until(() => find(favoriteSelector).getAttribute("aria-pressed") === "true", "favorite edited during refresh");
+    releasePage!(); await concurrentRefresh;
+    check("late background page preserves a newer favorite edit", find(favoriteSelector).getAttribute("aria-pressed") === "true"
+      && cards().slice(0, 2).every(card => card.classList.contains("selected")));
+  } finally {
+    w.fetch = originalFetch;
+    releasePage?.();
+    await concurrentRefresh;
+  }
+  list.scrollTop = 380;
+  const focusedTaskId = "qa-history-0005";
+  const focusedControl = () => find(`[data-history-task-id="${focusedTaskId}"]`);
+  const beforeRefresh = focusedControl();
+  beforeRefresh.focus({ preventScroll: true });
+  const beforeScroll = list.scrollTop;
+  const favoriteResponse = await fetch("/api/task-history/organize", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ task_ids: [focusedTaskId], favorite: true }),
+  });
+  if (!favoriteResponse.ok) throw new Error("Could not update synthetic history task");
+  await (w as any).__codexImageWebUI.methods.refreshTasks();
+  check("mounted update retains keyboard focus, scroll and selection", focusedControl() !== beforeRefresh
+    && d.activeElement === focusedControl() && Math.abs(list.scrollTop - beforeScroll) <= 2
+    && cards().filter(c => c.classList.contains("selected")).length === 2);
+  const afterRefresh = focusedControl();
+  await (w as any).__codexImageWebUI.methods.refreshTasks();
+  check("unchanged polling retains the existing focused control", focusedControl() === afterRefresh && d.activeElement === afterRefresh);
+  list.scrollTop = 0;
   const seen = new Set(ids()); let anchorDelta: number | null = null;
   for (let n = 0; n < 20 && num(ids().at(-1)!) < 674; n++) {
     const last = ids().at(-1), count = cards().length;
@@ -96,11 +168,15 @@ async function run() {
   }
   click("[data-history-enter-selection-mode]"); click("[data-history-task-id]");
   check("mobile touch mode toggles task selection", find(".history-page").classList.contains("history-selection-mode"));
+  list.scrollTop = 0;
+  await (w as any).__codexImageWebUI.methods.refreshTasks();
+  check("background top refresh keeps mobile selection mode", find(".history-page").classList.contains("history-selection-mode")
+    && cards().filter(c => c.classList.contains("selected")).length === 1);
   click("[data-history-open-selection-actions]"); key("Escape");
   check("mobile drawer dismissal retains selection", /1/.test(find("#historySelectionDockCount").textContent || "") && !find(".history-page").classList.contains("history-detail-open"));
   check("no uncaught runtime errors", errors.length === 0, errors);
 }
 void run().catch(error => { results.push({ name: "runner", passed: false, detail: String(error) }); }).finally(async () => {
-  const report = { variant, passed: results.every(r => r.passed), results, errors };
+  const report = { variant, passed: results.length > 0 && results.every(r => r.passed) && errors.length === 0, results, errors };
   output.textContent = JSON.stringify(report); await fetch("/qa-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(report) });
 });
