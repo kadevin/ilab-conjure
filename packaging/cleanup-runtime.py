@@ -99,6 +99,14 @@ def cleanup_macos_runtime(runtime_dir: Path) -> None:
         if not version_dir.is_dir() or version_dir.name == "Current":
             continue
         headers_links.append(version_dir / "Headers")
+        # The official Tcl/Tk frameworks can also contain SDK aliases whose
+        # targets are absent. The outer App's strict signature check rejects
+        # these even when verification of Python.framework itself succeeds.
+        headers_links.extend(
+            nested / name
+            for nested in (version_dir / "Frameworks").glob("*.framework")
+            for name in ("Headers", "PrivateHeaders")
+        )
         for relative in ("include", "share"):
             _remove(version_dir / relative, root=runtime_dir)
         for stdlib in (version_dir / "lib").glob("python3.*"):
@@ -112,8 +120,8 @@ def cleanup_macos_runtime(runtime_dir: Path) -> None:
             root=runtime_dir,
         )
 
-    # Pruning include/ leaves framework Headers aliases dangling. Remove only
-    # broken aliases, from the version outwards; retain valid runtime/SDK links.
+    # Remove only broken SDK aliases, from the version outwards; retain valid
+    # runtime/SDK links, including nested Tcl/Tk framework resources.
     for headers in reversed(headers_links):
         if headers.is_symlink() and not headers.exists():
             _remove(headers, root=runtime_dir)

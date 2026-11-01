@@ -63,6 +63,29 @@ class MacOSRuntimeCleanupTests(unittest.TestCase):
                 cleanup.cleanup_macos_runtime(root)
                 self.assertEqual((framework / "Headers/Python.h").read_text(), "retained header")
 
+    def test_nested_framework_broken_sdk_aliases_are_removed_but_runtime_links_survive(self) -> None:
+        cleanup = load_cleanup_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            current = root / "Python.framework/Versions/3.14"
+            for name in ("Tcl", "Tk"):
+                nested = current / f"Frameworks/{name}.framework"
+                version = nested / "Versions/8.6"
+                (version / "Headers").mkdir(parents=True)
+                (version / name).write_bytes(b"runtime fixture")
+                (nested / "Versions/Current").symlink_to("8.6", target_is_directory=True)
+                (nested / "Headers").symlink_to("Versions/Current/Headers", target_is_directory=True)
+                (nested / "PrivateHeaders").symlink_to("Versions/Current/PrivateHeaders", target_is_directory=True)
+                (nested / name).symlink_to(f"Versions/Current/{name}")
+            for _ in range(2):
+                cleanup.cleanup_macos_runtime(root)
+                for name in ("Tcl", "Tk"):
+                    nested = current / f"Frameworks/{name}.framework"
+                    self.assertFalse((nested / "PrivateHeaders").is_symlink())
+                    self.assertTrue((nested / "Headers").is_dir())
+                    self.assertTrue((nested / name).is_symlink())
+                    self.assertEqual((nested / name).read_bytes(), b"runtime fixture")
+
     def test_cleanup_refuses_headers_link_target_outside_runtime(self) -> None:
         cleanup = load_cleanup_module()
         with tempfile.TemporaryDirectory() as tmp:
