@@ -3158,7 +3158,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.custom-size\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertNotRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.quantity-field\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"@media \(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.settings-grid\s*,\s*[\s\S]*\.custom-size\s*\{[\s\S]*transition:\s*none")
-        self.assertRegex(styles, r"@container output-settings \(max-width:\s*480px\)\s*\{[\s\S]*\.custom-size\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*max-content\)")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap")
     def test_custom_size_uses_compact_groups_and_quantity_rows_remain_balanced(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")

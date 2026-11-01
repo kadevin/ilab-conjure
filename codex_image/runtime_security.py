@@ -43,6 +43,9 @@ def pip_security_error(installed: str | None = None) -> str | None:
             installed = version("pip")
         except PackageNotFoundError:
             installed = "not installed"
+        except (FileNotFoundError, KeyError):
+            # Python 3.15 raises for missing METADATA or a missing Version field.
+            installed = None
     installed = _version_label(installed)
     match = re.fullmatch(r"(\d+)\.(\d+)(?:\.(\d+))?", installed)
     if match and tuple(int(part or 0) for part in match.groups()) >= MINIMUM_PIP:
@@ -61,6 +64,8 @@ def dependency_security_error() -> str | None:
             installed = version(name)
         except PackageNotFoundError:
             installed = "not installed"
+        except (FileNotFoundError, KeyError):
+            installed = None
         installed = _version_label(installed)
         match = re.fullmatch(r"(\d+)\.(\d+)(?:\.(\d+))?(?:\.post\d+)?", installed)
         if match and tuple(int(part or 0) for part in match.groups()) >= minimum:

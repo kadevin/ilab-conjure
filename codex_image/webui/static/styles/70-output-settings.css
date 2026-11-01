@@ -797,7 +797,6 @@
 /* Separate the two Chinese glyphs without changing labels or spoken names. */
 .output-panel .output-label-pair:lang(zh) {
   letter-spacing: 0.25em;
-  margin-inline-end: -0.25em;
 }
 
 #orientationGroup .radio-btn {

@@ -7989,7 +7989,6 @@ select.themed-select-native {
 /* Separate the two Chinese glyphs without changing labels or spoken names. */
 .output-panel .output-label-pair:lang(zh) {
   letter-spacing: 0.25em;
-  margin-inline-end: -0.25em;
 }
 
 #orientationGroup .radio-btn {
@@ -14669,16 +14668,7 @@ button:disabled {
 
 }
 
-/* Numeric inputs stay compact; only the complete groups reflow. */
-@container output-settings (max-width: 480px) {
-  .settings-grid.custom-size-mode .custom-size {
-    display: grid;
-    grid-template-columns: minmax(0, max-content);
-    gap: 8px;
-    padding: 8px 16px;
-  }
-}
-
+/* Complete groups wrap only when their intrinsic widths actually need it. */
 @container output-settings (max-width: 360px) {
   .custom-size-row {
     grid-template-columns: var(--measure-input-width) var(--measure-mid-width) var(--measure-input-width);

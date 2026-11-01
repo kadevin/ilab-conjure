@@ -124,6 +124,15 @@ class RuntimeSecurityTests(unittest.TestCase):
                                         env=env, capture_output=True, text=True, timeout=10)
                 self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_metadata_read_errors_fail_closed_on_all_supported_pythons(self):
+        # Python 3.15 uses FileNotFoundError's MetadataNotFound subclass and
+        # KeyError for these cases; older interpreters must preserve the result.
+        for error in (FileNotFoundError("METADATA"), KeyError("Version")):
+            with self.subTest(error=type(error).__name__), \
+                    patch("codex_image.runtime_security.version", side_effect=error):
+                self.assertIn("version metadata", dependency_security_error())
+                self.assertIn("version metadata", pip_security_error())
+
     def test_trimmed_runtime_does_not_require_pip(self):
         with patch("codex_image.runtime_security.python_security_error", return_value=None), \
                 patch("codex_image.runtime_security.version", side_effect=AssertionError("pip lookup")):

@@ -53,7 +53,7 @@ jobs:
       - run: cargo install cargo-audit --version 0.22.2 --locked
       # Intentionally reports Linux-only and unmaintained dependencies as well.
       # A documented reachability assessment is not a blanket advisory ignore.
-      - name: Audit complete Rust lock (known findings remain failures)
+      - name: Audit complete Rust lock and retain warnings
         run: cargo audit --json --file launcher/Cargo.lock > cargo-audit.json
       - name: Retain audit findings
         if: always()
@@ -64,4 +64,4 @@ jobs:
           if-no-files-found: warn
       - name: Explain deferred findings
         if: always()
-        run: echo 'Rust findings are not suppressed. See docs/dependency-security.md for Linux reachability and unmaintained-package assessments; an audit failure is not a clean bill of health.' >> "$GITHUB_STEP_SUMMARY"
+        run: echo 'Rust findings are not suppressed. See docs/dependency-security.md for Linux reachability and unmaintained-package assessments; a successful job can still contain unsound or unmaintained warnings.' >> "$GITHUB_STEP_SUMMARY"
