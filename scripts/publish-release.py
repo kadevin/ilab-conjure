@@ -47,21 +47,34 @@ def verify_tag(repo: str, tag: str, commit: str) -> None:
     raise ValueError('Unable to resolve release tag to a commit')
 
 
-def publish(*, repo: str, tag: str, commit: str, files: list[Path], notes: Path) -> None:
-    verify_tag(repo, tag, commit)
+def find_release(repo: str, tag: str) -> dict | None:
     # List is read-only and fails on network/auth errors instead of treating them as “not found”.
     pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repo}/releases?per_page=100'))
-    existing = next((r for page in pages for r in page if r['tag_name'] == tag), None)
+    matches = [r for page in pages for r in page if r['tag_name'] == tag]
+    if len(matches) > 1:
+        raise ValueError('Multiple releases match the requested tag')
+    return matches[0] if matches else None
+
+
+def publish(*, repo: str, tag: str, commit: str, files: list[Path], notes: Path) -> None:
+    verify_tag(repo, tag, commit)
+    existing = find_release(repo, tag)
     if existing and not existing['draft']:
         raise ValueError('Refusing to overwrite an already published release')
     if existing is None:
         # A timeout must stop this run. A later explicit rerun first reconciles the existing draft.
         gh('release', 'create', tag, '--repo', repo, '--draft', '--verify-tag',
            '--target', commit, '--title', tag, '--notes-file', str(notes))
+        existing = find_release(repo, tag)
+        if existing is None:
+            raise ValueError('Created draft could not be located; refusing to recreate it')
     else:
         gh('release', 'edit', tag, '--repo', repo, '--title', tag, '--notes-file', str(notes))
+    # GitHub's tag endpoint returns published releases only. Keep the draft's
+    # stable numeric identity for verification before and after publication.
+    release_path = f"repos/{repo}/releases/{existing['id']}"
     gh('release', 'upload', tag, '--repo', repo, *(str(p) for p in files), '--clobber')
-    release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+    release = json.loads(gh('api', release_path))
     if not release['draft'] or release['tag_name'] != tag:
         raise ValueError('Release state changed during upload')
     remote = json.loads(gh('api', f"repos/{repo}/releases/{release['id']}/assets?per_page=100"))
@@ -76,8 +89,8 @@ def publish(*, repo: str, tag: str, commit: str, files: list[Path], notes: Path)
     # Publish is the final write. Failure at any earlier step leaves a draft.
     verify_tag(repo, tag, commit)
     gh('release', 'edit', tag, '--repo', repo, '--draft=false')
-    final = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
-    if final['draft'] or final.get('prerelease'):
+    final = json.loads(gh('api', release_path))
+    if final['draft'] or final.get('prerelease') or final['tag_name'] != tag:
         raise ValueError('Release publication was not confirmed')
 
 
