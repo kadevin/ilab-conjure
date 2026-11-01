@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Shared monochrome UI shapes. Brand marks have separate source assets. -->
+  <symbol id="trash" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M9 2h6l1 2h5v3H3V4h5Zm-4 7h14l-1 11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Zm4 2v8h2v-8Zm4 0v8h2v-8Z"/>
+  </symbol>
+  <symbol id="clipboard" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M9 2h6v4H9ZM6 4h1v4h10V4h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Zm1 7v2h10v-2Zm0 5v2h7v-2Z"/>
+  </symbol>
+  <symbol id="search" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M10 2a8 8 0 1 0 4.7 14.5l6.1 6.1 2-2-6.2-6.1A8 8 0 0 0 10 2Zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/>
+  </symbol>
+  <symbol id="gallery" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-2 12h14l-4-6-3 4-3-3Z"/>
+  </symbol>
+  <symbol id="template" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm1 3v14h2V5Zm5 1v2h7V6Zm0 5v2h7v-2Zm0 5v2h5v-2Z"/>
+  </symbol>
+  <symbol id="settings" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="m9.5 2-.6 2.6-2.1 1.2-2.6-.8L1.7 9.3l2 1.8v1.8l-2 1.8L4.2 19l2.6-.8 2.1 1.2.6 2.6h5l.6-2.6 2.1-1.2 2.6.8 2.5-4.3-2-1.8v-1.8l2-1.8L19.8 5l-2.6.8-2.1-1.2-.6-2.6Zm2.5 6a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/>
+  </symbol>
+  <symbol id="bell" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M10.5 2h3v1.2A7 7 0 0 1 19 10v3l2 3v2H3v-2l2-3v-3a7 7 0 0 1 5.5-6.8ZM9 20h6a3 3 0 0 1-6 0Z"/>
+  </symbol>
+  <symbol id="eye" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7Zm0 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/>
+    <circle cx="12" cy="12" r="2"/>
+  </symbol>
+  <symbol id="eye-off" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="m2 1 21 21-2 2-4.6-4.6A12 12 0 0 1 12 20C6 20 2 12 2 12a19 19 0 0 1 4-5.8L0 3Zm7.1 9.1a4 4 0 0 0 4.8 4.8ZM10.3 4a11 11 0 0 1 1.7-.1C18 4 22 12 22 12a18 18 0 0 1-2.4 3.8l-3.8-3.7A4 4 0 0 0 11.9 8Z"/>
+  </symbol>
+  <symbol id="archive" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M3 2h18a1 1 0 0 1 1 1v4H2V3a1 1 0 0 1 1-1Zm1 7h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Zm5 3v2h6v-2Z"/>
+  </symbol>
+  <symbol id="check-square" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M5 2h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm1 10 4.5 4.5L18 9l-2-2-5.5 5.5L8 10Z"/>
+  </symbol>
+  <symbol id="minus-square" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M5 2h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm1 8.5v3h12v-3Z"/>
+  </symbol>
+  <symbol id="clock" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM10.5 5v8l5 3 1.5-2.5-3.5-2V5Z"/>
+  </symbol>
+  <symbol id="cancel" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM6 8l4 4-4 4 2 2 4-4 4 4 2-2-4-4 4-4-2-2-4 4-4-4Z"/>
+  </symbol>
+  <symbol id="plus" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M10.5 3h3v7.5H21v3h-7.5V21h-3v-7.5H3v-3h7.5Z"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m5 3 7 7 7-7 2 2-7 7 7 7-2 2-7-7-7 7-2-2 7-7-7-7Z"/></symbol>
+  <symbol id="chevron-right" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m8 3 9 9-9 9-2-2 7-7-7-7Z"/></symbol>
+  <symbol id="chevron-up" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m3 15 9-9 9 9-2 2-7-7-7 7Z"/></symbol>
+  <symbol id="arrow-left" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m10 3 2 2-5.5 5.5H22v3H6.5L12 19l-2 2-9-9Z"/></symbol>
+  <symbol id="filter" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M2 3h20v3l-8 8v7l-4-2v-5L2 6Z"/></symbol>
+  <symbol id="download" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M10 2h4v9h5l-7 7-7-7h5ZM3 17h3v3h12v-3h3v6H3Z"/></symbol>
+  <symbol id="edit" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m16 2 6 6-3 3-6-6ZM3 15l8-8 6 6-8 8-7 1Z"/></symbol>
+  <symbol id="copy" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 2h12v3H6v13H3V3a1 1 0 0 1 1-1ZM10 7h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/></symbol>
+  <symbol id="help" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 8.5h2.5a1.5 1.5 0 0 1 3 0c0 .7-.5 1.1-1.4 1.8-1.2.8-1.8 1.6-1.8 3.7h2.5c0-1.1.3-1.5 1.3-2.2C15.5 10.8 16 10 16 8.5a4 4 0 0 0-8 0Zm2.5 7v3H13v-3Z"/>
+  </symbol>
+  <symbol id="lock-shackle" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6 11V8a6 6 0 0 1 12 0v3h-2.5V8a3.5 3.5 0 0 0-7 0v3Z"/></symbol>
+  <symbol id="lock-body" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path fill-rule="evenodd" d="M6 10h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Zm6 3a2 2 0 0 0-1 3.7V19h2v-2.3A2 2 0 0 0 12 13Z"/></symbol>
+  <symbol id="square" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="3" y="3" width="18" height="18" rx="2"/></symbol>
+  <symbol id="portrait" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="2" width="12" height="20" rx="2"/></symbol>
+  <symbol id="landscape" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="2" y="6" width="20" height="12" rx="2"/></symbol>
+  <symbol id="swap" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m16 1 7 6-7 6V9H2V5h14ZM8 11v4h14v4H8v4l-7-6Z"/></symbol>
+  <symbol id="check-circle" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM5 12l5 5 9-9-2-2-7 7-3-3Z"/></symbol>
+  <symbol id="refresh" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 2v7h-7l2.6-2.6A6.5 6.5 0 0 0 5.5 12h-3A9.5 9.5 0 0 1 17.7 4.3ZM4 22v-7h7l-2.6 2.6A6.5 6.5 0 0 0 18.5 12h3a9.5 9.5 0 0 1-15.2 7.7Z"/></symbol>
+</svg>

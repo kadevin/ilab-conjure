@@ -342,6 +342,23 @@ function option(value: string, label: string, selected: boolean): HTMLOptionElem
   return element;
 }
 
+export function openProviderBindingCard(
+  container: HTMLElement | null,
+  bindingId: string,
+  options: { focus?: boolean } = {},
+): void {
+  if (!container) return;
+  const cards = [...container.querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")];
+  const selected = cards.find(card => card.dataset.bindingId === bindingId);
+  if (!selected) return;
+  cards.forEach(card => { card.open = card === selected; });
+  if (options.focus) {
+    const model = selected.querySelector<HTMLSelectElement>("[data-binding-model]");
+    const trigger = model?.closest(".field")?.querySelector<HTMLElement>(".themed-select-trigger");
+    (trigger || model)?.focus();
+  }
+}
+
 export function renderProviderBindingCards(
   container: HTMLElement | null,
   bindings: ProviderModelBindingSettings[],
@@ -350,20 +367,51 @@ export function renderProviderBindingCards(
   defaults: Record<string, string>,
 ): void {
   if (!container) return;
-  const disclosureState = new Map([...container.querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")]
+  const sameProvider = container.dataset.bindingProviderId === providerId;
+  const previousCards = sameProvider
+    ? [...container.querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")]
+    : [];
+  const disclosureState = new Map(previousCards
     .map(card => [card.dataset.bindingId, card.open]));
+  const advancedState = new Map(previousCards.map(card => [
+    card.dataset.bindingId,
+    card.querySelector<HTMLDetailsElement>(".provider-binding-advanced")?.open || false,
+  ]));
+  const openBindingId = previousCards.find(card => card.open)?.dataset.bindingId;
+  container.dataset.bindingProviderId = providerId;
   destroyThemedSelects(container);
   const normalizedBindings = normalizeProviderBindings(bindings, providerId);
   const cards = normalizedBindings.map((binding, index) => {
     const card = document.createElement("details");
     card.className = "provider-binding-card";
+    card.setAttribute("name", `${container.id || "provider-bindings"}-${providerId}`);
     card.dataset.bindingId = binding.id;
-    card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
+    card.open = disclosureState.has(binding.id)
+      ? binding.id === openBindingId
+      : !previousCards.length && normalizedBindings.length === 1;
     const legend = document.createElement("summary");
     legend.className = "provider-binding-summary";
+    const summaryMain = document.createElement("span");
+    summaryMain.className = "provider-binding-summary-main";
+    const summaryState = document.createElement("span");
+    summaryState.className = "provider-binding-summary-state";
+    legend.append(summaryMain, summaryState);
     const updateSummary = () => {
       const model = models.find(item => item.id === modelSelect.value);
-      legend.textContent = `${model?.display_name || modelSelect.value} · ${BINDING_PROTOCOL_LABELS[protocolSelect.value as BindingProtocol]} · ${remoteInput.value}`;
+      const modelName = model?.display_name || modelSelect.value;
+      summaryMain.textContent = card.open ? modelName
+        : `${modelName} · ${BINDING_PROTOCOL_LABELS[protocolSelect.value as BindingProtocol]} · ${remoteInput.value}`;
+      const nonDefaults = [
+        compatibilitySelect.value !== "standard"
+          ? BINDING_COMPATIBILITY_LABELS[compatibilitySelect.value as BindingCompatibility] : "",
+        !transparencySelect.disabled && transparencySelect.value === "prompt"
+          ? translate("apiSettings.transparencyPrompt") : "",
+        ratioPromptInput.checked ? translate("apiSettings.appendRatioPrompt") : "",
+      ].filter(Boolean).join(" · ");
+      summaryState.textContent = nonDefaults;
+      summaryState.hidden = !nonDefaults;
+      advancedSummaryState.textContent = nonDefaults;
+      advancedSummaryState.hidden = !nonDefaults;
     };
     const remove = document.createElement("button");
     remove.type = "button";
@@ -470,6 +518,22 @@ export function renderProviderBindingCards(
     ratioPromptLabel.textContent = translate("apiSettings.appendRatioPrompt");
     ratioPromptField.append(ratioPromptInput, ratioPromptLabel);
 
+    const advanced = document.createElement("details");
+    advanced.className = "provider-binding-advanced";
+    advanced.open = advancedState.get(binding.id) || false;
+    const advancedSummary = document.createElement("summary");
+    advancedSummary.className = "provider-binding-advanced-summary";
+    const advancedLabel = document.createElement("span");
+    advancedLabel.dataset.i18n = "apiSettings.advancedSettings";
+    advancedLabel.textContent = translate("apiSettings.advancedSettings");
+    const advancedSummaryState = document.createElement("span");
+    advancedSummaryState.className = "provider-binding-advanced-state";
+    advancedSummary.append(advancedLabel, advancedSummaryState);
+    const advancedGrid = document.createElement("div");
+    advancedGrid.className = "provider-binding-advanced-grid";
+    advancedGrid.append(compatibilityField, transparencyField, ratioPromptField);
+    advanced.append(advancedSummary, advancedGrid);
+
     const defaultField = document.createElement("label");
     defaultField.className = "provider-binding-toggle provider-binding-default";
     defaultField.dataset.i18nAttr = "title:apiSettings.defaultProviderForModel";
@@ -486,7 +550,7 @@ export function renderProviderBindingCards(
     footer.className = "provider-binding-footer";
     const footerSettings = document.createElement("div");
     footerSettings.className = "provider-binding-footer-settings";
-    footerSettings.append(ratioPromptField, defaultField);
+    footerSettings.append(defaultField);
     footer.append(footerSettings, remove);
 
     card.dataset.bindingOriginalModelId = binding.canonical_model_id;
@@ -495,12 +559,24 @@ export function renderProviderBindingCards(
     card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
     card.dataset.bindingProtocolChanged = "false";
     card.dataset.bindingCompatibilityChanged = "false";
-    grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
+    grid.append(modelField, protocolField, remoteField, advanced, footer);
     card.append(legend, grid);
     updateSummary();
+    legend.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (card.open) card.open = false;
+      else openProviderBindingCard(container, binding.id);
+    });
     card.addEventListener("change", () => queueMicrotask(updateSummary));
     remoteInput.addEventListener("input", updateSummary);
-    card.addEventListener("invalid", () => { card.open = true; }, true);
+    card.addEventListener("toggle", () => {
+      if (card.open) openProviderBindingCard(container, binding.id);
+      updateSummary();
+    });
+    card.addEventListener("invalid", (event) => {
+      openProviderBindingCard(container, binding.id);
+      if (event.target instanceof Element && advanced.contains(event.target)) advanced.open = true;
+    }, true);
     return card;
   });
   container.replaceChildren(...cards);

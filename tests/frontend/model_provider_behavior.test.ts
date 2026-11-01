@@ -373,12 +373,10 @@ test("GPT-only controls stay hidden for Gemini even without an eligible provider
   const legacy = { catalogAvailable: false, modelId: null, protocolProfile: null };
   assert.deepEqual(resolveModeSettingsVisibility({ ...legacy, legacyDirectApi: false }), {
     showMainModel: true,
-    showApiDirectNotice: false,
     showPromptFidelity: true,
   });
   assert.deepEqual(resolveModeSettingsVisibility({ ...legacy, legacyDirectApi: true }), {
     showMainModel: false,
-    showApiDirectNotice: true,
     showPromptFidelity: true,
   });
 
@@ -391,7 +389,6 @@ test("GPT-only controls stay hidden for Gemini even without an eligible provider
         legacyDirectApi: false,
       }), {
         showMainModel: false,
-        showApiDirectNotice: false,
         showPromptFidelity: false,
       }, `${modelId} must not expose GPT-only controls for ${protocolProfile || "no binding"}`);
     }
@@ -404,7 +401,6 @@ test("GPT-only controls stay hidden for Gemini even without an eligible provider
     legacyDirectApi: false,
   }), {
     showMainModel: true,
-    showApiDirectNotice: false,
     showPromptFidelity: true,
   });
   assert.deepEqual(resolveModeSettingsVisibility({
@@ -414,9 +410,19 @@ test("GPT-only controls stay hidden for Gemini even without an eligible provider
     legacyDirectApi: true,
   }), {
     showMainModel: false,
-    showApiDirectNotice: true,
     showPromptFidelity: true,
   });
+});
+
+test("main model visibility follows the Responses protocol for Codex and relay bindings", () => {
+  for (const modelId of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
+    for (const protocolProfile of ["codex_responses", "openai_responses", "codex_images", "openai_images", null]) {
+      assert.deepEqual(resolveModeSettingsVisibility({catalogAvailable: true, modelId, protocolProfile, legacyDirectApi: false}), {
+        showMainModel: Boolean(protocolProfile?.endsWith("_responses")),
+        showPromptFidelity: true,
+      }, `${modelId} / ${protocolProfile}`);
+    }
+  }
 });
 
 test("initial selection ignores stale IDs and does not invent a provider", () => {

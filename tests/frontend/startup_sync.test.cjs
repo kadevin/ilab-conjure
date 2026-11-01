@@ -609,6 +609,29 @@ function lanFixture() {
 }
 const lanSettings = (enabled, active = false) => ({ enabled, active, restart_required: enabled !== active, host_override: false, addresses: ['http://192.168.1.10:8787/'] });
 
+test('LAN address display excludes proxy virtual addresses and copies the actual LAN address', async () => {
+  const f = lanFixture();
+  f.fetchWith(async () => response({ ...lanSettings(true, true), addresses: [
+    'http://198.18.0.1:8787/', 'http://192.168.1.10:8787/', 'http://198.19.255.254:8787/',
+  ] }));
+  await f.methods.refreshLanAccess();
+  assert.equal(f.els.lanAccessAddresses.children.length, 1);
+  const [input, copy] = f.els.lanAccessAddresses.children[0].children;
+  assert.equal(input.value, 'http://192.168.1.10:8787/');
+  let copied;
+  Object.defineProperty(global, 'navigator', { configurable: true, value: { clipboard: { writeText: async value => { copied = value; } } } });
+  copy.listeners.click(); await flush();
+  assert.equal(copied, input.value);
+});
+
+test('LAN address display shows the unavailable state when only proxy virtual addresses exist', async () => {
+  const f = lanFixture();
+  f.fetchWith(async () => response({ ...lanSettings(true, true), addresses: ['http://198.18.0.1:8787/'] }));
+  await f.methods.refreshLanAccess();
+  assert.equal(f.els.lanAccessAddresses.children.length, 1);
+  assert.equal(f.els.lanAccessAddresses.children[0].textContent, 'lanAccess.noAddress');
+});
+
 test('LAN toggle disables duplicate saves, rolls back failures, and distinguishes pending activation', async () => {
   const f = lanFixture();
   f.fetchWith(async () => response(lanSettings(false)));

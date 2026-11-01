@@ -56,6 +56,7 @@ def merge_generation_results(results: list[GenerationResult]) -> GenerationResul
         raise ValueError("At least one generation result is required")
     return GenerationResult(
         assets=tuple(asset for result in results for asset in result.assets),
+        asset_outcomes=tuple(item for result in results for item in (result.asset_outcomes or result.assets)),
         text_parts=tuple(part for result in results for part in result.text_parts),
         usage=(
             results[0].usage

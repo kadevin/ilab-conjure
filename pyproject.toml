@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==83.0.0"]
+requires = ["setuptools==84.2.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -13,7 +13,8 @@ dependencies = [
   "uvicorn==0.46.0",
   "python-multipart==0.0.32",
   "httpx==0.28.1",
-  "Pillow==12.3.0",
+  "certifi==2026.10.23",
+  "Pillow==13.0.0",
 ]
 
 [project.scripts]

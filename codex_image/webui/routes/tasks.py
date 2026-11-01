@@ -10,7 +10,7 @@ from typing import Any
 import zipfile
 
 from fastapi import Body, FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from codex_image.webui.cancellation import USER_CANCELLATION_ERROR
 from codex_image.webui.context import WebUIContext
@@ -19,6 +19,7 @@ from codex_image.webui.resource_limits import (
     MAX_TASK_ARCHIVE_INPUT_BYTES,
 )
 from codex_image.webui.storage import utc_now
+from codex_image.webui.provider_responses import read_provider_responses
 from codex_image.webui.task_metadata import (
     _accept_partial_task_successes,
     _delete_unselected_task_outputs,
@@ -279,6 +280,20 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
             raise HTTPException(status_code=404, detail="Task not found") from exc
         except (OSError, json.JSONDecodeError, UnicodeError) as exc:
             raise HTTPException(status_code=503, detail=unavailable) from exc
+
+    @app.get("/api/tasks/{task_id}/provider-responses")
+    def get_provider_responses(task_id: str) -> JSONResponse:
+        try:
+            ctx.storage.read_metadata(task_id)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=404, detail="Task not found") from exc
+        except OSError as exc:
+            raise HTTPException(status_code=503, detail="Task unavailable") from exc
+        try:
+            payload = read_provider_responses(ctx.storage, task_id)
+        except (OSError, ValueError, UnicodeError, RecursionError) as exc:
+            raise HTTPException(status_code=503, detail="Provider response unavailable") from exc
+        return JSONResponse(payload, headers={"Cache-Control": "no-store"})
 
     @app.patch("/api/tasks/{task_id}/viewed")
     def mark_task_viewed(task_id: str) -> dict[str, Any]:

@@ -20,13 +20,17 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 if [ ! -x "$PYTHON_BIN" ]; then
+  python3 "${PROJECT_DIR}/codex_image/runtime_security.py"
   echo "Creating local virtual environment..."
   python3 -m venv --clear "$VENV_DIR"
 fi
 
+"$PYTHON_BIN" "${PROJECT_DIR}/codex_image/runtime_security.py"
+
 if ! "$PYTHON_BIN" -m codex_image.dependency_check \
   --requirements "${PROJECT_DIR}/requirements-webui.txt" >/dev/null 2>&1
 then
+  "$PYTHON_BIN" "${PROJECT_DIR}/codex_image/runtime_security.py" --installer
   echo "Installing WebUI dependencies..."
   "$PYTHON_BIN" -m pip install --require-hashes -r requirements-webui.txt
 fi

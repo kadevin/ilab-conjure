@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol
+from typing import Any, Callable, Mapping, Protocol
 
 from codex_image.generation.types import (
     GenerationCommand,
@@ -71,6 +71,21 @@ class ExecutionPlan:
     provider: ProviderConnection
     binding: ProviderModelBinding
     protocol_request: ProtocolRequest
+    progress: ExecutionProgress | None = None
+
+
+@dataclass
+class ExecutionProgress:
+    """Local execution checkpoint; never part of the public request snapshot."""
+
+    state: dict[str, Any] = field(default_factory=dict)
+    save: Callable[[dict[str, Any]], None] | None = None
+    output_slots: tuple[int, ...] = ()
+
+    def checkpoint(self, state: dict[str, Any]) -> None:
+        self.state = dict(state)
+        if self.save is not None:
+            self.save(self.state)
 
 
 class ParameterCodec(Protocol):

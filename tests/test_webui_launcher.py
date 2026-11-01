@@ -68,9 +68,9 @@ class WebUILauncherTests(unittest.TestCase):
 
     def test_macos_launchers_replace_broken_venv_links_before_bootstrap(self) -> None:
         zsh = shutil.which("zsh")
-        python3 = shutil.which("python3")
-        if zsh is None or python3 is None:
-            self.skipTest("zsh and python3 are required to exercise macOS launchers")
+        python3 = sys.executable
+        if zsh is None:
+            self.skipTest("zsh is required to exercise macOS launchers")
 
         marker = "startup auth reached with repaired venv"
         launchers = (Path("Start WebUI.command"), Path("Start WebUI Debug.command"))
@@ -89,6 +89,7 @@ class WebUILauncherTests(unittest.TestCase):
                     webui_dir.mkdir(parents=True)
                     (package_dir / "__init__.py").write_text("", encoding="utf-8")
                     (webui_dir / "__init__.py").write_text("", encoding="utf-8")
+                    shutil.copy2("codex_image/runtime_security.py", package_dir / "runtime_security.py")
                     (package_dir / "dependency_check.py").write_text(
                         "raise SystemExit(0)\n",
                         encoding="utf-8",

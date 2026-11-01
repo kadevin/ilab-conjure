@@ -50,13 +50,21 @@ function render(settings: LanAccessSettings): void {
   els.lanAccessAddresses.replaceChildren();
   els.lanAccessAddresses.hidden = !settings.enabled && !settings.active;
   if (els.lanAccessAddresses.hidden) return;
-  if (!settings.addresses.length) {
+  // Proxy TUN/Fake-IP addresses are not addresses other LAN devices can use.
+  const addresses = settings.addresses.filter(address => {
+    try {
+      return !/^198\.(18|19)\./.test(new URL(address).hostname);
+    } catch {
+      return false;
+    }
+  });
+  if (!addresses.length) {
     const note = document.createElement("p");
     note.className = "lan-access-help";
     note.textContent = translate("lanAccess.noAddress");
     els.lanAccessAddresses.append(note);
   }
-  for (const address of settings.addresses) {
+  for (const address of addresses) {
     const row = document.createElement("div");
     row.className = "lan-access-address";
     const input = document.createElement("input");

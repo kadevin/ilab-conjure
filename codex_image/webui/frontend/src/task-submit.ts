@@ -59,7 +59,6 @@ function syncGalleryInputsFromPrompt(...args: any[]) { return legacyMethod("sync
 function missingGalleryInputs(...args: any[]) { return legacyMethod("missingGalleryInputs", ...args); }
 function missingReferenceAssetInputs(...args: any[]) { return legacyMethod("missingReferenceAssetInputs", ...args); }
 function customSizeValidationMessage(...args: any[]) { return legacyMethod("customSizeValidationMessage", ...args); }
-function updatePixelPreview(...args: any[]) { return legacyMethod("updatePixelPreview", ...args); }
 function addPendingTask(...args: any[]) { return legacyMethod("addPendingTask", ...args); }
 function replacePendingTask(...args: any[]) { return legacyMethod("replacePendingTask", ...args); }
 function startRunFeedback(...args: any[]) { return legacyMethod("startRunFeedback", ...args); }
@@ -330,7 +329,6 @@ async function runTask() {
   const customSizeError = els.size?.value === "custom" ? customSizeValidationMessage() : "";
   if (customSizeError) {
     updateCustomSize();
-    updatePixelPreview("custom");
     els.customWidth?.focus();
     setStatus(customSizeError, "error");
     return;

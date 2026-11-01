@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+import httpx
 
 
 class WebUIProviderRoutingTests(unittest.TestCase):
@@ -850,7 +851,7 @@ class WebUIProviderRoutingTests(unittest.TestCase):
                                 count = body["n"] if profile == "openai_images" else body["generationConfig"]["candidateCount"]
                                 counts.append(count)
                                 if len(counts) <= failures:
-                                    raise ConnectionResetError("connection reset by peer")
+                                    raise httpx.ConnectError("Connection could not be established")
                                 return GenerationResult(assets=tuple(GeneratedAsset(png, "image/png") for _ in range(count)), usage={})
 
                         registry = ProviderRegistry(protocols={profile: FlakyProtocol()}, codecs={codec: default_registry().codec(codec)})

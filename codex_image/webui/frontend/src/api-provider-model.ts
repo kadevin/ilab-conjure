@@ -100,6 +100,24 @@ export function normalizeApiSettings(settings: any = {}): ApiProviderSettings {
   };
 }
 
+/** Prepare a deletion without changing the displayed or persisted settings. */
+export function withoutApiProvider(settings: ApiProviderSettings, providerId: string): ApiProviderSettings | null {
+  const current = normalizeApiSettings(settings);
+  const providers = current.providers.filter(provider => provider.id !== providerId);
+  if (!providers.length || providers.length === current.providers.length) return null;
+  const defaults: Record<string, string> = {};
+  for (const provider of providers) {
+    for (const binding of provider.bindings) {
+      const modelId = binding.canonical_model_id;
+      const previousDefault = current.default_provider_by_model[modelId];
+      const stillSupported = providers.some(candidate => candidate.id === previousDefault
+        && candidate.bindings.some(item => item.canonical_model_id === modelId));
+      defaults[modelId] ??= stillSupported ? previousDefault! : provider.id;
+    }
+  }
+  return normalizeApiSettings({ ...current, providers, default_provider_by_model: defaults });
+}
+
 export function applyProviderDraft(settings: ApiProviderSettings, draft: ApiProviderDraft): ApiProviderSettings {
   const normalized = normalizeApiSettings(settings);
   const index = normalized.providers.findIndex((provider: any) => provider.id === draft.id);

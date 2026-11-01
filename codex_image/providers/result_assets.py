@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import base64
 import binascii
+import concurrent.futures
+import ssl
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 from urllib.parse import urljoin, urlsplit
 
-from codex_image.asset_urls import UnsafeAssetURLError
-
 from codex_image.client_types import OPENAI_COMPATIBLE_USER_AGENT
 from codex_image.http import HTTPResponse, Transport
+from codex_image.http_connection import HTTPTransportFailure, exception_chain
 from codex_image.raster_validation import (
     MAX_RASTER_BYTES,
     RasterValidationError,
@@ -22,6 +23,11 @@ MAX_ASSET_BYTES = MAX_RASTER_BYTES
 
 class AssetLoadError(RuntimeError):
     pass
+
+
+def asset_load_failure(exc: BaseException) -> AssetLoadError | None:
+    """An unusable generated asset must never trigger another generation."""
+    return next((item for item in exception_chain(exc) if isinstance(item, AssetLoadError)), None)
 
 
 @dataclass(frozen=True)
@@ -166,8 +172,15 @@ def download_asset_url(
     try:
         return _download_asset_url(url, transport=transport,
                                    provider_base_url=provider_base_url, authorization=authorization)
-    except UnsafeAssetURLError as exc:
-        raise AssetLoadError(str(exc)) from exc
+    except (AssetLoadError, HTTPTransportFailure, concurrent.futures.CancelledError):
+        raise
+    except Exception as exc:
+        # Generation has completed. Parsing, limits and transport setup errors
+        # here must not be mistaken for a reason to submit another generation.
+        reason = ("generated asset TLS certificate verification failed"
+                  if any(isinstance(item, ssl.SSLCertVerificationError) for item in exception_chain(exc))
+                  else "generated asset could not be downloaded")
+        raise AssetLoadError(reason) from exc
 
 
 def _download_asset_url(
@@ -261,7 +274,10 @@ def load_response_asset(
             image_bytes,
             declared_mime_types=(declared_mime, encoded_mime),
         )
-    parsed = urlsplit(image_url)
+    try:
+        parsed = urlsplit(image_url)
+    except ValueError as exc:
+        raise AssetLoadError("generated asset URL is invalid") from exc
     if parsed.scheme.lower() in {"http", "https"} and parsed.netloc:
         if url_loader is None:
             raise AssetLoadError("generated asset URL has no downloader")
@@ -284,6 +300,7 @@ __all__ = (
     "AssetLoadError",
     "LoadedAsset",
     "MAX_ASSET_BYTES",
+    "asset_load_failure",
     "download_asset_url",
     "load_response_asset",
     "same_origin",

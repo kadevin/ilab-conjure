@@ -16,6 +16,7 @@ from typing import Iterator
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+import httpx
 from PIL import Image
 
 
@@ -42,6 +43,7 @@ class WebUICancellableTransportTests(unittest.TestCase):
     def test_queue_stop_interrupts_all_requests_keeps_outputs_and_runs_next_task(self) -> None:
         from codex_image.httpx_transport import HttpxTransport
         from codex_image.webui.app import create_app
+        from codex_image.webui.network_egress import NetworkEgressSettings
         from codex_image.webui.settings_store import ApiSettings, AuthSettings
 
         image_buffer = BytesIO()
@@ -118,6 +120,8 @@ class WebUICancellableTransportTests(unittest.TestCase):
 
                 with _running_server(HeldImagesHandler) as server, tempfile.TemporaryDirectory() as tmp:
                     root = Path(tmp)
+                    # The fixture server must not inherit the host's system proxy.
+                    NetworkEgressSettings(root / "network.json").write({"mode": "direct"})
                     AuthSettings(root / "auth.json").write_source("api")
                     ApiSettings(root / "api.json").write({
                         "base_url": f"http://127.0.0.1:{server.server_port}/v1",
@@ -196,7 +200,7 @@ class WebUICancellableTransportTests(unittest.TestCase):
             def fail_transiently(**_kwargs: object) -> object:
                 nonlocal calls
                 calls += 1
-                raise ConnectionResetError(54, "Connection reset by peer")
+                raise httpx.ConnectError("Connection could not be established")
 
             with self.subTest(retry_count=retry_count):
                 with (
@@ -204,7 +208,7 @@ class WebUICancellableTransportTests(unittest.TestCase):
                         "codex_image.webui.executor_transport._transient_image_retry_delay_seconds",
                         return_value=0,
                     ),
-                    self.assertRaises(ConnectionResetError),
+                    self.assertRaises(httpx.ConnectError),
                 ):
                     asyncio.run(
                         _call_image_client(
@@ -248,7 +252,7 @@ class WebUICancellableTransportTests(unittest.TestCase):
         def transient_failure() -> object:
             nonlocal calls
             calls += 1
-            raise ConnectionResetError(54, "Connection reset by peer")
+            raise httpx.ConnectError("Connection could not be established")
 
         async def cancel_backoff() -> None:
             backoff_started = asyncio.Event()

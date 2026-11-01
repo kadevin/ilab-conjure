@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-868" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-922" />
   </head>
   <body>
     <div class="layout-container">
@@ -154,9 +154,7 @@
             <div class="brand-actions">
               <button id="compactTasksButton" class="ghost-button compact-only" type="button" aria-expanded="false" aria-controls="compactTaskDrawer" data-i18n="ux.tasks">任务</button>
               <button id="newTaskButton" class="primary-button brand-new-button" type="button" aria-label="新建对话" data-i18n-attr="aria-label:app.newTaskAria">
-                <svg class="brand-new-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
-                </svg>
+                <svg class="brand-new-icon" data-ui-icon="plus" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#plus"/></svg>
                 <span class="brand-new-label" data-i18n="app.newTask">新建</span>
               </button>
             </div>
@@ -179,9 +177,7 @@
               data-i18n-attr="aria-label:action.clear;title:action.clear"
               hidden
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
-              </svg>
+              <svg data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
             </button>
             <button
               id="taskFilterButton"
@@ -193,9 +189,7 @@
               title="任务筛选"
               data-i18n-attr="aria-label:sidebar.filters;title:sidebar.filters"
             >
-              <svg class="task-filter-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              </svg>
+              <svg class="task-filter-icon" data-ui-icon="filter" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#filter"/></svg>
               <span id="taskFilterActiveCount" class="task-filter-active-count" hidden></span>
             </button>
             <div
@@ -272,37 +266,23 @@
             <div id="batchSelectedCount" class="batch-selected-count" data-i18n="batch.selected">已选择 0 个</div>
             <div class="batch-toolbar-actions">
               <button id="batchSelectGroupButton" class="ghost-button text-sm" type="button">
-                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <rect x="4" y="4" width="16" height="16" rx="3" />
-                  <path class="batch-select-mark" d="m8 12 3 3 5-6" />
-                  <path class="batch-clear-mark" d="M8 12h8" />
-                </svg>
+                <svg class="button-icon" data-ui-icon="check-square" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use class="batch-select-mark" href="/static/icons/ui.svg?v=1#check-square"/><use class="batch-clear-mark" href="/static/icons/ui.svg?v=1#minus-square"/></svg>
                 <span data-batch-selection-label data-i18n="batch.selectCurrentGroup">全选本组</span>
               </button>
               <button id="batchSelectWaitingButton" class="ghost-button text-sm" type="button">
-                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="12" r="8" />
-                  <path class="batch-select-mark" d="M12 7v5l3 2" />
-                  <path class="batch-clear-mark" d="M8 12h8" />
-                </svg>
+                <svg class="button-icon" data-ui-icon="clock" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use class="batch-select-mark" href="/static/icons/ui.svg?v=1#clock"/><use class="batch-clear-mark" href="/static/icons/ui.svg?v=1#minus-square"/></svg>
                 <span data-batch-selection-label data-i18n="batch.selectWaiting">全选等待中</span>
               </button>
               <button id="batchArchiveButton" class="ghost-button text-sm" type="button" disabled>
-                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M5 9v11h14V9M9 13h6" /><rect x="3" y="4" width="18" height="5" rx="1" />
-                </svg>
+                <svg class="button-icon" data-ui-icon="archive" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#archive"/></svg>
                 <span data-i18n="action.archive">归档</span>
               </button>
               <button id="batchDeleteButton" class="ghost-button text-sm danger-button" type="button" disabled>
-                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
-                </svg>
+                <svg class="button-icon" data-ui-icon="trash" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#trash"/></svg>
                 <span data-i18n="action.delete">删除</span>
               </button>
               <button id="batchCancelSelectedButton" class="ghost-button text-sm danger-button" type="button" disabled>
-                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="12" r="8" /><path d="m9 9 6 6m0-6-6 6" />
-                </svg>
+                <svg class="button-icon" data-ui-icon="cancel" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#cancel"/></svg>
                 <span data-i18n="batch.cancelSelected">取消任务</span>
               </button>
             </div>
@@ -332,9 +312,7 @@
               title="回到最新任务"
               hidden
             >
-              <svg class="task-latest-icon" viewBox="0 0 16 16" focusable="false" aria-hidden="true">
-                <path d="M3.5 9.5 8 5l4.5 4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-              </svg>
+              <svg class="task-latest-icon" data-ui-icon="chevron-up" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-up"/></svg>
               <span id="taskLatestBadge" class="task-latest-badge" aria-hidden="true" hidden></span>
             </button>
             <div id="taskList" class="task-list"></div>
@@ -391,10 +369,7 @@
               <span id="queueStatusText" data-i18n="queue.empty">暂无排队</span>
             </button>
             <button id="taskNotificationButton" class="queue-button task-notification-button" type="button" aria-controls="taskNotificationCenter" aria-expanded="false" aria-label="任务通知" title="任务通知" data-i18n-attr="aria-label:notifications.title;title:notifications.title">
-              <svg class="task-notification-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+              <svg class="task-notification-icon" data-ui-icon="bell" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#bell"/></svg>
               <span id="taskNotificationBadge" class="task-notification-dot hidden" aria-hidden="true"></span>
             </button>
             <div id="themeSwitcher" class="theme-switcher" aria-label="主题模式" data-i18n-attr="aria-label:theme.label">
@@ -415,10 +390,7 @@
                 </select>
               </div>
               <button id="generationProviderSettingsButton" class="auth-source-settings-button" type="button" aria-label="打开供应商设置" title="打开供应商设置" data-i18n-attr="aria-label:modelSelection.openSettings;title:modelSelection.openSettings">
-                <svg class="auth-source-settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
-                </svg>
+                <svg class="auth-source-settings-icon" data-ui-icon="settings" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#settings"/></svg>
               </button>
             </div>
           </div>
@@ -438,7 +410,7 @@
           <div class="dashboard-col controls-col">
             <input id="model" type="hidden" value="gpt-image-2" />
             <!-- Image Input -->
-            <section class="panel image-panel">
+            <section class="panel image-panel" aria-label="参考输入（可选）" data-i18n-attr="aria-label:imageInput.referenceTitle">
               <div class="panel-heading">
                 <h2 data-i18n="imageInput.referenceTitle">参考输入（可选）</h2>
                 <button id="compactReferencesButton" type="button" class="ghost-button text-sm compact-reference-toggle" data-i18n="ux.addReference">添加参考</button>
@@ -454,17 +426,15 @@
                           <div id="imageThumbItems" class="image-thumb-items"></div>
                           <div id="referenceFileSelection" class="reference-file-selection hidden" aria-live="polite"></div>
                         </div>
-                        <div id="imageUploadSource" class="image-upload-source" role="button" tabindex="0" aria-label="点击、拖入或粘贴图片与文件" data-i18n-attr="aria-label:imageInput.uploadAria">
+                        <div id="imageUploadSource" class="image-upload-source" role="button" tabindex="0" aria-label="点击、拖入或粘贴图片" data-i18n-attr="aria-label:imageInput.uploadImages">
                           <label class="upload-tile">
                             <input id="imageInput" type="file" accept="image/*,.pdf,.xla,.xlb,.xlc,.xlm,.xls,.xlt,.xlw,.xlsx,.csv,.tsv,.iif,.doc,.docx,.dot,.odt,.rtf,.pot,.ppa,.pps,.ppt,.pwz,.wiz,.pptx,.asm,.bat,.c,.cc,.conf,.cpp,.css,.cxx,.def,.dic,.eml,.h,.hh,.htm,.html,.ics,.ifb,.in,.js,.json,.ksh,.list,.log,.markdown,.md,.mht,.mhtml,.mime,.mjs,.nws,.pl,.py,.rst,.s,.sql,.srt,.text,.txt,.vcf,.vtt,.xml" multiple />
                             <span class="icon" aria-hidden="true">
-                              <svg viewBox="0 0 24 24" focusable="false">
-                                <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-                              </svg>
+                              <svg data-ui-icon="plus" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#plus"/></svg>
                             </span>
-                            <span class="upload-title upload-title-full" data-i18n="imageInput.uploadFull">点击、拖入或粘贴图片与文件</span>
+                            <span class="upload-title upload-title-full" data-i18n="imageInput.uploadImages">点击、拖入或粘贴图片</span>
                             <span class="upload-title upload-title-compact" data-i18n="imageInput.uploadCompact">添加输入</span>
-                            <span class="upload-subtitle" data-i18n="imageInput.uploadSubtitle">支持图片与 Responses 参考文件</span>
+                            <span class="upload-subtitle hidden" data-i18n="imageInput.uploadSubtitle">支持图片与 Responses 参考文件</span>
                           </label>
                         </div>
                       </div>
@@ -473,15 +443,11 @@
                   <div class="image-input-footer">
                     <div class="image-input-actions">
                       <button id="clearImagesButton" class="ghost-button icon-text-button text-sm quiet-danger-button" type="button">
-                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                          <path d="M3 6h18M9 6V4h6v2m-8 0 1 14h8l1-14M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <svg class="button-icon" data-ui-icon="trash" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#trash"/></svg>
                         <span data-i18n="action.clear">清空</span>
                       </button>
                       <button id="pasteClipboardButton" class="ghost-button icon-text-button text-sm" type="button">
-                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                          <path d="M9 5h6M9 4h6a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <svg class="button-icon" data-ui-icon="clipboard" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#clipboard"/></svg>
                         <span data-i18n="action.paste">粘贴</span>
                       </button>
                     </div>
@@ -498,12 +464,8 @@
                           title="隐藏最近上传图片"
                           data-i18n-attr="aria-label:recentAssets.hidePreviews;title:recentAssets.hidePreviews"
                         >
-                          <svg class="recent-asset-visibility-icon recent-asset-visibility-icon-hide" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.3A10.9 10.9 0 0 1 12 4c5.5 0 9 5.5 9 8a9.8 9.8 0 0 1-2.1 3.6M6.2 6.2C4.2 7.6 3 10.2 3 12c0 2.5 3.5 8 9 8 1.2 0 2.3-.3 3.3-.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                          <svg class="recent-asset-visibility-icon recent-asset-visibility-icon-show" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M3 12c0-2.5 3.5-8 9-8s9 5.5 9 8-3.5 8-9 8-9-5.5-9-8Z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
+                          <svg class="recent-asset-visibility-icon recent-asset-visibility-icon-hide" data-ui-icon="eye-off" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#eye-off"/></svg>
+                          <svg class="recent-asset-visibility-icon recent-asset-visibility-icon-show" data-ui-icon="eye" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#eye"/></svg>
                         </button>
                       </div>
                       <div id="recentAssetStatus" class="recent-asset-status" role="status" aria-live="polite" hidden></div>
@@ -527,9 +489,7 @@
 
                   <div id="galleryManagePanel" class="gallery-manage-panel">
                     <button id="galleryManageButton" class="ghost-button text-sm icon-text-button resource-manage-button gallery-manage-button" type="button" aria-controls="galleryDrawer" aria-expanded="false" title="管理公用库" data-i18n-attr="title:gallery.manage">
-                      <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M4 5h16v14H4zM8 13l2.2-2.2 2.8 3.2 2-2 3 4M8 9h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                      <svg class="button-icon" data-ui-icon="gallery" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#gallery"/></svg>
                       <span data-i18n="gallery.manage">管理公用库</span>
                     </button>
                   </div>
@@ -575,17 +535,14 @@
                 <div class="prompt-template-recent-cell">
                   <div class="prompt-footer">
                     <button id="clearPromptButton" class="ghost-button icon-text-button text-sm quiet-danger-button" type="button">
-                      <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M3 6h18M9 6V4h6v2m-8 0 1 14h8l1-14M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                      <svg class="button-icon" data-ui-icon="trash" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#trash"/></svg>
                       <span data-i18n="action.clear">清空</span>
                     </button>
                     <button id="promptFindButton" class="ghost-button icon-text-button text-sm prompt-find-button" type="button" aria-controls="promptFindPanel" aria-expanded="false">
-                      <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="m20 20-4.2-4.2M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                      <svg class="button-icon" data-ui-icon="search" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#search"/></svg>
                       <span data-i18n="action.find">查找</span>
                     </button>
+                    <div id="compactPromptMeta" class="compact-prompt-meta"></div>
                     <div id="promptFindPanel" class="prompt-find-panel hidden" aria-label="查找替换提示词" data-i18n-attr="aria-label:prompt.findPanel">
                       <input id="promptFindInput" class="control prompt-find-input" type="text" placeholder="查找" autocomplete="off" spellcheck="false" aria-label="查找文本" data-i18n-attr="placeholder:action.find;aria-label:prompt.findText" />
                       <input id="promptReplaceInput" class="control prompt-find-input" type="text" placeholder="替换为" autocomplete="off" spellcheck="false" aria-label="替换为" data-i18n-attr="placeholder:prompt.replaceWith;aria-label:prompt.replaceWith" />
@@ -602,9 +559,7 @@
                 </div>
                 <div class="prompt-template-entry">
                   <button id="promptTemplateButton" class="ghost-button text-sm icon-text-button resource-manage-button prompt-template-button" type="button" aria-controls="promptTemplateDrawer" aria-expanded="false" title="管理模板库" data-i18n-attr="title:prompt.manageTemplates">
-                    <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <svg class="button-icon" data-ui-icon="template" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#template"/></svg>
                     <span data-i18n="prompt.manageTemplates">管理模板库</span>
                   </button>
                 </div>
@@ -615,6 +570,7 @@
             <section class="panel output-panel">
               <div id="outputSettingsHeader" class="output-settings-header">
                 <h2 data-i18n="outputSettings.title">输出设置</h2>
+                <div id="compactExecutionSummary" class="compact-execution-summary"></div>
                 <button
                   id="outputSettingsLockButton"
                   class="output-settings-lock-button"
@@ -624,11 +580,7 @@
                   title="锁定参数"
                   data-i18n-attr="aria-label:output.lock.lock;title:output.lock.lock"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path class="output-settings-lock-shackle" d="M7.5 10V7.75a4.5 4.5 0 0 1 9 0V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <rect x="5.5" y="10" width="13" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
-                    <path d="M12 14v2.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                  </svg>
+                  <svg data-ui-icon="lock" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="output-settings-lock-open" d="M11 11V7a6 6 0 0 1 12 0h-3a3 3 0 0 0-6 0v4Z"/><use class="output-settings-lock-closed" href="/static/icons/ui.svg?v=1#lock-shackle"/><use href="/static/icons/ui.svg?v=1#lock-body"/></svg>
                 </button>
               </div>
               <div id="outputSettingsStage" class="output-settings-stage">
@@ -684,15 +636,11 @@
                             <div id="mainModelOptions" class="model-combobox-options hidden" role="listbox"></div>
                           </div>
                         </div>
-
-                        <p id="apiDirectSettingsNotice" class="api-direct-settings-notice mode-transition mode-collapsed hidden" role="note" aria-hidden="true" data-i18n="output.mainModelUnused">直接使用所选图像模型生成</p>
-
-
                       </div>
 
                       <div id="promptFidelityField" class="field">
                         <div class="prompt-fidelity-label">
-                          <span data-i18n="output.promptMode">提示词处理</span>
+                          <span data-i18n="output.promptMode" title="提示词处理" data-i18n-attr="title:output.promptMode">提示词处理</span>
                           <button
                             id="promptFidelityHelpButton"
                             class="prompt-fidelity-help-button"
@@ -703,11 +651,7 @@
                             aria-expanded="false"
                             data-i18n-attr="aria-label:output.promptHelp"
                             >
-                            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                            <circle cx="10" cy="10" r="7.25"></circle>
-                            <path d="M7.9 7.7a2.35 2.35 0 0 1 4.55.8c0 1.65-1.75 1.95-2.25 3.1"></path>
-                              <circle cx="10" cy="14.25" r=".7" class="prompt-fidelity-help-dot"></circle>
-                            </svg>
+                            <svg data-ui-icon="help" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#help"/></svg>
                           </button>
                         </div>
                         <div class="radio-group" id="promptFidelityGroup" role="group" aria-label="提示词处理模式" data-i18n-attr="aria-label:output.promptMode">
@@ -728,7 +672,6 @@
 
                   <div id="outputSizeSettings" class="output-size-settings full-width">
                     <div class="field-group full-width custom-size-control">
-                      <span class="field-label mb-0" data-i18n="output.sizeMode">尺寸模式</span>
                       <div id="sizeModeGroup" class="radio-group size-mode-group" role="group" aria-label="尺寸模式" data-i18n-attr="aria-label:output.sizeMode">
                         <button class="radio-btn active" data-custom-size-mode="preset" type="button" data-i18n="output.sizePreset">预设尺寸</button>
                         <button class="radio-btn" data-custom-size-mode="custom" type="button" data-i18n="output.sizeCustom">自定义尺寸</button>
@@ -738,24 +681,18 @@
                     <div id="sizeEditors" class="size-editors full-width">
                       <div id="presetSizeFields" class="preset-size-fields" aria-hidden="false">
                         <div class="field orientation-field">
-                          <span data-i18n="output.orientation">方向</span>
+                          <span class="output-label-pair" data-i18n="output.orientation">方向</span>
                           <div class="radio-group" id="orientationGroup" role="group" aria-label="方向" data-i18n-attr="aria-label:output.orientation">
                             <button class="radio-btn active" data-val="square" type="button">
-                              <svg class="orientation-option-icon orientation-option-icon-square" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                <rect x="5" y="5" width="10" height="10" rx="2"></rect>
-                              </svg>
+                              <svg class="orientation-option-icon orientation-option-icon-square" data-ui-icon="square" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#square"/></svg>
                               <span data-i18n="output.square">方形</span>
                             </button>
                             <button class="radio-btn" data-val="portrait" type="button">
-                              <svg class="orientation-option-icon orientation-option-icon-portrait" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                <rect x="6.5" y="3" width="7" height="14" rx="2"></rect>
-                              </svg>
+                              <svg class="orientation-option-icon orientation-option-icon-portrait" data-ui-icon="portrait" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#portrait"/></svg>
                               <span data-i18n="output.portrait">竖图</span>
                             </button>
                             <button class="radio-btn" data-val="landscape" type="button">
-                              <svg class="orientation-option-icon orientation-option-icon-landscape" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                <rect x="3" y="6.5" width="14" height="7" rx="2"></rect>
-                              </svg>
+                              <svg class="orientation-option-icon orientation-option-icon-landscape" data-ui-icon="landscape" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#landscape"/></svg>
                               <span data-i18n="output.landscape">横图</span>
                             </button>
                           </div>
@@ -779,7 +716,7 @@
                           </select>
                         </div>
                         <div class="field full-width ratio-field">
-                          <span data-i18n="output.ratio">比例</span>
+                          <span class="output-label-pair" data-i18n="output.ratio">比例</span>
                           <div class="radio-group ratio-group" id="ratioGroup" role="group" aria-label="比例" data-i18n-attr="aria-label:output.ratio">
                             <button class="radio-btn active" data-val="1:1" type="button">1:1</button>
                             <button class="radio-btn" data-val="4:5" type="button">4:5</button>
@@ -814,14 +751,12 @@
                             <span data-i18n="output.pixelSize">像素尺寸</span>
                           </div>
                           <div class="custom-measure-row custom-size-row">
-                            <label class="custom-measure-label" for="customWidth" data-i18n="output.width">宽度</label>
+                            <label class="custom-measure-label output-label-pair" for="customWidth" data-i18n="output.width">宽度</label>
                             <input id="customWidth" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="宽度" data-i18n-attr="aria-label:output.width" />
                             <button id="swapCustomSizeButton" class="custom-size-icon-button custom-size-swap" type="button" aria-label="交换宽高" title="交换宽高" data-i18n-attr="aria-label:output.swapSize;title:output.swapSize">
-                              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M16 3l4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
+                              <svg data-ui-icon="swap" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#swap"/></svg>
                             </button>
-                            <label class="custom-measure-label" for="customHeight" data-i18n="output.height">高度</label>
+                            <label class="custom-measure-label output-label-pair" for="customHeight" data-i18n="output.height">高度</label>
                             <input id="customHeight" class="control custom-size-input" type="number" min="16" max="3840" step="16" value="1024" aria-label="高度" data-i18n-attr="aria-label:output.height" />
                           </div>
                           <p id="customSizeHint" class="custom-size-hint" data-i18n="output.customSizeHint">单位 px · 16-3840 · 16倍数 · ≤3:1</p>
@@ -831,7 +766,7 @@
                             <span data-i18n="output.ratioLock">比例锁定（可选）</span>
                           </div>
                           <div class="custom-measure-row custom-ratio-control" aria-label="自定义宽高比" data-i18n-attr="aria-label:output.customRatio">
-                            <label class="custom-measure-label" for="customRatioWidth" data-i18n="output.ratioWidth">宽</label>
+                            <label class="custom-measure-label sr-only" for="customRatioWidth" data-i18n="output.ratioWidth">宽</label>
                             <input
                               id="customRatioWidth"
                               class="control custom-ratio-digit"
@@ -844,7 +779,7 @@
                               data-i18n-attr="aria-label:output.ratioWidth"
                               />
                               <span class="custom-ratio-separator" aria-hidden="true">:</span>
-                              <label class="custom-measure-label" for="customRatioHeight" data-i18n="output.ratioHeight">高</label>
+                              <label class="custom-measure-label sr-only" for="customRatioHeight" data-i18n="output.ratioHeight">高</label>
                             <input
                               id="customRatioHeight"
                               class="control custom-ratio-digit"
@@ -857,10 +792,7 @@
                               data-i18n-attr="aria-label:output.ratioHeight"
                               />
                               <button id="customRatioFromImageButton" class="ghost-button custom-ratio-image-button" type="button" disabled aria-label="获取第一张参考图宽高比" title="获取第一张参考图宽高比" data-i18n-attr="aria-label:output.firstImageRatio;title:output.firstImageRatio">
-                              <svg class="button-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                <path d="M3.5 4.5h9v7h-9zM5.2 9.7l2-2 1.4 1.5 1.2-1.1 1.6 1.6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M10.8 6.4h.01" fill="none" stroke="currentColor" stroke-linecap="round"/>
-                              </svg>
+                              <svg class="button-icon" data-ui-icon="gallery" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#gallery"/></svg>
                               <span data-i18n="output.useFirstImage">取首图</span>
                             </button>
                           </div>
@@ -868,15 +800,12 @@
                         </div>
                       </div>
                     </div>
-                    <div id="pixelPreview" class="pixel-preview full-width">
-                      <span data-i18n="output.pixelPreview">输出像素: 1024 x 1024 px</span>
-                    </div>
                     <input type="text" id="size" class="hidden" value="1024x1024" />
                   </div>
                   <div id="outputFileSettings" class="output-file-settings full-width">
                     <div class="field-pair full-width quantity-quality-row">
                       <div class="field quality-field">
-                        <span data-i18n="output.quality">质量</span>
+                        <span class="output-label-pair" data-i18n="output.quality">质量</span>
                         <div class="radio-group" id="qualityGroup" role="group" aria-label="质量" data-i18n-attr="aria-label:output.quality">
                           <button class="radio-btn active" data-val="auto" type="button" data-i18n="output.qualityAuto">自动</button>
                           <button class="radio-btn" data-val="low" type="button" data-i18n="output.qualityLow">低</button>
@@ -892,7 +821,7 @@
                       </div>
 
                       <div class="field quantity-field">
-                        <span data-i18n="output.quantity">数量</span>
+                        <span class="output-label-pair" data-i18n="output.quantity">数量</span>
                         <div class="radio-group quantity-group" id="quantityGroup" role="group" aria-label="数量" data-i18n-attr="aria-label:output.quantity">
                           <button class="radio-btn active" data-val="1" type="button">1</button>
                           <button class="radio-btn" data-val="2" type="button">2</button>
@@ -909,24 +838,20 @@
                     </div>
                     <div id="outputFormatField" class="field output-format-field">
                       <div class="output-field-heading">
-                        <span class="output-format-heading">
-                          <span data-i18n="output.format">输出格式</span>
+                        <span class="output-label-pair" data-i18n="output.format">格式</span>
+                        <div class="output-format-options">
                           <button id="outputCompressionButton" class="output-compression-button hidden" type="button" aria-label="压缩率设置" title="压缩率设置" aria-controls="compressionPopover" aria-haspopup="dialog" aria-expanded="false" data-i18n-attr="aria-label:output.compression;title:output.compression">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                              <path d="M4 7h7m4 0h5M4 17h3m4 0h9"/>
-                              <circle cx="13" cy="7" r="2"/>
-                              <circle cx="9" cy="17" r="2"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h8V4h4v2h6v2h-6v2h-4V8H3Zm0 10h4v-2h4v2h10v2H11v2H7v-2H3Z"/></svg>
+                            <span data-i18n="output.compression">压缩率</span>
                           </button>
-                        </span>
-                        <div id="transparentBackgroundField" class="field transparent-background-field">
-                          <label class="web-search-toggle">
-
-                            <input id="transparentBackground" type="checkbox" aria-labelledby="transparentBackgroundLabel" />
-                            <span class="web-search-toggle-track" aria-hidden="true"></span>
-                            <span id="transparentBackgroundLabel" class="generation-option-label" data-i18n="output.transparentBackground">透明背景</span>
-                          </label>
-                          <input id="background" type="hidden" value="auto" />
+                          <div id="transparentBackgroundField" class="field transparent-background-field">
+                            <label class="web-search-toggle">
+                              <input id="transparentBackground" type="checkbox" aria-labelledby="transparentBackgroundLabel" />
+                              <span class="web-search-toggle-track" aria-hidden="true"></span>
+                              <span id="transparentBackgroundLabel" class="generation-option-label" data-i18n="output.transparentBackground">透明背景</span>
+                            </label>
+                            <input id="background" type="hidden" value="auto" />
+                          </div>
                         </div>
                       </div>
                       <div id="outputFormatGroup" class="radio-group" role="group" aria-label="输出格式" data-i18n-attr="aria-label:output.format">
@@ -939,18 +864,18 @@
                         <option value="jpeg">jpeg</option>
                         <option value="webp">webp</option>
                       </select>
-                      <div id="compressionPopover" class="compression-popover hidden" role="dialog" aria-hidden="true" aria-label="压缩率设置" data-i18n-attr="aria-label:output.compression">
+                      <div id="compressionPopover" class="compression-popover hidden" role="dialog" tabindex="-1" aria-hidden="true" aria-label="压缩率设置" data-i18n-attr="aria-label:output.compression">
                         <label id="compressionField" class="range-control compression-range">
                           <div class="slider-header">
                             <span data-i18n="output.compression">压缩率</span>
                             <span class="range-value"><b id="compressionValue">80%</b></span>
                           </div>
-                          <input id="compression" class="slider" type="range" min="0" max="100" value="80" />
+                          <input id="compression" class="slider" type="range" min="50" max="100" step="1" value="80" />
                         </label>
                       </div>
                     </div>
                     <div class="field moderation-field">
-                      <span data-i18n="output.moderation">审核</span>
+                      <span class="output-label-pair" data-i18n="output.moderation">审核</span>
                       <div class="radio-group" id="moderationGroup" role="group" aria-label="审核" data-i18n-attr="aria-label:output.moderation">
                         <button class="radio-btn active" data-val="auto" type="button" data-i18n="ux.moderationAuto">自动</button>
                         <button class="radio-btn" data-val="low" type="button" data-i18n="ux.moderationLow">较宽松</button>
@@ -975,18 +900,13 @@
                   <div class="preview-selection-actions hidden" id="previewSelectionActions" aria-live="polite">
                     <span id="previewSelectionCount" class="preview-selection-count" data-i18n="preview.selectedZero">已选 0</span>
                     <button id="deleteUnselectedOutputsButton" class="ghost-button text-sm danger-action hidden" type="button" aria-label="删除未精选" title="删除未精选" data-i18n-attr="aria-label:preview.deleteUnselected;title:preview.deleteUnselected">
-                      <svg class="preview-delete-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M5 5h10" />
-                        <path d="M8 5l1-2h2l1 2" />
-                        <path d="M6 5l1 12h6l1-12" />
-                        <path d="M8.5 8v6M11.5 8v6" />
-                      </svg>
+                      <svg class="preview-delete-icon" data-ui-icon="trash" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#trash"/></svg>
                       <span data-i18n="preview.deleteUnselected">删除未精选</span>
                     </button>
                     <a id="downloadSelectedButton" class="ghost-button text-sm hidden" href="#" download data-i18n="preview.downloadSelected">只下载精选</a>
                   </div>
                   <a id="downloadAllButton" class="ghost-button text-sm hidden" href="#" download data-i18n="preview.downloadAll">打包下载</a>
-                  <button id="refreshButton" class="ghost-button icon-button" type="button" data-i18n="action.refresh">↻ 刷新</button>
+                  <button id="refreshButton" class="ghost-button icon-button" type="button"><svg class="button-icon" data-ui-icon="refresh" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#refresh"/></svg><span data-i18n="history.refresh">刷新</span></button>
                 </div>
               </div>
               <details id="taskParameterInspector" class="task-parameter-inspector hidden" aria-hidden="true">
@@ -1012,18 +932,14 @@
           <p id="promptTemplateSummary" class="prompt-template-summary" data-i18n="templates.summary">本地模板库</p>
         </div>
         <button id="promptTemplateDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭提示词模板面板" title="关闭" data-i18n-attr="aria-label:close.promptTemplates;title:action.close">
-          <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M7 7L17 17M17 7L7 17" />
-          </svg>
+          <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
         </button>
       </div>
       <div class="prompt-template-toolbar">
         <div class="prompt-template-search-wrap">
           <input id="promptTemplateSearch" class="control" type="text" name="prompt-template-search" inputmode="search" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="搜索模板、标签、内容" aria-label="搜索提示词模板" readonly data-i18n-attr="placeholder:templates.search;aria-label:templates.search" />
           <button id="promptTemplateSearchClearButton" class="prompt-template-search-clear-button" type="button" aria-label="清空" title="清空" data-i18n-attr="aria-label:action.clear;title:action.clear" hidden>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
-            </svg>
+            <svg data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <button id="promptTemplateCreateButton" class="ghost-button text-sm" type="button" data-i18n="action.new">新建</button>
@@ -1057,9 +973,7 @@
             <p id="archiveCount" data-i18n="archive.empty">暂无归档会话</p>
           </div>
           <button id="archiveModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭会话归档面板" title="关闭" data-i18n-attr="aria-label:close.archive;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <div id="archiveList" class="archive-list"></div>
@@ -1069,18 +983,11 @@
     <div id="systemSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="系统设置" data-i18n-attr="aria-label:systemSettings.title">
       <div class="modal-panel system-settings-modal-panel">
         <div class="modal-heading">
-          <button id="userConfigBackupBackButton" class="ghost-button drawer-close-button user-config-back-button hidden" type="button" aria-label="返回系统设置" title="返回系统设置" data-i18n-attr="aria-label:userConfigBackup.back;title:userConfigBackup.back">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M15 6L9 12L15 18" />
-            </svg>
-          </button>
           <div>
             <h2 id="systemSettingsTitle" data-i18n="systemSettings.title">系统设置</h2>
           </div>
           <button id="systemSettingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭系统设置面板" title="关闭" data-i18n-attr="aria-label:close.systemSettings;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <div id="systemSettingsTabs" class="system-settings-tabs" role="tablist" aria-label="系统设置选项" data-i18n-attr="aria-label:systemSettings.tabsLabel">
@@ -1096,13 +1003,16 @@
                 <span data-i18n="apiSettings.providers">API 供应商</span>
                 <span id="apiProviderCount" class="api-provider-count">0 个</span>
               </div>
-              <button id="sortApiProvidersButton" class="ghost-button text-sm api-provider-sort-toggle hidden" type="button" data-i18n="apiSettings.sortProviders">排序</button>
+              <div class="api-provider-toolbar">
+                <button id="sortApiProvidersButton" class="ghost-button text-sm api-provider-sort-toggle hidden" type="button" data-i18n="apiSettings.sortProviders">排序</button>
+                <button id="addApiProviderButton" class="api-provider-add-button" type="button">
+                  <svg data-ui-icon="plus" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#plus"/></svg>
+                  <span data-i18n="apiSettings.newProviderAction">新建供应商</span>
+                </button>
+              </div>
             </div>
             <label id="apiProviderSearchField" class="api-provider-search hidden">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="11" cy="11" r="6.5"></circle>
-                <path d="m16 16 4 4"></path>
-              </svg>
+              <svg data-ui-icon="search" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#search"/></svg>
               <input
                 id="apiProviderSearch"
                 class="control"
@@ -1113,12 +1023,14 @@
                 data-i18n-attr="placeholder:apiSettings.searchProviders;aria-label:apiSettings.searchProviders"
               />
             </label>
-            <div class="api-provider-choice-grid">
-              <div id="apiProviderList" class="api-provider-list" role="listbox" aria-label="API 供应商" data-i18n-attr="aria-label:apiSettings.providers"></div>
-              <button id="addApiProviderButton" class="api-provider-add-card" type="button" data-i18n="apiSettings.newProviderAction">新建供应商</button>
+            <div class="system-settings-scroll api-provider-browse-scroll">
+              <div class="api-provider-choice-grid">
+                <div id="apiProviderList" class="api-provider-list" role="listbox" aria-label="API 供应商" data-i18n-attr="aria-label:apiSettings.providers"></div>
+              </div>
             </div>
             <select id="apiProvider" class="hidden" aria-hidden="true"></select>
             <div id="apiProviderDetail" class="api-provider-detail-panel">
+              <strong id="apiProviderDetailName" class="api-provider-detail-name"></strong>
               <dl class="api-provider-detail-grid">
                 <div>
                   <dt>Base URL</dt>
@@ -1127,10 +1039,6 @@
                 <div>
                   <dt>API Key</dt>
                   <dd id="apiProviderDetailKey" data-i18n="apiSettings.keyNotSet">未设置 API Key</dd>
-                </div>
-                <div>
-                  <dt data-i18n="apiSettings.modelBindings">模型绑定</dt>
-                  <dd id="apiProviderDetailMode">0</dd>
                 </div>
                 <div>
                   <dt data-i18n="apiSettings.concurrencyShort">并发</dt>
@@ -1144,283 +1052,286 @@
               </div>
             </div>
           </div>
-          <div id="apiProviderEditor" class="api-provider-editor hidden" aria-hidden="true">
-            <div class="api-provider-editor-heading">
-              <span id="apiProviderEditorTitle" data-i18n="apiSettings.editProvider">编辑供应商</span>
-              <span data-i18n="apiSettings.editHint">点击保存前不会写入后端，取消可放弃本次编辑。</span>
-            </div>
-            <div class="api-settings-grid compact-api-settings-grid">
-              <div class="field api-provider-name-field">
-                <span id="apiProviderNameFieldLabel" data-i18n="apiSettings.providerName">供应商名称</span>
-                <div class="api-provider-name-inputs">
-                  <label class="api-provider-icon-input">
-                    <span data-i18n="apiSettings.providerIcon">Emoji 图标</span>
-                    <input id="apiProviderIconEmoji" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="🪄" aria-label="Emoji 图标" title="可选，例如 🪄" data-i18n-attr="aria-label:apiSettings.providerIcon;title:apiSettings.providerIconPlaceholder" />
-                  </label>
-                  <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" aria-labelledby="apiProviderNameFieldLabel" />
-                </div>
+          <div class="system-settings-scroll api-provider-editor-scroll">
+            <div id="apiProviderEditor" class="api-provider-editor hidden" aria-hidden="true">
+              <div class="api-provider-editor-heading">
+                <span id="apiProviderEditorTitle" data-i18n="apiSettings.editProvider">编辑供应商</span>
               </div>
-              <label class="field api-base-url-field">
-                <span>Base URL</span>
-                <input id="apiBaseUrl" class="control" type="url" autocomplete="off" placeholder="https://api.openai.com/v1" />
-              </label>
-              <label class="field api-key-field">
-                <span>API Key</span>
-                <div class="api-key-input-wrap">
-                  <input id="apiKey" class="control" type="password" autocomplete="off" placeholder="sk-..." />
-                  <button
-                    id="apiKeyRevealButton"
-                    class="api-key-reveal-button"
-                    type="button"
-                    aria-label="显示 API Key"
-                    title="显示 API Key"
-                    aria-pressed="false"
-                    data-i18n-attr="aria-label:apiSettings.showApiKey;title:apiSettings.showApiKey"
-                  >
-                    <svg class="api-key-reveal-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
+              <div class="api-settings-grid compact-api-settings-grid">
+                <div class="field api-provider-name-field">
+                  <span id="apiProviderNameFieldLabel" data-i18n="apiSettings.providerName">供应商名称</span>
+                  <div class="api-provider-name-inputs">
+                    <label class="api-provider-icon-input">
+                      <span data-i18n="apiSettings.providerIcon">Emoji 图标</span>
+                      <input id="apiProviderIconEmoji" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="🪄" aria-label="Emoji 图标" title="可选，例如 🪄" data-i18n-attr="aria-label:apiSettings.providerIcon;title:apiSettings.providerIconPlaceholder" />
+                    </label>
+                    <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" aria-labelledby="apiProviderNameFieldLabel" />
+                  </div>
                 </div>
-              </label>
-              <label class="field api-concurrency-field">
-                <span data-i18n="apiSettings.concurrency">并发上限</span>
-                <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
-              </label>
-              <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
-                <div class="provider-bindings-header">
-                  <div class="provider-bindings-title-row">
-                    <strong id="providerBindingsTitle" data-i18n="apiSettings.modelBindings">模型绑定</strong>
-                    <button id="addProviderBindingButton" class="ghost-button provider-binding-add" type="button">
-                      <svg class="provider-binding-add-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
-                      </svg>
-                      <span data-i18n="apiSettings.addModelBinding">添加模型绑定</span>
+                <label class="field api-concurrency-field">
+                  <span data-i18n="apiSettings.concurrency">并发上限</span>
+                  <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
+                </label>
+                <label class="field api-base-url-field">
+                  <span>Base URL</span>
+                  <input id="apiBaseUrl" class="control" type="url" autocomplete="off" placeholder="https://api.openai.com/v1" />
+                </label>
+                <label class="field api-key-field">
+                  <span>API Key</span>
+                  <div class="api-key-input-wrap">
+                    <input id="apiKey" name="provider-api-key" class="control" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="sk-..." />
+                    <button
+                      id="apiKeyRevealButton"
+                      class="api-key-reveal-button"
+                      type="button"
+                      aria-label="显示 API Key"
+                      title="显示 API Key"
+                      aria-pressed="false"
+                      data-i18n-attr="aria-label:apiSettings.showApiKey;title:apiSettings.showApiKey"
+                    >
+                      <svg class="api-key-reveal-icon" data-ui-icon="eye" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#eye"/></svg>
                     </button>
                   </div>
-                  <small class="provider-bindings-connection">
-                    <span class="provider-bindings-connection-label" data-i18n="apiSettings.connectionPreview">连接预览</span>
-                    <code id="apiRequestEndpointPreview">Base URL 由全部模型绑定共享，认证按协议自动处理</code>
-                  </small>
-                </div>
-                <div id="apiProviderBindings" class="provider-bindings-list"></div>
-              </section>
-            </div>
-            <div class="api-provider-editor-actions">
-              <button id="cancelApiProviderEditButton" class="ghost-button" type="button" data-i18n="apiSettings.cancelEdit">取消编辑</button>
-              <button id="saveApiProviderEditButton" class="run-button" type="button" data-i18n="apiSettings.saveProvider">保存供应商</button>
+                </label>
+                <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
+                  <div class="provider-bindings-header">
+                    <div class="provider-bindings-title-row">
+                      <strong id="providerBindingsTitle"><span data-i18n="apiSettings.modelBindings">模型</span> <span id="providerBindingsCount"></span></strong>
+                      <button id="addProviderBindingButton" class="ghost-button provider-binding-add" type="button">
+                        <span data-i18n="apiSettings.addModelBinding">添加模型</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div id="apiProviderBindings" class="provider-bindings-list"></div>
+                </section>
+              </div>
             </div>
           </div>
           <div id="apiSettingsActions" class="settings-modal-actions settings-status-only">
             <p id="apiSettingsStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
           </div>
+          <div class="api-provider-editor-actions settings-save-actions">
+            <button id="cancelApiProviderEditButton" class="ghost-button" type="button" data-i18n="action.cancel">取消</button>
+            <button id="saveApiProviderEditButton" class="run-button" type="button" data-i18n="action.save">保存</button>
+          </div>
         </section>
         <section id="systemSettingsNetworkPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsNetworkTab" hidden aria-hidden="true">
-          <div class="lan-access-panel">
-            <label class="web-search-toggle lan-access-toggle">
-              <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
-              <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
-              <span class="web-search-toggle-track" aria-hidden="true"></span>
-            </label>
-            <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
-            <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
-            <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
-          </div>
-          <div class="network-egress-panel">
-            <div class="field">
-              <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
-              <div class="network-egress-mode-selector" role="group" aria-labelledby="networkEgressModeLabel">
-                <button class="network-egress-mode-button active" type="button" aria-pressed="true" data-network-egress-mode="system" data-i18n="networkEgress.system">系统</button>
-                <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="direct" data-i18n="networkEgress.direct">直连</button>
-                <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="custom" data-i18n="networkEgress.custom">自定义</button>
+          <div class="system-settings-scroll">
+            <div class="lan-access-panel">
+              <label class="web-search-toggle lan-access-toggle">
+                <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
+                <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
+                <span class="web-search-toggle-track" aria-hidden="true"></span>
+              </label>
+              <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
+              <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
+              <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
+            </div>
+            <div class="network-egress-panel">
+              <div class="field">
+                <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
+                <div class="network-egress-mode-selector" role="group" aria-labelledby="networkEgressModeLabel">
+                  <button class="network-egress-mode-button active" type="button" aria-pressed="true" data-network-egress-mode="system" data-i18n="networkEgress.system">系统</button>
+                  <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="direct" data-i18n="networkEgress.direct">直连</button>
+                  <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="custom" data-i18n="networkEgress.custom">自定义</button>
+                </div>
+                <input id="networkEgressMode" type="hidden" value="system" />
               </div>
-              <input id="networkEgressMode" type="hidden" value="system" />
-            </div>
-            <label id="networkEgressCustomProxyField" class="field" hidden>
-              <span data-i18n="networkEgress.customProxy">自定义代理地址</span>
-              <input id="networkEgressCustomProxy" class="control" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://127.0.0.1:7890" />
-            </label>
-            <div class="network-request-policy-grid">
-              <label class="field network-request-policy-field">
-                <span data-i18n="networkEgress.timeout">单次生图超时</span>
-                <span class="network-request-policy-input">
-                  <input id="networkEgressTimeoutMinutes" class="control" type="number" min="1" max="30" step="1" inputmode="numeric" value="10" aria-describedby="networkRequestPolicyHelp networkEgressTimeoutError" />
-                  <span class="network-request-policy-unit" data-i18n="networkEgress.timeoutUnit">分钟</span>
-                </span>
-                <small id="networkEgressTimeoutError" class="network-request-policy-error" data-i18n="networkEgress.timeoutInvalid" role="alert" hidden>请输入 1–30 的整数分钟</small>
+              <label id="networkEgressCustomProxyField" class="field" hidden>
+                <span data-i18n="networkEgress.customProxy">自定义代理地址</span>
+                <input id="networkEgressCustomProxy" class="control" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://127.0.0.1:7890" />
               </label>
-              <label class="field network-request-policy-field">
-                <span data-i18n="networkEgress.retryCount">失败后重试</span>
-                <span class="network-request-policy-input">
-                  <input id="networkEgressRetryCount" class="control" type="number" min="0" max="5" step="1" inputmode="numeric" value="2" aria-describedby="networkRequestPolicyHelp networkEgressRetryError" />
-                  <span class="network-request-policy-unit" data-i18n="networkEgress.retryUnit">次</span>
-                </span>
-                <small id="networkEgressRetryError" class="network-request-policy-error" data-i18n="networkEgress.retryInvalid" role="alert" hidden>请输入 0–5 的整数次数</small>
+              <div class="network-request-policy-grid">
+                <label class="field network-request-policy-field">
+                  <span data-i18n="networkEgress.timeout">单次生图超时</span>
+                  <span class="network-request-policy-input">
+                    <input id="networkEgressTimeoutMinutes" class="control" type="number" min="1" max="30" step="1" inputmode="numeric" value="10" aria-describedby="networkRequestPolicyHelp networkEgressTimeoutError" />
+                    <span class="network-request-policy-unit" data-i18n="networkEgress.timeoutUnit">分钟</span>
+                  </span>
+                  <small id="networkEgressTimeoutError" class="network-request-policy-error" data-i18n="networkEgress.timeoutInvalid" role="alert" hidden>请输入 1–30 的整数分钟</small>
+                </label>
+                <label class="field network-request-policy-field">
+                  <span data-i18n="networkEgress.retryCount">失败后重试</span>
+                  <span class="network-request-policy-input">
+                    <input id="networkEgressRetryCount" class="control" type="number" min="0" max="5" step="1" inputmode="numeric" value="2" aria-describedby="networkRequestPolicyHelp networkEgressRetryError" />
+                    <span class="network-request-policy-unit" data-i18n="networkEgress.retryUnit">次</span>
+                  </span>
+                  <small id="networkEgressRetryError" class="network-request-policy-error" data-i18n="networkEgress.retryInvalid" role="alert" hidden>请输入 0–5 的整数次数</small>
+                </label>
+              </div>
+              <p id="networkRequestPolicyHelp" class="network-request-policy-help" data-i18n="networkEgress.requestPolicyHelp">仅影响之后开始的生图请求；每次自动重试都会重新计算超时时间。</p>
+              <p id="networkEgressCompatibilityNotice" class="network-egress-compatibility-notice" aria-live="polite" hidden></p>
+              <label class="web-search-toggle network-fake-ip-toggle">
+                <span id="networkEgressFakeIpDnsLabel" data-i18n="networkEgress.fakeIpDnsFallback">图片下载兼容 Fake-IP DNS</span>
+                <input id="networkEgressFakeIpDnsFallback" type="checkbox" role="switch" aria-labelledby="networkEgressFakeIpDnsLabel" aria-describedby="networkEgressFakeIpDnsHelp" disabled />
+                <span class="web-search-toggle-track" aria-hidden="true"></span>
               </label>
+              <p id="networkEgressFakeIpDnsHelp" class="network-request-policy-help" data-i18n="networkEgress.fakeIpDnsHelp">遇到 Fake-IP 时，通过 Cloudflare DNS 查询图片域名的真实公网地址。仅影响之后开始的图片下载，不改变局域网 DNS；不会发送密钥、提示词或完整图片链接。</p>
+              <p id="networkEgressCurrentRoute" class="network-egress-current-route" data-i18n="networkEgress.currentRoute">当前出口：系统</p>
             </div>
-            <p id="networkRequestPolicyHelp" class="network-request-policy-help" data-i18n="networkEgress.requestPolicyHelp">仅影响之后开始的生图请求；每次自动重试都会重新计算超时时间。</p>
-            <p id="networkEgressCompatibilityNotice" class="network-egress-compatibility-notice" aria-live="polite" hidden></p>
-            <label class="web-search-toggle network-fake-ip-toggle">
-              <span id="networkEgressFakeIpDnsLabel" data-i18n="networkEgress.fakeIpDnsFallback">图片下载兼容 Fake-IP DNS</span>
-              <input id="networkEgressFakeIpDnsFallback" type="checkbox" role="switch" aria-labelledby="networkEgressFakeIpDnsLabel" aria-describedby="networkEgressFakeIpDnsHelp" disabled />
-              <span class="web-search-toggle-track" aria-hidden="true"></span>
-            </label>
-            <p id="networkEgressFakeIpDnsHelp" class="network-request-policy-help" data-i18n="networkEgress.fakeIpDnsHelp">遇到 Fake-IP 时，通过 Cloudflare DNS 查询图片域名的真实公网地址。仅影响之后开始的图片下载，不改变局域网 DNS；不会发送密钥、提示词或完整图片链接。</p>
-            <p id="networkEgressCurrentRoute" class="network-egress-current-route" data-i18n="networkEgress.currentRoute">当前出口：系统</p>
-            <div class="settings-modal-actions network-egress-actions">
-              <p id="networkEgressStatus" class="settings-action-status network-egress-feedback" aria-live="polite"></p>
-              <button id="testNetworkEgressButton" class="ghost-button" type="button" data-i18n="networkEgress.test">检测连接</button>
-              <button id="saveNetworkEgressButton" class="run-button" type="button" data-i18n="networkEgress.save">保存并应用</button>
-            </div>
+          </div>
+          <div class="settings-modal-actions settings-save-actions network-egress-actions">
+            <p id="networkEgressStatus" class="settings-action-status network-egress-feedback" aria-live="polite"></p>
+            <button id="testNetworkEgressButton" class="ghost-button" type="button" data-i18n="networkEgress.test">检测连接</button>
+            <button id="saveNetworkEgressButton" class="run-button" type="button" data-i18n="networkEgress.save">保存并应用</button>
           </div>
         </section>
         <section id="systemSettingsLanguagePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsLanguageTab" hidden aria-hidden="true">
-          <div class="language-settings-panel">
-            <div class="field language-select-field">
-              <span id="languageSelectLabel" data-i18n="settings.language">界面语言</span>
-              <select id="languageSelect" class="control" autocomplete="off" aria-labelledby="languageSelectLabel" aria-describedby="languageSettingsCopy languageSettingsStatus">
-                <option value="zh-CN">简体中文</option>
-                <option value="zh-TW">正體中文</option>
-                <option value="zh-HK">繁体中文</option>
-                <option value="ja">日本語</option>
-                <option value="ko">한국어</option>
-                <option value="en">English</option>
-                <option value="vi">Tiếng Việt</option>
-                <option value="es">Español</option>
-                <option value="pt">Português</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="ru">Русский</option>
-                <option value="it">Italiano</option>
-                <option value="hi">हिन्दी</option>
-              </select>
-              <span id="languageSettingsCopy" class="field-hint" data-i18n="settings.languageCopy">首次启动会自动跟随浏览器语言，手动选择后会记住偏好。</span>
+          <div class="system-settings-scroll">
+            <div class="language-settings-panel">
+              <div class="field language-select-field">
+                <span id="languageSelectLabel" data-i18n="settings.language">界面语言</span>
+                <select id="languageSelect" class="control" autocomplete="off" aria-labelledby="languageSelectLabel" aria-describedby="languageSettingsCopy languageSettingsStatus">
+                  <option value="zh-CN">简体中文</option>
+                  <option value="zh-TW">正體中文</option>
+                  <option value="zh-HK">繁体中文</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="en">English</option>
+                  <option value="vi">Tiếng Việt</option>
+                  <option value="es">Español</option>
+                  <option value="pt">Português</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                  <option value="ru">Русский</option>
+                  <option value="it">Italiano</option>
+                  <option value="hi">हिन्दी</option>
+                </select>
+                <span id="languageSettingsCopy" class="field-hint" data-i18n="settings.languageCopy">首次启动会自动跟随浏览器语言，手动选择后会记住偏好。</span>
+              </div>
+              <p id="languageSettingsStatus" class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus" aria-live="polite">切换后立即生效</p>
             </div>
-            <p id="languageSettingsStatus" class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus" aria-live="polite">切换后立即生效</p>
           </div>
         </section>
         <section id="systemSettingsStoragePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsStorageTab" hidden aria-hidden="true">
-          <div class="settings-path-grid">
-            <label class="field">
-              <span data-i18n="settings.inputRoot">输入目录</span>
-              <input id="settingsInputRoot" class="control" type="text" autocomplete="off" />
-            </label>
-            <label class="field">
-              <span data-i18n="settings.outputRoot">输出目录</span>
-              <input id="settingsOutputRoot" class="control" type="text" autocomplete="off" />
-            </label>
-            <label class="field">
-              <span data-i18n="settings.galleryRoot">公用图库目录</span>
-              <input id="settingsGalleryRoot" class="control" type="text" autocomplete="off" />
-            </label>
-            <label class="field">
-              <span data-i18n="settings.sourceDataRoot">源数据目录</span>
-              <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
-            </label>
-          </div>
-          <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
-          <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
-            <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
-            <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
-            <dl id="settingsPreviousPathsList"></dl>
-          </details>
-          <div class="notification-options-panel" aria-label="任务通知设置">
-            <div class="notification-options-copy">
-              <strong data-i18n="notifications.title">任务通知</strong>
-              <span data-i18n="settings.notificationsCopy">任务完成或失败时提醒，系统通知需手动开启。</span>
+          <div class="system-settings-scroll">
+            <div class="settings-path-grid">
+              <label class="field">
+                <span data-i18n="settings.inputRoot">输入目录</span>
+                <input id="settingsInputRoot" class="control" type="text" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span data-i18n="settings.outputRoot">输出目录</span>
+                <input id="settingsOutputRoot" class="control" type="text" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span data-i18n="settings.galleryRoot">公用图库目录</span>
+                <input id="settingsGalleryRoot" class="control" type="text" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span data-i18n="settings.sourceDataRoot">源数据目录</span>
+                <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
+              </label>
             </div>
-            <label class="notification-option-row">
-              <span data-i18n="settings.inAppNotification">站内通知</span>
-              <input id="taskNotificationInApp" type="checkbox" checked />
-            </label>
-            <label class="notification-option-row">
-              <span data-i18n="settings.systemNotification">系统通知</span>
-              <input id="taskNotificationSystem" type="checkbox" />
-            </label>
+            <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
+            <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
+              <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
+              <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
+              <dl id="settingsPreviousPathsList"></dl>
+            </details>
+            <div class="notification-options-panel" aria-label="任务通知设置">
+              <div class="notification-options-copy">
+                <strong data-i18n="notifications.title">任务通知</strong>
+                <span data-i18n="settings.notificationsCopy">任务完成或失败时提醒，系统通知需手动开启。</span>
+              </div>
+              <label class="notification-option-row">
+                <span data-i18n="settings.inAppNotification">站内通知</span>
+                <input id="taskNotificationInApp" type="checkbox" checked />
+              </label>
+              <label class="notification-option-row">
+                <span data-i18n="settings.systemNotification">系统通知</span>
+                <input id="taskNotificationSystem" type="checkbox" />
+              </label>
+            </div>
+            <button id="openUserConfigBackupButton" class="user-config-backup-entry" type="button">
+              <span class="user-config-backup-entry-copy">
+                <strong data-i18n="userConfigBackup.entryTitle">配置备份与恢复</strong>
+                <span data-i18n="userConfigBackup.entryCopy">迁移 chip、公用图、模板和系统设置</span>
+              </span>
+              <svg data-ui-icon="chevron-right" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-right"/></svg>
+            </button>
           </div>
-          <button id="openUserConfigBackupButton" class="user-config-backup-entry" type="button">
-            <span class="user-config-backup-entry-copy">
-              <strong data-i18n="userConfigBackup.entryTitle">配置备份与恢复</strong>
-              <span data-i18n="userConfigBackup.entryCopy">迁移 chip、公用图、模板和系统设置</span>
-            </span>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6L15 12L9 18" /></svg>
-          </button>
-          <div class="settings-modal-actions">
+          <div class="settings-modal-actions settings-save-actions">
             <p id="settingsStatus" class="settings-action-status" data-i18n="settings.status" aria-live="polite">保存存储路径后重启 WebUI 生效</p>
             <button id="saveSettingsButton" class="run-button" type="button" data-i18n="settings.save">保存设置</button>
           </div>
-        </section>
-        <section id="userConfigBackupView" class="user-config-backup-view" hidden inert aria-hidden="true">
-          <div id="userConfigTransferMode" class="user-config-segmented" role="group" aria-label="备份或恢复" data-i18n-attr="aria-label:userConfigBackup.modeLabel">
-            <button class="active" type="button" aria-pressed="true" data-user-config-view-mode="backup" data-i18n="userConfigBackup.backupTab">备份</button>
-            <button type="button" aria-pressed="false" data-user-config-view-mode="restore" data-i18n="userConfigBackup.restoreTab">恢复</button>
-          </div>
-
-          <div id="userConfigBackupPane" class="user-config-transfer-pane">
-            <p class="user-config-intro" data-i18n="userConfigBackup.backupCopy">选择要写入备份包的配置。生成任务和 OAuth 登录态不会包含在内。</p>
-            <fieldset class="user-config-section-fieldset">
-              <legend data-i18n="userConfigBackup.selectSections">选择数据</legend>
-              <div id="userConfigBackupSectionList" class="user-config-section-list">
-                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="chips" checked /><span><strong data-i18n="userConfigBackup.sectionChips">Chip</strong><small data-user-config-summary="chips">—</small></span></label>
-                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="gallery" checked /><span><strong data-i18n="userConfigBackup.sectionGallery">公用图</strong><small data-user-config-summary="gallery">—</small></span></label>
-                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="templates" checked /><span><strong data-i18n="userConfigBackup.sectionTemplates">模板</strong><small data-user-config-summary="templates">—</small></span></label>
-                <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="settings" checked /><span><strong data-i18n="userConfigBackup.sectionSettings">系统设置</strong><small data-user-config-summary="settings">—</small></span></label>
-              </div>
-            </fieldset>
-            <label id="userConfigIncludeApiKeysRow" class="user-config-sensitive-row">
-              <input id="userConfigIncludeApiKeys" type="checkbox" />
-              <span><strong data-i18n="userConfigBackup.includeApiKeys">包含 API Key（敏感）</strong><small data-i18n="userConfigBackup.apiKeyWarning">备份包不加密，请妥善保存。</small></span>
-            </label>
-            <div id="userConfigBackupProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="备份进度" data-i18n-attr="aria-label:userConfigBackup.backupProgress">
-              <span></span>
+          <section id="userConfigBackupView" class="system-settings-scroll user-config-backup-view" hidden inert aria-hidden="true" aria-labelledby="userConfigBackupTitle">
+            <div class="user-config-child-heading">
+            <button id="userConfigBackupBackButton" class="ghost-button drawer-close-button user-config-back-button" type="button" aria-label="返回存储与通知" title="返回存储与通知" data-i18n-attr="aria-label:userConfigBackup.back;title:userConfigBackup.back">
+              <svg class="drawer-close-icon" data-ui-icon="arrow-left" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#arrow-left"/></svg>
+            </button>
+              <h3 id="userConfigBackupTitle" data-i18n="userConfigBackup.title">备份与恢复</h3>
             </div>
-            <p id="userConfigBackupStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
-            <div class="user-config-actions">
-              <button id="cancelUserConfigBackupButton" class="ghost-button hidden" type="button" data-i18n="action.cancel">取消</button>
-              <button id="createUserConfigBackupButton" class="run-button" type="button" data-i18n="userConfigBackup.create">创建备份</button>
-              <button id="downloadUserConfigBackupButton" class="ghost-button hidden" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3V15M7 10L12 15L17 10M5 20H19" /></svg>
-                <span data-i18n="userConfigBackup.download">下载备份</span>
-              </button>
+            <div id="userConfigTransferMode" class="user-config-segmented" role="group" aria-label="备份或恢复" data-i18n-attr="aria-label:userConfigBackup.modeLabel">
+              <button class="active" type="button" aria-pressed="true" data-user-config-view-mode="backup" data-i18n="userConfigBackup.backupTab">备份</button>
+              <button type="button" aria-pressed="false" data-user-config-view-mode="restore" data-i18n="userConfigBackup.restoreTab">恢复</button>
             </div>
-          </div>
 
-          <div id="userConfigRestorePane" class="user-config-transfer-pane" hidden aria-hidden="true">
-            <div id="userConfigRestoreChoose" class="user-config-restore-stage">
-              <label class="user-config-file-picker" for="userConfigRestoreFile">
-                <strong data-i18n="userConfigBackup.chooseArchive">选择备份 ZIP</strong>
-                <span data-i18n="userConfigBackup.chooseArchiveCopy">文件会先上传并校验，预览不会修改现有数据。</span>
+            <div id="userConfigBackupPane" class="user-config-transfer-pane">
+              <p class="user-config-intro" data-i18n="userConfigBackup.backupCopy">选择要写入备份包的配置。生成任务和 OAuth 登录态不会包含在内。</p>
+              <fieldset class="user-config-section-fieldset">
+                <legend data-i18n="userConfigBackup.selectSections">选择数据</legend>
+                <div id="userConfigBackupSectionList" class="user-config-section-list">
+                  <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="chips" checked /><span><strong data-i18n="userConfigBackup.sectionChips">Chip</strong><small data-user-config-summary="chips">—</small></span></label>
+                  <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="gallery" checked /><span><strong data-i18n="userConfigBackup.sectionGallery">公用图</strong><small data-user-config-summary="gallery">—</small></span></label>
+                  <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="templates" checked /><span><strong data-i18n="userConfigBackup.sectionTemplates">模板</strong><small data-user-config-summary="templates">—</small></span></label>
+                  <label class="user-config-section-row"><input type="checkbox" name="userConfigBackupSection" value="settings" checked /><span><strong data-i18n="userConfigBackup.sectionSettings">系统设置</strong><small data-user-config-summary="settings">—</small></span></label>
+                </div>
+              </fieldset>
+              <label id="userConfigIncludeApiKeysRow" class="user-config-sensitive-row">
+                <input id="userConfigIncludeApiKeys" type="checkbox" />
+                <span><strong data-i18n="userConfigBackup.includeApiKeys">包含 API Key（敏感）</strong><small data-i18n="userConfigBackup.apiKeyWarning">备份包不加密，请妥善保存。</small></span>
               </label>
-              <input id="userConfigRestoreFile" type="file" accept=".zip,application/zip" />
-            </div>
-            <div id="userConfigRestoreProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="恢复上传进度" data-i18n-attr="aria-label:userConfigBackup.restoreProgress"><span></span></div>
-            <p id="userConfigRestoreStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
-
-            <div id="userConfigRestorePreview" class="user-config-restore-stage hidden" aria-hidden="true">
-              <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.previewTitle">恢复预览</strong><span id="userConfigRestoreArchiveMeta"></span></div>
-              <div id="userConfigRestoreSectionList" class="user-config-section-list"></div>
-              <div id="userConfigRestoreMode" class="user-config-segmented" role="group" aria-label="恢复模式" data-i18n-attr="aria-label:userConfigBackup.restoreModeLabel">
-                <button class="active" type="button" aria-pressed="true" data-user-config-restore-mode="incremental" data-i18n="userConfigBackup.incremental">增量</button>
-                <button type="button" aria-pressed="false" data-user-config-restore-mode="replace" data-i18n="userConfigBackup.replace">替换</button>
+              <div id="userConfigBackupProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="备份进度" data-i18n-attr="aria-label:userConfigBackup.backupProgress">
+                <span></span>
               </div>
-              <p id="userConfigRestoreModeCopy" class="user-config-intro" data-i18n="userConfigBackup.incrementalCopy">保留现有数据，重复内容跳过，冲突项创建恢复副本。</p>
-              <div class="user-config-actions"><button id="startUserConfigRestoreButton" class="run-button" type="button" data-i18n="userConfigBackup.restoreSelected">恢复所选内容</button></div>
-            </div>
-
-            <div id="userConfigReplaceConfirmation" class="user-config-restore-stage user-config-danger-stage hidden" aria-hidden="true">
-              <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.replaceConfirmTitle">确认替换现有数据</strong></div>
-              <p data-i18n="userConfigBackup.replaceConfirmCopy">替换只影响所选类别，但会删除这些类别的现有内容。此操作完成后不能撤销。</p>
-              <ul id="userConfigReplaceImpactList" class="user-config-impact-list"></ul>
-              <label class="user-config-replace-ack"><input id="userConfigReplaceAcknowledge" type="checkbox" /><span data-i18n="userConfigBackup.replaceAcknowledge">我已了解现有数据将被替换</span></label>
+              <p id="userConfigBackupStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
               <div class="user-config-actions">
-                <button id="backToUserConfigPreviewButton" class="ghost-button" type="button" data-i18n="userConfigBackup.backToPreview">返回预览</button>
-                <button id="confirmUserConfigReplaceButton" class="run-button danger" type="button" disabled data-i18n="userConfigBackup.confirmReplace">确认替换并恢复</button>
+                <button id="cancelUserConfigBackupButton" class="ghost-button hidden" type="button" data-i18n="action.cancel">取消</button>
+                <button id="createUserConfigBackupButton" class="run-button" type="button" data-i18n="userConfigBackup.create">创建备份</button>
+                <button id="downloadUserConfigBackupButton" class="ghost-button hidden" type="button">
+                  <svg data-ui-icon="download" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#download"/></svg>
+                  <span data-i18n="userConfigBackup.download">下载备份</span>
+                </button>
               </div>
             </div>
 
-            <div id="userConfigRestoreResult" class="user-config-restore-stage hidden" aria-live="polite" aria-hidden="true"></div>
-          </div>
+            <div id="userConfigRestorePane" class="user-config-transfer-pane" hidden aria-hidden="true">
+              <div id="userConfigRestoreChoose" class="user-config-restore-stage">
+                <label class="user-config-file-picker" for="userConfigRestoreFile">
+                  <strong data-i18n="userConfigBackup.chooseArchive">选择备份 ZIP</strong>
+                  <span data-i18n="userConfigBackup.chooseArchiveCopy">文件会先上传并校验，预览不会修改现有数据。</span>
+                </label>
+                <input id="userConfigRestoreFile" type="file" accept=".zip,application/zip" />
+              </div>
+              <div id="userConfigRestoreProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="恢复上传进度" data-i18n-attr="aria-label:userConfigBackup.restoreProgress"><span></span></div>
+              <p id="userConfigRestoreStatus" class="settings-action-status user-config-status" aria-live="polite"></p>
+
+              <div id="userConfigRestorePreview" class="user-config-restore-stage hidden" aria-hidden="true">
+                <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.previewTitle">恢复预览</strong><span id="userConfigRestoreArchiveMeta"></span></div>
+                <div id="userConfigRestoreSectionList" class="user-config-section-list"></div>
+                <div id="userConfigRestoreMode" class="user-config-segmented" role="group" aria-label="恢复模式" data-i18n-attr="aria-label:userConfigBackup.restoreModeLabel">
+                  <button class="active" type="button" aria-pressed="true" data-user-config-restore-mode="incremental" data-i18n="userConfigBackup.incremental">增量</button>
+                  <button type="button" aria-pressed="false" data-user-config-restore-mode="replace" data-i18n="userConfigBackup.replace">替换</button>
+                </div>
+                <p id="userConfigRestoreModeCopy" class="user-config-intro" data-i18n="userConfigBackup.incrementalCopy">保留现有数据，重复内容跳过，冲突项创建恢复副本。</p>
+                <div class="user-config-actions"><button id="startUserConfigRestoreButton" class="run-button" type="button" data-i18n="userConfigBackup.restoreSelected">恢复所选内容</button></div>
+              </div>
+
+              <div id="userConfigReplaceConfirmation" class="user-config-restore-stage user-config-danger-stage hidden" aria-hidden="true">
+                <div class="user-config-stage-heading"><strong data-i18n="userConfigBackup.replaceConfirmTitle">确认替换现有数据</strong></div>
+                <p data-i18n="userConfigBackup.replaceConfirmCopy">替换只影响所选类别，但会删除这些类别的现有内容。此操作完成后不能撤销。</p>
+                <ul id="userConfigReplaceImpactList" class="user-config-impact-list"></ul>
+                <label class="user-config-replace-ack"><input id="userConfigReplaceAcknowledge" type="checkbox" /><span data-i18n="userConfigBackup.replaceAcknowledge">我已了解现有数据将被替换</span></label>
+                <div class="user-config-actions">
+                  <button id="backToUserConfigPreviewButton" class="ghost-button" type="button" data-i18n="userConfigBackup.backToPreview">返回预览</button>
+                  <button id="confirmUserConfigReplaceButton" class="run-button danger" type="button" disabled data-i18n="userConfigBackup.confirmReplace">确认替换并恢复</button>
+                </div>
+              </div>
+
+              <div id="userConfigRestoreResult" class="user-config-restore-stage hidden" aria-live="polite" aria-hidden="true"></div>
+            </div>
+          </section>
         </section>
       </div>
     </div>
@@ -1433,9 +1344,7 @@
             <p id="versionModalStatus" data-i18n="version.loading">正在读取版本状态</p>
           </div>
           <button id="versionModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭版本更新面板" title="关闭" data-i18n-attr="aria-label:close.version;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <div class="version-detail-grid">
@@ -1479,9 +1388,7 @@
             <p id="imageEditorSubtitle" data-i18n="imageEditor.subtitle">裁剪、涂鸦、油漆桶填充或添加箭头后保存为新的输入图</p>
           </div>
           <button id="imageEditorClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭编辑输入图片面板" title="关闭" data-i18n-attr="aria-label:close.imageEditor;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <div class="image-editor-toolbar" aria-label="图片编辑工具栏" data-i18n-attr="aria-label:imageEditor.toolbar">
@@ -1608,9 +1515,7 @@
             <p id="galleryDrawerSubtitle" data-i18n="gallery.subtitle">选择参考图加入当前任务</p>
           </div>
           <button id="galleryDrawerClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭公用图库面板" title="关闭" data-i18n-attr="aria-label:close.gallery;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
       </div>
       <div class="resource-sheet-body gallery-drawer-body">
@@ -1647,9 +1552,7 @@
             <p data-i18n="addGallery.copy">名称全局唯一，后续可用 @名称 调取</p>
           </div>
           <button id="addToGalleryClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭添加到图库面板" title="关闭" data-i18n-attr="aria-label:close.addGallery;title:action.close">
-            <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 7L17 17M17 7L7 17" />
-            </svg>
+            <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
         <div class="add-gallery-body">
@@ -1676,7 +1579,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-871"></script>
+  <script src="/static/app.js?v=runtime-904"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

@@ -1,8 +1,25 @@
+.user-config-child-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.user-config-child-heading h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .user-config-back-button {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+#systemSettingsStoragePanel > [hidden] {
+  display: none;
 }
 
 .user-config-backup-entry {
@@ -84,9 +101,7 @@
 
 .user-config-backup-view {
   min-height: 0;
-  max-height: calc(100vh - 146px);
-  overflow-y: auto;
-  padding-right: 2px;
+  max-height: none;
 }
 
 .user-config-backup-view[hidden],

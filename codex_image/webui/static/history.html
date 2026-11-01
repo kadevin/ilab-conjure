@@ -25,7 +25,7 @@
       document.documentElement.dataset.themePreference = preference;
     })();
   </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-868" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-922" />
 </head>
 <body>
   <main class="history-page">
@@ -109,10 +109,7 @@
       <details class="history-filter-block" data-history-filter-section="orientation" open>
         <summary class="history-filter-summary">
           <h2 class="history-filter-heading history-filter-heading-orientation">
-            <svg class="history-filter-heading-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <rect x="5" y="3.5" width="10" height="13" rx="2.5"></rect>
-              <path d="M7.5 6.5h5M7.5 10h5M7.5 13.5h5"></path>
-            </svg>
+            <svg class="history-filter-heading-icon" data-ui-icon="portrait" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#portrait"/></svg>
             <span data-i18n="history.orientation">方向</span>
           </h2>
         </summary>
@@ -147,16 +144,13 @@
     <header class="top-nav history-top-nav">
       <div class="nav-actions">
         <a class="ghost-button history-mobile-home" href="/" aria-label="返回生成页" title="返回生成页" data-i18n-attr="aria-label:history.backToGenerator;title:history.backToGenerator">
-          <svg class="history-toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 5-7 7 7 7M5 12h14" /></svg>
+          <svg class="history-toolbar-button-icon" data-ui-icon="arrow-left" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#arrow-left"/></svg>
         </a>
         <button id="queueButton" class="queue-button queue-status-chip" type="button" aria-label="队列状态：暂无排队" title="跳转到进行中任务" data-i18n-attr="aria-label:queue.emptyAria;title:queue.jumpTitle">
           <span id="queueStatusText" data-i18n="queue.empty">暂无排队</span>
         </button>
         <button id="taskNotificationButton" class="queue-button task-notification-button" type="button" aria-controls="taskNotificationCenter" aria-expanded="false" aria-label="任务通知" title="任务通知" data-i18n-attr="aria-label:notifications.title;title:notifications.title">
-          <svg class="task-notification-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+          <svg class="task-notification-icon" data-ui-icon="bell" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#bell"/></svg>
           <span id="taskNotificationBadge" class="task-notification-dot hidden" aria-hidden="true"></span>
         </button>
         <div id="themeSwitcher" class="theme-switcher" aria-label="主题模式" data-i18n-attr="aria-label:theme.label">
@@ -177,10 +171,7 @@
             </select>
           </div>
           <button id="generationProviderSettingsButton" class="auth-source-settings-button" type="button" aria-label="打开供应商设置" title="打开供应商设置" data-i18n-attr="aria-label:modelSelection.openSettings;title:modelSelection.openSettings">
-            <svg class="auth-source-settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M19.4 13.4a7.8 7.8 0 0 0 .1-1.4 7.8 7.8 0 0 0-.1-1.4l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L14.3 3h-4.6l-.4 2.3A8 8 0 0 0 6.9 6.7l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.4 7.8 7.8 0 0 0 .1 1.4l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2.1-1.5Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
-            </svg>
+            <svg class="auth-source-settings-icon" data-ui-icon="settings" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#settings"/></svg>
           </button>
         </div>
       </div>
@@ -219,10 +210,10 @@
           </div>
           <div id="historyToolbarUtilities" class="history-toolbar-utilities">
             <button id="historyManagementButton" class="ghost-button history-toolbar-icon-button history-management-button" type="button" data-history-open-management aria-label="历史库管理" title="历史库管理">
-              <svg class="history-toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h16v12H4zM3 4h18v4H3zM9 12h6" /></svg>
+              <svg class="history-toolbar-button-icon" data-ui-icon="archive" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#archive"/></svg>
             </button>
             <button id="historyRefreshButton" class="ghost-button history-toolbar-icon-button" type="button" aria-label="刷新" title="刷新" data-i18n-attr="aria-label:history.refresh;title:history.refresh">
-              <svg class="history-toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7v5h-5M4 17v-5h5M6.1 8.2A7 7 0 0 1 18.7 7L20 12M4 12l1.3 5A7 7 0 0 0 17.9 15.8" /></svg>
+              <svg class="history-toolbar-button-icon" data-ui-icon="refresh" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#refresh"/></svg>
             </button>
           </div>
         </div>
@@ -244,7 +235,7 @@
         <strong id="historySelectionDockCount"></strong>
         <button class="history-selection-dock-action" type="button" data-history-open-selection-actions>
           <span data-i18n="footer.batch">批量管理</span>
-          <svg class="history-action-row-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6" /></svg>
+          <svg class="history-action-row-arrow" data-ui-icon="chevron-right" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-right"/></svg>
         </button>
       </div>
     </section>
@@ -256,7 +247,7 @@
       <header class="modal-heading history-transfer-heading">
         <div><h2 id="historyBackupTitle" tabindex="-1" data-i18n="historyBackup.mode">任务备份</h2><p data-i18n="historyBackup.description">保存任务数据与相关文件，可在兼容版本的 iLab CONJURE 中导入恢复。</p></div>
         <button class="ghost-button drawer-close-button history-transfer-close" type="button" data-history-close-backup aria-label="关闭" data-i18n-attr="aria-label:action.close">
-          <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7L17 17M17 7L7 17" /></svg>
+          <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
         </button>
       </header>
       <fieldset id="historyBackupScopeFieldset" class="history-backup-scopes" aria-describedby="historyBackupScopeHelp historyBackupScopeEstimate historyBackupScopeState">
@@ -277,7 +268,7 @@
       </div>
       <p id="historyBackupWarning" class="history-backup-warning hidden" hidden role="note"></p>
       <section id="historyBackupComplete" class="history-backup-complete hidden" hidden tabindex="-1" role="status" aria-labelledby="historyBackupCompleteTitle">
-        <svg class="history-backup-complete-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6.5 12.5 3.4 3.4 7.6-8" /></svg>
+        <svg class="history-backup-complete-icon" data-ui-icon="check-circle" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#check-circle"/></svg>
         <div>
           <h3 id="historyBackupCompleteTitle" data-i18n="historyBackup.downloadStartedTitle">下载已开始</h3>
           <p data-i18n="historyBackup.downloaded">请确认浏览器已保存文件；完成后即可关闭此面板。临时文件会在传输结束后删除。</p>
@@ -297,7 +288,7 @@
       <header class="modal-heading history-transfer-heading">
         <div><h2 id="historyImportTitle" tabindex="-1" data-i18n="historyImport.title">导入任务备份</h2><p data-i18n="historyImport.noOverwrite">恢复只新增任务，绝不替换已有任务。</p></div>
         <button class="ghost-button drawer-close-button history-transfer-close" type="button" data-history-close-import aria-label="关闭" data-i18n-attr="aria-label:action.close">
-          <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7L17 17M17 7L7 17" /></svg>
+          <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
         </button>
       </header>
       <label class="history-import-file-field" for="historyImportFile"><span data-i18n="historyImport.choose">选择 ZIP 备份包</span><input id="historyImportFile" class="control" type="file" accept=".zip,application/zip" /></label>
@@ -325,9 +316,7 @@
           <h2 data-i18n="systemSettings.title">系统设置</h2>
         </div>
         <button id="systemSettingsModalClose" class="ghost-button drawer-close-button" type="button" aria-label="关闭系统设置面板" title="关闭" data-i18n-attr="aria-label:close.systemSettings;title:action.close">
-          <svg class="drawer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M7 7L17 17M17 7L7 17" />
-          </svg>
+          <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
         </button>
       </div>
       <div id="systemSettingsTabs" class="system-settings-tabs" role="tablist" aria-label="系统设置选项" data-i18n-attr="aria-label:systemSettings.tabsLabel">
@@ -343,13 +332,16 @@
               <span data-i18n="apiSettings.providers">API 供应商</span>
               <span id="apiProviderCount" class="api-provider-count">0 个</span>
             </div>
-            <button id="sortApiProvidersButton" class="ghost-button text-sm api-provider-sort-toggle hidden" type="button" data-i18n="apiSettings.sortProviders">排序</button>
+            <div class="api-provider-toolbar">
+              <button id="sortApiProvidersButton" class="ghost-button text-sm api-provider-sort-toggle hidden" type="button" data-i18n="apiSettings.sortProviders">排序</button>
+              <button id="addApiProviderButton" class="api-provider-add-button" type="button">
+                <svg data-ui-icon="plus" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#plus"/></svg>
+                <span data-i18n="apiSettings.newProviderAction">新建供应商</span>
+              </button>
+            </div>
           </div>
           <label id="apiProviderSearchField" class="api-provider-search hidden">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="11" cy="11" r="6.5"></circle>
-              <path d="m16 16 4 4"></path>
-            </svg>
+            <svg data-ui-icon="search" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#search"/></svg>
             <input
               id="apiProviderSearch"
               class="control"
@@ -360,12 +352,14 @@
               data-i18n-attr="placeholder:apiSettings.searchProviders;aria-label:apiSettings.searchProviders"
             />
           </label>
-          <div class="api-provider-choice-grid">
-            <div id="apiProviderList" class="api-provider-list" role="listbox" aria-label="API 供应商" data-i18n-attr="aria-label:apiSettings.providers"></div>
-            <button id="addApiProviderButton" class="api-provider-add-card" type="button" data-i18n="apiSettings.newProviderAction">新建供应商</button>
+          <div class="system-settings-scroll api-provider-browse-scroll">
+            <div class="api-provider-choice-grid">
+              <div id="apiProviderList" class="api-provider-list" role="listbox" aria-label="API 供应商" data-i18n-attr="aria-label:apiSettings.providers"></div>
+            </div>
           </div>
           <select id="apiProvider" class="hidden" aria-hidden="true"></select>
           <div id="apiProviderDetail" class="api-provider-detail-panel">
+            <strong id="apiProviderDetailName" class="api-provider-detail-name"></strong>
             <dl class="api-provider-detail-grid">
               <div>
                 <dt>Base URL</dt>
@@ -374,10 +368,6 @@
               <div>
                 <dt>API Key</dt>
                 <dd id="apiProviderDetailKey" data-i18n="apiSettings.keyNotSet">未设置 API Key</dd>
-              </div>
-              <div>
-                <dt data-i18n="apiSettings.modelBindings">模型绑定</dt>
-                <dd id="apiProviderDetailMode">0</dd>
               </div>
               <div>
                 <dt data-i18n="apiSettings.concurrencyShort">并发</dt>
@@ -391,182 +381,179 @@
             </div>
           </div>
         </div>
-        <div id="apiProviderEditor" class="api-provider-editor hidden" aria-hidden="true">
-          <div class="api-provider-editor-heading">
-            <span id="apiProviderEditorTitle" data-i18n="apiSettings.editProvider">编辑供应商</span>
-            <span data-i18n="apiSettings.editHint">点击保存前不会写入后端，取消可放弃本次编辑。</span>
-          </div>
-          <div class="api-settings-grid compact-api-settings-grid">
-            <div class="field api-provider-name-field">
-              <span id="apiProviderNameFieldLabel" data-i18n="apiSettings.providerName">供应商名称</span>
-              <div class="api-provider-name-inputs">
-                <label class="api-provider-icon-input">
-                  <span data-i18n="apiSettings.providerIcon">Emoji 图标</span>
-                  <input id="apiProviderIconEmoji" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="🪄" aria-label="Emoji 图标" title="可选，例如 🪄" data-i18n-attr="aria-label:apiSettings.providerIcon;title:apiSettings.providerIconPlaceholder" />
-                </label>
-                <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" aria-labelledby="apiProviderNameFieldLabel" />
-              </div>
+        <div class="system-settings-scroll api-provider-editor-scroll">
+          <div id="apiProviderEditor" class="api-provider-editor hidden" aria-hidden="true">
+            <div class="api-provider-editor-heading">
+              <span id="apiProviderEditorTitle" data-i18n="apiSettings.editProvider">编辑供应商</span>
             </div>
-            <label class="field api-base-url-field">
-              <span>Base URL</span>
-              <input id="apiBaseUrl" class="control" type="url" autocomplete="off" placeholder="https://api.openai.com/v1" />
-            </label>
-            <label class="field api-key-field">
-              <span>API Key</span>
-              <div class="api-key-input-wrap">
-                <input id="apiKey" class="control" type="password" autocomplete="off" placeholder="sk-..." />
-                <button
-                  id="apiKeyRevealButton"
-                  class="api-key-reveal-button"
-                  type="button"
-                  aria-label="显示 API Key"
-                  title="显示 API Key"
-                  aria-pressed="false"
-                  data-i18n-attr="aria-label:apiSettings.showApiKey;title:apiSettings.showApiKey"
-                >
-                  <svg class="api-key-reveal-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </button>
+            <div class="api-settings-grid compact-api-settings-grid">
+              <div class="field api-provider-name-field">
+                <span id="apiProviderNameFieldLabel" data-i18n="apiSettings.providerName">供应商名称</span>
+                <div class="api-provider-name-inputs">
+                  <label class="api-provider-icon-input">
+                    <span data-i18n="apiSettings.providerIcon">Emoji 图标</span>
+                    <input id="apiProviderIconEmoji" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="🪄" aria-label="Emoji 图标" title="可选，例如 🪄" data-i18n-attr="aria-label:apiSettings.providerIcon;title:apiSettings.providerIconPlaceholder" />
+                  </label>
+                  <input id="apiProviderName" class="control" type="text" autocomplete="off" placeholder="OpenAI" aria-labelledby="apiProviderNameFieldLabel" />
+                </div>
               </div>
-            </label>
-            <label class="field api-concurrency-field">
-              <span data-i18n="apiSettings.concurrency">并发上限</span>
-              <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
-            </label>
-            <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
-              <div class="provider-bindings-header">
-                <div class="provider-bindings-title-row">
-                  <strong id="providerBindingsTitle" data-i18n="apiSettings.modelBindings">模型绑定</strong>
-                  <button id="addProviderBindingButton" class="ghost-button provider-binding-add" type="button">
-                    <svg class="provider-binding-add-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
-                    </svg>
-                    <span data-i18n="apiSettings.addModelBinding">添加模型绑定</span>
+              <label class="field api-concurrency-field">
+                <span data-i18n="apiSettings.concurrency">并发上限</span>
+                <input id="apiImagesConcurrency" class="control" type="number" min="1" max="32" step="1" value="4" />
+              </label>
+              <label class="field api-base-url-field">
+                <span>Base URL</span>
+                <input id="apiBaseUrl" class="control" type="url" autocomplete="off" placeholder="https://api.openai.com/v1" />
+              </label>
+              <label class="field api-key-field">
+                <span>API Key</span>
+                <div class="api-key-input-wrap">
+                  <input id="apiKey" name="provider-api-key" class="control" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="sk-..." />
+                  <button
+                    id="apiKeyRevealButton"
+                    class="api-key-reveal-button"
+                    type="button"
+                    aria-label="显示 API Key"
+                    title="显示 API Key"
+                    aria-pressed="false"
+                    data-i18n-attr="aria-label:apiSettings.showApiKey;title:apiSettings.showApiKey"
+                  >
+                    <svg class="api-key-reveal-icon" data-ui-icon="eye" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#eye"/></svg>
                   </button>
                 </div>
-                <small class="provider-bindings-connection">
-                  <span class="provider-bindings-connection-label" data-i18n="apiSettings.connectionPreview">连接预览</span>
-                  <code id="apiRequestEndpointPreview">Base URL 由全部模型绑定共享，认证按协议自动处理</code>
-                </small>
-              </div>
-              <div id="apiProviderBindings" class="provider-bindings-list"></div>
-            </section>
-          </div>
-          <div class="api-provider-editor-actions">
-            <button id="cancelApiProviderEditButton" class="ghost-button" type="button" data-i18n="apiSettings.cancelEdit">取消编辑</button>
-            <button id="saveApiProviderEditButton" class="run-button" type="button" data-i18n="apiSettings.saveProvider">保存供应商</button>
+              </label>
+              <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
+                <div class="provider-bindings-header">
+                  <div class="provider-bindings-title-row">
+                    <strong id="providerBindingsTitle"><span data-i18n="apiSettings.modelBindings">模型</span> <span id="providerBindingsCount"></span></strong>
+                    <button id="addProviderBindingButton" class="ghost-button provider-binding-add" type="button">
+                      <span data-i18n="apiSettings.addModelBinding">添加模型</span>
+                    </button>
+                  </div>
+                </div>
+                <div id="apiProviderBindings" class="provider-bindings-list"></div>
+              </section>
+            </div>
           </div>
         </div>
         <div id="apiSettingsActions" class="settings-modal-actions settings-status-only">
           <p id="apiSettingsStatus" class="api-settings-feedback settings-action-status" aria-live="polite"></p>
         </div>
+        <div class="api-provider-editor-actions settings-save-actions">
+          <button id="cancelApiProviderEditButton" class="ghost-button" type="button" data-i18n="action.cancel">取消</button>
+          <button id="saveApiProviderEditButton" class="run-button" type="button" data-i18n="action.save">保存</button>
+        </div>
       </section>
       <section id="systemSettingsNetworkPanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsNetworkTab" hidden aria-hidden="true">
-        <div class="lan-access-panel">
-          <label class="web-search-toggle lan-access-toggle">
-            <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
-            <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
-            <span class="web-search-toggle-track" aria-hidden="true"></span>
-          </label>
-          <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
-          <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
-          <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
-        </div>
-        <div class="network-egress-panel">
-          <div class="field">
-            <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
-            <div class="network-egress-mode-selector" role="group" aria-labelledby="networkEgressModeLabel">
-              <button class="network-egress-mode-button active" type="button" aria-pressed="true" data-network-egress-mode="system" data-i18n="networkEgress.system">系统</button>
-              <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="direct" data-i18n="networkEgress.direct">直连</button>
-              <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="custom" data-i18n="networkEgress.custom">自定义</button>
+        <div class="system-settings-scroll">
+          <div class="lan-access-panel">
+            <label class="web-search-toggle lan-access-toggle">
+              <span id="lanAccessLabel" data-i18n="lanAccess.label">允许局域网访问</span>
+              <input id="lanAccessEnabled" type="checkbox" role="switch" aria-labelledby="lanAccessLabel" aria-describedby="lanAccessHelp lanAccessStatus" disabled />
+              <span class="web-search-toggle-track" aria-hidden="true"></span>
+            </label>
+            <p id="lanAccessHelp" class="lan-access-help" data-i18n="lanAccess.help">无需登录。同一网络中的用户共用任务、图库和供应商，也可以修改设置和删除任务。</p>
+            <p id="lanAccessStatus" class="settings-action-status" role="status" data-i18n="lanAccess.loading">正在读取访问设置…</p>
+            <div id="lanAccessAddresses" class="lan-access-addresses" hidden></div>
+          </div>
+          <div class="network-egress-panel">
+            <div class="field">
+              <span id="networkEgressModeLabel" data-i18n="networkEgress.mode">网络出口</span>
+              <div class="network-egress-mode-selector" role="group" aria-labelledby="networkEgressModeLabel">
+                <button class="network-egress-mode-button active" type="button" aria-pressed="true" data-network-egress-mode="system" data-i18n="networkEgress.system">系统</button>
+                <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="direct" data-i18n="networkEgress.direct">直连</button>
+                <button class="network-egress-mode-button" type="button" aria-pressed="false" data-network-egress-mode="custom" data-i18n="networkEgress.custom">自定义</button>
+              </div>
+              <input id="networkEgressMode" type="hidden" value="system" />
             </div>
-            <input id="networkEgressMode" type="hidden" value="system" />
+            <label id="networkEgressCustomProxyField" class="field" hidden>
+              <span data-i18n="networkEgress.customProxy">自定义代理地址</span>
+              <input id="networkEgressCustomProxy" class="control" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://127.0.0.1:7890" />
+            </label>
+            <label class="web-search-toggle network-fake-ip-toggle">
+              <span id="networkEgressFakeIpDnsLabel" data-i18n="networkEgress.fakeIpDnsFallback">图片下载兼容 Fake-IP DNS</span>
+              <input id="networkEgressFakeIpDnsFallback" type="checkbox" role="switch" aria-labelledby="networkEgressFakeIpDnsLabel" aria-describedby="networkEgressFakeIpDnsHelp" disabled />
+              <span class="web-search-toggle-track" aria-hidden="true"></span>
+            </label>
+            <p id="networkEgressFakeIpDnsHelp" class="network-request-policy-help" data-i18n="networkEgress.fakeIpDnsHelp">遇到 Fake-IP 时，通过 Cloudflare DNS 查询图片域名的真实公网地址。仅影响之后开始的图片下载，不改变局域网 DNS；不会发送密钥、提示词或完整图片链接。</p>
+            <p id="networkEgressCurrentRoute" class="network-egress-current-route" data-i18n="networkEgress.currentRoute">当前出口：系统</p>
           </div>
-          <label id="networkEgressCustomProxyField" class="field" hidden>
-            <span data-i18n="networkEgress.customProxy">自定义代理地址</span>
-            <input id="networkEgressCustomProxy" class="control" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://127.0.0.1:7890" />
-          </label>
-          <label class="web-search-toggle network-fake-ip-toggle">
-            <span id="networkEgressFakeIpDnsLabel" data-i18n="networkEgress.fakeIpDnsFallback">图片下载兼容 Fake-IP DNS</span>
-            <input id="networkEgressFakeIpDnsFallback" type="checkbox" role="switch" aria-labelledby="networkEgressFakeIpDnsLabel" aria-describedby="networkEgressFakeIpDnsHelp" disabled />
-            <span class="web-search-toggle-track" aria-hidden="true"></span>
-          </label>
-          <p id="networkEgressFakeIpDnsHelp" class="network-request-policy-help" data-i18n="networkEgress.fakeIpDnsHelp">遇到 Fake-IP 时，通过 Cloudflare DNS 查询图片域名的真实公网地址。仅影响之后开始的图片下载，不改变局域网 DNS；不会发送密钥、提示词或完整图片链接。</p>
-          <p id="networkEgressCurrentRoute" class="network-egress-current-route" data-i18n="networkEgress.currentRoute">当前出口：系统</p>
-          <div class="settings-modal-actions network-egress-actions">
-            <p id="networkEgressStatus" class="settings-action-status network-egress-feedback" aria-live="polite"></p>
-            <button id="testNetworkEgressButton" class="ghost-button" type="button" data-i18n="networkEgress.test">检测连接</button>
-            <button id="saveNetworkEgressButton" class="run-button" type="button" data-i18n="networkEgress.save">保存并应用</button>
-          </div>
+        </div>
+        <div class="settings-modal-actions settings-save-actions network-egress-actions">
+          <p id="networkEgressStatus" class="settings-action-status network-egress-feedback" aria-live="polite"></p>
+          <button id="testNetworkEgressButton" class="ghost-button" type="button" data-i18n="networkEgress.test">检测连接</button>
+          <button id="saveNetworkEgressButton" class="run-button" type="button" data-i18n="networkEgress.save">保存并应用</button>
         </div>
       </section>
       <section id="systemSettingsLanguagePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsLanguageTab" hidden aria-hidden="true">
-        <div class="language-settings-panel">
-          <div class="field language-select-field">
-            <span id="languageSelectLabel" data-i18n="settings.language">界面语言</span>
-            <select id="languageSelect" class="control" autocomplete="off" aria-labelledby="languageSelectLabel" aria-describedby="languageSettingsCopy languageSettingsStatus">
-              <option value="zh-CN">简体中文</option>
-              <option value="zh-TW">正體中文</option>
-              <option value="zh-HK">繁体中文</option>
-              <option value="ja">日本語</option>
-              <option value="ko">한국어</option>
-              <option value="en">English</option>
-              <option value="vi">Tiếng Việt</option>
-              <option value="es">Español</option>
-              <option value="pt">Português</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-              <option value="ru">Русский</option>
-              <option value="it">Italiano</option>
-              <option value="hi">हिन्दी</option>
-            </select>
-            <span id="languageSettingsCopy" class="field-hint" data-i18n="settings.languageCopy">首次启动会自动跟随浏览器语言，手动选择后会记住偏好。</span>
+        <div class="system-settings-scroll">
+          <div class="language-settings-panel">
+            <div class="field language-select-field">
+              <span id="languageSelectLabel" data-i18n="settings.language">界面语言</span>
+              <select id="languageSelect" class="control" autocomplete="off" aria-labelledby="languageSelectLabel" aria-describedby="languageSettingsCopy languageSettingsStatus">
+                <option value="zh-CN">简体中文</option>
+                <option value="zh-TW">正體中文</option>
+                <option value="zh-HK">繁体中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+                <option value="es">Español</option>
+                <option value="pt">Português</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="ru">Русский</option>
+                <option value="it">Italiano</option>
+                <option value="hi">हिन्दी</option>
+              </select>
+              <span id="languageSettingsCopy" class="field-hint" data-i18n="settings.languageCopy">首次启动会自动跟随浏览器语言，手动选择后会记住偏好。</span>
+            </div>
+            <p id="languageSettingsStatus" class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus" aria-live="polite">切换后立即生效</p>
           </div>
-          <p id="languageSettingsStatus" class="settings-action-status language-settings-status" data-i18n="languageSettings.instantStatus" aria-live="polite">切换后立即生效</p>
         </div>
       </section>
       <section id="systemSettingsStoragePanel" class="system-settings-section" role="tabpanel" aria-labelledby="systemSettingsStorageTab" hidden aria-hidden="true">
-        <div class="settings-path-grid">
-          <label class="field">
-            <span data-i18n="settings.inputRoot">输入目录</span>
-            <input id="settingsInputRoot" class="control" type="text" autocomplete="off" />
-          </label>
-          <label class="field">
-            <span data-i18n="settings.outputRoot">输出目录</span>
-            <input id="settingsOutputRoot" class="control" type="text" autocomplete="off" />
-          </label>
-          <label class="field">
-            <span data-i18n="settings.galleryRoot">公用图库目录</span>
-            <input id="settingsGalleryRoot" class="control" type="text" autocomplete="off" />
-          </label>
-          <label class="field">
-            <span data-i18n="settings.sourceDataRoot">源数据目录</span>
-            <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
-          </label>
-        </div>
-        <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
-        <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
-          <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
-          <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
-          <dl id="settingsPreviousPathsList"></dl>
-        </details>
-        <div class="notification-options-panel" aria-label="任务通知设置">
-          <div class="notification-options-copy">
-            <strong data-i18n="notifications.title">任务通知</strong>
-            <span data-i18n="settings.notificationsCopy">任务完成或失败时提醒，系统通知需手动开启。</span>
+        <div class="system-settings-scroll">
+          <div class="settings-path-grid">
+            <label class="field">
+              <span data-i18n="settings.inputRoot">输入目录</span>
+              <input id="settingsInputRoot" class="control" type="text" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span data-i18n="settings.outputRoot">输出目录</span>
+              <input id="settingsOutputRoot" class="control" type="text" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span data-i18n="settings.galleryRoot">公用图库目录</span>
+              <input id="settingsGalleryRoot" class="control" type="text" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span data-i18n="settings.sourceDataRoot">源数据目录</span>
+              <input id="settingsSourceDataRoot" class="control" type="text" autocomplete="off" />
+            </label>
           </div>
-          <label class="notification-option-row">
-            <span data-i18n="settings.inAppNotification">站内通知</span>
-            <input id="taskNotificationInApp" type="checkbox" checked />
-          </label>
-          <label class="notification-option-row">
-            <span data-i18n="settings.systemNotification">系统通知</span>
-            <input id="taskNotificationSystem" type="checkbox" />
-          </label>
+          <p class="field-hint storage-path-hint" data-i18n="settings.pathChangeHint">更改路径不会搬迁旧数据。搬迁前请备份并退出应用，再完整复制相关目录。</p>
+          <details id="settingsPreviousPaths" class="storage-previous-paths" hidden>
+            <summary data-i18n="settings.previousPaths">找不到旧数据？查看原默认目录</summary>
+            <p class="field-hint" data-i18n="settings.previousPathsHelp">以下目录仍然存在。如需查看其中的历史，请将对应路径改回原目录并重启；不要覆盖已有目标数据。</p>
+            <dl id="settingsPreviousPathsList"></dl>
+          </details>
+          <div class="notification-options-panel" aria-label="任务通知设置">
+            <div class="notification-options-copy">
+              <strong data-i18n="notifications.title">任务通知</strong>
+              <span data-i18n="settings.notificationsCopy">任务完成或失败时提醒，系统通知需手动开启。</span>
+            </div>
+            <label class="notification-option-row">
+              <span data-i18n="settings.inAppNotification">站内通知</span>
+              <input id="taskNotificationInApp" type="checkbox" checked />
+            </label>
+            <label class="notification-option-row">
+              <span data-i18n="settings.systemNotification">系统通知</span>
+              <input id="taskNotificationSystem" type="checkbox" />
+            </label>
+          </div>
         </div>
-        <div class="settings-modal-actions">
+        <div class="settings-modal-actions settings-save-actions">
           <p id="settingsStatus" class="settings-action-status" data-i18n="settings.status" aria-live="polite">保存存储路径后重启 WebUI 生效</p>
           <button id="saveSettingsButton" class="run-button" type="button" data-i18n="settings.save">保存设置</button>
         </div>
@@ -574,6 +561,6 @@
     </div>
   </div>
   <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/history.js?v=history-169"></script>
+  <script src="/static/history.js?v=history-189"></script>
 </body>
 </html>

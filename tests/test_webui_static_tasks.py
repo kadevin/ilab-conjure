@@ -629,7 +629,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.task-group-title\s*\{[^}]*display:\s*inline-flex")
         self.assertRegex(styles, r"\.task-group-count\s*\{[^}]*font-variant-numeric:\s*tabular-nums")
         self.assertRegex(styles, r"\.task-group-toggle\s*\{[^}]*display:\s*inline-flex")
-        self.assertRegex(styles, r"\.task-group-toggle-icon\s*\{[^}]*width:\s*12px")
+        self.assertRegex(styles, r"\.task-group-toggle-icon\s*\{[^}]*width:\s*16px")
         self.assertRegex(styles, r"\.task-group-header-split\[aria-expanded=\"true\"\]\s+\.task-group-toggle\s*\{[^}]*transform:\s*rotate\(90deg\)")
         self.assertRegex(styles, r"\.task-group-arrow-button\s*\{[^}]*min-width:\s*30px")
         self.assertRegex(styles, r"\.task-history-anchor-label\s*,\s*\.task-group-label-button\s*\{[^}]*grid-column:\s*2")
@@ -663,6 +663,8 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
 {functions}
 const away = latestTaskNavigationViewModel({{
   scrollTop: 120,
+  firstTaskBottom: 199,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -673,6 +675,8 @@ const away = latestTaskNavigationViewModel({{
 }});
 const top = latestTaskNavigationViewModel({{
   scrollTop: 0,
+  firstTaskBottom: 270,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -683,6 +687,8 @@ const top = latestTaskNavigationViewModel({{
 }});
 const transientRenderTop = latestTaskNavigationViewModel({{
   scrollTop: 0,
+  firstTaskBottom: 270,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -694,6 +700,8 @@ const transientRenderTop = latestTaskNavigationViewModel({{
 }});
 const transientRenderAway = latestTaskNavigationViewModel({{
   scrollTop: 0,
+  firstTaskBottom: 270,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -703,6 +711,7 @@ const transientRenderAway = latestTaskNavigationViewModel({{
   noticeCount: 2,
   renderInProgress: true,
   preRenderAtLatest: false,
+  preRenderFirstTaskAboveViewport: true,
 }});
 const transientRenderLatest = latestTaskNavigationViewModel({{
   scrollTop: 240,
@@ -715,9 +724,24 @@ const transientRenderLatest = latestTaskNavigationViewModel({{
   noticeCount: 2,
   renderInProgress: true,
   preRenderAtLatest: true,
+  preRenderFirstTaskAboveViewport: false,
+}});
+const transientRenderPartial = latestTaskNavigationViewModel({{
+  scrollTop: 0,
+  firstTaskBottom: 190,
+  viewportTop: 200,
+  scrollHeight: 900,
+  clientHeight: 400,
+  currentGroupKey: "today",
+  visibleGroupKeys: ["today"],
+  renderInProgress: true,
+  preRenderAtLatest: false,
+  preRenderFirstTaskAboveViewport: false,
 }});
 const olderGroup = latestTaskNavigationViewModel({{
   scrollTop: 0,
+  firstTaskBottom: 270,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "yesterday",
@@ -728,6 +752,8 @@ const olderGroup = latestTaskNavigationViewModel({{
 }});
 const noOverflow = latestTaskNavigationViewModel({{
   scrollTop: 120,
+  firstTaskBottom: 199,
+  viewportTop: 200,
   scrollHeight: 400,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -738,6 +764,8 @@ const noOverflow = latestTaskNavigationViewModel({{
 }});
 const searching = latestTaskNavigationViewModel({{
   scrollTop: 120,
+  firstTaskBottom: 199,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -748,6 +776,8 @@ const searching = latestTaskNavigationViewModel({{
 }});
 const batching = latestTaskNavigationViewModel({{
   scrollTop: 120,
+  firstTaskBottom: 199,
+  viewportTop: 200,
   scrollHeight: 900,
   clientHeight: 400,
   currentGroupKey: "today",
@@ -756,12 +786,53 @@ const batching = latestTaskNavigationViewModel({{
   batchMode: true,
   noticeCount: 0,
 }});
+const partiallyVisible = latestTaskNavigationViewModel({{
+  scrollTop: 69,
+  scrollHeight: 900,
+  clientHeight: 400,
+  firstTaskBottom: 200.5,
+  viewportTop: 200,
+  currentGroupKey: "today",
+  visibleGroupKeys: ["today", "yesterday"],
+}});
+const justHidden = latestTaskNavigationViewModel({{
+  scrollTop: 70,
+  scrollHeight: 900,
+  clientHeight: 400,
+  firstTaskBottom: 200,
+  viewportTop: 200,
+  currentGroupKey: "today",
+  visibleGroupKeys: ["today", "yesterday"],
+}});
+const olderGroupAway = latestTaskNavigationViewModel({{
+  scrollTop: 120,
+  scrollHeight: 900,
+  clientHeight: 400,
+  firstTaskBottom: 150,
+  viewportTop: 200,
+  currentGroupKey: "yesterday",
+  visibleGroupKeys: ["today", "yesterday"],
+}});
+const missingFirstTask = latestTaskNavigationViewModel({{
+  scrollTop: 120,
+  scrollHeight: 900,
+  clientHeight: 400,
+  firstTaskBottom: null,
+  viewportTop: 200,
+  currentGroupKey: "today",
+  visibleGroupKeys: ["today"],
+}});
 console.log(JSON.stringify({{
+  partiallyVisible,
+  justHidden,
+  olderGroupAway,
+  missingFirstTask,
   away,
   top,
   transientRenderTop,
   transientRenderAway,
   transientRenderLatest,
+  transientRenderPartial,
   olderGroup,
   noOverflow,
   searching,
@@ -809,7 +880,12 @@ console.log(JSON.stringify({{
         self.assertTrue(payload["transientRenderLatest"]["atLatest"])
         self.assertFalse(payload["transientRenderLatest"]["visible"])
         self.assertFalse(payload["transientRenderLatest"]["shouldClearNotice"])
-        self.assertTrue(payload["olderGroup"]["visible"])
+        self.assertFalse(payload["transientRenderPartial"]["visible"])
+        self.assertFalse(payload["olderGroup"]["visible"])
+        self.assertFalse(payload["partiallyVisible"]["visible"])
+        self.assertTrue(payload["justHidden"]["visible"])
+        self.assertTrue(payload["olderGroupAway"]["visible"])
+        self.assertFalse(payload["missingFirstTask"]["visible"])
         self.assertFalse(payload["noOverflow"]["visible"])
         self.assertFalse(payload["searching"]["visible"])
         self.assertFalse(payload["batching"]["visible"])
@@ -1199,14 +1275,14 @@ console.log(JSON.stringify({{
         self.assertRegex(styles, r"\.task-card\.failed\s*,\s*\.task-card\.partial_failed\s*\{[^}]*--task-card-material-edge:\s*var\(--task-card-edge\)")
         self.assertNotRegex(styles, r"\.task-card\.failed\s*,\s*\.task-card\.partial_failed\s*\{[^}]*--task-card-material-shadow")
         self.assertNotRegex(styles, r"\.task-card\.failed\s*,\s*\.task-card\.partial_failed\s*\{[^}]*border-color:\s*color-mix\(in srgb,\s*var\(--danger\)")
-        self.assertNotRegex(styles, r"\.task-card\.active\s*\{[^}]*--task-card-material-shadow")
-        self.assertNotRegex(styles, r"\.task-card\.active\s*\{[^}]*height:")
+        self.assertNotRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*--task-card-material-shadow")
+        self.assertNotRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*height:")
         self.assertNotIn(".task-card.active::after", styles)
         self.assertNotIn(".task-card.active .task-title-row", styles)
-        self.assertRegex(styles, r"\.task-card\.active\.running\s*\{[^}]*var\(--status-blue\)")
-        self.assertRegex(styles, r"\.task-card\.active\.failed\s*,\s*\.task-card\.active\.partial_failed\s*\{[^}]*color-mix\(in srgb,\s*var\(--danger-soft\)")
-        self.assertRegex(styles, r"\.task-card\.active\.failed\s*,\s*\.task-card\.active\.partial_failed\s*\{[^}]*--task-card-material-edge:\s*var\(--task-card-edge-selected\)")
-        self.assertNotRegex(styles, r"\.task-card\.active\.failed\s*,\s*\.task-card\.active\.partial_failed\s*\{[^}]*inset 0 0 0 1px color-mix\(in srgb,\s*var\(--danger\)")
+        self.assertNotRegex(styles, r"\.task-card:is\(\.active, \.batch-selected\)(?:\.running|:is\(\.failed, \.partial_failed\))[^{}]*\{[^}]*--task-card-material-surface:")
+        self.assertRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*--task-card-material-gradient:\s*none")
+        self.assertRegex(styles, r"\.task-card:is\(\.active, \.batch-selected\) \.task-image-block\.failed\s*\{[^}]*var\(--task-card-selected-danger\)")
+        self.assertNotRegex(styles, r"\.task-card:is\(\.active, \.batch-selected\):is\(\.failed, \.partial_failed\)\s*\{[^}]*inset 0 0 0 1px color-mix\(in srgb,\s*var\(--danger\)")
         self.assertIn("function taskImageSummaryVisible", script)
         self.assertIn("const showImageSummary = taskImageSummaryVisible(task)", script)
         self.assertRegex(script, r"function taskImageSummaryVisible\(task(?:: any)?\)\s*\{\s*void task;\s*return true;")
@@ -1237,25 +1313,25 @@ console.log(JSON.stringify({{
             light_tokens,
         )
         self.assertIn(
-            "--task-card-surface-hover: color-mix(in srgb, var(--task-card-surface) 94%, var(--primary-light));",
+            "--task-card-surface-hover: color-mix(in srgb, var(--primary) 14%, var(--task-card-surface));",
             light_tokens,
         )
         self.assertIn(
-            "--task-card-surface-selected: color-mix(in srgb, var(--primary) 28%, var(--surface));",
+            "--task-card-surface-selected: var(--primary);",
             light_tokens,
         )
         self.assertIn(
-            "--task-card-edge-selected: var(--primary);",
+            "--task-card-edge-selected: transparent;",
             light_tokens,
         )
         self.assertIn("--task-card-gradient-top-tint: var(--surface);", light_tokens)
         self.assertIn("--task-card-gradient-bottom-tint: var(--line);", light_tokens)
         self.assertIn(
-            "--task-card-surface-selected: color-mix(in srgb, var(--primary) 28%, var(--surface));",
+            "--task-card-surface-selected: var(--primary);",
             dark_tokens,
         )
         self.assertIn(
-            "--task-card-edge-selected: var(--primary);",
+            "--task-card-edge-selected: transparent;",
             dark_tokens,
         )
         self.assertIn("--task-card-gradient-top-tint: var(--text-secondary);", dark_tokens)
@@ -1293,19 +1369,27 @@ console.log(JSON.stringify({{
         self.assertRegex(styles, r"\.task-card-swipe-surface\s*\{[^}]*background-image:\s*var\(--task-card-material-gradient\)")
         self.assertRegex(styles, r"\.task-card-swipe-surface\s*\{[^}]*box-shadow:\s*none")
         self.assertNotRegex(styles, r"\.task-card:hover\s*\{[^}]*transform:\s*translateY\(")
-        self.assertRegex(styles, r"\.task-card\.active\s*\{[^}]*--task-card-material-surface:\s*var\(--task-card-surface-selected\)")
-        self.assertRegex(styles, r"\.task-card\.active\s*\{[^}]*--task-card-material-edge:\s*var\(--task-card-edge-selected\)")
-        self.assertRegex(styles, r"\.task-card\.active \.task-title\s*\{[^}]*color:\s*var\(--text\)")
+        self.assertRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*--task-card-material-surface:\s*var\(--task-card-surface-selected\)")
+        self.assertRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*--task-card-material-edge:\s*var\(--task-card-edge-selected\)")
+        self.assertRegex(styles, r"\.task-card:is\(\.active, \.batch-selected\) :is\(\.task-title,[^}]*color:\s*var\(--task-card-selected-foreground\)")
         self.assertRegex(
             styles,
-            r"\.task-card\.active \.task-status-meta\s*\{[^}]*color:\s*var\(--text-secondary\)",
+            r"\.task-card:is\(\.active, \.batch-selected\) :is\(\.task-status-meta,[^}]*color:\s*var\(--task-card-selected-secondary\)",
         )
-        self.assertNotRegex(styles, r"\.task-card\.active\s*\{[^}]*transform:\s*translateY\(")
+        self.assertRegex(
+            styles,
+            r"\.task-card:is\(\.active, \.batch-selected\) \.task-model-family-brand-mark\.model-family-brand-mark-openai\s*\{[^}]*filter:\s*invert\(1\)",
+        )
+        self.assertRegex(
+            styles,
+            r':root\[data-theme="dark"\] \.task-card:is\(\.active, \.batch-selected\) \.task-model-family-brand-mark\.model-family-brand-mark-openai\s*\{[^}]*filter:\s*none',
+        )
+        self.assertNotRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*transform:\s*translateY\(")
         self.assertRegex(styles, r"\.task-card:active\s*\{[^}]*--task-card-material-surface:\s*var\(--task-card-surface-pressed\)")
         self.assertRegex(styles, r"\.task-card:active\s*\{[^}]*transform:\s*translateY\(0\)")
         self.assertRegex(
             styles,
-            r"\.task-card\.active:active\s*\{[^}]*--task-card-material-surface:\s*var\(--task-card-surface-selected-pressed\)",
+            r"\.task-card:is\(\.active, \.batch-selected\):active\s*\{[^}]*--task-card-material-surface:\s*var\(--task-card-surface-selected-pressed\)",
         )
         self.assertRegex(
             styles,
@@ -1319,7 +1403,7 @@ console.log(JSON.stringify({{
         self.assertRegex(
             task_styles,
             r"\.task-card:not\(\.task-card-swiping\):not\(\.queue-dragging\)\s*>\s*\.task-card-swipe-surface:active\s*\{[^}]*"
-            r"transform:\s*translateX\(var\(--task-card-swipe-x,\s*0px\)\)\s*translateY\(2px\)",
+            r"transform:\s*translateX\(var\(--task-card-swipe-x,\s*0px\)\)\s*scale\(0\.985\)",
         )
         self.assertRegex(
             task_styles,
@@ -1334,7 +1418,8 @@ console.log(JSON.stringify({{
             r"transform:\s*translateX\(var\(--task-card-swipe-x,\s*0px\)\)",
         )
 
-        self.assertRegex(task_styles, r"\.task-card-swipe-action\s*\{[^}]*background-image:\s*linear-gradient\(")
+        self.assertRegex(task_styles, r"\.task-card-swipe-action\s*\{[^}]*background-image:\s*none")
+        self.assertRegex(task_styles, r"\.task-card-swipe-action\s*\{[^}]*border:\s*0")
         self.assertRegex(task_styles, r"\.task-card-swipe-action\s*\{[^}]*box-shadow:\s*none")
         self.assertRegex(task_styles, r"\.task-card-swipe-action:active\s*\{[^}]*filter:\s*brightness\(0\.88\)")
         self.assertRegex(task_styles, r"\.task-card-swipe-action:active\s*\{[^}]*transition-duration:\s*80ms")
@@ -2536,7 +2621,7 @@ console.log(JSON.stringify({{
         self.assertNotRegex(styles, r"\.task-card\.running\s*\{[^}]*height:")
         self.assertNotRegex(styles, r"\.task-card\.submitting\s*,\s*\.task-card\.queued\s*\{[^}]*height:")
         self.assertNotRegex(styles, r"\.task-card\.failed\s*,\s*\.task-card\.partial_failed\s*\{[^}]*height:")
-        self.assertNotRegex(styles, r"\.task-card\.active\s*\{[^}]*height:")
+        self.assertNotRegex(styles, r"\.task-card\.active\s*,\s*\.task-card\.batch-selected\s*\{[^}]*height:")
         self.assertRegex(styles, r"\.task-card\s*\{[^}]*padding:\s*0")
         self.assertRegex(styles, r"\.task-card\s*\{[^}]*user-select:\s*none")
         self.assertRegex(styles, r"\.task-card\[data-task-swipe-enabled=\"true\"\]\s*\{[^}]*touch-action:\s*pan-y")
@@ -3041,8 +3126,8 @@ console.log(JSON.stringify({{
         self.assertIn('fetch(`/api/tasks/${encodeURIComponent(taskId)}/outputs/${encodeURIComponent(String(outputIndex))}/selected`', script)
         self.assertIn('fetch(`/api/tasks/${encodeURIComponent(taskId)}/outputs/delete-unselected`', script)
         self.assertIn("data-preview-select-output-index", script)
-        self.assertIn('<circle cx="12" cy="12" r="8.5" />', script)
-        self.assertIn('<path d="m8.2 12.1 2.4 2.4 5.2-5.4" />', script)
+        self.assertIn('data-ui-icon="check-circle"', script)
+        self.assertIn('<use href="/static/icons/ui.svg?v=1#check-circle"/>', script)
         self.assertNotIn("M12 3.5l2.7 5.5", script)
         self.assertIn("const selectable = Number(totalCount) > 1;", script)
         self.assertIn("selectButton.hidden = !selectable;", script)
@@ -3081,7 +3166,7 @@ console.log(JSON.stringify({{
         self.assertRegex(styles, r"\.preview-card\.is-selected\s*\{[^}]*border-color:\s*var\(--primary\)")
         self.assertRegex(styles, r"\.preview-select-button\[aria-pressed=\"true\"\]\s*\{[^}]*background:\s*var\(--primary\)")
         self.assertRegex(styles, r"\.preview-select-button\[aria-pressed=\"true\"\]\s*\{[^}]*opacity:\s*1")
-        self.assertRegex(styles, r"\.preview-select-icon\s*\{[^}]*fill:\s*none")
+        self.assertRegex(styles, r"\.preview-select-icon\s*\{[^}]*fill:\s*currentColor")
         self.assertNotRegex(
             styles,
             r"\.preview-select-button\[aria-pressed=\"true\"\] \.preview-select-icon\s*\{[^}]*fill:\s*currentColor",
@@ -3179,7 +3264,7 @@ console.log(JSON.stringify({{
         self.assertIn("elapsedTimerSpan(\"running\", taskProgressStartValue(task))", script)
         self.assertIn("function previewElapsedLineHtml", source)
         self.assertIn('previewElapsedLineHtml("preview.progressLine"', source)
-        self.assertIn('previewElapsedLineHtml("preview.elapsedLine"', source)
+        self.assertIn('<p class="elapsed-line">${elapsed}</p>', source)
         self.assertNotIn('escapeHtml(formatTranslation("preview.progressLine", { generated, total, elapsed }))', source)
         self.assertNotIn('escapeHtml(formatTranslation("preview.elapsedLine", { elapsed }))', source)
         self.assertIn("elapsedTimerMarkup(totalMilliseconds)", script)

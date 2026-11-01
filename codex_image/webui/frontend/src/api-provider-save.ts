@@ -40,6 +40,9 @@ export async function patchApiSettings(payload: unknown, request: typeof fetch =
   const data = await response.json();
   if (!response.ok) {
     const detail = String(data.detail || "");
+    if (detail === "default_provider_mapping_missing" || detail === "invalid_default_provider_mapping") {
+      throw new Error(translate("apiSettings.defaultMappingInvalid"));
+    }
     if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
     if (detail === "api_key_origin_change_confirmation_required") {
       throw new Error(translate("apiSettings.originChangeConfirmationRequired"));

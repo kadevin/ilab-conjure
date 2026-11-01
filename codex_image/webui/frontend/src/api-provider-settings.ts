@@ -14,7 +14,7 @@ import {
   scrollActiveApiProviderCardIntoView,
   updateApiProviderListPresentation,
 } from "./api-provider-list-ui";
-import { applyProviderDraft, normalizeApiImagesConcurrency, normalizeApiProvider, normalizeApiSettings, normalizeCodexMode } from "./api-provider-model";
+import { applyProviderDraft, normalizeApiImagesConcurrency, normalizeApiProvider, normalizeApiSettings, normalizeCodexMode, withoutApiProvider } from "./api-provider-model";
 import { apiSettingsSavePayload, patchApiSettings } from "./api-provider-save";
 import {
   cancelApiProviderSortInteraction,
@@ -26,6 +26,7 @@ import { refreshGenerationCatalog } from "./model-catalog";
 import {
   availableProtocolsForModel,
   bindingFromProtocol,
+  openProviderBindingCard,
   readProviderBindingCards,
   renderProviderBindingCards,
   validateProviderBindingOverlaps
@@ -46,6 +47,7 @@ const bridge = getLegacyBridge();
 const state = bridge.state;
 const els = bridge.els;
 let apiSettingsAutosaveTimerId: number | null = null;
+let apiSettingsSaving = false;
 
 function legacyMethod(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
@@ -85,25 +87,9 @@ function providerMode(provider: any): string {
   return binding?.protocol_profile === "openai_responses" ? "responses" : DEFAULT_API_MODE;
 }
 
-function apiBaseUrlForEndpoint(value: any): string {
-  const withoutQueryOrFragment = String(value || DEFAULT_API_BASE_URL).trim().split(/[?#]/, 1)[0] || "";
-  let baseUrl = withoutQueryOrFragment.replace(/\/+$/, "") || DEFAULT_API_BASE_URL;
-  for (const suffix of ["/responses", "/images/generations", "/images/edits"]) {
-    if (!baseUrl.endsWith(suffix)) continue;
-    baseUrl = baseUrl.slice(0, -suffix.length).replace(/\/+$/, "");
-    break;
-  }
-  return baseUrl || DEFAULT_API_BASE_URL;
-}
-
-export function updateApiRequestEndpointPreview(): void {
-  if (!els.apiRequestEndpointPreview) return;
-  const provider = state.apiProviderDraft || activeApiProvider();
-  const baseUrl = apiBaseUrlForEndpoint(els.apiBaseUrl?.value || provider?.base_url);
-  const bindingCount = readProviderBindingCards(els.apiProviderBindings).length || provider?.bindings?.length || 0;
-  const preview = `${baseUrl} · ${bindingCount} · ${translate("apiSettings.modelBindings")}`;
-  els.apiRequestEndpointPreview.textContent = preview;
-  els.apiRequestEndpointPreview.title = preview;
+export function updateProviderBindingCount(): void {
+  const count = readProviderBindingCards(els.apiProviderBindings).length;
+  setElementText(els.providerBindingsCount, `(${count})`);
 }
 
 function providerHasApiKey(provider: any): boolean {
@@ -116,12 +102,7 @@ function providerKeyLabel(provider: any): string {
 }
 
 function providerMetaLabel(provider: any): string {
-  return [
-    `${provider?.bindings?.length || 0} · ${translate("apiSettings.modelBindings")}`,
-    formatTranslation("apiSettings.concurrencyValue", {
-      concurrency: String(normalizeApiImagesConcurrency(provider?.concurrency ?? provider?.images_concurrency)),
-    }),
-  ].filter(Boolean).join(" · ");
+  return `${translate("apiSettings.modelBindings")} (${provider?.bindings?.length || 0})`;
 }
 
 function uniqueCopiedProviderId(provider: any): string {
@@ -258,7 +239,7 @@ function writeProviderForm(provider: any): void {
     provider.id,
     defaultsForProviderDraft(provider),
   );
-  updateApiRequestEndpointPreview();
+  updateProviderBindingCount();
   resetApiAdvancedSettings();
 }
 
@@ -344,6 +325,16 @@ export function renderApiProviderList(): void {
     const meta = document.createElement("span");
     meta.textContent = providerMetaLabel(provider);
     button.append(name, meta);
+    if (active) {
+      const check = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      check.classList.add("api-provider-choice-check");
+      check.setAttribute("viewBox", "0 0 24 24");
+      check.setAttribute("aria-hidden", "true");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M9 16.2 4.8 12l-1.6 1.6L9 19.4 21 7.4l-1.6-1.6Z");
+      check.append(path);
+      button.append(check);
+    }
     return button;
   });
   if (!buttons.length) {
@@ -359,12 +350,11 @@ export function renderApiProviderList(): void {
 
 function renderApiProviderDetail(): void {
   const provider = activeApiProvider();
+  setElementText(els.apiProviderDetailName, provider.name || provider.id);
   setElementText(els.apiProviderDetailBaseUrl, provider.base_url || DEFAULT_API_BASE_URL);
+  if (els.apiProviderDetailName) els.apiProviderDetailName.title = provider.name || provider.id;
+  if (els.apiProviderDetailBaseUrl) els.apiProviderDetailBaseUrl.title = provider.base_url || DEFAULT_API_BASE_URL;
   setElementText(els.apiProviderDetailKey, providerKeyLabel(provider));
-  setElementText(
-    els.apiProviderDetailMode,
-    `${provider.bindings?.length || 0} · ${translate("apiSettings.modelBindings")}`,
-  );
   setElementText(els.apiProviderDetailConcurrency, normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
 }
 
@@ -423,20 +413,23 @@ export function mergeApiProviderKeys(serverSettings: any): any {
   return normalized;
 }
 
-export async function refreshApiSettings(): Promise<void> {
+export async function refreshApiSettings(options: { afterRestore?: boolean } = {}): Promise<void> {
   try {
     const response = await fetch("/api/api-settings");
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || translate("apiSettings.loadFailed"));
     state.apiSettings = mergeApiProviderKeys(data.settings || {});
-    populateApiSettingsForm();
+    populateApiSettingsForm({ preserveEditor: true });
+    if (options.afterRestore && apiProviderEditorActive()) {
+      setApiSettingsFeedback(translate("userConfigBackup.settingsUpdatedDraftKept"), "");
+    }
     renderAuthSourceAfterProviderChange();
   } catch (error: any) {
     setApiSettingsFeedback(error.message || translate("apiSettings.loadFailed"), "error");
   }
 }
 
-export function populateApiSettingsForm(): void {
+export function populateApiSettingsForm(options: { preserveEditor?: boolean } = {}): void {
   const provider = activeApiProvider();
   if (els.apiProviderQuick) {
     els.apiProviderQuick.innerHTML = "";
@@ -460,7 +453,7 @@ export function populateApiSettingsForm(): void {
   }
   renderApiProviderList();
   renderApiProviderDetail();
-  renderApiProviderEditor();
+  if (!options.preserveEditor || !apiProviderEditorActive()) renderApiProviderEditor();
   updateModeSpecificSettings();
 }
 
@@ -483,6 +476,7 @@ export function currentApiProviderLabel(): string {
 }
 
 export function addApiProvider(): void {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) {
     setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
     return;
@@ -505,6 +499,7 @@ export function addApiProvider(): void {
 }
 
 export function copyApiProvider(): void {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) {
     setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
     return;
@@ -531,30 +526,36 @@ export function copyApiProvider(): void {
   els.apiProviderName?.focus();
 }
 
-export function deleteApiProvider(): void {
+export async function deleteApiProvider(): Promise<void> {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) {
     setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
     return;
   }
-  if (state.apiSettings.providers.length <= 1) return;
   const activeId = state.apiSettings.active_provider_id;
-  state.apiSettings.providers = state.apiSettings.providers.filter((provider: any) => provider.id !== activeId);
-  state.apiSettings.active_provider_id = state.apiSettings.providers[0]?.id || "default";
-  Object.entries(state.apiSettings.default_provider_by_model || {}).forEach(([modelId, providerId]) => {
-    if (providerId === activeId) delete state.apiSettings.default_provider_by_model[modelId];
-  });
+  const candidate = withoutApiProvider(state.apiSettings, activeId);
+  if (!candidate) return;
+  if (!await saveApiSettings({ auto: true, candidateSettings: candidate })) {
+    els.deleteApiProviderButton?.focus({ preventScroll: true });
+    return;
+  }
+  // A failed write leaves both the list and generation selection untouched.
   Object.entries(state.lastProviderByModel || {}).forEach(([modelId, providerId]) => {
     if (providerId === activeId) delete state.lastProviderByModel[modelId];
   });
+  Object.entries(state.lastProviderSelectionByModel || {}).forEach(([modelId, selection]) => {
+    if (String(selection).startsWith(`${activeId}::`)) delete state.lastProviderSelectionByModel[modelId];
+  });
+  getLegacyBridge().methods.persistModelSelection?.();
   if (state.apiSettings.providers.length <= 1) state.apiProviderSortMode = false;
   populateApiSettingsForm();
-  persistApiSettings();
   renderAuthSourceAfterProviderChange();
-  setApiSettingsFeedback(translate("apiSettings.deleteProviderStatus"), "running");
-  queueApiSettingsAutosave();
+  scrollActiveApiProviderCardIntoView(activeApiProvider().id, "nearest");
+  (els.apiProviderList as HTMLElement | null)?.querySelector<HTMLElement>("[aria-selected='true']")?.focus({ preventScroll: true });
 }
 
 export function confirmDeleteApiProvider(anchor: any = els.deleteApiProviderButton): void {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) {
     setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
     return;
@@ -597,6 +598,7 @@ export function closeApiSettingsModal(): void {
 }
 
 export function selectApiProvider(providerId: any, anchor?: HTMLElement | null): void {
+  if (apiSettingsSaving) return;
   const id = String(providerId || "").trim();
   if (!id) return;
   if (apiProviderEditorActive()) {
@@ -624,6 +626,7 @@ export function selectApiProvider(providerId: any, anchor?: HTMLElement | null):
 }
 
 export function editApiProvider(): void {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) return;
   state.apiProviderSortMode = false;
   const provider = activeApiProvider();
@@ -641,6 +644,7 @@ export function editApiProvider(): void {
 }
 
 export function cancelApiProviderEdit(): void {
+  if (apiSettingsSaving) return;
   if (!apiProviderEditorActive()) return;
   els.systemSettingsApiTab?.focus({ preventScroll: true });
   state.apiProviderEditingId = null;
@@ -652,6 +656,7 @@ export function cancelApiProviderEdit(): void {
 }
 
 export function toggleApiProviderSortMode(): void {
+  if (apiSettingsSaving) return;
   if (apiProviderEditorActive()) {
     setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
     return;
@@ -684,6 +689,7 @@ function focusApiProviderSortHandle(providerId: string): void {
 }
 
 export function reorderApiProviders(orderedIds: readonly string[], focusProviderId = ""): boolean {
+  if (apiSettingsSaving) return false;
   if (!state.apiProviderSortMode || apiProviderEditorActive() || !Array.isArray(orderedIds)) return false;
   const settings = normalizeApiSettings(state.apiSettings);
   const currentIds = settings.providers.map((provider: any) => provider.id);
@@ -746,10 +752,8 @@ export function addProviderBinding(): void {
     draft.id,
     defaultsForProviderDraft(draft),
   );
-  const added = [...(els.apiProviderBindings as HTMLElement).querySelectorAll<HTMLDetailsElement>("details[data-binding-id]")]
-    .find(card => card.dataset.bindingId === bindingId);
-  if (added) { added.open = true; added.querySelector<HTMLElement>("summary")?.focus(); }
-  updateApiRequestEndpointPreview();
+  openProviderBindingCard(els.apiProviderBindings, bindingId, { focus: true });
+  updateProviderBindingCount();
 }
 
 export function removeProviderBinding(bindingId: string): void {
@@ -768,7 +772,7 @@ export function removeProviderBinding(bindingId: string): void {
     draft.id,
     defaultsForProviderDraft(draft),
   );
-  updateApiRequestEndpointPreview();
+  updateProviderBindingCount();
 }
 
 function renderAuthSourceAfterProviderChange(): void {
@@ -833,6 +837,7 @@ export function syncCodexModeNotes(): void {
 }
 
 export function selectCodexMode(mode: any, anchor?: HTMLElement | null): boolean {
+  if (apiSettingsSaving) return false;
   const normalized = normalizeCodexMode(mode);
   void anchor;
   state.apiSettings = normalizeApiSettings({ ...state.apiSettings, codex_mode: normalized });
@@ -847,7 +852,7 @@ export function selectCodexMode(mode: any, anchor?: HTMLElement | null): boolean
 }
 
 export function queueApiSettingsAutosave(options: { silent?: boolean } = {}): void {
-  if (apiProviderEditorActive()) return;
+  if (apiSettingsSaving || apiProviderEditorActive()) return;
   if (apiSettingsAutosaveTimerId !== null) {
     window.clearTimeout(apiSettingsAutosaveTimerId);
   }
@@ -926,15 +931,21 @@ function setSaveButtonText(stateName: "saving" | "saved" | "failed" | "default")
     saving: translate("apiSettings.saving"),
     saved: translate("apiSettings.savedShort"),
     failed: translate("apiSettings.saveFailedShort"),
-    default: translate("apiSettings.saveProvider"),
+    default: translate("action.save"),
   }[stateName];
   if (els.saveApiProviderEditButton) els.saveApiProviderEditButton.textContent = providerText;
 }
 
 export async function saveApiSettings(options: any = {}): Promise<boolean> {
+  if (apiSettingsSaving) return false;
   const autoSave = Boolean(options.auto);
   const silent = autoSave && Boolean(options.silent);
   if (autoSave && apiProviderEditorActive()) return true;
+  // An immediate deletion includes any pending selection in its one write.
+  if (apiSettingsAutosaveTimerId !== null) {
+    window.clearTimeout(apiSettingsAutosaveTimerId);
+    apiSettingsAutosaveTimerId = null;
+  }
   const sortFocusId = autoSave ? focusedApiProviderSortId() : "";
   if (state.apiSettingsSaveTimerId) {
     window.clearTimeout(state.apiSettingsSaveTimerId);
@@ -947,9 +958,18 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
   let confirmedOriginChange: ProviderOriginChangeConfirmation | null = null;
   if (!autoSave && apiProviderEditorActive()) {
     const bindings = readProviderBindingCards(els.apiProviderBindings);
-    if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id
-      || !binding.remote_model_id || !binding.operations.length)) {
+    const invalidBinding = bindings.find((binding) => !binding.canonical_model_id
+      || !binding.remote_model_id || !binding.operations.length);
+    if (!bindings.length || invalidBinding) {
       setApiSettingsFeedback(translate("apiSettings.bindingRequiredFields"), "error");
+      if (invalidBinding) {
+        openProviderBindingCard(els.apiProviderBindings, invalidBinding.id, { focus: true });
+        if (!invalidBinding.remote_model_id) {
+          (els.apiProviderBindings as HTMLElement | null)?.querySelector<HTMLInputElement>(
+            `[data-binding-id="${CSS.escape(invalidBinding.id)}"] [data-binding-remote-model]`,
+          )?.focus();
+        }
+      }
       return false;
     }
     const overlap = validateProviderBindingOverlaps(bindings);
@@ -958,7 +978,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
         model: overlap.canonicalModelId,
         operation: overlap.operation,
       }), "error");
-      (els.apiProviderBindings as HTMLElement | null)?.querySelector<HTMLElement>(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
+      openProviderBindingCard(els.apiProviderBindings, overlap.secondBindingId, { focus: true });
       return false;
     }
     const providerDraft = draftProviderFromForm();
@@ -1000,7 +1020,7 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
     }
     els.apiKey?.removeAttribute("aria-invalid");
   }
-  const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
+  const settings = options.candidateSettings || readApiSettingsForm({ applyProviderDraft: !autoSave });
   persistApiSettings();
   const payload = apiSettingsSavePayload(settings, confirmedOriginChange);
   if (!autoSave) {
@@ -1008,6 +1028,11 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
     setSaveButtonText("saving");
   }
   if (!silent) setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
+  apiSettingsSaving = true;
+  const panel = els.systemSettingsApiPanel as HTMLElement | null;
+  const previousFocus = document.activeElement as HTMLElement | null;
+  panel?.setAttribute("inert", "");
+  panel?.setAttribute("aria-busy", "true");
   try {
     const data = await patchApiSettings(payload);
     state.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
@@ -1047,8 +1072,13 @@ export async function saveApiSettings(options: any = {}): Promise<boolean> {
     setStatus(error.message || translate("apiSettings.saveFailed"), "error");
     return false;
   } finally {
+    apiSettingsSaving = false;
+    panel?.removeAttribute("inert");
+    panel?.removeAttribute("aria-busy");
     if (!autoSave) setSaveButtonsDisabled(false);
-    if (!autoSave && !state.apiSettingsSaveTimerId && els.saveApiProviderEditButton?.textContent !== translate("apiSettings.saveProvider")) {
+    if (previousFocus?.isConnected && panel?.contains(previousFocus)
+      && !previousFocus.closest("[inert], .hidden")) previousFocus.focus({ preventScroll: true });
+    if (!autoSave && !state.apiSettingsSaveTimerId && els.saveApiProviderEditButton?.textContent !== translate("action.save")) {
       state.apiSettingsSaveTimerId = window.setTimeout(() => {
         setSaveButtonText("default");
         state.apiSettingsSaveTimerId = null;
@@ -1070,6 +1100,6 @@ export function handleProviderBindingEditorChange(event: Event): void {
   updateBindingEditor(event, {
     state: { apiProviderDraftIsNew: state.apiProviderDraftIsNew, generationCatalog: state.generationCatalog },
     els: { apiBaseUrl: els.apiBaseUrl, apiProviderBindings: els.apiProviderBindings },
-    updateApiRequestEndpointPreview,
+    updateProviderBindingCount,
   });
 }

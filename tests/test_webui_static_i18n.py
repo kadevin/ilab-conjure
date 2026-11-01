@@ -10,6 +10,45 @@ from tests.webui_helpers import WebUIStaticTestCase
 
 
 class WebUIStaticI18nTests(WebUIStaticTestCase):
+    def test_all_locales_cover_source_keys_and_preserve_placeholders(self) -> None:
+        locale_dir = Path("codex_image/webui/frontend/src/i18n")
+        dictionaries = {}
+        for path in locale_dir.glob("*.ts"):
+            if path.stem in {"dictionaries", "types"}:
+                continue
+            pairs = re.findall(r'^\s*"([^"]+)":\s*("(?:[^"\\]|\\.)*")', path.read_text(), re.M)
+            with self.subTest(locale=path.stem):
+                self.assertEqual(len(pairs), len(dict(pairs)), "Duplicate translation keys")
+            dictionaries[path.stem] = {key: json.loads(value) for key, value in pairs}
+        source = dictionaries["en"]
+        for locale, translations in dictionaries.items():
+            with self.subTest(locale=locale):
+                self.assertEqual(set(source), set(translations), "Missing or obsolete translation keys")
+            for key, value in translations.items():
+                with self.subTest(locale=locale, key=key):
+                    self.assertTrue(value.strip(), "Empty translation")
+                    self.assertEqual(sorted(re.findall(r"\{\w+\}", source[key])),
+                                     sorted(re.findall(r"\{\w+\}", value)))
+        # These phrases previously fell back to English despite a non-English UI.
+        for locale, translations in dictionaries.items():
+            if locale == "en":
+                continue
+            for key in ("ux.moderationAuto", "ux.moderationLow", "lanAccess.help",
+                        "networkEgress.fakeIpDnsHelp", "apiSettings.modelBindingsHint"):
+                with self.subTest(locale=locale, key=key):
+                    self.assertNotEqual(translations[key], source[key])
+
+    def test_task_duration_labels_are_separated_from_values(self) -> None:
+        for path in Path("codex_image/webui/frontend/src/i18n").glob("*.ts"):
+            if path.stem in {"dictionaries", "types"}:
+                continue
+            source = path.read_text()
+            for key in ("taskStatus.runtime", "taskStatus.runtimeCompleted"):
+                with self.subTest(locale=path.stem, key=key):
+                    match = re.search(rf'"{re.escape(key)}":\s*"([^"]+)"', source)
+                    self.assertIsNotNone(match)
+                    self.assertRegex(match.group(1), r"\s\{duration\}")
+
     def test_user_config_backup_safety_copy_exists_in_every_locale(self) -> None:
         required_keys = (
             "userConfigBackup.title",
@@ -764,7 +803,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
             "imageInput.addToGalleryShort",
             "imageInput.removeImage",
             "imageInput.editedBadge",
-            "output.pixelPreviewValue",
+            "output.customSizeHint",
             "batch.selectedCount",
             "prompt.runEdit",
             "recentAssets.deleteMessage",
@@ -846,7 +885,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
         self.assertIn('translate("preview.addReference")', runtime_sources["preview"])
         self.assertIn('translate("preview.stage")', runtime_sources["preview"])
         self.assertIn('translate("apiSettings.modeImagesShort")', runtime_sources["api_settings"])
-        self.assertIn('translate("apiSettings.saveProvider")', runtime_sources["api_settings"])
+        self.assertRegex(Path("codex_image/webui/static/index.html").read_text(encoding="utf-8"), r'id="saveApiProviderEditButton"[^>]*data-i18n="action.save"')
         self.assertIn('translate("apiSettings.autoSaving")', runtime_sources["api_settings"])
         self.assertIn('translate("apiSettings.autoSaved")', runtime_sources["api_settings"])
         self.assertIn('translate("apiSettings.deleteProviderTitle")', runtime_sources["api_settings"])
@@ -855,7 +894,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
         self.assertIn('translate("imageInput.uploadBadge")', runtime_sources["image_strip"])
         self.assertIn('translate("imageInput.addToGalleryShort")', runtime_sources["image_strip"])
         self.assertIn('translate("imageInput.removeImage")', runtime_sources["image_strip"])
-        self.assertIn('formatTranslation("output.pixelPreviewValue"', runtime_sources["custom_size"])
+        self.assertIn('formatTranslation("output.customSizeHint"', runtime_sources["custom_size"])
         self.assertIn('formatTranslation("batch.selectedCount"', runtime_sources["batch"])
         self.assertIn('translate(mode === "edit" ? "prompt.runEdit" : "prompt.run")', runtime_sources["form"])
         self.assertIn('formatTranslation("recentAssets.use"', runtime_sources["recent_assets"])

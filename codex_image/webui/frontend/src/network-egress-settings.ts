@@ -30,6 +30,17 @@ interface NetworkEgressPayload {
 
 let networkEgressFeatureInitialized = false;
 let currentNetworkEgress: NetworkEgressPayload | null = null;
+let lastRenderedNetworkForm: string | null = null;
+let restoredNetworkDraft = false;
+
+function networkFormSnapshot(): string {
+  const { els } = getLegacyBridge();
+  return JSON.stringify([
+    els.networkEgressMode?.value, els.networkEgressCustomProxy?.value,
+    els.networkEgressTimeoutMinutes?.value, els.networkEgressRetryCount?.value,
+    els.networkEgressFakeIpDnsFallback?.checked,
+  ]);
+}
 
 function normalizedMode(value: unknown): NetworkEgressMode {
   return value === "direct" || value === "custom" ? value : "system";
@@ -103,29 +114,35 @@ function renderNetworkEgressMode(mode: NetworkEgressMode): void {
   }
 }
 
-function renderNetworkEgress(payload: NetworkEgressPayload): void {
+function renderNetworkEgress(payload: NetworkEgressPayload, preserveDraft = false): boolean {
   const { els } = getLegacyBridge();
+  const keepDraft = preserveDraft && lastRenderedNetworkForm !== null
+    && networkFormSnapshot() !== lastRenderedNetworkForm;
   currentNetworkEgress = payload;
-  const mode = normalizedMode(payload.settings?.mode);
-  renderNetworkEgressMode(mode);
-  if (els.networkEgressCustomProxy) {
-    els.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
+  if (!keepDraft) {
+    const mode = normalizedMode(payload.settings?.mode);
+    renderNetworkEgressMode(mode);
+    if (els.networkEgressCustomProxy) {
+      els.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
+    }
+    if (els.networkEgressTimeoutMinutes) {
+      els.networkEgressTimeoutMinutes.value = String(
+        editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds),
+      );
+    }
+    if (els.networkEgressRetryCount) {
+      els.networkEgressRetryCount.value = String(
+        payload.settings?.image_request_retry_count ?? 2,
+      );
+    }
+    if (els.networkEgressFakeIpDnsFallback) {
+      els.networkEgressFakeIpDnsFallback.checked = payload.settings?.asset_fake_ip_dns_fallback === true;
+      els.networkEgressFakeIpDnsFallback.disabled = false;
+    }
+    clearNetworkRequestPolicyError();
+    lastRenderedNetworkForm = networkFormSnapshot();
+    restoredNetworkDraft = false;
   }
-  if (els.networkEgressTimeoutMinutes) {
-    els.networkEgressTimeoutMinutes.value = String(
-      editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds),
-    );
-  }
-  if (els.networkEgressRetryCount) {
-    els.networkEgressRetryCount.value = String(
-      payload.settings?.image_request_retry_count ?? 2,
-    );
-  }
-  if (els.networkEgressFakeIpDnsFallback) {
-    els.networkEgressFakeIpDnsFallback.checked = payload.settings?.asset_fake_ip_dns_fallback === true;
-    els.networkEgressFakeIpDnsFallback.disabled = false;
-  }
-  clearNetworkRequestPolicyError();
   if (els.networkEgressCompatibilityNotice) {
     const environmentFallback = (
       payload.resolved?.image_request_timeout_source === "environment"
@@ -144,6 +161,7 @@ function renderNetworkEgress(payload: NetworkEgressPayload): void {
       { route: translate(modeTranslationKey(resolvedMode)) },
     );
   }
+  return keepDraft;
 }
 
 function networkEgressRouteFormPayload(): NetworkEgressRouteFields {
@@ -200,13 +218,14 @@ function networkEgressPayloadIsValid(
   }
 }
 
-async function refreshNetworkEgress(): Promise<void> {
+async function refreshNetworkEgress(options: { afterRestore?: boolean } = {}): Promise<void> {
   try {
     const response = await fetch("/api/network-egress");
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || translate("networkEgress.loadFailed"));
-    renderNetworkEgress(data);
-    setNetworkEgressFeedback("", "");
+    const keptDraft = renderNetworkEgress(data, true);
+    restoredNetworkDraft = keptDraft && (restoredNetworkDraft || options.afterRestore === true);
+    setNetworkEgressFeedback(restoredNetworkDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : "", "");
   } catch (error: any) {
     setNetworkEgressFeedback(
       error.message || translate("networkEgress.loadFailed"),
@@ -321,7 +340,8 @@ export function initNetworkEgressSettingsFeature(): void {
     clearNetworkRequestPolicyError("retry");
   });
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
-    if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress);
+    if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress, true);
+    if (restoredNetworkDraft) setNetworkEgressFeedback(translate("userConfigBackup.settingsUpdatedDraftKept"), "");
   });
   Object.assign(getLegacyBridge().methods, {
     refreshNetworkEgress,

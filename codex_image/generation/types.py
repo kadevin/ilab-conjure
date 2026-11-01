@@ -139,3 +139,6 @@ class GenerationResult:
     text_parts: tuple[str, ...] = ()
     usage: Mapping[str, Any] = field(default_factory=dict)
     provider_metadata: Mapping[str, Any] = field(default_factory=dict)
+    # Ordered per-image outcomes retain successful images when another fails.
+    # Empty means every asset succeeded (the original result contract).
+    asset_outcomes: tuple[GeneratedAsset | Exception, ...] = ()

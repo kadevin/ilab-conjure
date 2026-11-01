@@ -4,17 +4,22 @@ import asyncio
 import errno
 import http.client
 import os
+import re
 import ssl
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncContextManager, Callable
 from urllib import error as urllib_error
+import httpx
 
 from codex_image.client import CodexImagesImageClient, ImageResult, OpenAIImagesImageClient, OpenAIResponsesImageClient
 from codex_image.httpx_transport import cancellable_http_request_scope
 from codex_image.http_connection import transport_failure
+from codex_image.generation.errors import GenerationOutcomeUnknownError, GenerationTimeoutError
+from codex_image.generation.partial_results import results_completed_before
 from codex_image.prompt_guard import build_guarded_prompt
+from codex_image.providers.result_assets import asset_load_failure
 
 from .network_egress import (
     DEFAULT_IMAGE_REQUEST_RETRY_COUNT,
@@ -112,19 +117,13 @@ def _exception_chain(exc: BaseException) -> list[BaseException]:
     return chain
 
 
-def _is_retryable_transient_image_error(exc: BaseException) -> bool:
+def _is_ambiguous_image_error(exc: BaseException) -> bool:
     chain = _exception_chain(exc)
-    if transport_failure(exc) is not None:
+    if transport_failure(exc) is not None or asset_load_failure(exc) is not None:
         # Connection retries belong to the individual HTTP request, including asset downloads.
         return False
     message = "\n".join(str(item).lower() for item in chain)
-    if (
-        "http 502" in message
-        and (
-            "upstream_error" in message
-            or "upstream service temporarily unavailable" in message
-        )
-    ):
+    if re.search(r"\bhttp(?:\s+(?:error|status))?\s*[:=]?\s*5\d\d\b", message):
         return True
 
     retryable_types = (
@@ -159,6 +158,12 @@ def _is_retryable_transient_image_error(exc: BaseException) -> bool:
     )
 
 
+def _is_retryable_transient_image_error(exc: BaseException) -> bool:
+    # Only a transport's explicit pre-send connection error is safe to replay.
+    # HttpxTransport normally handles these itself and diagnoses exhaustion.
+    return transport_failure(exc) is None and isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout))
+
+
 def _transient_image_retry_delay_seconds(failed_attempt: int) -> float:
     exponent = max(0, int(failed_attempt) - 1)
     return min(
@@ -186,14 +191,15 @@ async def _call_image_client_once(
         call = asyncio.create_task(asyncio.to_thread(method, **kwargs))
         started_at = time.monotonic()
         try:
-            if timeout_seconds is None:
-                return await asyncio.shield(call)
-            return await asyncio.wait_for(asyncio.shield(call), timeout=timeout_seconds)
+            done, _ = await asyncio.wait({call}, timeout=timeout_seconds)
+            if done:
+                return call.result()
+            raise TimeoutError
         except TimeoutError as exc:
             if call.done() and not call.cancelled():
                 raise
             elapsed = _format_elapsed_seconds(time.monotonic() - started_at)
-            timeout_error = TimeoutError(
+            timeout_error = GenerationTimeoutError(
                 f"Image request timed out after {elapsed}s (timeout limit {timeout_seconds:g}s)"
             )
             cancellation_scope.cancel()
@@ -203,8 +209,8 @@ async def _call_image_client_once(
                 current_task = asyncio.current_task()
                 if current_task is not None and current_task.cancelling():
                     raise
-            except BaseException:
-                pass
+            except BaseException as stopped:
+                timeout_error.partial_result = results_completed_before(stopped, started_at + timeout_seconds)
             await cancellation_scope.wait_closed()
             raise timeout_error from exc
         except asyncio.CancelledError:
@@ -247,6 +253,10 @@ async def _call_image_client(
                 )
         except Exception as exc:
             setattr(exc, "_image_request_attempts", attempt)
+            if isinstance(exc, TimeoutError) and not isinstance(exc, GenerationTimeoutError):
+                raise GenerationTimeoutError(str(exc)) from exc
+            if _is_ambiguous_image_error(exc):
+                raise GenerationOutcomeUnknownError(str(exc)) from exc
             if (
                 attempt >= total_attempts
                 or not _is_retryable_transient_image_error(exc)

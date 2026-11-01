@@ -14,7 +14,7 @@
 
 <p align="center">
   <img alt="license AGPL-3.0-only" src="https://img.shields.io/badge/license-AGPL--3.0--only-22C55E?style=flat-square">
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img alt="Python: security-patched release required" src="https://img.shields.io/badge/python-security%20patched-3776AB?style=flat-square&logo=python&logoColor=white">
   <img alt="FastAPI WebUI" src="https://img.shields.io/badge/WebUI-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white">
   <img alt="CLI" src="https://img.shields.io/badge/CLI-enabled-334155?style=flat-square">
   <img alt="OpenAI-Compatible API" src="https://img.shields.io/badge/OpenAI--Compatible-API-111827?style=flat-square">
@@ -30,403 +30,174 @@
   <img src="assets/UI_en.webp" alt="iLab CONJURE WebUI screenshot" width="960" />
 </p>
 
-If Clash/Mihomo Fake-IP DNS prevents downloading a successfully generated image, enable **Fake-IP DNS compatibility for image downloads** under **Settings → Network**. It is off by default and queries Cloudflare DNS for affected image hostnames only, without changing system or LAN DNS.
-
 ## Overview
 
-> [!IMPORTANT]
-> **Project upgrade:** This project was formerly named `iLab GPT CONJURE`
-> and was originally built around `GPT-Image-2`. Starting with `v0.7.0`, Gemini
-> support and a unified foundation for additional model families expand the product
-> beyond its original scope. The project and product display name are unified as
-> `iLab CONJURE`. The GitHub repository is renamed from `ilab-gpt-conjure` to `ilab-conjure`.
-> This is a continuation of the same project. The former name remains
-> in historical releases and in compatibility-period package filenames, app
-> executable names, and user data directories. Upgrading does not create a new data
-> directory or discard existing tasks and images.
+iLab CONJURE is a local-first AI image workbench for GPT Image, Gemini, and personal Codex workflows. Generate, edit, and organize images in the WebUI, or automate tasks with the CLI.
 
-iLab CONJURE is a local-first, multi-model AI image generation workbench with a
-WebUI and companion CLI. Its unified model catalog supports GPT Image and Gemini
-through native provider protocols or OpenAI-compatible gateways. The
-Codex workflow exposes explicit Codex Image and Codex Responses provider
-choices. Shared gallery references,
-multi-type quick chips,
-prompt templates, concurrent tasks, a paged history library, and local queue
-management are built in.
-
-The recommended public integration path is OpenAI-compatible API mode, using
-the Images API or Responses API shape provided by your configured provider.
-
-Download standard app packages and portable transition packages from
-[Downloads / Releases](RELEASES.md).
+Start with an [app package](#app-packages), or [install from source](#install). API mode is recommended for provider integrations. This tool is not intended as a public multi-user service.
 
 ## Features
 
-- GPT Image and Gemini image workflows in one model catalog, including
-  text-to-image, supported reference-image generation, and image editing. Gemini
-  includes Nano Banana Pro, 2.1, 2, and 2 Lite; Nano Banana 2.1 supports
-  1K / 2K / 4K output, up to 14 reference images, and Google Search.
-- Stopping a task interrupts its local requests and waiting image slots while
-  keeping generated images and history; the provider may still generate and bill.
-- Codex Image, Codex Responses, and OpenAI-compatible API access, with the API
-  path recommended for public or shared use.
-- Concurrent task execution, local queue state, paged history library,
-  thumbnails, and result archive.
-- Performance-focused generation page with compact realtime task snapshots,
-  incremental media rendering, deferred hidden drawers, and a CSS-driven
-  responsive workspace for smoother refresh and window resizing.
-- One-click output parameter lock with a read-only summary, preventing
-  accidental setting changes while generating or browsing historical tasks.
-- Independent `/history` page with SQLite-backed pagination, search, filters,
-  grid/list views, and lazy detail loading.
-- Favorite historical tasks, assign multiple tags, filter by favorites, tags,
-  or untagged tasks, and organize up to 300 selected tasks at once.
-- Export one or multiple historical tasks into one ZIP as images only or
-  images with per-image prompts; optimized prompts fall back to the original
-  task prompt when unavailable.
-- Shared generator/history top navigation, rabbit logo, return entry, and
-  system/light/dark theme preference.
-- GPT Image 2 and 2.5 Flare / Sunburst offer transparent backgrounds with PNG / WebP. Codex uses prompt compatibility; API model bindings can choose native parameters or prompt compatibility. Results are checked for actual transparent pixels, with no automatic regeneration if transparency is missing.
-- Optional web search for Codex Responses and API Responses image generation,
-  plus prompt and task ID search across recent and historical tasks.
-- Shared gallery references, recent reference images, color chips, prompt
-  snippet chips, and reusable prompt templates.
-- Layered input-image editor with inserted input images, multi-image
-  composition, default ratio-locked transform, Shift free transform, local
-  erasing, and real layer thumbnails.
-- System Settings language dropdown for Simplified Chinese, Traditional
-  Chinese, Japanese, Korean, English, Vietnamese, Spanish, Portuguese, French,
-  German, Russian, Italian, and Hindi, with first-launch browser detection and a
-  browser-local language preference.
-- Centered System Settings with API Settings, Network, Language, and Storage &
-  Notifications tabs; Codex Image and Codex Responses are chosen in the
-  generation-page provider menu.
-- API model bindings offer “Get available models” using the current Base URL
-  and API Key. Selecting a result fills the remote model name; manual entry
-  remains available. Fetching does not save settings or verify image support.
-- Configuration backup and restore under Storage & Notifications, with
-  selectable chips, public gallery, prompt templates, and system settings,
-  plus additive restore or separately confirmed replacement restore.
-- Explicit system, direct, or custom HTTP(S) network routing, plus global
-  per-request image timeouts (1–30 minutes, default 10) and retries after
-  retryable transient failures (0–5, default 2). The settings are persisted in
-  the app data directory, apply to generation and editing across every
-  provider, and affect later task executions without restart. Connection failures
-  retry the current HTTP request within the active image operation's timeout;
-  retries for image downloads or independent DNS lookups do not resubmit generation.
-  Other supported transient failures that retry the whole operation still get a
-  fresh full timeout window.
-- API provider cards for fast selection, read-only details by default, explicit
-  editing, provider copy, delete confirmation, multi-provider sorting, and an
-  optional emoji identity mark for each custom provider.
-- Standard macOS DMG and Windows App ZIP packages with a rabbit tray/menu-bar
-  launcher, Open WebUI / Settings / History Library actions, system-language
-  menu labels, native About window, and confirmed legacy portable data copy on
-  first launch.
-- Standard macOS apps that bundle the updater support user-confirmed one-click
-  replacement: the helper verifies the signed manifest and DMG SHA256, exits the
-  running app, replaces it with rollback protection, and relaunches while keeping
-  Application Support data outside the bundle. Older macOS apps need one manual
-  bootstrap install; Windows standard ZIP updates remain manual.
-- Portable transition packages keep local `data/` next to the app and support
-  user-confirmed automatic replacement through the signed `latest.json`
-  manifest, Ed25519 signature verification, SHA256 checks, `.backup/`, and
-  launcher restart.
-- Advanced local OAuth mode for personal Codex workflows, with clear risk
-  warnings and no account-usage probing.
-- API provider profiles with configurable base URL, API key, image model, API
-  mode, and concurrency.
-- CLI support for generation, image references, image edits, masks, and dry runs.
+- **Multi-model generation:** Text-to-image, references, and image editing, with configurable providers, remote model names, and concurrency limits.
+- **Prompts and assets:** A reusable gallery, recent uploads, image/color/snippet references, prompt templates, and a layered image editor.
+- **Output controls:** Size, ratio, quality, count, and format, plus parameter locking and model-supported transparency or web search.
+- **Tasks and history:** Concurrent queues, multi-image results, retries, search, favorites, tags, batch management, and ZIP export.
+- **Interface and settings:** Compact responsive layouts, light/dark themes, 14 language options, proxies, storage, notifications, and configuration backup.
+- **Local tools:** macOS and Windows standard/portable packages, tray or menu-bar launchers, and a CLI.
+
+<details>
+<summary>Models and channels</summary>
+
+GPT Image supports Image 2, 2.5 Flare, and Sunburst with separate remote model bindings. Existing bindings do not upgrade automatically; Codex channels remain on Image 2. Gemini includes Nano Banana Pro, 2.1, 2, and 2 Lite; 2.1 supports 1K/2K/4K, up to 14 reference images, and Google Search.
+
+Responses channels offer a main model, defaulting to `gpt-6-luna`, with `gpt-6.1-terra` among the choices when supported by the provider. Saved choices are preserved; switch older `gpt-5.4-mini` selections manually. Direct Image channels do not use a main model. Fetching a provider's model list only helps fill the form; it neither saves settings nor verifies image generation support.
+
+GPT Image transparency is available for PNG/WebP through native parameters or prompt compatibility, depending on the channel. Results without actual transparency are kept with a notice, without automatic regeneration.
+
+</details>
 
 ## Authentication modes
 
-### Recommended: OpenAI-compatible API
+**API mode (recommended):** Configure the provider's Base URL, API key, model name, and API mode in System Settings.
 
-Use this mode for stable integrations, shared workstations, team deployments, or
-anything that may become a public service. Configure the provider in the WebUI
-with a base URL, API key, model name, and API mode.
+**Codex / ChatGPT OAuth (advanced local mode):** Reuse a local login with Codex Image or Codex Responses. This personal workflow uses internal endpoints, not an officially recommended API integration; availability and account usage rules may change.
 
-### Advanced local mode: Codex / ChatGPT OAuth
+Keep credentials, prompts, images, task databases, and logs out of Git. See [SECURITY.md](SECURITY.md) for security boundaries.
 
-This project can optionally reuse a local Codex / ChatGPT OAuth session to call
-internal ChatGPT backend endpoints. The generation-page provider menu exposes
-Codex Image for generation and editing and Codex Responses for the compatibility
-channel. This mode is provided for local personal workflows only.
+## App packages
 
-It is not an officially recommended OpenAI API integration path. The endpoint
-may change without notice, may stop working, and may be subject to account,
-product, or usage restrictions. For stable integrations, production usage,
-shared deployments, or public services, use OpenAI-compatible API mode instead.
+Find published versions in [Downloads / Releases](RELEASES.md) or the [latest official GitHub release](https://github.com/kadevin/ilab-conjure/releases/latest).
 
-Never commit OAuth files, API keys, local inputs, generated outputs, task
-metadata, SQLite databases, or debug logs.
+| Platform | Install and launch |
+| --- | --- |
+| macOS | Choose the arm64 or x64 DMG for your Mac, drag the app into Applications, and open it. |
+| Windows | Extract the x64 App ZIP into a normal user directory and run `iLab GPT CONJURE.exe`. |
+| Portable | Extract the platform ZIP and run `Start iLab GPT CONJURE.app` or `.exe`. |
+
+Packages include Python, dependencies, and frontend assets; normal use does not require Node.js. Standard app data lives in `~/Library/Application Support/iLab GPT CONJURE` on macOS or `%APPDATA%\iLab GPT CONJURE` on Windows. Portable data stays in the adjacent `data/` folder.
+
+**Updates:** macOS standard and portable launchers offer user-confirmed updates with signature and file-hash checks. Windows standard ZIP updates are manual. Quit the old instance before replacing files and preserve data folders. If dependency installation fails, check the network or download a complete package; do not reset gallery, settings, or task data.
+
+<details>
+<summary>Legacy migration and macOS opening tips</summary>
+
+The project was renamed from `iLab GPT CONJURE` to `iLab CONJURE` in v0.7.0. Some package, executable, and data-folder names retain the old name. On first launch, the standard app can copy adjacent portable data after confirmation, without deleting the original or automatically overwriting existing standard data.
+
+macOS standard v0.6.1 and earlier require one manual installation of an updater-enabled version. Portable v0.5.4 and earlier users should download a complete package. Portable updates preserve `data/` and back up replaced files to `.backup/`. The bundled `Start WebUI Portable` and `Update WebUI Portable` scripts remain available for terminal troubleshooting and manual updates.
+
+macOS builds use ad-hoc signing, without Developer ID signing or notarization. After checking the download source, right-click the app, choose Open, and confirm the system prompt. For an extracted portable folder, you can also use:
+
+```bash
+xattr -dr com.apple.quarantine /path/to/ilab-gpt-conjure_macos_portable_arm64
+# Use the corresponding macos_portable_x64 folder on Intel Macs
+```
+
+</details>
 
 ## Requirements
 
-- Python 3.11 or newer.
-- WebUI dependencies are exactly pinned with package hashes in `requirements-webui.txt`.
-- Optional frontend tooling from `package.json` when editing TypeScript or CSS.
+For source installs only: use **Python 3.11.18, 3.12.16, 3.13.18, 3.14.10, 3.15.2**, or a newer patch on the corresponding branch, and **pip 26.2.2+** for dependency installation. Node.js is only needed for frontend changes; its version is in [`.node-version`](.node-version).
 
 ## Install
+
+These commands use a macOS/Linux shell. In Windows PowerShell, replace `python3` with `py -3` (or `python` without the Python Launcher), and `.venv/bin/python` with `.venv\Scripts\python.exe`.
 
 ```bash
 git clone https://github.com/kadevin/ilab-conjure.git
 cd ilab-conjure
+python3 codex_image/runtime_security.py
 python3 -m venv .venv
+.venv/bin/python codex_image/runtime_security.py --installer
 .venv/bin/python -m pip install --require-hashes -r requirements-webui.txt
 ```
 
-Close the old app before upgrading. Packaged builds already contain the matching
-dependencies and normally show no dependency prompt. A source or legacy
-portable install that reuses an older `.venv` may print `Installing WebUI
-dependencies...` once. If that step fails, keep the existing data and retry
-after checking network access or replace the full application package. Do not
-delete `data/`, `output/`, `source-data/`, gallery, or settings files: dependency
-installation never needs to reset them.
+If `--installer` reports an outdated pip, upgrade it below, then rerun the installer check and dependency installation commands. Startup checks do not modify global Python or pip; updating packages does not upgrade the interpreter. Older environments also need updated locked dependencies to meet Pillow and certifi security requirements.
+
+<details>
+<summary>Upgrade an older pip in the project environment</summary>
+
+Run from the project directory, substituting the Python path above in Windows PowerShell. This downloads a fixed wheel over HTTPS, verifies its SHA-256, and installs only into the project virtual environment. Download or verification failures stop installation; TLS verification stays enabled.
+
+```bash
+.venv/bin/python -c "
+import hashlib, pathlib, subprocess, sys, tempfile, urllib.request
+url = 'https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl'
+expected = 'fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70'
+with tempfile.TemporaryDirectory() as folder:
+    wheel = pathlib.Path(folder) / 'pip-26.2.2-py3-none-any.whl'
+    with urllib.request.urlopen(url, timeout=60) as response:
+        data = response.read()
+    if hashlib.sha256(data).hexdigest() != expected:
+        sys.exit('SHA256 mismatch; installation stopped')
+    wheel.write_bytes(data)
+    subprocess.run([sys.executable, str(wheel) + '/pip', 'install', '--no-index', '--no-deps', str(wheel)], check=True)
+"
+```
+
+</details>
 
 ## Start the WebUI
 
-macOS:
-
-```bash
-open "Start WebUI.command"
-```
-
-Windows:
-
-```text
-Start WebUI.bat
-```
-
-Manual:
+Open `Start WebUI.command` on macOS or `Start WebUI.bat` on Windows, then visit **http://127.0.0.1:8787/**. To start manually:
 
 ```bash
 .venv/bin/python -m codex_image.webui.server codex_image.webui.app:app --port 8787 --no-access-log
 ```
 
-Then open:
-
-```text
-http://127.0.0.1:8787/
-```
-
-To share the workspace, enable **System Settings → Network → Allow LAN access**,
-then restart the WebUI service. Other devices can open the displayed
-`http://LAN-IP:port/` address without logging in. Everyone shares tasks, the
-gallery, providers, and the queue, including settings changes and deletion.
-The setting defaults to off; disabling it also requires a restart. Saving it does
-not interrupt running tasks. Use it only on a trusted LAN. Omit `--host` when
-starting manually so the setting controls the listener; an explicit
-`--host 127.0.0.1` keeps it local. LAN URLs use HTTP, so some browser features that
-require a secure context may be unavailable.
-
-## App packages
-
-The current version is `v0.9.8`. Published packages are listed in
-[Downloads / Releases](RELEASES.md) and the
-[latest official GitHub release](https://github.com/kadevin/ilab-conjure/releases/latest).
-
-New users should choose the standard packages:
-
-1. macOS: download `iLab-GPT-CONJURE-macos-arm64-0.9.8.dmg`
-   for Apple Silicon or `iLab-GPT-CONJURE-macos-x64-0.9.8.dmg`
-   for Intel, then drag `iLab GPT CONJURE.app` to Applications.
-2. Windows: download `iLab-GPT-CONJURE-windows-x64_0.9.8.zip`,
-   extract it into a normal user directory, and run `iLab GPT CONJURE.exe`.
-
-Standard packages store user data in `~/Library/Application Support/iLab GPT
-CONJURE` on macOS and `%APPDATA%\iLab GPT CONJURE` on Windows. On first launch,
-the app can detect adjacent legacy portable data and asks before copying it. The
-old `data/` folder is not moved or deleted, and existing standard data is never
-overwritten automatically.
-
-Standard macOS apps that include the updater can install later releases from the
-menu-bar Check for Updates dialog. After confirmation, an external helper
-downloads and SHA256-verifies the signed-manifest DMG, quits the current app,
-replaces it with rollback protection, and relaunches. This is not a silent
-background install. v0.6.1 and earlier standard apps must manually install the
-first updater-enabled DMG once. Windows standard ZIP updates remain manual.
-
-v0.5.4 and earlier portable users should manually download a full standard package or a full portable package for the first 0.5.5 upgrade. The old updater only guarantees WebUI/dependency updates and may not install the new rabbit launcher, standard `.app` / `.exe` entry, or migration assistant.
-
-Portable packages remain available for old users, debugging, and users who want
-a ComfyUI-style unzip-and-run experience:
-
-1. Download the portable zip for your platform from the release page.
-2. Extract it into a normal user directory.
-3. Run `Start iLab GPT CONJURE.exe` on Windows, or double-click
-   `Start iLab GPT CONJURE.app` on macOS. The legacy
-   `Start WebUI Portable.bat` / `Start WebUI Portable.command` scripts remain
-   available for terminal-based troubleshooting.
-4. Open `http://127.0.0.1:8787/` if the browser does not open automatically.
-
-The portable package contains bundled CPython, installed WebUI dependencies,
-prebuilt static WebUI assets, frontend package metadata/build config for source
-rebuilds, the app source, license files, and a local `data/` directory for
-settings, gallery files, inputs, outputs, task databases, and logs.
-
-Portable startup launchers do not run `npm install` or rebuild frontend assets.
-Node.js is only needed if you intentionally edit TypeScript or CSS and rebuild
-the static WebUI assets from source.
-
-Portable startup launchers do not contact GitHub automatically. To update an
-extracted portable package, choose Check for Updates from the tray/menu-bar menu
-and confirm Install Update, or quit the launcher and run
-`Update WebUI Portable.bat` on Windows / `Update WebUI Portable.command` on
-macOS manually.
-The updater reads the published signed `latest.json` manifest, verifies its
-Ed25519 signature with the launcher public key, downloads the latest matching
-GitHub Release asset, prints the selected asset and manifest SHA256 before
-making changes, verifies the downloaded zip against that SHA256, preserves
-`data/`, only replaces package-managed files inside the portable folder, and
-saves replaced files under `.backup/`.
-
-Choose `macos_portable_arm64` for Apple Silicon Macs and
-`macos_portable_x64` for Intel Macs.
-
-The standard macOS DMG and macOS portable zips are unsigned and not notarized.
-If macOS blocks the app after download, right-click or Control-click the
-app, choose Open, then confirm Open again in the macOS security prompt. For
-portable zips, you can also remove quarantine from the extracted folder:
-
-```bash
-xattr -dr com.apple.quarantine /path/to/ilab-gpt-conjure_macos_portable_arm64
-# or:
-xattr -dr com.apple.quarantine /path/to/ilab-gpt-conjure_macos_portable_x64
-```
-
-Do not commit portable package contents back to Git. API keys, OAuth files,
-local inputs, generated outputs, SQLite databases, and logs must stay local.
-
-Release packaging is intentionally separate from CI: the `Portable Release`
-workflow runs only after the `CI` workflow has completed successfully on a push
-to `main`, then builds standard packages, portable packages, and SHA256 files as
-workflow artifacts. If the commit is tagged with a `v*` tag, the release job
-also builds signed `latest.json` using the
-`ILAB_CONJURE_UPDATE_SIGNING_PRIVATE_KEY_B64` secret and uploads all packages,
-SHA256 files, and the update manifest to that GitHub Release. For a tagged
-commit that already passed CI, the same workflow can also be run manually with
-`ref` and `release_tag`.
+**LAN access:** Enable it in System Settings → Network and restart, then use the displayed address on other devices. It is off by default; enabling or disabling requires a restart, while saving does not interrupt tasks. Use trusted networks only: visitors need no login and can access or modify shared settings, tasks, and gallery data. Omit `--host` for manual startup to follow this setting; explicit `--host 127.0.0.1` stays local. Some browser features are unavailable over HTTP.
 
 ## WebUI usage
 
-1. Choose an authentication source from the top bar. `Codex` uses the default
-   Image channel when local OAuth is available, and `API` is the recommended
-   OpenAI-compatible mode for stable or shared use.
-2. Open System Settings to manage API provider cards, network routing,
-   interface language, storage paths, and notification preferences.
-3. Add reference images by upload, drag-and-drop, paste, recent uploads, or the
-   public gallery.
-4. Write the prompt directly, insert gallery/color/snippet chips when useful,
-   and choose the prompt processing mode: original, fidelity, or automatic (the default).
-5. Set image count, size, orientation, quality, output format, and compression.
-   Selected aspect ratios are also appended to the model prompt as an explicit
-   instruction, for example `将宽高比设为 16:9`, so Responses-channel or API
-   proxies that ignore size parameters can still receive the intended ratio.
-6. Start generation, track running and queued tasks in the left task list, then
-   review, select, retry, download, or archive results from the preview area.
+1. Select a model and provider; configure API access, networking, and preferences in System Settings.
+2. Upload, drag, or paste references, or choose recent uploads and gallery images.
+3. Write a prompt, insert references or templates as needed, set output parameters, and start generation.
+4. Track tasks on the left and review/download results on the right. Open History Library to search, favorite, tag, or export tasks in bulk.
 
-Opening History Library in the same tab temporarily preserves the prompt,
-reference images, and files and restores them on return. When reusing a history
-task or adding references from history, the original input remains available
-through Restore draft.
+In compact mode, transparency and compression are under the extra-options icon beside Format. JPEG/WebP compression ranges from 50% to 100%.
+
+Stopping a task interrupts local requests and waiting slots, but the provider may still generate and bill. Generated images and history are retained. Opening History Library in the same tab preserves inputs for your return; after reusing a task, Restore draft can recover the original inputs.
+
+### Network and downloads
+
+Choose system, direct, or custom HTTP(S) proxy routing. Request timeouts range from 1–30 minutes (default 10), and retry counts from 0–5 (default 2), applying to later tasks after saving. Image-download or DNS retries do not resubmit generation; requests already sent with an uncertain outcome are not automatically replayed.
+
+If Clash/Mihomo Fake-IP DNS prevents downloading a generated image, enable Fake-IP DNS compatibility for image downloads. It is off by default and queries Cloudflare for affected image hostnames only, without changing system or LAN DNS.
 
 ### Storage paths and existing data
 
-Saved storage paths take effect after restarting WebUI. Changing paths does not
-move existing images, assets, or task history. If history appears empty, open
-**System Settings → Storage & Notifications**, expand the original default
-folders, restore the corresponding paths, and restart. To relocate data, back up
-and quit the app first, then copy the complete input and output directories,
-including the gallery, reference assets, and source-data directory. Do not copy
-only the images or a single database file, or overwrite existing destination data.
+Storage-path changes require a restart and do not move data. If history appears empty, restore the original paths under Storage & Notifications → Original default folders and restart. Before relocating, back up and quit, then copy the complete input/output directories, including gallery, references, and source data. Do not copy only images or one database, or overwrite existing destination data.
 
-The macOS standard app honors saved custom paths. When portable data has been
-copied into a standard installation, its migration record is used to rebase paths
-inside the old `data/` directory onto the copied directories. External custom paths
-are preserved. This also handles installations migrated by earlier versions. The
-original path configuration is retained under the application data directory at
-`.migration/webui-settings-before-path-rebase.json`; the original portable data
-is left unchanged.
+The macOS standard app preserves custom paths. Portable migration rebases only paths inside the old `data/`; external folders stay unchanged. The original path settings are retained in `.migration/webui-settings-before-path-rebase.json`, and original data is not deleted.
 
 ### User configuration backup and restore
 
-Open **System Settings → Storage & Notifications → Configuration backup and
-restore** to select one or more of chips, public gallery, prompt templates, and
-system settings. Every backup is a complete snapshot of the selected sections,
-and the completed ZIP can be downloaded repeatedly for 24 hours. Closing and
-discarding it, or reaching expiry, removes the temporary server copy.
+Under Storage & Notifications → Configuration backup and restore, select chips, gallery, templates, or system settings and export a ZIP. Each backup is a complete snapshot of the selected sections, downloadable for 24 hours after creation. Discarding it or reaching expiry removes the temporary server copy.
 
-Restore first uploads and validates the ZIP and shows each available section,
-including backup and current counts for its resource groups. Then choose one mode:
+You can switch to other settings tabs from backup and restore. After restoring configuration, unsaved network, storage, and provider edits are preserved with a notice.
 
-- **Additive restore** keeps current data, skips duplicates, and creates
-  recovered copies for ordinary resource conflicts.
-- **Replacement restore** affects only explicitly selected sections. It shows
-  deletion and reference impact first and runs only after a separate
-  acknowledgement. If colors, prompt snippets, shared images, or templates are
-  empty in the backup while the matching current group still contains data,
-  replacement is refused; deselect that section or use additive restore.
-  Running or queued tasks may block gallery or settings replacement.
+Restore validates the archive and previews its contents. **Additive restore** keeps existing data, skips duplicates, and creates copies for conflicting resources. **Replacement restore** affects selected sections only, previews deletion/reference impact, and requires another confirmation. Empty backup resource groups cannot replace nonempty local groups; running or queued tasks may also block gallery or settings replacement.
 
-API keys are excluded by default. If explicitly included, the ZIP is **not
-encrypted**. Codex / ChatGPT OAuth state is never backed up. Local prompt-template
-thumbnails migrate with templates, while external HTTP(S) thumbnails remain
-URLs; missing assets and invalid paths are skipped with warnings. Restored
-storage-path changes require a WebUI restart. Generated tasks and historical
-images remain in the separate task-backup workflow in the History Library.
+API keys are excluded by default; explicitly including them produces an **unencrypted** ZIP. OAuth sessions are never backed up. Local template thumbnails are included, external images remain URLs, and missing assets or invalid paths are skipped with warnings. Restored storage paths require a restart. Use History Library's separate task backup for generated tasks and historical images.
 
 ## Public gallery
 
-The public gallery is a local reusable reference library for people, characters,
-products, brand assets, style references, and any image you want to reuse.
-
-- Save uploaded images, recent uploads, or generated results into the gallery.
-- Manage images in the right-side gallery drawer with categories, names, prompt
-  roles, reference notes, replacement images, deletion, and drag sorting.
-- Insert a gallery image into the current task from the gallery drawer or by
-  typing `@` in the prompt editor.
-- Gallery files stay local. Do not commit `input/`, `inputs/`, `output/`, or
-  `outputs/`. If a gallery item is later deleted, older tasks may show a missing
-  reference.
+Save uploaded or generated images as reusable references, with categories, names, usage notes, replacement, and drag sorting. Select images in the gallery or search with `@`. Assets stay local; deleting an item may leave missing references in older tasks.
 
 ## Prompt chips
 
-The prompt editor supports three atomic chip types:
+| Type | Purpose |
+| --- | --- |
+| `@` | Search current references and the gallery to insert an image mention; gallery images are also attached as references. |
+| `#` | Insert a hexadecimal color such as `#FF6600`. |
+| `~` / `～` | Insert a saved prompt snippet, expanded to its full text when submitted. |
 
-- `@` image chip: searches current references first, followed by the public gallery.
-  Selecting an upload inserts a mention; selecting a gallery image also attaches it.
-  Use arrow keys to choose, Enter to confirm, and Esc to dismiss.
-- `#` color chip: inserts a hexadecimal color value such as `#FF6600`; useful
-  for product, poster, brand, material, or background color constraints.
-- `~` snippet chip: inserts a saved prompt snippet by short tag. The editor keeps
-  the short tag visible, while the model prompt expands it to the full snippet
-  content.
+Use arrow keys to select, Enter to confirm, and Esc to close. Selected text can be saved as a snippet, then viewed, edited, or expanded for reuse.
 
-Snippet chips can be created from selected prompt text and can later be viewed,
-expanded into plain text, edited, or reused with `~`, `～`, or common tilde
-variants.
-
-Image mentions resolve to reference numbers after the server orders and deduplicates
-images, including in Original mode, which adds no gallery usage notes. Repeated
-mentions share one image; equal names do not merge identities. Removing an upload
-chip keeps its image; removing the last gallery chip also detaches that gallery
-reference. Removing an image removes its mentions, with Restore inputs available
-to recover the inputs together. History and drafts retain identities and block
-missing references. Pasted plain `@Image 1` text does not bind to an image. Saving
-a template turns upload mentions into placeholders such as `{{Image 1}}`.
+Image mentions resolve to actual reference order and are deduplicated; pasted plain `@Image 1` text does not bind an image. Removing an upload mention keeps the image; removing the last gallery mention detaches that gallery reference. Removing a reference image also removes its mentions; Restore inputs can recover them. Missing references must be reselected or removed. Templates turn upload mentions into placeholders such as `{{Image 1}}`.
 
 ## Prompt templates
 
-Prompt templates are for longer reusable prompt structures, not short inline
-phrases. They are stored locally in `output/webui-prompt-templates.json`.
-
-Use `Manage Prompt Templates` in the prompt area to search, filter by category,
-favorite, create, edit, copy, insert, replace, import, or export templates.
-Templates can use small thumbnails from historical results as visual cues.
-
-Inserting a template writes into the visible prompt editor. Replacing a template
-overwrites the visible prompt text. Templates are not injected as hidden prompts.
+Open Manage Prompt Templates to save and reuse longer prompts, with categories, favorites, thumbnails, and import/export. Insert adds visible prompt text; Replace overwrites it. Templates never inject hidden prompts and are stored by default in `output/webui-prompt-templates.json`.
 
 ## CLI
 
@@ -434,50 +205,19 @@ overwrites the visible prompt text. Templates are not injected as hidden prompts
 .venv/bin/python -m codex_image generate --prompt "A clean product photo of a ceramic mug" --out output/mug.png
 ```
 
-Use `--help` for all CLI options.
+References, editing, masks, and dry runs are supported; see `--help` for all options.
 
 ## Development
 
-```bash
-.venv/bin/python -m unittest discover -s tests -v
-npm run check:webui
-```
-
-When changing frontend TypeScript or CSS, run `npm install` first. This installs
-the frontend build dependencies pinned by `package-lock.json`, including Konva
-for the layered input-image editor. Commit the generated browser assets in
-`codex_image/webui/static/`.
-
-GitHub CI runs the Python test suite and WebUI frontend checks on pull requests
-and pushes to `main`. Release packaging should run only after CI succeeds.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development and checks, [RELEASES.md](RELEASES.md) for packaging and releases, and [dependency security notes](docs/dependency-security.md) for runtime baselines. After TypeScript or CSS changes, regenerate and include the assets under `codex_image/webui/static/`.
 
 ## License
 
-This project is licensed under GNU AGPLv3. See `LICENSE`.
-
-If you modify this software and make it available to users over a network, you
-must also make the corresponding source code available under the same license.
-
-This license applies to the software code. It does not grant rights to the
-project name, logo, personal assets, API credentials, user prompts, input
-images, output images, or model/API services used with the software.
+Licensed under [GNU AGPLv3](LICENSE). Modified versions offered over a network must provide corresponding source under the license. This covers code, not rights to the project name, logo, assets, credentials, user content, or third-party model/API services.
 
 ## Contact And Custom Work
 
-Feel free to connect on WeChat to discuss AI programming, AI image generation,
-and local image generation workflows.
-
-I also take selected custom development work:
-
-- Local software tools: internal workbenches, batch automation, data dashboards,
-  and AI-assisted production workflows.
-- Business websites: company sites, product showcases, landing pages, and
-  lightweight admin systems.
-- Agent-powered websites: customer support, knowledge-base Q&A, content
-  generation, and workflow assistant web apps.
-
-Scan the QR code and mention `iLab CONJURE` or `custom development` so I can
-understand the context quickly.
+Connect on WeChat to discuss AI coding and image workflows, or custom local tools, business websites, and agent apps. Mention `iLab CONJURE` or `custom development` when adding the contact.
 
 <p align="center">
   <img src="assets/wechat-qr.jpg" alt="iLab WeChat QR Code" width="240" />

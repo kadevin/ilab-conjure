@@ -913,6 +913,11 @@ impl WebUiService {
 
     fn ensure_python_runtime(&self) -> Result<PathBuf> {
         if let Some(python) = bundled_or_venv_python(&self.config.app_dir) {
+            self.run_logged_command(
+                command_with_no_window(&python)
+                    .arg(self.config.app_dir.join("codex_image/runtime_security.py")),
+                "check Python security baseline",
+            )?;
             if dependency_probe(&python, &self.config.app_dir)? {
                 return Ok(python);
             }
@@ -924,6 +929,11 @@ impl WebUiService {
             let system_python = find_system_python()?;
             self.run_logged_command(
                 command_with_no_window(&system_python)
+                    .arg(self.config.app_dir.join("codex_image/runtime_security.py")),
+                "check Python security baseline",
+            )?;
+            self.run_logged_command(
+                command_with_no_window(&system_python)
                     .args(["-m", "venv"])
                     .arg(self.config.app_dir.join(".venv")),
                 "create Python virtual environment",
@@ -931,6 +941,12 @@ impl WebUiService {
         }
 
         if !dependency_probe(&python, &self.config.app_dir)? {
+            self.run_logged_command(
+                command_with_no_window(&python)
+                    .arg(self.config.app_dir.join("codex_image/runtime_security.py"))
+                    .arg("--installer"),
+                "check dependency installer security baseline",
+            )?;
             self.run_logged_command(
                 command_with_no_window(&python)
                     .args(["-m", "pip", "install", "--require-hashes", "-r"])
@@ -1247,7 +1263,7 @@ fn bundled_python_candidates(app_dir: &Path) -> Vec<PathBuf> {
                     .join("python")
                     .join("Python.framework")
                     .join("Versions")
-                    .join("3.11")
+                    .join("Current")
                     .join("bin")
                     .join("python3"),
             );
@@ -1258,7 +1274,7 @@ fn bundled_python_candidates(app_dir: &Path) -> Vec<PathBuf> {
                     .join("python")
                     .join("Python.framework")
                     .join("Versions")
-                    .join("3.11")
+                    .join("Current")
                     .join("bin")
                     .join("python3"),
             );

@@ -63,7 +63,7 @@ class WebUIResponsiveWorkspaceContractTests(unittest.TestCase):
         self.assertRegex(
             settings,
             r"@media \(max-width: 620px\)[\s\S]*?"
-            r"\.provider-binding-grid\s*\{[^}]*"
+            r"\.provider-binding-grid\s*,\s*\.provider-binding-advanced-grid\s*\{[^}]*"
             r"grid-template-columns:\s*minmax\(0,\s*1fr\)",
         )
         self.assertNotRegex(output, r"\.model-parameter-grid\s*\{[^}]*(?:height|max-height):")

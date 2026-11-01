@@ -286,7 +286,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn(".network-egress-mode-button", indicator)
         self.assertRegex(
             styles,
-            r"\.network-egress-mode-selector \.segmented-indicator\s*\{[^}]*background:\s*var\(--primary-light\)",
+            r"\.network-egress-mode-selector \.segmented-indicator\s*\{[^}]*background:\s*var\(--primary\)",
         )
         self.assertRegex(
             styles,
@@ -1063,7 +1063,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         ]
 
         self.assertIn("state.apiSettings = mergeApiProviderKeys(data.settings || {})", refresh_body)
-        self.assertIn("populateApiSettingsForm();", refresh_body)
+        self.assertIn("populateApiSettingsForm({ preserveEditor: true });", refresh_body)
         self.assertIn("renderAuthSourceAfterProviderChange();", refresh_body)
 
     def test_account_quota_feature_is_removed_from_typescript_contract(self) -> None:
@@ -1087,7 +1087,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertLess(main_source.index('import { initStorageSettingsFeature } from "./storage-settings"'), main_source.index('import { initPromptFeature } from "./prompt"'))
         self.assertLess(main_source.index("initStorageSettingsFeature()"), main_source.index("initPromptFeature()"))
         self.assertIn("export function initStorageSettingsFeature", storage_settings_source)
-        self.assertIn("async function refreshSettings()", storage_settings_source)
+        self.assertIn("async function refreshSettings(options: { afterRestore?: boolean } = {})", storage_settings_source)
         self.assertIn("function populateSettingsForm(settings", storage_settings_source)
         self.assertIn("function openSettingsModal()", storage_settings_source)
         self.assertIn("function closeSettingsModal()", storage_settings_source)
@@ -1804,7 +1804,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.image-uploader-grid\.compact-grid\s+\.thumb-badge\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.image-uploader-grid\.compact-grid\s+\.thumb\s+\.thumb-remove\s*\{[^}]*width:\s*16px")
         self.assertRegex(styles, r"\.image-uploader-grid\.compact-grid\s+\.add-upload-to-gallery\s*\{[^}]*width:\s*20px")
-        self.assertRegex(styles, r"\.image-uploader-grid\.compact-grid\s+\.add-upload-to-gallery\s+\.thumb-add-icon\s*\{[^}]*width:\s*12px")
+        self.assertRegex(styles, r"\.image-uploader-grid\.compact-grid\s+\.add-upload-to-gallery\s+\.thumb-add-icon\s*\{[^}]*width:\s*16px")
         self.assertNotIn("@container (max-width: 540px)", styles)
         self.assertRegex(styles, r"\.upload-title-compact\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.image-uploader-grid\.has-inputs\s+\.upload-title-full\s*\{[^}]*display:\s*none")
@@ -1827,7 +1827,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.quick-gallery-dock\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.quick-gallery-dock\s*\{[^}]*height:\s*var\(--quick-gallery-height\)")
         self.assertRegex(styles, r"\.quick-gallery-picker\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+52px")
-        self.assertRegex(styles, r"\.quick-gallery-rail\s*\{[^}]*height:\s*var\(--quick-gallery-height\)")
+        self.assertRegex(styles, r"\.quick-gallery-rail\s*\{[^}]*height:\s*100%")
         self.assertRegex(styles, r"\.quick-gallery-rail\s*\{[^}]*display:\s*flex")
         self.assertRegex(styles, r"\.quick-gallery-rail\s*\{[^}]*flex-direction:\s*column")
         self.assertRegex(styles, r"\.quick-gallery-rail\s*\{[^}]*overflow-y:\s*auto")
@@ -1921,7 +1921,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(
             compact,
             r"\.image-input-workspace\s*\{[^}]*--image-input-thumb-size:\s*clamp\("
-            r"[\s\S]*104px,[\s\S]*116px",
+            r"[\s\S]*54px,[\s\S]*calc\(var\(--image-input-main-height\)\s*-\s*26px\),\s*116px",
         )
         self.assertRegex(
             compact,
@@ -1985,17 +1985,13 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             narrow,
             r"--custom-size-mode-card-height:\s*clamp\(\s*105px,\s*calc\(14\.76dvh\s*-\s*8\.4px\),\s*154px",
         )
-        self.assertRegex(
-            compact,
-            r"#pixelPreview\s*\{[^}]*min-height:\s*clamp\("
-            r"[^}]*white-space:\s*nowrap",
-        )
+        self.assertNotIn("#pixelPreview", compact)
         self.assertRegex(
             compact,
             r"\.settings-grid\.custom-size-mode\s*\{[^}]*"
             r"--custom-size-mode-card-height:\s*clamp\(130px",
         )
-        self.assertRegex(compact, r"\.custom-ratio-hint\s*\{[^}]*display:\s*none")
+        self.assertRegex(Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8"), r"\.custom-ratio-hint\s*\{[^}]*display:\s*none")
         self.assertNotIn(".api-direct-settings-grid", responsive)
     def test_very_short_desktop_uses_continuous_summary_height(self) -> None:
         responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
@@ -2019,7 +2015,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(compact, r"\.dashboard\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.1fr\)\s+minmax\(320px,\s*0\.9fr\)")
         self.assertRegex(compact, r"\.controls-col\s+\.image-input-workspace\s*\{[^}]*--quick-gallery-column-width:\s*132px")
         self.assertRegex(compact, r"\.controls-col\s+\.image-input-workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+var\(--quick-gallery-column-width\)")
-        self.assertRegex(compact, r"\.controls-col\s+\.image-input-left,\s*\.controls-col\s+\.image-gallery-column\s*\{[^}]*height:\s*var\(--image-input-total-height\)")
+        self.assertNotRegex(compact, r"height:\s*var\(--(?:image-input-total|quick-gallery)-height\)")
         self.assertRegex(compact, r"\.controls-col\s+\.prompt-panel\s*\{[^}]*--prompt-action-column-width:\s*132px")
     def test_gallery_categories_are_managed_from_server_in_management_sheet(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
@@ -2342,23 +2338,23 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('data-system-settings-tab="language"', html)
         self.assertIn('data-system-settings-tab="storage"', html)
         self.assertIn('id="apiBaseUrl"', html)
-        self.assertIn('id="apiRequestEndpointPreview"', html)
+        self.assertNotIn('id="apiRequestEndpointPreview"', html)
+        self.assertIn('id="providerBindingsCount"', html)
         provider_name_field_start = html.index('class="field api-provider-name-field"')
         provider_icon_input_start = html.index('id="apiProviderIconEmoji"')
         provider_name_input_start = html.index('id="apiProviderName"')
         base_url_field_start = html.index('class="field api-base-url-field"')
         api_key_field_start = html.index('class="field api-key-field"')
         concurrency_field_start = html.index('class="field api-concurrency-field"')
-        endpoint_preview_start = html.index('class="provider-bindings-connection"')
         bindings_editor_start = html.index('class="provider-bindings-editor"')
         self.assertNotIn('class="field api-provider-icon-field"', html)
         self.assertLess(provider_name_field_start, provider_icon_input_start)
         self.assertLess(provider_icon_input_start, provider_name_input_start)
         self.assertLess(provider_name_field_start, base_url_field_start)
         self.assertLess(base_url_field_start, api_key_field_start)
-        self.assertLess(api_key_field_start, concurrency_field_start)
+        self.assertLess(provider_name_input_start, concurrency_field_start)
+        self.assertLess(concurrency_field_start, base_url_field_start)
         self.assertLess(concurrency_field_start, bindings_editor_start)
-        self.assertLess(bindings_editor_start, endpoint_preview_start)
         self.assertIn('id="apiKey"', html)
         self.assertNotIn('id="apiAuthScheme"', html)
         self.assertIn('id="apiImagesConcurrency"', html)
@@ -2383,13 +2379,21 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('id="apiProviderList"', html)
         self.assertIn('id="apiProviderSection"', html)
         self.assertIn('id="apiProviderDetail"', html)
-        self.assertNotIn('id="apiProviderDetailName"', html)
+        self.assertIn('id="apiProviderDetailName"', html)
         self.assertNotIn('id="apiProviderDetailMeta"', html)
         self.assertIn('id="apiProviderDetailBaseUrl"', html)
         self.assertIn('id="apiProviderDetailKey"', html)
         self.assertIn('id="apiProviderEditor"', html)
         self.assertIn('id="apiProviderName"', html)
         self.assertIn('class="api-key-input-wrap"', html)
+        api_key_match = re.search(r'<input\b[^>]*\bid="apiKey"[^>]*>', html)
+        self.assertIsNotNone(api_key_match)
+        api_key_input = api_key_match.group(0)
+        self.assertIn('type="password"', api_key_input)
+        self.assertIn('autocomplete="new-password"', api_key_input)
+        self.assertIn('name="provider-api-key"', api_key_input)
+        self.assertIn('autocapitalize="off"', api_key_input)
+        self.assertIn('spellcheck="false"', api_key_input)
         self.assertIn('id="apiKeyRevealButton"', html)
         self.assertIn('aria-pressed="false"', html)
         self.assertIn('data-i18n-attr="aria-label:apiSettings.showApiKey;title:apiSettings.showApiKey"', html)
@@ -2398,7 +2402,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('id="addApiProviderButton"', html)
         self.assertIn('id="sortApiProvidersButton"', html)
         self.assertIn('class="api-provider-choice-grid"', html)
-        self.assertIn('class="api-provider-add-card"', html)
+        self.assertIn('class="api-provider-add-button"', html)
         self.assertIn('data-i18n="apiSettings.newProviderAction"', html)
         self.assertIn('data-i18n="apiSettings.copyProvider"', html)
         self.assertIn('data-i18n="apiSettings.sortProviders"', html)
@@ -2409,7 +2413,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertLess(html.index('id="apiSettingsActions"'), html.index('id="apiSettingsStatus"'))
         self.assertLess(html.index('id="languageSelect"'), html.index('id="languageSettingsStatus"'))
         self.assertLess(html.index('id="settingsStatus"'), html.index('id="saveSettingsButton"'))
-        self.assertLess(html.index('id="apiProviderList"'), html.index('id="addApiProviderButton"'))
+        self.assertLess(html.index('id="addApiProviderButton"'), html.index('id="apiProviderList"'))
         self.assertLess(html.index('id="apiProviderDetailConcurrency"'), html.index('id="editApiProviderButton"'))
         self.assertLess(html.index('id="editApiProviderButton"'), html.index('id="copyApiProviderButton"'))
         self.assertLess(html.index('id="copyApiProviderButton"'), html.index('id="deleteApiProviderButton"'))
@@ -2435,7 +2439,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('openSystemSettingsModal(settingsTab || "api")', script)
         self.assertIn("window.history.replaceState", script)
         self.assertIn("apiBaseUrl: document.querySelector", script)
-        self.assertIn("apiRequestEndpointPreview: document.querySelector", script)
+        self.assertIn("providerBindingsCount: document.querySelector", script)
         self.assertIn("apiKey: document.querySelector", script)
         self.assertIn("apiKeyRevealButton: document.querySelector", script)
         self.assertNotIn("apiAuthScheme: document.querySelector", script)
@@ -2490,7 +2494,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("apiProviderMatchesSearch", provider_list_source)
         self.assertIn("scrollActiveApiProviderCardIntoView", provider_list_source)
         self.assertIn("panel.scrollTo", provider_list_source)
-        self.assertIn('closest<HTMLElement>(".system-settings-section")', provider_list_source)
+        self.assertIn('closest<HTMLElement>(".system-settings-scroll, .system-settings-section")', provider_list_source)
         self.assertNotIn("scrollIntoView", provider_list_source)
         self.assertIn("apiProviderMatchesSearch(provider, searchQuery)", provider_source)
         self.assertIn('translate("apiSettings.noProviderSearchResults")', provider_source)
@@ -2501,10 +2505,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('apiProviderSection?.setAttribute("aria-hidden", visible ? "true" : "false")', script)
         self.assertIn('apiProviderSection?.setAttribute("inert", "")', script)
         self.assertIn('apiProviderSection?.removeAttribute("inert")', script)
-        self.assertIn("function updateApiRequestEndpointPreview", script)
+        self.assertIn("function updateProviderBindingCount", script)
         self.assertIn("readProviderBindingCards(els.apiProviderBindings)", script)
-        self.assertIn('${bindingCount} · ${translate("apiSettings.modelBindings")}', script)
-        self.assertIn(".split(/[?#]/, 1)[0]", script)
+        self.assertIn('setElementText(els.providerBindingsCount, `(${count})`)', script)
         self.assertIn("function setApiKeyRevealVisible", script)
         self.assertIn("function updateApiKeyRevealButton", script)
         self.assertIn("function revealApiKeyWhilePressed", script)
@@ -2526,7 +2529,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('providerBindingSelectionKey("codex", `codex-gpt-image-2-${normalized}`)', provider_source)
         self.assertIn("function selectCodexMode", script)
         self.assertIn("function queueApiSettingsAutosave", script)
-        self.assertRegex(provider_source, r"function deleteApiProvider\(\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*function confirmDeleteApiProvider")
+        self.assertRegex(provider_source, r"async function deleteApiProvider\(\)[\s\S]*await saveApiSettings\(\{ auto: true, candidateSettings: candidate \}\)")
         self.assertRegex(provider_source, r"function selectApiProvider\(providerId[^)]*\)[\s\S]*queueApiSettingsAutosave\(\{ silent: true \}\);[\s\S]*function editApiProvider")
         self.assertRegex(provider_source, r"function reorderApiProviders\(orderedIds[^)]*\)[\s\S]*queueApiSettingsAutosave\(\);[\s\S]*async function saveApiProviderEdit")
         self.assertIn("const sortFocusId = autoSave ? focusedApiProviderSortId()", provider_source)
@@ -2539,7 +2542,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function setSaveButtonText", script)
         self.assertIn('saving: translate("apiSettings.saving")', script)
         self.assertIn('saved: translate("apiSettings.savedShort")', script)
-        self.assertIn('default: translate("apiSettings.saveProvider")', script)
+        self.assertIn('default: translate("action.save")', script)
         self.assertNotRegex(script, r"saveApiSettingsButton\)[^\n]*saveApiSettingsButton\.textContent")
         self.assertRegex(script, r"saveApiProviderEditButton\)[^\n]*saveApiProviderEditButton\.textContent = providerText")
         self.assertNotRegex(script, r"saveCodexSettingsButton\)[^\n]*saveCodexSettingsButton\.textContent")
@@ -2580,7 +2583,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('apiKeyRevealButton?.addEventListener("keydown"', script)
         self.assertIn('apiKeyRevealButton?.addEventListener("keyup"', script)
         self.assertIn('apiKey?.addEventListener("input"', script)
-        self.assertIn('apiBaseUrl?.addEventListener("input"', script)
+        self.assertNotIn("updateApiRequestEndpointPreview", script)
         self.assertIn('addProviderBindingButton?.addEventListener("click"', script)
         self.assertIn('apiProviderBindings?.addEventListener("change"', script)
         self.assertNotIn("els.apiImageModel", script)
@@ -2627,27 +2630,28 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn(".api-provider-choice-grid", styles)
         self.assertIn(".api-provider-search", styles)
         self.assertIn(".api-provider-choice", styles)
-        self.assertIn(".api-provider-add-card", styles)
+        self.assertIn(".api-provider-add-button", styles)
         self.assertIn(".api-provider-detail-panel", styles)
         self.assertIn(".api-provider-detail-grid", styles)
         self.assertIn(".api-provider-detail-actions", styles)
         self.assertIn(".api-provider-section-title", styles)
         self.assertIn(".api-provider-editor", styles)
-        self.assertIn(".provider-bindings-connection", styles)
+        self.assertNotIn(".provider-bindings-connection", styles)
+        self.assertIn(".provider-binding-advanced", styles)
         self.assertIn(".compact-api-settings-grid", styles)
         self.assertRegex(styles, r"\.api-provider-section-header\s*\{[^}]*justify-content:\s*space-between")
         self.assertRegex(styles, r"\.api-provider-editor-heading\s*\{[^}]*justify-content:\s*flex-start")
         self.assertRegex(styles, r"\.api-provider-detail-actions,\s*\.api-provider-editor-actions\s*\{[^}]*justify-content:\s*center")
-        self.assertNotRegex(styles, r"\.api-provider-editor-actions\s*\{[^}]*justify-content:\s*flex-end")
+        self.assertRegex(styles, r"\.system-settings-section \.settings-save-actions\s*\{[^}]*position:\s*relative[^}]*justify-content:\s*center")
         self.assertRegex(styles, r"\.api-provider-detail-actions \.ghost-button,\s*\.api-provider-detail-actions \.danger-button,[\s\S]*height:\s*40px")
         self.assertRegex(styles, r"\.api-provider-editor-actions \.ghost-button,\s*\.api-provider-editor-actions \.run-button\s*\{[^}]*border-radius:\s*8px")
         self.assertRegex(styles, r"\.api-provider-choice-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)")
         self.assertNotRegex(styles, r"\.api-provider-choice-grid(?:\.is-long-list)?\s*\{[^}]*(?:max-height:|overflow-y:\s*auto)")
         self.assertRegex(styles, r"\.api-provider-search-empty\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"\.api-provider-section\.editing\s*\{[^}]*display:\s*none")
-        self.assertRegex(styles, r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)")
-        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field\s*\{[^}]*grid-column:\s*1\s*/\s*span\s+4[^}]*grid-row:\s*1")
-        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-column:\s*5\s*/\s*span\s+2[^}]*grid-row:\s*1")
+        self.assertRegex(styles, r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field\s*\{[^}]*grid-column:\s*1[^}]*grid-row:\s*1")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-column:\s*2[^}]*grid-row:\s*1")
         self.assertRegex(styles, r"\.api-settings-grid\s*\{[^}]*align-items:\s*start")
         self.assertRegex(styles, r"\.api-mode-field\s*\{[^}]*grid-template-columns:\s*minmax\(280px,\s*320px\)")
         self.assertRegex(styles, r"\.api-mode-field\s*\{[^}]*justify-content:\s*center")
@@ -2657,9 +2661,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.api-mode-field \.radio-group\.segmented-indicator-host \.radio-btn\.active\s*\{[^}]*color:\s*var\(--primary-strong\)")
         self.assertRegex(styles, r"\.api-provider-list\s*\{[^}]*display:\s*contents")
         self.assertNotRegex(styles, r"\.api-provider-list\s*\{[^}]*overflow-x:\s*auto")
-        self.assertRegex(styles, r"\.api-provider-choice\.active\s*\{[^}]*background:\s*var\(--primary\)")
-        self.assertRegex(styles, r"\.api-provider-choice\.active\s*\{[^}]*color:\s*var\(--primary-foreground\)")
-        self.assertRegex(styles, r"\.api-provider-choice\.active span\s*\{[^}]*color:\s*color-mix\(in srgb,\s*var\(--primary-foreground\)\s*82%,\s*transparent\)")
+        self.assertRegex(styles, r"\.api-provider-choice\.active\s*\{[^}]*background:\s*var\(--primary-light\)")
+        self.assertRegex(styles, r"\.api-provider-choice\.active\s*\{[^}]*color:\s*var\(--text\)")
+        self.assertRegex(styles, r"\.api-provider-choice\.active span\s*\{[^}]*color:\s*var\(--text-secondary\)")
         self.assertRegex(styles, r"\.api-provider-detail-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)")
         self.assertRegex(styles, r"\.api-provider-editor\.hidden\s*,\s*\.api-provider-detail-panel\.hidden\s*\{[^}]*display:\s*none")
         self.assertIn("const MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30", script)
@@ -2674,11 +2678,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("(prefers-reduced-motion: reduce)", script)
         self.assertRegex(styles, r"\.api-settings-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
         self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*display:\s*grid")
-        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)")
+        self.assertRegex(styles, r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*grid-template-columns:\s*6\.5em\s+minmax\(0,\s*1fr\)[^}]*align-items:\s*center")
         self.assertRegex(
             styles,
             r"\.api-provider-name-inputs\s*\{[^}]*"
-            r"grid-template-columns:\s*minmax\(96px,\s*auto\)\s+minmax\(0,\s*1fr\)",
+            r"grid-template-columns:\s*44px\s+minmax\(0,\s*1fr\)",
         )
         self.assertRegex(styles, r"\.api-advanced-settings\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"\.api-advanced-settings > summary\s*\{[^}]*display:\s*flex")
@@ -2704,7 +2708,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*>\s*\.modal-heading\s*\{[^}]*margin-bottom:\s*16px")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*>\s*\.modal-heading\s*\{[^}]*text-align:\s*center")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*>\s*\.modal-heading\s+\.drawer-close-button\s*\{[^}]*position:\s*absolute")
-        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*padding-right:\s*0")
+        self.assertRegex(styles, r"\.system-settings-scroll\s*\{[^}]*scrollbar-gutter:\s*stable both-edges")
         self.assertNotIn(".system-settings-section-heading", styles)
         self.assertRegex(styles, r"\.system-settings-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)")
         self.assertRegex(
@@ -2718,7 +2722,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn(".codex-channel-note.active", styles)
         self.assertNotIn(".codex-channel-current", styles)
         self.assertRegex(styles, r"\.api-provider-section-header\s*\{[^}]*justify-content:\s*space-between")
-        self.assertRegex(styles, r"\.api-provider-sort-toggle\s*\{[^}]*min-width:\s*72px")
+        self.assertRegex(styles, r"\.api-provider-sort-toggle,\s*\.api-provider-add-button\s*\{[^}]*min-width:\s*72px")
         self.assertRegex(styles, r"\.api-provider-list\.is-sorting\s*\{[^}]*display:\s*grid")
         self.assertRegex(styles, r"\.api-provider-sort-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+36px")
         self.assertRegex(styles, r"\.api-provider-sort-handle\s*\{[^}]*touch-action:\s*none")
@@ -2741,7 +2745,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             )
         self.assertNotIn('data-i18n="output.webSearchToggle"', html)
         self.assertIn(".web-search-toggle:has(input:focus-visible)", styles)
-        self.assertRegex(styles, r"\.api-direct-settings-notice\s*\{[^}]*border:\s*0")
+        self.assertNotIn(".api-direct-settings-notice", styles)
         self.assertIn(".api-settings-feedback.ok", styles)
         self.assertIn(".api-settings-feedback.error", styles)
         self.assertIn(".api-settings-feedback.running", styles)
@@ -2806,16 +2810,16 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('addEventListener("dblclick", handleOutputFormatDoubleClick)', script)
         self.assertIn('event.key === "Escape"', script)
         self.assertIn('els.compressionPopover.classList.add("hidden")', script)
-        self.assertNotIn('els.compressionField.classList.toggle("hidden"', script)
+        self.assertIn('els.compressionField?.classList.toggle("hidden", extraOptionsCompact && !compressionEnabled)', script)
         self.assertNotIn("format-hidden", html)
         self.assertNotIn("format-hidden", script)
         self.assertNotIn("PNG 不适用", script)
         self.assertRegex(styles, r"\.range-control\s*\{[^}]*--range-fill:\s*var\(--primary\)")
         self.assertRegex(styles, r"\.output-format-field\s*\{[^}]*position:\s*relative")
-        self.assertRegex(styles, r"\.compression-popover\s*\{[^}]*position:\s*absolute")
+        self.assertRegex(styles, r"\.compression-popover\s*\{[^}]*position:\s*fixed")
         self.assertNotRegex(styles, r"\.compression-range\.format-hidden")
         self.assertRegex(styles, r"\.compression-range\s*\{[^}]*display:\s*grid")
-        self.assertRegex(styles, r"\.compression-range\s*\{[^}]*grid-template-columns:\s*auto minmax\(160px,\s*1fr\) auto")
+        self.assertRegex(styles, r"\.compression-range\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) auto")
         self.assertRegex(styles, r"\.range-value\s*\{[^}]*border-radius:\s*999px")
         self.assertRegex(styles, r"input\[type=range\]\.slider::-webkit-slider-thumb\s*\{[^}]*border:\s*5px solid var\(--range-fill\)")
     def test_output_ratio_layout_is_full_width_and_pairs_portrait_landscape(self) -> None:
@@ -2936,8 +2940,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('data-val="auto"', orientation_controls.group(0))
         self.assertNotIn('<option value="auto"', orientation_controls.group(0))
         self.assertRegex(styles, r"#orientationGroup \.radio-btn\s*\{[^}]*gap:\s*4px")
-        self.assertRegex(styles, r"\.orientation-option-icon\s*\{[^}]*width:\s*12px")
-        self.assertRegex(styles, r"\.orientation-option-icon\s*\{[^}]*stroke:\s*currentColor")
+        self.assertRegex(styles, r"\.orientation-option-icon\s*\{[^}]*width:\s*16px")
+        self.assertRegex(styles, r"\.orientation-option-icon\s*\{[^}]*fill:\s*currentColor")
         self.assertIn('DEFAULT_RESOLUTION = "standard"', script)
         self.assertIn('DEFAULT_RATIO = "1:1"', script)
         self.assertIn('DEFAULT_ORIENTATION = "square"', script)
@@ -2953,7 +2957,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("els.background", script)
         self.assertRegex(html, r'id="mainModelField"[\s\S]*id="webSearchField"[\s\S]*id="mainModelCombobox"')
         self.assertRegex(html, r'id="outputFormatField"[\s\S]*id="transparentBackground"[\s\S]*id="outputFormatGroup"')
-        self.assertLess(html.index('id="pixelPreview"'), html.index('id="outputFileSettings"'))
+        self.assertNotIn('id="pixelPreview"', html)
         self.assertNotIn('form.append("background"', script)
         self.assertRegex(html, r'class="field-pair full-width quantity-quality-row"[\s\S]*id="quality"[\s\S]*id="quantityGroup"')
         self.assertRegex(styles, r"\.field-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*1fr\)")
@@ -3028,11 +3032,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         custom_ratio_markup = re.search(r'<div class="field custom-ratio-field">[\s\S]*?<p id="customRatioHint"[^>]*>[^<]*</p>\s*</div>', html)
         self.assertIsNotNone(custom_ratio_markup)
         self.assertRegex(custom_ratio_markup.group(0), r'<span[^>]*>比例锁定（可选）</span>[\s\S]*class="custom-measure-row custom-ratio-control"')
-        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioWidth"[^>]*>宽</label>[\s\S]*id="customRatioWidth"')
+        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label sr-only" for="customRatioWidth"[^>]*>宽</label>[\s\S]*id="customRatioWidth"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioWidth"[\s\S]*class="control custom-ratio-digit"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioWidth"[^>]*type="text"[^>]*inputmode="numeric"[^>]*maxlength="1"[^>]*pattern="\[1-9\]"')
         self.assertRegex(custom_ratio_markup.group(0), r'<span class="custom-ratio-separator"[^>]*>:</span>')
-        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label" for="customRatioHeight"[^>]*>高</label>[\s\S]*id="customRatioHeight"')
+        self.assertRegex(custom_ratio_markup.group(0), r'<label class="custom-measure-label sr-only" for="customRatioHeight"[^>]*>高</label>[\s\S]*id="customRatioHeight"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHeight"[\s\S]*class="control custom-ratio-digit"')
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHeight"[^>]*type="text"[^>]*inputmode="numeric"[^>]*maxlength="1"[^>]*pattern="\[1-9\]"')
         self.assertIn('aria-label="自定义宽高比宽度"', custom_ratio_markup.group(0))
@@ -3040,12 +3044,12 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('placeholder="宽"', custom_ratio_markup.group(0))
         self.assertNotIn('placeholder="高"', custom_ratio_markup.group(0))
         self.assertRegex(custom_ratio_markup.group(0), r'id="customRatioHint" class="custom-ratio-hint"[\s\S]*留空则自由宽高 · 填满后同步')
-        custom_size_markup = re.search(r'<div id="customSize" class="custom-size"[\s\S]*?<div id="pixelPreview"', html)
+        custom_size_markup = re.search(r'<div id="customSize" class="custom-size"[\s\S]*?<input type="text" id="size"', html)
         self.assertIsNotNone(custom_size_markup)
         self.assertRegex(custom_size_markup.group(0), r'class="custom-size-main"[\s\S]*class="custom-size-header"[\s\S]*<span[^>]*>像素尺寸</span>')
         self.assertRegex(custom_size_markup.group(0), r'class="custom-measure-row custom-size-row"')
-        self.assertRegex(custom_size_markup.group(0), r'<label class="custom-measure-label" for="customWidth"[^>]*>宽度</label>[\s\S]*id="customWidth"')
-        self.assertRegex(custom_size_markup.group(0), r'id="customWidth"[\s\S]*id="swapCustomSizeButton"[\s\S]*<label class="custom-measure-label" for="customHeight"[^>]*>高度</label>[\s\S]*id="customHeight"[\s\S]*id="customSizeHint"')
+        self.assertRegex(custom_size_markup.group(0), r'<label class="custom-measure-label output-label-pair" for="customWidth"[^>]*>宽度</label>[\s\S]*id="customWidth"')
+        self.assertRegex(custom_size_markup.group(0), r'id="customWidth"[\s\S]*id="swapCustomSizeButton"[\s\S]*<label class="custom-measure-label output-label-pair" for="customHeight"[^>]*>高度</label>[\s\S]*id="customHeight"[\s\S]*id="customSizeHint"')
         self.assertRegex(custom_size_markup.group(0), r'class="field custom-ratio-field"[\s\S]*id="customRatioWidth"[\s\S]*id="customRatioHeight"')
         self.assertNotIn('id="lockCustomRatioButton"', custom_size_markup.group(0))
         self.assertNotIn("<span>px</span>", custom_size_markup.group(0))
@@ -3097,10 +3101,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.size-editors\s*\{[^}]*position:\s*relative")
         self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
-        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*align-content:\s*center")
-        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*gap:\s*8px")
-        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*padding-left:\s*20px")
-        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*border-left:\s*1px solid")
+        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*align-content:\s*start")
+        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*gap:\s*6px")
+        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*padding:\s*0")
+        self.assertRegex(styles, r"\.custom-ratio-field\s*\{[^}]*border:\s*0")
         self.assertNotRegex(styles, r"\.custom-ratio-field\s*\{[^}]*min-height:\s*var\(--custom-size-mode-card-height\)")
         self.assertNotRegex(styles, r"\.custom-ratio-field\s*\{[^}]*border:\s*1px solid var\(--line\)")
         self.assertNotRegex(styles, r"\.custom-ratio-field\s*\{[^}]*background:\s*var\(--surface-soft\)")
@@ -3117,30 +3121,30 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotRegex(styles, r"\.custom-ratio-control\s*\{[^}]*border:")
         self.assertNotRegex(styles, r"\.custom-ratio-control\s*\{[^}]*background:")
         self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*--measure-input-width:\s*44px")
-        self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*--measure-mid-width:\s*18px")
+        self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*--measure-mid-width:\s*16px")
         self.assertRegex(styles, r"\.custom-ratio-digit\s*\{[^}]*width:\s*var\(--measure-input-width\)")
         self.assertRegex(styles, r"\.custom-ratio-header\s*\{[^}]*display:\s*flex")
-        self.assertRegex(styles, r"\.custom-ratio-header\s*\{[^}]*min-height:\s*26px")
+        self.assertRegex(styles, r"\.custom-ratio-header\s*\{[^}]*min-height:\s*20px")
         self.assertRegex(styles, r"\.custom-ratio-header\s*>\s*span\s*\{[^}]*font-size:\s*12px")
         self.assertRegex(styles, r"\.custom-size-main\s*\{[^}]*display:\s*grid")
         self.assertRegex(styles, r"\.custom-size-main\s*\{[^}]*align-content:\s*center")
         self.assertRegex(styles, r"\.custom-size-header\s*\{[^}]*display:\s*flex")
-        self.assertRegex(styles, r"\.custom-size-header\s*\{[^}]*min-height:\s*22px")
-        self.assertRegex(styles, r"\.custom-size-header\s*>\s*span\s*\{[^}]*font-size:\s*14px")
+        self.assertRegex(styles, r"\.custom-size-header\s*\{[^}]*min-height:\s*20px")
+        self.assertRegex(styles, r"\.custom-size-header\s*>\s*span\s*\{[^}]*font-size:\s*13px")
         self.assertRegex(styles, r"\.custom-size-header\s*>\s*span\s*\{[^}]*font-weight:\s*600")
         self.assertRegex(styles, r"\.custom-ratio-hint\s*,\s*\.custom-size-hint\s*\{[^}]*font-size:\s*12px")
         self.assertRegex(styles, r"\.custom-ratio-image-button:disabled\s*\{[^}]*display:\s*none")
         self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.custom-ratio-field\s*\{[^}]*display:\s*grid")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.08fr\)\s+minmax\(242px,\s*0\.92fr\)")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*align-items:\s*center")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*align-items:\s*flex-start")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*min-height:\s*0")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*max-height:\s*none")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*padding:\s*18px 20px")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*padding:\s*8px 16px")
         self.assertRegex(styles, r"\.custom-size\s*\{[^}]*transition:[^}]*max-height var\(--motion-height\)")
         self.assertRegex(styles, r"\.custom-size\.custom-size-collapsed\s*\{[^}]*max-height:\s*0")
         self.assertRegex(styles, r"\.custom-size\.custom-size-collapsed\s*\{[^}]*opacity:\s*0")
         self.assertNotIn(".custom-size-field", styles)
-        self.assertRegex(styles, r"\.custom-size-row\s*\{[^}]*--measure-input-width:\s*96px")
+        self.assertRegex(styles, r"\.custom-size-row\s*\{[^}]*--measure-input-width:\s*88px")
         self.assertRegex(styles, r"\.custom-size-icon-button\s*\{[^}]*width:\s*30px")
         self.assertRegex(styles, r"\.custom-size-icon-button\s*\{[^}]*justify-self:\s*center")
         self.assertNotRegex(styles, r"\.custom-size-actions\s*\{")
@@ -3154,8 +3158,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.custom-size\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertNotRegex(styles, r"\.settings-grid\.custom-size-mode\s+\.quantity-field\s*\{[^}]*grid-column:\s*1\s*/\s*-1")
         self.assertRegex(styles, r"@media \(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.settings-grid\s*,\s*[\s\S]*\.custom-size\s*\{[\s\S]*transition:\s*none")
-        self.assertRegex(styles, r"@media \(max-width:\s*640px\)\s*\{[\s\S]*\.custom-size\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)")
-    def test_custom_size_ratio_and_quantity_rows_are_balanced_halves(self) -> None:
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap")
+    def test_custom_size_uses_compact_groups_and_quantity_rows_remain_balanced(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
@@ -3171,11 +3175,11 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotRegex(styles, r"\.quantity-quality-row\s*\{[^}]*1\.25fr")
         self.assertNotRegex(styles, r"\.quantity-quality-row\s*\{[^}]*0\.75fr")
         self.assertRegex(styles, r"\.custom-measure-row\s*\{[^}]*justify-content:\s*start")
-        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.08fr\)\s+minmax\(242px,\s*0\.92fr\)")
+        self.assertRegex(styles, r"\.custom-size\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap")
         self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*--measure-input-width:\s*44px")
-        self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*grid-template-columns:\s*22px 44px 18px 22px 44px auto")
+        self.assertRegex(styles, r"\.custom-ratio-control\s*\{[^}]*grid-template-columns:\s*var\(--measure-input-width\) var\(--measure-mid-width\) var\(--measure-input-width\)")
         self.assertRegex(styles, r"\.custom-ratio-image-button\s*\{[^}]*align-self:\s*center")
-        self.assertRegex(styles, r"\.custom-size-row\s*\{[^}]*--measure-input-width:\s*96px")
+        self.assertRegex(styles, r"\.custom-size-row\s*\{[^}]*--measure-input-width:\s*88px")
         self.assertNotIn(".custom-size-field", styles)
     def test_custom_size_swap_button_exchanges_dimensions(self) -> None:
         node = shutil.which("node")
@@ -3190,11 +3194,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                   customHeight: { value: "1280" },
                 };
                 let customSizeUpdated = 0;
-                let pixelPreviewArg = "";
                 let requestPreviewUpdated = 0;
                 let modelDraftSaved = 0;
                 function updateCustomSize() { customSizeUpdated += 1; }
-                function updatePixelPreview(size) { pixelPreviewArg = size; }
                 function updateRequestPreview() { requestPreviewUpdated += 1; }
                 function saveCurrentModelParameterDraft() { modelDraftSaved += 1; }
                 """,
@@ -3207,7 +3209,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                   throw new Error(`expected swapped dimensions, got ${els.customWidth.value}x${els.customHeight.value}`);
                 }
                 if (customSizeUpdated !== 1) throw new Error("expected custom size state update");
-                if (pixelPreviewArg !== "custom") throw new Error(`expected custom preview update, got ${pixelPreviewArg}`);
                 if (requestPreviewUpdated !== 1) throw new Error("expected request preview update");
                 if (modelDraftSaved !== 1) throw new Error("expected swapped dimensions to save the model draft");
                 """,
@@ -3451,11 +3452,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                   customHeight: { value: "1024" },
                 };
                 let customSizeUpdated = 0;
-                let pixelPreviewArg = "";
                 let requestPreviewUpdated = 0;
                 let modelDraftSaved = 0;
                 function updateCustomSize() { customSizeUpdated += 1; }
-                function updatePixelPreview(size) { pixelPreviewArg = size; }
                 function updateRequestPreview() { requestPreviewUpdated += 1; }
                 function saveCurrentModelParameterDraft() { modelDraftSaved += 1; }
                 """,
@@ -3478,7 +3477,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                   throw new Error(`expected 2k portrait preset dimensions, got ${els.customWidth.value}x${els.customHeight.value}`);
                 }
                 if (customSizeUpdated !== 1) throw new Error("expected one custom size update");
-                if (pixelPreviewArg !== "custom") throw new Error(`expected custom pixel preview, got ${pixelPreviewArg}`);
                 if (requestPreviewUpdated !== 1) throw new Error("expected request preview update");
                 if (modelDraftSaved !== 1) throw new Error("expected custom mode switch to save the model draft");
                 els.customWidth.value = "1408";
@@ -3790,7 +3788,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*width:\s*min\(624px,\s*calc\(100vw - 60px\)\)")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*max-height:\s*min\(760px,\s*calc\(100vh - var\(--system-settings-modal-top,\s*30px\) - 30px\)\)")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*overflow:\s*hidden")
-        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*overflow-y:\s*auto")
+        self.assertRegex(styles, r"\.system-settings-scroll\s*\{[^}]*overflow-y:\s*auto")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*padding:\s*22px\s+28px\s+24px")
         self.assertRegex(styles, r"\.system-settings-modal-panel\s*\{[^}]*transition:\s*height var\(--motion-height\)")
         self.assertRegex(styles, r"\.system-settings-modal-panel\.is-height-animating\s*\{[^}]*overflow:\s*hidden")
@@ -3802,9 +3800,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn(".system-settings-section[hidden]", styles)
         self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*flex:\s*0 1 auto")
         self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*max-height:\s*calc\(100vh - 190px\)")
-        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*overflow-x:\s*hidden")
-        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*overflow-y:\s*auto")
-        self.assertRegex(styles, r"\.system-settings-section\s*\{[^}]*padding-right:\s*0")
+        self.assertRegex(styles, r"\.system-settings-scroll\s*\{[^}]*overflow-x:\s*hidden")
+        self.assertRegex(styles, r"\.system-settings-scroll\s*\{[^}]*overflow-y:\s*auto")
+        self.assertRegex(styles, r"\.system-settings-scroll\s*\{[^}]*scrollbar-gutter:\s*stable both-edges")
         self.assertRegex(styles, r"\.settings-modal-actions\s*\{[^}]*margin-top:\s*16px")
         self.assertRegex(styles, r"\.settings-path-grid\s*\{[^}]*display:\s*grid")
     def test_image_input_accepts_clipboard_images(self) -> None:
@@ -3927,7 +3925,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("function createThumbRemoveIcon()", image_strip_source)
         self.assertIn("thumb-add-icon", image_strip_source)
         self.assertIn("thumb-remove-icon", image_strip_source)
-        self.assertIn("stroke-linecap", image_strip_source)
+        self.assertIn('data-ui-icon="close"', image_strip_source)
+        self.assertIn('href="/static/icons/ui.svg?v=1#close"', image_strip_source)
         self.assertIn('remove.append(createThumbRemoveIcon())', image_strip_source)
         self.assertIn('remove.setAttribute("aria-label", translate("imageInput.removeImage"))', image_strip_source)
         self.assertNotIn('remove.textContent = "×"', image_strip_source)
@@ -3958,7 +3957,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.thumb \.thumb-remove\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--danger\) 78%, var\(--surface\)\)")
         self.assertRegex(styles, r"\.thumb \.thumb-remove\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertNotRegex(styles, r"\.thumb \.thumb-remove\s*\{[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*0\.5\)")
-        self.assertRegex(styles, r"\.thumb-remove-icon,\s*\.thumb-remove-icon svg\s*\{[^}]*width:\s*12px")
+        self.assertRegex(styles, r"\.thumb-remove-icon,\s*\.thumb-remove-icon svg\s*\{[^}]*width:\s*14px")
         self.assertRegex(styles, r"\.thumb-badge\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--primary\) 88%, transparent\)")
         self.assertRegex(styles, r"\.thumb-badge\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertNotRegex(styles, r"\.thumb-badge\s*\{[^}]*background:\s*rgba\(31,\s*53,\s*47")
@@ -4315,7 +4314,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             ".auth-source-button.active",
             ".system-settings-tab.active",
             ".system-settings-tabs.segmented-indicator-host .system-settings-tab.active",
-            ".api-provider-choice.active",
             ".segment.active",
             ".radio-btn.active",
             ".quick-gallery-category.active",
@@ -4328,6 +4326,14 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                     styles,
                     rf"{re.escape(selector)}\s*\{{[^}}]*color:\s*var\(--primary-foreground\)",
                 )
+
+        provider_active = self._extract_css_block(styles, ".api-provider-choice.active")
+        provider_meta = self._extract_css_block(styles, ".api-provider-choice.active span")
+        self.assertIn("background: var(--primary-light)", provider_active)
+        self.assertIn("color: var(--text)", provider_active)
+        self.assertIn("color: var(--text-secondary)", provider_meta)
+        self.assertNotIn("var(--primary-foreground)", provider_active)
+        self.assertNotIn("var(--primary-foreground)", provider_meta)
 
         for selector in (
             ".primary-button",

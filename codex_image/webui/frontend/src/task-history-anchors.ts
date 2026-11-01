@@ -10,6 +10,8 @@ let latestTaskNavigationFrameId = 0;
 let latestTaskNavigationPinToken = 0;
 let latestTaskNavigationInitialized = false;
 let latestTaskNavigationPreRenderAtLatest: boolean | null = null;
+let latestTaskNavigationPreRenderFirstTaskAboveViewport: boolean | null = null;
+let latestTaskNavigationPreRenderGroupKey = "";
 const TASK_HISTORY_LAYOUT_EASING = "ease";
 const TASK_HISTORY_LAYOUT_DURATION_MS = 180;
 
@@ -49,12 +51,15 @@ function latestTaskNavigationViewModel(input: any) {
     && String(input?.currentGroupKey || "") === latestGroupKey
     && atLatestPosition,
   );
+  const firstTaskAboveViewport = input?.renderInProgress && typeof input?.preRenderFirstTaskAboveViewport === "boolean"
+    ? input.preRenderFirstTaskAboveViewport
+    : typeof input?.firstTaskBottom === "number" && input.firstTaskBottom <= Number(input?.viewportTop || 0);
   const noticeCount = Math.max(0, Number(input?.noticeCount || 0));
   return {
     visible: Boolean(
       hasOverflow
       && latestGroupKey
-      && !atLatest
+      && firstTaskAboveViewport
       && !input?.searchActive
       && !input?.batchMode
     ),
@@ -250,23 +255,32 @@ function taskHistoryRenderInProgress() {
 function latestTaskNavigationCurrentViewModel() {
   const sidebarContent = element(els.sidebarContent);
   const renderInProgress = taskHistoryRenderInProgress();
+  const currentGroupKey = currentTaskHistoryGroupKey();
+  const firstTask = element(els.taskList?.querySelector?.(".task-group-items-expanded .task-card[data-task-id]:not(.task-card-removing)"));
   return latestTaskNavigationViewModel({
     scrollTop: sidebarContent?.scrollTop || 0,
     scrollHeight: sidebarContent?.scrollHeight || 0,
     clientHeight: sidebarContent?.clientHeight || 0,
-    currentGroupKey: currentTaskHistoryGroupKey(),
+    firstTaskBottom: firstTask && firstTask.offsetHeight > 0 ? firstTask.getBoundingClientRect().bottom : null,
+    viewportTop: sidebarContent ? sidebarContent.getBoundingClientRect().top + sidebarContent.clientTop : 0,
+    currentGroupKey,
     visibleGroupKeys: visibleTaskHistoryGroupKeys(),
     searchActive: Boolean(String(els.taskSearch?.value || "").trim()),
     batchMode: Boolean(state.batchMode),
     noticeCount: state.latestTaskNoticeCount,
     renderInProgress,
     preRenderAtLatest: renderInProgress ? latestTaskNavigationPreRenderAtLatest : null,
+    preRenderFirstTaskAboveViewport: renderInProgress && currentGroupKey === latestTaskNavigationPreRenderGroupKey
+      ? latestTaskNavigationPreRenderFirstTaskAboveViewport : null,
   });
 }
 
 function rememberLatestTaskNavigationBeforeRender() {
   if (taskHistoryRenderInProgress()) return;
-  latestTaskNavigationPreRenderAtLatest = latestTaskNavigationCurrentViewModel().atLatest;
+  const viewModel = latestTaskNavigationCurrentViewModel();
+  latestTaskNavigationPreRenderAtLatest = viewModel.atLatest;
+  latestTaskNavigationPreRenderFirstTaskAboveViewport = viewModel.visible;
+  latestTaskNavigationPreRenderGroupKey = currentTaskHistoryGroupKey();
 }
 
 function focusExpandedTaskGroupHeader() {
@@ -368,9 +382,7 @@ function anchorRowHtml(group: any) {
         aria-hidden="true"
       >
         <span class="task-group-toggle" aria-hidden="true">
-          <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
-            <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-          </svg>
+          <svg class="task-group-toggle-icon" data-ui-icon="chevron-right" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-right"/></svg>
         </span>
       </span>
     </button>

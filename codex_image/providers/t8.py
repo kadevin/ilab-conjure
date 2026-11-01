@@ -12,19 +12,22 @@ from codex_image.generation.errors import (
     provider_error_from_exception,
 )
 from codex_image.generation.types import GenerationResult
+from codex_image.generation.partial_results import PartialGenerationError
 from codex_image.openai_images_client import (
     OpenAIImagesImageClient,
+    PartialImageResultsError,
     build_multipart_body,
 )
 from codex_image.providers.contracts import ExecutionPlan
 from codex_image.providers.openai import image_results_to_generation
+from codex_image.providers.result_assets import AssetLoadError
 
 
 _SUCCESS_STATUSES = frozenset({"completed", "success", "done", "finished"})
 _FAILURE_STATUSES = frozenset({"failed", "failure", "error", "cancelled", "canceled"})
 
 
-def _http_error(plan: ExecutionPlan, status: int) -> GenerationProviderError:
+def _http_error(plan: ExecutionPlan, status: int, *, generation_request: bool = False) -> GenerationProviderError:
     if status in {400, 422}:
         code, public_status, retryable = "invalid_parameters", 400, False
     elif status in {401, 403}:
@@ -35,6 +38,8 @@ def _http_error(plan: ExecutionPlan, status: int) -> GenerationProviderError:
         code, public_status, retryable = "upstream_error", 502, True
     else:
         code, public_status, retryable = "upstream_error", 502, False
+    if generation_request and status >= 500:
+        retryable = False
     return provider_error(
         code,
         provider_id=plan.provider.id,
@@ -49,9 +54,9 @@ def _json_object(body: bytes) -> dict[str, Any]:
     try:
         value = json.loads(body.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as exc:
-        raise ValueError("invalid T8 response JSON") from exc
+        raise AssetLoadError("invalid T8 response JSON") from exc
     if not isinstance(value, dict):
-        raise ValueError("invalid T8 response object")
+        raise AssetLoadError("invalid T8 response object")
     return value
 
 
@@ -92,25 +97,73 @@ class T8ImagesAdapter:
         )
         request = plan.protocol_request
         payload = dict(request.json_body or {})
+        progress = plan.progress
+        identity = {"provider_id": plan.provider.id, "base_url": plan.provider.base_url,
+                    "binding_id": plan.binding.id, "model": plan.binding.remote_model_id}
+        state = dict(progress.state) if progress is not None else {}
+        if state.get("identity") != identity:
+            state = {"identity": identity, "tasks": []}
+        slots = progress.output_slots if progress is not None else ()
+        tasks = state.setdefault("tasks", [])
+        saved = next((item for item in tasks if slots and slots[0] in item.get("output_slots", [])
+                      and not item.get("failed")), None)
+
+        def checkpoint() -> None:
+            if progress is not None:
+                try:
+                    progress.checkpoint(state)
+                except Exception as exc:
+                    raise AssetLoadError("remote task checkpoint could not be saved locally") from exc
+
+        def terminal_failure() -> None:
+            if saved is not None:
+                saved["failed"] = True
+                checkpoint()
+
+        def select_pending_outputs(result_payload: dict[str, Any]) -> dict[str, Any]:
+            items = result_payload.get("data")
+            if saved is None or not slots or not isinstance(items, list):
+                return result_payload
+            # Persist the remote result's slot mapping before downloading any
+            # image. Completed local slots never need their remote URL again.
+            saved["output_slots"] = saved["output_slots"][:len(items)]
+            checkpoint()
+            selected = [item for slot, item in zip(saved["output_slots"], items) if slot in slots]
+            if not selected:
+                raise AssetLoadError("remote task returned no image for the requested slot")
+            return {**result_payload, "data": selected}
+
         if request.files or request.form_fields:
             body, content_type = build_multipart_body(request.form_fields, request.files)
         else:
             body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
             content_type = "application/json"
         try:
-            response = client.transport.request(
-                method=request.method,
-                url=f"{client.base_url}{request.path}",
-                headers=client._build_headers(content_type=content_type),
-                body=body,
-            )
-            if not 200 <= response.status < 300:
-                raise _http_error(plan, response.status)
-            submitted = _json_object(response.body)
-            task_id = str(submitted.get("task_id") or "").strip()
-            if not task_id:
-                return self._parse_result(client, plan, submitted, request_payload=payload)
-            return self._poll(client, plan, task_id, request_payload=payload)
+            if saved is None:
+                response = client.transport.request(
+                    method=request.method,
+                    url=f"{client.base_url}{request.path}",
+                    headers=client._build_headers(content_type=content_type),
+                    body=body,
+                )
+                if not 200 <= response.status < 300:
+                    raise _http_error(plan, response.status, generation_request=True)
+                submitted = _json_object(response.body)
+                task_id = str(submitted.get("task_id") or "").strip()
+                if not task_id:
+                    result = self._parse_result(client, plan, submitted, request_payload=payload)
+                    if not result.assets and result.asset_outcomes:
+                        raise result.asset_outcomes[0]
+                    return result
+                saved = {"task_id": task_id, "output_slots": list(slots)}
+                tasks.append(saved)
+                # Persist acceptance before the first poll, including on cancellation.
+                checkpoint()
+            result = self._poll(client, plan, saved["task_id"], request_payload=payload,
+                                on_failure=terminal_failure, select_outputs=select_pending_outputs)
+            if not result.assets and result.asset_outcomes:
+                raise result.asset_outcomes[0]
+            return result
         except GenerationProviderError:
             raise
         except Exception as exc:
@@ -128,6 +181,8 @@ class T8ImagesAdapter:
         task_id: str,
         *,
         request_payload: dict[str, Any],
+        on_failure: Callable[[], None] | None = None,
+        select_outputs: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
     ) -> GenerationResult:
         headers = client._build_headers(content_type="application/json")
         task_url = f"{client.base_url}/images/tasks/{quote(task_id, safe='')}"
@@ -148,6 +203,8 @@ class T8ImagesAdapter:
             status = str(envelope.get("status") or "").strip().lower()
             result_payload = _normalized_result_payload(envelope.get("data"))
             if status in _FAILURE_STATUSES:
+                if on_failure is not None:
+                    on_failure()
                 raise provider_error(
                     "upstream_error",
                     provider_id=plan.provider.id,
@@ -158,6 +215,8 @@ class T8ImagesAdapter:
             if status in _SUCCESS_STATUSES or result_payload is not None:
                 if result_payload is None:
                     break
+                if select_outputs is not None:
+                    result_payload = select_outputs(result_payload)
                 return self._parse_result(
                     client,
                     plan,
@@ -182,12 +241,19 @@ class T8ImagesAdapter:
         request_payload: dict[str, Any],
     ) -> GenerationResult:
         normalized = _normalized_result_payload(payload) or dict(payload)
-        results = client.parse_response_json_items(
-            json.dumps(normalized, separators=(",", ":")).encode("utf-8"),
-            request_payload=request_payload,
-            url_fetcher=client._fetch_image_url,
-        )
-        generation = image_results_to_generation(results)
+        outcomes = []
+        try:
+            results = client.parse_response_json_items(
+                json.dumps(normalized, separators=(",", ":")).encode("utf-8"),
+                request_payload=request_payload,
+                url_fetcher=client._fetch_image_url,
+                asset_outcomes=outcomes,
+            )
+        except PartialImageResultsError as exc:
+            raise PartialGenerationError(
+                image_results_to_generation(exc.results, asset_outcomes=exc.outcomes), exc.completed_at,
+            ) from exc
+        generation = image_results_to_generation(results, asset_outcomes=outcomes)
         metadata = dict(generation.provider_metadata)
         metadata["requested_parameters"] = dict(plan.command.parameters)
         return GenerationResult(
@@ -195,6 +261,7 @@ class T8ImagesAdapter:
             text_parts=generation.text_parts,
             usage=generation.usage,
             provider_metadata=metadata,
+            asset_outcomes=generation.asset_outcomes,
         )
 
 

@@ -140,6 +140,37 @@ class AssetDNSResolverTests(unittest.IsolatedAsyncioTestCase):
 
 
 class FakeIPDownloadTests(unittest.TestCase):
+    def test_permanent_system_dns_failure_is_not_retried(self):
+        with patch("socket.getaddrinfo", side_effect=socket.gaierror(socket.EAI_NONAME, "private hostname")) as lookup:
+            with self.assertRaisesRegex(HTTPTransportFailure, "DNS_EAI_NONAME"):
+                HttpxTransport(proxy_map={}, connect_retry_count=2).request_asset_bounded(
+                    url="https://cdn.example/image", headers={}, max_response_bytes=100,
+                    provider_base_url="https://provider.example",
+                )
+        self.assertEqual(lookup.call_count, 1)
+
+    def test_cancellation_during_system_dns_backoff_stops_resolution(self):
+        async def run():
+            started = asyncio.Event()
+
+            def delay(_round):
+                started.set()
+                return 60
+
+            with patch("socket.getaddrinfo", side_effect=socket.gaierror(socket.EAI_AGAIN, "synthetic")) as lookup, \
+                 patch("codex_image.httpx_transport.connection_retry_delay", side_effect=delay):
+                task = asyncio.create_task(HttpxTransport(proxy_map={}, connect_retry_count=2)._request_bounded(
+                    method="GET", url="https://cdn.example/image", headers={}, body=b"", max_response_bytes=100,
+                    same_origin_redirects=False, asset_provider_base_url="https://provider.example",
+                ))
+                await asyncio.wait_for(started.wait(), 1)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+                self.assertEqual(lookup.call_count, 1)
+
+        asyncio.run(run())
+
     def test_connection_retries_preserve_validated_address_order_host_and_tls_name(self):
         client_class = httpx.AsyncClient
         requests = []

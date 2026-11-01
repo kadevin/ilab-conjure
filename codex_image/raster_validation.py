@@ -63,7 +63,7 @@ def inspect_raster_image(
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
-            with Image.open(BytesIO(data)) as image:
+            with Image.open(BytesIO(data), formats=tuple(RASTER_FORMAT_MIME_TYPES)) as image:
                 image_format = str(image.format or "").upper()
                 mime_type = RASTER_FORMAT_MIME_TYPES.get(image_format)
                 if mime_type is None:
@@ -83,7 +83,7 @@ def inspect_raster_image(
                     raise RasterValidationError("Image exceeds the frame pixel limit")
                 image.verify()
 
-            with Image.open(BytesIO(data)) as image:
+            with Image.open(BytesIO(data), formats=tuple(RASTER_FORMAT_MIME_TYPES)) as image:
                 image.seek(0)
                 image.load()
     except RasterValidationError:

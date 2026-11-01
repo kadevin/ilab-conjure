@@ -10,6 +10,13 @@ const els = bridge.els;
 let storageSettingsFeatureInitialized = false;
 let previousPaths: Record<string, string> = {};
 let previousPathsAnnounced = false;
+let lastRenderedStorageForm: string | null = null;
+let restoredStorageDraft = false;
+
+function storageFormSnapshot(): string {
+  return JSON.stringify([els.settingsInputRoot?.value, els.settingsOutputRoot?.value,
+    els.settingsGalleryRoot?.value, els.settingsSourceDataRoot?.value]);
+}
 
 const pathLabels: Record<string, string> = {
   input_root: "settings.inputRoot",
@@ -47,13 +54,16 @@ function legacyMethod(name: string, ...args: any[]): any {
 function setStatus(message: any, type?: any): void { legacyMethod("setStatus", message, type); }
 function closePromptPopover(): void { legacyMethod("closePromptPopover"); }
 
-async function refreshSettings() {
+async function refreshSettings(options: { afterRestore?: boolean } = {}) {
   if (!els.settingsInputRoot) return;
   try {
     const response = await fetch("/api/settings");
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
-    populateSettingsForm(data.settings || {});
+    const dirty = lastRenderedStorageForm !== null && storageFormSnapshot() !== lastRenderedStorageForm;
+    if (!dirty) populateSettingsForm(data.settings || {});
+    restoredStorageDraft = dirty && (restoredStorageDraft || options.afterRestore === true);
+    if (restoredStorageDraft && els.settingsStatus) els.settingsStatus.textContent = translate("userConfigBackup.settingsUpdatedDraftKept");
     previousPaths = data.previous_paths || {};
     renderPreviousPaths();
     if (Object.keys(previousPaths).length && !previousPathsAnnounced) {
@@ -70,12 +80,14 @@ function populateSettingsForm(settings: any) {
   if (els.settingsOutputRoot) els.settingsOutputRoot.value = settings.output_root || "";
   if (els.settingsGalleryRoot) els.settingsGalleryRoot.value = settings.gallery_root || "";
   if (els.settingsSourceDataRoot) els.settingsSourceDataRoot.value = settings.source_data_root || "";
+  lastRenderedStorageForm = storageFormSnapshot();
+  restoredStorageDraft = false;
 }
 
 function openSettingsModal() {
   closePromptPopover();
   refreshSettings();
-  if (els.settingsStatus) els.settingsStatus.textContent = translate("settings.status");
+  if (els.settingsStatus) els.settingsStatus.textContent = restoredStorageDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : translate("settings.status");
   openSystemSettingsModal("storage");
 }
 
@@ -118,7 +130,7 @@ export function initStorageSettingsFeature() {
   document.addEventListener(LOCALE_CHANGE_EVENT, () => {
     renderPreviousPaths();
     if (!els.systemSettingsModal?.classList.contains("hidden") && !els.systemSettingsStoragePanel?.hidden && els.settingsStatus) {
-      els.settingsStatus.textContent = translate("settings.status");
+      els.settingsStatus.textContent = restoredStorageDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : translate("settings.status");
     }
   });
   Object.assign(getLegacyBridge().methods, {

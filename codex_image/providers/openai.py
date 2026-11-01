@@ -5,17 +5,20 @@ import json
 from codex_image import openai_images_client as openai_images_transport
 from codex_image.client_types import ImageResult, _collect_responses_file_data_values
 from codex_image.generation.types import GeneratedAsset, GenerationResult
+from codex_image.generation.partial_results import PartialGenerationError
 from codex_image.generation.errors import (
     GenerationProviderError,
     provider_error,
     provider_error_from_exception,
 )
-from codex_image.openai_images_client import OpenAIImagesImageClient, build_multipart_body
+from codex_image.openai_images_client import OpenAIImagesImageClient, PartialImageResultsError, build_multipart_body
 from codex_image.openai_responses_client import OpenAIResponsesImageClient
 from codex_image.providers.contracts import ExecutionPlan
 
 
-def image_results_to_generation(results: list[ImageResult]) -> GenerationResult:
+def image_results_to_generation(
+    results: list[ImageResult], *, asset_outcomes: list[ImageResult | Exception] | None = None,
+) -> GenerationResult:
     assets = tuple(_asset_from_image_result(result) for result in results)
     usage = results[0].usage if len(results) == 1 else {"images": [dict(item.usage) for item in results]}
     tool_usage = (
@@ -23,7 +26,11 @@ def image_results_to_generation(results: list[ImageResult]) -> GenerationResult:
         if len(results) == 1
         else {"images": [dict(item.tool_usage) for item in results]}
     )
-    return GenerationResult(assets=assets, usage=usage, provider_metadata={"tool_usage": tool_usage})
+    return GenerationResult(
+        assets=assets, usage=usage, provider_metadata={"tool_usage": tool_usage},
+        asset_outcomes=tuple(item if isinstance(item, Exception) else _asset_from_image_result(item)
+                             for item in asset_outcomes or ()),
+    )
 
 
 def _asset_from_image_result(result: ImageResult) -> GeneratedAsset:
@@ -80,6 +87,7 @@ class OpenAIImagesAdapter:
             body = json.dumps(client._json_request_payload(payload)).encode("utf-8")
             content_type = "application/json"
         canonical_error_contract = not plan.binding.parameter_codec.startswith("gpt_")
+        outcomes: list[ImageResult | Exception] = []
         try:
             response = client.transport.request(
                 method=request.method,
@@ -94,7 +102,14 @@ class OpenAIImagesAdapter:
                 response.body,
                 request_payload=payload,
                 url_fetcher=client._fetch_image_url,
+                asset_outcomes=outcomes,
             )
+            if not results and outcomes:
+                raise outcomes[0]
+        except PartialImageResultsError as exc:
+            raise PartialGenerationError(
+                image_results_to_generation(exc.results, asset_outcomes=exc.outcomes), exc.completed_at,
+            ) from exc
         except Exception as exc:
             if not canonical_error_contract or isinstance(exc, GenerationProviderError):
                 raise
@@ -104,7 +119,7 @@ class OpenAIImagesAdapter:
                 canonical_model_id=plan.model.id,
                 protocol_profile=plan.binding.protocol_profile,
             ) from exc
-        generation = image_results_to_generation(results)
+        generation = image_results_to_generation(results, asset_outcomes=outcomes)
         if not canonical_error_contract:
             return generation
         try:
@@ -122,6 +137,7 @@ class OpenAIImagesAdapter:
             text_parts=generation.text_parts,
             usage=generation.usage,
             provider_metadata=provider_metadata,
+            asset_outcomes=generation.asset_outcomes,
         )
 
 
@@ -133,7 +149,7 @@ def _canonical_openai_images_http_error(plan: ExecutionPlan, status: int):
     elif status == 429:
         code, public_status, retryable = "rate_limited", 503, True
     elif status >= 500:
-        code, public_status, retryable = "upstream_error", 502, True
+        code, public_status, retryable = "upstream_error", 502, False
     else:
         code, public_status, retryable = "upstream_error", 502, False
     return provider_error(

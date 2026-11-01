@@ -31,6 +31,7 @@ export function updateTransparencyControls(): void {
   if (label) {
     label.dataset.i18n = labelKey;
     label.textContent = translate(labelKey);
+    label.title = label.textContent;
   }
   if (els.transparentBackgroundField) {
     els.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");

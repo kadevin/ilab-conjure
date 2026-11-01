@@ -39,7 +39,6 @@ import {
   swapCustomSizeDimensions,
   syncSizeControlsFromSize,
   updateCustomSize,
-  updatePixelPreview,
   updateSizeFromPreset,
   updateCustomRatioFieldState,
   updateCustomRatioReferenceButtonState,
@@ -92,7 +91,6 @@ export function bindFormControlEvents(): void {
     updateCompression();
     if (element === els.customWidth || element === els.customHeight) handleCustomDimensionInput(element);
     updateCustomSize();
-    if (element === els.customWidth || element === els.customHeight) updatePixelPreview("custom");
     updateRequestPreview();
     saveCurrentModelParameterDraft();
     };
@@ -138,7 +136,6 @@ export function bindFormControlEvents(): void {
     element.addEventListener("input", () => {
       handleCustomRatioInput(element);
       updateCustomSize();
-      updatePixelPreview("custom");
       updateRequestPreview();
       saveCurrentModelParameterDraft();
     });
@@ -157,12 +154,20 @@ export function bindFormControlEvents(): void {
     if (els.compressionPopover?.classList.contains("hidden")) openCompressionPopover();
     else closeCompressionPopover();
   });
-  els.outputFormatField?.addEventListener("keydown", (event: KeyboardEvent) => {
+  const handleCompressionKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Tab" && els.compressionPopover?.contains(document.activeElement)) {
+      const fields = [...(els.compressionPopover as HTMLElement).querySelectorAll<HTMLInputElement>("input:not(:disabled)")];
+      const boundary = event.shiftKey ? fields[0] : fields[fields.length - 1];
+      if (document.activeElement === boundary) closeCompressionPopover();
+      return;
+    }
     if (event.key !== "Escape" || els.compressionPopover?.classList.contains("hidden")) return;
     event.stopPropagation();
     closeCompressionPopover();
     compressionButton?.focus();
-  });
+  };
+  els.outputFormatField?.addEventListener("keydown", handleCompressionKeydown);
+  els.compressionPopover?.addEventListener("keydown", handleCompressionKeydown);
 }
 
 export function setMode(mode: any): void {
@@ -208,7 +213,6 @@ export function initFormControlsFeature(): void {
     updateCustomSize,
     updateCustomRatioFieldState,
     updateCustomRatioReferenceButtonState,
-    updatePixelPreview,
     customSizeValidationMessage,
     syncRadioButtons,
     updateRequestPreview,

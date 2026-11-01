@@ -15,11 +15,11 @@ import { syncThemedSelect } from "./themed-select";
 interface BindingEditorContext {
   state: { readonly apiProviderDraftIsNew: boolean; readonly generationCatalog?: { models: Array<{ id: string; official_model_id?: string; operations?: string[] }> } | null };
   els: { apiBaseUrl: HTMLInputElement; apiProviderBindings: HTMLElement | null };
-  updateApiRequestEndpointPreview(): void;
+  updateProviderBindingCount(): void;
 }
 
 export function handleProviderBindingEditorChange(event: Event, context: BindingEditorContext): void {
-  const { state, els, updateApiRequestEndpointPreview } = context;
+  const { state, els, updateProviderBindingCount } = context;
   const target = event.target as HTMLInputElement | HTMLSelectElement | null;
   const card = target?.closest<HTMLElement>("[data-binding-id]");
   if (!target || !card) return;
@@ -123,5 +123,5 @@ export function handleProviderBindingEditorChange(event: Event, context: Binding
       if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els.apiBaseUrl.value = suggestion.base_url;
     }
   }
-  updateApiRequestEndpointPreview();
+  updateProviderBindingCount();
 }

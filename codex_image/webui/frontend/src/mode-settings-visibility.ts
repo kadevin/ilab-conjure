@@ -8,7 +8,6 @@ export interface ModeSettingsVisibilityInput {
 
 export interface ModeSettingsVisibility {
   showMainModel: boolean;
-  showApiDirectNotice: boolean;
   showPromptFidelity: boolean;
 }
 
@@ -21,7 +20,6 @@ export function resolveModeSettingsVisibility({
   if (!catalogAvailable) {
     return {
       showMainModel: !legacyDirectApi,
-      showApiDirectNotice: legacyDirectApi,
       showPromptFidelity: true,
     };
   }
@@ -29,7 +27,6 @@ export function resolveModeSettingsVisibility({
   if (!isGptImageModel(modelId)) {
     return {
       showMainModel: false,
-      showApiDirectNotice: false,
       showPromptFidelity: false,
     };
   }
@@ -37,7 +34,6 @@ export function resolveModeSettingsVisibility({
   if (!protocolProfile) {
     return {
       showMainModel: false,
-      showApiDirectNotice: false,
       showPromptFidelity: true,
     };
   }
@@ -45,7 +41,6 @@ export function resolveModeSettingsVisibility({
   const usesResponses = protocolProfile.endsWith("_responses");
   return {
     showMainModel: usesResponses,
-    showApiDirectNotice: !usesResponses,
     showPromptFidelity: true,
   };
 }

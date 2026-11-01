@@ -343,3 +343,42 @@ test("HTTP LAN config upload retains chunk integrity checks without Web Crypto",
     else Reflect.deleteProperty(globalThis, "crypto");
   }
 });
+
+test("clearing a restore discards its in-flight poll response", async () => {
+  let resolvePoll!: (response: Response) => void;
+  let tick!: () => void | Promise<void>;
+  let notifications = 0;
+  const controller = createUserConfigTransferController({
+    storage: new MemoryStorage(),
+    fetch: () => new Promise<Response>(resolve => { resolvePoll = resolve; }),
+    setTimeout: callback => { tick = callback; return 1; },
+    clearTimeout: () => {},
+    onRestoreStatus: () => { notifications++; },
+  });
+  controller.trackRestore("e".repeat(32));
+  const pending = tick();
+  controller.clearRestore();
+  resolvePoll(json({session:{session_id:"e".repeat(32),status:"validated"},preview:{}}));
+  await pending;
+  assert.equal(notifications, 0);
+  assert.equal(controller.activeRestoreSessionId(), null);
+});
+
+test("clearing a restore also suppresses a late polling error", async () => {
+  let rejectPoll!: (reason: Error) => void;
+  let tick!: () => void | Promise<void>;
+  let errors = 0;
+  const controller = createUserConfigTransferController({
+    storage: new MemoryStorage(),
+    fetch: () => new Promise<Response>((_, reject) => { rejectPoll = reject; }),
+    setTimeout: callback => { tick = callback; return 1; },
+    clearTimeout: () => {},
+    onError: () => { errors++; },
+  });
+  controller.trackRestore("f".repeat(32));
+  const pending = tick();
+  controller.clearRestore();
+  rejectPoll(new Error("late network failure"));
+  await pending;
+  assert.equal(errors, 0);
+});

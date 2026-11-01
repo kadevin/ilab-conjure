@@ -1486,7 +1486,7 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(task["output_urls"], [output_url(task_id, index) for index in (1, 2, 3, 4)])
         self.assertEqual(output_files_exist, [True, True, True, True])
 
-    def test_api_images_retries_retryable_transient_output_errors(self) -> None:
+    def test_api_images_unknown_submission_requires_manual_retry(self) -> None:
         from codex_image.webui.app import create_app
 
         failures = {
@@ -1549,20 +1549,31 @@ class WebUISettingsTests(unittest.TestCase):
                     )
                     task_id = created.json()["task"]["task_id"]
 
+                    with self.assertRaises(RuntimeError):
+                        asyncio.run(app.state.queue_manager.run_available_once())
+                    task = client.get(f"/api/tasks/{task_id}").json()["task"]
+                    self.assertEqual(task["status"], "failed")
+                    self.assertEqual(task["generated_count"], 0)
+                    self.assertEqual(len(TransientFailingApiImageClient.instances[0].generate_calls), 1)
+                    self.assertEqual(task["outputs"][0]["attempts"], 1)
+                    self.assertFalse(app.state.storage.read_metadata(task_id)["generation_error"]["retryable"])
+                    asyncio.run(app.state.queue_manager.run_available_once())
+                    self.assertEqual(len(TransientFailingApiImageClient.instances[0].generate_calls), 1)
+                    self.assertEqual(client.post(f"/api/tasks/{task_id}/retry-failed").status_code, 200)
                     asyncio.run(app.state.queue_manager.run_available_once())
                     task = client.get(f"/api/tasks/{task_id}").json()["task"]
 
                 self.assertEqual(task["status"], "completed")
                 self.assertEqual(task["generated_count"], 1)
                 self.assertEqual(task["failed_count"], 0)
-                self.assertEqual(len(TransientFailingApiImageClient.instances), 1)
+                self.assertEqual(len(TransientFailingApiImageClient.instances), 2)
                 self.assertEqual(
-                    len(TransientFailingApiImageClient.instances[0].generate_calls),
+                    sum(len(instance.generate_calls) for instance in TransientFailingApiImageClient.instances),
                     2,
                 )
-                self.assertEqual(task["outputs"][0]["attempts"], 2)
+                self.assertEqual(task["outputs"][0].get("attempts", 1), 1)
 
-    def test_api_images_stops_after_two_transient_output_retries(self) -> None:
+    def test_api_images_stops_after_first_ambiguous_upstream_failure(self) -> None:
         from codex_image.webui.app import create_app
 
         failure = RuntimeError(
@@ -1621,9 +1632,9 @@ class WebUISettingsTests(unittest.TestCase):
         self.assertEqual(len(TransientFailingApiImageClient.instances), 1)
         self.assertEqual(
             len(TransientFailingApiImageClient.instances[0].generate_calls),
-            3,
+            1,
         )
-        self.assertEqual(task["outputs"][0]["attempts"], 3)
+        self.assertEqual(task["outputs"][0]["attempts"], 1)
 
     def test_api_images_honors_zero_configured_transient_retries(self) -> None:
         from codex_image.webui.app import create_app

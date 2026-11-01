@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import signal
+import sys
 import threading
 import time
 from collections.abc import Generator, Sequence
@@ -15,6 +16,7 @@ from uvicorn.server import HANDLED_SIGNALS
 
 from .shutdown_control import ShutdownCoordinator
 from .lan_access import LanAccessRuntime
+from ..runtime_security import dependency_security_error, python_security_error
 
 
 class WebUIServer(Server):
@@ -81,6 +83,9 @@ def _shutdown_coordinator(app: Any) -> ShutdownCoordinator:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if problem := python_security_error() or dependency_security_error():
+        print(problem, file=sys.stderr)
+        return 2
     try:
         app = import_from_string(args.app)
         coordinator = _shutdown_coordinator(app)

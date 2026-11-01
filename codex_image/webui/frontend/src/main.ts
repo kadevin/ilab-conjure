@@ -1,9 +1,11 @@
 import { initOverlayFocus } from "./overlay-focus";
 import { initCompactWorkspace } from "./compact-workspace";
+import { initCompactComposerLayout } from "./compact-composer-layout";
 import { initMobileShell } from "./mobile-shell";
 import { initMobileWorkspace } from "./mobile-workspace";
 import { initComposerDraft } from "./composer-draft";
 import "../legacy-app.js";
+import { updateCompression } from "./output-controls";
 import { initReferenceFileInputsFeature } from "./reference-file-inputs";
 import { initInputSourcesFeature } from "./input-sources";
 import { initImageEditorFeature } from "./image-editor";
@@ -121,5 +123,6 @@ initComposerDraft();
 initCompactWorkspace();
 initMobileWorkspace();
 initMobileShell();
+initCompactComposerLayout(updateCompression);
 initOverlayFocus();
 window.__codexImageWebUI?.boot();

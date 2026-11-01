@@ -1,0 +1,3 @@
+# Python build frontend and declared PEP 517 backend; audited separately from runtime.
+pip==26.2.2
+setuptools==84.2.1

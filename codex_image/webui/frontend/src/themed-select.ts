@@ -274,7 +274,16 @@ function bindDocumentPositionListeners(): void {
   if (documentPositionListenersBound) return;
   documentPositionListenersBound = true;
   window.addEventListener("resize", positionOpenThemedSelectMenus);
-  document.addEventListener("scroll", positionOpenThemedSelectMenus, true);
+  document.addEventListener("scroll", (event) => {
+    const target = event.target;
+    openInstances.forEach((instance) => {
+      // A portalled menu must not follow its trigger outside a scrolling panel.
+      // Scrolling the menu itself leaves it open.
+      if (target === document || (target instanceof Element && target.contains(instance.host))) {
+        closeThemedSelect(instance, instance.menu.contains(document.activeElement));
+      }
+    });
+  }, true);
 }
 
 export function mountThemedSelect(select: HTMLSelectElement | null): void {

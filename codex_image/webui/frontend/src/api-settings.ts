@@ -66,7 +66,7 @@ import {
   removeProviderBinding,
   toggleApiProviderSortMode,
   updateApiKeyRevealButton,
-  updateApiRequestEndpointPreview,
+  updateProviderBindingCount,
 } from "./api-provider-settings";
 import { initApiProviderSortFeature } from "./api-provider-sort";
 import { initProviderModelDiscovery } from "./provider-model-discovery";
@@ -134,7 +134,7 @@ export function initApiSettingsFeature(): void {
     selectCodexMode,
     setApiKeyRevealVisible,
     updateApiKeyRevealButton,
-    updateApiRequestEndpointPreview,
+    updateProviderBindingCount,
     revealApiKeyWhilePressed,
     renderApiProviderList,
     syncCodexModeNotes,

@@ -28,6 +28,7 @@ import {
 import {
   applyUserConfigClientPreferences,
   readUserConfigClientPreferences,
+  showTransientNotice,
 } from "./task-notifications";
 
 const ACTIVE_BACKUP_STATUSES = new Set(["queued", "planning", "packing"]);
@@ -53,6 +54,10 @@ let confirmation: ReplacementConfirmationState | null = null;
 let restoreMode: UserConfigRestoreMode = "incremental";
 let activeUpload: AbortController | null = null;
 let restoreApplying = false;
+let pendingBackupCreation: Promise<void> | null = null;
+let pendingRestoreUpload: Promise<void> | null = null;
+let transferClosing = false;
+let restoreCancellationPending = false;
 
 function bridgeElement(name: string): HTMLElement | null {
   const value = getLegacyBridge().els[name];
@@ -138,7 +143,13 @@ function syncBackupSelection(): void {
     if (includeKeys) includeKeys.checked = false;
   }
   const createButton = bridgeElement("createUserConfigBackupButton") as HTMLButtonElement | null;
-  if (createButton) createButton.disabled = sections.length === 0 || Boolean(currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status));
+  if (createButton) createButton.disabled = sections.length === 0 || transferClosing || restoreCancellationPending
+    || pendingBackupCreation !== null || activeUpload !== null || restoreApplying
+    || Boolean(currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status));
+  const file = inputElement("userConfigRestoreFile");
+  const cancel = bridgeElement("cancelUserConfigBackupButton") as HTMLButtonElement | null;
+  if (cancel) cancel.disabled = transferClosing || pendingBackupCreation !== null;
+  if (file) file.disabled = transferClosing || restoreCancellationPending || pendingBackupCreation !== null || activeUpload !== null || restoreApplying;
 }
 
 async function loadBackupSummary(): Promise<void> {
@@ -153,7 +164,7 @@ async function loadBackupSummary(): Promise<void> {
         : "";
       target.textContent = `${formatTranslation("userConfigBackup.itemCount", { count: summary.item_count })} · ${formatBytes(summary.size_bytes)}${warningSuffix}`;
     }
-    setStatus("userConfigBackupStatus", "");
+    if (!pendingBackupCreation && !currentBackupJob) setStatus("userConfigBackupStatus", "");
   } catch {
     setStatus("userConfigBackupStatus", translate("userConfigBackup.summaryFailed"), "error");
   }
@@ -187,6 +198,7 @@ function openWebConfirm(
     title: string;
     message: string;
     confirmText: string;
+    cancelText?: string;
     danger?: boolean;
     onConfirm: () => void | Promise<void>;
   },
@@ -199,6 +211,7 @@ const transferController = createUserConfigTransferController({
   onBackupStatus: renderBackupJob,
   onRestoreStatus: (snapshot) => {
     currentRestoreSessionId = snapshot.session.session_id;
+    if (activeUpload || restoreCancellationPending) return;
     if (snapshot.result) {
       transferController.clearRestore();
       renderRestoreResult(snapshot.result);
@@ -214,6 +227,7 @@ const transferController = createUserConfigTransferController({
 });
 
 async function createBackup(): Promise<void> {
+  if (pendingBackupCreation || transferClosing || activeUpload || restoreApplying) return;
   const sections = selectedBackupSections();
   if (!sections.length) {
     setStatus("userConfigBackupStatus", translate("userConfigBackup.selectAtLeastOne"), "error");
@@ -237,25 +251,32 @@ async function performCreateBackup(
   sections: UserConfigSection[],
   includeApiKeys: boolean,
 ): Promise<void> {
-  try {
-    const request = buildUserConfigBackupRequest(
-      sections,
-      includeApiKeys,
-      readUserConfigClientPreferences(localStorage),
-    );
-    await transferController.startBackup(request);
-  } catch (error) {
-    const code = error instanceof Error ? error.message : "user_config_backup_failed";
-    setStatus("userConfigBackupStatus", translate(code), "error");
+  if (pendingBackupCreation || transferClosing || activeUpload || restoreApplying) return;
+  const request = buildUserConfigBackupRequest(sections, includeApiKeys, readUserConfigClientPreferences(localStorage));
+  setProgress("userConfigBackupProgress", -1);
+  setStatus("userConfigBackupStatus", translate("userConfigBackup.creatingBackup"), "running");
+  // Keep the request alive until its job ID is known, including when close requests cancellation.
+  const pending = transferController.startBackup(request).then(() => {}, (error) => {
+    setProgress("userConfigBackupProgress", null);
+    setStatus("userConfigBackupStatus", translate(error instanceof Error ? error.message : "user_config_backup_failed"), "error");
+  });
+  pendingBackupCreation = pending;
+  syncBackupSelection();
+  try { await pending; } finally {
+    if (pendingBackupCreation === pending) pendingBackupCreation = null;
+    syncBackupSelection();
   }
 }
 
-async function cancelBackup(): Promise<void> {
-  if (!currentBackupJob) return;
+async function cancelBackup(): Promise<boolean> {
+  await pendingBackupCreation;
+  if (!currentBackupJob) return true;
   try {
     await cancelUserConfigBackup(currentBackupJob.job_id);
-  } catch {
-    // The next summary refresh remains safe if cleanup raced expiry.
+  } catch (error) {
+    setStatus("userConfigBackupStatus", translate(error instanceof Error ? error.message : "user_config_transfer_network_error"), "error");
+    if (transferClosing) showTransientNotice(translate(error instanceof Error ? error.message : "user_config_transfer_network_error"));
+    return false; // Retain the job ID so cancellation can be retried.
   }
   transferController.clearBackup();
   currentBackupJob = null;
@@ -265,6 +286,7 @@ async function cancelBackup(): Promise<void> {
   setHidden(bridgeElement("downloadUserConfigBackupButton"), true);
   setStatus("userConfigBackupStatus", translate("userConfigBackup.cancelled"));
   syncBackupSelection();
+  return true;
 }
 
 function downloadBackup(): void {
@@ -368,45 +390,62 @@ function renderRestorePreview(preview: UserConfigRestorePreview): void {
 
 async function chooseRestoreFile(event: Event): Promise<void> {
   const input = event.currentTarget;
-  if (!(input instanceof HTMLInputElement) || !input.files?.[0]) return;
-  const file = input.files[0];
-  await transferController.resume();
-  if (currentRestoreSessionId) {
-    await cancelUserConfigRestore(currentRestoreSessionId).catch(() => false);
-    transferController.clearRestore();
-    currentRestoreSessionId = null;
+  if (!(input instanceof HTMLInputElement) || !input.files?.[0]
+    || activeUpload || pendingBackupCreation || restoreApplying || transferClosing) return;
+  const upload = new AbortController();
+  activeUpload = upload;
+  syncBackupSelection();
+  const pending = performRestoreUpload(input.files[0], upload);
+  pendingRestoreUpload = pending;
+  try { await pending; } finally {
+    if (activeUpload === upload) activeUpload = null;
+    if (pendingRestoreUpload === pending) pendingRestoreUpload = null;
+    syncBackupSelection();
   }
-  activeUpload?.abort();
-  activeUpload = new AbortController();
+}
+
+async function performRestoreUpload(file: File, upload: AbortController): Promise<void> {
   currentPreview = null;
   setHidden(bridgeElement("userConfigRestorePreview"), true);
   setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
   setHidden(bridgeElement("userConfigRestoreResult"), true);
   try {
+    await transferController.resume();
+    if (upload.signal.aborted) return;
+    if (currentRestoreSessionId) {
+      await cancelUserConfigRestore(currentRestoreSessionId);
+      transferController.clearRestore();
+      currentRestoreSessionId = null;
+      restoreCancellationPending = false;
+    }
+    if (upload.signal.aborted) return;
     setStatus("userConfigRestoreStatus", translate("userConfigBackup.creatingSession"), "running");
-    const created = await createUserConfigRestore(file, { signal: activeUpload.signal });
+    // Await the session ID even after cancellation, so the server session can be cleaned up.
+    const created = await createUserConfigRestore(file);
     currentRestoreSessionId = created.session.session_id;
     transferController.trackRestore(created.session.session_id);
+    if (upload.signal.aborted) return;
     setProgress("userConfigRestoreProgress", 0);
     setStatus("userConfigRestoreStatus", translate("userConfigBackup.uploading"), "running");
     await uploadUserConfigRestore(file, {
       session_id: created.session.session_id,
       upload_chunk_bytes: created.upload_chunk_bytes,
     }, {
-      signal: activeUpload.signal,
-      onProgress: (uploaded, total) => setProgress("userConfigRestoreProgress", total > 0 ? uploaded * 100 / total : 0),
+      signal: upload.signal,
+      onProgress: (uploaded, total) => {
+        if (!upload.signal.aborted) setProgress("userConfigRestoreProgress", total > 0 ? uploaded * 100 / total : 0);
+      },
     });
+    if (upload.signal.aborted) return;
     setProgress("userConfigRestoreProgress", -1);
     setStatus("userConfigRestoreStatus", translate("userConfigBackup.validating"), "running");
-    renderRestorePreview(await validateUserConfigRestore(created.session.session_id, { signal: activeUpload.signal }));
-    setProgress("userConfigRestoreProgress", null);
+    const preview = await validateUserConfigRestore(created.session.session_id, { signal: upload.signal });
+    if (!upload.signal.aborted) renderRestorePreview(preview);
   } catch (error) {
-    if (activeUpload.signal.aborted) return;
-    const code = error instanceof Error ? error.message : "user_config_restore_failed";
-    setStatus("userConfigRestoreStatus", translate(code), "error");
-    setProgress("userConfigRestoreProgress", null);
+    if (upload.signal.aborted) return;
+    setStatus("userConfigRestoreStatus", translate(error instanceof Error ? error.message : "user_config_restore_failed"), "error");
   } finally {
-    activeUpload = null;
+    if (activeUpload === upload) setProgress("userConfigRestoreProgress", null);
   }
 }
 
@@ -514,6 +553,7 @@ async function applyRestore(): Promise<void> {
   const request = buildUserConfigRestoreRequest(confirmation, currentPreview.preview_revision);
   if (!request) return;
   restoreApplying = true;
+  syncBackupSelection();
   transferController.trackRestore(currentRestoreSessionId);
   setProgress("userConfigRestoreProgress", -1);
   setStatus("userConfigRestoreStatus", translate("userConfigBackup.restoring"), "running");
@@ -530,6 +570,7 @@ async function applyRestore(): Promise<void> {
     setHidden(bridgeElement("userConfigRestorePreview"), false);
   } finally {
     restoreApplying = false;
+    syncBackupSelection();
     setProgress("userConfigRestoreProgress", null);
   }
 }
@@ -583,9 +624,9 @@ function renderRestoreResult(result: UserConfigRestoreResult): void {
 
 function refreshRestoredSections(result: UserConfigRestoreResult): void {
   const methods = getLegacyBridge().methods;
-  const call = (name: string) => {
+  const call = (name: string, ...args: unknown[]) => {
     const method = methods[name];
-    if (typeof method === "function") void method();
+    if (typeof method === "function") void method(...args);
   };
   if (result.sections.includes("chips")) {
     call("refreshColorPalette");
@@ -594,9 +635,9 @@ function refreshRestoredSections(result: UserConfigRestoreResult): void {
   if (result.sections.includes("gallery")) call("refreshGallery");
   if (result.sections.includes("templates")) call("refreshPromptTemplates");
   if (result.sections.includes("settings")) {
-    call("refreshSettings");
-    call("refreshNetworkEgress");
-    call("populateApiSettingsForm");
+    call("refreshSettings", { afterRestore: true });
+    call("refreshNetworkEgress", { afterRestore: true });
+    call("refreshApiSettings", { afterRestore: true });
   }
 }
 
@@ -606,46 +647,64 @@ export function openUserConfigBackupController(): void {
   syncBackupSelection();
 }
 
-export function guardUserConfigBackupClose(closeModal = false): boolean {
+async function cancelTransfersAndClose(): Promise<void> {
+  if (transferClosing) return;
+  transferClosing = true;
+  const upload = activeUpload;
+  upload?.abort();
+  restoreCancellationPending ||= upload !== null;
+  syncBackupSelection();
+  setStatus(upload ? "userConfigRestoreStatus" : "userConfigBackupStatus", translate("taskStatus.cancelling"), "running");
+  try {
+    await pendingRestoreUpload;
+    if (restoreCancellationPending) {
+      if (currentRestoreSessionId) await cancelUserConfigRestore(currentRestoreSessionId);
+      transferController.clearRestore();
+      currentRestoreSessionId = null;
+      currentPreview = null;
+      confirmation = null;
+      const file = inputElement("userConfigRestoreFile");
+      if (file) file.value = "";
+      setHidden(bridgeElement("userConfigRestorePreview"), true);
+      setHidden(bridgeElement("userConfigReplaceConfirmation"), true);
+      setStatus("userConfigRestoreStatus", "");
+    }
+    restoreCancellationPending = false;
+    if (!await cancelBackup()) return;
+    getLegacyBridge().methods.closeSystemSettingsModal?.({ force: true });
+  } catch (error) {
+    setStatus("userConfigRestoreStatus", translate(error instanceof Error ? error.message : "user_config_transfer_network_error"), "error");
+    showTransientNotice(translate(error instanceof Error ? error.message : "user_config_transfer_network_error"));
+  } finally {
+    transferClosing = false;
+    syncBackupSelection();
+  }
+}
+
+export function guardUserConfigBackupClose(): boolean {
+  if (transferClosing) return false;
   if (restoreApplying) {
     window.alert(translate("userConfigBackup.restoreContinues"));
     return true;
   }
-  if (activeUpload || (currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status))) {
-    openWebConfirm(
-      closeModal ? bridgeElement("systemSettingsModalClose") : bridgeElement("userConfigBackupBackButton"),
-      {
-        title: translate("action.confirmQuestion"),
-        message: translate("userConfigBackup.closeActiveConfirm"),
-        confirmText: translate("action.cancel"),
-        onConfirm: async () => {
-          activeUpload?.abort();
-          activeUpload = null;
-          if (currentRestoreSessionId) await cancelUserConfigRestore(currentRestoreSessionId).catch(() => false);
-          if (currentBackupJob) await cancelBackup();
-          const methods = getLegacyBridge().methods;
-          if (closeModal) methods.closeSystemSettingsModal?.({ force: true });
-          else methods.closeUserConfigBackupView?.({ force: true });
-        },
-      },
-    );
+  if (pendingBackupCreation || activeUpload || restoreCancellationPending || (currentBackupJob && ACTIVE_BACKUP_STATUSES.has(currentBackupJob.status))) {
+    openWebConfirm(bridgeElement("systemSettingsModalClose"), {
+      title: translate("action.confirmQuestion"),
+      message: translate("userConfigBackup.closeActiveConfirm"),
+      confirmText: translate("userConfigBackup.cancelAndClose"),
+      cancelText: translate("userConfigBackup.keepWorking"),
+      onConfirm: cancelTransfersAndClose,
+    });
     return false;
   }
   if (currentBackupJob?.status === "ready") {
-    openWebConfirm(
-      closeModal ? bridgeElement("systemSettingsModalClose") : bridgeElement("userConfigBackupBackButton"),
-      {
-        title: translate("action.confirmQuestion"),
-        message: translate("userConfigBackup.discardReadyConfirm"),
-        confirmText: translate("action.cancel"),
-        onConfirm: async () => {
-          await cancelBackup();
-          const methods = getLegacyBridge().methods;
-          if (closeModal) methods.closeSystemSettingsModal?.({ force: true });
-          else methods.closeUserConfigBackupView?.({ force: true });
-        },
-      },
-    );
+    openWebConfirm(bridgeElement("systemSettingsModalClose"), {
+      title: translate("action.confirmQuestion"),
+      message: translate("userConfigBackup.discardReadyConfirm"),
+      confirmText: translate("userConfigBackup.discardAndClose"),
+      cancelText: translate("userConfigBackup.keepWorking"),
+      onConfirm: cancelTransfersAndClose,
+    });
     return false;
   }
   return true;

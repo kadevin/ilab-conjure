@@ -258,13 +258,10 @@
 }
 
 .preview-select-icon {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: none;
 }
 
 .preview-select-label {
@@ -512,9 +509,20 @@
 
 .confirm-popover-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 10px;
+}
+
+.confirm-popover-actions > button {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 32px;
+  height: auto;
+  padding-block: 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .confirm-popover-confirm.danger-button {
@@ -566,10 +574,11 @@
 .prompt-popover-close {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--line);
+  flex: 0 0 auto;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: var(--surface-soft);
-  color: var(--text-muted);
+  background: var(--secondary-action-surface);
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
@@ -577,7 +586,9 @@
   display: grid;
   gap: 10px;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
+  grid-auto-rows: max-content;
+  overscroll-behavior: contain;
   padding-right: 2px;
 }
 
@@ -660,6 +671,54 @@
 .prompt-popover-submitted summary {
   cursor: pointer;
   font-weight: 600;
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: var(--secondary-action-surface);
+}
+
+.prompt-popover-close:hover,
+.prompt-popover-submitted summary:hover {
+  background: var(--secondary-action-hover);
+  color: var(--text);
+}
+
+.prompt-popover-close:active,
+.prompt-popover-submitted summary:active {
+  background: var(--secondary-action-pressed);
+}
+
+.prompt-copy-button:not(:disabled):hover {
+  background: var(--primary-strong);
+  border-color: transparent;
+}
+
+.prompt-copy-button:not(:disabled):active {
+  background: color-mix(in srgb, var(--primary-strong) 82%, var(--text) 18%);
+  border-color: transparent;
+}
+
+.prompt-popover :is(button, summary, pre[tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.prompt-response-status,
+.prompt-response-note {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.prompt-response-status:empty { display: none; }
+.prompt-response-note { color: var(--text-muted); }
+.prompt-response-actions { display: flex; gap: 8px; }
+.prompt-response-json { font-family: ui-monospace, monospace; }
+
+.prompt-popover-body:has(.prompt-popover-response[open]) .prompt-popover-compare {
+  min-height: 120px;
+}
+
+.prompt-popover-body:has(.prompt-popover-response[open]) .prompt-popover-text {
+  max-height: 112px;
 }
 
 .prompt-popover-submitted-text {
@@ -674,24 +733,28 @@
   line-height: 1.55;
 }
 
+.prompt-popover-body,
 .prompt-popover-text,
 .prompt-popover-submitted-text {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
+.prompt-popover-body::-webkit-scrollbar,
 .prompt-popover-text::-webkit-scrollbar,
 .prompt-popover-submitted-text::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
+.prompt-popover-body::-webkit-scrollbar-track,
 .prompt-popover-text::-webkit-scrollbar-track,
 .prompt-popover-submitted-text::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
   border-radius: 999px;
 }
 
+.prompt-popover-body::-webkit-scrollbar-thumb,
 .prompt-popover-text::-webkit-scrollbar-thumb,
 .prompt-popover-submitted-text::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
@@ -700,6 +763,7 @@
   background-clip: content-box;
 }
 
+.prompt-popover-body::-webkit-scrollbar-thumb:hover,
 .prompt-popover-text::-webkit-scrollbar-thumb:hover,
 .prompt-popover-submitted-text::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);

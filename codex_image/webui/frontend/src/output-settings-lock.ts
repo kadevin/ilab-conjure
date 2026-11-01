@@ -182,7 +182,11 @@ export function buildOutputSettingsSummaryModel(
     } else {
       details.push({ label: translate("output.lock.call"), value: context.callLabel });
     }
-    details.push({ label: translate("output.moderation"), value: snapshot.moderation });
+    details.push({
+      label: translate("output.moderation"),
+      value: snapshot.moderation === "auto" ? translate("ux.moderationAuto")
+        : snapshot.moderation === "low" ? translate("ux.moderationLow") : snapshot.moderation,
+    });
   } else {
     const safety = geminiSafetyLabel(snapshot.safety_settings, snapshot.has_safety_settings);
     if (safety) details.push({ label: translate("gemini.safetySettings"), value: safety });

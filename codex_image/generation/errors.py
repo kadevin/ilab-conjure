@@ -6,6 +6,16 @@ from typing import Any
 import unicodedata
 
 
+class GenerationOutcomeUnknownError(RuntimeError):
+    """Submission may have succeeded; automatic generation replay is unsafe."""
+
+
+class GenerationTimeoutError(TimeoutError):
+    """A total deadline expired after generation may already have been sent."""
+
+    partial_result = None
+
+
 _MESSAGES = {
     "authentication_failed": "Provider authentication failed.",
     "rate_limited": "The provider rate limit was reached.",

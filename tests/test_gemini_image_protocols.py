@@ -494,7 +494,8 @@ class GeminiGenerateContentAdapterTests(unittest.TestCase):
         with self.assertRaises(GenerationProviderError) as raised:
             self._execute(body=body)
 
-        self.assertEqual(raised.exception.detail.code, "upstream_error")
+        self.assertEqual(raised.exception.detail.code, "asset_download_failed")
+        self.assertFalse(raised.exception.detail.retryable)
 
     def test_image_config_relay_can_return_an_unauthenticated_file_url(self) -> None:
         from codex_image.providers.gemini import GeminiGenerateContentAdapter
@@ -556,7 +557,7 @@ class GeminiGenerateContentAdapterTests(unittest.TestCase):
             (403, "authentication_failed", False),
             (422, "invalid_parameters", False),
             (429, "rate_limited", True),
-            (500, "upstream_error", True),
+            (500, "upstream_error", False),
         )
         for status, code, retryable in cases:
             with self.subTest(status=status):

@@ -204,6 +204,7 @@ function fieldShell(definition: CatalogParameterDefinition): HTMLDivElement {
   const label = document.createElement("span");
   label.className = "model-parameter-label";
   label.textContent = translate(definition.label_key);
+  label.classList.toggle("output-label-pair", /^\p{Script=Han}{2}$/u.test(label.textContent));
   field.append(label);
   return field;
 }
@@ -801,7 +802,6 @@ export function renderModelParameters(
     els.resolution?.closest(".resolution-field"),
     els.ratio?.closest(".ratio-field"),
     els.quality?.closest(".quantity-quality-row"),
-    els.pixelPreview,
     els.outputFormatField,
     els.moderation?.closest(".moderation-field"),
   ].filter(Boolean) as HTMLElement[];
