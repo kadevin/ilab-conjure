@@ -60,6 +60,17 @@ def acceptance_html(filename: str) -> str:
           const nativeFetch = window.fetch.bind(window);
           window.fetch = (request, init) => parent.__qaTransferFetch(request, init, nativeFetch);
         }
+        // Exercise layout setup with a deliberately late startup response.
+        if (new URL(location.href).searchParams.has("qa-delay-recent-assets")) {
+          const nativeFetch = window.fetch.bind(window);
+          window.fetch = async (request, init) => {
+            const response = await nativeFetch(request, init);
+            if (new URL(response.url).pathname === "/api/reference-assets/recent") {
+              await new Promise(resolve => setTimeout(resolve, 750));
+            }
+            return response;
+          };
+        }
         document.documentElement.dataset.qaErrorCapture = "ready";
       })();
     </script>"""

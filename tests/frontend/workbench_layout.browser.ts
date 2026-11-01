@@ -18,12 +18,19 @@ async function run() {
   await prepareFixtureOrigin();
   localStorage.clear(); // This origin contains only synthetic acceptance data.
   localStorage.setItem("codex-image-locale-preference", "zh-CN");
-  await loadAcceptanceFrame(frame, "/qa-app", errors);
+  await loadAcceptanceFrame(frame, "/qa-app?qa-delay-recent-assets", errors);
   const w = frame.contentWindow!, d = frame.contentDocument!;
   const find = (selector: string) => d.querySelector<HTMLElement>(selector)!;
   const deadline = Date.now() + 15000;
   while (!w.__codexImageWebUI?.state.generationCatalog) {
     if (Date.now() > deadline) throw new Error("Catalog did not load");
+    await pause(50);
+  }
+  // Catalog and recent assets load concurrently. Seed only after the initial
+  // recent-assets request finishes, otherwise its empty fixture response can
+  // overwrite the synthetic thumbnails partway through the geometry matrix.
+  while (find("#recentAssetList").getAttribute("aria-busy") === "true") {
+    if (Date.now() > deadline) throw new Error("Recent assets did not finish loading");
     await pause(50);
   }
   const { state, methods } = w.__codexImageWebUI;
@@ -363,7 +370,8 @@ async function run() {
             const thumbBounds=rect('.image-thumb-list');
             check(`${name}: reference thumbnails are not vertically clipped`,[...d.querySelectorAll<HTMLElement>('#imageThumbItems .thumb')].every(thumb=>{const r=thumb.getBoundingClientRect();return r.top>=thumbBounds.top-1&&r.bottom<=thumbBounds.bottom+1;}));
             const recentBounds=rect('#recentAssetDock'),footerBounds=rect('.image-input-footer');
-            check(`${name}: recent uploads fit their footer`,recentBounds.top>=footerBounds.top-1&&recentBounds.bottom<=footerBounds.bottom+1);
+            check(`${name}: recent uploads fit their footer`,recentBounds.height>0&&recentBounds.top>=footerBounds.top-1&&recentBounds.bottom<=footerBounds.bottom+1,
+              {recentBounds:recentBounds.toJSON(),footerBounds:footerBounds.toJSON(),items:state.recentAssets.length});
             if (rect('#mainModel').height>0) check(`${name}: main model and prompt processing align`,Math.abs(rect('#mainModel').top-rect('#promptFidelityGroup').top)<1&&Math.abs(rect('#mainModel').height-rect('#promptFidelityGroup').height)<1);
             check(`${name}: redundant size-mode label is absent`, !d.querySelector('.custom-size-control > .field-label'));
             for (const format of ['png','jpeg']) {
