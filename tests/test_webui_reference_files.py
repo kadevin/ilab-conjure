@@ -1928,9 +1928,15 @@ class ReferenceFileCapabilityTests(unittest.TestCase):
                     asyncio.run(app.state.queue_manager.run_available_once())
 
                 metadata = app.state.ctx.storage.read_metadata(created["task_id"])
-                self.assertEqual(metadata["status"], "queued")
+                # A timeout can follow an accepted generation. Do not replay it,
+                # but also do not mistake it for lack of reference-file support.
+                timed_out = isinstance(error, TimeoutError)
+                self.assertEqual(metadata["status"], "failed" if timed_out else "queued")
                 self.assertEqual(app.state.ctx.responses_file_unsupported_keys, set())
-                self.assertEqual(app.state.ctx.queue_storage.read_state()["waiting"], [created["task_id"]])
+                self.assertEqual(
+                    app.state.ctx.queue_storage.read_state()["waiting"],
+                    [] if timed_out else [created["task_id"]],
+                )
 
     def test_restart_reuses_task_file_but_clears_capability_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

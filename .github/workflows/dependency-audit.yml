@@ -1,0 +1,67 @@
+name: Dependency security audit
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - 'requirements-*.in'
+      - 'requirements-*.txt'
+      - 'package-lock.json'
+      - '.node-version'
+      - 'launcher/Cargo.toml'
+      - 'launcher/Cargo.lock'
+      - '.github/workflows/dependency-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.14.10'
+      - run: python -m pip install --require-hashes -r requirements-build.txt
+      - run: python -m pip install pip-audit==2.10.1
+      - name: Audit runtime lock (including transitive packages)
+        run: pip-audit --disable-pip --require-hashes -r requirements-webui.txt
+      - name: Audit Python build tools
+        run: pip-audit --disable-pip --require-hashes -r requirements-build.txt
+
+  node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: '.node-version'
+      - name: Audit complete npm lock, including build dependencies
+        run: npm audit --package-lock-only
+
+  rust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: cargo install cargo-audit --version 0.22.2 --locked
+      # Intentionally reports Linux-only and unmaintained dependencies as well.
+      # A documented reachability assessment is not a blanket advisory ignore.
+      - name: Audit complete Rust lock (known findings remain failures)
+        run: cargo audit --json --file launcher/Cargo.lock > cargo-audit.json
+      - name: Retain audit findings
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: rust-dependency-audit
+          path: cargo-audit.json
+          if-no-files-found: warn
+      - name: Explain deferred findings
+        if: always()
+        run: echo 'Rust findings are not suppressed. See docs/dependency-security.md for Linux reachability and unmaintained-package assessments; an audit failure is not a clean bill of health.' >> "$GITHUB_STEP_SUMMARY"

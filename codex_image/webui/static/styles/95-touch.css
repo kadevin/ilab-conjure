@@ -182,6 +182,7 @@
 .mobile-ui .prompt-template-entry .prompt-template-button { min-height: 44px; height: 44px; }
 .mobile-ui .prompt-find-panel .control,
 .mobile-ui .prompt-find-panel .ghost-button { min-height: 44px; height: 44px; }
+.mobile-ui .prompt-find-panel .ghost-button { min-width: 44px; }
 .mobile-ui .execution-summary, .mobile-ui .compact-preview-jump { display: none; }
 .mobile-ui .mobile-parameter-summary {
   display: flex; flex-direction: column; align-items: stretch; gap: 6px;
@@ -222,7 +223,7 @@
 #mobileParameters .settings-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 #mobileParameters .settings-grid > *, #mobileParameters .mode-settings-slot { min-width: 0; grid-column: 1 / -1; }
 #mobileParameters .field-pair { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-#mobileParameters .custom-size-row { grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); gap: 6px; }
+#mobileParameters .custom-size-row { grid-template-columns: 88px 44px 88px; gap: 6px; }
 #mobileParameters .custom-size-row label { grid-row: 1; }
 #mobileParameters .custom-size-row label[for="customWidth"], #mobileParameters #customWidth { grid-column: 1; }
 #mobileParameters .custom-size-row label[for="customHeight"], #mobileParameters #customHeight { grid-column: 3; }
@@ -240,6 +241,7 @@
 #mobileParameters #ratioGroup .aspect-ratio-slot > .radio-btn { grid-row: auto; grid-column: auto; transform: none; }
 
 @media (pointer: coarse), (max-width: 600px) {
+  .prompt-panel { --prompt-editor-font-size: 16px; }
   /* Keep the visual icon small while making the actual control easy to hit. */
   button, [role="button"] { min-height: 44px !important; min-width: 44px !important; touch-action: manipulation; }
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select, [contenteditable="true"] { font-size: 16px; }
@@ -284,7 +286,7 @@
   }
   .image-uploader-grid .thumb .thumb-remove-icon,
   .image-uploader-grid .thumb .thumb-remove-icon svg { width: 16px; height: 16px; }
-  .image-uploader-grid .thumb .add-upload-to-gallery .thumb-add-icon { width: 14px; height: 14px; }
+  .image-uploader-grid .thumb .add-upload-to-gallery .thumb-add-icon { width: 16px; height: 16px; }
   .image-uploader-grid .reference-file-format-icon { grid-column: 1 / -1; grid-row: 1; align-self: center; justify-self: center; }
   .image-uploader-grid .thumb .thumb-edited-badge { bottom: 49px; }
   .image-uploader-grid .thumb .reference-file-name {

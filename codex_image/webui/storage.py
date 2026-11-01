@@ -83,7 +83,7 @@ from .thumbnails import (
 
 
 TASK_SOURCE_DATA_SUBDIR = "tasks"
-TASK_SOURCE_DATA_SUFFIXES = ("metadata.json", "request.json", "debug-sse.jsonl")
+TASK_SOURCE_DATA_SUFFIXES = ("metadata.json", "request.json", "debug-sse.jsonl", "provider-responses.json")
 DIMENSION_SIZE_RE = re.compile(r"^\s*(\d{1,5})\s*[xX×]\s*(\d{1,5})\s*$")
 
 

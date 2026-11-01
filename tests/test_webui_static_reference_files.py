@@ -1010,6 +1010,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
             const imageThumbItems = new FakeElement();
             const referenceFileSelection = new FakeElement(); referenceFileSelection.classList.add("hidden");
             const imageUploadSource = new FakeElement();
+            imageUploadSource.querySelector = () => null;
             imageThumbList.append(imageThumbItems, referenceFileSelection);
             imageStrip.append(imageThumbList, imageUploadSource);
             imageUploaderGrid.append(imageStrip); workspace.append(imageUploaderGrid);

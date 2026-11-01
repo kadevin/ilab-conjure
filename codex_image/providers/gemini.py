@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import time
+from concurrent.futures import CancelledError
 from typing import Any, Callable, Mapping
 from urllib.parse import urlsplit, urlunsplit
 
@@ -11,6 +13,7 @@ from codex_image.generation.errors import (
     provider_error_from_exception,
 )
 from codex_image.generation.types import GeneratedAsset, GenerationResult
+from codex_image.generation.partial_results import PartialGenerationError
 from codex_image.http import UrllibTransport
 from codex_image.providers.auth import auth_scheme_for_protocol
 from codex_image.providers.contracts import ExecutionPlan
@@ -87,9 +90,35 @@ def parse_gemini_generate_content_response(
             provider_id=provider_id,
             canonical_model_id=canonical_model_id,
             protocol_profile=protocol_profile,
+            retryable=False,
         ) from exc
 
     assets: list[GeneratedAsset] = []
+    outcomes: list[GeneratedAsset | Exception] = []
+    completed_at: list[float] = []
+
+    def append_asset(item: dict[str, Any]) -> None:
+        try:
+            loaded = load_response_asset(item, url_loader=url_loader)
+        except CancelledError as exc:
+            if assets:
+                raise PartialGenerationError(GenerationResult(
+                    assets=tuple(assets), asset_outcomes=tuple(outcomes), text_parts=tuple(text_parts),
+                    usage=dict(_mapping(_field(payload, "usageMetadata", "usage_metadata"))),
+                ), tuple(completed_at)) from exc
+            raise
+        except Exception as exc:
+            failure = AssetLoadError("generated asset could not be loaded")
+            failure.__cause__ = exc
+            outcomes.append(failure)
+            completed_at.append(time.monotonic())
+            return
+        asset = GeneratedAsset(image_bytes=loaded.image_bytes, mime_type=loaded.mime_type,
+                               width=loaded.width, height=loaded.height)
+        assets.append(asset)
+        outcomes.append(asset)
+        completed_at.append(time.monotonic())
+
     text_parts: list[str] = []
     grounding: list[dict[str, Any]] = []
     candidates = payload.get("candidates") if isinstance(payload, dict) else None
@@ -111,58 +140,37 @@ def parse_gemini_generate_content_response(
                     mime_type = str(
                         _field(inline_data, "mimeType", "mime_type") or "image/png"
                     )
-                    if isinstance(encoded, str) and encoded and mime_type.lower().startswith("image/"):
-                        try:
-                            loaded = load_response_asset(
-                                {
-                                    "b64_json": encoded,
-                                    "mime_type": mime_type,
-                                }
-                            )
-                        except AssetLoadError:
-                            continue
-                        assets.append(
-                            GeneratedAsset(
-                                image_bytes=loaded.image_bytes,
-                                mime_type=loaded.mime_type,
-                                width=loaded.width,
-                                height=loaded.height,
-                            )
-                        )
+                    has_inline_image = ("inlineData" in part_value or "inline_data" in part_value)
+                    if has_inline_image and mime_type.lower().startswith("image/"):
+                        append_asset({"b64_json": encoded, "mime_type": mime_type})
                     file_data = _mapping(_field(part_value, "fileData", "file_data"))
                     file_uri = _field(file_data, "fileUri", "file_uri", "uri", "url")
                     file_mime_type = str(
                         _field(file_data, "mimeType", "mime_type") or ""
                     )
-                    if not file_uri or not file_mime_type.lower().startswith("image/"):
+                    if not ("fileData" in part_value or "file_data" in part_value):
                         continue
-                    try:
-                        loaded = load_response_asset(
-                            {"url": str(file_uri), "mime_type": file_mime_type},
-                            url_loader=url_loader,
-                        )
-                    except AssetLoadError:
-                        continue
-                    assets.append(
-                        GeneratedAsset(
-                            image_bytes=loaded.image_bytes,
-                            mime_type=loaded.mime_type,
-                            width=loaded.width,
-                            height=loaded.height,
-                        )
-                    )
+                    if not file_mime_type or file_mime_type.lower().startswith("image/"):
+                        append_asset({"url": str(file_uri or ""), "mime_type": file_mime_type})
             item = _grounding_entry(
                 _field(candidate_value, "groundingMetadata", "grounding_metadata")
             )
             if item:
                 grounding.append(item)
 
+    if not assets and outcomes:
+        raise provider_error(
+            "asset_download_failed", provider_id=provider_id,
+            canonical_model_id=canonical_model_id, protocol_profile=protocol_profile,
+            retryable=False,
+        ) from outcomes[0]
     if not assets:
         raise provider_error(
             "upstream_error",
             provider_id=provider_id,
             canonical_model_id=canonical_model_id,
             protocol_profile=protocol_profile,
+            retryable=False,
         )
 
     usage = _mapping(_field(payload, "usageMetadata", "usage_metadata"))
@@ -177,6 +185,7 @@ def parse_gemini_generate_content_response(
         text_parts=tuple(text_parts),
         usage=dict(usage),
         provider_metadata=provider_metadata,
+        asset_outcomes=tuple(outcomes),
     )
 
 
@@ -195,6 +204,7 @@ def _http_error(plan: ExecutionPlan, status: int) -> GenerationProviderError:
         canonical_model_id=plan.model.id,
         protocol_profile=plan.binding.protocol_profile,
         status_code=public_status,
+        retryable=False if status >= 500 else None,
     )
 
 

@@ -11,6 +11,7 @@ from typing import Sequence
 from .auth import DEFAULT_AUTH_PATH, load_auth_state
 from .client import CodexImageClient
 from .http import Transport
+from .runtime_security import dependency_security_error, python_security_error
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -52,6 +53,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None, *, transport: Transport | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
+    if problem := python_security_error() or dependency_security_error():
+        print(problem, file=sys.stderr)
+        return 2
     try:
         if args.command == "generate":
             return _run_generate(args, transport=transport)

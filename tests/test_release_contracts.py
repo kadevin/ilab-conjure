@@ -101,7 +101,7 @@ class ReleaseContractTests(unittest.TestCase):
     def test_runtime_dependencies_are_exactly_pinned_and_hash_checked(self) -> None:
         pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
         dependencies = pyproject["project"]["dependencies"]
-        self.assertEqual(len(dependencies), 5)
+        self.assertIn("certifi==2026.10.23", dependencies)
         for dependency in dependencies:
             self.assertRegex(dependency, r"^[A-Za-z0-9_.-]+(?:\[[A-Za-z0-9_.-]+\])?==[^=]+$")
 
@@ -136,6 +136,20 @@ class ReleaseContractTests(unittest.TestCase):
         ):
             text = (ROOT / relative).read_text(encoding="utf-8")
             self.assertIn("--require-hashes", text, relative)
+
+    def test_build_backend_is_in_the_hash_checked_audit_lock(self) -> None:
+        pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        build_input = (ROOT / "requirements-build.in").read_text(encoding="utf-8")
+        build_lock = (ROOT / "requirements-build.txt").read_text(encoding="utf-8")
+        self.assertIn("--require-hashes", build_lock)
+        for requirement in pyproject["build-system"]["requires"]:
+            self.assertIn(requirement, build_input)
+            self.assertIn(requirement + " \\", build_lock)
+        workflow = (ROOT / ".github/workflows/dependency-audit.yml").read_text(encoding="utf-8")
+        for lock in ("requirements-webui.txt", "requirements-build.txt", "launcher/Cargo.lock"):
+            self.assertIn(lock, workflow)
+        self.assertIn("npm audit --package-lock-only", workflow)
+        self.assertIn("schedule:", workflow)
 
     def test_launcher_rechecks_pinned_versions_before_reusing_environment(self) -> None:
         launcher = (ROOT / "launcher" / "src" / "lib.rs").read_text(encoding="utf-8")
@@ -221,7 +235,7 @@ class ReleaseContractTests(unittest.TestCase):
         self.assertIsNotNone(job, "CI must verify the runtime dependency lock on Windows")
         body = job.group("body") if job else ""
         self.assertIn("runs-on: windows-latest", body)
-        self.assertIn('python-version: "3.11"', body)
+        self.assertIn('python-version: "3.14.10"', body)
         self.assertIn(
             "python -m pip install --require-hashes -r requirements-webui.txt",
             body,

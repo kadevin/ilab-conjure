@@ -27,6 +27,28 @@ of a user-configured local provider remain supported. Connections use the checke
 IP while retaining the original HTTP Host and TLS hostname. Credentials are only
 retried on the configured provider origin and never follow a cross-origin redirect.
 
+Each image redirect re-evaluates the configured proxy and system `NO_PROXY` rules
+using the original hostname and effective port. Temporary image DNS failures retry only resolution.
+Exhausted DNS or connection attempts, unsafe asset URLs, and invalid image
+responses stop the task instead of automatically resubmitting generation.
+A user-requested retry remains available after a failed task.
+
+Read/write failures, HTTP 5xx responses and total timeouts after a generation
+request may have been sent never replay that request automatically. Connection
+retries are limited to failures known to occur before sending. Image decoding,
+download limits and local output write failures also stop automatic generation
+retries. Batch responses retain successful images and record failed image slots
+separately, including empty image fields. On a total timeout, validated partial
+images received before the deadline are retained; late results and results from
+a user-cancelled request are discarded. A failed local write cannot guarantee
+recovery of image bytes that were never saved.
+
+T8 asynchronous task IDs and their output slots are checkpointed in local task
+metadata before polling. Progress updates preserve these checkpoints atomically.
+Poll retries and user-requested retries resume those tasks, including after a
+restart, and download only the pending output slots. Explicit provider changes
+or a confirmed failed remote task can start a new generation.
+
 The optional Fake-IP DNS compatibility setting applies only to indirect image
 assets whose system DNS answers are entirely in `198.18.0.0/15`. It queries
 Cloudflare DNS over HTTPS for the hostname only, then applies the same public

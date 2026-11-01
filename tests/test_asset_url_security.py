@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
+import select
 import socket
 import ssl
 import shutil
@@ -149,36 +150,93 @@ class AssetURLSecurityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             config = root / "cert.conf"
-            config.write_text("[req]\ndistinguished_name=dn\nx509_extensions=ext\nprompt=no\n[dn]\nCN=asset.test\n[ext]\nsubjectAltName=DNS:asset.test\nbasicConstraints=CA:TRUE\n")
+            config.write_text("[req]\ndistinguished_name=dn\nx509_extensions=ext\nprompt=no\n[dn]\nCN=asset.test\n[ext]\nsubjectAltName=DNS:asset.test,DNS:proxy.test\nbasicConstraints=CA:TRUE\n")
             cert, key = root / "cert.pem", root / "key.pem"
             subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
                             "-config", str(config), "-keyout", str(key), "-out", str(cert)],
                            capture_output=True, check=True, timeout=20)
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             context.load_cert_chain(cert, key)
+            server_names = []
+            context.set_servername_callback(lambda _socket, name, _context: server_names.append(name))
             server = ThreadingHTTPServer(("127.0.0.1", 0), self.server.RequestHandlerClass)
             server.socket = context.wrap_socket(server.socket, server_side=True)
             thread = threading.Thread(target=server.serve_forever)
             thread.start()
             original = socket.getaddrinfo
+            connect_targets = []
+
+            class ConnectProxy(BaseHTTPRequestHandler):
+                def do_CONNECT(self):
+                    connect_targets.append(self.path)
+                    host, port = self.path.rsplit(":", 1)
+                    with socket.create_connection((host, int(port)), timeout=2) as upstream:
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.flush()
+                        peers = (self.connection, upstream)
+                        while True:
+                            readable, _, _ = select.select(peers, [], [], 2)
+                            if not readable:
+                                return
+                            for source in readable:
+                                data = source.recv(65536)
+                                if not data:
+                                    return
+                                destination = upstream if source is self.connection else self.connection
+                                destination.sendall(data)
+
+                def log_message(self, *args):
+                    pass
+
+            proxy = ThreadingHTTPServer(("127.0.0.1", 0), ConnectProxy)
+            proxy_thread = threading.Thread(target=proxy.serve_forever)
+            proxy_thread.start()
+            tls_proxy = ThreadingHTTPServer(("127.0.0.1", 0), ConnectProxy)
+            tls_proxy.socket = context.wrap_socket(tls_proxy.socket, server_side=True)
+            tls_proxy_thread = threading.Thread(target=tls_proxy.serve_forever)
+            tls_proxy_thread.start()
 
             def resolve(host, port, *args, **kwargs):
-                if host in ("asset.test", "wrong.test"):
+                if isinstance(host, bytes):
+                    host = host.decode("ascii")
+                if host in ("asset.test", "wrong.test", "proxy.test", "wrong-proxy.test"):
                     host = "127.0.0.1"
                 return original(host, port, *args, **kwargs)
 
             try:
                 with patch("socket.getaddrinfo", side_effect=resolve), patch(
                     "codex_image.http._https_ssl_context", return_value=ssl.create_default_context(cafile=str(cert))
+                ), patch(
+                    "codex_image.httpx_transport._https_ssl_context", return_value=ssl.create_default_context(cafile=str(cert))
                 ), patch("certifi.where", return_value=str(cert)):
-                    for transport in (UrllibTransport(proxy_map={}), HttpxTransport(proxy_map={})):
+                    for transport in (
+                        UrllibTransport(proxy_map={}), HttpxTransport(proxy_map={}),
+                        HttpxTransport(proxy_map={"https": f"http://127.0.0.1:{proxy.server_port}"}),
+                        HttpxTransport(proxy_map={"https": f"https://proxy.test:{tls_proxy.server_port}"}),
+                    ):
                         url = f"https://asset.test:{server.server_port}/image"
                         self.assertEqual(download_asset_url(url, transport=transport, provider_base_url=url, authorization=None).width, 2)
+                        self.assertEqual(server_names[-1], "asset.test")
                         wrong = f"https://wrong.test:{server.server_port}/image"
                         with self.assertRaises(Exception) as caught:
                             download_asset_url(wrong, transport=transport, provider_base_url=wrong, authorization=None)
                         self.assertIn("certificate", str(caught.exception).lower())
+                    self.assertEqual(connect_targets, [f"127.0.0.1:{server.server_port}"] * 4)
+                    self.assertEqual(server_names[-4:], ["proxy.test", "asset.test", "proxy.test", "wrong.test"])
+                    with self.assertRaises(Exception) as caught:
+                        download_asset_url(url, transport=HttpxTransport(proxy_map={
+                            "https": f"https://wrong-proxy.test:{tls_proxy.server_port}"
+                        }), provider_base_url=url, authorization=None)
+                    self.assertIn("certificate", str(caught.exception).lower())
+                    self.assertEqual(len(connect_targets), 4)
             finally:
+                tls_proxy.shutdown()
+                tls_proxy.server_close()
+                tls_proxy_thread.join(5)
+                proxy.shutdown()
+                proxy.server_close()
+                proxy_thread.join(5)
                 server.shutdown()
                 server.server_close()
                 thread.join(5)

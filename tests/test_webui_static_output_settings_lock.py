@@ -63,6 +63,10 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
             const images = module.exports.buildOutputSettingsSummaryModel(snapshot, {{ responses: false, task: false, callLabel: "Images API" }});
             const task = module.exports.buildOutputSettingsSummaryModel(snapshot, {{ responses: true, task: true, callLabel: "" }});
             const imageTask = module.exports.buildOutputSettingsSummaryModel(snapshot, {{ responses: false, task: true, callLabel: "Images API" }});
+            for (const [moderation, expected] of [["auto", "ux.moderationAuto"], ["low", "ux.moderationLow"], ["future", "future"]]) {{
+              const summary = module.exports.buildOutputSettingsSummaryModel({{...snapshot, moderation}}, {{responses: true, task: false, callLabel: ""}});
+              if (summary.details.find((item) => item.label === "output.moderation")?.value !== expected) throw new Error("Moderation summary must translate known values and preserve unknown ones");
+            }}
             if (responses.count !== 4 || responses.details.length !== 4) throw new Error("Responses summary contract changed");
             if (images.count !== 4 || images.details.length !== 4) throw new Error("Image summary contract changed");
             if (!responses.showModel) throw new Error("Responses summary must retain the main model");
@@ -421,12 +425,11 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         responsive = responsive.replace(
             "@media (max-width: 600px), (max-height: 500px)", "@media (max-width: 600px)"
         )
-        height_queries = re.findall(r"@media\s*\([^\n{]*height[^\n{]*\)", responsive)
-        self.assertLessEqual(
-            len(height_queries),
-            4,
-            "the lock summary must not create a stack of overlapping page-height bands",
-        )
+        # The 900px composer budget is shared with the unlocked layout. Width
+        # variants reuse a band; adding a distinct locked-only band is forbidden.
+        height_bands = set(re.findall(r"@media\s*\(max-height:\s*(\d+)px\)", responsive))
+        self.assertEqual(height_bands, {"1390", "1100", "900"})
+
 
 
 if __name__ == "__main__":

@@ -257,16 +257,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
   transform-origin: 50% 50%;
   transition: transform var(--motion-base), color var(--motion-base);
 }
 
 .task-group-toggle-icon {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   display: block;
   overflow: visible;
 }
@@ -638,12 +638,6 @@
   background: color-mix(in srgb, var(--primary-light) 42%, transparent);
 }
 
-.task-card.batch-selected {
-  --task-card-material-surface: var(--task-card-surface-selected);
-  --task-card-material-edge: var(--task-card-edge-selected);
-  z-index: 1;
-}
-
 .task-card-swipe-surface > .task-info {
   min-width: 0;
   flex: 1;
@@ -671,20 +665,30 @@
   --task-card-material-edge: var(--task-card-edge);
 }
 
-.task-card.active {
+.task-card.active,
+.task-card.batch-selected {
   --task-card-material-surface: var(--task-card-surface-selected);
   --task-card-material-edge: var(--task-card-edge-selected);
+  --task-card-material-gradient: none;
+  --task-card-focus-ring: var(--task-card-selected-foreground);
   z-index: 2;
 }
 
-.task-card.active.running {
-  --task-card-material-surface: color-mix(in srgb, var(--status-blue) 5%, var(--task-card-surface-selected));
-  --task-card-material-edge: color-mix(in srgb, var(--status-blue) 14%, var(--task-card-edge-selected));
+/* Status fills must retain a visible hover, including selected cards. */
+.task-card.unread:hover {
+  --task-card-material-surface: color-mix(in srgb, var(--status-blue) 6%, var(--task-card-surface-hover));
 }
 
-.task-card.active.failed,
-.task-card.active.partial_failed {
-  --task-card-material-surface: color-mix(in srgb, var(--danger-soft) 68%, var(--task-card-surface-selected));
+.task-card.running:hover {
+  --task-card-material-surface: color-mix(in srgb, var(--status-blue) 5%, var(--task-card-surface-hover));
+}
+
+.task-card:is(.failed, .partial_failed):hover {
+  --task-card-material-surface: color-mix(in srgb, var(--danger) 16%, color-mix(in srgb, var(--danger-soft) 68%, var(--task-card-surface)));
+}
+
+.task-card:is(.active, .batch-selected):hover {
+  --task-card-material-surface: var(--task-card-surface-selected-hover);
   --task-card-material-edge: var(--task-card-edge-selected);
 }
 
@@ -698,23 +702,17 @@
   --task-card-material-surface: color-mix(in srgb, var(--status-blue) 5%, var(--task-card-surface-pressed));
 }
 
-.task-card.failed:active,
-.task-card.partial_failed:active {
+.task-card.unread:active {
+  --task-card-material-surface: color-mix(in srgb, var(--status-blue) 6%, var(--task-card-surface-pressed));
+}
+
+.task-card:is(.failed, .partial_failed):active {
   --task-card-material-surface: color-mix(in srgb, var(--danger-soft) 68%, var(--task-card-surface-pressed));
 }
 
-.task-card.active:active {
+.task-card:is(.active, .batch-selected):active {
   --task-card-material-surface: var(--task-card-surface-selected-pressed);
   --task-card-material-edge: var(--task-card-edge-selected);
-}
-
-.task-card.active.running:active {
-  --task-card-material-surface: color-mix(in srgb, var(--status-blue) 5%, var(--task-card-surface-selected-pressed));
-}
-
-.task-card.active.failed:active,
-.task-card.active.partial_failed:active {
-  --task-card-material-surface: color-mix(in srgb, var(--danger-soft) 68%, var(--task-card-surface-selected-pressed));
 }
 
 .task-card.queue-dragging,
@@ -729,7 +727,7 @@
 }
 
 .task-card:not(.task-card-swiping):not(.queue-dragging) > .task-card-swipe-surface:active {
-  transform: translateX(var(--task-card-swipe-x, 0px)) translateY(2px);
+  transform: translateX(var(--task-card-swipe-x, 0px)) scale(0.985);
   transition-duration: 80ms;
   transition-timing-function: ease-out;
 }
@@ -1081,18 +1079,14 @@
   min-width: 0;
   margin: 0;
   padding: 0 5px;
+  border: 0;
   border-radius: 7px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 750;
   line-height: 1;
   white-space: nowrap;
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(0, 0, 0, 0.03) 100%
-    );
+  background-image: none;
   transform: translateY(-50%);
   box-shadow: none;
   transition:
@@ -1118,21 +1112,18 @@
 
 .task-card-swipe-archive {
   left: 7px;
-  border: 1px solid var(--task-card-drawer-archive-edge);
   background-color: var(--task-card-drawer-archive-surface);
   color: var(--task-card-drawer-archive-text);
 }
 
 .task-card-swipe-delete {
   right: 7px;
-  border: 1px solid var(--task-card-drawer-delete-edge);
   background-color: var(--task-card-drawer-delete-surface);
   color: var(--task-card-drawer-delete-text);
 }
 
 .task-card-swipe-promote {
   left: 7px;
-  border: 1px solid var(--task-card-drawer-archive-edge);
   background-color: var(--task-card-drawer-archive-surface);
   color: var(--task-card-drawer-archive-text);
 }
@@ -1140,7 +1131,6 @@
 .task-card-swipe-stop,
 .task-card-swipe-cancel {
   right: 7px;
-  border: 1px solid var(--task-card-drawer-delete-edge);
   background-color: var(--task-card-drawer-delete-surface);
   color: var(--task-card-drawer-delete-text);
 }
@@ -1196,6 +1186,15 @@
 
 .task-select-button[aria-checked="true"] span {
   border-color: var(--primary-foreground);
+}
+
+.task-card:is(.active, .batch-selected) .task-select-button[aria-checked="true"] {
+  border-color: transparent;
+  background: var(--task-card-selected-foreground);
+}
+
+.task-card:is(.active, .batch-selected) .task-select-button[aria-checked="true"] span {
+  border-color: var(--task-card-surface-selected);
 }
 
 .task-select-button:focus-visible {
@@ -1340,6 +1339,18 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* Keep small duration copy readable without changing the card's line height. */
+.task-runtime,
+.task-card-running-timer {
+  letter-spacing: 0.02em;
+  word-spacing: 0.12em;
+}
+
+/* Devanagari shaping should not be broken by tracking. */
+:lang(hi) :is(.task-runtime, .task-card-running-timer) {
+  letter-spacing: normal;
+}
+
 .task-runtime {
   justify-self: end;
   min-width: 0;
@@ -1368,7 +1379,7 @@
   display: inline-flex;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 3px;
+  gap: 5px;
   max-width: 102px;
   color: var(--status-blue);
   font-variant-numeric: tabular-nums;
@@ -1376,6 +1387,8 @@
 }
 
 .task-card-running-timer .elapsed-timer {
+  letter-spacing: normal;
+  word-spacing: normal;
   flex: 0 0 auto;
   width: auto;
   max-width: none;
@@ -1471,12 +1484,25 @@
   white-space: nowrap;
 }
 
-.task-card.active .task-title {
-  color: var(--text);
+.task-card:is(.active, .batch-selected) :is(.task-title, .task-status-label, .task-model-family-icon, .task-retry-state, .task-card-running-timer) {
+  color: var(--task-card-selected-foreground);
 }
 
-.task-card.active .task-status-meta {
-  color: var(--text-secondary);
+.task-card:is(.active, .batch-selected) :is(.task-status-meta, .task-runtime, .task-card-time, .task-image-summary) {
+  color: var(--task-card-selected-secondary);
+}
+
+.task-card:is(.active, .batch-selected) .task-model-family-brand-mark.model-family-brand-mark-openai {
+  filter: invert(1);
+}
+
+:root[data-theme="dark"] .task-card:is(.active, .batch-selected) .task-model-family-brand-mark.model-family-brand-mark-openai {
+  filter: none;
+}
+
+.task-card:is(.active, .batch-selected) .task-unread-dot {
+  background: var(--task-card-selected-foreground);
+  box-shadow: none;
 }
 
 .task-image-row {
@@ -1528,6 +1554,23 @@
   background: var(--accent);
 }
 
+/* Keep individual output states readable on the common selected surface. */
+.task-card:is(.active, .batch-selected) .task-image-block.completed {
+  background: var(--task-card-selected-foreground);
+}
+
+.task-card:is(.active, .batch-selected) .task-image-block.failed {
+  background: var(--task-card-selected-danger);
+}
+
+.task-card:is(.active, .batch-selected) .task-image-block.running {
+  background: var(--task-card-selected-info);
+}
+
+.task-card:is(.active, .batch-selected) .task-image-block.queued {
+  background: var(--task-card-selected-waiting);
+}
+
 .task-image-summary {
   flex: 1 1 auto;
   min-width: 0;
@@ -1554,7 +1597,7 @@
 
 .task-history-batch-button.active {
   border-color: transparent;
-  background: var(--primary-light);
+  background: var(--secondary-action-pressed);
   color: var(--primary-strong);
 }
 
@@ -1583,7 +1626,7 @@
 .batch-toolbar-actions .ghost-button {
   gap: 6px;
   border: 0;
-  background: color-mix(in srgb, var(--surface-soft) 65%, var(--line));
+  background: var(--secondary-action-surface);
   color: var(--text-secondary);
   box-shadow: none;
 }
@@ -1598,8 +1641,12 @@
 }
 
 .batch-toolbar-actions .ghost-button:not(:disabled):hover {
-  background: var(--line);
+  background: var(--secondary-action-hover);
   color: var(--text);
+}
+
+.batch-toolbar-actions .ghost-button:not(:disabled):active {
+  background: var(--secondary-action-pressed);
 }
 
 .batch-toolbar-actions .ghost-button:focus-visible {
@@ -1609,12 +1656,16 @@
 
 .batch-toolbar-actions #batchArchiveButton {
   grid-column: 1 / -1;
-  background: var(--primary-light);
+  background: var(--secondary-action-surface);
   color: var(--primary-strong);
 }
 
 .batch-toolbar-actions #batchArchiveButton:not(:disabled):hover {
-  background: color-mix(in srgb, var(--primary) 12%, var(--primary-light));
+  background: var(--secondary-action-hover);
+}
+
+.batch-toolbar-actions #batchArchiveButton:not(:disabled):active {
+  background: var(--secondary-action-pressed);
 }
 
 .batch-toolbar-actions .danger-button {
@@ -1623,8 +1674,12 @@
 }
 
 .batch-toolbar-actions .danger-button:not(:disabled):hover {
-  background: color-mix(in srgb, var(--danger) 12%, var(--danger-soft));
+  background: color-mix(in srgb, var(--danger) 18%, var(--danger-soft));
   color: var(--danger);
+}
+
+.batch-toolbar-actions .danger-button:not(:disabled):active {
+  background: color-mix(in srgb, var(--danger) 26%, var(--danger-soft));
 }
 
 .batch-toolbar-actions .ghost-button:disabled,

@@ -1,6 +1,14 @@
 /* Prompt */
 .prompt-panel {
   container: prompt / inline-size;
+  --prompt-editor-font-size: 13px;
+  --prompt-editor-line-height: 1.5;
+  --prompt-editor-padding: 12px;
+  /* The editor and its layout track share the same three-line minimum. */
+  --prompt-editor-min-height: calc(
+    3 * var(--prompt-editor-font-size) * var(--prompt-editor-line-height) +
+      2 * var(--prompt-editor-padding) + 2px
+  );
   --prompt-action-column-width: var(--workspace-side-action-width);
   --prompt-action-gap: 12px;
   --prompt-secondary-action-height: 40px;
@@ -14,6 +22,10 @@
   gap: 12px;
   min-height: 0;
   margin-bottom: 8px;
+}
+
+.compact-prompt-meta {
+  display: none;
 }
 
 .prompt-heading-main {
@@ -112,6 +124,10 @@
   display: none;
 }
 
+.prompt-template-recent-cell.find-active .prompt-footer > :not(.prompt-find-panel) {
+  display: none;
+}
+
 .prompt-template-entry .prompt-template-button {
   width: 100%;
   height: var(--prompt-secondary-action-height);
@@ -126,12 +142,12 @@
 .prompt-box {
   width: 100%;
   height: 140px;
-  padding: 12px;
+  padding: var(--prompt-editor-padding);
   border: 1px solid var(--control-border);
   border-radius: 6px;
   resize: vertical;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--prompt-editor-font-size);
+  line-height: var(--prompt-editor-line-height);
   background: var(--surface);
   outline: none;
 }
@@ -152,7 +168,7 @@
 
 .prompt-editor:empty::before {
   content: attr(data-placeholder);
-  color: var(--text-muted);
+  color: var(--placeholder);
 }
 
 .gallery-chip {
@@ -1519,8 +1535,8 @@
 }
 
 .prompt-find-panel {
-  display: grid;
-  grid-template-columns: minmax(78px, 1fr) minmax(78px, 1fr) max-content;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   flex: 1 1 100%;
@@ -1534,16 +1550,18 @@
 }
 
 .prompt-find-panel .control {
-  height: calc(var(--prompt-secondary-action-height) - 4px);
-  min-height: calc(var(--prompt-secondary-action-height) - 4px);
-  min-width: 0;
-  padding: 0 10px;
+  flex: 1 1 68px;
+  width: 0;
+  height: var(--prompt-secondary-action-height);
+  min-height: var(--prompt-secondary-action-height);
+  min-width: 68px;
+  padding: 0 6px;
   font-size: 12px;
 }
 
 .prompt-find-panel .ghost-button {
-  height: calc(var(--prompt-secondary-action-height) - 4px);
-  min-height: calc(var(--prompt-secondary-action-height) - 4px);
+  height: var(--prompt-secondary-action-height);
+  min-height: var(--prompt-secondary-action-height);
   min-width: 32px;
   padding: 0 5px;
   white-space: nowrap;
@@ -1551,7 +1569,10 @@
 
 .prompt-find-actions {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
   gap: 3px;
   width: max-content;
   min-width: 0;
@@ -1584,16 +1605,4 @@
   line-height: 1.25;
   text-align: center;
   justify-content: center;
-}
-
-@container prompt (max-width: 650px) {
-  .prompt-panel .prompt-find-panel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .prompt-panel .prompt-find-actions {
-    grid-column: 1 / -1;
-    justify-content: flex-end;
-    width: 100%;
-  }
 }

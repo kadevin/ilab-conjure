@@ -897,6 +897,7 @@
     "api.provider": "API provider",
     "imageInput.title": "Images",
     "imageInput.uploadAria": "Click, drop, or paste images and files",
+    "imageInput.uploadImages": "Click, drop, or paste images",
     "imageInput.uploadFull": "Click, drop, or paste images and files",
     "imageInput.uploadCompact": "Add input",
     "imageInput.uploadSubtitle": "Supports images and Responses reference files",
@@ -1069,7 +1070,6 @@
     "output.mainModelCustomForInput": "Use a custom model for the current input",
     "output.apiDirect": "API Direct",
     "output.apiToolModel": "Using API image generation model",
-    "output.mainModelUnused": "Main model is not used for this request",
     "output.transparencyFidelityHint": "Transparent background is an output requirement you selected. It is also added in Original and Faithful modes.",
     "output.transparentBackground": "Transparent background",
     "output.transparencyUnavailable": "No transparency",
@@ -1132,11 +1132,9 @@
     "output.qualityMedium": "Medium",
     "output.qualityHigh": "High",
     "output.quantity": "Count",
-    "output.pixelPreview": "Output pixels: 1024 x 1024 px",
-    "output.pixelPreviewValue": "Output pixels: {value}",
-    "output.pixelPreviewAuto": "Output pixels: auto (OpenAI chooses automatically)",
     "output.format": "Format",
     "output.compression": "Compression",
+    "output.extraOptions": "More options",
     "output.moderation": "Moderation",
     "preview.title": "Preview",
     "preview.selectedZero": "0 selected",
@@ -1148,7 +1146,7 @@
     "preview.taskFailed": "Task failed",
     "preview.partialFailed": "Some images failed",
     "preview.failedOutput": "Image {index} failed",
-    "preview.progressLine": "Completed {generated} / {total} \xB7 elapsed {elapsed}",
+    "preview.progressLine": "Completed {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Completed {generated} / {total} \xB7 failed {failed}",
     "preview.elapsedLine": "Elapsed {elapsed}",
     "preview.lastError": "Last error: {error}",
@@ -1205,6 +1203,13 @@
     "promptPopover.notReturned": "Not returned",
     "promptPopover.noOptimized": "No optimized prompt returned",
     "promptPopover.submitted": "View submitted prompt",
+    "promptPopover.response": "View raw provider response",
+    "promptPopover.responseNote": "Provider JSON / stream events. Image data and credentials are omitted; oversized responses are marked as truncated.",
+    "promptPopover.copyResponse": "Copy response JSON",
+    "promptPopover.retryResponse": "Reload",
+    "promptPopover.responseMissing": "No raw provider response was saved for this task.",
+    "promptPopover.responseLoading": "Loading response\u2026",
+    "promptPopover.responseError": "Could not load the response. Please retry.",
     "promptPopover.close": "Close prompt comparison",
     "promptPopover.copyOptimized": "Copy optimized prompt",
     "promptPopover.copied": "Copied",
@@ -1407,7 +1412,7 @@
     "settings.savedRestartStatus": "Storage settings saved. Restart WebUI to apply.",
     "systemSettings.title": "System Settings",
     "userConfigBackup.title": "Backup & Restore",
-    "userConfigBackup.back": "Back to System Settings",
+    "userConfigBackup.back": "Back to Storage & Notifications",
     "userConfigBackup.entryTitle": "Configuration Backup & Restore",
     "userConfigBackup.entryCopy": "Move chips, shared images, templates, and system settings",
     "userConfigBackup.modeLabel": "Backup or restore",
@@ -1479,6 +1484,11 @@
     "userConfigBackup.resultCounts": "{section}: {added} added \xB7 {replaced} replaced \xB7 {skipped} skipped \xB7 {copies} recovery copies",
     "userConfigBackup.restartRequired": "Storage paths were restored. Restart the WebUI to use them.",
     "userConfigBackup.restoreContinues": "Restore writing has started. Closing this panel will not cancel it; reopen later to view the result.",
+    "userConfigBackup.keepWorking": "Keep working",
+    "userConfigBackup.cancelAndClose": "Cancel transfer and close",
+    "userConfigBackup.discardAndClose": "Delete temporary backup and close",
+    "userConfigBackup.creatingBackup": "Creating backup\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "Settings were restored. Your unsaved edits are kept; saving will apply the current form.",
     "userConfigBackup.closeActiveConfirm": "An upload or backup is still running. Close and cancel it?",
     "userConfigBackup.discardReadyConfirm": "Closing deletes the temporary server copy. Files already saved on this device are kept. Continue?",
     "user_config_restore_system_notification_permission_missing": "System notifications were not enabled because the browser has not granted permission.",
@@ -1540,11 +1550,11 @@
     "apiSettings.providerIconPlaceholder": "Optional, e.g. \u{1FA84}",
     "apiSettings.connectionScope": "Connection settings",
     "apiSettings.connectionPreview": "Connection preview",
-    "apiSettings.modelBindings": "Model bindings",
+    "apiSettings.modelBindings": "Models",
     "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
-    "apiSettings.remoteModelName": "Remote model name",
-    "apiSettings.fetchModels": "Get available models",
+    "apiSettings.addModelBinding": "Add model",
+    "apiSettings.remoteModelName": "Provider model name",
+    "apiSettings.fetchModels": "Get models",
     "apiSettings.fetchingModels": "Fetching models\u2026",
     "apiSettings.selectAvailableModel": "Select an available model",
     "apiSettings.modelsFetched": "Found {count} models. Choose one that matches this model binding.",
@@ -1622,6 +1632,7 @@
     "apiSettings.savingStatus": "Saving API settings...",
     "apiSettings.autoSaving": "Autosaving...",
     "apiSettings.autoSaved": "Autosaved",
+    "apiSettings.defaultMappingInvalid": "Default provider settings are incomplete. Reload the settings and try again.",
     "apiSettings.saveFailed": "Failed to save API settings",
     "apiSettings.savedSummary": "Saved \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 concurrency {concurrency}",
     "apiSettings.savedShort": "Saved",
@@ -2165,12 +2176,12 @@
     "version.latest": "Neueste Version",
     "version.source": "Laufzeit",
     "version.sourcePortable": "Tragbares Paket",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "Standard-App",
     "version.sourceSource": "Quellenpr\xFCfung",
     "version.upToDate": "Sie sind bereits auf der neuesten Version",
     "version.updateAvailable": "Version {version} ist verf\xFCgbar. Schlie\xDFen Sie das WebUI-Serverfenster und f\xFChren Sie dann den Updater aus, um ein Upgrade durchzuf\xFChren.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "Version {version} ist verf\xFCgbar. macOS-Standard-Apps mit Updater k\xF6nnen sie \xFCber \u201ENach Updates suchen\u201C in der Men\xFCleiste installieren; dieser Link bleibt f\xFCr die manuelle Installation.",
+    "version.standardManualInstall": "macOS-Standard-Apps mit Updater unterst\xFCtzen den Austausch nach Best\xE4tigung. \xC4ltere macOS-Apps und Windows-Standard-ZIP-Pakete werden weiterhin manuell aktualisiert.",
     "version.noUpdater": "Da es sich bei dieser Laufzeitumgebung nicht um ein portables Paket handelt, kann der Updater nicht automatisch gestartet werden.",
     "version.openUpdater": "Updater starten",
     "version.release": "Ver\xF6ffentlichung ansehen",
@@ -2222,6 +2233,7 @@
     "api.provider": "API Anbieter",
     "imageInput.title": "Bilder",
     "imageInput.uploadAria": "Bilder und Dateien anklicken, ablegen oder einf\xFCgen",
+    "imageInput.uploadImages": "Bilder anklicken, ablegen oder einf\xFCgen",
     "imageInput.uploadFull": "Bilder und Dateien anklicken, ablegen oder einf\xFCgen",
     "imageInput.uploadCompact": "Eingabe hinzuf\xFCgen",
     "imageInput.uploadSubtitle": "Unterst\xFCtzt Bilder und Responses-Referenzdateien",
@@ -2393,7 +2405,6 @@
     "output.mainModelCustomForInput": "Verwenden Sie ein benutzerdefiniertes Modell f\xFCr die aktuelle Eingabe",
     "output.apiDirect": "API Direkt",
     "output.apiToolModel": "API-Bildgenerierungsmodell wird verwendet",
-    "output.mainModelUnused": "Das Hauptmodell wird f\xFCr diese Anfrage nicht verwendet",
     "output.webSearch": "Websuche",
     "output.webSearchToggle": "Auf",
     "output.webSearchTitle": "Durchsuchen Sie zuerst das Internet und nutzen Sie es dann f\xFCr diese Generation. Nur Codex und API Responses",
@@ -2446,11 +2457,9 @@
     "output.qualityMedium": "Mittel",
     "output.qualityHigh": "Hoch",
     "output.quantity": "Z\xE4hlen",
-    "output.pixelPreview": "Ausgabepixel: 1024 x 1024 Pixel",
-    "output.pixelPreviewValue": "Ausgabepixel: {value}",
-    "output.pixelPreviewAuto": "Ausgabepixel: automatisch (OpenAI w\xE4hlt automatisch)",
     "output.format": "Formatieren",
     "output.compression": "Komprimierung",
+    "output.extraOptions": "Weitere Optionen",
     "output.moderation": "Moderation",
     "preview.title": "Vorschau",
     "preview.selectedZero": "0 ausgew\xE4hlt",
@@ -2462,7 +2471,7 @@
     "preview.taskFailed": "Aufgabe fehlgeschlagen",
     "preview.partialFailed": "Einige Bilder sind fehlgeschlagen",
     "preview.failedOutput": "Bild {index} ist fehlgeschlagen",
-    "preview.progressLine": "Abgeschlossen {generated} / {total} \xB7 abgelaufen {elapsed}",
+    "preview.progressLine": "Abgeschlossen {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Abgeschlossen {generated} / {total} \xB7 fehlgeschlagen {failed}",
     "preview.elapsedLine": "Vergangen {elapsed}",
     "preview.lastError": "Letzter Fehler: {error}",
@@ -2519,6 +2528,13 @@
     "promptPopover.notReturned": "Nicht zur\xFCckgegeben",
     "promptPopover.noOptimized": "Es wurde keine optimierte Eingabeaufforderung zur\xFCckgegeben",
     "promptPopover.submitted": "Gesendete Eingabeaufforderung anzeigen",
+    "promptPopover.response": "Originalantwort des Anbieters anzeigen",
+    "promptPopover.responseNote": "JSON / Stream-Ereignisse des Anbieters. Bilddaten und Zugangsdaten werden ausgelassen; lange Antworten werden als gek\xFCrzt markiert.",
+    "promptPopover.copyResponse": "Antwort-JSON kopieren",
+    "promptPopover.retryResponse": "Neu laden",
+    "promptPopover.responseMissing": "F\xFCr diese Aufgabe wurde keine Originalantwort des Anbieters gespeichert.",
+    "promptPopover.responseLoading": "Antwort wird geladen\u2026",
+    "promptPopover.responseError": "Antwort konnte nicht geladen werden. Bitte erneut versuchen.",
     "promptPopover.close": "Schneller Vergleich schlie\xDFen",
     "promptPopover.copyOptimized": "Optimierte Eingabeaufforderung kopieren",
     "promptPopover.copied": "Kopiert",
@@ -2721,7 +2737,7 @@
     "settings.savedRestartStatus": "Speichereinstellungen gespeichert. Starten Sie WebUI neu, um es anzuwenden.",
     "systemSettings.title": "Systemeinstellungen",
     "userConfigBackup.title": "Sichern und Wiederherstellen",
-    "userConfigBackup.back": "Zur\xFCck zu den Systemeinstellungen",
+    "userConfigBackup.back": "Zur\xFCck zu Speicher und Benachrichtigungen",
     "userConfigBackup.entryTitle": "Konfiguration sichern und wiederherstellen",
     "userConfigBackup.entryCopy": "Chips, gemeinsame Bilder, Vorlagen und Systemeinstellungen \xFCbertragen",
     "userConfigBackup.backupTab": "Sichern",
@@ -2791,18 +2807,18 @@
     "apiSettings.providerName": "Anbietername",
     "apiSettings.providerIcon": "Emoji",
     "apiSettings.providerIconPlaceholder": "Optional, z. B. \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "Verbindungseinstellungen",
     "apiSettings.connectionPreview": "Verbindungsvorschau",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "Modelle",
+    "apiSettings.modelBindingsHint": "Ein Anbieter kann mehrere Modelle und Protokolle zuordnen.",
+    "apiSettings.addModelBinding": "Modell hinzuf\xFCgen",
     "apiSettings.appendRatioPrompt": "Seitenverh\xE4ltnis erg\xE4nzen",
     "apiSettings.defaultProviderForModel": "Standardanbieter",
     "apiSettings.removeBinding": "Bindung entfernen",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "Modellkatalog nicht verf\xFCgbar; eine Zuordnung kann noch nicht hinzugef\xFCgt werden.",
+    "apiSettings.keepOneBinding": "Jeder Anbieter ben\xF6tigt mindestens eine Modellzuordnung.",
+    "apiSettings.bindingRequiredFields": "F\xFCr jede Zuordnung ein Modell w\xE4hlen, einen entfernten Modellnamen eingeben und mindestens einen Vorgang w\xE4hlen.",
+    "apiSettings.bindingOverlap": "{model} {operation} wird von mehreren Zuordnungen abgedeckt.",
     "apiSettings.actualRequest": "Tats\xE4chliche Anfrage",
     "apiSettings.newProviderAction": "Neuer Anbieter",
     "apiSettings.copyProvider": "Kopieren",
@@ -2825,6 +2841,8 @@
     "apiSettings.imageModel": "Bildgenerierungsmodell",
     "apiSettings.concurrency": "Parallelit\xE4tslimit",
     "apiSettings.concurrencyShort": "Parallelit\xE4t",
+    "apiSettings.remoteModelName": "Modellname beim Anbieter",
+    "apiSettings.fetchModels": "Modelle abrufen",
     "apiSettings.advancedSettings": "Erweiterte Einstellungen",
     "apiSettings.concurrencyValue": "Parallelit\xE4t {concurrency}",
     "apiSettings.keySaved": "API Schl\xFCssel gespeichert",
@@ -2859,6 +2877,7 @@
     "apiSettings.savingStatus": "API-Einstellungen werden gespeichert...",
     "apiSettings.autoSaving": "Wird automatisch gespeichert...",
     "apiSettings.autoSaved": "Automatisch gespeichert",
+    "apiSettings.defaultMappingInvalid": "Die Standardanbieter-Einstellungen sind unvollst\xE4ndig. Laden Sie die Einstellungen neu und versuchen Sie es erneut.",
     "apiSettings.saveFailed": "Die Einstellungen f\xFCr API konnten nicht gespeichert werden",
     "apiSettings.savedSummary": "Gespeichert \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 Parallelit\xE4t {concurrency}",
     "apiSettings.savedShort": "Gespeichert",
@@ -3025,7 +3044,169 @@
     "modelParameters.invalidJson": "Ung\xFCltiges JSON",
     "modelParameters.migrated": "{count} \xE4ltere Parameter wurden an das aktuelle Modell angepasst",
     "modelParameters.historyConfiguration": "Historische Konfiguration",
-    "modelParameters.legacyTask": "Alte Aufgabe"
+    "modelParameters.legacyTask": "Alte Aufgabe",
+    "apiSettings.fetchingModels": "Modelle werden abgerufen\u2026",
+    "apiSettings.modelsEmpty": "Keine Modelle erhalten. Der Modellname kann manuell eingegeben werden.",
+    "apiSettings.modelsFetchFailed": "Modelle konnten nicht abgerufen werden. Adresse und Netzwerk pr\xFCfen und erneut versuchen.",
+    "apiSettings.modelsFetched": "{count} Modelle gefunden. Ein zur Modellzuordnung passendes Modell w\xE4hlen.",
+    "apiSettings.modelsInvalidBaseUrl": "Eine g\xFCltige HTTP(S)-Basis-URL eingeben.",
+    "apiSettings.modelsInvalidResponse": "Der Anbieter hat eine ung\xFCltige Modellliste geliefert. Namen manuell eingeben.",
+    "apiSettings.modelsKeyRequired": "Vor dem Abrufen der Modelle einen API-Schl\xFCssel eingeben.",
+    "apiSettings.modelsNotSupported": "Dieser Anbieter unterst\xFCtzt keine Modellauflistung. Modellnamen manuell eingeben.",
+    "apiSettings.modelsOriginMismatch": "Die Anbieteradresse wurde ge\xE4ndert. Neuen API-Schl\xFCssel eingeben oder zuerst den Anbieter speichern.",
+    "apiSettings.modelsRateLimited": "Zu viele Anfragen. Sp\xE4ter erneut versuchen.",
+    "apiSettings.modelsTooLarge": "Die Modellliste ist zu gro\xDF. Modellnamen manuell eingeben.",
+    "apiSettings.modelsUnauthorized": "Modellzugriff verweigert. API-Schl\xFCssel und Berechtigungen pr\xFCfen.",
+    "apiSettings.selectAvailableModel": "Verf\xFCgbares Modell w\xE4hlen",
+    "apiSettings.transparencyMode": "Methode f\xFCr transparenten Hintergrund",
+    "apiSettings.transparencyNative": "Nativer Parameter",
+    "apiSettings.transparencyPrompt": "Prompt-Kompatibilit\xE4t",
+    "batch.deselectCurrentGroup": "Alle abw\xE4hlen",
+    "batch.deselectWaiting": "Wartende abw\xE4hlen",
+    "batch.selectFailed": "Aufgaben konnten nicht ausgew\xE4hlt werden. Erneut versuchen.",
+    "history.promptSubmittedActual": "Tats\xE4chlich gesendeter Prompt",
+    "lanAccess.active": "LAN-Zugriff ist aktiv.",
+    "lanAccess.address": "LAN-Adresse",
+    "lanAccess.copied": "Adresse kopiert.",
+    "lanAccess.copyAddress": "{address} kopieren",
+    "lanAccess.copyManually": "Adresse ausgew\xE4hlt. Bitte manuell kopieren.",
+    "lanAccess.failed": "Zugriffseinstellungen konnten nicht gelesen oder gespeichert werden. Erneut versuchen.",
+    "lanAccess.help": "Keine Anmeldung. Personen im selben Netzwerk teilen Aufgaben, Galerie und Anbieter und k\xF6nnen Einstellungen \xE4ndern sowie Aufgaben l\xF6schen.",
+    "lanAccess.hostOverride": "Die Host-Startoption beschr\xE4nkt den Zugriff auf dieses Ger\xE4t. --host entfernen und neu starten.",
+    "lanAccess.label": "LAN-Zugriff erlauben",
+    "lanAccess.loading": "Zugriffseinstellungen werden geladen\u2026",
+    "lanAccess.localOnly": "Nur dieses Ger\xE4t kann auf die WebUI zugreifen.",
+    "lanAccess.noAddress": "Keine LAN-IPv4-Adresse gefunden. Netzwerkverbindung pr\xFCfen.",
+    "lanAccess.pendingDisable": "Gespeichert. Bis zum Neustart des WebUI-Dienstes bleibt der LAN-Zugriff aktiv.",
+    "lanAccess.pendingEnable": "Gespeichert. WebUI-Dienst neu starten, um LAN-Zugriff zu erlauben.",
+    "lanAccess.saving": "Wird gespeichert\u2026",
+    "mobile.backToEditor": "Zur\xFCck zum Bearbeiten",
+    "mobile.copyHint": "Automatisches Kopieren nicht verf\xFCgbar. Text unten zum Kopieren ausw\xE4hlen.",
+    "mobile.files": "Dateien",
+    "mobile.gestureHint": "Zum Zoomen zwei Finger bewegen \xB7 Zum Bildwechsel wischen",
+    "mobile.manualCopy": "Zum Kopieren gedr\xFCckt halten",
+    "mobile.more": "Mehr",
+    "mobile.parameters": "Parameter",
+    "mobile.pasteHint": "Eingabefeld zum Einf\xFCgen gedr\xFCckt halten oder Fotos bzw. Dateien w\xE4hlen.",
+    "mobile.photos": "Fotos",
+    "mobile.pickFiles": "Fotos oder Dateien w\xE4hlen",
+    "mobile.taskActions": "Aufgabenaktionen",
+    "networkEgress.fakeIpDnsFallback": "Fake-IP-DNS-Kompatibilit\xE4t f\xFCr Bilddownloads",
+    "networkEgress.fakeIpDnsHelp": "Liefert Bild-DNS eine Fake-IP, fragt die Anwendung Cloudflare DNS nach echten \xF6ffentlichen Adressen. Gilt f\xFCr Downloads sp\xE4ter gestarteter Anfragen; LAN-DNS bleibt unver\xE4ndert. API-Schl\xFCssel, Prompts und vollst\xE4ndige Bild-URLs werden nicht gesendet.",
+    "output.transparencyFidelityHint": "Transparenter Hintergrund ist eine gew\xE4hlte Ausgabeanforderung und wird auch in den Modi Original und Originalgetreu erg\xE4nzt.",
+    "output.transparencyFormat": "Transparente Ausgabe erfordert PNG oder WebP.",
+    "output.transparencyUnavailable": "Keine Transparenz",
+    "output.transparentBackground": "Transparenter Hintergrund",
+    "preview.transparencyDetected": "Transparente Pixel erkannt",
+    "preview.transparencyMissing": "Keine transparenten Pixel erkannt",
+    "preview.transparencyRetryHint": "Prompt-Kompatibilit\xE4t oder anderes Modell versuchen. Erneutes Versuchen startet eine neue Generierung.",
+    "queue.realtimePolling": "Aufgabenstatus wird regelm\xE4\xDFig aktualisiert. Live-Verbindung wird wiederhergestellt\u2026",
+    "referenceFiles.chooseResponses": "Responses-Kanal w\xE4hlen",
+    "status.taskChangedDuringLoad": "Die Aufgabe wurde w\xE4hrend des Ladens ge\xE4ndert. Erneut ausw\xE4hlen.",
+    "userConfigBackup.apiKeyConfirm": "Dieses unverschl\xFCsselte Archiv enth\xE4lt API-Schl\xFCssel. Trotzdem erstellen?",
+    "userConfigBackup.archiveMeta": "{count} Bereiche \xB7 Format v{version}",
+    "userConfigBackup.backToPreview": "Zur\xFCck zur Vorschau",
+    "userConfigBackup.backupCopy": "Zu sichernde Konfiguration w\xE4hlen. Generierte Aufgaben und OAuth-Sitzungen werden nie eingeschlossen.",
+    "userConfigBackup.backupProgress": "Sicherungsfortschritt",
+    "userConfigBackup.cancelled": "Sicherung abgebrochen",
+    "userConfigBackup.chooseArchive": "Sicherungs-ZIP w\xE4hlen",
+    "userConfigBackup.chooseArchiveCopy": "Die Datei wird zuerst hochgeladen und gepr\xFCft. Die Vorschau \xE4ndert keine aktuellen Daten.",
+    "userConfigBackup.keepWorking": "Weiterarbeiten",
+    "userConfigBackup.cancelAndClose": "\xDCbertragung abbrechen und schlie\xDFen",
+    "userConfigBackup.discardAndClose": "Tempor\xE4res Backup l\xF6schen und schlie\xDFen",
+    "userConfigBackup.creatingBackup": "Backup wird erstellt\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "Einstellungen wiederhergestellt. Ungespeicherte \xC4nderungen bleiben erhalten; beim Speichern werden die aktuellen Eingaben \xFCbernommen.",
+    "userConfigBackup.closeActiveConfirm": "Upload oder Sicherung l\xE4uft noch. Schlie\xDFen und abbrechen?",
+    "userConfigBackup.create": "Sicherung erstellen",
+    "userConfigBackup.creatingSession": "Upload wird vorbereitet\u2026",
+    "userConfigBackup.discardReadyConfirm": "Beim Schlie\xDFen wird die tempor\xE4re Serverkopie gel\xF6scht. Auf diesem Ger\xE4t gespeicherte Dateien bleiben erhalten. Fortfahren?",
+    "userConfigBackup.download": "Sicherung herunterladen",
+    "userConfigBackup.downloaded": "Download gestartet. Die Sicherung kann bis zu 24 Stunden lang erneut heruntergeladen werden.",
+    "userConfigBackup.galleryReferenceImpact": "{count} historische Aufgaben verlieren gemeinsame Bildreferenzen",
+    "userConfigBackup.incrementalCopy": "Vorhandene Daten behalten, Duplikate \xFCberspringen und Wiederherstellungskopien bei Konflikten anlegen.",
+    "userConfigBackup.itemCount": "{count} Eintr\xE4ge",
+    "userConfigBackup.modeLabel": "Sichern oder wiederherstellen",
+    "userConfigBackup.previewCounts": "{count} im Archiv \xB7 {duplicate} Duplikate \xB7 {conflict} Konflikte",
+    "userConfigBackup.previewTitle": "Wiederherstellungsvorschau",
+    "userConfigBackup.providerRetention": "{count} Anbieter mit Zugangsdaten bleiben aus Sicherheitsgr\xFCnden erhalten",
+    "userConfigBackup.replaceConfirmCopy": "Nur gew\xE4hlte Bereiche sind betroffen, aber ihre aktuellen Daten werden gel\xF6scht. Dies ist nicht r\xFCckg\xE4ngig zu machen.",
+    "userConfigBackup.replaceImpact": "{section}: {current} aktuelle Eintr\xE4ge entfernen, dann {archive} Sicherungseintr\xE4ge importieren",
+    "userConfigBackup.restartRequired": "Speicherpfade wiederhergestellt. WebUI neu starten, um sie zu verwenden.",
+    "userConfigBackup.restoreContinues": "Wiederherstellung schreibt bereits Daten. Schlie\xDFen bricht sie nicht ab; sp\xE4ter erneut \xF6ffnen, um das Ergebnis zu sehen.",
+    "userConfigBackup.restoreModeLabel": "Wiederherstellungsmodus",
+    "userConfigBackup.restoreProgress": "Uploadfortschritt der Wiederherstellung",
+    "userConfigBackup.restoreSelected": "Gew\xE4hlte Daten wiederherstellen",
+    "userConfigBackup.restoring": "Wiederherstellung l\xE4uft. WebUI ge\xF6ffnet lassen\u2026",
+    "userConfigBackup.resultCounts": "{section}: {added} hinzugef\xFCgt \xB7 {replaced} ersetzt \xB7 {skipped} \xFCbersprungen \xB7 {copies} Wiederherstellungskopien",
+    "userConfigBackup.selectAtLeastOne": "Mindestens einen Datentyp w\xE4hlen",
+    "userConfigBackup.selectSections": "Daten w\xE4hlen",
+    "userConfigBackup.status.cancelled": "Sicherung abgebrochen",
+    "userConfigBackup.status.expired": "Sicherung abgelaufen",
+    "userConfigBackup.status.failed": "Sicherung fehlgeschlagen",
+    "userConfigBackup.status.interrupted": "Sicherung durch Unterbrechung der WebUI gestoppt",
+    "userConfigBackup.status.packing": "Archiv wird gepackt\u2026",
+    "userConfigBackup.status.planning": "Sicherung wird geplant\u2026",
+    "userConfigBackup.status.queued": "Sicherung in Warteschlange\u2026",
+    "userConfigBackup.status.ready": "Sicherung bereit. Erneuter Download bis zu 24 Stunden lang m\xF6glich.",
+    "userConfigBackup.summaryFailed": "Konfigurations\xFCbersicht konnte nicht gelesen werden",
+    "userConfigBackup.summaryLoading": "Konfigurations\xFCbersicht wird gelesen\u2026",
+    "userConfigBackup.uploading": "Sicherung wird hochgeladen\u2026",
+    "userConfigBackup.validating": "Sicherung wird gepr\xFCft\u2026",
+    "userConfigBackup.validationReady": "Pr\xFCfung abgeschlossen. Wiederherstellungsart w\xE4hlen.",
+    "userConfigBackup.versionUnsupported": "Diese Sicherung nutzt ein neueres Format und kann nur in der Vorschau angezeigt werden.",
+    "userConfigBackup.warningCount": "{count} Warnungen",
+    "user_config_backup_failed": "Gew\xE4hlte Daten konnten nicht gelesen oder gepackt werden. Pr\xFCfen und erneut versuchen.",
+    "user_config_backup_gallery_invalid": "Ein gemeinsames Bild stimmt nicht mit seinem Galerieeintrag \xFCberein. Betroffenes Bild neu speichern oder entfernen und erneut versuchen.",
+    "user_config_backup_insufficient_space": "Nicht gen\xFCgend freier Speicherplatz f\xFCr die Sicherung.",
+    "user_config_backup_internal_error": "Interner Fehler im Sicherungsdienst. WebUI neu starten und erneut versuchen; bei Wiederholung das Startprotokoll pr\xFCfen.",
+    "user_config_backup_io_error": "Zugriff auf Sicherungsdateien fehlgeschlagen. Datentr\xE4ger- und Ordnerberechtigungen pr\xFCfen.",
+    "user_config_backup_source_changed": "Konfiguration wurde w\xE4hrend der Sicherung ge\xE4ndert. Bearbeitung stoppen und erneut versuchen.",
+    "user_config_backup_source_unreadable": "Eine Konfigurationsdatei konnte nicht gelesen werden. Berechtigungen pr\xFCfen und erneut versuchen.",
+    "user_config_restore_active_tasks": "Es laufen noch Aufgaben. Vor dem Ersetzen der Daten auf deren Abschluss warten.",
+    "user_config_restore_failed": "Wiederherstellung fehlgeschlagen. Bestehende Konfiguration bleibt erhalten.",
+    "user_config_restore_preview_stale": "Aktuelle Konfiguration ge\xE4ndert. Archiv erneut pr\xFCfen.",
+    "user_config_restore_system_notification_permission_missing": "Systembenachrichtigungen wurden ohne Browserberechtigung nicht aktiviert.",
+    "user_config_restore_version_unsupported": "Das Sicherungsformat ist f\xFCr eine Wiederherstellung zu neu.",
+    "ux.acceptDetail": "Erfolgreiche Bilder behalten und die Aufgabe ohne Ersatz f\xFCr fehlgeschlagene Bilder abschlie\xDFen.",
+    "ux.addReference": "Als Referenz hinzuf\xFCgen",
+    "ux.addingReference": "Referenz wird hinzugef\xFCgt\u2026",
+    "ux.checkProvider": "Anbietereinstellungen pr\xFCfen",
+    "ux.collapseReference": "Einklappen",
+    "ux.discardEdits": "\xC4nderungen verwerfen",
+    "ux.draftRestored": "Prompt und Referenzen wiederhergestellt; die aktuellen Generierungseinstellungen bleiben erhalten.",
+    "ux.editInputs": "Eingaben und Einstellungen bearbeiten",
+    "ux.editInputsReady": "Eingaben und Einstellungen geladen. Vor der erneuten Generierung bearbeiten.",
+    "ux.errorDetails": "Fehlerdetails",
+    "ux.execution": "N\xE4chste Generierung",
+    "ux.historyDraftRestoreFailed": "Entwurf konnte nicht wiederhergestellt werden. Die tempor\xE4re Kopie bleibt erhalten. Seite neu laden und erneut versuchen.",
+    "ux.historyDraftSaveFailed": "Entwurf konnte nicht gesichert werden. Sie befinden sich weiterhin auf der Generierungsseite. Erneut versuchen.",
+    "ux.historyParametersHint": "Dies sind die historischen Parameter der gew\xE4hlten Aufgabe. Die Ausgabeeinstellungen gelten f\xFCr die n\xE4chste Generierung.",
+    "ux.imageCount": "{count} Bilder",
+    "ux.imageUnsaved": "Das Bild enth\xE4lt ungespeicherte \xC4nderungen. Verwerfen kann nicht r\xFCckg\xE4ngig gemacht werden. Zum Weiterbearbeiten abbrechen.",
+    "ux.moderationAuto": "Automatisch",
+    "ux.moderationLow": "Weniger streng",
+    "ux.openRecovery": "Auf Generierungsseite beheben",
+    "ux.recovery.credentials": "Authentifizierung fehlgeschlagen. Vor erneuter Generierung den API-Schl\xFCssel des Anbieters oder die lokale Anmeldung pr\xFCfen.",
+    "ux.recovery.input": "Prompt, Referenzdateien und Generierungseinstellungen auf nicht unterst\xFCtzte Eingaben pr\xFCfen.",
+    "ux.recovery.quota": "Kontingent oder Kontostand des Aufgabenanbieters pr\xFCfen.",
+    "ux.recovery.temporary": "Generierung nicht abgeschlossen. Erfolgreiche Bilder bleiben erhalten; fehlgeschlagene Bilder bei Verf\xFCgbarkeit erneut versuchen.",
+    "ux.referenceAdded": "Zu den Referenzen dieser Aufgabe hinzugef\xFCgt",
+    "ux.referenceFailed": "Referenz konnte nicht hinzugef\xFCgt werden. Erneut versuchen.",
+    "ux.restoreDraft": "Eingaben wiederherstellen",
+    "ux.restoreInputsHint": "Nur Prompt und Referenzen wiederherstellen; aktuelle Generierungseinstellungen beibehalten.",
+    "ux.tasks": "Aufgaben",
+    "ux.useSize": "{width} \xD7 {height} verwenden",
+    "ux.viewPreview": "Vorschau ansehen",
+    "version.continuePortable": "Portable weiterverwenden",
+    "version.dismissFailed": "Hinweisstatus konnte nicht gespeichert werden. Sp\xE4ter erneut versuchen.",
+    "version.dismissOnboarding": "Nicht mehr anzeigen",
+    "version.onboardingBody": "Diese Version erg\xE4nzt macOS-DMG- und Windows-App-ZIP-Pakete. Neue Nutzer sollten die Standard-App verwenden; die portable Version funktioniert weiterhin.",
+    "version.onboardingDataPortable": "Ihre Daten bleiben im Ordner data/ dieses portablen Pakets.",
+    "version.onboardingMigration": "Beim Wechsel zur Standard-App kopiert der Migrationsassistent die alten Daten. Die Originale werden weder verschoben noch \xFCberschrieben.",
+    "version.onboardingStandardData": "Die Standard-App speichert Daten im System-App-Ordner: macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "Auf {version} aktualisiert. Sie k\xF6nnen die portable Version weiterverwenden oder zur Standard-App wechseln.",
+    "version.onboardingTitle": "0.5.5 erg\xE4nzt Standard-App-Pakete",
+    "version.standardDownload": "Standard-App herunterladen"
   };
 
   // codex_image/webui/frontend/src/i18n/es.ts
@@ -3401,12 +3582,12 @@
     "version.latest": "\xDAltima versi\xF3n",
     "version.source": "Tiempo de ejecuci\xF3n",
     "version.sourcePortable": "Paquete port\xE1til",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "Aplicaci\xF3n est\xE1ndar",
     "version.sourceSource": "Pago de fuente",
     "version.upToDate": "Ya est\xE1s en la \xFAltima versi\xF3n.",
     "version.updateAvailable": "La versi\xF3n {version} est\xE1 disponible. Cierre la ventana del servidor WebUI y luego ejecute el actualizador para actualizar.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "La versi\xF3n {version} est\xE1 disponible. Las apps est\xE1ndar de macOS con actualizador pueden instalarla desde Buscar actualizaciones en el men\xFA; este enlace permite la instalaci\xF3n manual.",
+    "version.standardManualInstall": "Las apps est\xE1ndar de macOS con actualizador permiten reemplazarlas tras confirmarlo; las apps antiguas de macOS y los ZIP est\xE1ndar de Windows se actualizan manualmente.",
     "version.noUpdater": "Este tiempo de ejecuci\xF3n no es un paquete port\xE1til, por lo que el actualizador no se puede iniciar autom\xE1ticamente.",
     "version.openUpdater": "Iniciar actualizador",
     "version.release": "Ver comunicado",
@@ -3458,6 +3639,7 @@
     "api.provider": "API proveedor",
     "imageInput.title": "Im\xE1genes",
     "imageInput.uploadAria": "Haz clic, suelta o pega im\xE1genes y archivos",
+    "imageInput.uploadImages": "Haz clic, arrastra o pega im\xE1genes",
     "imageInput.uploadFull": "Haz clic, suelta o pega im\xE1genes y archivos",
     "imageInput.uploadCompact": "A\xF1adir entrada",
     "imageInput.uploadSubtitle": "Admite im\xE1genes y archivos de referencia de Responses",
@@ -3629,7 +3811,6 @@
     "output.mainModelCustomForInput": "Utilice un modelo personalizado para la entrada actual",
     "output.apiDirect": "API Directo",
     "output.apiToolModel": "Usando el modelo de generaci\xF3n de im\xE1genes API",
-    "output.mainModelUnused": "El modelo principal no se utiliza para esta solicitud.",
     "output.webSearch": "b\xFAsqueda web",
     "output.webSearchToggle": "encendido",
     "output.webSearchTitle": "Primero busque en la web y luego \xFAsela para esta generaci\xF3n; Codex y API Responses \xFAnicamente",
@@ -3682,11 +3863,9 @@
     "output.qualityMedium": "Medio",
     "output.qualityHigh": "Alto",
     "output.quantity": "contar",
-    "output.pixelPreview": "P\xEDxeles de salida: 1024 x 1024 px",
-    "output.pixelPreviewValue": "P\xEDxeles de salida: {value}",
-    "output.pixelPreviewAuto": "P\xEDxeles de salida: autom\xE1tico (OpenAI elige autom\xE1ticamente)",
     "output.format": "Formato",
     "output.compression": "Compresi\xF3n",
+    "output.extraOptions": "M\xE1s opciones",
     "output.moderation": "Moderaci\xF3n",
     "preview.title": "Vista previa",
     "preview.selectedZero": "0 seleccionado",
@@ -3698,7 +3877,7 @@
     "preview.taskFailed": "Tarea fallida",
     "preview.partialFailed": "Algunas im\xE1genes fallaron",
     "preview.failedOutput": "Imagen {index} fallida",
-    "preview.progressLine": "Completado {generated} / {total} \xB7 transcurrido {elapsed}",
+    "preview.progressLine": "Completado {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Completado {generated} / {total} \xB7 fallido {failed}",
     "preview.elapsedLine": "Transcurrido {elapsed}",
     "preview.lastError": "\xDAltimo error: {error}",
@@ -3755,6 +3934,13 @@
     "promptPopover.notReturned": "No devuelto",
     "promptPopover.noOptimized": "No se devolvi\xF3 ning\xFAn mensaje optimizado",
     "promptPopover.submitted": "Ver mensaje enviado",
+    "promptPopover.response": "Ver respuesta original del proveedor",
+    "promptPopover.responseNote": "JSON / eventos de flujo del proveedor. Se omiten los datos de imagen y las credenciales; las respuestas largas se marcan como truncadas.",
+    "promptPopover.copyResponse": "Copiar JSON de la respuesta",
+    "promptPopover.retryResponse": "Volver a cargar",
+    "promptPopover.responseMissing": "No se guard\xF3 la respuesta original del proveedor para esta tarea.",
+    "promptPopover.responseLoading": "Cargando respuesta\u2026",
+    "promptPopover.responseError": "No se pudo cargar la respuesta. Int\xE9ntalo de nuevo.",
     "promptPopover.close": "Cerrar comparaci\xF3n r\xE1pida",
     "promptPopover.copyOptimized": "Copiar mensaje optimizado",
     "promptPopover.copied": "Copiado",
@@ -3957,7 +4143,7 @@
     "settings.savedRestartStatus": "Configuraci\xF3n de almacenamiento guardada. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configuraci\xF3n del sistema",
     "userConfigBackup.title": "Copia de seguridad y restauraci\xF3n",
-    "userConfigBackup.back": "Volver a Configuraci\xF3n del sistema",
+    "userConfigBackup.back": "Volver a almacenamiento y notificaciones",
     "userConfigBackup.entryTitle": "Copia y restauraci\xF3n de la configuraci\xF3n",
     "userConfigBackup.entryCopy": "Migra chips, im\xE1genes compartidas, plantillas y ajustes del sistema",
     "userConfigBackup.backupTab": "Copia",
@@ -4027,18 +4213,18 @@
     "apiSettings.providerName": "Nombre del proveedor",
     "apiSettings.providerIcon": "Emoji",
     "apiSettings.providerIconPlaceholder": "Opcional, p. ej. \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "Ajustes de conexi\xF3n",
     "apiSettings.connectionPreview": "Vista previa de conexi\xF3n",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "Modelos",
+    "apiSettings.modelBindingsHint": "Un proveedor puede vincular varios modelos y protocolos.",
+    "apiSettings.addModelBinding": "A\xF1adir modelo",
     "apiSettings.appendRatioPrompt": "A\xF1adir instrucci\xF3n de proporci\xF3n",
     "apiSettings.defaultProviderForModel": "Proveedor predeterminado",
     "apiSettings.removeBinding": "Eliminar v\xEDnculo",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "El cat\xE1logo de modelos no est\xE1 disponible; a\xFAn no se puede a\xF1adir una vinculaci\xF3n.",
+    "apiSettings.keepOneBinding": "Cada proveedor debe conservar al menos una vinculaci\xF3n de modelo.",
+    "apiSettings.bindingRequiredFields": "En cada vinculaci\xF3n, elige un modelo, escribe el nombre remoto y selecciona al menos una operaci\xF3n.",
+    "apiSettings.bindingOverlap": "{model} {operation} est\xE1 asignado a m\xE1s de una vinculaci\xF3n.",
     "apiSettings.actualRequest": "Solicitud real",
     "apiSettings.newProviderAction": "Nuevo proveedor",
     "apiSettings.copyProvider": "Copiar",
@@ -4061,6 +4247,8 @@
     "apiSettings.imageModel": "Modelo de generaci\xF3n de im\xE1genes",
     "apiSettings.concurrency": "L\xEDmite de simultaneidad",
     "apiSettings.concurrencyShort": "concurrencia",
+    "apiSettings.remoteModelName": "Modelo del proveedor",
+    "apiSettings.fetchModels": "Obtener modelos",
     "apiSettings.advancedSettings": "Configuraci\xF3n avanzada",
     "apiSettings.concurrencyValue": "concurrencia {concurrency}",
     "apiSettings.keySaved": "API clave guardada",
@@ -4095,6 +4283,7 @@
     "apiSettings.savingStatus": "Guardando la configuraci\xF3n de API...",
     "apiSettings.autoSaving": "Guardando autom\xE1ticamente...",
     "apiSettings.autoSaved": "Guardado autom\xE1ticamente",
+    "apiSettings.defaultMappingInvalid": "La configuraci\xF3n del proveedor predeterminado est\xE1 incompleta. Vuelve a cargarla e int\xE9ntalo de nuevo.",
     "apiSettings.saveFailed": "No se pudo guardar la configuraci\xF3n de API",
     "apiSettings.savedSummary": "Guardado \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 concurrencia {concurrency}",
     "apiSettings.savedShort": "Guardado",
@@ -4261,7 +4450,169 @@
     "modelParameters.invalidJson": "JSON no v\xE1lido",
     "modelParameters.migrated": "Se ajustaron {count} par\xE1metros anteriores al modelo actual",
     "modelParameters.historyConfiguration": "Configuraci\xF3n hist\xF3rica",
-    "modelParameters.legacyTask": "Tarea antigua"
+    "modelParameters.legacyTask": "Tarea antigua",
+    "apiSettings.fetchingModels": "Obteniendo modelos\u2026",
+    "apiSettings.modelsEmpty": "No se devolvieron modelos. Puedes escribir el nombre manualmente.",
+    "apiSettings.modelsFetchFailed": "No se pudieron obtener los modelos. Revisa la direcci\xF3n y la red e int\xE9ntalo de nuevo.",
+    "apiSettings.modelsFetched": "Se encontraron {count} modelos. Elige uno adecuado para esta vinculaci\xF3n.",
+    "apiSettings.modelsInvalidBaseUrl": "Introduce una URL base HTTP(S) v\xE1lida.",
+    "apiSettings.modelsInvalidResponse": "El proveedor devolvi\xF3 una lista de modelos no v\xE1lida. Puedes escribir el nombre manualmente.",
+    "apiSettings.modelsKeyRequired": "Introduce una clave API antes de obtener los modelos.",
+    "apiSettings.modelsNotSupported": "Este proveedor no permite listar modelos. Escribe el nombre manualmente.",
+    "apiSettings.modelsOriginMismatch": "La direcci\xF3n del proveedor cambi\xF3. Introduce una nueva clave API o guarda primero el proveedor.",
+    "apiSettings.modelsRateLimited": "Demasiadas solicitudes. Int\xE9ntalo m\xE1s tarde.",
+    "apiSettings.modelsTooLarge": "La lista de modelos es demasiado grande. Escribe el nombre manualmente.",
+    "apiSettings.modelsUnauthorized": "Acceso al modelo denegado. Revisa la clave API y sus permisos.",
+    "apiSettings.selectAvailableModel": "Elegir modelo disponible",
+    "apiSettings.transparencyMode": "M\xE9todo de fondo transparente",
+    "apiSettings.transparencyNative": "Par\xE1metro nativo",
+    "apiSettings.transparencyPrompt": "Compatibilidad por prompt",
+    "batch.deselectCurrentGroup": "Deseleccionar todo",
+    "batch.deselectWaiting": "Deseleccionar en espera",
+    "batch.selectFailed": "No se pudieron seleccionar las tareas. Int\xE9ntalo de nuevo.",
+    "history.promptSubmittedActual": "Prompt enviado realmente",
+    "lanAccess.active": "El acceso LAN est\xE1 activo.",
+    "lanAccess.address": "Direcci\xF3n LAN",
+    "lanAccess.copied": "Direcci\xF3n copiada.",
+    "lanAccess.copyAddress": "Copiar {address}",
+    "lanAccess.copyManually": "Direcci\xF3n seleccionada. C\xF3piala manualmente.",
+    "lanAccess.failed": "No se pudieron leer o guardar los ajustes de acceso. Int\xE9ntalo de nuevo.",
+    "lanAccess.help": "Sin inicio de sesi\xF3n. Las personas de la misma red comparten tareas, galer\xEDa y proveedores, y pueden cambiar ajustes y borrar tareas.",
+    "lanAccess.hostOverride": "La opci\xF3n de host al iniciar limita el acceso a este dispositivo. Quita --host y reinicia.",
+    "lanAccess.label": "Permitir acceso LAN",
+    "lanAccess.loading": "Cargando ajustes de acceso\u2026",
+    "lanAccess.localOnly": "Solo este dispositivo puede acceder a la WebUI.",
+    "lanAccess.noAddress": "No se encontr\xF3 una direcci\xF3n IPv4 de LAN. Revisa la conexi\xF3n de red.",
+    "lanAccess.pendingDisable": "Guardado. El acceso LAN seguir\xE1 activo hasta reiniciar el servicio WebUI.",
+    "lanAccess.pendingEnable": "Guardado. Reinicia el servicio WebUI para permitir acceso LAN.",
+    "lanAccess.saving": "Guardando\u2026",
+    "mobile.backToEditor": "Volver a editar",
+    "mobile.copyHint": "La copia autom\xE1tica no est\xE1 disponible. Selecciona el texto de abajo para copiarlo.",
+    "mobile.files": "Archivos",
+    "mobile.gestureHint": "Pellizca para ampliar \xB7 Desliza para cambiar de imagen",
+    "mobile.manualCopy": "Mant\xE9n pulsado para copiar",
+    "mobile.more": "M\xE1s",
+    "mobile.parameters": "Par\xE1metros",
+    "mobile.pasteHint": "Mant\xE9n pulsado el campo para pegar o elige fotos o archivos.",
+    "mobile.photos": "Fotos",
+    "mobile.pickFiles": "Elegir fotos o archivos",
+    "mobile.taskActions": "Acciones de tarea",
+    "networkEgress.fakeIpDnsFallback": "Compatibilidad DNS Fake-IP para descargar im\xE1genes",
+    "networkEgress.fakeIpDnsHelp": "Si el DNS de la imagen devuelve una Fake-IP, consulta Cloudflare DNS para obtener direcciones p\xFAblicas reales. Se aplica a descargas de solicitudes posteriores; no cambia el DNS de la LAN. No se env\xEDan claves API, prompts ni URL completas de im\xE1genes.",
+    "output.transparencyFidelityHint": "El fondo transparente es un requisito de salida elegido y tambi\xE9n se a\xF1ade en los modos Original y Fiel.",
+    "output.transparencyFormat": "La salida transparente requiere PNG o WebP.",
+    "output.transparencyUnavailable": "Sin transparencia",
+    "output.transparentBackground": "Fondo transparente",
+    "preview.transparencyDetected": "P\xEDxeles transparentes detectados",
+    "preview.transparencyMissing": "No se detectaron p\xEDxeles transparentes",
+    "preview.transparencyRetryHint": "Prueba la compatibilidad por prompt u otro modelo. Reintentar inicia una nueva generaci\xF3n.",
+    "queue.realtimePolling": "El estado se actualiza peri\xF3dicamente. Restableciendo la conexi\xF3n en vivo\u2026",
+    "referenceFiles.chooseResponses": "Elegir un canal Responses",
+    "status.taskChangedDuringLoad": "La tarea cambi\xF3 durante la carga. Selecci\xF3nala de nuevo.",
+    "userConfigBackup.apiKeyConfirm": "Este archivo sin cifrar incluir\xE1 claves API. \xBFCrearlo de todos modos?",
+    "userConfigBackup.archiveMeta": "{count} secciones \xB7 formato v{version}",
+    "userConfigBackup.backToPreview": "Volver a la vista previa",
+    "userConfigBackup.backupCopy": "Elige la configuraci\xF3n que incluir. Nunca se incluyen tareas generadas ni sesiones OAuth.",
+    "userConfigBackup.backupProgress": "Progreso de copia de seguridad",
+    "userConfigBackup.cancelled": "Copia de seguridad cancelada",
+    "userConfigBackup.chooseArchive": "Elegir ZIP de respaldo",
+    "userConfigBackup.chooseArchiveCopy": "Primero se sube y valida el archivo. La vista previa no cambia los datos actuales.",
+    "userConfigBackup.keepWorking": "Seguir trabajando",
+    "userConfigBackup.cancelAndClose": "Cancelar transferencia y cerrar",
+    "userConfigBackup.discardAndClose": "Eliminar copia temporal y cerrar",
+    "userConfigBackup.creatingBackup": "Creando copia de seguridad\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "Se restauraron los ajustes. Se conservan los cambios sin guardar; al guardar se aplicar\xE1 el formulario actual.",
+    "userConfigBackup.closeActiveConfirm": "Hay una carga o copia en curso. \xBFCerrar y cancelarla?",
+    "userConfigBackup.create": "Crear copia de seguridad",
+    "userConfigBackup.creatingSession": "Preparando carga\u2026",
+    "userConfigBackup.discardReadyConfirm": "Al cerrar se borra la copia temporal del servidor. Se conservan los archivos guardados en este dispositivo. \xBFContinuar?",
+    "userConfigBackup.download": "Descargar copia de seguridad",
+    "userConfigBackup.downloaded": "Descarga iniciada. Puedes descargar esta copia de nuevo durante 24 horas.",
+    "userConfigBackup.galleryReferenceImpact": "{count} tareas hist\xF3ricas perder\xE1n referencias a im\xE1genes compartidas",
+    "userConfigBackup.incrementalCopy": "Conserva los datos actuales, omite duplicados y crea copias de recuperaci\xF3n para conflictos.",
+    "userConfigBackup.itemCount": "{count} elementos",
+    "userConfigBackup.modeLabel": "Copia o restauraci\xF3n",
+    "userConfigBackup.previewCounts": "{count} en archivo \xB7 {duplicate} duplicados \xB7 {conflict} conflictos",
+    "userConfigBackup.previewTitle": "Vista previa de restauraci\xF3n",
+    "userConfigBackup.providerRetention": "Se conservar\xE1n {count} proveedores con credenciales por seguridad",
+    "userConfigBackup.replaceConfirmCopy": "Solo afecta a las secciones elegidas, pero elimina sus datos actuales. No se puede deshacer.",
+    "userConfigBackup.replaceImpact": "{section}: eliminar {current} elementos actuales e importar {archive} de la copia",
+    "userConfigBackup.restartRequired": "Rutas de almacenamiento restauradas. Reinicia la WebUI para usarlas.",
+    "userConfigBackup.restoreContinues": "La restauraci\xF3n ya est\xE1 escribiendo datos. Cerrar el panel no la cancela; \xE1brelo despu\xE9s para ver el resultado.",
+    "userConfigBackup.restoreModeLabel": "Modo de restauraci\xF3n",
+    "userConfigBackup.restoreProgress": "Progreso de carga de restauraci\xF3n",
+    "userConfigBackup.restoreSelected": "Restaurar datos elegidos",
+    "userConfigBackup.restoring": "Restaurando. Mant\xE9n la WebUI abierta\u2026",
+    "userConfigBackup.resultCounts": "{section}: {added} a\xF1adidos \xB7 {replaced} reemplazados \xB7 {skipped} omitidos \xB7 {copies} copias de recuperaci\xF3n",
+    "userConfigBackup.selectAtLeastOne": "Elige al menos un tipo de datos",
+    "userConfigBackup.selectSections": "Elegir datos",
+    "userConfigBackup.status.cancelled": "Copia de seguridad cancelada",
+    "userConfigBackup.status.expired": "Copia de seguridad caducada",
+    "userConfigBackup.status.failed": "Copia de seguridad fallida",
+    "userConfigBackup.status.interrupted": "La copia se detuvo al interrumpirse la WebUI",
+    "userConfigBackup.status.packing": "Empaquetando archivo\u2026",
+    "userConfigBackup.status.planning": "Planificando copia\u2026",
+    "userConfigBackup.status.queued": "Copia en cola\u2026",
+    "userConfigBackup.status.ready": "Copia lista. Puedes descargarla de nuevo durante 24 horas.",
+    "userConfigBackup.summaryFailed": "No se pudo leer el resumen de configuraci\xF3n",
+    "userConfigBackup.summaryLoading": "Leyendo resumen de configuraci\xF3n\u2026",
+    "userConfigBackup.uploading": "Subiendo copia\u2026",
+    "userConfigBackup.validating": "Validando copia\u2026",
+    "userConfigBackup.validationReady": "Validaci\xF3n completa. Elige c\xF3mo restaurar.",
+    "userConfigBackup.versionUnsupported": "Esta copia usa un formato m\xE1s reciente y solo permite vista previa.",
+    "userConfigBackup.warningCount": "{count} advertencias",
+    "user_config_backup_failed": "No se pudieron leer o empaquetar los datos elegidos. Rev\xEDsalos e int\xE9ntalo de nuevo.",
+    "user_config_backup_gallery_invalid": "Una imagen compartida no coincide con su registro. Vuelve a guardarla o elim\xEDnala e int\xE9ntalo de nuevo.",
+    "user_config_backup_insufficient_space": "No hay espacio libre suficiente para crear la copia.",
+    "user_config_backup_internal_error": "Error interno del servicio de copias. Reinicia la WebUI y reintenta; si persiste, revisa el registro de inicio.",
+    "user_config_backup_io_error": "Fall\xF3 el acceso a archivos de copia. Revisa los permisos del disco y las carpetas.",
+    "user_config_backup_source_changed": "La configuraci\xF3n cambi\xF3 durante la copia. Deja de editarla e int\xE9ntalo de nuevo.",
+    "user_config_backup_source_unreadable": "No se pudo leer un archivo de configuraci\xF3n. Revisa sus permisos e int\xE9ntalo de nuevo.",
+    "user_config_restore_active_tasks": "Hay tareas activas. Espera a que terminen antes de reemplazar datos.",
+    "user_config_restore_failed": "Fall\xF3 la restauraci\xF3n. Se conserv\xF3 la configuraci\xF3n actual.",
+    "user_config_restore_preview_stale": "La configuraci\xF3n actual cambi\xF3. Valida el archivo de nuevo.",
+    "user_config_restore_system_notification_permission_missing": "No se activaron las notificaciones del sistema porque el navegador no dio permiso.",
+    "user_config_restore_version_unsupported": "El formato de esta copia es demasiado nuevo para restaurarlo.",
+    "ux.acceptDetail": "Conserva las im\xE1genes correctas y finaliza la tarea sin completar las fallidas.",
+    "ux.addReference": "A\xF1adir referencia",
+    "ux.addingReference": "A\xF1adiendo referencia\u2026",
+    "ux.checkProvider": "Revisar proveedor",
+    "ux.collapseReference": "Contraer",
+    "ux.discardEdits": "Descartar cambios",
+    "ux.draftRestored": "Prompt y referencias restaurados; se conservan los ajustes de generaci\xF3n actuales.",
+    "ux.editInputs": "Editar entradas y ajustes",
+    "ux.editInputsReady": "Entradas y ajustes cargados. Ed\xEDtalos antes de volver a generar.",
+    "ux.errorDetails": "Detalles del error",
+    "ux.execution": "Pr\xF3xima generaci\xF3n",
+    "ux.historyDraftRestoreFailed": "No se pudo restaurar el borrador. Se conserva la copia temporal. Recarga la p\xE1gina para reintentarlo.",
+    "ux.historyDraftSaveFailed": "No se pudo guardar el borrador. Sigues en la p\xE1gina de generaci\xF3n. Int\xE9ntalo de nuevo.",
+    "ux.historyParametersHint": "Son los par\xE1metros hist\xF3ricos de la tarea seleccionada. Los ajustes de salida controlan la pr\xF3xima generaci\xF3n.",
+    "ux.imageCount": "{count} im\xE1genes",
+    "ux.imageUnsaved": "Esta imagen tiene cambios sin guardar. Descartarlos no se puede deshacer; cancela para seguir editando.",
+    "ux.moderationAuto": "Autom\xE1tica",
+    "ux.moderationLow": "Menos estricta",
+    "ux.openRecovery": "Resolver en generaci\xF3n",
+    "ux.recovery.credentials": "Fall\xF3 la autenticaci\xF3n. Revisa la clave API del proveedor o la sesi\xF3n local antes de generar de nuevo.",
+    "ux.recovery.input": "Revisa si el prompt, los archivos de referencia o los ajustes contienen entradas no compatibles.",
+    "ux.recovery.quota": "Revisa la cuota o el saldo del proveedor de la tarea.",
+    "ux.recovery.temporary": "La generaci\xF3n no se complet\xF3. Se conservan las im\xE1genes correctas; reintenta las fallidas cuando sea posible.",
+    "ux.referenceAdded": "A\xF1adido a las referencias de esta tarea",
+    "ux.referenceFailed": "No se pudo a\xF1adir la referencia. Int\xE9ntalo de nuevo.",
+    "ux.restoreDraft": "Restaurar entradas",
+    "ux.restoreInputsHint": "Restaura solo el prompt y las referencias; conserva los ajustes actuales.",
+    "ux.tasks": "Tareas",
+    "ux.useSize": "Usar {width} \xD7 {height}",
+    "ux.viewPreview": "Ver vista previa",
+    "version.continuePortable": "Seguir con la port\xE1til",
+    "version.dismissFailed": "No se pudo guardar el estado del aviso. Int\xE9ntalo m\xE1s tarde.",
+    "version.dismissOnboarding": "No volver a mostrar",
+    "version.onboardingBody": "Esta versi\xF3n a\xF1ade paquetes DMG para macOS y App ZIP para Windows. Se recomienda el paquete est\xE1ndar a nuevos usuarios; la versi\xF3n port\xE1til sigue funcionando.",
+    "version.onboardingDataPortable": "Tus datos permanecen en la carpeta data/ de este paquete port\xE1til.",
+    "version.onboardingMigration": "Al cambiar a la app est\xE1ndar, usa el asistente para copiar los datos antiguos. No mover\xE1 ni sobrescribir\xE1 los originales.",
+    "version.onboardingStandardData": "La app est\xE1ndar guarda los datos en el directorio de aplicaciones del sistema: macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "Actualizaste a {version}. Puedes seguir con la versi\xF3n port\xE1til o cambiar a la app est\xE1ndar.",
+    "version.onboardingTitle": "0.5.5 a\xF1ade paquetes est\xE1ndar",
+    "version.standardDownload": "Descargar app est\xE1ndar"
   };
 
   // codex_image/webui/frontend/src/i18n/fr.ts
@@ -4637,12 +4988,12 @@
     "version.latest": "Derni\xE8re version",
     "version.source": "Dur\xE9e d'ex\xE9cution",
     "version.sourcePortable": "Forfait portable",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "Application standard",
     "version.sourceSource": "R\xE9cup\xE9ration de la source",
     "version.upToDate": "Vous \xEAtes d\xE9j\xE0 sur la derni\xE8re version",
     "version.updateAvailable": "La version {version} est disponible. Fermez la fen\xEAtre du serveur WebUI, puis ex\xE9cutez le programme de mise \xE0 jour pour effectuer la mise \xE0 niveau.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "La version {version} est disponible. Les apps standard macOS avec mise \xE0 jour int\xE9gr\xE9e peuvent l\u2019installer via Rechercher les mises \xE0 jour dans le menu ; ce lien reste l\u2019option manuelle.",
+    "version.standardManualInstall": "Les apps standard macOS avec mise \xE0 jour int\xE9gr\xE9e peuvent \xEAtre remplac\xE9es apr\xE8s confirmation ; les anciennes apps macOS et les ZIP standard Windows n\xE9cessitent une mise \xE0 jour manuelle.",
     "version.noUpdater": "Ce runtime n'est pas un package portable, le programme de mise \xE0 jour ne peut donc pas \xEAtre d\xE9marr\xE9 automatiquement.",
     "version.openUpdater": "D\xE9marrer le programme de mise \xE0 jour",
     "version.release": "Voir la version",
@@ -4694,6 +5045,7 @@
     "api.provider": "Fournisseur API",
     "imageInput.title": "Images",
     "imageInput.uploadAria": "Cliquez, d\xE9posez ou collez des images et des fichiers",
+    "imageInput.uploadImages": "Cliquez, d\xE9posez ou collez des images",
     "imageInput.uploadFull": "Cliquez, d\xE9posez ou collez des images et des fichiers",
     "imageInput.uploadCompact": "Ajouter une entr\xE9e",
     "imageInput.uploadSubtitle": "Images et fichiers de r\xE9f\xE9rence pour Responses",
@@ -4865,7 +5217,6 @@
     "output.mainModelCustomForInput": "Utiliser un mod\xE8le personnalis\xE9 pour l'entr\xE9e actuelle",
     "output.apiDirect": "API Direct",
     "output.apiToolModel": "Utilisation du mod\xE8le de g\xE9n\xE9ration d\u2019images API",
-    "output.mainModelUnused": "Le mod\xE8le principal n'est pas utilis\xE9 pour cette demande",
     "output.webSearch": "Recherche sur le Web",
     "output.webSearchToggle": "Sur",
     "output.webSearchTitle": "Recherchez d'abord sur le Web, puis utilisez-le pour cette g\xE9n\xE9ration; Codex et API Responses uniquement",
@@ -4918,11 +5269,9 @@
     "output.qualityMedium": "Moyen",
     "output.qualityHigh": "\xC9lev\xE9",
     "output.quantity": "Compter",
-    "output.pixelPreview": "Pixels de sortie: 1024 x 1024 px",
-    "output.pixelPreviewValue": "Pixels de sortie: {value}",
-    "output.pixelPreviewAuto": "Pixels de sortie:\xA0auto (OpenAI choisit automatiquement)",
     "output.format": "Formater",
     "output.compression": "Compression",
+    "output.extraOptions": "Options suppl\xE9mentaires",
     "output.moderation": "Mod\xE9ration",
     "preview.title": "Aper\xE7u",
     "preview.selectedZero": "0 s\xE9lectionn\xE9",
@@ -4934,7 +5283,7 @@
     "preview.taskFailed": "La t\xE2che a \xE9chou\xE9",
     "preview.partialFailed": "Certaines images ont \xE9chou\xE9",
     "preview.failedOutput": "L'image {index} a \xE9chou\xE9",
-    "preview.progressLine": "Termin\xE9 {generated} / {total} \xB7 \xE9coul\xE9 {elapsed}",
+    "preview.progressLine": "Termin\xE9 {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Termin\xE9 {generated} / {total} \xB7 \xE9chou\xE9 {failed}",
     "preview.elapsedLine": "{elapsed} \xE9coul\xE9",
     "preview.lastError": "Derni\xE8re erreur: {error}",
@@ -4991,6 +5340,13 @@
     "promptPopover.notReturned": "Non retourn\xE9",
     "promptPopover.noOptimized": "Aucune invite optimis\xE9e renvoy\xE9e",
     "promptPopover.submitted": "Afficher l'invite soumise",
+    "promptPopover.response": "Voir la r\xE9ponse brute du fournisseur",
+    "promptPopover.responseNote": "JSON / \xE9v\xE9nements du flux du fournisseur. Les donn\xE9es d\u2019image et les identifiants sont omis ; les r\xE9ponses longues sont signal\xE9es comme tronqu\xE9es.",
+    "promptPopover.copyResponse": "Copier le JSON de la r\xE9ponse",
+    "promptPopover.retryResponse": "Recharger",
+    "promptPopover.responseMissing": "Aucune r\xE9ponse brute du fournisseur n\u2019a \xE9t\xE9 enregistr\xE9e pour cette t\xE2che.",
+    "promptPopover.responseLoading": "Chargement de la r\xE9ponse\u2026",
+    "promptPopover.responseError": "Impossible de charger la r\xE9ponse. R\xE9essayez.",
     "promptPopover.close": "Fermer la comparaison rapide",
     "promptPopover.copyOptimized": "Copier l'invite optimis\xE9e",
     "promptPopover.copied": "Copi\xE9",
@@ -5193,7 +5549,7 @@
     "settings.savedRestartStatus": "Param\xE8tres de stockage enregistr\xE9s. Red\xE9marrez WebUI pour appliquer.",
     "systemSettings.title": "Param\xE8tres syst\xE8me",
     "userConfigBackup.title": "Sauvegarde et restauration",
-    "userConfigBackup.back": "Retour aux param\xE8tres syst\xE8me",
+    "userConfigBackup.back": "Retour au stockage et aux notifications",
     "userConfigBackup.entryTitle": "Sauvegarde et restauration de la configuration",
     "userConfigBackup.entryCopy": "Migrez les chips, images partag\xE9es, mod\xE8les et param\xE8tres syst\xE8me",
     "userConfigBackup.backupTab": "Sauvegarder",
@@ -5263,18 +5619,18 @@
     "apiSettings.providerName": "Nom du fournisseur",
     "apiSettings.providerIcon": "Emoji",
     "apiSettings.providerIconPlaceholder": "Facultatif, ex. \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "Param\xE8tres de connexion",
     "apiSettings.connectionPreview": "Aper\xE7u de la connexion",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "Mod\xE8les",
+    "apiSettings.modelBindingsHint": "Un fournisseur peut associer plusieurs mod\xE8les et protocoles.",
+    "apiSettings.addModelBinding": "Ajouter un mod\xE8le",
     "apiSettings.appendRatioPrompt": "Ajouter l\u2019instruction de format",
     "apiSettings.defaultProviderForModel": "Fournisseur par d\xE9faut",
     "apiSettings.removeBinding": "Supprimer la liaison",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "Le catalogue de mod\xE8les est indisponible ; aucune association ne peut encore \xEAtre ajout\xE9e.",
+    "apiSettings.keepOneBinding": "Chaque fournisseur doit conserver au moins une association de mod\xE8le.",
+    "apiSettings.bindingRequiredFields": "Pour chaque association, choisissez un mod\xE8le, saisissez son nom distant et s\xE9lectionnez au moins une op\xE9ration.",
+    "apiSettings.bindingOverlap": "{model} {operation} correspond \xE0 plusieurs associations.",
     "apiSettings.actualRequest": "Requ\xEAte effective",
     "apiSettings.newProviderAction": "Nouveau fournisseur",
     "apiSettings.copyProvider": "Copier",
@@ -5297,6 +5653,8 @@
     "apiSettings.imageModel": "Mod\xE8le de g\xE9n\xE9ration d\u2019images",
     "apiSettings.concurrency": "Limite de simultan\xE9it\xE9",
     "apiSettings.concurrencyShort": "Concurrence",
+    "apiSettings.remoteModelName": "Nom du mod\xE8le du fournisseur",
+    "apiSettings.fetchModels": "Obtenir les mod\xE8les",
     "apiSettings.advancedSettings": "Param\xE8tres avanc\xE9s",
     "apiSettings.concurrencyValue": "concurrence {concurrency}",
     "apiSettings.keySaved": "Cl\xE9 API enregistr\xE9e",
@@ -5331,6 +5689,7 @@
     "apiSettings.savingStatus": "Enregistrement des param\xE8tres API...",
     "apiSettings.autoSaving": "Enregistrement automatique...",
     "apiSettings.autoSaved": "Enregistr\xE9 automatiquement",
+    "apiSettings.defaultMappingInvalid": "La configuration du fournisseur par d\xE9faut est incompl\xE8te. Rechargez les param\xE8tres et r\xE9essayez.",
     "apiSettings.saveFailed": "\xC9chec de l'enregistrement des param\xE8tres API",
     "apiSettings.savedSummary": "Enregistr\xE9 \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 simultan\xE9it\xE9 {concurrency}",
     "apiSettings.savedShort": "Enregistr\xE9",
@@ -5497,7 +5856,169 @@
     "modelParameters.invalidJson": "JSON invalide",
     "modelParameters.migrated": "{count} anciens param\xE8tres ont \xE9t\xE9 adapt\xE9s au mod\xE8le actuel",
     "modelParameters.historyConfiguration": "Configuration historique",
-    "modelParameters.legacyTask": "Ancienne t\xE2che"
+    "modelParameters.legacyTask": "Ancienne t\xE2che",
+    "apiSettings.fetchingModels": "R\xE9cup\xE9ration des mod\xE8les\u2026",
+    "apiSettings.modelsEmpty": "Aucun mod\xE8le renvoy\xE9. Vous pouvez saisir le nom manuellement.",
+    "apiSettings.modelsFetchFailed": "Impossible de r\xE9cup\xE9rer les mod\xE8les. V\xE9rifiez l\u2019adresse et le r\xE9seau, puis r\xE9essayez.",
+    "apiSettings.modelsFetched": "{count} mod\xE8les trouv\xE9s. Choisissez-en un adapt\xE9 \xE0 cette association.",
+    "apiSettings.modelsInvalidBaseUrl": "Saisissez une URL de base HTTP(S) valide.",
+    "apiSettings.modelsInvalidResponse": "Le fournisseur a renvoy\xE9 une liste de mod\xE8les invalide. Saisissez le nom manuellement.",
+    "apiSettings.modelsKeyRequired": "Saisissez une cl\xE9 API avant de r\xE9cup\xE9rer les mod\xE8les.",
+    "apiSettings.modelsNotSupported": "Ce fournisseur ne permet pas de lister les mod\xE8les. Saisissez le nom manuellement.",
+    "apiSettings.modelsOriginMismatch": "L\u2019adresse du fournisseur a chang\xE9. Saisissez une nouvelle cl\xE9 API ou enregistrez d\u2019abord le fournisseur.",
+    "apiSettings.modelsRateLimited": "Trop de requ\xEAtes. R\xE9essayez plus tard.",
+    "apiSettings.modelsTooLarge": "La liste de mod\xE8les est trop volumineuse. Saisissez le nom manuellement.",
+    "apiSettings.modelsUnauthorized": "Acc\xE8s aux mod\xE8les refus\xE9. V\xE9rifiez la cl\xE9 API et ses autorisations.",
+    "apiSettings.selectAvailableModel": "Choisir un mod\xE8le disponible",
+    "apiSettings.transparencyMode": "M\xE9thode de fond transparent",
+    "apiSettings.transparencyNative": "Param\xE8tre natif",
+    "apiSettings.transparencyPrompt": "Compatibilit\xE9 par prompt",
+    "batch.deselectCurrentGroup": "Tout d\xE9s\xE9lectionner",
+    "batch.deselectWaiting": "D\xE9s\xE9lectionner les t\xE2ches en attente",
+    "batch.selectFailed": "Impossible de s\xE9lectionner les t\xE2ches. R\xE9essayez.",
+    "history.promptSubmittedActual": "Prompt r\xE9ellement envoy\xE9",
+    "lanAccess.active": "L\u2019acc\xE8s LAN est actif.",
+    "lanAccess.address": "Adresse LAN",
+    "lanAccess.copied": "Adresse copi\xE9e.",
+    "lanAccess.copyAddress": "Copier {address}",
+    "lanAccess.copyManually": "Adresse s\xE9lectionn\xE9e. Copiez-la manuellement.",
+    "lanAccess.failed": "Impossible de lire ou d\u2019enregistrer les param\xE8tres d\u2019acc\xE8s. R\xE9essayez.",
+    "lanAccess.help": "Sans connexion. Les personnes du m\xEAme r\xE9seau partagent les t\xE2ches, la galerie et les fournisseurs, et peuvent modifier les param\xE8tres ou supprimer des t\xE2ches.",
+    "lanAccess.hostOverride": "L\u2019option de d\xE9marrage du serveur limite l\u2019acc\xE8s \xE0 cet appareil. Retirez --host et red\xE9marrez.",
+    "lanAccess.label": "Autoriser l\u2019acc\xE8s LAN",
+    "lanAccess.loading": "Chargement des param\xE8tres d\u2019acc\xE8s\u2026",
+    "lanAccess.localOnly": "Seul cet appareil peut acc\xE9der \xE0 la WebUI.",
+    "lanAccess.noAddress": "Aucune adresse IPv4 LAN trouv\xE9e. V\xE9rifiez la connexion r\xE9seau.",
+    "lanAccess.pendingDisable": "Enregistr\xE9. L\u2019acc\xE8s LAN reste actif jusqu\u2019au red\xE9marrage du service WebUI.",
+    "lanAccess.pendingEnable": "Enregistr\xE9. Red\xE9marrez le service WebUI pour autoriser l\u2019acc\xE8s LAN.",
+    "lanAccess.saving": "Enregistrement\u2026",
+    "mobile.backToEditor": "Retour \xE0 l\u2019\xE9dition",
+    "mobile.copyHint": "La copie automatique est indisponible. S\xE9lectionnez le texte ci-dessous pour le copier.",
+    "mobile.files": "Fichiers",
+    "mobile.gestureHint": "Pincez pour zoomer \xB7 Balayez pour changer d\u2019image",
+    "mobile.manualCopy": "Appuyez longuement pour copier",
+    "mobile.more": "Plus",
+    "mobile.parameters": "Param\xE8tres",
+    "mobile.pasteHint": "Appuyez longuement dans le champ pour coller, ou choisissez des photos ou fichiers.",
+    "mobile.photos": "Photos",
+    "mobile.pickFiles": "Choisir des photos ou fichiers",
+    "mobile.taskActions": "Actions de la t\xE2che",
+    "networkEgress.fakeIpDnsFallback": "Compatibilit\xE9 DNS Fake-IP pour les t\xE9l\xE9chargements d\u2019images",
+    "networkEgress.fakeIpDnsHelp": "Si le DNS de l\u2019image renvoie une Fake-IP, interroge Cloudflare DNS pour obtenir de vraies adresses publiques. S\u2019applique aux t\xE9l\xE9chargements des prochaines requ\xEAtes, sans modifier le DNS du LAN. Aucune cl\xE9 API, aucun prompt ni URL compl\xE8te d\u2019image n\u2019est envoy\xE9.",
+    "output.transparencyFidelityHint": "Le fond transparent est une exigence de sortie choisie ; il est aussi ajout\xE9 dans les modes Original et Fid\xE8le.",
+    "output.transparencyFormat": "La transparence n\xE9cessite PNG ou WebP.",
+    "output.transparencyUnavailable": "Sans transparence",
+    "output.transparentBackground": "Fond transparent",
+    "preview.transparencyDetected": "Pixels transparents d\xE9tect\xE9s",
+    "preview.transparencyMissing": "Aucun pixel transparent d\xE9tect\xE9",
+    "preview.transparencyRetryHint": "Essayez la compatibilit\xE9 par prompt ou un autre mod\xE8le. R\xE9essayer lance une nouvelle g\xE9n\xE9ration.",
+    "queue.realtimePolling": "L\u2019\xE9tat des t\xE2ches est actualis\xE9 r\xE9guli\xE8rement. R\xE9tablissement de la connexion en direct\u2026",
+    "referenceFiles.chooseResponses": "Choisir un canal Responses",
+    "status.taskChangedDuringLoad": "La t\xE2che a chang\xE9 pendant le chargement. S\xE9lectionnez-la \xE0 nouveau.",
+    "userConfigBackup.apiKeyConfirm": "Cette archive non chiffr\xE9e contiendra des cl\xE9s API. La cr\xE9er quand m\xEAme ?",
+    "userConfigBackup.archiveMeta": "{count} sections \xB7 format v{version}",
+    "userConfigBackup.backToPreview": "Retour \xE0 l\u2019aper\xE7u",
+    "userConfigBackup.backupCopy": "Choisissez la configuration \xE0 inclure. Les t\xE2ches g\xE9n\xE9r\xE9es et sessions OAuth ne sont jamais incluses.",
+    "userConfigBackup.backupProgress": "Progression de la sauvegarde",
+    "userConfigBackup.cancelled": "Sauvegarde annul\xE9e",
+    "userConfigBackup.chooseArchive": "Choisir un ZIP de sauvegarde",
+    "userConfigBackup.chooseArchiveCopy": "Le fichier est d\u2019abord envoy\xE9 et valid\xE9. L\u2019aper\xE7u ne modifie pas les donn\xE9es actuelles.",
+    "userConfigBackup.keepWorking": "Continuer",
+    "userConfigBackup.cancelAndClose": "Annuler le transfert et fermer",
+    "userConfigBackup.discardAndClose": "Supprimer la sauvegarde temporaire et fermer",
+    "userConfigBackup.creatingBackup": "Cr\xE9ation de la sauvegarde\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "Les param\xE8tres ont \xE9t\xE9 restaur\xE9s. Vos modifications non enregistr\xE9es sont conserv\xE9es ; leur enregistrement appliquera le formulaire actuel.",
+    "userConfigBackup.closeActiveConfirm": "Un envoi ou une sauvegarde est en cours. Fermer et annuler ?",
+    "userConfigBackup.create": "Cr\xE9er une sauvegarde",
+    "userConfigBackup.creatingSession": "Pr\xE9paration de l\u2019envoi\u2026",
+    "userConfigBackup.discardReadyConfirm": "La fermeture supprime la copie temporaire sur le serveur. Les fichiers enregistr\xE9s sur cet appareil sont conserv\xE9s. Continuer ?",
+    "userConfigBackup.download": "T\xE9l\xE9charger la sauvegarde",
+    "userConfigBackup.downloaded": "T\xE9l\xE9chargement lanc\xE9. Cette sauvegarde reste t\xE9l\xE9chargeable pendant 24 heures.",
+    "userConfigBackup.galleryReferenceImpact": "{count} t\xE2ches historiques perdront leurs r\xE9f\xE9rences aux images partag\xE9es",
+    "userConfigBackup.incrementalCopy": "Conserve les donn\xE9es existantes, ignore les doublons et cr\xE9e des copies de r\xE9cup\xE9ration en cas de conflit.",
+    "userConfigBackup.itemCount": "{count} \xE9l\xE9ments",
+    "userConfigBackup.modeLabel": "Sauvegarder ou restaurer",
+    "userConfigBackup.previewCounts": "{count} dans l\u2019archive \xB7 {duplicate} doublons \xB7 {conflict} conflits",
+    "userConfigBackup.previewTitle": "Aper\xE7u de restauration",
+    "userConfigBackup.providerRetention": "{count} fournisseurs avec identifiants seront conserv\xE9s par s\xE9curit\xE9",
+    "userConfigBackup.replaceConfirmCopy": "Seules les sections choisies sont concern\xE9es, mais leurs donn\xE9es actuelles seront supprim\xE9es. Cette action est irr\xE9versible.",
+    "userConfigBackup.replaceImpact": "{section} : supprimer {current} \xE9l\xE9ments actuels, puis importer {archive} \xE9l\xE9ments sauvegard\xE9s",
+    "userConfigBackup.restartRequired": "Chemins de stockage restaur\xE9s. Red\xE9marrez la WebUI pour les utiliser.",
+    "userConfigBackup.restoreContinues": "L\u2019\xE9criture de restauration a commenc\xE9. Fermer ce panneau ne l\u2019annule pas ; rouvrez-le plus tard pour voir le r\xE9sultat.",
+    "userConfigBackup.restoreModeLabel": "Mode de restauration",
+    "userConfigBackup.restoreProgress": "Progression de l\u2019envoi pour restauration",
+    "userConfigBackup.restoreSelected": "Restaurer les donn\xE9es choisies",
+    "userConfigBackup.restoring": "Restauration en cours. Gardez la WebUI ouverte\u2026",
+    "userConfigBackup.resultCounts": "{section} : {added} ajout\xE9s \xB7 {replaced} remplac\xE9s \xB7 {skipped} ignor\xE9s \xB7 {copies} copies de r\xE9cup\xE9ration",
+    "userConfigBackup.selectAtLeastOne": "Choisissez au moins un type de donn\xE9es",
+    "userConfigBackup.selectSections": "Choisir les donn\xE9es",
+    "userConfigBackup.status.cancelled": "Sauvegarde annul\xE9e",
+    "userConfigBackup.status.expired": "Sauvegarde expir\xE9e",
+    "userConfigBackup.status.failed": "\xC9chec de la sauvegarde",
+    "userConfigBackup.status.interrupted": "Sauvegarde arr\xEAt\xE9e lors de l\u2019interruption de la WebUI",
+    "userConfigBackup.status.packing": "Cr\xE9ation de l\u2019archive\u2026",
+    "userConfigBackup.status.planning": "Planification de la sauvegarde\u2026",
+    "userConfigBackup.status.queued": "Sauvegarde en attente\u2026",
+    "userConfigBackup.status.ready": "Sauvegarde pr\xEAte. Vous pouvez la t\xE9l\xE9charger \xE0 nouveau pendant 24 heures.",
+    "userConfigBackup.summaryFailed": "Impossible de lire le r\xE9sum\xE9 de configuration",
+    "userConfigBackup.summaryLoading": "Lecture du r\xE9sum\xE9 de configuration\u2026",
+    "userConfigBackup.uploading": "Envoi de la sauvegarde\u2026",
+    "userConfigBackup.validating": "Validation de la sauvegarde\u2026",
+    "userConfigBackup.validationReady": "Validation termin\xE9e. Choisissez le mode de restauration.",
+    "userConfigBackup.versionUnsupported": "Cette sauvegarde utilise un format plus r\xE9cent et peut seulement \xEAtre pr\xE9visualis\xE9e.",
+    "userConfigBackup.warningCount": "{count} avertissements",
+    "user_config_backup_failed": "Impossible de lire ou d\u2019archiver les donn\xE9es choisies. V\xE9rifiez-les et r\xE9essayez.",
+    "user_config_backup_gallery_invalid": "Une image partag\xE9e ne correspond pas \xE0 son entr\xE9e dans la galerie. Enregistrez-la \xE0 nouveau ou retirez-la, puis r\xE9essayez.",
+    "user_config_backup_insufficient_space": "Espace disque insuffisant pour cr\xE9er la sauvegarde.",
+    "user_config_backup_internal_error": "Erreur interne du service de sauvegarde. Red\xE9marrez la WebUI et r\xE9essayez ; si elle persiste, consultez le journal de d\xE9marrage.",
+    "user_config_backup_io_error": "\xC9chec d\u2019acc\xE8s aux fichiers de sauvegarde. V\xE9rifiez le disque et les autorisations des dossiers.",
+    "user_config_backup_source_changed": "La configuration a chang\xE9 pendant la sauvegarde. Cessez de la modifier et r\xE9essayez.",
+    "user_config_backup_source_unreadable": "Impossible de lire un fichier de configuration. V\xE9rifiez ses autorisations et r\xE9essayez.",
+    "user_config_restore_active_tasks": "Des t\xE2ches sont encore actives. Attendez leur fin avant de remplacer les donn\xE9es.",
+    "user_config_restore_failed": "\xC9chec de la restauration. La configuration existante est conserv\xE9e.",
+    "user_config_restore_preview_stale": "La configuration actuelle a chang\xE9. Validez \xE0 nouveau l\u2019archive.",
+    "user_config_restore_system_notification_permission_missing": "Les notifications syst\xE8me n\u2019ont pas \xE9t\xE9 activ\xE9es, car le navigateur n\u2019a pas accord\xE9 l\u2019autorisation.",
+    "user_config_restore_version_unsupported": "Le format de cette sauvegarde est trop r\xE9cent pour \xEAtre restaur\xE9.",
+    "ux.acceptDetail": "Conserve les images r\xE9ussies et termine la t\xE2che sans remplacer les images en \xE9chec.",
+    "ux.addReference": "Ajouter une r\xE9f\xE9rence",
+    "ux.addingReference": "Ajout de la r\xE9f\xE9rence\u2026",
+    "ux.checkProvider": "V\xE9rifier le fournisseur",
+    "ux.collapseReference": "R\xE9duire",
+    "ux.discardEdits": "Abandonner les modifications",
+    "ux.draftRestored": "Prompt et r\xE9f\xE9rences restaur\xE9s ; les param\xE8tres de g\xE9n\xE9ration actuels sont conserv\xE9s.",
+    "ux.editInputs": "Modifier les entr\xE9es et param\xE8tres",
+    "ux.editInputsReady": "Entr\xE9es et param\xE8tres charg\xE9s. Modifiez-les avant de relancer la g\xE9n\xE9ration.",
+    "ux.errorDetails": "D\xE9tails de l\u2019erreur",
+    "ux.execution": "Prochaine g\xE9n\xE9ration",
+    "ux.historyDraftRestoreFailed": "Impossible de restaurer le brouillon. La copie temporaire est conserv\xE9e. Actualisez pour r\xE9essayer.",
+    "ux.historyDraftSaveFailed": "Impossible de conserver le brouillon. Vous \xEAtes toujours sur la page de g\xE9n\xE9ration. R\xE9essayez.",
+    "ux.historyParametersHint": "Ce sont les param\xE8tres historiques de la t\xE2che s\xE9lectionn\xE9e. Les r\xE9glages de sortie contr\xF4lent la prochaine g\xE9n\xE9ration.",
+    "ux.imageCount": "{count} images",
+    "ux.imageUnsaved": "Cette image contient des modifications non enregistr\xE9es. Leur abandon est irr\xE9versible ; annulez pour continuer \xE0 modifier.",
+    "ux.moderationAuto": "Automatique",
+    "ux.moderationLow": "Moins stricte",
+    "ux.openRecovery": "R\xE9soudre sur la page de g\xE9n\xE9ration",
+    "ux.recovery.credentials": "\xC9chec de l\u2019authentification. V\xE9rifiez la cl\xE9 API du fournisseur ou la connexion locale avant de relancer.",
+    "ux.recovery.input": "V\xE9rifiez les entr\xE9es non prises en charge dans le prompt, les fichiers de r\xE9f\xE9rence et les param\xE8tres.",
+    "ux.recovery.quota": "V\xE9rifiez le quota ou le solde du fournisseur de la t\xE2che.",
+    "ux.recovery.temporary": "G\xE9n\xE9ration incompl\xE8te. Les images r\xE9ussies sont conserv\xE9es ; relancez celles en \xE9chec si possible.",
+    "ux.referenceAdded": "Ajout\xE9 aux r\xE9f\xE9rences de cette t\xE2che",
+    "ux.referenceFailed": "Impossible d\u2019ajouter la r\xE9f\xE9rence. R\xE9essayez.",
+    "ux.restoreDraft": "Restaurer les entr\xE9es",
+    "ux.restoreInputsHint": "Restaure uniquement le prompt et les r\xE9f\xE9rences ; conserve les param\xE8tres actuels.",
+    "ux.tasks": "T\xE2ches",
+    "ux.useSize": "Utiliser {width} \xD7 {height}",
+    "ux.viewPreview": "Voir l\u2019aper\xE7u",
+    "version.continuePortable": "Continuer avec la version portable",
+    "version.dismissFailed": "Impossible d\u2019enregistrer l\u2019\xE9tat de cet avis. R\xE9essayez plus tard.",
+    "version.dismissOnboarding": "Ne plus afficher",
+    "version.onboardingBody": "Cette version ajoute les paquets DMG macOS et App ZIP Windows. Les nouveaux utilisateurs devraient choisir le paquet standard ; la version portable reste utilisable.",
+    "version.onboardingDataPortable": "Vos donn\xE9es restent dans le dossier data/ de ce paquet portable.",
+    "version.onboardingMigration": "Lors du passage \xE0 l\u2019app standard, utilisez l\u2019assistant de migration pour copier les anciennes donn\xE9es. Les originaux ne sont ni d\xE9plac\xE9s ni \xE9cras\xE9s.",
+    "version.onboardingStandardData": "L\u2019app standard stocke les donn\xE9es dans le dossier syst\xE8me des applications : macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "Mise \xE0 niveau vers {version} effectu\xE9e. Continuez avec la version portable ou passez \xE0 l\u2019app standard.",
+    "version.onboardingTitle": "0.5.5 ajoute les paquets standard",
+    "version.standardDownload": "T\xE9l\xE9charger l\u2019app standard"
   };
 
   // codex_image/webui/frontend/src/i18n/ja.ts
@@ -5617,8 +6138,8 @@
     "taskStatus.nonRetryableShort": "\u518D\u8A66\u884C\u4E0D\u53EF",
     "taskStatus.manualRetryShort": "\u624B\u52D5\u518D\u8A66\u884C",
     "taskStatus.stoppedShort": "\u505C\u6B62",
-    "taskStatus.runtime": "\u671F\u9593{duration}",
-    "taskStatus.runtimeCompleted": "\u671F\u9593{duration}\xB7 \u5B8C\u4E86{time}",
+    "taskStatus.runtime": "\u6240\u8981\u6642\u9593 {duration}",
+    "taskStatus.runtimeCompleted": "\u6240\u8981\u6642\u9593 {duration} \xB7 \u5B8C\u4E86 {time}",
     "taskStatus.completedAt": "\u5B8C\u4E86{time}",
     "taskCard.count": "\u753B\u50CF {count} \u679A",
     "taskCard.successCount": "\u6210\u529F {count}",
@@ -5873,12 +6394,12 @@
     "version.latest": "\u6700\u65B0\u30D0\u30FC\u30B8\u30E7\u30F3",
     "version.source": "\u30E9\u30F3\u30BF\u30A4\u30E0",
     "version.sourcePortable": "\u30DD\u30FC\u30BF\u30D6\u30EB\u30D1\u30C3\u30B1\u30FC\u30B8",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "\u6A19\u6E96\u30A2\u30D7\u30EA",
     "version.sourceSource": "\u30BD\u30FC\u30B9\u306E\u30C1\u30A7\u30C3\u30AF\u30A2\u30A6\u30C8",
     "version.upToDate": "\u3059\u3067\u306B\u6700\u65B0\u30D0\u30FC\u30B8\u30E7\u30F3\u3092\u4F7F\u7528\u3057\u3066\u3044\u307E\u3059",
     "version.updateAvailable": "\u30D0\u30FC\u30B8\u30E7\u30F3{version}\u304C\u5229\u7528\u53EF\u80FD\u3067\u3059\u3002WebUI\u30B5\u30FC\u30D0\u30FC \u30A6\u30A3\u30F3\u30C9\u30A6\u3092\u9589\u3058\u3066\u3001\u30A2\u30C3\u30D7\u30C7\u30FC\u30BF\u30FC\u3092\u5B9F\u884C\u3057\u3066\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3057\u307E\u3059\u3002",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "\u30D0\u30FC\u30B8\u30E7\u30F3 {version} \u304C\u5229\u7528\u53EF\u80FD\u3067\u3059\u3002\u66F4\u65B0\u5BFE\u5FDC\u306E macOS \u6A19\u6E96\u30A2\u30D7\u30EA\u306F\u30E1\u30CB\u30E5\u30FC\u30D0\u30FC\u306E\u300C\u30A2\u30C3\u30D7\u30C7\u30FC\u30C8\u3092\u78BA\u8A8D\u300D\u304B\u3089\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB\u3067\u304D\u307E\u3059\u3002\u3053\u306E\u30EA\u30F3\u30AF\u304B\u3089\u306E\u624B\u52D5\u66F4\u65B0\u3082\u53EF\u80FD\u3067\u3059\u3002",
+    "version.standardManualInstall": "\u66F4\u65B0\u5BFE\u5FDC\u306E macOS \u6A19\u6E96\u30A2\u30D7\u30EA\u306F\u78BA\u8A8D\u5F8C\u306B\u7F6E\u304D\u63DB\u3048\u66F4\u65B0\u3067\u304D\u307E\u3059\u3002\u65E7 macOS \u30A2\u30D7\u30EA\u3068 Windows \u6A19\u6E96 ZIP \u306F\u5F15\u304D\u7D9A\u304D\u624B\u52D5\u66F4\u65B0\u304C\u5FC5\u8981\u3067\u3059\u3002",
     "version.noUpdater": "\u3053\u306E\u30E9\u30F3\u30BF\u30A4\u30E0\u306F\u30DD\u30FC\u30BF\u30D6\u30EB \u30D1\u30C3\u30B1\u30FC\u30B8\u3067\u306F\u306A\u3044\u305F\u3081\u3001\u30A2\u30C3\u30D7\u30C7\u30FC\u30BF\u30FC\u3092\u81EA\u52D5\u7684\u306B\u958B\u59CB\u3067\u304D\u307E\u305B\u3093\u3002",
     "version.openUpdater": "\u30A2\u30C3\u30D7\u30C7\u30FC\u30BF\u30FC\u306E\u958B\u59CB",
     "version.release": "\u30EA\u30EA\u30FC\u30B9\u3092\u898B\u308B",
@@ -5930,6 +6451,7 @@
     "api.provider": "API \u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
     "imageInput.title": "\u753B\u50CF\u5165\u529B",
     "imageInput.uploadAria": "\u753B\u50CF\u3068\u30D5\u30A1\u30A4\u30EB\u3092\u30AF\u30EA\u30C3\u30AF\u3001\u30C9\u30ED\u30C3\u30D7\u3001\u307E\u305F\u306F\u8CBC\u308A\u4ED8\u3051",
+    "imageInput.uploadImages": "\u30AF\u30EA\u30C3\u30AF\u3001\u30C9\u30ED\u30C3\u30D7\u3001\u8CBC\u308A\u4ED8\u3051\u3067\u753B\u50CF\u3092\u8FFD\u52A0",
     "imageInput.uploadFull": "\u753B\u50CF\u3068\u30D5\u30A1\u30A4\u30EB\u3092\u30AF\u30EA\u30C3\u30AF\u3001\u30C9\u30ED\u30C3\u30D7\u3001\u307E\u305F\u306F\u8CBC\u308A\u4ED8\u3051",
     "imageInput.uploadCompact": "\u5165\u529B\u3092\u8FFD\u52A0",
     "imageInput.uploadSubtitle": "\u753B\u50CF\u3068 Responses \u306E\u53C2\u7167\u30D5\u30A1\u30A4\u30EB\u306B\u5BFE\u5FDC",
@@ -6101,7 +6623,6 @@
     "output.mainModelCustomForInput": "\u73FE\u5728\u306E\u5165\u529B\u306B\u30AB\u30B9\u30BF\u30E0 \u30E2\u30C7\u30EB\u3092\u4F7F\u7528\u3057\u307E\u3059",
     "output.apiDirect": "API\u76F4\u63A5",
     "output.apiToolModel": "API \u753B\u50CF\u751F\u6210\u30E2\u30C7\u30EB\u3092\u4F7F\u7528",
-    "output.mainModelUnused": "\u30E1\u30A4\u30F3 \u30E2\u30C7\u30EB\u306F\u3053\u306E\u30EA\u30AF\u30A8\u30B9\u30C8\u306B\u306F\u4F7F\u7528\u3055\u308C\u307E\u305B\u3093",
     "output.webSearch": "\u30A6\u30A7\u30D6\u691C\u7D22",
     "output.webSearchToggle": "\u30AA\u30F3",
     "output.webSearchTitle": "\u307E\u305A Web \u3092\u691C\u7D22\u3057\u3066\u304B\u3089\u3001\u3053\u306E\u4E16\u4EE3\u306B\u305D\u308C\u3092\u4F7F\u7528\u3057\u307E\u3059\u3002Codex\u304A\u3088\u3073API\u5FDC\u7B54\u306E\u307F",
@@ -6154,12 +6675,10 @@
     "output.qualityMedium": "\u4E2D",
     "output.qualityHigh": "\u9AD8",
     "output.quantity": "\u30AB\u30A6\u30F3\u30C8",
-    "output.pixelPreview": "\u51FA\u529B\u30D4\u30AF\u30BB\u30EB: 1024 x 1024px",
-    "output.pixelPreviewValue": "\u51FA\u529B\u30D4\u30AF\u30BB\u30EB:{value}",
-    "output.pixelPreviewAuto": "\u51FA\u529B\u30D4\u30AF\u30BB\u30EB: \u81EA\u52D5 (OpenAI \u304C\u81EA\u52D5\u7684\u306B\u9078\u629E\u3057\u307E\u3059)",
     "output.format": "\u5F62\u5F0F",
     "output.compression": "\u5727\u7E2E",
-    "output.moderation": "\u7BC0\u5EA6",
+    "output.extraOptions": "\u8FFD\u52A0\u30AA\u30D7\u30B7\u30E7\u30F3",
+    "output.moderation": "\u5BE9\u67FB",
     "preview.title": "\u30D7\u30EC\u30D3\u30E5\u30FC",
     "preview.selectedZero": "0 \u500B\u304C\u9078\u629E\u3055\u308C\u307E\u3057\u305F",
     "preview.selectedCount": "{selected}/{total}\u3092\u9078\u629E\u3057\u307E\u3057\u305F",
@@ -6170,9 +6689,9 @@
     "preview.taskFailed": "\u30BF\u30B9\u30AF\u304C\u5931\u6557\u3057\u307E\u3057\u305F",
     "preview.partialFailed": "\u4E00\u90E8\u306E\u753B\u50CF\u304C\u5931\u6557\u3057\u307E\u3057\u305F",
     "preview.failedOutput": "\u753B\u50CF{index}\u304C\u5931\u6557\u3057\u307E\u3057\u305F",
-    "preview.progressLine": "\u5B8C\u4E86{generated}/{total}\xB7 \u7D4C\u904E{elapsed}",
+    "preview.progressLine": "\u5B8C\u4E86{generated}/{total}\xB7 {elapsed}",
     "preview.failureLine": "\u5B8C\u4E86{generated}/{total}\xB7 \u5931\u6557{failed}",
-    "preview.elapsedLine": "{elapsed}\u304C\u7D4C\u904E\u3057\u307E\u3057\u305F",
+    "preview.elapsedLine": "\u7D4C\u904E {elapsed}",
     "preview.lastError": "\u6700\u5F8C\u306E\u30A8\u30E9\u30FC:{error}",
     "preview.continueGenerating": "\u7D99\u7D9A\u4E16\u4EE3",
     "preview.waitingContinue": "\u7D9A\u884C\u3092\u5F85\u3063\u3066\u3044\u307E\u3059",
@@ -6227,6 +6746,13 @@
     "promptPopover.notReturned": "\u8FD4\u54C1\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F",
     "promptPopover.noOptimized": "\u6700\u9069\u5316\u3055\u308C\u305F\u30D7\u30ED\u30F3\u30D7\u30C8\u304C\u8FD4\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F",
     "promptPopover.submitted": "\u9001\u4FE1\u3055\u308C\u305F\u30D7\u30ED\u30F3\u30D7\u30C8\u3092\u8868\u793A\u3059\u308B",
+    "promptPopover.response": "\u30BF\u30B9\u30AF\u306E\u5143\u306E\u5FDC\u7B54\u30C7\u30FC\u30BF\u3092\u8868\u793A",
+    "promptPopover.responseNote": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E JSON\uFF0F\u30B9\u30C8\u30EA\u30FC\u30E0\u30A4\u30D9\u30F3\u30C8\u3002\u753B\u50CF\u30C7\u30FC\u30BF\u3068\u8A8D\u8A3C\u60C5\u5831\u306F\u7701\u7565\u3055\u308C\u3001\u9577\u3044\u5FDC\u7B54\u306B\u306F\u5207\u308A\u8A70\u3081\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002",
+    "promptPopover.copyResponse": "\u5FDC\u7B54 JSON \u3092\u30B3\u30D4\u30FC",
+    "promptPopover.retryResponse": "\u518D\u8AAD\u307F\u8FBC\u307F",
+    "promptPopover.responseMissing": "\u3053\u306E\u30BF\u30B9\u30AF\u306E\u5143\u306E\u5FDC\u7B54\u306F\u4FDD\u5B58\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002",
+    "promptPopover.responseLoading": "\u5FDC\u7B54\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026",
+    "promptPopover.responseError": "\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "promptPopover.close": "\u30D7\u30ED\u30F3\u30D7\u30C8\u6BD4\u8F03\u3092\u9589\u3058\u308B",
     "promptPopover.copyOptimized": "\u6700\u9069\u5316\u30D7\u30ED\u30F3\u30D7\u30C8\u3092\u30B3\u30D4\u30FC",
     "promptPopover.copied": "\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F",
@@ -6429,7 +6955,7 @@
     "settings.savedRestartStatus": "\u30B9\u30C8\u30EC\u30FC\u30B8\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\u3002WebUI \u3092\u518D\u8D77\u52D5\u3059\u308B\u3068\u53CD\u6620\u3055\u308C\u307E\u3059\u3002",
     "systemSettings.title": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A",
     "userConfigBackup.title": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
-    "userConfigBackup.back": "\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u306B\u623B\u308B",
+    "userConfigBackup.back": "\u30B9\u30C8\u30EC\u30FC\u30B8\u3068\u901A\u77E5\u306B\u623B\u308B",
     "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
     "userConfigBackup.entryCopy": "\u30C1\u30C3\u30D7\u3001\u5171\u6709\u753B\u50CF\u3001\u30C6\u30F3\u30D7\u30EC\u30FC\u30C8\u3001\u30B7\u30B9\u30C6\u30E0\u8A2D\u5B9A\u3092\u79FB\u884C\u3057\u307E\u3059",
     "userConfigBackup.backupTab": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7",
@@ -6499,18 +7025,18 @@
     "apiSettings.providerName": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u540D",
     "apiSettings.providerIcon": "\u7D75\u6587\u5B57\u30A2\u30A4\u30B3\u30F3",
     "apiSettings.providerIconPlaceholder": "\u4EFB\u610F\uFF08\u4F8B: \u{1FA84}\uFF09",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "\u63A5\u7D9A\u8A2D\u5B9A",
     "apiSettings.connectionPreview": "\u63A5\u7D9A\u30D7\u30EC\u30D3\u30E5\u30FC",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "\u30E2\u30C7\u30EB",
+    "apiSettings.modelBindingsHint": "1 \u3064\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306B\u8907\u6570\u306E\u30E2\u30C7\u30EB\u3068\u30D7\u30ED\u30C8\u30B3\u30EB\u3092\u7D10\u4ED8\u3051\u3089\u308C\u307E\u3059\u3002",
+    "apiSettings.addModelBinding": "\u30E2\u30C7\u30EB\u3092\u8FFD\u52A0",
     "apiSettings.appendRatioPrompt": "\u6BD4\u7387\u306E\u6307\u793A\u3092\u8FFD\u52A0",
     "apiSettings.defaultProviderForModel": "\u65E2\u5B9A\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC",
     "apiSettings.removeBinding": "\u30D0\u30A4\u30F3\u30C9\u3092\u524A\u9664",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "\u30E2\u30C7\u30EB\u30AB\u30BF\u30ED\u30B0\u3092\u5229\u7528\u3067\u304D\u306A\u3044\u305F\u3081\u3001\u307E\u3060\u30D0\u30A4\u30F3\u30C9\u3092\u8FFD\u52A0\u3067\u304D\u307E\u305B\u3093\u3002",
+    "apiSettings.keepOneBinding": "\u5404\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306B\u5C11\u306A\u304F\u3068\u3082 1 \u3064\u306E\u30E2\u30C7\u30EB\u30D0\u30A4\u30F3\u30C9\u304C\u5FC5\u8981\u3067\u3059\u3002",
+    "apiSettings.bindingRequiredFields": "\u5404\u30D0\u30A4\u30F3\u30C9\u3067\u30E2\u30C7\u30EB\u3092\u9078\u629E\u3057\u3001\u30EA\u30E2\u30FC\u30C8\u30E2\u30C7\u30EB\u540D\u3068\u5C11\u306A\u304F\u3068\u3082 1 \u3064\u306E\u64CD\u4F5C\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.bindingOverlap": "{model} \u306E {operation} \u304C\u8907\u6570\u306E\u30D0\u30A4\u30F3\u30C9\u306B\u91CD\u8907\u3057\u3066\u3044\u307E\u3059\u3002",
     "apiSettings.actualRequest": "\u5B9F\u969B\u306E\u30EA\u30AF\u30A8\u30B9\u30C8",
     "apiSettings.newProviderAction": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u65B0\u898F\u4F5C\u6210",
     "apiSettings.copyProvider": "\u30B3\u30D4\u30FC",
@@ -6533,6 +7059,8 @@
     "apiSettings.imageModel": "\u753B\u50CF\u751F\u6210\u30E2\u30C7\u30EB",
     "apiSettings.concurrency": "\u540C\u6642\u5B9F\u884C\u4E0A\u9650",
     "apiSettings.concurrencyShort": "\u540C\u6642\u5B9F\u884C",
+    "apiSettings.remoteModelName": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u30E2\u30C7\u30EB\u540D",
+    "apiSettings.fetchModels": "\u30E2\u30C7\u30EB\u3092\u53D6\u5F97",
     "apiSettings.advancedSettings": "\u8A73\u7D30\u8A2D\u5B9A",
     "apiSettings.concurrencyValue": "\u540C\u6642\u5B9F\u884C\u6027{concurrency}",
     "apiSettings.keySaved": "API Key\u304C\u4FDD\u5B58\u3055\u308C\u307E\u3057\u305F",
@@ -6567,6 +7095,7 @@
     "apiSettings.savingStatus": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3057\u3066\u3044\u307E\u3059...",
     "apiSettings.autoSaving": "\u81EA\u52D5\u4FDD\u5B58\u4E2D...",
     "apiSettings.autoSaved": "\u81EA\u52D5\u4FDD\u5B58\u6E08\u307F",
+    "apiSettings.defaultMappingInvalid": "\u65E2\u5B9A\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u8A2D\u5B9A\u304C\u4E0D\u5B8C\u5168\u3067\u3059\u3002\u8A2D\u5B9A\u3092\u518D\u8AAD\u307F\u8FBC\u307F\u3057\u3066\u304B\u3089\u3001\u3082\u3046\u4E00\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002",
     "apiSettings.saveFailed": "API\u8A2D\u5B9A\u3092\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F",
     "apiSettings.savedSummary": "\u4FDD\u5B58\u6E08\u307F \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u540C\u6642\u5B9F\u884C {concurrency}",
     "apiSettings.savedShort": "\u4FDD\u5B58\u3057\u307E\u3057\u305F",
@@ -6733,7 +7262,169 @@
     "modelParameters.invalidJson": "JSON \u304C\u7121\u52B9\u3067\u3059",
     "modelParameters.migrated": "\u73FE\u5728\u306E\u30E2\u30C7\u30EB\u306B\u5408\u308F\u305B\u3066\u65E7\u30D1\u30E9\u30E1\u30FC\u30BF\u3092 {count} \u4EF6\u8ABF\u6574\u3057\u307E\u3057\u305F",
     "modelParameters.historyConfiguration": "\u5C65\u6B74\u8A2D\u5B9A",
-    "modelParameters.legacyTask": "\u65E7\u5F62\u5F0F\u30BF\u30B9\u30AF"
+    "modelParameters.legacyTask": "\u65E7\u5F62\u5F0F\u30BF\u30B9\u30AF",
+    "apiSettings.fetchingModels": "\u30E2\u30C7\u30EB\u3092\u53D6\u5F97\u4E2D\u2026",
+    "apiSettings.modelsEmpty": "\u30E2\u30C7\u30EB\u304C\u8FD4\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30E2\u30C7\u30EB\u540D\u3092\u624B\u5165\u529B\u3067\u304D\u307E\u3059\u3002",
+    "apiSettings.modelsFetchFailed": "\u30E2\u30C7\u30EB\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30A2\u30C9\u30EC\u30B9\u3068\u63A5\u7D9A\u3092\u78BA\u8A8D\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsFetched": "{count} \u500B\u306E\u30E2\u30C7\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u3057\u305F\u3002\u3053\u306E\u30D0\u30A4\u30F3\u30C9\u306B\u5408\u3046\u3082\u306E\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsInvalidBaseUrl": "\u6709\u52B9\u306A HTTP(S) \u30D9\u30FC\u30B9 URL \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsInvalidResponse": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u30E2\u30C7\u30EB\u4E00\u89A7\u304C\u7121\u52B9\u3067\u3059\u3002\u540D\u524D\u3092\u624B\u5165\u529B\u3067\u304D\u307E\u3059\u3002",
+    "apiSettings.modelsKeyRequired": "\u30E2\u30C7\u30EB\u53D6\u5F97\u524D\u306B API \u30AD\u30FC\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsNotSupported": "\u3053\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306F\u30E2\u30C7\u30EB\u4E00\u89A7\u306B\u975E\u5BFE\u5FDC\u3067\u3059\u3002\u30E2\u30C7\u30EB\u540D\u3092\u624B\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsOriginMismatch": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u30A2\u30C9\u30EC\u30B9\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u65B0\u3057\u3044 API \u30AD\u30FC\u3092\u5165\u529B\u3059\u308B\u304B\u3001\u5148\u306B\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u4FDD\u5B58\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsRateLimited": "\u30EA\u30AF\u30A8\u30B9\u30C8\u304C\u591A\u3059\u304E\u307E\u3059\u3002\u5F8C\u3067\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsTooLarge": "\u30E2\u30C7\u30EB\u4E00\u89A7\u304C\u5927\u304D\u3059\u304E\u307E\u3059\u3002\u30E2\u30C7\u30EB\u540D\u3092\u624B\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.modelsUnauthorized": "\u30E2\u30C7\u30EB\u3078\u306E\u30A2\u30AF\u30BB\u30B9\u304C\u62D2\u5426\u3055\u308C\u307E\u3057\u305F\u3002API \u30AD\u30FC\u3068\u6A29\u9650\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "apiSettings.selectAvailableModel": "\u5229\u7528\u53EF\u80FD\u306A\u30E2\u30C7\u30EB\u3092\u9078\u629E",
+    "apiSettings.transparencyMode": "\u900F\u660E\u80CC\u666F\u306E\u6307\u5B9A\u65B9\u6CD5",
+    "apiSettings.transparencyNative": "\u30CD\u30A4\u30C6\u30A3\u30D6\u30D1\u30E9\u30E1\u30FC\u30BF\u30FC",
+    "apiSettings.transparencyPrompt": "\u30D7\u30ED\u30F3\u30D7\u30C8\u4E92\u63DB",
+    "batch.deselectCurrentGroup": "\u3059\u3079\u3066\u9078\u629E\u89E3\u9664",
+    "batch.deselectWaiting": "\u5F85\u6A5F\u4E2D\u306E\u9078\u629E\u89E3\u9664",
+    "batch.selectFailed": "\u30BF\u30B9\u30AF\u3092\u9078\u629E\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "history.promptSubmittedActual": "\u5B9F\u969B\u306B\u9001\u4FE1\u3057\u305F\u30D7\u30ED\u30F3\u30D7\u30C8",
+    "lanAccess.active": "LAN \u30A2\u30AF\u30BB\u30B9\u304C\u6709\u52B9\u3067\u3059\u3002",
+    "lanAccess.address": "LAN \u30A2\u30C9\u30EC\u30B9",
+    "lanAccess.copied": "\u30A2\u30C9\u30EC\u30B9\u3092\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002",
+    "lanAccess.copyAddress": "{address} \u3092\u30B3\u30D4\u30FC",
+    "lanAccess.copyManually": "\u30A2\u30C9\u30EC\u30B9\u3092\u9078\u629E\u3057\u307E\u3057\u305F\u3002\u624B\u52D5\u3067\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "lanAccess.failed": "\u30A2\u30AF\u30BB\u30B9\u8A2D\u5B9A\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u305F\u306F\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "lanAccess.help": "\u30ED\u30B0\u30A4\u30F3\u4E0D\u8981\u3067\u3059\u3002\u540C\u3058\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u306E\u5229\u7528\u8005\u306F\u30BF\u30B9\u30AF\u3001\u30AE\u30E3\u30E9\u30EA\u30FC\u3001\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u3092\u5171\u6709\u3057\u3001\u8A2D\u5B9A\u5909\u66F4\u3084\u30BF\u30B9\u30AF\u524A\u9664\u3082\u884C\u3048\u307E\u3059\u3002",
+    "lanAccess.hostOverride": "\u8D77\u52D5\u6642\u306E\u30DB\u30B9\u30C8\u6307\u5B9A\u306B\u3088\u308A\u3001\u3053\u306E\u7AEF\u672B\u306E\u307F\u30A2\u30AF\u30BB\u30B9\u53EF\u80FD\u3067\u3059\u3002--host \u3092\u5916\u3057\u3066\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "lanAccess.label": "LAN \u30A2\u30AF\u30BB\u30B9\u3092\u8A31\u53EF",
+    "lanAccess.loading": "\u30A2\u30AF\u30BB\u30B9\u8A2D\u5B9A\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026",
+    "lanAccess.localOnly": "\u3053\u306E\u7AEF\u672B\u304B\u3089\u306E\u307F WebUI \u306B\u30A2\u30AF\u30BB\u30B9\u3067\u304D\u307E\u3059\u3002",
+    "lanAccess.noAddress": "LAN \u306E IPv4 \u30A2\u30C9\u30EC\u30B9\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u63A5\u7D9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "lanAccess.pendingDisable": "\u4FDD\u5B58\u3057\u307E\u3057\u305F\u3002WebUI \u30B5\u30FC\u30D3\u30B9\u3092\u518D\u8D77\u52D5\u3059\u308B\u307E\u3067 LAN \u30A2\u30AF\u30BB\u30B9\u306F\u6709\u52B9\u3067\u3059\u3002",
+    "lanAccess.pendingEnable": "\u4FDD\u5B58\u3057\u307E\u3057\u305F\u3002LAN \u30A2\u30AF\u30BB\u30B9\u3092\u8A31\u53EF\u3059\u308B\u306B\u306F WebUI \u30B5\u30FC\u30D3\u30B9\u3092\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "lanAccess.saving": "\u4FDD\u5B58\u4E2D\u2026",
+    "mobile.backToEditor": "\u7DE8\u96C6\u306B\u623B\u308B",
+    "mobile.copyHint": "\u81EA\u52D5\u30B3\u30D4\u30FC\u3092\u5229\u7528\u3067\u304D\u307E\u305B\u3093\u3002\u4E0B\u306E\u30C6\u30AD\u30B9\u30C8\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "mobile.files": "\u30D5\u30A1\u30A4\u30EB",
+    "mobile.gestureHint": "\u30D4\u30F3\u30C1\u3067\u62E1\u5927\u7E2E\u5C0F \xB7 \u30B9\u30EF\u30A4\u30D7\u3067\u753B\u50CF\u5207\u66FF",
+    "mobile.manualCopy": "\u9577\u62BC\u3057\u3057\u3066\u30B3\u30D4\u30FC",
+    "mobile.more": "\u305D\u306E\u4ED6",
+    "mobile.parameters": "\u30D1\u30E9\u30E1\u30FC\u30BF\u30FC",
+    "mobile.pasteHint": "\u5165\u529B\u6B04\u3092\u9577\u62BC\u3057\u3057\u3066\u8CBC\u308A\u4ED8\u3051\u308B\u304B\u3001\u5199\u771F\u3084\u30D5\u30A1\u30A4\u30EB\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "mobile.photos": "\u5199\u771F",
+    "mobile.pickFiles": "\u5199\u771F\u3084\u30D5\u30A1\u30A4\u30EB\u3092\u9078\u629E",
+    "mobile.taskActions": "\u30BF\u30B9\u30AF\u64CD\u4F5C",
+    "networkEgress.fakeIpDnsFallback": "\u753B\u50CF\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u306E Fake-IP DNS \u4E92\u63DB\u51E6\u7406",
+    "networkEgress.fakeIpDnsHelp": "\u753B\u50CF\u306E DNS \u304C Fake-IP \u3092\u8FD4\u3059\u5834\u5408\u3001Cloudflare DNS \u3067\u5B9F\u969B\u306E\u516C\u958B\u30A2\u30C9\u30EC\u30B9\u3092\u53D6\u5F97\u3057\u307E\u3059\u3002\u4ECA\u5F8C\u958B\u59CB\u3059\u308B\u30EA\u30AF\u30A8\u30B9\u30C8\u306E\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u306B\u9069\u7528\u3057\u3001LAN \u306E DNS \u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002API \u30AD\u30FC\u3001\u30D7\u30ED\u30F3\u30D7\u30C8\u3001\u5B8C\u5168\u306A\u753B\u50CF URL \u306F\u9001\u4FE1\u3057\u307E\u305B\u3093\u3002",
+    "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u306F\u9078\u629E\u3055\u308C\u305F\u51FA\u529B\u8981\u4EF6\u306E\u305F\u3081\u3001\u300C\u539F\u6587\u300D\u3068\u300C\u5FE0\u5B9F\u300D\u30E2\u30FC\u30C9\u3067\u3082\u8FFD\u52A0\u3055\u308C\u307E\u3059\u3002",
+    "output.transparencyFormat": "\u900F\u660E\u51FA\u529B\u306B\u306F PNG \u307E\u305F\u306F WebP \u304C\u5FC5\u8981\u3067\u3059\u3002",
+    "output.transparencyUnavailable": "\u900F\u660E\u975E\u5BFE\u5FDC",
+    "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
+    "preview.transparencyDetected": "\u900F\u660E\u30D4\u30AF\u30BB\u30EB\u3092\u691C\u51FA",
+    "preview.transparencyMissing": "\u900F\u660E\u30D4\u30AF\u30BB\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093",
+    "preview.transparencyRetryHint": "\u30D7\u30ED\u30F3\u30D7\u30C8\u4E92\u63DB\u307E\u305F\u306F\u5225\u306E\u30E2\u30C7\u30EB\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u518D\u8A66\u884C\u3059\u308B\u3068\u65B0\u305F\u306B\u751F\u6210\u3057\u307E\u3059\u3002",
+    "queue.realtimePolling": "\u30BF\u30B9\u30AF\u72B6\u614B\u3092\u5B9A\u671F\u66F4\u65B0\u4E2D\u3067\u3059\u3002\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u63A5\u7D9A\u3092\u5FA9\u65E7\u3057\u3066\u3044\u307E\u3059\u2026",
+    "referenceFiles.chooseResponses": "Responses \u30C1\u30E3\u30CD\u30EB\u3092\u9078\u629E",
+    "status.taskChangedDuringLoad": "\u8AAD\u307F\u8FBC\u307F\u4E2D\u306B\u30BF\u30B9\u30AF\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u518D\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.apiKeyConfirm": "\u3053\u306E\u6697\u53F7\u5316\u3055\u308C\u3066\u3044\u306A\u3044\u30A2\u30FC\u30AB\u30A4\u30D6\u306B\u306F API \u30AD\u30FC\u304C\u542B\u307E\u308C\u307E\u3059\u3002\u4F5C\u6210\u3057\u307E\u3059\u304B\uFF1F",
+    "userConfigBackup.archiveMeta": "{count} \u30BB\u30AF\u30B7\u30E7\u30F3 \xB7 \u5F62\u5F0F v{version}",
+    "userConfigBackup.backToPreview": "\u30D7\u30EC\u30D3\u30E5\u30FC\u306B\u623B\u308B",
+    "userConfigBackup.backupCopy": "\u542B\u3081\u308B\u8A2D\u5B9A\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u751F\u6210\u30BF\u30B9\u30AF\u3068 OAuth \u30BB\u30C3\u30B7\u30E7\u30F3\u306F\u542B\u307E\u308C\u307E\u305B\u3093\u3002",
+    "userConfigBackup.backupProgress": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306E\u9032\u884C\u72B6\u6CC1",
+    "userConfigBackup.cancelled": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u307E\u3057\u305F",
+    "userConfigBackup.chooseArchive": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7 ZIP \u3092\u9078\u629E",
+    "userConfigBackup.chooseArchiveCopy": "\u307E\u305A\u30D5\u30A1\u30A4\u30EB\u3092\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u3057\u3066\u691C\u8A3C\u3057\u307E\u3059\u3002\u30D7\u30EC\u30D3\u30E5\u30FC\u3067\u306F\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u3092\u5909\u66F4\u3057\u307E\u305B\u3093\u3002",
+    "userConfigBackup.keepWorking": "\u64CD\u4F5C\u3092\u7D9A\u3051\u308B",
+    "userConfigBackup.cancelAndClose": "\u8EE2\u9001\u3092\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u3066\u9589\u3058\u308B",
+    "userConfigBackup.discardAndClose": "\u4E00\u6642\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u524A\u9664\u3057\u3066\u9589\u3058\u308B",
+    "userConfigBackup.creatingBackup": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u4F5C\u6210\u4E2D\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u8A2D\u5B9A\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F\u3002\u672A\u4FDD\u5B58\u306E\u7DE8\u96C6\u306F\u4FDD\u6301\u3055\u308C\u3066\u3044\u307E\u3059\u3002\u4FDD\u5B58\u3059\u308B\u3068\u73FE\u5728\u306E\u5165\u529B\u5185\u5BB9\u304C\u9069\u7528\u3055\u308C\u307E\u3059\u3002",
+    "userConfigBackup.closeActiveConfirm": "\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u307E\u305F\u306F\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u304C\u5B9F\u884C\u4E2D\u3067\u3059\u3002\u9589\u3058\u3066\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u307E\u3059\u304B\uFF1F",
+    "userConfigBackup.create": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u4F5C\u6210",
+    "userConfigBackup.creatingSession": "\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u3092\u6E96\u5099\u4E2D\u2026",
+    "userConfigBackup.discardReadyConfirm": "\u9589\u3058\u308B\u3068\u30B5\u30FC\u30D0\u30FC\u4E0A\u306E\u4E00\u6642\u30B3\u30D4\u30FC\u3092\u524A\u9664\u3057\u307E\u3059\u3002\u3053\u306E\u7AEF\u672B\u306B\u4FDD\u5B58\u6E08\u307F\u306E\u30D5\u30A1\u30A4\u30EB\u306F\u6B8B\u308A\u307E\u3059\u3002\u7D9A\u884C\u3057\u307E\u3059\u304B\uFF1F",
+    "userConfigBackup.download": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+    "userConfigBackup.downloaded": "\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3092\u958B\u59CB\u3057\u307E\u3057\u305F\u300224 \u6642\u9593\u4EE5\u5185\u306F\u518D\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3067\u304D\u307E\u3059\u3002",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u4EF6\u306E\u5C65\u6B74\u30BF\u30B9\u30AF\u3067\u5171\u6709\u753B\u50CF\u306E\u53C2\u7167\u304C\u5931\u308F\u308C\u307E\u3059",
+    "userConfigBackup.incrementalCopy": "\u65E2\u5B58\u30C7\u30FC\u30BF\u3092\u4FDD\u6301\u3057\u3001\u91CD\u8907\u3092\u30B9\u30AD\u30C3\u30D7\u3057\u3001\u7AF6\u5408\u3059\u308B\u9805\u76EE\u306F\u5FA9\u65E7\u7528\u30B3\u30D4\u30FC\u3092\u4F5C\u6210\u3057\u307E\u3059\u3002",
+    "userConfigBackup.itemCount": "{count} \u4EF6",
+    "userConfigBackup.modeLabel": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3068\u5FA9\u5143",
+    "userConfigBackup.previewCounts": "\u30A2\u30FC\u30AB\u30A4\u30D6 {count} \u4EF6 \xB7 \u91CD\u8907 {duplicate} \u4EF6 \xB7 \u7AF6\u5408 {conflict} \u4EF6",
+    "userConfigBackup.previewTitle": "\u5FA9\u5143\u30D7\u30EC\u30D3\u30E5\u30FC",
+    "userConfigBackup.providerRetention": "\u8A8D\u8A3C\u60C5\u5831\u3092\u6301\u3064 {count} \u4EF6\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306F\u5B89\u5168\u306E\u305F\u3081\u4FDD\u6301\u3057\u307E\u3059",
+    "userConfigBackup.replaceConfirmCopy": "\u9078\u629E\u3057\u305F\u30BB\u30AF\u30B7\u30E7\u30F3\u306E\u307F\u304C\u5BFE\u8C61\u3067\u3059\u304C\u3001\u305D\u306E\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u306F\u524A\u9664\u3055\u308C\u307E\u3059\u3002\u5143\u306B\u623B\u305B\u307E\u305B\u3093\u3002",
+    "userConfigBackup.replaceImpact": "{section}\uFF1A\u73FE\u5728\u306E {current} \u4EF6\u3092\u524A\u9664\u3057\u3001\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306E {archive} \u4EF6\u3092\u53D6\u308A\u8FBC\u307F\u307E\u3059",
+    "userConfigBackup.restartRequired": "\u4FDD\u5B58\u5148\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F\u3002\u9069\u7528\u3059\u308B\u306B\u306F WebUI \u3092\u518D\u8D77\u52D5\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.restoreContinues": "\u5FA9\u5143\u306E\u66F8\u304D\u8FBC\u307F\u3092\u958B\u59CB\u3057\u307E\u3057\u305F\u3002\u30D1\u30CD\u30EB\u3092\u9589\u3058\u3066\u3082\u4E2D\u6B62\u3055\u308C\u307E\u305B\u3093\u3002\u5F8C\u3067\u958B\u304F\u3068\u7D50\u679C\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002",
+    "userConfigBackup.restoreModeLabel": "\u5FA9\u5143\u65B9\u6CD5",
+    "userConfigBackup.restoreProgress": "\u5FA9\u5143\u30D5\u30A1\u30A4\u30EB\u306E\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u72B6\u6CC1",
+    "userConfigBackup.restoreSelected": "\u9078\u629E\u3057\u305F\u30C7\u30FC\u30BF\u3092\u5FA9\u5143",
+    "userConfigBackup.restoring": "\u5FA9\u5143\u4E2D\u3067\u3059\u3002WebUI \u3092\u958B\u3044\u305F\u307E\u307E\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u2026",
+    "userConfigBackup.resultCounts": "{section}\uFF1A\u8FFD\u52A0 {added} \xB7 \u7F6E\u63DB {replaced} \xB7 \u30B9\u30AD\u30C3\u30D7 {skipped} \xB7 \u5FA9\u65E7\u7528\u30B3\u30D4\u30FC {copies}",
+    "userConfigBackup.selectAtLeastOne": "\u5C11\u306A\u304F\u3068\u3082 1 \u7A2E\u985E\u306E\u30C7\u30FC\u30BF\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044",
+    "userConfigBackup.selectSections": "\u30C7\u30FC\u30BF\u3092\u9078\u629E",
+    "userConfigBackup.status.cancelled": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u307E\u3057\u305F",
+    "userConfigBackup.status.expired": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306E\u671F\u9650\u5207\u308C",
+    "userConfigBackup.status.failed": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u5931\u6557",
+    "userConfigBackup.status.interrupted": "WebUI \u306E\u4E2D\u65AD\u306B\u3088\u308A\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u304C\u505C\u6B62\u3057\u307E\u3057\u305F",
+    "userConfigBackup.status.packing": "\u30A2\u30FC\u30AB\u30A4\u30D6\u3092\u4F5C\u6210\u4E2D\u2026",
+    "userConfigBackup.status.planning": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u6E96\u5099\u4E2D\u2026",
+    "userConfigBackup.status.queued": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u5F85\u6A5F\u4E2D\u2026",
+    "userConfigBackup.status.ready": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u304C\u5B8C\u6210\u3057\u307E\u3057\u305F\u300224 \u6642\u9593\u4EE5\u5185\u306F\u518D\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3067\u304D\u307E\u3059\u3002",
+    "userConfigBackup.summaryFailed": "\u8A2D\u5B9A\u306E\u6982\u8981\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093\u3067\u3057\u305F",
+    "userConfigBackup.summaryLoading": "\u8A2D\u5B9A\u306E\u6982\u8981\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026",
+    "userConfigBackup.uploading": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u4E2D\u2026",
+    "userConfigBackup.validating": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u691C\u8A3C\u4E2D\u2026",
+    "userConfigBackup.validationReady": "\u691C\u8A3C\u5B8C\u4E86\u3002\u5FA9\u5143\u65B9\u6CD5\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "userConfigBackup.versionUnsupported": "\u3053\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u306F\u65B0\u3057\u3044\u5F62\u5F0F\u306E\u305F\u3081\u3001\u30D7\u30EC\u30D3\u30E5\u30FC\u306E\u307F\u53EF\u80FD\u3067\u3059\u3002",
+    "userConfigBackup.warningCount": "\u8B66\u544A {count} \u4EF6",
+    "user_config_backup_failed": "\u9078\u629E\u3057\u305F\u30C7\u30FC\u30BF\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u305F\u306F\u5727\u7E2E\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u78BA\u8A8D\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_backup_gallery_invalid": "\u5171\u6709\u753B\u50CF\u3068\u30AE\u30E3\u30E9\u30EA\u30FC\u306E\u8A18\u9332\u304C\u4E00\u81F4\u3057\u307E\u305B\u3093\u3002\u8A72\u5F53\u753B\u50CF\u3092\u518D\u4FDD\u5B58\u307E\u305F\u306F\u524A\u9664\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_backup_insufficient_space": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u4F5C\u6210\u306B\u5FC5\u8981\u306A\u7A7A\u304D\u5BB9\u91CF\u304C\u4E0D\u8DB3\u3057\u3066\u3044\u307E\u3059\u3002",
+    "user_config_backup_internal_error": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u51E6\u7406\u3067\u5185\u90E8\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002WebUI \u3092\u518D\u8D77\u52D5\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u7D9A\u304F\u5834\u5408\u306F\u8D77\u52D5\u30ED\u30B0\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_backup_io_error": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30D5\u30A1\u30A4\u30EB\u306B\u30A2\u30AF\u30BB\u30B9\u3067\u304D\u307E\u305B\u3093\u3002\u30C7\u30A3\u30B9\u30AF\u3068\u30D5\u30A9\u30EB\u30C0\u30FC\u306E\u6A29\u9650\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_backup_source_changed": "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u4E2D\u306B\u8A2D\u5B9A\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u7DE8\u96C6\u3092\u6B62\u3081\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_backup_source_unreadable": "\u8A2D\u5B9A\u30D5\u30A1\u30A4\u30EB\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u6A29\u9650\u3092\u78BA\u8A8D\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_active_tasks": "\u5B9F\u884C\u4E2D\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002\u5B8C\u4E86\u3057\u3066\u304B\u3089\u30C7\u30FC\u30BF\u3092\u7F6E\u304D\u63DB\u3048\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_failed": "\u5FA9\u5143\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u65E2\u5B58\u306E\u8A2D\u5B9A\u306F\u4FDD\u6301\u3055\u308C\u3066\u3044\u307E\u3059\u3002",
+    "user_config_restore_preview_stale": "\u73FE\u5728\u306E\u8A2D\u5B9A\u304C\u5909\u66F4\u3055\u308C\u307E\u3057\u305F\u3002\u30A2\u30FC\u30AB\u30A4\u30D6\u3092\u518D\u691C\u8A3C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "user_config_restore_system_notification_permission_missing": "\u30D6\u30E9\u30A6\u30B6\u30FC\u306E\u8A31\u53EF\u304C\u306A\u3044\u305F\u3081\u3001\u30B7\u30B9\u30C6\u30E0\u901A\u77E5\u306F\u6709\u52B9\u306B\u306A\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002",
+    "user_config_restore_version_unsupported": "\u3053\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u5F62\u5F0F\u306F\u65B0\u3057\u3059\u304E\u308B\u305F\u3081\u5FA9\u5143\u3067\u304D\u307E\u305B\u3093\u3002",
+    "ux.acceptDetail": "\u6210\u529F\u3057\u305F\u753B\u50CF\u3092\u4FDD\u6301\u3057\u3001\u5931\u6557\u5206\u3092\u88DC\u308F\u305A\u306B\u30BF\u30B9\u30AF\u3092\u5B8C\u4E86\u3057\u307E\u3059\u3002",
+    "ux.addReference": "\u53C2\u7167\u306B\u8FFD\u52A0",
+    "ux.addingReference": "\u53C2\u7167\u306B\u8FFD\u52A0\u4E2D\u2026",
+    "ux.checkProvider": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u8A2D\u5B9A\u3092\u78BA\u8A8D",
+    "ux.collapseReference": "\u6298\u308A\u305F\u305F\u3080",
+    "ux.discardEdits": "\u5909\u66F4\u3092\u7834\u68C4",
+    "ux.draftRestored": "\u30D7\u30ED\u30F3\u30D7\u30C8\u3068\u53C2\u7167\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F\u3002\u751F\u6210\u8A2D\u5B9A\u306F\u73FE\u5728\u306E\u9078\u629E\u3092\u4FDD\u6301\u3057\u307E\u3059\u3002",
+    "ux.editInputs": "\u5165\u529B\u3068\u8A2D\u5B9A\u3092\u7DE8\u96C6",
+    "ux.editInputsReady": "\u30BF\u30B9\u30AF\u306E\u5165\u529B\u3068\u8A2D\u5B9A\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002\u7DE8\u96C6\u3057\u3066\u304B\u3089\u518D\u751F\u6210\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.errorDetails": "\u30A8\u30E9\u30FC\u8A73\u7D30",
+    "ux.execution": "\u4ECA\u56DE\u306E\u751F\u6210",
+    "ux.historyDraftRestoreFailed": "\u4E0B\u66F8\u304D\u3092\u5FA9\u5143\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u4E00\u6642\u30B3\u30D4\u30FC\u306F\u4FDD\u6301\u3055\u308C\u3066\u3044\u307E\u3059\u3002\u518D\u8AAD\u307F\u8FBC\u307F\u3057\u3066\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.historyDraftSaveFailed": "\u4E0B\u66F8\u304D\u3092\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u751F\u6210\u30DA\u30FC\u30B8\u306B\u7559\u307E\u3063\u3066\u3044\u307E\u3059\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.historyParametersHint": "\u9078\u629E\u3057\u305F\u30BF\u30B9\u30AF\u306E\u904E\u53BB\u306E\u8A2D\u5B9A\u3067\u3059\u3002\u6B21\u306E\u751F\u6210\u306B\u306F\u51FA\u529B\u8A2D\u5B9A\u304C\u9069\u7528\u3055\u308C\u307E\u3059\u3002",
+    "ux.imageCount": "{count} \u679A",
+    "ux.imageUnsaved": "\u753B\u50CF\u306B\u672A\u4FDD\u5B58\u306E\u5909\u66F4\u304C\u3042\u308A\u307E\u3059\u3002\u7834\u68C4\u3059\u308B\u3068\u5143\u306B\u623B\u305B\u307E\u305B\u3093\u3002\u7DE8\u96C6\u3092\u7D9A\u3051\u308B\u306B\u306F\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.moderationAuto": "\u81EA\u52D5",
+    "ux.moderationLow": "\u7DE9\u3081",
+    "ux.openRecovery": "\u751F\u6210\u30DA\u30FC\u30B8\u3067\u5BFE\u51E6",
+    "ux.recovery.credentials": "\u8A8D\u8A3C\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u518D\u751F\u6210\u524D\u306B\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E API \u30AD\u30FC\u307E\u305F\u306F\u30ED\u30FC\u30AB\u30EB\u306E\u30ED\u30B0\u30A4\u30F3\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.recovery.input": "\u30D7\u30ED\u30F3\u30D7\u30C8\u3001\u53C2\u7167\u30D5\u30A1\u30A4\u30EB\u3001\u751F\u6210\u8A2D\u5B9A\u306B\u975E\u5BFE\u5FDC\u306E\u5165\u529B\u304C\u306A\u3044\u304B\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.recovery.quota": "\u30BF\u30B9\u30AF\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u5229\u7528\u67A0\u3084\u6B8B\u9AD8\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.recovery.temporary": "\u751F\u6210\u304C\u5B8C\u4E86\u3057\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u6210\u529F\u3057\u305F\u753B\u50CF\u306F\u4FDD\u6301\u3055\u308C\u307E\u3059\u3002\u5229\u7528\u53EF\u80FD\u306A\u5834\u5408\u306F\u5931\u6557\u5206\u3092\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.referenceAdded": "\u3053\u306E\u30BF\u30B9\u30AF\u306E\u53C2\u7167\u306B\u8FFD\u52A0\u3057\u307E\u3057\u305F",
+    "ux.referenceFailed": "\u53C2\u7167\u3092\u8FFD\u52A0\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.restoreDraft": "\u5165\u529B\u3092\u5FA9\u5143",
+    "ux.restoreInputsHint": "\u30D7\u30ED\u30F3\u30D7\u30C8\u3068\u53C2\u7167\u306E\u307F\u5FA9\u5143\u3057\u3001\u73FE\u5728\u306E\u751F\u6210\u8A2D\u5B9A\u306F\u4FDD\u6301\u3057\u307E\u3059\u3002",
+    "ux.tasks": "\u30BF\u30B9\u30AF",
+    "ux.useSize": "{width} \xD7 {height} \u3092\u4F7F\u7528",
+    "ux.viewPreview": "\u30D7\u30EC\u30D3\u30E5\u30FC\u3092\u898B\u308B",
+    "version.continuePortable": "\u30DD\u30FC\u30BF\u30D6\u30EB\u7248\u3092\u4F7F\u3044\u7D9A\u3051\u308B",
+    "version.dismissFailed": "\u901A\u77E5\u306E\u72B6\u614B\u3092\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u5F8C\u3067\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "version.dismissOnboarding": "\u4ECA\u5F8C\u8868\u793A\u3057\u306A\u3044",
+    "version.onboardingBody": "\u3053\u306E\u30EA\u30EA\u30FC\u30B9\u3067 macOS DMG \u3068 Windows App ZIP \u304C\u8FFD\u52A0\u3055\u308C\u307E\u3057\u305F\u3002\u65B0\u898F\u5229\u7528\u8005\u306B\u306F\u6A19\u6E96\u7248\u3092\u63A8\u5968\u3057\u307E\u3059\u3002\u65E2\u5B58\u306E\u30DD\u30FC\u30BF\u30D6\u30EB\u7248\u3082\u5F15\u304D\u7D9A\u304D\u4F7F\u3048\u307E\u3059\u3002",
+    "version.onboardingDataPortable": "\u73FE\u5728\u306E\u30C7\u30FC\u30BF\u306F\u3053\u306E\u30DD\u30FC\u30BF\u30D6\u30EB\u7248\u306E data/ \u30D5\u30A9\u30EB\u30C0\u30FC\u306B\u6B8B\u308A\u307E\u3059\u3002",
+    "version.onboardingMigration": "\u6A19\u6E96\u30A2\u30D7\u30EA\u3078\u79FB\u884C\u3059\u308B\u969B\u306F\u79FB\u884C\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8\u3067\u65E7\u30C7\u30FC\u30BF\u3092\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5143\u306E\u30C7\u30FC\u30BF\u306F\u79FB\u52D5\u3082\u4E0A\u66F8\u304D\u3082\u3055\u308C\u307E\u305B\u3093\u3002",
+    "version.onboardingStandardData": "\u6A19\u6E96\u30A2\u30D7\u30EA\u306F\u30B7\u30B9\u30C6\u30E0\u306E\u30A2\u30D7\u30EA\u30C7\u30FC\u30BF\u9818\u57DF\uFF08macOS Application Support / Windows %APPDATA%\uFF09\u306B\u30C7\u30FC\u30BF\u3092\u4FDD\u5B58\u3057\u307E\u3059\u3002",
+    "version.onboardingStatus": "{version} \u306B\u66F4\u65B0\u3057\u307E\u3057\u305F\u3002\u30DD\u30FC\u30BF\u30D6\u30EB\u7248\u3092\u7D9A\u3051\u308B\u304B\u3001\u6A19\u6E96\u30A2\u30D7\u30EA\u3078\u5207\u308A\u66FF\u3048\u3089\u308C\u307E\u3059\u3002",
+    "version.onboardingTitle": "0.5.5 \u3067\u6A19\u6E96\u30A2\u30D7\u30EA\u3092\u8FFD\u52A0",
+    "version.standardDownload": "\u6A19\u6E96\u30A2\u30D7\u30EA\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9"
   };
 
   // codex_image/webui/frontend/src/i18n/ko.ts
@@ -6853,8 +7544,8 @@
     "taskStatus.nonRetryableShort": "\uC7AC\uC2DC\uB3C4 \uBD88\uAC00",
     "taskStatus.manualRetryShort": "\uC218\uB3D9 \uC7AC\uC2DC\uB3C4",
     "taskStatus.stoppedShort": "\uC911\uC9C0\uB428",
-    "taskStatus.runtime": "\uAE30\uAC04{duration}",
-    "taskStatus.runtimeCompleted": "\uAE30\uAC04{duration}\xB7 \uC644\uB8CC{time}",
+    "taskStatus.runtime": "\uC18C\uC694 \uC2DC\uAC04 {duration}",
+    "taskStatus.runtimeCompleted": "\uC18C\uC694 \uC2DC\uAC04 {duration} \xB7 \uC644\uB8CC {time}",
     "taskStatus.completedAt": "\uC644\uB8CC\uB428{time}",
     "taskCard.count": "\uC774\uBBF8\uC9C0 {count}\uAC1C",
     "taskCard.successCount": "\uC131\uACF5 {count}",
@@ -7109,12 +7800,12 @@
     "version.latest": "\uCD5C\uC2E0 \uBC84\uC804",
     "version.source": "\uB7F0\uD0C0\uC784",
     "version.sourcePortable": "\uD734\uB300\uC6A9 \uD328\uD0A4\uC9C0",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "\uD45C\uC900 \uC571",
     "version.sourceSource": "\uC18C\uC2A4 \uCCB4\uD06C\uC544\uC6C3",
     "version.upToDate": "\uC774\uBBF8 \uCD5C\uC2E0 \uBC84\uC804\uC744 \uC0AC\uC6A9\uD558\uACE0 \uC788\uC2B5\uB2C8\uB2E4.",
     "version.updateAvailable": "\uBC84\uC804{version}\uC744(\uB97C) \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.WebUI\uC11C\uBC84 \uCC3D\uC744 \uB2EB\uC740 \uD6C4 \uC5C5\uB370\uC774\uD2B8 \uD504\uB85C\uADF8\uB7A8\uC744 \uC2E4\uD589\uD558\uC5EC \uC5C5\uADF8\uB808\uC774\uB4DC\uD558\uC138\uC694.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "\uBC84\uC804 {version}\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC5C5\uB370\uC774\uD2B8\uB97C \uC9C0\uC6D0\uD558\uB294 macOS \uD45C\uC900 \uC571\uC740 \uBA54\uB274 \uB9C9\uB300\uC758 \uC5C5\uB370\uC774\uD2B8 \uD655\uC778\uC5D0\uC11C \uC124\uCE58\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC774 \uB9C1\uD06C\uB294 \uC218\uB3D9 \uC124\uCE58\uC6A9\uC785\uB2C8\uB2E4.",
+    "version.standardManualInstall": "\uC5C5\uB370\uC774\uD2B8\uB97C \uC9C0\uC6D0\uD558\uB294 macOS \uD45C\uC900 \uC571\uC740 \uC0AC\uC6A9\uC790 \uD655\uC778 \uD6C4 \uAD50\uCCB4\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC774\uC804 macOS \uC571\uACFC Windows \uD45C\uC900 ZIP\uC740 \uC218\uB3D9 \uC5C5\uB370\uC774\uD2B8\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.",
     "version.noUpdater": "\uC774 \uB7F0\uD0C0\uC784\uC740 \uC774\uC2DD \uAC00\uB2A5\uD55C \uD328\uD0A4\uC9C0\uAC00 \uC544\uB2C8\uBBC0\uB85C \uC5C5\uB370\uC774\uD2B8 \uD504\uB85C\uADF8\uB7A8\uC744 \uC790\uB3D9\uC73C\uB85C \uC2DC\uC791\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
     "version.openUpdater": "\uC5C5\uB370\uC774\uD130 \uC2DC\uC791",
     "version.release": "\uB9B4\uB9AC\uC2A4 \uBCF4\uAE30",
@@ -7166,6 +7857,7 @@
     "api.provider": "API \uACF5\uAE09\uC790",
     "imageInput.title": "\uC774\uBBF8\uC9C0 \uC785\uB825",
     "imageInput.uploadAria": "\uC774\uBBF8\uC9C0\uC640 \uD30C\uC77C\uC744 \uD074\uB9AD, \uB4DC\uB86D \uB610\uB294 \uBD99\uC5EC\uB123\uAE30",
+    "imageInput.uploadImages": "\uD074\uB9AD, \uB4DC\uB798\uADF8 \uB610\uB294 \uBD99\uC5EC\uB123\uAE30\uB85C \uC774\uBBF8\uC9C0 \uCD94\uAC00",
     "imageInput.uploadFull": "\uC774\uBBF8\uC9C0\uC640 \uD30C\uC77C\uC744 \uD074\uB9AD, \uB4DC\uB86D \uB610\uB294 \uBD99\uC5EC\uB123\uAE30",
     "imageInput.uploadCompact": "\uC785\uB825 \uCD94\uAC00",
     "imageInput.uploadSubtitle": "\uC774\uBBF8\uC9C0 \uBC0F Responses \uCC38\uC870 \uD30C\uC77C \uC9C0\uC6D0",
@@ -7337,7 +8029,6 @@
     "output.mainModelCustomForInput": "\uD604\uC7AC \uC785\uB825\uC5D0 \uC0AC\uC6A9\uC790 \uC815\uC758 \uBAA8\uB378\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4.",
     "output.apiDirect": "API\uC9C1\uC811",
     "output.apiToolModel": "API \uC774\uBBF8\uC9C0 \uC0DD\uC131 \uBAA8\uB378 \uC0AC\uC6A9",
-    "output.mainModelUnused": "\uC774 \uC694\uCCAD\uC5D0\uB294 \uAE30\uBCF8 \uBAA8\uB378\uC774 \uC0AC\uC6A9\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",
     "output.webSearch": "\uC6F9 \uAC80\uC0C9",
     "output.webSearchToggle": "\uCF1C\uC9D0",
     "output.webSearchTitle": "\uBA3C\uC800 \uC6F9\uC744 \uAC80\uC0C9\uD55C \uB2E4\uC74C \uC774 \uC138\uB300\uB97C \uC704\uD574 \uC0AC\uC6A9\uD558\uC2ED\uC2DC\uC624.Codex\uBC0FAPI\uC751\uB2F5\uB9CC",
@@ -7390,12 +8081,10 @@
     "output.qualityMedium": "\uB9E4\uCCB4",
     "output.qualityHigh": "\uB192\uC74C",
     "output.quantity": "\uC218",
-    "output.pixelPreview": "\uCD9C\uB825 \uD53D\uC140: 1024 x 1024px",
-    "output.pixelPreviewValue": "\uCD9C\uB825 \uD53D\uC140:{value}",
-    "output.pixelPreviewAuto": "\uCD9C\uB825 \uD53D\uC140: \uC790\uB3D9(OpenAI\uAC00 \uC790\uB3D9\uC73C\uB85C \uC120\uD0DD)",
     "output.format": "\uD615\uC2DD",
     "output.compression": "\uC555\uCD95",
-    "output.moderation": "\uC911\uC7AC",
+    "output.extraOptions": "\uCD94\uAC00 \uC635\uC158",
+    "output.moderation": "\uAC80\uD1A0",
     "preview.title": "\uBBF8\uB9AC\uBCF4\uAE30",
     "preview.selectedZero": "0 \uC120\uD0DD\uB428",
     "preview.selectedCount": "\uC120\uD0DD\uB428{selected}/{total}",
@@ -7406,9 +8095,9 @@
     "preview.taskFailed": "\uC791\uC5C5\uC774 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4.",
     "preview.partialFailed": "\uC77C\uBD80 \uC774\uBBF8\uC9C0\uAC00 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4.",
     "preview.failedOutput": "\uC774\uBBF8\uC9C0{index}\uC2E4\uD328",
-    "preview.progressLine": "\uC644\uB8CC{generated}/{total}\xB7 \uACBD\uACFC{elapsed}",
+    "preview.progressLine": "\uC644\uB8CC{generated}/{total}\xB7 {elapsed}",
     "preview.failureLine": "\uC644\uB8CC{generated}/{total}\xB7 \uC2E4\uD328{failed}",
-    "preview.elapsedLine": "\uACBD\uACFC{elapsed}",
+    "preview.elapsedLine": "\uACBD\uACFC {elapsed}",
     "preview.lastError": "\uB9C8\uC9C0\uB9C9 \uC624\uB958:{error}",
     "preview.continueGenerating": "\uACC4\uC18D\uB418\uB294 \uC138\uB300",
     "preview.waitingContinue": "\uACC4\uC18D\uD558\uB294 \uC911\uC785\uB2C8\uB2E4.",
@@ -7463,6 +8152,13 @@
     "promptPopover.notReturned": "\uBC18\uD658\uB418\uC9C0 \uC54A\uC74C",
     "promptPopover.noOptimized": "\uCD5C\uC801\uD654\uB41C \uD504\uB86C\uD504\uD2B8\uAC00 \uBC18\uD658\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.",
     "promptPopover.submitted": "\uC81C\uCD9C\uB41C \uD504\uB86C\uD504\uD2B8 \uBCF4\uAE30",
+    "promptPopover.response": "\uC791\uC5C5 \uC6D0\uBCF8 \uC751\uB2F5 \uBCF4\uAE30",
+    "promptPopover.responseNote": "\uACF5\uAE09\uC790\uC758 JSON / \uC2A4\uD2B8\uB9BC \uC774\uBCA4\uD2B8\uC785\uB2C8\uB2E4. \uC774\uBBF8\uC9C0 \uB370\uC774\uD130\uC640 \uC778\uC99D \uC815\uBCF4\uB294 \uC0DD\uB7B5\uB418\uBA70, \uAE34 \uC751\uB2F5\uC740 \uC798\uB9BC\uC73C\uB85C \uD45C\uC2DC\uB429\uB2C8\uB2E4.",
+    "promptPopover.copyResponse": "\uC751\uB2F5 JSON \uBCF5\uC0AC",
+    "promptPopover.retryResponse": "\uC0C8\uB85C\uACE0\uCE68",
+    "promptPopover.responseMissing": "\uC774 \uC791\uC5C5\uC5D0\uB294 \uACF5\uAE09\uC790 \uC6D0\uBCF8 \uC751\uB2F5\uC774 \uC800\uC7A5\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.",
+    "promptPopover.responseLoading": "\uC751\uB2F5\uC744 \uBD88\uB7EC\uC624\uB294 \uC911\u2026",
+    "promptPopover.responseError": "\uC751\uB2F5\uC744 \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
     "promptPopover.close": "\uD504\uB86C\uD504\uD2B8 \uBE44\uAD50 \uB2EB\uAE30",
     "promptPopover.copyOptimized": "\uCD5C\uC801\uD654\uB41C \uD504\uB86C\uD504\uD2B8 \uBCF5\uC0AC",
     "promptPopover.copied": "\uBCF5\uC0AC\uB428",
@@ -7665,7 +8361,7 @@
     "settings.savedRestartStatus": "\uC800\uC7A5\uC18C \uC124\uC815\uC774 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uC801\uC6A9\uB429\uB2C8\uB2E4.",
     "systemSettings.title": "\uC2DC\uC2A4\uD15C \uC124\uC815",
     "userConfigBackup.title": "\uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
-    "userConfigBackup.back": "\uC2DC\uC2A4\uD15C \uC124\uC815\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+    "userConfigBackup.back": "\uC800\uC7A5\uC18C \uBC0F \uC54C\uB9BC\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
     "userConfigBackup.entryTitle": "\uC124\uC815 \uBC31\uC5C5 \uBC0F \uBCF5\uC6D0",
     "userConfigBackup.entryCopy": "\uCE69, \uACF5\uC720 \uC774\uBBF8\uC9C0, \uD15C\uD50C\uB9BF\uACFC \uC2DC\uC2A4\uD15C \uC124\uC815\uC744 \uC774\uC804\uD569\uB2C8\uB2E4",
     "userConfigBackup.backupTab": "\uBC31\uC5C5",
@@ -7735,18 +8431,18 @@
     "apiSettings.providerName": "\uACF5\uAE09\uC790 \uC774\uB984",
     "apiSettings.providerIcon": "\uC774\uBAA8\uC9C0 \uC544\uC774\uCF58",
     "apiSettings.providerIconPlaceholder": "\uC120\uD0DD \uC0AC\uD56D, \uC608: \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "\uC5F0\uACB0 \uC124\uC815",
     "apiSettings.connectionPreview": "\uC5F0\uACB0 \uBBF8\uB9AC\uBCF4\uAE30",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "\uBAA8\uB378",
+    "apiSettings.modelBindingsHint": "\uD55C \uACF5\uAE09\uC790\uC5D0 \uC5EC\uB7EC \uBAA8\uB378\uACFC \uD504\uB85C\uD1A0\uCF5C\uC744 \uC5F0\uACB0\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.addModelBinding": "\uBAA8\uB378 \uCD94\uAC00",
     "apiSettings.appendRatioPrompt": "\uBE44\uC728 \uC9C0\uC2DC \uCD94\uAC00",
     "apiSettings.defaultProviderForModel": "\uAE30\uBCF8 \uACF5\uAE09\uC790",
     "apiSettings.removeBinding": "\uBC14\uC778\uB529 \uC0AD\uC81C",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "\uBAA8\uB378 \uCE74\uD0C8\uB85C\uADF8\uB97C \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC5B4 \uC544\uC9C1 \uBC14\uC778\uB529\uC744 \uCD94\uAC00\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.keepOneBinding": "\uAC01 \uACF5\uAE09\uC790\uC5D0\uB294 \uBAA8\uB378 \uBC14\uC778\uB529\uC774 \uD558\uB098 \uC774\uC0C1 \uD544\uC694\uD569\uB2C8\uB2E4.",
+    "apiSettings.bindingRequiredFields": "\uAC01 \uBC14\uC778\uB529\uC5D0\uC11C \uBAA8\uB378\uC744 \uC120\uD0DD\uD558\uACE0 \uC6D0\uACA9 \uBAA8\uB378 \uC774\uB984\uC744 \uC785\uB825\uD55C \uB4A4 \uD558\uB098 \uC774\uC0C1\uC758 \uC791\uC5C5\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
+    "apiSettings.bindingOverlap": "{model}\uC758 {operation}\uC774 \uC5EC\uB7EC \uBC14\uC778\uB529\uC5D0 \uC911\uBCF5\uB429\uB2C8\uB2E4.",
     "apiSettings.actualRequest": "\uC2E4\uC81C \uC694\uCCAD",
     "apiSettings.newProviderAction": "\uACF5\uAE09\uC790 \uC0C8\uB85C \uB9CC\uB4E4\uAE30",
     "apiSettings.copyProvider": "\uBCF5\uC0AC",
@@ -7769,6 +8465,8 @@
     "apiSettings.imageModel": "\uC774\uBBF8\uC9C0 \uC0DD\uC131 \uBAA8\uB378",
     "apiSettings.concurrency": "\uB3D9\uC2DC \uC2E4\uD589 \uD55C\uB3C4",
     "apiSettings.concurrencyShort": "\uB3D9\uC2DC \uC2E4\uD589",
+    "apiSettings.remoteModelName": "\uACF5\uAE09\uC790 \uBAA8\uB378 \uC774\uB984",
+    "apiSettings.fetchModels": "\uBAA8\uB378 \uAC00\uC838\uC624\uAE30",
     "apiSettings.advancedSettings": "\uACE0\uAE09 \uC124\uC815",
     "apiSettings.concurrencyValue": "\uB3D9\uC2DC\uC131{concurrency}",
     "apiSettings.keySaved": "API Key\uAC00 \uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4",
@@ -7803,6 +8501,7 @@
     "apiSettings.savingStatus": "API \uC124\uC815\uC744 \uC800\uC7A5\uD558\uB294 \uC911...",
     "apiSettings.autoSaving": "\uC790\uB3D9 \uC800\uC7A5 \uC911...",
     "apiSettings.autoSaved": "\uC790\uB3D9 \uC800\uC7A5\uB428",
+    "apiSettings.defaultMappingInvalid": "\uAE30\uBCF8 \uACF5\uAE09\uC790 \uC124\uC815\uC774 \uBD88\uC644\uC804\uD569\uB2C8\uB2E4. \uC124\uC815\uC744 \uB2E4\uC2DC \uBD88\uB7EC\uC628 \uD6C4 \uC7AC\uC2DC\uB3C4\uD558\uC138\uC694.",
     "apiSettings.saveFailed": "API \uC124\uC815\uC744 \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
     "apiSettings.savedSummary": "\uC800\uC7A5\uB428 \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \uB3D9\uC2DC \uC2E4\uD589 {concurrency}",
     "apiSettings.savedShort": "\uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4",
@@ -7969,7 +8668,169 @@
     "modelParameters.invalidJson": "\uC798\uBABB\uB41C JSON\uC785\uB2C8\uB2E4",
     "modelParameters.migrated": "\uD604\uC7AC \uBAA8\uB378\uC5D0 \uB9DE\uAC8C \uAE30\uC874 \uB9E4\uAC1C\uBCC0\uC218 {count}\uAC1C\uB97C \uC870\uC815\uD588\uC2B5\uB2C8\uB2E4",
     "modelParameters.historyConfiguration": "\uAE30\uB85D \uC124\uC815",
-    "modelParameters.legacyTask": "\uB808\uAC70\uC2DC \uC791\uC5C5"
+    "modelParameters.legacyTask": "\uB808\uAC70\uC2DC \uC791\uC5C5",
+    "apiSettings.fetchingModels": "\uBAA8\uB378 \uAC00\uC838\uC624\uB294 \uC911\u2026",
+    "apiSettings.modelsEmpty": "\uBC18\uD658\uB41C \uBAA8\uB378\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uBAA8\uB378 \uC774\uB984\uC744 \uC9C1\uC811 \uC785\uB825\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.modelsFetchFailed": "\uBAA8\uB378\uC744 \uAC00\uC838\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC8FC\uC18C\uC640 \uB124\uD2B8\uC6CC\uD06C\uB97C \uD655\uC778\uD55C \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "apiSettings.modelsFetched": "\uBAA8\uB378 {count}\uAC1C\uB97C \uCC3E\uC558\uC2B5\uB2C8\uB2E4. \uC774 \uBC14\uC778\uB529\uC5D0 \uB9DE\uB294 \uBAA8\uB378\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
+    "apiSettings.modelsInvalidBaseUrl": "\uC720\uD6A8\uD55C HTTP(S) \uAE30\uBCF8 URL\uC744 \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.modelsInvalidResponse": "\uACF5\uAE09\uC790\uAC00 \uC798\uBABB\uB41C \uBAA8\uB378 \uBAA9\uB85D\uC744 \uBC18\uD658\uD588\uC2B5\uB2C8\uB2E4. \uC774\uB984\uC744 \uC9C1\uC811 \uC785\uB825\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "apiSettings.modelsKeyRequired": "\uBAA8\uB378\uC744 \uAC00\uC838\uC624\uAE30 \uC804\uC5D0 API \uD0A4\uB97C \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.modelsNotSupported": "\uC774 \uACF5\uAE09\uC790\uB294 \uBAA8\uB378 \uBAA9\uB85D \uC870\uD68C\uB97C \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uBAA8\uB378 \uC774\uB984\uC744 \uC9C1\uC811 \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.modelsOriginMismatch": "\uACF5\uAE09\uC790 \uC8FC\uC18C\uAC00 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC0C8 API \uD0A4\uB97C \uC785\uB825\uD558\uAC70\uB098 \uACF5\uAE09\uC790\uB97C \uBA3C\uC800 \uC800\uC7A5\uD558\uC138\uC694.",
+    "apiSettings.modelsRateLimited": "\uC694\uCCAD\uC774 \uB108\uBB34 \uB9CE\uC2B5\uB2C8\uB2E4. \uB098\uC911\uC5D0 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "apiSettings.modelsTooLarge": "\uACF5\uAE09\uC790\uC758 \uBAA8\uB378 \uBAA9\uB85D\uC774 \uB108\uBB34 \uD07D\uB2C8\uB2E4. \uBAA8\uB378 \uC774\uB984\uC744 \uC9C1\uC811 \uC785\uB825\uD558\uC138\uC694.",
+    "apiSettings.modelsUnauthorized": "\uBAA8\uB378 \uC811\uADFC\uC774 \uAC70\uBD80\uB418\uC5C8\uC2B5\uB2C8\uB2E4. API \uD0A4\uC640 \uAD8C\uD55C\uC744 \uD655\uC778\uD558\uC138\uC694.",
+    "apiSettings.selectAvailableModel": "\uC0AC\uC6A9 \uAC00\uB2A5\uD55C \uBAA8\uB378 \uC120\uD0DD",
+    "apiSettings.transparencyMode": "\uD22C\uBA85 \uBC30\uACBD \uC801\uC6A9 \uBC29\uC2DD",
+    "apiSettings.transparencyNative": "\uAE30\uBCF8 \uB9E4\uAC1C\uBCC0\uC218",
+    "apiSettings.transparencyPrompt": "\uD504\uB86C\uD504\uD2B8 \uD638\uD658",
+    "batch.deselectCurrentGroup": "\uC804\uCCB4 \uC120\uD0DD \uD574\uC81C",
+    "batch.deselectWaiting": "\uB300\uAE30 \uC791\uC5C5 \uC120\uD0DD \uD574\uC81C",
+    "batch.selectFailed": "\uC791\uC5C5\uC744 \uC120\uD0DD\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "history.promptSubmittedActual": "\uC2E4\uC81C \uC81C\uCD9C\uD55C \uD504\uB86C\uD504\uD2B8",
+    "lanAccess.active": "LAN \uC811\uC18D\uC774 \uD65C\uC131\uD654\uB418\uC5C8\uC2B5\uB2C8\uB2E4.",
+    "lanAccess.address": "LAN \uC8FC\uC18C",
+    "lanAccess.copied": "\uC8FC\uC18C\uB97C \uBCF5\uC0AC\uD588\uC2B5\uB2C8\uB2E4.",
+    "lanAccess.copyAddress": "{address} \uBCF5\uC0AC",
+    "lanAccess.copyManually": "\uC8FC\uC18C\uB97C \uC120\uD0DD\uD588\uC2B5\uB2C8\uB2E4. \uC9C1\uC811 \uBCF5\uC0AC\uD558\uC138\uC694.",
+    "lanAccess.failed": "\uC811\uC18D \uC124\uC815\uC744 \uC77D\uAC70\uB098 \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "lanAccess.help": "\uB85C\uADF8\uC778\uC774 \uD544\uC694 \uC5C6\uC2B5\uB2C8\uB2E4. \uAC19\uC740 \uB124\uD2B8\uC6CC\uD06C\uC758 \uC0AC\uC6A9\uC790\uB294 \uC791\uC5C5, \uAC24\uB7EC\uB9AC, \uACF5\uAE09\uC790\uB97C \uACF5\uC720\uD558\uBA70 \uC124\uC815 \uBCC0\uACBD\uACFC \uC791\uC5C5 \uC0AD\uC81C\uB3C4 \uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "lanAccess.hostOverride": "\uC2DC\uC791 \uC2DC \uC9C0\uC815\uD55C \uD638\uC2A4\uD2B8\uAC00 \uC811\uC18D\uC744 \uC774 \uAE30\uAE30\uB85C \uC81C\uD55C\uD569\uB2C8\uB2E4. --host\uB97C \uC81C\uAC70\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uC791\uD558\uC138\uC694.",
+    "lanAccess.label": "LAN \uC811\uC18D \uD5C8\uC6A9",
+    "lanAccess.loading": "\uC811\uC18D \uC124\uC815 \uBD88\uB7EC\uC624\uB294 \uC911\u2026",
+    "lanAccess.localOnly": "\uC774 \uAE30\uAE30\uC5D0\uC11C\uB9CC WebUI\uC5D0 \uC811\uC18D\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "lanAccess.noAddress": "LAN IPv4 \uC8FC\uC18C\uB97C \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB124\uD2B8\uC6CC\uD06C \uC5F0\uACB0\uC744 \uD655\uC778\uD558\uC138\uC694.",
+    "lanAccess.pendingDisable": "\uC800\uC7A5\uD588\uC2B5\uB2C8\uB2E4. WebUI \uC11C\uBE44\uC2A4\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD560 \uB54C\uAE4C\uC9C0 LAN \uC811\uC18D\uC774 \uC720\uC9C0\uB429\uB2C8\uB2E4.",
+    "lanAccess.pendingEnable": "\uC800\uC7A5\uD588\uC2B5\uB2C8\uB2E4. LAN \uC811\uC18D\uC744 \uD5C8\uC6A9\uD558\uB824\uBA74 WebUI \uC11C\uBE44\uC2A4\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uC138\uC694.",
+    "lanAccess.saving": "\uC800\uC7A5 \uC911\u2026",
+    "mobile.backToEditor": "\uD3B8\uC9D1\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+    "mobile.copyHint": "\uC790\uB3D9 \uBCF5\uC0AC\uB97C \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uC544\uB798 \uD14D\uC2A4\uD2B8\uB97C \uC120\uD0DD\uD574 \uBCF5\uC0AC\uD558\uC138\uC694.",
+    "mobile.files": "\uD30C\uC77C",
+    "mobile.gestureHint": "\uD540\uCE58\uB85C \uD655\uB300/\uCD95\uC18C \xB7 \uC2A4\uC640\uC774\uD504\uB85C \uC774\uBBF8\uC9C0 \uC804\uD658",
+    "mobile.manualCopy": "\uAE38\uAC8C \uB20C\uB7EC \uBCF5\uC0AC",
+    "mobile.more": "\uB354 \uBCF4\uAE30",
+    "mobile.parameters": "\uB9E4\uAC1C\uBCC0\uC218",
+    "mobile.pasteHint": "\uC785\uB825\uB780\uC744 \uAE38\uAC8C \uB20C\uB7EC \uBD99\uC5EC\uB123\uAC70\uB098 \uC0AC\uC9C4 \uB610\uB294 \uD30C\uC77C\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
+    "mobile.photos": "\uC0AC\uC9C4",
+    "mobile.pickFiles": "\uC0AC\uC9C4 \uB610\uB294 \uD30C\uC77C \uC120\uD0DD",
+    "mobile.taskActions": "\uC791\uC5C5 \uBA54\uB274",
+    "networkEgress.fakeIpDnsFallback": "\uC774\uBBF8\uC9C0 \uB2E4\uC6B4\uB85C\uB4DC\uC758 Fake-IP DNS \uD638\uD658 \uCC98\uB9AC",
+    "networkEgress.fakeIpDnsHelp": "\uC774\uBBF8\uC9C0 DNS\uAC00 Fake-IP\uB97C \uBC18\uD658\uD558\uBA74 Cloudflare DNS\uB85C \uC2E4\uC81C \uACF5\uC778 \uC8FC\uC18C\uB97C \uC870\uD68C\uD569\uB2C8\uB2E4. \uC774\uD6C4 \uC2DC\uC791\uB418\uB294 \uC694\uCCAD\uC758 \uB2E4\uC6B4\uB85C\uB4DC\uC5D0 \uC801\uC6A9\uB418\uBA70 LAN DNS\uB294 \uBCC0\uACBD\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. API \uD0A4, \uD504\uB86C\uD504\uD2B8, \uC804\uCCB4 \uC774\uBBF8\uC9C0 URL\uC740 \uC804\uC1A1\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",
+    "output.transparencyFidelityHint": "\uD22C\uBA85 \uBC30\uACBD\uC740 \uC120\uD0DD\uD55C \uCD9C\uB825 \uC694\uAD6C \uC0AC\uD56D\uC774\uBBC0\uB85C \uC6D0\uBB38 \uBC0F \uCDA9\uC2E4 \uBAA8\uB4DC\uC5D0\uC11C\uB3C4 \uCD94\uAC00\uB429\uB2C8\uB2E4.",
+    "output.transparencyFormat": "\uD22C\uBA85 \uCD9C\uB825\uC5D0\uB294 PNG \uB610\uB294 WebP\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.",
+    "output.transparencyUnavailable": "\uD22C\uBA85 \uBBF8\uC9C0\uC6D0",
+    "output.transparentBackground": "\uD22C\uBA85 \uBC30\uACBD",
+    "preview.transparencyDetected": "\uD22C\uBA85 \uD53D\uC140 \uAC10\uC9C0\uB428",
+    "preview.transparencyMissing": "\uD22C\uBA85 \uD53D\uC140 \uC5C6\uC74C",
+    "preview.transparencyRetryHint": "\uD504\uB86C\uD504\uD2B8 \uD638\uD658 \uBC29\uC2DD\uC774\uB098 \uB2E4\uB978 \uBAA8\uB378\uC744 \uC0AC\uC6A9\uD574 \uBCF4\uC138\uC694. \uC7AC\uC2DC\uB3C4\uD558\uBA74 \uC0C8\uB85C \uC0DD\uC131\uB429\uB2C8\uB2E4.",
+    "queue.realtimePolling": "\uC791\uC5C5 \uC0C1\uD0DC\uB97C \uC8FC\uAE30\uC801\uC73C\uB85C \uAC31\uC2E0\uD558\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC2E4\uC2DC\uAC04 \uC5F0\uACB0 \uBCF5\uAD6C \uC911\u2026",
+    "referenceFiles.chooseResponses": "Responses \uCC44\uB110 \uC120\uD0DD",
+    "status.taskChangedDuringLoad": "\uBD88\uB7EC\uC624\uB294 \uB3D9\uC548 \uC791\uC5C5\uC774 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC120\uD0DD\uD558\uC138\uC694.",
+    "userConfigBackup.apiKeyConfirm": "\uC774 \uC554\uD638\uD654\uB418\uC9C0 \uC54A\uC740 \uC555\uCD95 \uD30C\uC77C\uC5D0\uB294 API \uD0A4\uAC00 \uD3EC\uD568\uB429\uB2C8\uB2E4. \uC0DD\uC131\uD560\uAE4C\uC694?",
+    "userConfigBackup.archiveMeta": "{count}\uAC1C \uC139\uC158 \xB7 \uD615\uC2DD v{version}",
+    "userConfigBackup.backToPreview": "\uBBF8\uB9AC\uBCF4\uAE30\uB85C \uB3CC\uC544\uAC00\uAE30",
+    "userConfigBackup.backupCopy": "\uD3EC\uD568\uD560 \uC124\uC815\uC744 \uC120\uD0DD\uD558\uC138\uC694. \uC0DD\uC131 \uC791\uC5C5\uACFC OAuth \uC138\uC158\uC740 \uD3EC\uD568\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",
+    "userConfigBackup.backupProgress": "\uBC31\uC5C5 \uC9C4\uD589 \uC0C1\uD669",
+    "userConfigBackup.cancelled": "\uBC31\uC5C5 \uCDE8\uC18C\uB428",
+    "userConfigBackup.chooseArchive": "\uBC31\uC5C5 ZIP \uC120\uD0DD",
+    "userConfigBackup.chooseArchiveCopy": "\uBA3C\uC800 \uD30C\uC77C\uC744 \uC5C5\uB85C\uB4DC\uD558\uACE0 \uAC80\uC99D\uD569\uB2C8\uB2E4. \uBBF8\uB9AC\uBCF4\uAE30\uB294 \uD604\uC7AC \uB370\uC774\uD130\uB97C \uBCC0\uACBD\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",
+    "userConfigBackup.keepWorking": "\uACC4\uC18D \uC791\uC5C5",
+    "userConfigBackup.cancelAndClose": "\uC804\uC1A1 \uCDE8\uC18C \uD6C4 \uB2EB\uAE30",
+    "userConfigBackup.discardAndClose": "\uC784\uC2DC \uBC31\uC5C5 \uC0AD\uC81C \uD6C4 \uB2EB\uAE30",
+    "userConfigBackup.creatingBackup": "\uBC31\uC5C5 \uC0DD\uC131 \uC911\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\uC124\uC815\uC744 \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4. \uC800\uC7A5\uD558\uC9C0 \uC54A\uC740 \uC218\uC815 \uC0AC\uD56D\uC740 \uC720\uC9C0\uB418\uBA70, \uC800\uC7A5\uD558\uBA74 \uD604\uC7AC \uC785\uB825 \uB0B4\uC6A9\uC774 \uC801\uC6A9\uB429\uB2C8\uB2E4.",
+    "userConfigBackup.closeActiveConfirm": "\uC5C5\uB85C\uB4DC \uB610\uB294 \uBC31\uC5C5\uC774 \uC9C4\uD589 \uC911\uC785\uB2C8\uB2E4. \uB2EB\uACE0 \uCDE8\uC18C\uD560\uAE4C\uC694?",
+    "userConfigBackup.create": "\uBC31\uC5C5 \uC0DD\uC131",
+    "userConfigBackup.creatingSession": "\uC5C5\uB85C\uB4DC \uC900\uBE44 \uC911\u2026",
+    "userConfigBackup.discardReadyConfirm": "\uB2EB\uC73C\uBA74 \uC11C\uBC84\uC758 \uC784\uC2DC \uC0AC\uBCF8\uC774 \uC0AD\uC81C\uB429\uB2C8\uB2E4. \uC774 \uAE30\uAE30\uC5D0 \uC800\uC7A5\uD55C \uD30C\uC77C\uC740 \uC720\uC9C0\uB429\uB2C8\uB2E4. \uACC4\uC18D\uD560\uAE4C\uC694?",
+    "userConfigBackup.download": "\uBC31\uC5C5 \uB2E4\uC6B4\uB85C\uB4DC",
+    "userConfigBackup.downloaded": "\uB2E4\uC6B4\uB85C\uB4DC\uB97C \uC2DC\uC791\uD588\uC2B5\uB2C8\uB2E4. 24\uC2DC\uAC04 \uC774\uB0B4\uC5D0 \uB2E4\uC2DC \uB2E4\uC6B4\uB85C\uB4DC\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "userConfigBackup.galleryReferenceImpact": "\uC774\uC804 \uC791\uC5C5 {count}\uAC1C\uC5D0\uC11C \uACF5\uC720 \uC774\uBBF8\uC9C0 \uCC38\uC870\uAC00 \uC0AC\uB77C\uC9D1\uB2C8\uB2E4",
+    "userConfigBackup.incrementalCopy": "\uAE30\uC874 \uB370\uC774\uD130\uB97C \uC720\uC9C0\uD558\uACE0 \uC911\uBCF5\uC744 \uAC74\uB108\uB6F0\uBA70 \uCDA9\uB3CC \uD56D\uBAA9\uC740 \uBCF5\uAD6C \uC0AC\uBCF8\uC744 \uB9CC\uB4ED\uB2C8\uB2E4.",
+    "userConfigBackup.itemCount": "{count}\uAC1C \uD56D\uBAA9",
+    "userConfigBackup.modeLabel": "\uBC31\uC5C5 \uB610\uB294 \uBCF5\uC6D0",
+    "userConfigBackup.previewCounts": "\uC555\uCD95 \uD30C\uC77C {count}\uAC1C \xB7 \uC911\uBCF5 {duplicate}\uAC1C \xB7 \uCDA9\uB3CC {conflict}\uAC1C",
+    "userConfigBackup.previewTitle": "\uBCF5\uC6D0 \uBBF8\uB9AC\uBCF4\uAE30",
+    "userConfigBackup.providerRetention": "\uC778\uC99D \uC815\uBCF4\uAC00 \uC788\uB294 \uACF5\uAE09\uC790 {count}\uAC1C\uB294 \uC548\uC804\uC744 \uC704\uD574 \uC720\uC9C0\uD569\uB2C8\uB2E4",
+    "userConfigBackup.replaceConfirmCopy": "\uC120\uD0DD\uD55C \uC139\uC158\uB9CC \uC601\uD5A5\uC744 \uBC1B\uC9C0\uB9CC \uD574\uB2F9 \uC139\uC158\uC758 \uD604\uC7AC \uB370\uC774\uD130\uB294 \uC0AD\uC81C\uB429\uB2C8\uB2E4. \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
+    "userConfigBackup.replaceImpact": "{section}: \uD604\uC7AC {current}\uAC1C\uB97C \uC81C\uAC70\uD55C \uB4A4 \uBC31\uC5C5\uC758 {archive}\uAC1C\uB97C \uAC00\uC838\uC635\uB2C8\uB2E4",
+    "userConfigBackup.restartRequired": "\uC800\uC7A5 \uACBD\uB85C\uB97C \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4. \uC801\uC6A9\uD558\uB824\uBA74 WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uC138\uC694.",
+    "userConfigBackup.restoreContinues": "\uBCF5\uC6D0 \uC4F0\uAE30\uAC00 \uC2DC\uC791\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uD328\uB110\uC744 \uB2EB\uC544\uB3C4 \uCDE8\uC18C\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uB098\uC911\uC5D0 \uB2E4\uC2DC \uC5F4\uC5B4 \uACB0\uACFC\uB97C \uD655\uC778\uD558\uC138\uC694.",
+    "userConfigBackup.restoreModeLabel": "\uBCF5\uC6D0 \uBC29\uC2DD",
+    "userConfigBackup.restoreProgress": "\uBCF5\uC6D0 \uC5C5\uB85C\uB4DC \uC9C4\uD589 \uC0C1\uD669",
+    "userConfigBackup.restoreSelected": "\uC120\uD0DD\uD55C \uB370\uC774\uD130 \uBCF5\uC6D0",
+    "userConfigBackup.restoring": "\uBCF5\uC6D0 \uC911\uC785\uB2C8\uB2E4. WebUI\uB97C \uC5F4\uC5B4 \uB450\uC138\uC694\u2026",
+    "userConfigBackup.resultCounts": "{section}: \uCD94\uAC00 {added} \xB7 \uAD50\uCCB4 {replaced} \xB7 \uAC74\uB108\uB700 {skipped} \xB7 \uBCF5\uAD6C \uC0AC\uBCF8 {copies}",
+    "userConfigBackup.selectAtLeastOne": "\uB370\uC774\uD130 \uC720\uD615\uC744 \uD558\uB098 \uC774\uC0C1 \uC120\uD0DD\uD558\uC138\uC694",
+    "userConfigBackup.selectSections": "\uB370\uC774\uD130 \uC120\uD0DD",
+    "userConfigBackup.status.cancelled": "\uBC31\uC5C5 \uCDE8\uC18C\uB428",
+    "userConfigBackup.status.expired": "\uBC31\uC5C5 \uB9CC\uB8CC\uB428",
+    "userConfigBackup.status.failed": "\uBC31\uC5C5 \uC2E4\uD328",
+    "userConfigBackup.status.interrupted": "WebUI\uAC00 \uC911\uB2E8\uB418\uC5B4 \uBC31\uC5C5\uC774 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4",
+    "userConfigBackup.status.packing": "\uC555\uCD95 \uD30C\uC77C \uC0DD\uC131 \uC911\u2026",
+    "userConfigBackup.status.planning": "\uBC31\uC5C5 \uACC4\uD68D \uC911\u2026",
+    "userConfigBackup.status.queued": "\uBC31\uC5C5 \uB300\uAE30 \uC911\u2026",
+    "userConfigBackup.status.ready": "\uBC31\uC5C5\uC774 \uC900\uBE44\uB418\uC5C8\uC2B5\uB2C8\uB2E4. 24\uC2DC\uAC04 \uC774\uB0B4\uC5D0 \uB2E4\uC2DC \uB2E4\uC6B4\uB85C\uB4DC\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "userConfigBackup.summaryFailed": "\uC124\uC815 \uC694\uC57D\uC744 \uC77D\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4",
+    "userConfigBackup.summaryLoading": "\uC124\uC815 \uC694\uC57D \uC77D\uB294 \uC911\u2026",
+    "userConfigBackup.uploading": "\uBC31\uC5C5 \uC5C5\uB85C\uB4DC \uC911\u2026",
+    "userConfigBackup.validating": "\uBC31\uC5C5 \uAC80\uC99D \uC911\u2026",
+    "userConfigBackup.validationReady": "\uAC80\uC99D\uC774 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBCF5\uC6D0 \uBC29\uC2DD\uC744 \uC120\uD0DD\uD558\uC138\uC694.",
+    "userConfigBackup.versionUnsupported": "\uC774 \uBC31\uC5C5\uC740 \uB354 \uC0C8\uB85C\uC6B4 \uD615\uC2DD\uC774\uBBC0\uB85C \uBBF8\uB9AC\uBCF4\uAE30\uB9CC \uAC00\uB2A5\uD569\uB2C8\uB2E4.",
+    "userConfigBackup.warningCount": "\uACBD\uACE0 {count}\uAC1C",
+    "user_config_backup_failed": "\uC120\uD0DD\uD55C \uB370\uC774\uD130\uB97C \uC77D\uAC70\uB098 \uC555\uCD95\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uD655\uC778 \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "user_config_backup_gallery_invalid": "\uACF5\uC720 \uC774\uBBF8\uC9C0\uAC00 \uAC24\uB7EC\uB9AC \uAE30\uB85D\uACFC \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uD574\uB2F9 \uC774\uBBF8\uC9C0\uB97C \uB2E4\uC2DC \uC800\uC7A5\uD558\uAC70\uB098 \uC81C\uAC70\uD55C \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "user_config_backup_insufficient_space": "\uBC31\uC5C5\uC744 \uB9CC\uB4E4 \uB514\uC2A4\uD06C \uC5EC\uC720 \uACF5\uAC04\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4.",
+    "user_config_backup_internal_error": "\uBC31\uC5C5 \uC11C\uBE44\uC2A4\uC5D0 \uB0B4\uBD80 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4. WebUI\uB97C \uB2E4\uC2DC \uC2DC\uC791\uD558\uACE0 \uC7AC\uC2DC\uB3C4\uD558\uC138\uC694. \uACC4\uC18D\uB418\uBA74 \uC2DC\uC791 \uB85C\uADF8\uB97C \uD655\uC778\uD558\uC138\uC694.",
+    "user_config_backup_io_error": "\uBC31\uC5C5 \uD30C\uC77C\uC5D0 \uC811\uADFC\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB514\uC2A4\uD06C\uC640 \uD3F4\uB354 \uAD8C\uD55C\uC744 \uD655\uC778\uD558\uC138\uC694.",
+    "user_config_backup_source_changed": "\uBC31\uC5C5 \uC911 \uC124\uC815\uC774 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uD3B8\uC9D1\uC744 \uC911\uB2E8\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "user_config_backup_source_unreadable": "\uC124\uC815 \uD30C\uC77C\uC744 \uC77D\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uAD8C\uD55C\uC744 \uD655\uC778\uD55C \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "user_config_restore_active_tasks": "\uC2E4\uD589 \uC911\uC778 \uC791\uC5C5\uC774 \uC788\uC2B5\uB2C8\uB2E4. \uC644\uB8CC\uB41C \uD6C4 \uB370\uC774\uD130\uB97C \uAD50\uCCB4\uD558\uC138\uC694.",
+    "user_config_restore_failed": "\uBCF5\uC6D0\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. \uAE30\uC874 \uC124\uC815\uC740 \uC720\uC9C0\uB429\uB2C8\uB2E4.",
+    "user_config_restore_preview_stale": "\uD604\uC7AC \uC124\uC815\uC774 \uBCC0\uACBD\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC555\uCD95 \uD30C\uC77C\uC744 \uB2E4\uC2DC \uAC80\uC99D\uD558\uC138\uC694.",
+    "user_config_restore_system_notification_permission_missing": "\uBE0C\uB77C\uC6B0\uC800 \uAD8C\uD55C\uC774 \uC5C6\uC5B4 \uC2DC\uC2A4\uD15C \uC54C\uB9BC\uC744 \uD65C\uC131\uD654\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.",
+    "user_config_restore_version_unsupported": "\uC774 \uBC31\uC5C5 \uD615\uC2DD\uC740 \uB108\uBB34 \uC0C8\uB85C\uC6CC \uBCF5\uC6D0\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
+    "ux.acceptDetail": "\uC131\uACF5\uD55C \uC774\uBBF8\uC9C0\uB97C \uC720\uC9C0\uD558\uACE0 \uC2E4\uD328\uD55C \uC774\uBBF8\uC9C0\uB97C \uCD94\uAC00 \uC0DD\uC131\uD558\uC9C0 \uC54A\uC740 \uCC44 \uC791\uC5C5\uC744 \uC644\uB8CC\uD569\uB2C8\uB2E4.",
+    "ux.addReference": "\uCC38\uC870 \uCD94\uAC00",
+    "ux.addingReference": "\uCC38\uC870 \uCD94\uAC00 \uC911\u2026",
+    "ux.checkProvider": "\uACF5\uAE09\uC790 \uC124\uC815 \uD655\uC778",
+    "ux.collapseReference": "\uC811\uAE30",
+    "ux.discardEdits": "\uBCC0\uACBD \uC0AC\uD56D \uBC84\uB9AC\uAE30",
+    "ux.draftRestored": "\uD504\uB86C\uD504\uD2B8\uC640 \uCC38\uC870\uB97C \uBCF5\uC6D0\uD588\uC2B5\uB2C8\uB2E4. \uC0DD\uC131 \uC124\uC815\uC740 \uD604\uC7AC \uC120\uD0DD\uC744 \uC720\uC9C0\uD569\uB2C8\uB2E4.",
+    "ux.editInputs": "\uC785\uB825 \uBC0F \uC124\uC815 \uD3B8\uC9D1",
+    "ux.editInputsReady": "\uC791\uC5C5 \uC785\uB825\uACFC \uC124\uC815\uC744 \uBD88\uB7EC\uC654\uC2B5\uB2C8\uB2E4. \uD3B8\uC9D1 \uD6C4 \uB2E4\uC2DC \uC0DD\uC131\uD558\uC138\uC694.",
+    "ux.errorDetails": "\uC624\uB958 \uC0C1\uC138",
+    "ux.execution": "\uC774\uBC88 \uC0DD\uC131",
+    "ux.historyDraftRestoreFailed": "\uCD08\uC548\uC744 \uBCF5\uC6D0\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC784\uC2DC \uC0AC\uBCF8\uC740 \uC720\uC9C0\uB429\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68 \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "ux.historyDraftSaveFailed": "\uCD08\uC548\uC744 \uBCF4\uAD00\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0DD\uC131 \uD398\uC774\uC9C0\uC5D0 \uBA38\uBB3C\uB7EC \uC788\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "ux.historyParametersHint": "\uC120\uD0DD\uD55C \uC791\uC5C5\uC758 \uC774\uC804 \uC124\uC815\uC785\uB2C8\uB2E4. \uB2E4\uC74C \uC0DD\uC131\uC5D0\uB294 \uCD9C\uB825 \uC124\uC815\uC774 \uC801\uC6A9\uB429\uB2C8\uB2E4.",
+    "ux.imageCount": "{count}\uC7A5",
+    "ux.imageUnsaved": "\uC774\uBBF8\uC9C0\uC5D0 \uC800\uC7A5\uB418\uC9C0 \uC54A\uC740 \uBCC0\uACBD \uC0AC\uD56D\uC774 \uC788\uC2B5\uB2C8\uB2E4. \uBC84\uB9AC\uBA74 \uB418\uB3CC\uB9B4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uACC4\uC18D \uD3B8\uC9D1\uD558\uB824\uBA74 \uCDE8\uC18C\uD558\uC138\uC694.",
+    "ux.moderationAuto": "\uC790\uB3D9",
+    "ux.moderationLow": "\uC644\uD654",
+    "ux.openRecovery": "\uC0DD\uC131 \uD398\uC774\uC9C0\uC5D0\uC11C \uD574\uACB0",
+    "ux.recovery.credentials": "\uC778\uC99D\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC0DD\uC131\uD558\uAE30 \uC804\uC5D0 \uACF5\uAE09\uC790 API \uD0A4 \uB610\uB294 \uB85C\uCEEC \uB85C\uADF8\uC778 \uC0C1\uD0DC\uB97C \uD655\uC778\uD558\uC138\uC694.",
+    "ux.recovery.input": "\uD504\uB86C\uD504\uD2B8, \uCC38\uC870 \uD30C\uC77C, \uC0DD\uC131 \uC124\uC815\uC5D0 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uB294 \uC785\uB825\uC774 \uC788\uB294\uC9C0 \uD655\uC778\uD558\uC138\uC694.",
+    "ux.recovery.quota": "\uC791\uC5C5 \uACF5\uAE09\uC790\uC758 \uC0AC\uC6A9 \uD55C\uB3C4\uB098 \uACC4\uC815 \uC794\uC561\uC744 \uD655\uC778\uD558\uC138\uC694.",
+    "ux.recovery.temporary": "\uC0DD\uC131\uC774 \uC644\uB8CC\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uC131\uACF5\uD55C \uC774\uBBF8\uC9C0\uB294 \uC720\uC9C0\uB429\uB2C8\uB2E4. \uAC00\uB2A5\uD558\uBA74 \uC2E4\uD328\uD55C \uC774\uBBF8\uC9C0\uB97C \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "ux.referenceAdded": "\uC774 \uC791\uC5C5\uC758 \uCC38\uC870\uC5D0 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4",
+    "ux.referenceFailed": "\uCC38\uC870\uB97C \uCD94\uAC00\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "ux.restoreDraft": "\uC785\uB825 \uBCF5\uC6D0",
+    "ux.restoreInputsHint": "\uD504\uB86C\uD504\uD2B8\uC640 \uCC38\uC870\uB9CC \uBCF5\uC6D0\uD558\uACE0 \uD604\uC7AC \uC0DD\uC131 \uC124\uC815\uC740 \uC720\uC9C0\uD569\uB2C8\uB2E4.",
+    "ux.tasks": "\uC791\uC5C5",
+    "ux.useSize": "{width} \xD7 {height} \uC0AC\uC6A9",
+    "ux.viewPreview": "\uBBF8\uB9AC\uBCF4\uAE30",
+    "version.continuePortable": "\uD3EC\uD130\uBE14 \uACC4\uC18D \uC0AC\uC6A9",
+    "version.dismissFailed": "\uC54C\uB9BC \uC0C1\uD0DC\uB97C \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB098\uC911\uC5D0 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "version.dismissOnboarding": "\uB2E4\uC2DC \uD45C\uC2DC \uC548 \uD568",
+    "version.onboardingBody": "\uC774\uBC88 \uBC84\uC804\uC5D0 macOS DMG\uC640 Windows App ZIP\uC774 \uCD94\uAC00\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC2E0\uADDC \uC0AC\uC6A9\uC790\uB294 \uD45C\uC900 \uD328\uD0A4\uC9C0\uB97C \uAD8C\uC7A5\uD558\uBA70 \uAE30\uC874 \uD3EC\uD130\uBE14\uB3C4 \uACC4\uC18D \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "version.onboardingDataPortable": "\uD604\uC7AC \uB370\uC774\uD130\uB294 \uC774 \uD3EC\uD130\uBE14 \uD328\uD0A4\uC9C0\uC758 data/ \uD3F4\uB354\uC5D0 \uC720\uC9C0\uB429\uB2C8\uB2E4.",
+    "version.onboardingMigration": "\uD45C\uC900 \uC571\uC73C\uB85C \uC804\uD658\uD560 \uB54C \uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB3C4\uC6B0\uBBF8\uB85C \uC774\uC804 \uB370\uC774\uD130\uB97C \uBCF5\uC0AC\uD558\uC138\uC694. \uC6D0\uBCF8\uC740 \uC774\uB3D9\uD558\uAC70\uB098 \uB36E\uC5B4\uC4F0\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",
+    "version.onboardingStandardData": "\uD45C\uC900 \uC571\uC740 \uC2DC\uC2A4\uD15C \uC571 \uB370\uC774\uD130 \uD3F4\uB354(macOS Application Support / Windows %APPDATA%)\uC5D0 \uB370\uC774\uD130\uB97C \uC800\uC7A5\uD569\uB2C8\uB2E4.",
+    "version.onboardingStatus": "{version}\uC73C\uB85C \uC5C5\uB370\uC774\uD2B8\uD588\uC2B5\uB2C8\uB2E4. \uD3EC\uD130\uBE14\uC744 \uACC4\uC18D \uC0AC\uC6A9\uD558\uAC70\uB098 \uD45C\uC900 \uC571\uC73C\uB85C \uC804\uD658\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "version.onboardingTitle": "0.5.5 \uD45C\uC900 \uC571 \uD328\uD0A4\uC9C0 \uCD94\uAC00",
+    "version.standardDownload": "\uD45C\uC900 \uC571 \uB2E4\uC6B4\uB85C\uB4DC"
   };
 
   // codex_image/webui/frontend/src/i18n/pt.ts
@@ -8345,12 +9206,12 @@
     "version.latest": "Vers\xE3o mais recente",
     "version.source": "Tempo de execu\xE7\xE3o",
     "version.sourcePortable": "Pacote port\xE1til",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "Aplicativo padr\xE3o",
     "version.sourceSource": "Verifica\xE7\xE3o de origem",
     "version.upToDate": "Voc\xEA j\xE1 est\xE1 na vers\xE3o mais recente",
     "version.updateAvailable": "A vers\xE3o {version} est\xE1 dispon\xEDvel. Feche a janela do servidor WebUI e execute o atualizador para atualizar.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "A vers\xE3o {version} est\xE1 dispon\xEDvel. Apps padr\xE3o do macOS com atualizador podem instal\xE1-la em Buscar atualiza\xE7\xF5es na barra de menus; este link permanece como op\xE7\xE3o manual.",
+    "version.standardManualInstall": "Apps padr\xE3o do macOS com atualizador permitem substitui\xE7\xE3o ap\xF3s confirma\xE7\xE3o; apps antigos do macOS e pacotes ZIP padr\xE3o do Windows exigem atualiza\xE7\xE3o manual.",
     "version.noUpdater": "Este tempo de execu\xE7\xE3o n\xE3o \xE9 um pacote port\xE1til, portanto o atualizador n\xE3o pode ser iniciado automaticamente.",
     "version.openUpdater": "Iniciar atualizador",
     "version.release": "Ver lan\xE7amento",
@@ -8402,6 +9263,7 @@
     "api.provider": "API provedor",
     "imageInput.title": "Imagens",
     "imageInput.uploadAria": "Clique, solte ou cole imagens e arquivos",
+    "imageInput.uploadImages": "Clique, arraste ou cole imagens",
     "imageInput.uploadFull": "Clique, solte ou cole imagens e arquivos",
     "imageInput.uploadCompact": "Adicionar entrada",
     "imageInput.uploadSubtitle": "Compat\xEDvel com imagens e arquivos de refer\xEAncia do Responses",
@@ -8573,7 +9435,6 @@
     "output.mainModelCustomForInput": "Use um modelo personalizado para a entrada atual",
     "output.apiDirect": "API Direto",
     "output.apiToolModel": "Usando o modelo de gera\xE7\xE3o de imagens API",
-    "output.mainModelUnused": "O modelo principal n\xE3o \xE9 usado para esta solicita\xE7\xE3o",
     "output.webSearch": "Pesquisa na web",
     "output.webSearchToggle": "Ligado",
     "output.webSearchTitle": "Pesquise primeiro na web e depois use-a para esta gera\xE7\xE3o; Codex e API Responses apenas",
@@ -8626,11 +9487,9 @@
     "output.qualityMedium": "M\xE9dio",
     "output.qualityHigh": "Alto",
     "output.quantity": "Contar",
-    "output.pixelPreview": "Pixels de sa\xEDda: 1024 x 1024 px",
-    "output.pixelPreviewValue": "Pixels de sa\xEDda: {value}",
-    "output.pixelPreviewAuto": "Pixels de sa\xEDda: autom\xE1tico (OpenAI escolhe automaticamente)",
     "output.format": "Formato",
     "output.compression": "Compress\xE3o",
+    "output.extraOptions": "Mais op\xE7\xF5es",
     "output.moderation": "Modera\xE7\xE3o",
     "preview.title": "Visualiza\xE7\xE3o",
     "preview.selectedZero": "0 selecionado",
@@ -8642,7 +9501,7 @@
     "preview.taskFailed": "Falha na tarefa",
     "preview.partialFailed": "Algumas imagens falharam",
     "preview.failedOutput": "Imagem {index} falhou",
-    "preview.progressLine": "Conclu\xEDdo {generated} / {total} \xB7 decorrido {elapsed}",
+    "preview.progressLine": "Conclu\xEDdo {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Conclu\xEDdo {generated} / {total} \xB7 falhou {failed}",
     "preview.elapsedLine": "Decorrido {elapsed}",
     "preview.lastError": "\xDAltimo erro: {error}",
@@ -8699,6 +9558,13 @@
     "promptPopover.notReturned": "N\xE3o devolvido",
     "promptPopover.noOptimized": "Nenhum prompt otimizado foi retornado",
     "promptPopover.submitted": "Ver solicita\xE7\xE3o enviada",
+    "promptPopover.response": "Ver resposta original do provedor",
+    "promptPopover.responseNote": "JSON / eventos de fluxo do provedor. Dados de imagem e credenciais s\xE3o omitidos; respostas longas s\xE3o marcadas como truncadas.",
+    "promptPopover.copyResponse": "Copiar JSON da resposta",
+    "promptPopover.retryResponse": "Recarregar",
+    "promptPopover.responseMissing": "A resposta original do provedor n\xE3o foi salva para esta tarefa.",
+    "promptPopover.responseLoading": "Carregando resposta\u2026",
+    "promptPopover.responseError": "N\xE3o foi poss\xEDvel carregar a resposta. Tente novamente.",
     "promptPopover.close": "Fechar compara\xE7\xE3o imediata",
     "promptPopover.copyOptimized": "Copiar prompt otimizado",
     "promptPopover.copied": "Copiado",
@@ -8901,7 +9767,7 @@
     "settings.savedRestartStatus": "Configura\xE7\xF5es de armazenamento salvas. Reinicie WebUI para aplicar.",
     "systemSettings.title": "Configura\xE7\xF5es do sistema",
     "userConfigBackup.title": "Backup e restaura\xE7\xE3o",
-    "userConfigBackup.back": "Voltar \xE0s Configura\xE7\xF5es do sistema",
+    "userConfigBackup.back": "Voltar a armazenamento e notifica\xE7\xF5es",
     "userConfigBackup.entryTitle": "Backup e restaura\xE7\xE3o da configura\xE7\xE3o",
     "userConfigBackup.entryCopy": "Migre chips, imagens compartilhadas, modelos e configura\xE7\xF5es do sistema",
     "userConfigBackup.backupTab": "Backup",
@@ -8971,18 +9837,18 @@
     "apiSettings.providerName": "Nome do provedor",
     "apiSettings.providerIcon": "Emoji",
     "apiSettings.providerIconPlaceholder": "Opcional, ex.: \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "Configura\xE7\xF5es de conex\xE3o",
     "apiSettings.connectionPreview": "Pr\xE9via da conex\xE3o",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "Modelos",
+    "apiSettings.modelBindingsHint": "Um fornecedor pode vincular v\xE1rios modelos e protocolos.",
+    "apiSettings.addModelBinding": "Adicionar modelo",
     "apiSettings.appendRatioPrompt": "Adicionar instru\xE7\xE3o de propor\xE7\xE3o",
     "apiSettings.defaultProviderForModel": "Provedor padr\xE3o",
     "apiSettings.removeBinding": "Remover v\xEDnculo",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "O cat\xE1logo de modelos est\xE1 indispon\xEDvel; ainda n\xE3o \xE9 poss\xEDvel adicionar um v\xEDnculo.",
+    "apiSettings.keepOneBinding": "Cada fornecedor deve manter pelo menos um v\xEDnculo de modelo.",
+    "apiSettings.bindingRequiredFields": "Para cada v\xEDnculo, escolha um modelo, insira o nome remoto e selecione pelo menos uma opera\xE7\xE3o.",
+    "apiSettings.bindingOverlap": "{model} {operation} est\xE1 associado a mais de um v\xEDnculo.",
     "apiSettings.actualRequest": "Solicita\xE7\xE3o efetiva",
     "apiSettings.newProviderAction": "Novo provedor",
     "apiSettings.copyProvider": "Copiar",
@@ -9005,6 +9871,8 @@
     "apiSettings.imageModel": "Modelo de gera\xE7\xE3o de imagens",
     "apiSettings.concurrency": "Limite de simultaneidade",
     "apiSettings.concurrencyShort": "Simultaneidade",
+    "apiSettings.remoteModelName": "Modelo do provedor",
+    "apiSettings.fetchModels": "Obter modelos",
     "apiSettings.advancedSettings": "Configura\xE7\xF5es avan\xE7adas",
     "apiSettings.concurrencyValue": "simultaneidade {concurrency}",
     "apiSettings.keySaved": "Chave API salva",
@@ -9039,6 +9907,7 @@
     "apiSettings.savingStatus": "Salvando configura\xE7\xF5es de API...",
     "apiSettings.autoSaving": "Salvando automaticamente...",
     "apiSettings.autoSaved": "Salvo automaticamente",
+    "apiSettings.defaultMappingInvalid": "As configura\xE7\xF5es do provedor padr\xE3o est\xE3o incompletas. Recarregue as configura\xE7\xF5es e tente novamente.",
     "apiSettings.saveFailed": "Falha ao salvar as configura\xE7\xF5es de API",
     "apiSettings.savedSummary": "Salvo \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 simultaneidade {concurrency}",
     "apiSettings.savedShort": "Salvo",
@@ -9205,7 +10074,169 @@
     "modelParameters.invalidJson": "JSON inv\xE1lido",
     "modelParameters.migrated": "Foram ajustados {count} par\xE2metros antigos ao modelo atual",
     "modelParameters.historyConfiguration": "Configura\xE7\xE3o hist\xF3rica",
-    "modelParameters.legacyTask": "Tarefa antiga"
+    "modelParameters.legacyTask": "Tarefa antiga",
+    "apiSettings.fetchingModels": "Buscando modelos\u2026",
+    "apiSettings.modelsEmpty": "Nenhum modelo retornado. Voc\xEA pode digitar o nome manualmente.",
+    "apiSettings.modelsFetchFailed": "N\xE3o foi poss\xEDvel buscar os modelos. Verifique o endere\xE7o e a rede e tente novamente.",
+    "apiSettings.modelsFetched": "{count} modelos encontrados. Escolha um adequado a este v\xEDnculo.",
+    "apiSettings.modelsInvalidBaseUrl": "Insira uma URL base HTTP(S) v\xE1lida.",
+    "apiSettings.modelsInvalidResponse": "O fornecedor retornou uma lista de modelos inv\xE1lida. Voc\xEA pode digitar o nome manualmente.",
+    "apiSettings.modelsKeyRequired": "Insira uma chave API antes de buscar os modelos.",
+    "apiSettings.modelsNotSupported": "Este fornecedor n\xE3o oferece listagem de modelos. Digite o nome manualmente.",
+    "apiSettings.modelsOriginMismatch": "O endere\xE7o do fornecedor mudou. Insira uma nova chave API ou salve o fornecedor primeiro.",
+    "apiSettings.modelsRateLimited": "Muitas solicita\xE7\xF5es. Tente novamente mais tarde.",
+    "apiSettings.modelsTooLarge": "A lista de modelos \xE9 muito grande. Digite o nome manualmente.",
+    "apiSettings.modelsUnauthorized": "Acesso ao modelo negado. Verifique a chave API e suas permiss\xF5es.",
+    "apiSettings.selectAvailableModel": "Escolher modelo dispon\xEDvel",
+    "apiSettings.transparencyMode": "M\xE9todo de fundo transparente",
+    "apiSettings.transparencyNative": "Par\xE2metro nativo",
+    "apiSettings.transparencyPrompt": "Compatibilidade por prompt",
+    "batch.deselectCurrentGroup": "Desmarcar tudo",
+    "batch.deselectWaiting": "Desmarcar em espera",
+    "batch.selectFailed": "N\xE3o foi poss\xEDvel selecionar as tarefas. Tente novamente.",
+    "history.promptSubmittedActual": "Prompt realmente enviado",
+    "lanAccess.active": "O acesso LAN est\xE1 ativo.",
+    "lanAccess.address": "Endere\xE7o LAN",
+    "lanAccess.copied": "Endere\xE7o copiado.",
+    "lanAccess.copyAddress": "Copiar {address}",
+    "lanAccess.copyManually": "Endere\xE7o selecionado. Copie manualmente.",
+    "lanAccess.failed": "N\xE3o foi poss\xEDvel ler ou salvar as configura\xE7\xF5es de acesso. Tente novamente.",
+    "lanAccess.help": "Sem login. Pessoas na mesma rede compartilham tarefas, galeria e fornecedores e podem alterar configura\xE7\xF5es e excluir tarefas.",
+    "lanAccess.hostOverride": "A op\xE7\xE3o de host na inicializa\xE7\xE3o restringe o acesso a este dispositivo. Remova --host e reinicie.",
+    "lanAccess.label": "Permitir acesso LAN",
+    "lanAccess.loading": "Carregando configura\xE7\xF5es de acesso\u2026",
+    "lanAccess.localOnly": "Somente este dispositivo pode acessar a WebUI.",
+    "lanAccess.noAddress": "Nenhum endere\xE7o IPv4 da LAN encontrado. Verifique a conex\xE3o de rede.",
+    "lanAccess.pendingDisable": "Salvo. O acesso LAN permanece ativo at\xE9 reiniciar o servi\xE7o WebUI.",
+    "lanAccess.pendingEnable": "Salvo. Reinicie o servi\xE7o WebUI para permitir acesso LAN.",
+    "lanAccess.saving": "Salvando\u2026",
+    "mobile.backToEditor": "Voltar \xE0 edi\xE7\xE3o",
+    "mobile.copyHint": "C\xF3pia autom\xE1tica indispon\xEDvel. Selecione o texto abaixo para copiar.",
+    "mobile.files": "Arquivos",
+    "mobile.gestureHint": "Fa\xE7a pin\xE7a para ampliar \xB7 Deslize para trocar de imagem",
+    "mobile.manualCopy": "Toque e segure para copiar",
+    "mobile.more": "Mais",
+    "mobile.parameters": "Par\xE2metros",
+    "mobile.pasteHint": "Toque e segure no campo para colar ou escolha fotos ou arquivos.",
+    "mobile.photos": "Fotos",
+    "mobile.pickFiles": "Escolher fotos ou arquivos",
+    "mobile.taskActions": "A\xE7\xF5es da tarefa",
+    "networkEgress.fakeIpDnsFallback": "Compatibilidade DNS Fake-IP para baixar imagens",
+    "networkEgress.fakeIpDnsHelp": "Se o DNS da imagem retornar uma Fake-IP, consulta o Cloudflare DNS para obter endere\xE7os p\xFAblicos reais. Aplica-se aos downloads de solicita\xE7\xF5es futuras; n\xE3o altera o DNS da LAN. N\xE3o envia chaves API, prompts nem URLs completas de imagens.",
+    "output.transparencyFidelityHint": "O fundo transparente \xE9 um requisito de sa\xEDda escolhido e tamb\xE9m \xE9 adicionado nos modos Original e Fiel.",
+    "output.transparencyFormat": "A sa\xEDda transparente exige PNG ou WebP.",
+    "output.transparencyUnavailable": "Sem transpar\xEAncia",
+    "output.transparentBackground": "Fundo transparente",
+    "preview.transparencyDetected": "Pixels transparentes detectados",
+    "preview.transparencyMissing": "Nenhum pixel transparente detectado",
+    "preview.transparencyRetryHint": "Tente a compatibilidade por prompt ou outro modelo. Uma nova tentativa inicia outra gera\xE7\xE3o.",
+    "queue.realtimePolling": "O status \xE9 atualizado periodicamente. Restaurando a conex\xE3o em tempo real\u2026",
+    "referenceFiles.chooseResponses": "Escolher um canal Responses",
+    "status.taskChangedDuringLoad": "A tarefa mudou durante o carregamento. Selecione-a novamente.",
+    "userConfigBackup.apiKeyConfirm": "Este arquivo n\xE3o criptografado conter\xE1 chaves API. Criar mesmo assim?",
+    "userConfigBackup.archiveMeta": "{count} se\xE7\xF5es \xB7 formato v{version}",
+    "userConfigBackup.backToPreview": "Voltar \xE0 pr\xE9via",
+    "userConfigBackup.backupCopy": "Escolha a configura\xE7\xE3o a incluir. Tarefas geradas e sess\xF5es OAuth nunca s\xE3o inclu\xEDdas.",
+    "userConfigBackup.backupProgress": "Progresso do backup",
+    "userConfigBackup.cancelled": "Backup cancelado",
+    "userConfigBackup.chooseArchive": "Escolher ZIP de backup",
+    "userConfigBackup.chooseArchiveCopy": "O arquivo \xE9 primeiro enviado e validado. A pr\xE9via n\xE3o altera os dados atuais.",
+    "userConfigBackup.keepWorking": "Continuar",
+    "userConfigBackup.cancelAndClose": "Cancelar transfer\xEAncia e fechar",
+    "userConfigBackup.discardAndClose": "Excluir backup tempor\xE1rio e fechar",
+    "userConfigBackup.creatingBackup": "Criando backup\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "As configura\xE7\xF5es foram restauradas. As altera\xE7\xF5es n\xE3o salvas foram mantidas; salvar aplicar\xE1 os valores atuais do formul\xE1rio.",
+    "userConfigBackup.closeActiveConfirm": "H\xE1 um envio ou backup em andamento. Fechar e cancelar?",
+    "userConfigBackup.create": "Criar backup",
+    "userConfigBackup.creatingSession": "Preparando envio\u2026",
+    "userConfigBackup.discardReadyConfirm": "Fechar exclui a c\xF3pia tempor\xE1ria no servidor. Arquivos salvos neste dispositivo ser\xE3o mantidos. Continuar?",
+    "userConfigBackup.download": "Baixar backup",
+    "userConfigBackup.downloaded": "Download iniciado. Voc\xEA pode baixar este backup novamente por at\xE9 24 horas.",
+    "userConfigBackup.galleryReferenceImpact": "{count} tarefas hist\xF3ricas perder\xE3o refer\xEAncias a imagens compartilhadas",
+    "userConfigBackup.incrementalCopy": "Mant\xE9m os dados existentes, ignora duplicatas e cria c\xF3pias de recupera\xE7\xE3o para conflitos.",
+    "userConfigBackup.itemCount": "{count} itens",
+    "userConfigBackup.modeLabel": "Backup ou restaura\xE7\xE3o",
+    "userConfigBackup.previewCounts": "{count} no arquivo \xB7 {duplicate} duplicatas \xB7 {conflict} conflitos",
+    "userConfigBackup.previewTitle": "Pr\xE9via da restaura\xE7\xE3o",
+    "userConfigBackup.providerRetention": "{count} fornecedores com credenciais ser\xE3o mantidos por seguran\xE7a",
+    "userConfigBackup.replaceConfirmCopy": "Apenas as se\xE7\xF5es selecionadas ser\xE3o afetadas, mas seus dados atuais ser\xE3o removidos. Isso n\xE3o pode ser desfeito.",
+    "userConfigBackup.replaceImpact": "{section}: remover {current} itens atuais e importar {archive} itens do backup",
+    "userConfigBackup.restartRequired": "Caminhos de armazenamento restaurados. Reinicie a WebUI para us\xE1-los.",
+    "userConfigBackup.restoreContinues": "A grava\xE7\xE3o da restaura\xE7\xE3o come\xE7ou. Fechar o painel n\xE3o a cancela; reabra depois para ver o resultado.",
+    "userConfigBackup.restoreModeLabel": "Modo de restaura\xE7\xE3o",
+    "userConfigBackup.restoreProgress": "Progresso do envio da restaura\xE7\xE3o",
+    "userConfigBackup.restoreSelected": "Restaurar dados selecionados",
+    "userConfigBackup.restoring": "Restaurando. Mantenha a WebUI aberta\u2026",
+    "userConfigBackup.resultCounts": "{section}: {added} adicionados \xB7 {replaced} substitu\xEDdos \xB7 {skipped} ignorados \xB7 {copies} c\xF3pias de recupera\xE7\xE3o",
+    "userConfigBackup.selectAtLeastOne": "Selecione pelo menos um tipo de dado",
+    "userConfigBackup.selectSections": "Selecionar dados",
+    "userConfigBackup.status.cancelled": "Backup cancelado",
+    "userConfigBackup.status.expired": "Backup expirado",
+    "userConfigBackup.status.failed": "Falha no backup",
+    "userConfigBackup.status.interrupted": "O backup parou quando a WebUI foi interrompida",
+    "userConfigBackup.status.packing": "Compactando arquivo\u2026",
+    "userConfigBackup.status.planning": "Planejando backup\u2026",
+    "userConfigBackup.status.queued": "Backup na fila\u2026",
+    "userConfigBackup.status.ready": "Backup pronto. Voc\xEA pode baix\xE1-lo novamente por at\xE9 24 horas.",
+    "userConfigBackup.summaryFailed": "N\xE3o foi poss\xEDvel ler o resumo das configura\xE7\xF5es",
+    "userConfigBackup.summaryLoading": "Lendo resumo das configura\xE7\xF5es\u2026",
+    "userConfigBackup.uploading": "Enviando backup\u2026",
+    "userConfigBackup.validating": "Validando backup\u2026",
+    "userConfigBackup.validationReady": "Valida\xE7\xE3o conclu\xEDda. Escolha como restaurar.",
+    "userConfigBackup.versionUnsupported": "Este backup usa um formato mais recente e s\xF3 pode ser visualizado.",
+    "userConfigBackup.warningCount": "{count} avisos",
+    "user_config_backup_failed": "N\xE3o foi poss\xEDvel ler ou compactar os dados selecionados. Verifique e tente novamente.",
+    "user_config_backup_gallery_invalid": "Uma imagem compartilhada n\xE3o corresponde ao registro na galeria. Salve-a novamente ou remova-a e tente outra vez.",
+    "user_config_backup_insufficient_space": "N\xE3o h\xE1 espa\xE7o livre suficiente para criar o backup.",
+    "user_config_backup_internal_error": "Erro interno no servi\xE7o de backup. Reinicie a WebUI e tente novamente; se persistir, verifique o log de inicializa\xE7\xE3o.",
+    "user_config_backup_io_error": "Falha ao acessar arquivos do backup. Verifique o disco e as permiss\xF5es das pastas.",
+    "user_config_backup_source_changed": "A configura\xE7\xE3o mudou durante o backup. Pare de editar e tente novamente.",
+    "user_config_backup_source_unreadable": "N\xE3o foi poss\xEDvel ler um arquivo de configura\xE7\xE3o. Verifique suas permiss\xF5es e tente novamente.",
+    "user_config_restore_active_tasks": "H\xE1 tarefas em andamento. Aguarde antes de substituir os dados.",
+    "user_config_restore_failed": "Falha na restaura\xE7\xE3o. A configura\xE7\xE3o existente foi preservada.",
+    "user_config_restore_preview_stale": "A configura\xE7\xE3o atual mudou. Valide o arquivo novamente.",
+    "user_config_restore_system_notification_permission_missing": "As notifica\xE7\xF5es do sistema n\xE3o foram ativadas porque o navegador n\xE3o concedeu permiss\xE3o.",
+    "user_config_restore_version_unsupported": "O formato deste backup \xE9 novo demais para restaurar.",
+    "ux.acceptDetail": "Mant\xE9m as imagens geradas e conclui a tarefa sem preencher as imagens que falharam.",
+    "ux.addReference": "Adicionar refer\xEAncia",
+    "ux.addingReference": "Adicionando refer\xEAncia\u2026",
+    "ux.checkProvider": "Verificar fornecedor",
+    "ux.collapseReference": "Recolher",
+    "ux.discardEdits": "Descartar altera\xE7\xF5es",
+    "ux.draftRestored": "Prompt e refer\xEAncias restaurados; as configura\xE7\xF5es atuais de gera\xE7\xE3o foram mantidas.",
+    "ux.editInputs": "Editar entradas e configura\xE7\xF5es",
+    "ux.editInputsReady": "Entradas e configura\xE7\xF5es carregadas. Edite antes de gerar novamente.",
+    "ux.errorDetails": "Detalhes do erro",
+    "ux.execution": "Pr\xF3xima gera\xE7\xE3o",
+    "ux.historyDraftRestoreFailed": "N\xE3o foi poss\xEDvel restaurar o rascunho. A c\xF3pia tempor\xE1ria foi mantida. Atualize para tentar novamente.",
+    "ux.historyDraftSaveFailed": "N\xE3o foi poss\xEDvel preservar o rascunho. Voc\xEA continua na p\xE1gina de gera\xE7\xE3o. Tente novamente.",
+    "ux.historyParametersHint": "Estes s\xE3o os par\xE2metros hist\xF3ricos da tarefa selecionada. As configura\xE7\xF5es de sa\xEDda controlam a pr\xF3xima gera\xE7\xE3o.",
+    "ux.imageCount": "{count} imagens",
+    "ux.imageUnsaved": "Esta imagem tem altera\xE7\xF5es n\xE3o salvas. Descart\xE1-las \xE9 irrevers\xEDvel; cancele para continuar editando.",
+    "ux.moderationAuto": "Autom\xE1tica",
+    "ux.moderationLow": "Menos restritiva",
+    "ux.openRecovery": "Resolver na p\xE1gina de gera\xE7\xE3o",
+    "ux.recovery.credentials": "Falha na autentica\xE7\xE3o. Verifique a chave API do fornecedor ou a sess\xE3o local antes de gerar novamente.",
+    "ux.recovery.input": "Verifique entradas incompat\xEDveis no prompt, nos arquivos de refer\xEAncia e nas configura\xE7\xF5es.",
+    "ux.recovery.quota": "Verifique a cota ou o saldo do fornecedor da tarefa.",
+    "ux.recovery.temporary": "A gera\xE7\xE3o n\xE3o foi conclu\xEDda. As imagens geradas foram mantidas; tente novamente as que falharam quando poss\xEDvel.",
+    "ux.referenceAdded": "Adicionado \xE0s refer\xEAncias desta tarefa",
+    "ux.referenceFailed": "N\xE3o foi poss\xEDvel adicionar a refer\xEAncia. Tente novamente.",
+    "ux.restoreDraft": "Restaurar entradas",
+    "ux.restoreInputsHint": "Restaura apenas o prompt e as refer\xEAncias; mant\xE9m as configura\xE7\xF5es atuais.",
+    "ux.tasks": "Tarefas",
+    "ux.useSize": "Usar {width} \xD7 {height}",
+    "ux.viewPreview": "Ver pr\xE9via",
+    "version.continuePortable": "Continuar com a vers\xE3o port\xE1til",
+    "version.dismissFailed": "N\xE3o foi poss\xEDvel salvar o estado do aviso. Tente novamente mais tarde.",
+    "version.dismissOnboarding": "N\xE3o mostrar novamente",
+    "version.onboardingBody": "Esta vers\xE3o adiciona pacotes DMG para macOS e App ZIP para Windows. Novos usu\xE1rios devem usar o pacote padr\xE3o; o port\xE1til continua funcionando.",
+    "version.onboardingDataPortable": "Seus dados permanecem na pasta data/ deste pacote port\xE1til.",
+    "version.onboardingMigration": "Ao mudar para o app padr\xE3o, use o assistente de migra\xE7\xE3o para copiar os dados antigos. Os originais n\xE3o ser\xE3o movidos nem sobrescritos.",
+    "version.onboardingStandardData": "O app padr\xE3o armazena os dados na pasta de apps do sistema: macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "Atualizado para {version}. Voc\xEA pode continuar com a vers\xE3o port\xE1til ou mudar para o app padr\xE3o.",
+    "version.onboardingTitle": "0.5.5 adiciona pacotes padr\xE3o",
+    "version.standardDownload": "Baixar app padr\xE3o"
   };
 
   // codex_image/webui/frontend/src/i18n/ru.ts
@@ -9581,12 +10612,12 @@
     "version.latest": "\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u044F\u044F \u0432\u0435\u0440\u0441\u0438\u044F",
     "version.source": "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F",
     "version.sourcePortable": "\u041F\u043E\u0440\u0442\u0430\u0442\u0438\u0432\u043D\u0430\u044F \u0443\u043F\u0430\u043A\u043E\u0432\u043A\u0430",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u043E\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435",
     "version.sourceSource": "\u041E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u0435 \u0438\u0441\u0445\u043E\u0434\u043D\u043E\u0433\u043E \u043A\u043E\u0434\u0430",
     "version.upToDate": "\u0423 \u0432\u0430\u0441 \u0443\u0436\u0435 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0430 \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u044F\u044F \u0432\u0435\u0440\u0441\u0438\u044F",
     "version.updateAvailable": "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0432\u0435\u0440\u0441\u0438\u044F {version}. \u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0441\u0435\u0440\u0432\u0435\u0440\u0430 WebUI, \u0437\u0430\u0442\u0435\u043C \u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u0434\u043B\u044F \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0432\u0435\u0440\u0441\u0438\u044F {version}. \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F macOS \u0441\u043E \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435\u043C \u043C\u043E\u0433\u0443\u0442 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0435\u0451 \u0447\u0435\u0440\u0435\u0437 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0439 \u0432 \u043C\u0435\u043D\u044E; \u0441\u0441\u044B\u043B\u043A\u0430 \u043E\u0441\u0442\u0430\u0451\u0442\u0441\u044F \u0434\u043B\u044F \u0440\u0443\u0447\u043D\u043E\u0439 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438.",
+    "version.standardManualInstall": "\u041F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F macOS \u0441\u043E \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435\u043C \u0437\u0430\u043C\u0435\u043D\u044F\u044E\u0442\u0441\u044F \u043F\u043E\u0441\u043B\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u044F. \u0421\u0442\u0430\u0440\u044B\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F macOS \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0435 ZIP \u0434\u043B\u044F Windows \u043E\u0431\u043D\u043E\u0432\u043B\u044F\u044E\u0442\u0441\u044F \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
     "version.noUpdater": "\u042D\u0442\u0430 \u0441\u0440\u0435\u0434\u0430 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F \u043D\u0435 \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u0438\u043C\u044B\u043C \u043F\u0430\u043A\u0435\u0442\u043E\u043C, \u043F\u043E\u044D\u0442\u043E\u043C\u0443 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E \u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438.",
     "version.openUpdater": "\u0417\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F",
     "version.release": "\u041F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0432\u044B\u043F\u0443\u0441\u043A",
@@ -9638,6 +10669,7 @@
     "api.provider": "API \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A",
     "imageInput.title": "Images",
     "imageInput.uploadAria": "\u041D\u0430\u0436\u043C\u0438\u0442\u0435, \u043F\u0435\u0440\u0435\u0442\u0430\u0449\u0438\u0442\u0435 \u0438\u043B\u0438 \u0432\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0438 \u0444\u0430\u0439\u043B\u044B",
+    "imageInput.uploadImages": "\u041D\u0430\u0436\u043C\u0438\u0442\u0435, \u043F\u0435\u0440\u0435\u0442\u0430\u0449\u0438\u0442\u0435 \u0438\u043B\u0438 \u0432\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
     "imageInput.uploadFull": "\u041D\u0430\u0436\u043C\u0438\u0442\u0435, \u043F\u0435\u0440\u0435\u0442\u0430\u0449\u0438\u0442\u0435 \u0438\u043B\u0438 \u0432\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0438 \u0444\u0430\u0439\u043B\u044B",
     "imageInput.uploadCompact": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A",
     "imageInput.uploadSubtitle": "\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0438 \u0444\u0430\u0439\u043B\u044B-\u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438 \u0434\u043B\u044F Responses",
@@ -9809,7 +10841,6 @@
     "output.mainModelCustomForInput": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C \u0434\u043B\u044F \u0442\u0435\u043A\u0443\u0449\u0435\u0433\u043E \u0432\u0432\u043E\u0434\u0430",
     "output.apiDirect": "API \u041F\u0440\u044F\u043C\u043E\u0439",
     "output.apiToolModel": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435 API-\u043C\u043E\u0434\u0435\u043B\u0438 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439",
-    "output.mainModelUnused": "\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u043C\u043E\u0434\u0435\u043B\u044C \u043D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u0434\u043B\u044F \u044D\u0442\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430.",
     "output.webSearch": "\u0412\u0435\u0431-\u043F\u043E\u0438\u0441\u043A",
     "output.webSearchToggle": "\u0412\u043A\u043B.",
     "output.webSearchTitle": "\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0432\u044B\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u043F\u043E\u0438\u0441\u043A \u0432 \u0418\u043D\u0442\u0435\u0440\u043D\u0435\u0442\u0435, \u0430 \u0437\u0430\u0442\u0435\u043C \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0435\u0433\u043E \u0434\u043B\u044F \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u043A\u043E\u043B\u0435\u043D\u0438\u044F; \u0422\u043E\u043B\u044C\u043A\u043E Codex \u0438 API Responses",
@@ -9862,11 +10893,9 @@
     "output.qualityMedium": "\u0421\u0440\u0435\u0434\u043D\u0438\u0439",
     "output.qualityHigh": "\u0412\u044B\u0441\u043E\u043A\u0438\u0439",
     "output.quantity": "\u0413\u0440\u0430\u0444",
-    "output.pixelPreview": "\u0412\u044B\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0438\u043A\u0441\u0435\u043B\u0438: 1024 x 1024 \u043F\u0438\u043A\u0441\u0435\u043B\u0435\u0439.",
-    "output.pixelPreviewValue": "\u0412\u044B\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0438\u043A\u0441\u0435\u043B\u0438: {value}",
-    "output.pixelPreviewAuto": "\u0412\u044B\u0445\u043E\u0434\u043D\u044B\u0435 \u043F\u0438\u043A\u0441\u0435\u043B\u0438: auto (OpenAI \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438)",
     "output.format": "\u0424\u043E\u0440\u043C\u0430\u0442",
     "output.compression": "\u0421\u0436\u0430\u0442\u0438\u0435",
+    "output.extraOptions": "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B",
     "output.moderation": "\u041C\u043E\u0434\u0435\u0440\u0430\u0446\u0438\u044F",
     "preview.title": "\u041F\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440",
     "preview.selectedZero": "0 \u0432\u044B\u0431\u0440\u0430\u043D\u043E",
@@ -9878,7 +10907,7 @@
     "preview.taskFailed": "\u0417\u0430\u0434\u0430\u0447\u0430 \u043D\u0435 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0430",
     "preview.partialFailed": "\u041D\u0435\u043A\u043E\u0442\u043E\u0440\u044B\u0439 images \u043D\u0435 \u0443\u0434\u0430\u043B\u0441\u044F",
     "preview.failedOutput": "Image {index} \u043D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C",
-    "preview.progressLine": "\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E {generated} / {total} \xB7 \u0438\u0441\u0442\u0435\u043A\u043B\u043E {elapsed}",
+    "preview.progressLine": "\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u043E {generated} / {total} \xB7 \u043D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C {failed}",
     "preview.elapsedLine": "\u041F\u0440\u043E\u0448\u043B\u043E {elapsed}",
     "preview.lastError": "\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u044F\u044F \u043E\u0448\u0438\u0431\u043A\u0430: {error}",
@@ -9935,6 +10964,13 @@
     "promptPopover.notReturned": "\u041D\u0435 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0435\u043D\u043E",
     "promptPopover.noOptimized": "\u041E\u043F\u0442\u0438\u043C\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u043F\u0440\u0438\u0433\u043B\u0430\u0448\u0435\u043D\u0438\u0435 \u043D\u0435 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0435\u043D\u043E",
     "promptPopover.submitted": "\u041F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043D\u043E\u0435 \u043F\u0440\u0438\u0433\u043B\u0430\u0448\u0435\u043D\u0438\u0435",
+    "promptPopover.response": "\u0418\u0441\u0445\u043E\u0434\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u0430",
+    "promptPopover.responseNote": "JSON / \u043F\u043E\u0442\u043E\u043A\u043E\u0432\u044B\u0435 \u0441\u043E\u0431\u044B\u0442\u0438\u044F \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u0430. \u0414\u0430\u043D\u043D\u044B\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439 \u0438 \u0443\u0447\u0451\u0442\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0441\u043A\u0440\u044B\u0442\u044B; \u0434\u043B\u0438\u043D\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B \u043F\u043E\u043C\u0435\u0447\u0435\u043D\u044B \u043A\u0430\u043A \u0441\u043E\u043A\u0440\u0430\u0449\u0451\u043D\u043D\u044B\u0435.",
+    "promptPopover.copyResponse": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C JSON \u043E\u0442\u0432\u0435\u0442\u0430",
+    "promptPopover.retryResponse": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430",
+    "promptPopover.responseMissing": "\u0414\u043B\u044F \u044D\u0442\u043E\u0439 \u0437\u0430\u0434\u0430\u0447\u0438 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u043F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A\u0430 \u043D\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D.",
+    "promptPopover.responseLoading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043E\u0442\u0432\u0435\u0442\u0430\u2026",
+    "promptPopover.responseError": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u043E\u0442\u0432\u0435\u0442. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
     "promptPopover.close": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u0431\u044B\u0441\u0442\u0440\u043E\u0435 \u0441\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u0435",
     "promptPopover.copyOptimized": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u043F\u0442\u0438\u043C\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u043F\u0440\u0438\u0433\u043B\u0430\u0448\u0435\u043D\u0438\u0435",
     "promptPopover.copied": "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u043E",
@@ -10137,7 +11173,7 @@
     "settings.savedRestartStatus": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C.",
     "systemSettings.title": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
     "userConfigBackup.title": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435",
-    "userConfigBackup.back": "\u041D\u0430\u0437\u0430\u0434 \u043A \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u043C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u043C",
+    "userConfigBackup.back": "\u041D\u0430\u0437\u0430\u0434 \u043A \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0443 \u0438 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F\u043C",
     "userConfigBackup.entryTitle": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438",
     "userConfigBackup.entryCopy": "\u041F\u0435\u0440\u0435\u043D\u043E\u0441 \u0447\u0438\u043F\u043E\u0432, \u043E\u0431\u0449\u0438\u0445 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439, \u0448\u0430\u0431\u043B\u043E\u043D\u043E\u0432 \u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
     "userConfigBackup.backupTab": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F",
@@ -10207,18 +11243,18 @@
     "apiSettings.providerName": "\u0418\u043C\u044F \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
     "apiSettings.providerIcon": "\u042D\u043C\u043E\u0434\u0437\u0438",
     "apiSettings.providerIconPlaceholder": "\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F",
     "apiSettings.connectionPreview": "\u041F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "\u041C\u043E\u0434\u0435\u043B\u0438",
+    "apiSettings.modelBindingsHint": "\u041E\u0434\u0438\u043D \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 \u043C\u043E\u0436\u0435\u0442 \u0441\u0432\u044F\u0437\u044B\u0432\u0430\u0442\u044C \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u0438 \u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B\u043E\u0432.",
+    "apiSettings.addModelBinding": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u044C",
     "apiSettings.appendRatioPrompt": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043F\u0440\u043E\u043F\u043E\u0440\u0446\u0438\u0438",
     "apiSettings.defaultProviderForModel": "\u041F\u043E\u0441\u0442\u0430\u0432\u0449\u0438\u043A \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E",
     "apiSettings.removeBinding": "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0443",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D; \u043F\u043E\u043A\u0430 \u043D\u0435\u043B\u044C\u0437\u044F \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0443.",
+    "apiSettings.keepOneBinding": "\u0423 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0434\u043E\u043B\u0436\u043D\u0430 \u043E\u0441\u0442\u0430\u0442\u044C\u0441\u044F \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u043D\u0430 \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0430 \u043C\u043E\u0434\u0435\u043B\u0438.",
+    "apiSettings.bindingRequiredFields": "\u0414\u043B\u044F \u043A\u0430\u0436\u0434\u043E\u0439 \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043C\u043E\u0434\u0435\u043B\u044C, \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0451\u043D\u043D\u043E\u0435 \u0438\u043C\u044F \u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u043D\u0443 \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u044E.",
+    "apiSettings.bindingOverlap": "{model} {operation} \u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u0438\u043C \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0430\u043C.",
     "apiSettings.actualRequest": "\u0424\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0437\u0430\u043F\u0440\u043E\u0441",
     "apiSettings.newProviderAction": "\u041D\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440",
     "apiSettings.copyProvider": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
@@ -10241,6 +11277,8 @@
     "apiSettings.imageModel": "\u041C\u043E\u0434\u0435\u043B\u044C \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439",
     "apiSettings.concurrency": "\u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C\u0430",
     "apiSettings.concurrencyShort": "\u041F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C",
+    "apiSettings.remoteModelName": "\u041C\u043E\u0434\u0435\u043B\u044C \u0443 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
+    "apiSettings.fetchModels": "\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u0438",
     "apiSettings.advancedSettings": "\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
     "apiSettings.concurrencyValue": "\u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C {concurrency}",
     "apiSettings.keySaved": "\u041A\u043B\u044E\u0447 API \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D.",
@@ -10275,6 +11313,7 @@
     "apiSettings.savingStatus": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A API...",
     "apiSettings.autoSaving": "\u0410\u0432\u0442\u043E\u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435...",
     "apiSettings.autoSaved": "\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E",
+    "apiSettings.defaultMappingInvalid": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u043D\u0435\u043F\u043E\u043B\u043D\u044B. \u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0437\u0430\u043D\u043E\u0432\u043E \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
     "apiSettings.saveFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 API.",
     "apiSettings.savedSummary": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C {concurrency}",
     "apiSettings.savedShort": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E",
@@ -10441,7 +11480,169 @@
     "modelParameters.invalidJson": "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 JSON",
     "modelParameters.migrated": "\u0421\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0434\u043B\u044F \u0442\u0435\u043A\u0443\u0449\u0435\u0439 \u043C\u043E\u0434\u0435\u043B\u0438: {count}",
     "modelParameters.historyConfiguration": "\u0418\u0441\u0442\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044F",
-    "modelParameters.legacyTask": "\u0421\u0442\u0430\u0440\u0430\u044F \u0437\u0430\u0434\u0430\u0447\u0430"
+    "modelParameters.legacyTask": "\u0421\u0442\u0430\u0440\u0430\u044F \u0437\u0430\u0434\u0430\u0447\u0430",
+    "apiSettings.fetchingModels": "\u041F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0435 \u043C\u043E\u0434\u0435\u043B\u0435\u0439\u2026",
+    "apiSettings.modelsEmpty": "\u041C\u043E\u0434\u0435\u043B\u0438 \u043D\u0435 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u044B. \u041C\u043E\u0436\u043D\u043E \u0432\u0432\u0435\u0441\u0442\u0438 \u0438\u043C\u044F \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
+    "apiSettings.modelsFetchFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u0438. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0430\u0434\u0440\u0435\u0441 \u0438 \u0441\u0435\u0442\u044C \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
+    "apiSettings.modelsFetched": "\u041D\u0430\u0439\u0434\u0435\u043D\u043E \u043C\u043E\u0434\u0435\u043B\u0435\u0439: {count}. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0443\u044E \u0434\u043B\u044F \u044D\u0442\u043E\u0439 \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0438.",
+    "apiSettings.modelsInvalidBaseUrl": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 \u0431\u0430\u0437\u043E\u0432\u044B\u0439 URL HTTP(S).",
+    "apiSettings.modelsInvalidResponse": "\u041F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 \u0432\u0435\u0440\u043D\u0443\u043B \u043D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 \u0441\u043F\u0438\u0441\u043E\u043A \u043C\u043E\u0434\u0435\u043B\u0435\u0439. \u041C\u043E\u0436\u043D\u043E \u0432\u0432\u0435\u0441\u0442\u0438 \u0438\u043C\u044F \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
+    "apiSettings.modelsKeyRequired": "\u041F\u0435\u0440\u0435\u0434 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 API-\u043A\u043B\u044E\u0447.",
+    "apiSettings.modelsNotSupported": "\u041F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 \u043D\u0435 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0441\u043F\u0438\u0441\u043E\u043A \u043C\u043E\u0434\u0435\u043B\u0435\u0439. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0438\u043C\u044F \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
+    "apiSettings.modelsOriginMismatch": "\u0410\u0434\u0440\u0435\u0441 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0438\u0437\u043C\u0435\u043D\u0451\u043D. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043D\u043E\u0432\u044B\u0439 API-\u043A\u043B\u044E\u0447 \u0438\u043B\u0438 \u0441\u043D\u0430\u0447\u0430\u043B\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430.",
+    "apiSettings.modelsRateLimited": "\u0421\u043B\u0438\u0448\u043A\u043E\u043C \u043C\u043D\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u0437\u0436\u0435.",
+    "apiSettings.modelsTooLarge": "\u0421\u043F\u0438\u0441\u043E\u043A \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u0432\u0435\u043B\u0438\u043A. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0438\u043C\u044F \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
+    "apiSettings.modelsUnauthorized": "\u0414\u043E\u0441\u0442\u0443\u043F \u043A \u043C\u043E\u0434\u0435\u043B\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0451\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 API-\u043A\u043B\u044E\u0447 \u0438 \u0435\u0433\u043E \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u044F.",
+    "apiSettings.selectAvailableModel": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C",
+    "apiSettings.transparencyMode": "\u0421\u043F\u043E\u0441\u043E\u0431 \u043F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u043E\u0433\u043E \u0444\u043E\u043D\u0430",
+    "apiSettings.transparencyNative": "\u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0439 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440",
+    "apiSettings.transparencyPrompt": "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0440\u043E\u043C\u043F\u0442",
+    "batch.deselectCurrentGroup": "\u0421\u043D\u044F\u0442\u044C \u0432\u044B\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u0441\u043E \u0432\u0441\u0435\u0445",
+    "batch.deselectWaiting": "\u0421\u043D\u044F\u0442\u044C \u0432\u044B\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u0441 \u043E\u0436\u0438\u0434\u0430\u044E\u0449\u0438\u0445",
+    "batch.selectFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u0437\u0430\u0434\u0430\u0447\u0438. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
+    "history.promptSubmittedActual": "\u0424\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043D\u044B\u0439 \u043F\u0440\u043E\u043C\u043F\u0442",
+    "lanAccess.active": "\u0414\u043E\u0441\u0442\u0443\u043F \u043F\u043E LAN \u0432\u043A\u043B\u044E\u0447\u0451\u043D.",
+    "lanAccess.address": "\u0410\u0434\u0440\u0435\u0441 LAN",
+    "lanAccess.copied": "\u0410\u0434\u0440\u0435\u0441 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D.",
+    "lanAccess.copyAddress": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C {address}",
+    "lanAccess.copyManually": "\u0410\u0434\u0440\u0435\u0441 \u0432\u044B\u0434\u0435\u043B\u0435\u043D. \u0421\u043A\u043E\u043F\u0438\u0440\u0443\u0439\u0442\u0435 \u0435\u0433\u043E \u0432\u0440\u0443\u0447\u043D\u0443\u044E.",
+    "lanAccess.failed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0438\u043B\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0434\u043E\u0441\u0442\u0443\u043F\u0430. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
+    "lanAccess.help": "\u0412\u0445\u043E\u0434 \u043D\u0435 \u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F. \u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438 \u043E\u0434\u043D\u043E\u0439 \u0441\u0435\u0442\u0438 \u0441\u043E\u0432\u043C\u0435\u0441\u0442\u043D\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442 \u0437\u0430\u0434\u0430\u0447\u0438, \u0433\u0430\u043B\u0435\u0440\u0435\u044E \u0438 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u043E\u0432, \u043C\u043E\u0433\u0443\u0442 \u043C\u0435\u043D\u044F\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0438 \u0443\u0434\u0430\u043B\u044F\u0442\u044C \u0437\u0430\u0434\u0430\u0447\u0438.",
+    "lanAccess.hostOverride": "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440 \u0445\u043E\u0441\u0442\u0430 \u043F\u0440\u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0435 \u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0438\u0432\u0430\u0435\u0442 \u0434\u043E\u0441\u0442\u0443\u043F \u044D\u0442\u0438\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\u043C. \u0423\u0431\u0435\u0440\u0438\u0442\u0435 --host \u0438 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435.",
+    "lanAccess.label": "\u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F \u043F\u043E LAN",
+    "lanAccess.loading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0434\u043E\u0441\u0442\u0443\u043F\u0430\u2026",
+    "lanAccess.localOnly": "WebUI \u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u0442\u043E\u043B\u044C\u043A\u043E \u0441 \u044D\u0442\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.",
+    "lanAccess.noAddress": "IPv4-\u0430\u0434\u0440\u0435\u0441 LAN \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u043A \u0441\u0435\u0442\u0438.",
+    "lanAccess.pendingDisable": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E. \u0414\u043E\u0441\u0442\u0443\u043F \u043F\u043E LAN \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F \u0430\u043A\u0442\u0438\u0432\u0435\u043D \u0434\u043E \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0441\u043B\u0443\u0436\u0431\u044B WebUI.",
+    "lanAccess.pendingEnable": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 \u0441\u043B\u0443\u0436\u0431\u0443 WebUI, \u0447\u0442\u043E\u0431\u044B \u0440\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u0434\u043E\u0441\u0442\u0443\u043F \u043F\u043E LAN.",
+    "lanAccess.saving": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435\u2026",
+    "mobile.backToEditor": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044E",
+    "mobile.copyHint": "\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E. \u0412\u044B\u0434\u0435\u043B\u0438\u0442\u0435 \u0442\u0435\u043A\u0441\u0442 \u043D\u0438\u0436\u0435 \u0438 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439\u0442\u0435.",
+    "mobile.files": "\u0424\u0430\u0439\u043B\u044B",
+    "mobile.gestureHint": "\u0429\u0438\u043F\u043E\u043A \u2014 \u043C\u0430\u0441\u0448\u0442\u0430\u0431 \xB7 \u0421\u0432\u0430\u0439\u043F \u2014 \u0441\u043C\u0435\u043D\u0430 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "mobile.manualCopy": "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0438 \u0443\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0439\u0442\u0435 \u0434\u043B\u044F \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F",
+    "mobile.more": "\u0415\u0449\u0451",
+    "mobile.parameters": "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B",
+    "mobile.pasteHint": "\u0423\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0439\u0442\u0435 \u043F\u043E\u043B\u0435 \u0434\u043B\u044F \u0432\u0441\u0442\u0430\u0432\u043A\u0438 \u043B\u0438\u0431\u043E \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0444\u043E\u0442\u043E \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u044B.",
+    "mobile.photos": "\u0424\u043E\u0442\u043E",
+    "mobile.pickFiles": "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0444\u043E\u0442\u043E \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u044B",
+    "mobile.taskActions": "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F \u0441 \u0437\u0430\u0434\u0430\u0447\u0435\u0439",
+    "networkEgress.fakeIpDnsFallback": "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C \u0441 Fake-IP DNS \u043F\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439",
+    "networkEgress.fakeIpDnsHelp": "\u0415\u0441\u043B\u0438 DNS \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 Fake-IP, \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0435 \u043F\u0443\u0431\u043B\u0438\u0447\u043D\u044B\u0435 \u0430\u0434\u0440\u0435\u0441\u0430 \u0437\u0430\u043F\u0440\u0430\u0448\u0438\u0432\u0430\u044E\u0442\u0441\u044F \u0443 Cloudflare DNS. \u041F\u0440\u0438\u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F \u043A \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u043C \u043D\u043E\u0432\u044B\u0445 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432; DNS \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0439 \u0441\u0435\u0442\u0438 \u043D\u0435 \u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F. API-\u043A\u043B\u044E\u0447\u0438, \u043F\u0440\u043E\u043C\u043F\u0442\u044B \u0438 \u043F\u043E\u043B\u043D\u044B\u0435 URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439 \u043D\u0435 \u043F\u0435\u0440\u0435\u0434\u0430\u044E\u0442\u0441\u044F.",
+    "output.transparencyFidelityHint": "\u041F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u044B\u0439 \u0444\u043E\u043D \u2014 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0435 \u0442\u0440\u0435\u0431\u043E\u0432\u0430\u043D\u0438\u0435 \u043A \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0443; \u043E\u043D\u043E \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0438 \u0432 \u0440\u0435\u0436\u0438\u043C\u0430\u0445 \xAB\u041E\u0440\u0438\u0433\u0438\u043D\u0430\u043B\xBB \u0438 \xAB\u0422\u043E\u0447\u043D\u044B\u0439\xBB.",
+    "output.transparencyFormat": "\u0414\u043B\u044F \u043F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u043E\u0441\u0442\u0438 \u043D\u0443\u0436\u0435\u043D PNG \u0438\u043B\u0438 WebP.",
+    "output.transparencyUnavailable": "\u0411\u0435\u0437 \u043F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u043E\u0441\u0442\u0438",
+    "output.transparentBackground": "\u041F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u044B\u0439 \u0444\u043E\u043D",
+    "preview.transparencyDetected": "\u041E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u043F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u044B\u0435 \u043F\u0438\u043A\u0441\u0435\u043B\u0438",
+    "preview.transparencyMissing": "\u041F\u0440\u043E\u0437\u0440\u0430\u0447\u043D\u044B\u0435 \u043F\u0438\u043A\u0441\u0435\u043B\u0438 \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B",
+    "preview.transparencyRetryHint": "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0441\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0440\u043E\u043C\u043F\u0442 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C. \u041F\u043E\u0432\u0442\u043E\u0440 \u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0435\u0442 \u043D\u043E\u0432\u0443\u044E \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044E.",
+    "queue.realtimePolling": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u0434\u0430\u0447 \u043E\u0431\u043D\u043E\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u043F\u0435\u0440\u0438\u043E\u0434\u0438\u0447\u0435\u0441\u043A\u0438. \u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F \u0432 \u0440\u0435\u0430\u043B\u044C\u043D\u043E\u043C \u0432\u0440\u0435\u043C\u0435\u043D\u0438\u2026",
+    "referenceFiles.chooseResponses": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043A\u0430\u043D\u0430\u043B Responses",
+    "status.taskChangedDuringLoad": "\u0417\u0430\u0434\u0430\u0447\u0430 \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0430\u0441\u044C \u043F\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0435. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0435\u0451 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E.",
+    "userConfigBackup.apiKeyConfirm": "\u041D\u0435\u0437\u0430\u0448\u0438\u0444\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0430\u0440\u0445\u0438\u0432 \u0431\u0443\u0434\u0435\u0442 \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0442\u044C API-\u043A\u043B\u044E\u0447\u0438. \u0412\u0441\u0451 \u0440\u0430\u0432\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u0442\u044C?",
+    "userConfigBackup.archiveMeta": "\u0420\u0430\u0437\u0434\u0435\u043B\u043E\u0432: {count} \xB7 \u0444\u043E\u0440\u043C\u0430\u0442 v{version}",
+    "userConfigBackup.backToPreview": "\u041D\u0430\u0437\u0430\u0434 \u043A \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0443",
+    "userConfigBackup.backupCopy": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0434\u043B\u044F \u0430\u0440\u0445\u0438\u0432\u0430. \u0417\u0430\u0434\u0430\u0447\u0438 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438 \u0441\u0435\u0430\u043D\u0441\u044B OAuth \u043D\u0438\u043A\u043E\u0433\u0434\u0430 \u043D\u0435 \u0432\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u0441\u044F.",
+    "userConfigBackup.backupProgress": "\u0425\u043E\u0434 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0433\u043E \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F",
+    "userConfigBackup.cancelled": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043E\u0442\u043C\u0435\u043D\u0435\u043D\u043E",
+    "userConfigBackup.chooseArchive": "\u0412\u044B\u0431\u0440\u0430\u0442\u044C ZIP \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438",
+    "userConfigBackup.chooseArchiveCopy": "\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0444\u0430\u0439\u043B \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u0442\u0441\u044F \u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442\u0441\u044F. \u041F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u043D\u0435 \u043C\u0435\u043D\u044F\u0435\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435.",
+    "userConfigBackup.keepWorking": "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u0443",
+    "userConfigBackup.cancelAndClose": "\u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0443 \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C",
+    "userConfigBackup.discardAndClose": "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C",
+    "userConfigBackup.creatingBackup": "\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B. \u041D\u0435\u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D\u043D\u044B\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B \u0432 \u0444\u043E\u0440\u043C\u0435; \u043D\u0430\u0436\u0430\u0442\u0438\u0435 \xAB\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C\xBB \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F.",
+    "userConfigBackup.closeActiveConfirm": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u043B\u0438 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0435\u0449\u0451 \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442\u0441\u044F. \u0417\u0430\u043A\u0440\u044B\u0442\u044C \u0438 \u043E\u0442\u043C\u0435\u043D\u0438\u0442\u044C?",
+    "userConfigBackup.create": "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E",
+    "userConfigBackup.creatingSession": "\u041F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\u2026",
+    "userConfigBackup.discardReadyConfirm": "\u041F\u0440\u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u043D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435 \u0443\u0434\u0430\u043B\u044F\u0435\u0442\u0441\u044F. \u0424\u0430\u0439\u043B\u044B, \u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D\u043D\u044B\u0435 \u043D\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0435, \u043E\u0441\u0442\u0430\u043D\u0443\u0442\u0441\u044F. \u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C?",
+    "userConfigBackup.download": "\u0421\u043A\u0430\u0447\u0430\u0442\u044C \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E",
+    "userConfigBackup.downloaded": "\u0421\u043A\u0430\u0447\u0438\u0432\u0430\u043D\u0438\u0435 \u043D\u0430\u0447\u0430\u0442\u043E. \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u0441\u043A\u0430\u0447\u0438\u0432\u0430\u043D\u0438\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 24 \u0447\u0430\u0441\u043E\u0432.",
+    "userConfigBackup.galleryReferenceImpact": "\u0418\u0441\u0442\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0437\u0430\u0434\u0430\u0447\u0438 ({count}) \u043F\u043E\u0442\u0435\u0440\u044F\u044E\u0442 \u0441\u0441\u044B\u043B\u043A\u0438 \u043D\u0430 \u043E\u0431\u0449\u0438\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F",
+    "userConfigBackup.incrementalCopy": "\u0421\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435, \u043F\u0440\u043E\u043F\u0443\u0441\u043A\u0430\u0435\u0442 \u0434\u0443\u0431\u043B\u0438\u043A\u0430\u0442\u044B \u0438 \u0441\u043E\u0437\u0434\u0430\u0451\u0442 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043A\u043E\u043F\u0438\u0438 \u043F\u0440\u0438 \u043A\u043E\u043D\u0444\u043B\u0438\u043A\u0442\u0430\u0445.",
+    "userConfigBackup.itemCount": "\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432: {count}",
+    "userConfigBackup.modeLabel": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438\u043B\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435",
+    "userConfigBackup.previewCounts": "\u0412 \u0430\u0440\u0445\u0438\u0432\u0435: {count} \xB7 \u0434\u0443\u0431\u043B\u0438\u043A\u0430\u0442\u043E\u0432: {duplicate} \xB7 \u043A\u043E\u043D\u0444\u043B\u0438\u043A\u0442\u043E\u0432: {conflict}",
+    "userConfigBackup.previewTitle": "\u041F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F",
+    "userConfigBackup.providerRetention": "\u041F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u044B \u0441 \u0443\u0447\u0451\u0442\u043D\u044B\u043C\u0438 \u0434\u0430\u043D\u043D\u044B\u043C\u0438 ({count}) \u0431\u0443\u0434\u0443\u0442 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B \u0434\u043B\u044F \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u0438",
+    "userConfigBackup.replaceConfirmCopy": "\u0417\u0430\u0442\u0440\u0430\u0433\u0438\u0432\u0430\u044E\u0442\u0441\u044F \u0442\u043E\u043B\u044C\u043A\u043E \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0435 \u0440\u0430\u0437\u0434\u0435\u043B\u044B, \u043D\u043E \u0438\u0445 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0443\u0434\u0430\u043B\u0435\u043D\u044B. \u042D\u0442\u043E \u043D\u0435\u043E\u0431\u0440\u0430\u0442\u0438\u043C\u043E.",
+    "userConfigBackup.replaceImpact": "{section}: \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u044B ({current}), \u0437\u0430\u0442\u0435\u043C \u0438\u043C\u043F\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0438\u0437 \u043A\u043E\u043F\u0438\u0438 ({archive})",
+    "userConfigBackup.restartRequired": "\u041F\u0443\u0442\u0438 \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI, \u0447\u0442\u043E\u0431\u044B \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0438\u0445.",
+    "userConfigBackup.restoreContinues": "\u0417\u0430\u043F\u0438\u0441\u044C \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u043D\u0430\u0447\u0430\u043B\u0430\u0441\u044C. \u0417\u0430\u043A\u0440\u044B\u0442\u0438\u0435 \u043F\u0430\u043D\u0435\u043B\u0438 \u0435\u0451 \u043D\u0435 \u043E\u0442\u043C\u0435\u043D\u0438\u0442; \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0430\u043D\u0435\u043B\u044C \u043F\u043E\u0437\u0436\u0435 \u0434\u043B\u044F \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0430.",
+    "userConfigBackup.restoreModeLabel": "\u0420\u0435\u0436\u0438\u043C \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F",
+    "userConfigBackup.restoreProgress": "\u0425\u043E\u0434 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0434\u043B\u044F \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F",
+    "userConfigBackup.restoreSelected": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435",
+    "userConfigBackup.restoring": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435. \u041D\u0435 \u0437\u0430\u043A\u0440\u044B\u0432\u0430\u0439\u0442\u0435 WebUI\u2026",
+    "userConfigBackup.resultCounts": "{section}: \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E {added} \xB7 \u0437\u0430\u043C\u0435\u043D\u0435\u043D\u043E {replaced} \xB7 \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D\u043E {skipped} \xB7 \u043A\u043E\u043F\u0438\u0439 \u0434\u043B\u044F \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F {copies}",
+    "userConfigBackup.selectAtLeastOne": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u0438\u043D \u0442\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445",
+    "userConfigBackup.selectSections": "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435",
+    "userConfigBackup.status.cancelled": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043E\u0442\u043C\u0435\u043D\u0435\u043D\u043E",
+    "userConfigBackup.status.expired": "\u0421\u0440\u043E\u043A \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438 \u0438\u0441\u0442\u0451\u043A",
+    "userConfigBackup.status.failed": "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0433\u043E \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F",
+    "userConfigBackup.status.interrupted": "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u043B\u043E\u0441\u044C \u043F\u0440\u0438 \u043F\u0440\u0435\u0440\u044B\u0432\u0430\u043D\u0438\u0438 WebUI",
+    "userConfigBackup.status.packing": "\u0423\u043F\u0430\u043A\u043E\u0432\u043A\u0430 \u0430\u0440\u0445\u0438\u0432\u0430\u2026",
+    "userConfigBackup.status.planning": "\u041F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F\u2026",
+    "userConfigBackup.status.queued": "\u0420\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0435 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0432 \u043E\u0447\u0435\u0440\u0435\u0434\u0438\u2026",
+    "userConfigBackup.status.ready": "\u041A\u043E\u043F\u0438\u044F \u0433\u043E\u0442\u043E\u0432\u0430. \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u0441\u043A\u0430\u0447\u0438\u0432\u0430\u043D\u0438\u0435 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 24 \u0447\u0430\u0441\u043E\u0432.",
+    "userConfigBackup.summaryFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0441\u0432\u043E\u0434\u043A\u0443 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A",
+    "userConfigBackup.summaryLoading": "\u0427\u0442\u0435\u043D\u0438\u0435 \u0441\u0432\u043E\u0434\u043A\u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A\u2026",
+    "userConfigBackup.uploading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438\u2026",
+    "userConfigBackup.validating": "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438\u2026",
+    "userConfigBackup.validationReady": "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u043E\u0441\u043E\u0431 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F.",
+    "userConfigBackup.versionUnsupported": "\u041A\u043E\u043F\u0438\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442 \u0431\u043E\u043B\u0435\u0435 \u043D\u043E\u0432\u044B\u0439 \u0444\u043E\u0440\u043C\u0430\u0442 \u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0442\u043E\u043B\u044C\u043A\u043E \u0434\u043B\u044F \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430.",
+    "userConfigBackup.warningCount": "\u041F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D\u0438\u0439: {count}",
+    "user_config_backup_failed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0438\u043B\u0438 \u0443\u043F\u0430\u043A\u043E\u0432\u0430\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u0445 \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    "user_config_backup_gallery_invalid": "\u041E\u0431\u0449\u0435\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 \u043D\u0435 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0437\u0430\u043F\u0438\u0441\u0438 \u0433\u0430\u043B\u0435\u0440\u0435\u0438. \u041F\u0435\u0440\u0435\u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u0438\u043B\u0438 \u0443\u0434\u0430\u043B\u0438\u0442\u0435 \u0435\u0433\u043E \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    "user_config_backup_insufficient_space": "\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E \u043C\u0435\u0441\u0442\u0430 \u043D\u0430 \u0434\u0438\u0441\u043A\u0435 \u0434\u043B\u044F \u0440\u0435\u0437\u0435\u0440\u0432\u043D\u043E\u0439 \u043A\u043E\u043F\u0438\u0438.",
+    "user_config_backup_internal_error": "\u0412\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u044F\u044F \u043E\u0448\u0438\u0431\u043A\u0430 \u0441\u043B\u0443\u0436\u0431\u044B \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F. \u041F\u0435\u0440\u0435\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u0435 WebUI; \u043F\u0440\u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0435\u043D\u0438\u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0436\u0443\u0440\u043D\u0430\u043B \u0437\u0430\u043F\u0443\u0441\u043A\u0430.",
+    "user_config_backup_io_error": "\u041E\u0448\u0438\u0431\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430 \u043A \u0444\u0430\u0439\u043B\u0430\u043C \u043A\u043E\u043F\u0438\u0438. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0434\u0438\u0441\u043A \u0438 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u044F \u043F\u0430\u043F\u043E\u043A.",
+    "user_config_backup_source_changed": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0438\u0441\u044C \u043F\u0440\u0438 \u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438. \u041F\u0440\u0435\u043A\u0440\u0430\u0442\u0438\u0442\u0435 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    "user_config_backup_source_unreadable": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0444\u0430\u0439\u043B \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u044F \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    "user_config_restore_active_tasks": "\u0415\u0441\u0442\u044C \u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0435 \u0437\u0430\u0434\u0430\u0447\u0438. \u0414\u043E\u0436\u0434\u0438\u0442\u0435\u0441\u044C \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u044F \u043F\u0435\u0440\u0435\u0434 \u0437\u0430\u043C\u0435\u043D\u043E\u0439 \u0434\u0430\u043D\u043D\u044B\u0445.",
+    "user_config_restore_failed": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C. \u0422\u0435\u043A\u0443\u0449\u0438\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B.",
+    "user_config_restore_preview_stale": "\u0422\u0435\u043A\u0443\u0449\u0438\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0438\u0441\u044C. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0430\u0440\u0445\u0438\u0432 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E.",
+    "user_config_restore_system_notification_permission_missing": "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F \u043D\u0435 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u044B: \u0431\u0440\u0430\u0443\u0437\u0435\u0440 \u043D\u0435 \u043F\u0440\u0435\u0434\u043E\u0441\u0442\u0430\u0432\u0438\u043B \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0435.",
+    "user_config_restore_version_unsupported": "\u0424\u043E\u0440\u043C\u0430\u0442 \u043A\u043E\u043F\u0438\u0438 \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u043D\u043E\u0432\u044B\u0439 \u0434\u043B\u044F \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F.",
+    "ux.acceptDetail": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0443\u0441\u043F\u0435\u0448\u043D\u044B\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0438 \u0437\u0430\u0432\u0435\u0440\u0448\u0438\u0442\u044C \u0437\u0430\u0434\u0430\u0447\u0443 \u0431\u0435\u0437 \u0432\u043E\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u044B\u0445.",
+    "ux.addReference": "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043A\u0430\u043A \u043E\u0431\u0440\u0430\u0437\u0435\u0446",
+    "ux.addingReference": "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0437\u0446\u0430\u2026",
+    "ux.checkProvider": "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
+    "ux.collapseReference": "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C",
+    "ux.discardEdits": "\u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F",
+    "ux.draftRestored": "\u041F\u0440\u043E\u043C\u043F\u0442 \u0438 \u043E\u0431\u0440\u0430\u0437\u0446\u044B \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B; \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B.",
+    "ux.editInputs": "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0432\u0445\u043E\u0434\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B",
+    "ux.editInputsReady": "\u0414\u0430\u043D\u043D\u044B\u0435 \u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0437\u0430\u0434\u0430\u0447\u0438 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u044B. \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u0435 \u0438\u0445 \u043F\u0435\u0440\u0435\u0434 \u043D\u043E\u0432\u043E\u0439 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0435\u0439.",
+    "ux.errorDetails": "\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0438 \u043E\u0448\u0438\u0431\u043A\u0438",
+    "ux.execution": "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0430\u044F \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F",
+    "ux.historyDraftRestoreFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A. \u0412\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F \u043A\u043E\u043F\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0430. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435.",
+    "ux.historyDraftSaveFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A. \u0412\u044B \u043E\u0441\u0442\u0430\u043B\u0438\u0441\u044C \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0435 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
+    "ux.historyParametersHint": "\u042D\u0442\u043E \u043F\u0440\u0435\u0436\u043D\u0438\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0439 \u0437\u0430\u0434\u0430\u0447\u0438. \u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0430\u044F \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0432\u044B\u0432\u043E\u0434\u0430.",
+    "ux.imageCount": "\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439: {count}",
+    "ux.imageUnsaved": "\u0412 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0438 \u0435\u0441\u0442\u044C \u043D\u0435\u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D\u043D\u044B\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F. \u0418\u0445 \u043E\u0442\u043C\u0435\u043D\u0430 \u043D\u0435\u043E\u0431\u0440\u0430\u0442\u0438\u043C\u0430; \u043E\u0442\u043C\u0435\u043D\u0438\u0442\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435.",
+    "ux.moderationAuto": "\u0410\u0432\u0442\u043E",
+    "ux.moderationLow": "\u041C\u044F\u0433\u043A\u0430\u044F",
+    "ux.openRecovery": "\u0418\u0441\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0435 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438",
+    "ux.recovery.credentials": "\u041E\u0448\u0438\u0431\u043A\u0430 \u0430\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438. \u041F\u0435\u0440\u0435\u0434 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0439 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0435\u0439 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 API-\u043A\u043B\u044E\u0447 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0438\u043B\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u0432\u0445\u043E\u0434.",
+    "ux.recovery.input": "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0440\u043E\u043C\u043F\u0442, \u0444\u0430\u0439\u043B\u044B-\u043E\u0431\u0440\u0430\u0437\u0446\u044B \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043D\u0430 \u043D\u0435\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043C\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435.",
+    "ux.recovery.quota": "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043A\u0432\u043E\u0442\u0443 \u0438\u043B\u0438 \u0431\u0430\u043B\u0430\u043D\u0441 \u0443 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0437\u0430\u0434\u0430\u0447\u0438.",
+    "ux.recovery.temporary": "\u0413\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u043D\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0423\u0441\u043F\u0435\u0448\u043D\u044B\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B; \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u044B\u0435, \u0435\u0441\u043B\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E.",
+    "ux.referenceAdded": "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u043A \u043E\u0431\u0440\u0430\u0437\u0446\u0430\u043C \u044D\u0442\u043E\u0439 \u0437\u0430\u0434\u0430\u0447\u0438",
+    "ux.referenceFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043E\u0431\u0440\u0430\u0437\u0435\u0446. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
+    "ux.restoreDraft": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0432\u043E\u0434",
+    "ux.restoreInputsHint": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043F\u0440\u043E\u043C\u043F\u0442 \u0438 \u043E\u0431\u0440\u0430\u0437\u0446\u044B; \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438.",
+    "ux.tasks": "\u0417\u0430\u0434\u0430\u0447\u0438",
+    "ux.useSize": "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C {width} \xD7 {height}",
+    "ux.viewPreview": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440",
+    "version.continuePortable": "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C \u0441 \u043F\u043E\u0440\u0442\u0430\u0442\u0438\u0432\u043D\u043E\u0439 \u0432\u0435\u0440\u0441\u0438\u0435\u0439",
+    "version.dismissFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u0437\u0436\u0435.",
+    "version.dismissOnboarding": "\u0411\u043E\u043B\u044C\u0448\u0435 \u043D\u0435 \u043F\u043E\u043A\u0430\u0437\u044B\u0432\u0430\u0442\u044C",
+    "version.onboardingBody": "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u043F\u0430\u043A\u0435\u0442\u044B DMG \u0434\u043B\u044F macOS \u0438 App ZIP \u0434\u043B\u044F Windows. \u041D\u043E\u0432\u044B\u043C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F\u043C \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u0442\u0441\u044F \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439 \u043F\u0430\u043A\u0435\u0442; \u043F\u043E\u0440\u0442\u0430\u0442\u0438\u0432\u043D\u044B\u0439 \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0430\u0435\u0442 \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C.",
+    "version.onboardingDataPortable": "\u0412\u0430\u0448\u0438 \u0434\u0430\u043D\u043D\u044B\u0435 \u043E\u0441\u0442\u0430\u044E\u0442\u0441\u044F \u0432 \u043F\u0430\u043F\u043A\u0435 data/ \u044D\u0442\u043E\u0433\u043E \u043F\u043E\u0440\u0442\u0430\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u043F\u0430\u043A\u0435\u0442\u0430.",
+    "version.onboardingMigration": "\u041F\u0440\u0438 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0435 \u043D\u0430 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u043E\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u043E\u043C\u043E\u0449\u043D\u0438\u043A\u043E\u043C \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u0430. \u041E\u0440\u0438\u0433\u0438\u043D\u0430\u043B\u044B \u043D\u0435 \u043F\u0435\u0440\u0435\u043C\u0435\u0449\u0430\u044E\u0442\u0441\u044F \u0438 \u043D\u0435 \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0438\u0441\u044B\u0432\u0430\u044E\u0442\u0441\u044F.",
+    "version.onboardingStandardData": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u043E\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0445\u0440\u0430\u043D\u0438\u0442 \u0434\u0430\u043D\u043D\u044B\u0435 \u0432 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u043E\u0439 \u043F\u0430\u043F\u043A\u0435: macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "\u041E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u043E \u0434\u043E {version}. \u041C\u043E\u0436\u043D\u043E \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C \u0441 \u043F\u043E\u0440\u0442\u0430\u0442\u0438\u0432\u043D\u043E\u0439 \u0432\u0435\u0440\u0441\u0438\u0435\u0439 \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u0439\u0442\u0438 \u043D\u0430 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0443\u044E.",
+    "version.onboardingTitle": "\u0412 0.5.5 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0435 \u043F\u0430\u043A\u0435\u0442\u044B",
+    "version.standardDownload": "\u0421\u043A\u0430\u0447\u0430\u0442\u044C \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u043E\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435"
   };
 
   // codex_image/webui/frontend/src/i18n/it.ts
@@ -10817,12 +12018,12 @@
     "version.latest": "Ultima versione",
     "version.source": "Durata",
     "version.sourcePortable": "Pacchetto portatile",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "App standard",
     "version.sourceSource": "Controllo della fonte",
     "version.upToDate": "Sei gi\xE0 sull'ultima versione",
     "version.updateAvailable": "La versione {version} \xE8 disponibile. Chiudi la finestra del server WebUI, quindi esegui il programma di aggiornamento per eseguire l'aggiornamento.",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "\xC8 disponibile la versione {version}. Le app standard macOS con aggiornamento integrato possono installarla da Cerca aggiornamenti nella barra dei menu; questo link resta disponibile per l'installazione manuale.",
+    "version.standardManualInstall": "Le app standard macOS con aggiornamento integrato consentono la sostituzione dopo conferma; le vecchie app macOS e i pacchetti ZIP standard Windows si aggiornano manualmente.",
     "version.noUpdater": "Questo runtime non \xE8 un pacchetto portatile, quindi il programma di aggiornamento non pu\xF2 essere avviato automaticamente.",
     "version.openUpdater": "Avvia l'aggiornamento",
     "version.release": "Visualizza la versione",
@@ -10874,6 +12075,7 @@
     "api.provider": "API fornitore",
     "imageInput.title": "Images",
     "imageInput.uploadAria": "Fai clic, rilascia o incolla immagini e file",
+    "imageInput.uploadImages": "Fai clic, trascina o incolla immagini",
     "imageInput.uploadFull": "Fai clic, rilascia o incolla immagini e file",
     "imageInput.uploadCompact": "Aggiungi input",
     "imageInput.uploadSubtitle": "Immagini e file di riferimento per Responses",
@@ -11045,7 +12247,6 @@
     "output.mainModelCustomForInput": "Utilizza un modello personalizzato per l'input corrente",
     "output.apiDirect": "API Diretto",
     "output.apiToolModel": "Utilizzo del modello API di generazione immagini",
-    "output.mainModelUnused": "Il modello principale non \xE8 utilizzato per questa richiesta",
     "output.webSearch": "Ricerca sul Web",
     "output.webSearchToggle": "Su",
     "output.webSearchTitle": "Cerca prima sul Web, quindi utilizzalo per questa generazione; Solo Codex e API Responses",
@@ -11098,11 +12299,9 @@
     "output.qualityMedium": "Medio",
     "output.qualityHigh": "Alto",
     "output.quantity": "Conte",
-    "output.pixelPreview": "Pixel di output: 1024 x 1024 px",
-    "output.pixelPreviewValue": "Pixel di output: {value}",
-    "output.pixelPreviewAuto": "Pixel di output: auto (OpenAI sceglie automaticamente)",
     "output.format": "Formato",
     "output.compression": "Compressione",
+    "output.extraOptions": "Altre opzioni",
     "output.moderation": "Moderazione",
     "preview.title": "Anteprima",
     "preview.selectedZero": "0 selezionato",
@@ -11114,7 +12313,7 @@
     "preview.taskFailed": "Attivit\xE0 fallita",
     "preview.partialFailed": "Alcuni images non sono riusciti",
     "preview.failedOutput": "Image {index} non riuscito",
-    "preview.progressLine": "Completato {generated} / {total} \xB7 trascorso {elapsed}",
+    "preview.progressLine": "Completato {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "Completato {generated} / {total} \xB7 fallito {failed}",
     "preview.elapsedLine": "Trascorso {elapsed}",
     "preview.lastError": "Ultimo errore: {error}",
@@ -11171,6 +12370,13 @@
     "promptPopover.notReturned": "Non restituito",
     "promptPopover.noOptimized": "Nessun prompt ottimizzato restituito",
     "promptPopover.submitted": "Visualizza la richiesta inviata",
+    "promptPopover.response": "Mostra la risposta originale del fornitore",
+    "promptPopover.responseNote": "JSON / eventi del flusso del fornitore. Dati delle immagini e credenziali sono omessi; le risposte lunghe sono indicate come troncate.",
+    "promptPopover.copyResponse": "Copia JSON della risposta",
+    "promptPopover.retryResponse": "Ricarica",
+    "promptPopover.responseMissing": "La risposta originale del fornitore non \xE8 stata salvata per questa attivit\xE0.",
+    "promptPopover.responseLoading": "Caricamento della risposta\u2026",
+    "promptPopover.responseError": "Impossibile caricare la risposta. Riprova.",
     "promptPopover.close": "Chiudi il confronto immediato",
     "promptPopover.copyOptimized": "Copia prompt ottimizzato",
     "promptPopover.copied": "Copiato",
@@ -11373,7 +12579,7 @@
     "settings.savedRestartStatus": "Impostazioni di archiviazione salvate. Riavvia WebUI per applicare.",
     "systemSettings.title": "Impostazioni di sistema",
     "userConfigBackup.title": "Backup e ripristino",
-    "userConfigBackup.back": "Torna alle impostazioni di sistema",
+    "userConfigBackup.back": "Torna ad archiviazione e notifiche",
     "userConfigBackup.entryTitle": "Backup e ripristino della configurazione",
     "userConfigBackup.entryCopy": "Trasferisci chip, immagini condivise, modelli e impostazioni di sistema",
     "userConfigBackup.backupTab": "Backup",
@@ -11443,18 +12649,18 @@
     "apiSettings.providerName": "Nome del fornitore",
     "apiSettings.providerIcon": "Emoji",
     "apiSettings.providerIconPlaceholder": "Facoltativa, es. \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "Impostazioni di connessione",
     "apiSettings.connectionPreview": "Anteprima connessione",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "Modelli",
+    "apiSettings.modelBindingsHint": "Un fornitore pu\xF2 associare pi\xF9 modelli e protocolli.",
+    "apiSettings.addModelBinding": "Aggiungi modello",
     "apiSettings.appendRatioPrompt": "Aggiungi istruzione proporzioni",
     "apiSettings.defaultProviderForModel": "Fornitore predefinito",
     "apiSettings.removeBinding": "Rimuovi associazione",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "Catalogo modelli non disponibile; non \xE8 ancora possibile aggiungere un'associazione.",
+    "apiSettings.keepOneBinding": "Ogni fornitore deve mantenere almeno un'associazione di modello.",
+    "apiSettings.bindingRequiredFields": "Per ogni associazione, scegli un modello, inserisci il nome remoto e seleziona almeno un'operazione.",
+    "apiSettings.bindingOverlap": "{model} {operation} \xE8 gestito da pi\xF9 associazioni.",
     "apiSettings.actualRequest": "Richiesta effettiva",
     "apiSettings.newProviderAction": "Nuovo fornitore",
     "apiSettings.copyProvider": "Copia",
@@ -11477,6 +12683,8 @@
     "apiSettings.imageModel": "Modello di generazione immagini",
     "apiSettings.concurrency": "Limite di concorrenza",
     "apiSettings.concurrencyShort": "Concorrenza",
+    "apiSettings.remoteModelName": "Modello del fornitore",
+    "apiSettings.fetchModels": "Ottieni modelli",
     "apiSettings.advancedSettings": "Impostazioni avanzate",
     "apiSettings.concurrencyValue": "concorrenza {concurrency}",
     "apiSettings.keySaved": "Chiave API salvata",
@@ -11511,6 +12719,7 @@
     "apiSettings.savingStatus": "Salvataggio delle impostazioni API...",
     "apiSettings.autoSaving": "Salvataggio automatico...",
     "apiSettings.autoSaved": "Salvato automaticamente",
+    "apiSettings.defaultMappingInvalid": "Le impostazioni del fornitore predefinito sono incomplete. Ricarica le impostazioni e riprova.",
     "apiSettings.saveFailed": "Impossibile salvare le impostazioni API",
     "apiSettings.savedSummary": "Salvato \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 concorrenza {concurrency}",
     "apiSettings.savedShort": "Salvato",
@@ -11677,7 +12886,169 @@
     "modelParameters.invalidJson": "JSON non valido",
     "modelParameters.migrated": "Adattati {count} parametri precedenti al modello attuale",
     "modelParameters.historyConfiguration": "Configurazione storica",
-    "modelParameters.legacyTask": "Attivit\xE0 precedente"
+    "modelParameters.legacyTask": "Attivit\xE0 precedente",
+    "apiSettings.fetchingModels": "Recupero modelli\u2026",
+    "apiSettings.modelsEmpty": "Nessun modello restituito. Puoi inserire il nome manualmente.",
+    "apiSettings.modelsFetchFailed": "Impossibile recuperare i modelli. Controlla indirizzo e rete, poi riprova.",
+    "apiSettings.modelsFetched": "Trovati {count} modelli. Scegline uno adatto a questa associazione.",
+    "apiSettings.modelsInvalidBaseUrl": "Inserisci un URL di base HTTP(S) valido.",
+    "apiSettings.modelsInvalidResponse": "Il fornitore ha restituito un elenco non valido. Puoi inserire il nome manualmente.",
+    "apiSettings.modelsKeyRequired": "Inserisci una chiave API prima di recuperare i modelli.",
+    "apiSettings.modelsNotSupported": "Il fornitore non supporta l'elenco dei modelli. Inserisci il nome manualmente.",
+    "apiSettings.modelsOriginMismatch": "L'indirizzo del fornitore \xE8 cambiato. Inserisci una nuova chiave API o salva prima il fornitore.",
+    "apiSettings.modelsRateLimited": "Troppe richieste. Riprova pi\xF9 tardi.",
+    "apiSettings.modelsTooLarge": "L'elenco dei modelli \xE8 troppo grande. Inserisci il nome manualmente.",
+    "apiSettings.modelsUnauthorized": "Accesso al modello negato. Controlla la chiave API e i permessi.",
+    "apiSettings.selectAvailableModel": "Scegli un modello disponibile",
+    "apiSettings.transparencyMode": "Metodo per lo sfondo trasparente",
+    "apiSettings.transparencyNative": "Parametro nativo",
+    "apiSettings.transparencyPrompt": "Compatibilit\xE0 tramite prompt",
+    "batch.deselectCurrentGroup": "Deseleziona tutto",
+    "batch.deselectWaiting": "Deseleziona in attesa",
+    "batch.selectFailed": "Impossibile selezionare le attivit\xE0. Riprova.",
+    "history.promptSubmittedActual": "Prompt effettivamente inviato",
+    "lanAccess.active": "Accesso LAN attivo.",
+    "lanAccess.address": "Indirizzo LAN",
+    "lanAccess.copied": "Indirizzo copiato.",
+    "lanAccess.copyAddress": "Copia {address}",
+    "lanAccess.copyManually": "Indirizzo selezionato. Copialo manualmente.",
+    "lanAccess.failed": "Impossibile leggere o salvare le impostazioni di accesso. Riprova.",
+    "lanAccess.help": "Nessun accesso richiesto. Le persone sulla stessa rete condividono attivit\xE0, galleria e fornitori e possono cambiare impostazioni ed eliminare attivit\xE0.",
+    "lanAccess.hostOverride": "L'opzione host all'avvio limita l'accesso a questo dispositivo. Rimuovi --host e riavvia.",
+    "lanAccess.label": "Consenti accesso LAN",
+    "lanAccess.loading": "Caricamento impostazioni di accesso\u2026",
+    "lanAccess.localOnly": "Solo questo dispositivo pu\xF2 accedere alla WebUI.",
+    "lanAccess.noAddress": "Nessun indirizzo IPv4 LAN trovato. Controlla la connessione di rete.",
+    "lanAccess.pendingDisable": "Salvato. L'accesso LAN resta attivo fino al riavvio del servizio WebUI.",
+    "lanAccess.pendingEnable": "Salvato. Riavvia il servizio WebUI per consentire l'accesso LAN.",
+    "lanAccess.saving": "Salvataggio\u2026",
+    "mobile.backToEditor": "Torna alla modifica",
+    "mobile.copyHint": "Copia automatica non disponibile. Seleziona il testo qui sotto per copiarlo.",
+    "mobile.files": "File",
+    "mobile.gestureHint": "Pizzica per ingrandire \xB7 Scorri per cambiare immagine",
+    "mobile.manualCopy": "Tieni premuto per copiare",
+    "mobile.more": "Altro",
+    "mobile.parameters": "Parametri",
+    "mobile.pasteHint": "Tieni premuto nel campo per incollare o scegli foto o file.",
+    "mobile.photos": "Foto",
+    "mobile.pickFiles": "Scegli foto o file",
+    "mobile.taskActions": "Azioni attivit\xE0",
+    "networkEgress.fakeIpDnsFallback": "Compatibilit\xE0 DNS Fake-IP per scaricare immagini",
+    "networkEgress.fakeIpDnsHelp": "Se il DNS dell'immagine restituisce una Fake-IP, interroga Cloudflare DNS per ottenere indirizzi pubblici reali. Si applica ai download delle richieste successive; il DNS LAN resta invariato. Non invia chiavi API, prompt o URL completi delle immagini.",
+    "output.transparencyFidelityHint": "Lo sfondo trasparente \xE8 un requisito di output scelto e viene aggiunto anche nelle modalit\xE0 Originale e Fedele.",
+    "output.transparencyFormat": "L'output trasparente richiede PNG o WebP.",
+    "output.transparencyUnavailable": "Nessuna trasparenza",
+    "output.transparentBackground": "Sfondo trasparente",
+    "preview.transparencyDetected": "Pixel trasparenti rilevati",
+    "preview.transparencyMissing": "Nessun pixel trasparente rilevato",
+    "preview.transparencyRetryHint": "Prova la compatibilit\xE0 tramite prompt o un altro modello. Riprovare avvia una nuova generazione.",
+    "queue.realtimePolling": "Lo stato si aggiorna periodicamente. Ripristino della connessione in tempo reale\u2026",
+    "referenceFiles.chooseResponses": "Scegli un canale Responses",
+    "status.taskChangedDuringLoad": "L'attivit\xE0 \xE8 cambiata durante il caricamento. Selezionala di nuovo.",
+    "userConfigBackup.apiKeyConfirm": "L'archivio non crittografato conterr\xE0 chiavi API. Crearlo comunque?",
+    "userConfigBackup.archiveMeta": "{count} sezioni \xB7 formato v{version}",
+    "userConfigBackup.backToPreview": "Torna all'anteprima",
+    "userConfigBackup.backupCopy": "Scegli la configurazione da includere. Attivit\xE0 generate e sessioni OAuth sono sempre escluse.",
+    "userConfigBackup.backupProgress": "Avanzamento backup",
+    "userConfigBackup.cancelled": "Backup annullato",
+    "userConfigBackup.chooseArchive": "Scegli ZIP di backup",
+    "userConfigBackup.chooseArchiveCopy": "Il file viene prima caricato e verificato. L'anteprima non modifica i dati attuali.",
+    "userConfigBackup.keepWorking": "Continua a lavorare",
+    "userConfigBackup.cancelAndClose": "Annulla trasferimento e chiudi",
+    "userConfigBackup.discardAndClose": "Elimina backup temporaneo e chiudi",
+    "userConfigBackup.creatingBackup": "Creazione del backup\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "Impostazioni ripristinate. Le modifiche non salvate sono conservate; salvando verranno applicati i valori attuali del modulo.",
+    "userConfigBackup.closeActiveConfirm": "\xC8 in corso un caricamento o backup. Chiudere e annullare?",
+    "userConfigBackup.create": "Crea backup",
+    "userConfigBackup.creatingSession": "Preparazione caricamento\u2026",
+    "userConfigBackup.discardReadyConfirm": "Chiudendo elimini la copia temporanea sul server. I file gi\xE0 salvati sul dispositivo restano. Continuare?",
+    "userConfigBackup.download": "Scarica backup",
+    "userConfigBackup.downloaded": "Download avviato. Puoi scaricare di nuovo il backup per 24 ore.",
+    "userConfigBackup.galleryReferenceImpact": "{count} attivit\xE0 storiche perderanno i riferimenti alle immagini condivise",
+    "userConfigBackup.incrementalCopy": "Mantiene i dati esistenti, salta i duplicati e crea copie di recupero per i conflitti.",
+    "userConfigBackup.itemCount": "{count} elementi",
+    "userConfigBackup.modeLabel": "Backup o ripristino",
+    "userConfigBackup.previewCounts": "{count} nell'archivio \xB7 {duplicate} duplicati \xB7 {conflict} conflitti",
+    "userConfigBackup.previewTitle": "Anteprima ripristino",
+    "userConfigBackup.providerRetention": "{count} fornitori con credenziali saranno conservati per sicurezza",
+    "userConfigBackup.replaceConfirmCopy": "Sono interessate solo le sezioni scelte, ma i loro dati attuali verranno rimossi. L'azione \xE8 irreversibile.",
+    "userConfigBackup.replaceImpact": "{section}: rimuovi {current} elementi attuali, poi importa {archive} elementi del backup",
+    "userConfigBackup.restartRequired": "Percorsi di archiviazione ripristinati. Riavvia la WebUI per usarli.",
+    "userConfigBackup.restoreContinues": "La scrittura del ripristino \xE8 iniziata. Chiudere il pannello non la annulla; riaprilo dopo per vedere il risultato.",
+    "userConfigBackup.restoreModeLabel": "Modalit\xE0 di ripristino",
+    "userConfigBackup.restoreProgress": "Avanzamento caricamento del ripristino",
+    "userConfigBackup.restoreSelected": "Ripristina i dati scelti",
+    "userConfigBackup.restoring": "Ripristino in corso. Mantieni aperta la WebUI\u2026",
+    "userConfigBackup.resultCounts": "{section}: {added} aggiunti \xB7 {replaced} sostituiti \xB7 {skipped} saltati \xB7 {copies} copie di recupero",
+    "userConfigBackup.selectAtLeastOne": "Scegli almeno un tipo di dati",
+    "userConfigBackup.selectSections": "Scegli dati",
+    "userConfigBackup.status.cancelled": "Backup annullato",
+    "userConfigBackup.status.expired": "Backup scaduto",
+    "userConfigBackup.status.failed": "Backup non riuscito",
+    "userConfigBackup.status.interrupted": "Backup interrotto insieme alla WebUI",
+    "userConfigBackup.status.packing": "Creazione archivio\u2026",
+    "userConfigBackup.status.planning": "Pianificazione backup\u2026",
+    "userConfigBackup.status.queued": "Backup in coda\u2026",
+    "userConfigBackup.status.ready": "Backup pronto. Puoi scaricarlo di nuovo per 24 ore.",
+    "userConfigBackup.summaryFailed": "Impossibile leggere il riepilogo della configurazione",
+    "userConfigBackup.summaryLoading": "Lettura riepilogo configurazione\u2026",
+    "userConfigBackup.uploading": "Caricamento backup\u2026",
+    "userConfigBackup.validating": "Verifica backup\u2026",
+    "userConfigBackup.validationReady": "Verifica completata. Scegli come ripristinare.",
+    "userConfigBackup.versionUnsupported": "Questo backup usa un formato pi\xF9 recente e consente solo l'anteprima.",
+    "userConfigBackup.warningCount": "{count} avvisi",
+    "user_config_backup_failed": "Impossibile leggere o comprimere i dati scelti. Controllali e riprova.",
+    "user_config_backup_gallery_invalid": "Un'immagine condivisa non corrisponde al record in galleria. Salvala di nuovo o rimuovila, poi riprova.",
+    "user_config_backup_insufficient_space": "Spazio libero insufficiente per creare il backup.",
+    "user_config_backup_internal_error": "Errore interno del servizio di backup. Riavvia la WebUI e riprova; se persiste, controlla il registro di avvio.",
+    "user_config_backup_io_error": "Accesso ai file di backup non riuscito. Controlla disco e permessi delle cartelle.",
+    "user_config_backup_source_changed": "La configurazione \xE8 cambiata durante il backup. Interrompi le modifiche e riprova.",
+    "user_config_backup_source_unreadable": "Impossibile leggere un file di configurazione. Controlla i permessi e riprova.",
+    "user_config_restore_active_tasks": "Sono ancora in corso attivit\xE0. Attendi prima di sostituire i dati.",
+    "user_config_restore_failed": "Ripristino non riuscito. La configurazione esistente \xE8 stata mantenuta.",
+    "user_config_restore_preview_stale": "La configurazione attuale \xE8 cambiata. Verifica di nuovo l'archivio.",
+    "user_config_restore_system_notification_permission_missing": "Le notifiche di sistema non sono state attivate perch\xE9 manca il permesso del browser.",
+    "user_config_restore_version_unsupported": "Il formato del backup \xE8 troppo recente per il ripristino.",
+    "ux.acceptDetail": "Conserva le immagini riuscite e termina l'attivit\xE0 senza completare quelle non riuscite.",
+    "ux.addReference": "Aggiungi riferimento",
+    "ux.addingReference": "Aggiunta del riferimento\u2026",
+    "ux.checkProvider": "Controlla il fornitore",
+    "ux.collapseReference": "Comprimi",
+    "ux.discardEdits": "Scarta modifiche",
+    "ux.draftRestored": "Prompt e riferimenti ripristinati; le impostazioni di generazione attuali restano invariate.",
+    "ux.editInputs": "Modifica input e impostazioni",
+    "ux.editInputsReady": "Input e impostazioni caricati. Modificali prima di generare di nuovo.",
+    "ux.errorDetails": "Dettagli errore",
+    "ux.execution": "Prossima generazione",
+    "ux.historyDraftRestoreFailed": "Impossibile ripristinare la bozza. La copia temporanea \xE8 conservata. Ricarica per riprovare.",
+    "ux.historyDraftSaveFailed": "Impossibile salvare la bozza. Sei ancora nella pagina di generazione. Riprova.",
+    "ux.historyParametersHint": "Questi sono i parametri storici dell'attivit\xE0 selezionata. Le impostazioni di output controllano la prossima generazione.",
+    "ux.imageCount": "{count} immagini",
+    "ux.imageUnsaved": "L'immagine contiene modifiche non salvate. Scartarle \xE8 irreversibile; annulla per continuare a modificare.",
+    "ux.moderationAuto": "Automatica",
+    "ux.moderationLow": "Meno restrittiva",
+    "ux.openRecovery": "Risolvi nella pagina di generazione",
+    "ux.recovery.credentials": "Autenticazione non riuscita. Controlla la chiave API del fornitore o l'accesso locale prima di generare di nuovo.",
+    "ux.recovery.input": "Controlla che prompt, file di riferimento e impostazioni non contengano input non supportati.",
+    "ux.recovery.quota": "Controlla la quota o il saldo del fornitore dell'attivit\xE0.",
+    "ux.recovery.temporary": "Generazione incompleta. Le immagini riuscite sono conservate; riprova quelle non riuscite quando possibile.",
+    "ux.referenceAdded": "Aggiunto ai riferimenti dell'attivit\xE0",
+    "ux.referenceFailed": "Impossibile aggiungere il riferimento. Riprova.",
+    "ux.restoreDraft": "Ripristina input",
+    "ux.restoreInputsHint": "Ripristina solo prompt e riferimenti; mantiene le impostazioni attuali.",
+    "ux.tasks": "Attivit\xE0",
+    "ux.useSize": "Usa {width} \xD7 {height}",
+    "ux.viewPreview": "Vedi anteprima",
+    "version.continuePortable": "Continua con la versione portatile",
+    "version.dismissFailed": "Impossibile salvare lo stato dell'avviso. Riprova pi\xF9 tardi.",
+    "version.dismissOnboarding": "Non mostrare pi\xF9",
+    "version.onboardingBody": "Questa versione aggiunge pacchetti DMG macOS e App ZIP Windows. Ai nuovi utenti si consiglia il pacchetto standard; quello portatile resta utilizzabile.",
+    "version.onboardingDataPortable": "I dati attuali restano nella cartella data/ di questo pacchetto portatile.",
+    "version.onboardingMigration": "Passando all'app standard, usa l'assistente di migrazione per copiare i vecchi dati. Gli originali non vengono spostati n\xE9 sovrascritti.",
+    "version.onboardingStandardData": "L'app standard salva i dati nella cartella di sistema delle app: macOS Application Support / Windows %APPDATA%.",
+    "version.onboardingStatus": "Aggiornamento a {version} completato. Puoi continuare con la versione portatile o passare all'app standard.",
+    "version.onboardingTitle": "0.5.5 aggiunge i pacchetti standard",
+    "version.standardDownload": "Scarica l'app standard"
   };
 
   // codex_image/webui/frontend/src/i18n/hi.ts
@@ -12053,12 +13424,12 @@
     "version.latest": "\u0928\u0935\u0940\u0928\u0924\u092E \u0938\u0902\u0938\u094D\u0915\u0930\u0923",
     "version.source": "\u0930\u0928\u091F\u093E\u0907\u092E",
     "version.sourcePortable": "\u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u092A\u0948\u0915\u0947\u091C",
-    "version.sourceStandard": "Standard app",
+    "version.sourceStandard": "\u092E\u093E\u0928\u0915 \u0910\u092A",
     "version.sourceSource": "\u0938\u094D\u0930\u094B\u0924 \u091A\u0947\u0915\u0906\u0909\u091F",
     "version.upToDate": "\u0906\u092A \u092A\u0939\u0932\u0947 \u0938\u0947 \u0939\u0940 \u0928\u0935\u0940\u0928\u0924\u092E \u0938\u0902\u0938\u094D\u0915\u0930\u0923 \u092A\u0930 \u0939\u0948\u0902",
     "version.updateAvailable": "\u0938\u0902\u0938\u094D\u0915\u0930\u0923 {version} \u0909\u092A\u0932\u092C\u094D\u0927 \u0939\u0948. WebUI \u0938\u0930\u094D\u0935\u0930 \u0935\u093F\u0902\u0921\u094B \u092C\u0902\u0926 \u0915\u0930\u0947\u0902, \u092B\u093F\u0930 \u0905\u092A\u0917\u094D\u0930\u0947\u0921 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0905\u092A\u0921\u0947\u091F\u0930 \u091A\u0932\u093E\u090F\u0901\u0964",
-    "version.standardUpdateAvailable": "Version {version} is available. Updater-enabled macOS standard apps can install it from Check for Updates in the menu bar; this link remains the manual fallback.",
-    "version.standardManualInstall": "Updater-enabled macOS standard apps support user-confirmed replacement; older macOS apps and Windows standard ZIP packages still update manually.",
+    "version.standardUpdateAvailable": "\u0938\u0902\u0938\u094D\u0915\u0930\u0923 {version} \u0909\u092A\u0932\u092C\u094D\u0927 \u0939\u0948\u0964 \u0905\u092A\u0921\u0947\u091F\u0930 \u0935\u093E\u0932\u0947 \u092E\u093E\u0928\u0915 macOS \u0910\u092A \u092E\u0947\u0928\u0942 \u0915\u0947 \u0905\u092A\u0921\u0947\u091F \u091C\u093E\u0901\u091A \u0935\u093F\u0915\u0932\u094D\u092A \u0938\u0947 \u0907\u0938\u0947 \u0938\u094D\u0925\u093E\u092A\u093F\u0924 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902; \u092F\u0939 \u0932\u093F\u0902\u0915 \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0935\u093F\u0915\u0932\u094D\u092A \u0939\u0948\u0964",
+    "version.standardManualInstall": "\u0905\u092A\u0921\u0947\u091F\u0930 \u0935\u093E\u0932\u0947 \u092E\u093E\u0928\u0915 macOS \u0910\u092A \u092A\u0941\u0937\u094D\u091F\u093F \u0915\u0947 \u092C\u093E\u0926 \u092C\u0926\u0932\u0947 \u091C\u093E \u0938\u0915\u0924\u0947 \u0939\u0948\u0902; \u092A\u0941\u0930\u093E\u0928\u0947 macOS \u0910\u092A \u0914\u0930 \u092E\u093E\u0928\u0915 Windows ZIP \u0915\u093E \u0905\u092A\u0921\u0947\u091F \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0939\u0948\u0964",
     "version.noUpdater": "\u092F\u0939 \u0930\u0928\u091F\u093E\u0907\u092E \u090F\u0915 \u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u092A\u0948\u0915\u0947\u091C \u0928\u0939\u0940\u0902 \u0939\u0948, \u0907\u0938\u0932\u093F\u090F \u0905\u092A\u0921\u0947\u091F\u0930 \u0938\u094D\u0935\u091A\u093E\u0932\u093F\u0924 \u0930\u0942\u092A \u0938\u0947 \u092A\u094D\u0930\u093E\u0930\u0902\u092D \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u091C\u093E \u0938\u0915\u0924\u093E \u0939\u0948\u0964",
     "version.openUpdater": "\u0905\u0926\u094D\u092F\u0924\u0928\u0915\u0930\u094D\u0924\u093E \u092A\u094D\u0930\u093E\u0930\u0902\u092D \u0915\u0930\u0947\u0902",
     "version.release": "\u0930\u093F\u0932\u0940\u091C \u0926\u0947\u0916\u0947\u0902",
@@ -12110,6 +13481,7 @@
     "api.provider": "API \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "imageInput.title": "\u091A\u093F\u0924\u094D\u0930",
     "imageInput.uploadAria": "\u091A\u093F\u0924\u094D\u0930 \u0914\u0930 \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091C\u094B\u0921\u093C\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0932\u093F\u0915 \u0915\u0930\u0947\u0902, \u0921\u094D\u0930\u0949\u092A \u0915\u0930\u0947\u0902 \u092F\u093E \u092A\u0947\u0938\u094D\u091F \u0915\u0930\u0947\u0902",
+    "imageInput.uploadImages": "\u091A\u093F\u0924\u094D\u0930 \u091C\u094B\u0921\u093C\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0932\u093F\u0915 \u0915\u0930\u0947\u0902, \u0916\u0940\u0902\u091A\u0947\u0902 \u092F\u093E \u092A\u0947\u0938\u094D\u091F \u0915\u0930\u0947\u0902",
     "imageInput.uploadFull": "\u091A\u093F\u0924\u094D\u0930 \u0914\u0930 \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091C\u094B\u0921\u093C\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0932\u093F\u0915 \u0915\u0930\u0947\u0902, \u0921\u094D\u0930\u0949\u092A \u0915\u0930\u0947\u0902 \u092F\u093E \u092A\u0947\u0938\u094D\u091F \u0915\u0930\u0947\u0902",
     "imageInput.uploadCompact": "\u0907\u0928\u092A\u0941\u091F \u091C\u094B\u0921\u093C\u0947\u0902",
     "imageInput.uploadSubtitle": "\u091A\u093F\u0924\u094D\u0930 \u0914\u0930 Responses \u0938\u0902\u0926\u0930\u094D\u092D \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u0938\u092E\u0930\u094D\u0925\u093F\u0924 \u0939\u0948\u0902",
@@ -12281,7 +13653,6 @@
     "output.mainModelCustomForInput": "\u0935\u0930\u094D\u0924\u092E\u093E\u0928 \u0907\u0928\u092A\u0941\u091F \u0915\u0947 \u0932\u093F\u090F \u090F\u0915 \u0915\u0938\u094D\u091F\u092E \u092E\u0949\u0921\u0932 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0947\u0902",
     "output.apiDirect": "API \u092A\u094D\u0930\u0924\u094D\u092F\u0915\u094D\u0937",
     "output.apiToolModel": "API \u091B\u0935\u093F \u0928\u093F\u0930\u094D\u092E\u093E\u0923 \u092E\u0949\u0921\u0932 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u0939\u094B \u0930\u0939\u093E \u0939\u0948",
-    "output.mainModelUnused": "\u0907\u0938 \u0905\u0928\u0941\u0930\u094B\u0927 \u0915\u0947 \u0932\u093F\u090F \u092E\u0941\u0916\u094D\u092F \u092E\u0949\u0921\u0932 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u0917\u092F\u093E \u0939\u0948",
     "output.webSearch": "\u0935\u0947\u092C \u0916\u094B\u091C",
     "output.webSearchToggle": "\u092A\u0930",
     "output.webSearchTitle": "\u092A\u0939\u0932\u0947 \u0935\u0947\u092C \u0916\u094B\u091C\u0947\u0902, \u092B\u093F\u0930 \u0907\u0938 \u091C\u0928\u0930\u0947\u0936\u0928 \u092E\u0947\u0902 \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0947\u0902; \u0915\u0947\u0935\u0932 Codex \u0914\u0930 API Responses",
@@ -12334,11 +13705,9 @@
     "output.qualityMedium": "\u092E\u0927\u094D\u092F\u092E",
     "output.qualityHigh": "\u0909\u091A\u094D\u091A",
     "output.quantity": "\u0938\u0902\u0916\u094D\u092F\u093E",
-    "output.pixelPreview": "\u0906\u0909\u091F\u092A\u0941\u091F \u092A\u093F\u0915\u094D\u0938\u0947\u0932: 1024 x 1024 px",
-    "output.pixelPreviewValue": "\u0906\u0909\u091F\u092A\u0941\u091F \u092A\u093F\u0915\u094D\u0938\u0947\u0932: {value}",
-    "output.pixelPreviewAuto": "\u0906\u0909\u091F\u092A\u0941\u091F \u092A\u093F\u0915\u094D\u0938\u0947\u0932: auto (OpenAI \u0938\u094D\u0935\u091A\u093E\u0932\u093F\u0924 \u0930\u0942\u092A \u0938\u0947 \u091A\u0941\u0928\u0924\u093E \u0939\u0948)",
     "output.format": "\u092A\u094D\u0930\u093E\u0930\u0942\u092A",
     "output.compression": "\u0938\u0902\u092A\u0940\u0921\u093C\u0928",
+    "output.extraOptions": "\u0905\u0924\u093F\u0930\u093F\u0915\u094D\u0924 \u0935\u093F\u0915\u0932\u094D\u092A",
     "output.moderation": "\u092E\u0949\u0921\u0930\u0947\u0936\u0928",
     "preview.title": "\u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928",
     "preview.selectedZero": "0 \u091A\u092F\u0928\u093F\u0924",
@@ -12350,7 +13719,7 @@
     "preview.taskFailed": "\u0915\u093E\u0930\u094D\u092F \u0935\u093F\u092B\u0932",
     "preview.partialFailed": "\u0915\u0941\u091B \u091A\u093F\u0924\u094D\u0930 \u0935\u093F\u092B\u0932 \u0930\u0939\u0947",
     "preview.failedOutput": "\u091A\u093F\u0924\u094D\u0930 {index} \u0935\u093F\u092B\u0932",
-    "preview.progressLine": "\u092A\u0942\u0930\u093E {generated} / {total} \xB7 \u092C\u0940\u0924 \u0917\u092F\u093E {elapsed}",
+    "preview.progressLine": "\u092A\u0942\u0930\u093E {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "\u092A\u0942\u0930\u094D\u0923 {generated} / {total} \xB7 \u0935\u093F\u092B\u0932 {failed}",
     "preview.elapsedLine": "\u092C\u0940\u0924 \u0917\u092F\u093E {elapsed}",
     "preview.lastError": "\u0905\u0902\u0924\u093F\u092E \u0924\u094D\u0930\u0941\u091F\u093F: {error}",
@@ -12407,6 +13776,13 @@
     "promptPopover.notReturned": "\u0935\u093E\u092A\u0938 \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u0917\u092F\u093E",
     "promptPopover.noOptimized": "\u0915\u094B\u0908 \u0905\u0928\u0941\u0915\u0942\u0932\u093F\u0924 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0928\u0939\u0940\u0902 \u0932\u094C\u091F\u093E",
     "promptPopover.submitted": "\u0938\u092C\u092E\u093F\u091F \u0915\u093F\u092F\u093E \u0917\u092F\u093E \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0926\u0947\u0916\u0947\u0902",
+    "promptPopover.response": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u092E\u0942\u0932 \u0909\u0924\u094D\u0924\u0930 \u0926\u0947\u0916\u0947\u0902",
+    "promptPopover.responseNote": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0947 JSON / \u0938\u094D\u091F\u094D\u0930\u0940\u092E \u0907\u0935\u0947\u0902\u091F\u0964 \u091B\u0935\u093F \u0921\u0947\u091F\u093E \u0914\u0930 \u0915\u094D\u0930\u0947\u0921\u0947\u0902\u0936\u093F\u092F\u0932 \u0939\u091F\u093E\u090F \u0917\u090F \u0939\u0948\u0902; \u0932\u0902\u092C\u0947 \u0909\u0924\u094D\u0924\u0930\u094B\u0902 \u0915\u094B \u0915\u091F\u0947 \u0939\u0941\u090F \u0915\u0947 \u0930\u0942\u092A \u092E\u0947\u0902 \u091A\u093F\u0939\u094D\u0928\u093F\u0924 \u0915\u093F\u092F\u093E \u091C\u093E\u0924\u093E \u0939\u0948\u0964",
+    "promptPopover.copyResponse": "\u0909\u0924\u094D\u0924\u0930 \u0915\u093E JSON \u0915\u0949\u092A\u0940 \u0915\u0930\u0947\u0902",
+    "promptPopover.retryResponse": "\u092B\u093F\u0930 \u0932\u094B\u0921 \u0915\u0930\u0947\u0902",
+    "promptPopover.responseMissing": "\u0907\u0938 \u0915\u093E\u0930\u094D\u092F \u0915\u0947 \u0932\u093F\u090F \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u092E\u0942\u0932 \u0909\u0924\u094D\u0924\u0930 \u0938\u0939\u0947\u091C\u093E \u0928\u0939\u0940\u0902 \u0917\u092F\u093E \u0939\u0948\u0964",
+    "promptPopover.responseLoading": "\u0909\u0924\u094D\u0924\u0930 \u0932\u094B\u0921 \u0939\u094B \u0930\u0939\u093E \u0939\u0948\u2026",
+    "promptPopover.responseError": "\u0909\u0924\u094D\u0924\u0930 \u0932\u094B\u0921 \u0928\u0939\u0940\u0902 \u0939\u094B \u0938\u0915\u093E\u0964 \u0915\u0943\u092A\u092F\u093E \u092B\u093F\u0930 \u0915\u094B\u0936\u093F\u0936 \u0915\u0930\u0947\u0902\u0964",
     "promptPopover.close": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0924\u0941\u0932\u0928\u093E \u092C\u0902\u0926 \u0915\u0930\u0947\u0902",
     "promptPopover.copyOptimized": "\u0905\u0928\u0941\u0915\u0942\u0932\u093F\u0924 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0915\u0949\u092A\u0940 \u0915\u0930\u0947\u0902",
     "promptPopover.copied": "\u0928\u0915\u0932 \u0915\u0940 \u0917\u0908",
@@ -12609,7 +13985,7 @@
     "settings.savedRestartStatus": "\u0938\u0902\u0917\u094D\u0930\u0939\u0923 \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908\u0902. \u0932\u093E\u0917\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F WebUI \u0915\u094B \u092A\u0941\u0928\u0930\u093E\u0930\u0902\u092D \u0915\u0930\u0947\u0902\u0964",
     "systemSettings.title": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938",
     "userConfigBackup.title": "\u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
-    "userConfigBackup.back": "\u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u092A\u0930 \u0935\u093E\u092A\u0938 \u091C\u093E\u090F\u0901",
+    "userConfigBackup.back": "\u0938\u094D\u091F\u094B\u0930\u0947\u091C \u0914\u0930 \u0938\u0942\u091A\u0928\u093E\u0913\u0902 \u092A\u0930 \u0935\u093E\u092A\u0938 \u091C\u093E\u090F\u0901",
     "userConfigBackup.entryTitle": "\u0915\u0949\u0928\u094D\u092B\u093C\u093F\u0917\u0930\u0947\u0936\u0928 \u092C\u0948\u0915\u0905\u092A \u0914\u0930 \u092A\u0941\u0928\u0930\u094D\u0938\u094D\u0925\u093E\u092A\u0928\u093E",
     "userConfigBackup.entryCopy": "\u091A\u093F\u092A, \u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930, \u091F\u0947\u092E\u094D\u092A\u0932\u0947\u091F \u0914\u0930 \u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u093F\u0924 \u0915\u0930\u0947\u0902",
     "userConfigBackup.backupTab": "\u092C\u0948\u0915\u0905\u092A",
@@ -12679,18 +14055,18 @@
     "apiSettings.providerName": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u0928\u093E\u092E",
     "apiSettings.providerIcon": "\u0907\u092E\u094B\u091C\u0940",
     "apiSettings.providerIconPlaceholder": "\u0935\u0948\u0915\u0932\u094D\u092A\u093F\u0915, \u091C\u0948\u0938\u0947 \u{1FA84}",
-    "apiSettings.connectionScope": "Connection settings",
+    "apiSettings.connectionScope": "\u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u0938\u0947\u091F\u093F\u0902\u0917",
     "apiSettings.connectionPreview": "\u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928",
-    "apiSettings.modelBindings": "Model bindings",
-    "apiSettings.modelBindingsHint": "One provider can bind multiple models and protocols.",
-    "apiSettings.addModelBinding": "Add model binding",
+    "apiSettings.modelBindings": "\u092E\u0949\u0921\u0932",
+    "apiSettings.modelBindingsHint": "\u090F\u0915 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0908 \u092E\u0949\u0921\u0932 \u0914\u0930 \u092A\u094D\u0930\u094B\u091F\u094B\u0915\u0949\u0932 \u0938\u0947 \u091C\u0941\u0921\u093C \u0938\u0915\u0924\u093E \u0939\u0948\u0964",
+    "apiSettings.addModelBinding": "\u092E\u0949\u0921\u0932 \u091C\u094B\u0921\u093C\u0947\u0902",
     "apiSettings.appendRatioPrompt": "\u0905\u0928\u0941\u092A\u093E\u0924 \u0928\u093F\u0930\u094D\u0926\u0947\u0936 \u091C\u094B\u0921\u093C\u0947\u0902",
     "apiSettings.defaultProviderForModel": "\u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.removeBinding": "\u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0939\u091F\u093E\u090F\u0901",
-    "apiSettings.catalogRequiredForBinding": "The model catalog is unavailable; a binding cannot be added yet.",
-    "apiSettings.keepOneBinding": "Each provider must keep at least one model binding.",
-    "apiSettings.bindingRequiredFields": "Choose a model, enter a remote model name, and select at least one operation for every binding.",
-    "apiSettings.bindingOverlap": "{model} {operation} is handled by more than one binding.",
+    "apiSettings.catalogRequiredForBinding": "\u092E\u0949\u0921\u0932 \u0938\u0942\u091A\u0940 \u0909\u092A\u0932\u092C\u094D\u0927 \u0928\u0939\u0940\u0902 \u0939\u0948; \u0905\u092D\u0940 \u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0928\u0939\u0940\u0902 \u091C\u094B\u0921\u093C\u0940 \u091C\u093E \u0938\u0915\u0924\u0940\u0964",
+    "apiSettings.keepOneBinding": "\u0939\u0930 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u092E\u0947\u0902 \u0915\u092E \u0938\u0947 \u0915\u092E \u090F\u0915 \u092E\u0949\u0921\u0932 \u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0939\u094B\u0928\u0940 \u091A\u093E\u0939\u093F\u090F\u0964",
+    "apiSettings.bindingRequiredFields": "\u0939\u0930 \u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0915\u0947 \u0932\u093F\u090F \u092E\u0949\u0921\u0932 \u091A\u0941\u0928\u0947\u0902, \u0930\u093F\u092E\u094B\u091F \u092E\u0949\u0921\u0932 \u0928\u093E\u092E \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902 \u0914\u0930 \u0915\u092E \u0938\u0947 \u0915\u092E \u090F\u0915 \u0911\u092A\u0930\u0947\u0936\u0928 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "apiSettings.bindingOverlap": "{model} {operation} \u090F\u0915 \u0938\u0947 \u0905\u0927\u093F\u0915 \u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u092E\u0947\u0902 \u0939\u0948\u0964",
     "apiSettings.actualRequest": "\u0935\u093E\u0938\u094D\u0924\u0935\u093F\u0915 \u0905\u0928\u0941\u0930\u094B\u0927",
     "apiSettings.newProviderAction": "\u0928\u092F\u093E \u092A\u094D\u0930\u0926\u093E\u0924\u093E",
     "apiSettings.copyProvider": "\u0915\u0949\u092A\u0940",
@@ -12713,6 +14089,8 @@
     "apiSettings.imageModel": "\u091B\u0935\u093F \u0928\u093F\u0930\u094D\u092E\u093E\u0923 \u092E\u0949\u0921\u0932",
     "apiSettings.concurrency": "\u0938\u092E\u0935\u0930\u094D\u0924\u0940 \u0938\u0940\u092E\u093E",
     "apiSettings.concurrencyShort": "\u0938\u092E\u0935\u0930\u094D\u0924\u0940",
+    "apiSettings.remoteModelName": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u092E\u0949\u0921\u0932 \u0928\u093E\u092E",
+    "apiSettings.fetchModels": "\u092E\u0949\u0921\u0932 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0915\u0930\u0947\u0902",
     "apiSettings.advancedSettings": "\u0909\u0928\u094D\u0928\u0924 \u0938\u0947\u091F\u093F\u0902\u0917",
     "apiSettings.concurrencyValue": "\u0938\u092E\u0935\u0930\u094D\u0924\u0940 {concurrency}",
     "apiSettings.keySaved": "API \u0915\u0941\u0902\u091C\u0940 \u0938\u0939\u0947\u091C\u0940 \u0917\u0908",
@@ -12747,6 +14125,7 @@
     "apiSettings.savingStatus": "API \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u0938\u0939\u0947\u091C\u0940 \u091C\u093E \u0930\u0939\u0940 \u0939\u0948\u0902...",
     "apiSettings.autoSaving": "\u0905\u092A\u0928\u0947 \u0906\u092A \u0938\u0939\u0947\u091C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948...",
     "apiSettings.autoSaved": "\u0905\u092A\u0928\u0947 \u0906\u092A \u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E",
+    "apiSettings.defaultMappingInvalid": "\u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0940 \u0938\u0947\u091F\u093F\u0902\u0917 \u0905\u0927\u0942\u0930\u0940 \u0939\u0948\u0964 \u0938\u0947\u091F\u093F\u0902\u0917 \u092B\u093F\u0930 \u0938\u0947 \u0932\u094B\u0921 \u0915\u0930\u0947\u0902 \u0914\u0930 \u0926\u094B\u092C\u093E\u0930\u093E \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
     "apiSettings.saveFailed": "API \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0939\u0947\u091C\u0928\u0947 \u092E\u0947\u0902 \u0935\u093F\u092B\u0932",
     "apiSettings.savedSummary": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u0938\u092E\u0935\u0930\u094D\u0924\u0940 {concurrency}",
     "apiSettings.savedShort": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E",
@@ -12913,7 +14292,169 @@
     "modelParameters.invalidJson": "\u0905\u092E\u093E\u0928\u094D\u092F JSON",
     "modelParameters.migrated": "\u092E\u094C\u091C\u0942\u0926\u093E \u092E\u0949\u0921\u0932 \u0915\u0947 \u0932\u093F\u090F {count} \u092A\u0941\u0930\u093E\u0928\u0947 \u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930 \u0938\u092E\u093E\u092F\u094B\u091C\u093F\u0924 \u0915\u093F\u090F \u0917\u090F",
     "modelParameters.historyConfiguration": "\u0910\u0924\u093F\u0939\u093E\u0938\u093F\u0915 \u0915\u0949\u0928\u094D\u092B\u093C\u093F\u0917\u0930\u0947\u0936\u0928",
-    "modelParameters.legacyTask": "\u092A\u0941\u0930\u093E\u0928\u093E \u0915\u093E\u0930\u094D\u092F"
+    "modelParameters.legacyTask": "\u092A\u0941\u0930\u093E\u0928\u093E \u0915\u093E\u0930\u094D\u092F",
+    "apiSettings.fetchingModels": "\u092E\u0949\u0921\u0932 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0915\u093F\u090F \u091C\u093E \u0930\u0939\u0947 \u0939\u0948\u0902\u2026",
+    "apiSettings.modelsEmpty": "\u0915\u094B\u0908 \u092E\u0949\u0921\u0932 \u0928\u0939\u0940\u0902 \u0932\u094C\u091F\u093E\u0964 \u092E\u0949\u0921\u0932 \u0915\u093E \u0928\u093E\u092E \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0930\u0942\u092A \u0938\u0947 \u0926\u0930\u094D\u091C \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "apiSettings.modelsFetchFailed": "\u092E\u0949\u0921\u0932 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0928\u0939\u0940\u0902 \u0939\u0941\u090F\u0964 \u092A\u0924\u093E \u0914\u0930 \u0928\u0947\u091F\u0935\u0930\u094D\u0915 \u091C\u093E\u0901\u091A\u0915\u0930 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsFetched": "{count} \u092E\u0949\u0921\u0932 \u092E\u093F\u0932\u0947\u0964 \u0907\u0938 \u092C\u093E\u0907\u0902\u0921\u093F\u0902\u0917 \u0915\u0947 \u0905\u0928\u0941\u0930\u0942\u092A \u092E\u0949\u0921\u0932 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "apiSettings.modelsInvalidBaseUrl": "\u092E\u093E\u0928\u094D\u092F HTTP(S) \u092C\u0947\u0938 URL \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsInvalidResponse": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0928\u0947 \u0905\u092E\u093E\u0928\u094D\u092F \u092E\u0949\u0921\u0932 \u0938\u0942\u091A\u0940 \u0932\u094C\u091F\u093E\u0908\u0964 \u0928\u093E\u092E \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0930\u0942\u092A \u0938\u0947 \u0926\u0930\u094D\u091C \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "apiSettings.modelsKeyRequired": "\u092E\u0949\u0921\u0932 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0915\u0930\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 API \u0915\u0941\u0902\u091C\u0940 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsNotSupported": "\u092F\u0939 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u092E\u0949\u0921\u0932 \u0938\u0942\u091A\u0940 \u0915\u093E \u0938\u092E\u0930\u094D\u0925\u0928 \u0928\u0939\u0940\u0902 \u0915\u0930\u0924\u093E\u0964 \u092E\u0949\u0921\u0932 \u0915\u093E \u0928\u093E\u092E \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0930\u0942\u092A \u0938\u0947 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsOriginMismatch": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u092A\u0924\u093E \u092C\u0926\u0932\u093E \u0939\u0948\u0964 \u0928\u0908 API \u0915\u0941\u0902\u091C\u0940 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902 \u092F\u093E \u092A\u0939\u0932\u0947 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0938\u0939\u0947\u091C\u0947\u0902\u0964",
+    "apiSettings.modelsRateLimited": "\u092C\u0939\u0941\u0924 \u0905\u0927\u093F\u0915 \u0905\u0928\u0941\u0930\u094B\u0927 \u0939\u0948\u0902\u0964 \u092C\u093E\u0926 \u092E\u0947\u0902 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsTooLarge": "\u092E\u0949\u0921\u0932 \u0938\u0942\u091A\u0940 \u092C\u0939\u0941\u0924 \u092C\u0921\u093C\u0940 \u0939\u0948\u0964 \u092E\u0949\u0921\u0932 \u0915\u093E \u0928\u093E\u092E \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0930\u0942\u092A \u0938\u0947 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
+    "apiSettings.modelsUnauthorized": "\u092E\u0949\u0921\u0932 \u092A\u0939\u0941\u0901\u091A \u0905\u0938\u094D\u0935\u0940\u0915\u0943\u0924\u0964 API \u0915\u0941\u0902\u091C\u0940 \u0914\u0930 \u0909\u0938\u0915\u0940 \u0905\u0928\u0941\u092E\u0924\u093F\u092F\u093E\u0901 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "apiSettings.selectAvailableModel": "\u0909\u092A\u0932\u092C\u094D\u0927 \u092E\u0949\u0921\u0932 \u091A\u0941\u0928\u0947\u0902",
+    "apiSettings.transparencyMode": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u092A\u0943\u0937\u094D\u0920\u092D\u0942\u092E\u093F \u0935\u093F\u0927\u093F",
+    "apiSettings.transparencyNative": "\u092E\u0942\u0932 \u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930",
+    "apiSettings.transparencyPrompt": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u0902\u0917\u0924\u0924\u093E",
+    "batch.deselectCurrentGroup": "\u0938\u092D\u0940 \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "batch.deselectWaiting": "\u092A\u094D\u0930\u0924\u0940\u0915\u094D\u0937\u093E\u0930\u0924 \u0915\u093E\u0930\u094D\u092F \u0905\u091A\u092F\u0928\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "batch.selectFailed": "\u0915\u093E\u0930\u094D\u092F \u0928\u0939\u0940\u0902 \u091A\u0941\u0928\u0947 \u091C\u093E \u0938\u0915\u0947\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "history.promptSubmittedActual": "\u0935\u093E\u0938\u094D\u0924\u0935 \u092E\u0947\u0902 \u092D\u0947\u091C\u093E \u0917\u092F\u093E \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F",
+    "lanAccess.active": "LAN \u092A\u0939\u0941\u0901\u091A \u0938\u0915\u094D\u0930\u093F\u092F \u0939\u0948\u0964",
+    "lanAccess.address": "LAN \u092A\u0924\u093E",
+    "lanAccess.copied": "\u092A\u0924\u093E \u0915\u0949\u092A\u0940 \u0915\u093F\u092F\u093E \u0917\u092F\u093E\u0964",
+    "lanAccess.copyAddress": "{address} \u0915\u0949\u092A\u0940 \u0915\u0930\u0947\u0902",
+    "lanAccess.copyManually": "\u092A\u0924\u093E \u091A\u0941\u0928\u093E \u0917\u092F\u093E\u0964 \u0907\u0938\u0947 \u092E\u0948\u0928\u094D\u092F\u0941\u0905\u0932 \u0930\u0942\u092A \u0938\u0947 \u0915\u0949\u092A\u0940 \u0915\u0930\u0947\u0902\u0964",
+    "lanAccess.failed": "\u092A\u0939\u0941\u0901\u091A \u0938\u0947\u091F\u093F\u0902\u0917 \u092A\u0922\u093C\u0940 \u092F\u093E \u0938\u0939\u0947\u091C\u0940 \u0928\u0939\u0940\u0902 \u091C\u093E \u0938\u0915\u0940\u0902\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "lanAccess.help": "\u0932\u0949\u0917\u093F\u0928 \u0906\u0935\u0936\u094D\u092F\u0915 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u090F\u0915 \u0939\u0940 \u0928\u0947\u091F\u0935\u0930\u094D\u0915 \u0915\u0947 \u0932\u094B\u0917 \u0915\u093E\u0930\u094D\u092F, \u0917\u0948\u0932\u0930\u0940 \u0914\u0930 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0938\u093E\u091D\u093E \u0915\u0930\u0924\u0947 \u0939\u0948\u0902; \u0935\u0947 \u0938\u0947\u091F\u093F\u0902\u0917 \u092C\u0926\u0932 \u0914\u0930 \u0915\u093E\u0930\u094D\u092F \u0939\u091F\u093E \u092D\u0940 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "lanAccess.hostOverride": "\u0938\u094D\u091F\u093E\u0930\u094D\u091F\u0905\u092A \u0939\u094B\u0938\u094D\u091F \u0935\u093F\u0915\u0932\u094D\u092A \u092A\u0939\u0941\u0901\u091A \u0915\u094B \u0907\u0938 \u0921\u093F\u0935\u093E\u0907\u0938 \u0924\u0915 \u0938\u0940\u092E\u093F\u0924 \u0915\u0930\u0924\u093E \u0939\u0948\u0964 --host \u0939\u091F\u093E\u0915\u0930 \u092A\u0941\u0928\u0903 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0964",
+    "lanAccess.label": "LAN \u092A\u0939\u0941\u0901\u091A \u0915\u0940 \u0905\u0928\u0941\u092E\u0924\u093F \u0926\u0947\u0902",
+    "lanAccess.loading": "\u092A\u0939\u0941\u0901\u091A \u0938\u0947\u091F\u093F\u0902\u0917 \u0932\u094B\u0921 \u0939\u094B \u0930\u0939\u0940 \u0939\u0948\u0902\u2026",
+    "lanAccess.localOnly": "\u0915\u0947\u0935\u0932 \u0907\u0938 \u0921\u093F\u0935\u093E\u0907\u0938 \u0938\u0947 WebUI \u0916\u094B\u0932\u093E \u091C\u093E \u0938\u0915\u0924\u093E \u0939\u0948\u0964",
+    "lanAccess.noAddress": "LAN IPv4 \u092A\u0924\u093E \u0928\u0939\u0940\u0902 \u092E\u093F\u0932\u093E\u0964 \u0928\u0947\u091F\u0935\u0930\u094D\u0915 \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "lanAccess.pendingDisable": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E\u0964 WebUI \u0938\u0947\u0935\u093E \u0915\u0947 \u092A\u0941\u0928\u0903 \u0936\u0941\u0930\u0942 \u0939\u094B\u0928\u0947 \u0924\u0915 LAN \u092A\u0939\u0941\u0901\u091A \u0938\u0915\u094D\u0930\u093F\u092F \u0930\u0939\u0947\u0917\u0940\u0964",
+    "lanAccess.pendingEnable": "\u0938\u0939\u0947\u091C\u093E \u0917\u092F\u093E\u0964 LAN \u092A\u0939\u0941\u0901\u091A \u091A\u093E\u0932\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F WebUI \u0938\u0947\u0935\u093E \u092A\u0941\u0928\u0903 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0964",
+    "lanAccess.saving": "\u0938\u0939\u0947\u091C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "mobile.backToEditor": "\u0938\u0902\u092A\u093E\u0926\u0928 \u092A\u0930 \u0932\u094C\u091F\u0947\u0902",
+    "mobile.copyHint": "\u0938\u094D\u0935\u091A\u093E\u0932\u093F\u0924 \u0915\u0949\u092A\u0940 \u0909\u092A\u0932\u092C\u094D\u0927 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u0928\u0940\u091A\u0947 \u0915\u093E \u092A\u093E\u0920 \u091A\u0941\u0928\u0915\u0930 \u0915\u0949\u092A\u0940 \u0915\u0930\u0947\u0902\u0964",
+    "mobile.files": "\u092B\u093C\u093E\u0907\u0932\u0947\u0902",
+    "mobile.gestureHint": "\u091C\u093C\u0942\u092E \u0915\u0947 \u0932\u093F\u090F \u092A\u093F\u0902\u091A \u0915\u0930\u0947\u0902 \xB7 \u091A\u093F\u0924\u094D\u0930 \u092C\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0938\u094D\u0935\u093E\u0907\u092A \u0915\u0930\u0947\u0902",
+    "mobile.manualCopy": "\u0915\u0949\u092A\u0940 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0926\u092C\u093E\u0915\u0930 \u0930\u0916\u0947\u0902",
+    "mobile.more": "\u0914\u0930",
+    "mobile.parameters": "\u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930",
+    "mobile.pasteHint": "\u092A\u0947\u0938\u094D\u091F \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0907\u0928\u092A\u0941\u091F \u0926\u092C\u093E\u0915\u0930 \u0930\u0916\u0947\u0902, \u092F\u093E \u092B\u093C\u094B\u091F\u094B \u0905\u0925\u0935\u093E \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091A\u0941\u0928\u0947\u0902\u0964",
+    "mobile.photos": "\u092B\u093C\u094B\u091F\u094B",
+    "mobile.pickFiles": "\u092B\u093C\u094B\u091F\u094B \u092F\u093E \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u091A\u0941\u0928\u0947\u0902",
+    "mobile.taskActions": "\u0915\u093E\u0930\u094D\u092F \u0915\u093E\u0930\u094D\u0930\u0935\u093E\u0907\u092F\u093E\u0901",
+    "networkEgress.fakeIpDnsFallback": "\u091A\u093F\u0924\u094D\u0930 \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0947 \u0932\u093F\u090F Fake-IP DNS \u0938\u0902\u0917\u0924\u0924\u093E",
+    "networkEgress.fakeIpDnsHelp": "\u091A\u093F\u0924\u094D\u0930 \u0915\u093E DNS Fake-IP \u0932\u094C\u091F\u093E\u090F \u0924\u094B \u0935\u093E\u0938\u094D\u0924\u0935\u093F\u0915 \u0938\u093E\u0930\u094D\u0935\u091C\u0928\u093F\u0915 \u092A\u0924\u0947 Cloudflare DNS \u0938\u0947 \u092A\u0942\u091B\u0947 \u091C\u093E\u0924\u0947 \u0939\u0948\u0902\u0964 \u092F\u0939 \u092C\u093E\u0926 \u092E\u0947\u0902 \u0936\u0941\u0930\u0942 \u0905\u0928\u0941\u0930\u094B\u0927\u094B\u0902 \u0915\u0947 \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u092A\u0930 \u0932\u093E\u0917\u0942 \u0939\u0948; LAN DNS \u0928\u0939\u0940\u0902 \u092C\u0926\u0932\u0924\u093E\u0964 API \u0915\u0941\u0902\u091C\u093F\u092F\u093E\u0901, \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u092F\u093E \u091A\u093F\u0924\u094D\u0930\u094B\u0902 \u0915\u0947 \u092A\u0942\u0930\u0947 URL \u0928\u0939\u0940\u0902 \u092D\u0947\u091C\u0947 \u091C\u093E\u0924\u0947\u0964",
+    "output.transparencyFidelityHint": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u092A\u0943\u0937\u094D\u0920\u092D\u0942\u092E\u093F \u0906\u092A\u0915\u0940 \u091A\u0941\u0928\u0940 \u0906\u0909\u091F\u092A\u0941\u091F \u0906\u0935\u0936\u094D\u092F\u0915\u0924\u093E \u0939\u0948\u0964 \u0907\u0938\u0947 \u092E\u0942\u0932 \u0914\u0930 \u092F\u0925\u093E\u0935\u0924 \u092E\u094B\u0921 \u092E\u0947\u0902 \u092D\u0940 \u091C\u094B\u0921\u093C\u093E \u091C\u093E\u0924\u093E \u0939\u0948\u0964",
+    "output.transparencyFormat": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u0906\u0909\u091F\u092A\u0941\u091F \u0915\u0947 \u0932\u093F\u090F PNG \u092F\u093E WebP \u0906\u0935\u0936\u094D\u092F\u0915 \u0939\u0948\u0964",
+    "output.transparencyUnavailable": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u093F\u0924\u093E \u0905\u0928\u0941\u092A\u0932\u092C\u094D\u0927",
+    "output.transparentBackground": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u092A\u0943\u0937\u094D\u0920\u092D\u0942\u092E\u093F",
+    "preview.transparencyDetected": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u092A\u093F\u0915\u094D\u0938\u0947\u0932 \u092E\u093F\u0932\u0947",
+    "preview.transparencyMissing": "\u092A\u093E\u0930\u0926\u0930\u094D\u0936\u0940 \u092A\u093F\u0915\u094D\u0938\u0947\u0932 \u0928\u0939\u0940\u0902 \u092E\u093F\u0932\u0947",
+    "preview.transparencyRetryHint": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0938\u0902\u0917\u0924\u0924\u093E \u092F\u093E \u0926\u0942\u0938\u0930\u093E \u092E\u0949\u0921\u0932 \u0906\u091C\u093C\u092E\u093E\u090F\u0901\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0928\u0947 \u092A\u0930 \u0928\u092F\u093E \u091C\u0928\u0930\u0947\u0936\u0928 \u0936\u0941\u0930\u0942 \u0939\u094B\u0917\u093E\u0964",
+    "queue.realtimePolling": "\u0915\u093E\u0930\u094D\u092F \u0915\u0940 \u0938\u094D\u0925\u093F\u0924\u093F \u0928\u093F\u092F\u092E\u093F\u0924 \u0930\u0942\u092A \u0938\u0947 \u0905\u092A\u0921\u0947\u091F \u0939\u094B \u0930\u0939\u0940 \u0939\u0948\u0964 \u0932\u093E\u0907\u0935 \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u092C\u0939\u093E\u0932 \u0915\u093F\u092F\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "referenceFiles.chooseResponses": "Responses \u091A\u0948\u0928\u0932 \u091A\u0941\u0928\u0947\u0902",
+    "status.taskChangedDuringLoad": "\u0932\u094B\u0921 \u0939\u094B\u0924\u0947 \u0938\u092E\u092F \u0915\u093E\u0930\u094D\u092F \u092C\u0926\u0932 \u0917\u092F\u093E\u0964 \u0909\u0938\u0947 \u0926\u094B\u092C\u093E\u0930\u093E \u091A\u0941\u0928\u0947\u0902\u0964",
+    "userConfigBackup.apiKeyConfirm": "\u0907\u0938 \u092C\u093F\u0928\u093E \u090F\u0928\u094D\u0915\u094D\u0930\u093F\u092A\u094D\u0936\u0928 \u0935\u093E\u0932\u0947 \u0938\u0902\u0917\u094D\u0930\u0939 \u092E\u0947\u0902 API \u0915\u0941\u0902\u091C\u093F\u092F\u093E\u0901 \u0939\u094B\u0902\u0917\u0940\u0964 \u092B\u093F\u0930 \u092D\u0940 \u092C\u0928\u093E\u090F\u0901?",
+    "userConfigBackup.archiveMeta": "{count} \u0905\u0928\u0941\u092D\u093E\u0917 \xB7 \u092A\u094D\u0930\u093E\u0930\u0942\u092A v{version}",
+    "userConfigBackup.backToPreview": "\u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928 \u092A\u0930 \u0932\u094C\u091F\u0947\u0902",
+    "userConfigBackup.backupCopy": "\u0936\u093E\u092E\u093F\u0932 \u0915\u0930\u0928\u0947 \u0935\u093E\u0932\u0940 \u0938\u0947\u091F\u093F\u0902\u0917 \u091A\u0941\u0928\u0947\u0902\u0964 \u091C\u0928\u0930\u0947\u0936\u0928 \u0915\u093E\u0930\u094D\u092F \u0914\u0930 OAuth \u0938\u0924\u094D\u0930 \u0915\u092D\u0940 \u0936\u093E\u092E\u093F\u0932 \u0928\u0939\u0940\u0902 \u0939\u094B\u0924\u0947\u0964",
+    "userConfigBackup.backupProgress": "\u092C\u0948\u0915\u0905\u092A \u0915\u0940 \u092A\u094D\u0930\u0917\u0924\u093F",
+    "userConfigBackup.cancelled": "\u092C\u0948\u0915\u0905\u092A \u0930\u0926\u094D\u0926 \u0939\u0941\u0906",
+    "userConfigBackup.chooseArchive": "\u092C\u0948\u0915\u0905\u092A ZIP \u091A\u0941\u0928\u0947\u0902",
+    "userConfigBackup.chooseArchiveCopy": "\u092A\u0939\u0932\u0947 \u092B\u093C\u093E\u0907\u0932 \u0905\u092A\u0932\u094B\u0921 \u0914\u0930 \u0938\u0924\u094D\u092F\u093E\u092A\u093F\u0924 \u0939\u094B\u0917\u0940\u0964 \u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928 \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0928\u0939\u0940\u0902 \u092C\u0926\u0932\u0924\u093E\u0964",
+    "userConfigBackup.keepWorking": "\u0915\u093E\u092E \u091C\u093E\u0930\u0940 \u0930\u0916\u0947\u0902",
+    "userConfigBackup.cancelAndClose": "\u0938\u094D\u0925\u093E\u0928\u093E\u0902\u0924\u0930\u0923 \u0930\u0926\u094D\u0926 \u0915\u0930\u0947\u0902 \u0914\u0930 \u092C\u0902\u0926 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.discardAndClose": "\u0905\u0938\u094D\u0925\u093E\u092F\u0940 \u092C\u0948\u0915\u0905\u092A \u0939\u091F\u093E\u090F\u0901 \u0914\u0930 \u092C\u0902\u0926 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.creatingBackup": "\u092C\u0948\u0915\u0905\u092A \u092C\u0928\u093E\u092F\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938 \u092C\u0939\u093E\u0932 \u0915\u0930 \u0926\u0940 \u0917\u0908 \u0939\u0948\u0902\u0964 \u0906\u092A\u0915\u0947 \u092C\u093F\u0928\u093E \u0938\u0939\u0947\u091C\u0947 \u092C\u0926\u0932\u093E\u0935 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0939\u0948\u0902; \u0938\u0939\u0947\u091C\u0928\u0947 \u092A\u0930 \u092B\u093C\u0949\u0930\u094D\u092E \u0915\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u092E\u093E\u0928 \u0932\u093E\u0917\u0942 \u0939\u094B\u0902\u0917\u0947\u0964",
+    "userConfigBackup.closeActiveConfirm": "\u0905\u092A\u0932\u094B\u0921 \u092F\u093E \u092C\u0948\u0915\u0905\u092A \u091C\u093E\u0930\u0940 \u0939\u0948\u0964 \u092C\u0902\u0926 \u0915\u0930\u0915\u0947 \u0930\u0926\u094D\u0926 \u0915\u0930\u0947\u0902?",
+    "userConfigBackup.create": "\u092C\u0948\u0915\u0905\u092A \u092C\u0928\u093E\u090F\u0901",
+    "userConfigBackup.creatingSession": "\u0905\u092A\u0932\u094B\u0921 \u0915\u0940 \u0924\u0948\u092F\u093E\u0930\u0940\u2026",
+    "userConfigBackup.discardReadyConfirm": "\u092C\u0902\u0926 \u0915\u0930\u0928\u0947 \u0938\u0947 \u0938\u0930\u094D\u0935\u0930 \u0915\u0940 \u0905\u0938\u094D\u0925\u093E\u092F\u0940 \u092A\u094D\u0930\u0924\u093F \u0939\u091F\u0947\u0917\u0940\u0964 \u0907\u0938 \u0921\u093F\u0935\u093E\u0907\u0938 \u092A\u0930 \u0938\u0939\u0947\u091C\u0940 \u092B\u093C\u093E\u0907\u0932\u0947\u0902 \u0930\u0939\u0947\u0902\u0917\u0940\u0964 \u091C\u093E\u0930\u0940 \u0930\u0916\u0947\u0902?",
+    "userConfigBackup.download": "\u092C\u0948\u0915\u0905\u092A \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.downloaded": "\u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0936\u0941\u0930\u0942 \u0939\u0941\u0906\u0964 \u092F\u0939 \u092C\u0948\u0915\u0905\u092A 24 \u0918\u0902\u091F\u0947 \u0924\u0915 \u092B\u093F\u0930 \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u092A\u0941\u0930\u093E\u0928\u0947 \u0915\u093E\u0930\u094D\u092F \u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930\u094B\u0902 \u0915\u0947 \u0938\u0902\u0926\u0930\u094D\u092D \u0916\u094B \u0926\u0947\u0902\u0917\u0947",
+    "userConfigBackup.incrementalCopy": "\u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0930\u0916\u0947\u0902, \u0921\u0941\u092A\u094D\u0932\u093F\u0915\u0947\u091F \u091B\u094B\u0921\u093C\u0947\u0902 \u0914\u0930 \u091F\u0915\u0930\u093E\u0935 \u0915\u0947 \u0932\u093F\u090F \u092A\u0941\u0928\u0930\u094D\u092A\u094D\u0930\u093E\u092A\u094D\u0924\u093F \u092A\u094D\u0930\u0924\u093F\u092F\u093E\u0901 \u092C\u0928\u093E\u090F\u0901\u0964",
+    "userConfigBackup.itemCount": "{count} \u0906\u0907\u091F\u092E",
+    "userConfigBackup.modeLabel": "\u092C\u0948\u0915\u0905\u092A \u092F\u093E \u092C\u0939\u093E\u0932\u0940",
+    "userConfigBackup.previewCounts": "\u0938\u0902\u0917\u094D\u0930\u0939 \u092E\u0947\u0902 {count} \xB7 {duplicate} \u0921\u0941\u092A\u094D\u0932\u093F\u0915\u0947\u091F \xB7 {conflict} \u091F\u0915\u0930\u093E\u0935",
+    "userConfigBackup.previewTitle": "\u092C\u0939\u093E\u0932\u0940 \u0915\u093E \u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928",
+    "userConfigBackup.providerRetention": "\u0938\u0941\u0930\u0915\u094D\u0937\u093E \u0915\u0947 \u0932\u093F\u090F \u0915\u094D\u0930\u0947\u0921\u0947\u0902\u0936\u093F\u092F\u0932 \u0935\u093E\u0932\u0947 {count} \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0930\u0916\u0947 \u091C\u093E\u090F\u0901\u0917\u0947",
+    "userConfigBackup.replaceConfirmCopy": "\u0915\u0947\u0935\u0932 \u091A\u0941\u0928\u0947 \u0905\u0928\u0941\u092D\u093E\u0917 \u092A\u094D\u0930\u092D\u093E\u0935\u093F\u0924 \u0939\u094B\u0902\u0917\u0947, \u092A\u0930 \u0909\u0928\u0915\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0939\u091F \u091C\u093E\u090F\u0917\u093E\u0964 \u0907\u0938\u0947 \u0935\u093E\u092A\u0938 \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u091C\u093E \u0938\u0915\u0924\u093E\u0964",
+    "userConfigBackup.replaceImpact": "{section}: \u092E\u094C\u091C\u0942\u0926\u093E {current} \u0906\u0907\u091F\u092E \u0939\u091F\u093E\u0915\u0930 \u092C\u0948\u0915\u0905\u092A \u0915\u0947 {archive} \u0906\u0907\u091F\u092E \u0906\u092F\u093E\u0924 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.restartRequired": "\u0938\u094D\u091F\u094B\u0930\u0947\u091C \u092A\u0925 \u092C\u0939\u093E\u0932 \u0939\u0941\u090F\u0964 \u0907\u0928\u094D\u0939\u0947\u0902 \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F WebUI \u092A\u0941\u0928\u0903 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0964",
+    "userConfigBackup.restoreContinues": "\u092C\u0939\u093E\u0932\u0940 \u0915\u093E \u0921\u0947\u091F\u093E \u0932\u093F\u0916\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u0964 \u092A\u0948\u0928\u0932 \u092C\u0902\u0926 \u0915\u0930\u0928\u0947 \u0938\u0947 \u092F\u0939 \u0930\u0926\u094D\u0926 \u0928\u0939\u0940\u0902 \u0939\u094B\u0917\u093E; \u092A\u0930\u093F\u0923\u093E\u092E \u0926\u0947\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u092C\u093E\u0926 \u092E\u0947\u0902 \u0916\u094B\u0932\u0947\u0902\u0964",
+    "userConfigBackup.restoreModeLabel": "\u092C\u0939\u093E\u0932\u0940 \u092E\u094B\u0921",
+    "userConfigBackup.restoreProgress": "\u092C\u0939\u093E\u0932\u0940 \u0905\u092A\u0932\u094B\u0921 \u0915\u0940 \u092A\u094D\u0930\u0917\u0924\u093F",
+    "userConfigBackup.restoreSelected": "\u091A\u0941\u0928\u093E \u0921\u0947\u091F\u093E \u092C\u0939\u093E\u0932 \u0915\u0930\u0947\u0902",
+    "userConfigBackup.restoring": "\u092C\u0939\u093E\u0932\u0940 \u091C\u093E\u0930\u0940 \u0939\u0948\u0964 WebUI \u0916\u0941\u0932\u093E \u0930\u0916\u0947\u0902\u2026",
+    "userConfigBackup.resultCounts": "{section}: {added} \u091C\u094B\u0921\u093C\u0947 \xB7 {replaced} \u092C\u0926\u0932\u0947 \xB7 {skipped} \u091B\u094B\u0921\u093C\u0947 \xB7 {copies} \u092A\u0941\u0928\u0930\u094D\u092A\u094D\u0930\u093E\u092A\u094D\u0924\u093F \u092A\u094D\u0930\u0924\u093F\u092F\u093E\u0901",
+    "userConfigBackup.selectAtLeastOne": "\u0915\u092E \u0938\u0947 \u0915\u092E \u090F\u0915 \u0921\u0947\u091F\u093E \u092A\u094D\u0930\u0915\u093E\u0930 \u091A\u0941\u0928\u0947\u0902",
+    "userConfigBackup.selectSections": "\u0921\u0947\u091F\u093E \u091A\u0941\u0928\u0947\u0902",
+    "userConfigBackup.status.cancelled": "\u092C\u0948\u0915\u0905\u092A \u0930\u0926\u094D\u0926 \u0939\u0941\u0906",
+    "userConfigBackup.status.expired": "\u092C\u0948\u0915\u0905\u092A \u0915\u0940 \u0905\u0935\u0927\u093F \u0938\u092E\u093E\u092A\u094D\u0924",
+    "userConfigBackup.status.failed": "\u092C\u0948\u0915\u0905\u092A \u0935\u093F\u092B\u0932",
+    "userConfigBackup.status.interrupted": "WebUI \u0930\u0941\u0915\u0928\u0947 \u092A\u0930 \u092C\u0948\u0915\u0905\u092A \u092C\u0902\u0926 \u0939\u094B \u0917\u092F\u093E",
+    "userConfigBackup.status.packing": "\u0938\u0902\u0917\u094D\u0930\u0939 \u092A\u0948\u0915 \u0915\u093F\u092F\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "userConfigBackup.status.planning": "\u092C\u0948\u0915\u0905\u092A \u0915\u0940 \u092F\u094B\u091C\u0928\u093E \u092C\u0928\u093E\u0908 \u091C\u093E \u0930\u0939\u0940 \u0939\u0948\u2026",
+    "userConfigBackup.status.queued": "\u092C\u0948\u0915\u0905\u092A \u0915\u0924\u093E\u0930 \u092E\u0947\u0902 \u0939\u0948\u2026",
+    "userConfigBackup.status.ready": "\u092C\u0948\u0915\u0905\u092A \u0924\u0948\u092F\u093E\u0930 \u0939\u0948\u0964 \u0907\u0938\u0947 24 \u0918\u0902\u091F\u0947 \u0924\u0915 \u092B\u093F\u0930 \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "userConfigBackup.summaryFailed": "\u0938\u0947\u091F\u093F\u0902\u0917 \u0915\u093E \u0938\u093E\u0930\u093E\u0902\u0936 \u0928\u0939\u0940\u0902 \u092A\u0922\u093C\u093E \u091C\u093E \u0938\u0915\u093E",
+    "userConfigBackup.summaryLoading": "\u0938\u0947\u091F\u093F\u0902\u0917 \u0915\u093E \u0938\u093E\u0930\u093E\u0902\u0936 \u092A\u0922\u093C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "userConfigBackup.uploading": "\u092C\u0948\u0915\u0905\u092A \u0905\u092A\u0932\u094B\u0921 \u0939\u094B \u0930\u0939\u093E \u0939\u0948\u2026",
+    "userConfigBackup.validating": "\u092C\u0948\u0915\u0905\u092A \u0938\u0924\u094D\u092F\u093E\u092A\u093F\u0924 \u0939\u094B \u0930\u0939\u093E \u0939\u0948\u2026",
+    "userConfigBackup.validationReady": "\u0938\u0924\u094D\u092F\u093E\u092A\u0928 \u092A\u0942\u0930\u093E \u0939\u0941\u0906\u0964 \u092C\u0939\u093E\u0932\u0940 \u0915\u093E \u0924\u0930\u0940\u0915\u093E \u091A\u0941\u0928\u0947\u0902\u0964",
+    "userConfigBackup.versionUnsupported": "\u092F\u0939 \u092C\u0948\u0915\u0905\u092A \u0928\u090F \u092A\u094D\u0930\u093E\u0930\u0942\u092A \u0915\u093E \u0939\u0948; \u0915\u0947\u0935\u0932 \u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928 \u0909\u092A\u0932\u092C\u094D\u0927 \u0939\u0948\u0964",
+    "userConfigBackup.warningCount": "{count} \u091A\u0947\u0924\u093E\u0935\u0928\u093F\u092F\u093E\u0901",
+    "user_config_backup_failed": "\u091A\u0941\u0928\u093E \u0921\u0947\u091F\u093E \u092A\u0922\u093C\u093E \u092F\u093E \u092A\u0948\u0915 \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u091C\u093E \u0938\u0915\u093E\u0964 \u091C\u093E\u0901\u091A\u0915\u0930 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "user_config_backup_gallery_invalid": "\u0938\u093E\u091D\u093E \u091A\u093F\u0924\u094D\u0930 \u0917\u0948\u0932\u0930\u0940 \u0930\u093F\u0915\u0949\u0930\u094D\u0921 \u0938\u0947 \u092E\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093E\u0924\u093E\u0964 \u092A\u094D\u0930\u092D\u093E\u0935\u093F\u0924 \u091A\u093F\u0924\u094D\u0930 \u092B\u093F\u0930 \u0938\u0939\u0947\u091C\u0947\u0902 \u092F\u093E \u0939\u091F\u093E\u090F\u0901, \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "user_config_backup_insufficient_space": "\u092C\u0948\u0915\u0905\u092A \u092C\u0928\u093E\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0921\u093F\u0938\u094D\u0915 \u092E\u0947\u0902 \u092A\u0930\u094D\u092F\u093E\u092A\u094D\u0924 \u091C\u0917\u0939 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964",
+    "user_config_backup_internal_error": "\u092C\u0948\u0915\u0905\u092A \u0938\u0947\u0935\u093E \u092E\u0947\u0902 \u0906\u0902\u0924\u0930\u093F\u0915 \u0924\u094D\u0930\u0941\u091F\u093F \u0906\u0908\u0964 WebUI \u092A\u0941\u0928\u0903 \u0936\u0941\u0930\u0942 \u0915\u0930\u0915\u0947 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902; \u0938\u092E\u0938\u094D\u092F\u093E \u0930\u0939\u0947 \u0924\u094B \u0938\u094D\u091F\u093E\u0930\u094D\u091F\u0905\u092A \u0932\u0949\u0917 \u0926\u0947\u0916\u0947\u0902\u0964",
+    "user_config_backup_io_error": "\u092C\u0948\u0915\u0905\u092A \u092B\u093C\u093E\u0907\u0932 \u0924\u0915 \u092A\u0939\u0941\u0901\u091A \u0935\u093F\u092B\u0932\u0964 \u0921\u093F\u0938\u094D\u0915 \u0914\u0930 \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u0905\u0928\u0941\u092E\u0924\u093F\u092F\u093E\u0901 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "user_config_backup_source_changed": "\u092C\u0948\u0915\u0905\u092A \u0915\u0947 \u0926\u094C\u0930\u093E\u0928 \u0938\u0947\u091F\u093F\u0902\u0917 \u092C\u0926\u0932\u0940\u0964 \u0938\u0902\u092A\u093E\u0926\u0928 \u0930\u094B\u0915\u0915\u0930 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "user_config_backup_source_unreadable": "\u0938\u0947\u091F\u093F\u0902\u0917 \u092B\u093C\u093E\u0907\u0932 \u0928\u0939\u0940\u0902 \u092A\u0922\u093C\u0940 \u091C\u093E \u0938\u0915\u0940\u0964 \u0909\u0938\u0915\u0940 \u0905\u0928\u0941\u092E\u0924\u093F\u092F\u093E\u0901 \u091C\u093E\u0901\u091A\u0915\u0930 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "user_config_restore_active_tasks": "\u0915\u093E\u0930\u094D\u092F \u0905\u092D\u0940 \u091A\u0932 \u0930\u0939\u0947 \u0939\u0948\u0902\u0964 \u0921\u0947\u091F\u093E \u092C\u0926\u0932\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 \u0909\u0928\u0915\u0947 \u092A\u0942\u0930\u0947 \u0939\u094B\u0928\u0947 \u0915\u0940 \u092A\u094D\u0930\u0924\u0940\u0915\u094D\u0937\u093E \u0915\u0930\u0947\u0902\u0964",
+    "user_config_restore_failed": "\u092C\u0939\u093E\u0932\u0940 \u0935\u093F\u092B\u0932 \u0939\u0941\u0908\u0964 \u092E\u094C\u091C\u0942\u0926\u093E \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0939\u0948\u0902\u0964",
+    "user_config_restore_preview_stale": "\u092E\u094C\u091C\u0942\u0926\u093E \u0938\u0947\u091F\u093F\u0902\u0917 \u092C\u0926\u0932\u0940 \u0939\u0948\u0964 \u0938\u0902\u0917\u094D\u0930\u0939 \u092B\u093F\u0930 \u0938\u0924\u094D\u092F\u093E\u092A\u093F\u0924 \u0915\u0930\u0947\u0902\u0964",
+    "user_config_restore_system_notification_permission_missing": "\u092C\u094D\u0930\u093E\u0909\u091C\u093C\u0930 \u0915\u0940 \u0905\u0928\u0941\u092E\u0924\u093F \u0928 \u0939\u094B\u0928\u0947 \u0938\u0947 \u0938\u093F\u0938\u094D\u091F\u092E \u0938\u0942\u091A\u0928\u093E\u090F\u0901 \u091A\u093E\u0932\u0942 \u0928\u0939\u0940\u0902 \u0915\u0940 \u0917\u0908\u0902\u0964",
+    "user_config_restore_version_unsupported": "\u092F\u0939 \u092C\u0948\u0915\u0905\u092A \u092A\u094D\u0930\u093E\u0930\u0942\u092A \u092C\u0939\u093E\u0932\u0940 \u0915\u0947 \u0932\u093F\u090F \u092C\u0939\u0941\u0924 \u0928\u092F\u093E \u0939\u0948\u0964",
+    "ux.acceptDetail": "\u0938\u092B\u0932 \u091A\u093F\u0924\u094D\u0930 \u0930\u0916\u0947\u0902 \u0914\u0930 \u0935\u093F\u092B\u0932 \u091A\u093F\u0924\u094D\u0930\u094B\u0902 \u0915\u094B \u0926\u094B\u092C\u093E\u0930\u093E \u092C\u0928\u093E\u090F \u092C\u093F\u0928\u093E \u0915\u093E\u0930\u094D\u092F \u092A\u0942\u0930\u093E \u0915\u0930\u0947\u0902\u0964",
+    "ux.addReference": "\u0938\u0902\u0926\u0930\u094D\u092D \u091C\u094B\u0921\u093C\u0947\u0902",
+    "ux.addingReference": "\u0938\u0902\u0926\u0930\u094D\u092D \u091C\u094B\u0921\u093C\u093E \u091C\u093E \u0930\u0939\u093E \u0939\u0948\u2026",
+    "ux.checkProvider": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0940 \u0938\u0947\u091F\u093F\u0902\u0917 \u091C\u093E\u0901\u091A\u0947\u0902",
+    "ux.collapseReference": "\u0938\u092E\u0947\u091F\u0947\u0902",
+    "ux.discardEdits": "\u092C\u0926\u0932\u093E\u0935 \u091B\u094B\u0921\u093C\u0947\u0902",
+    "ux.draftRestored": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0914\u0930 \u0938\u0902\u0926\u0930\u094D\u092D \u092C\u0939\u093E\u0932 \u0915\u093F\u090F \u0917\u090F; \u092E\u094C\u091C\u0942\u0926\u093E \u091C\u0928\u0930\u0947\u0936\u0928 \u0938\u0947\u091F\u093F\u0902\u0917 \u092C\u0930\u0915\u0930\u093E\u0930 \u0939\u0948\u0902\u0964",
+    "ux.editInputs": "\u0907\u0928\u092A\u0941\u091F \u0914\u0930 \u0938\u0947\u091F\u093F\u0902\u0917 \u0938\u0902\u092A\u093E\u0926\u093F\u0924 \u0915\u0930\u0947\u0902",
+    "ux.editInputsReady": "\u0915\u093E\u0930\u094D\u092F \u0915\u0947 \u0907\u0928\u092A\u0941\u091F \u0914\u0930 \u0938\u0947\u091F\u093F\u0902\u0917 \u0932\u094B\u0921 \u0939\u094B \u0917\u090F\u0964 \u0926\u094B\u092C\u093E\u0930\u093E \u092C\u0928\u093E\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 \u0907\u0928\u094D\u0939\u0947\u0902 \u0938\u0902\u092A\u093E\u0926\u093F\u0924 \u0915\u0930\u0947\u0902\u0964",
+    "ux.errorDetails": "\u0924\u094D\u0930\u0941\u091F\u093F \u0935\u093F\u0935\u0930\u0923",
+    "ux.execution": "\u0905\u0917\u0932\u093E \u091C\u0928\u0930\u0947\u0936\u0928",
+    "ux.historyDraftRestoreFailed": "\u0921\u094D\u0930\u093E\u092B\u093C\u094D\u091F \u092C\u0939\u093E\u0932 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0905\u0938\u094D\u0925\u093E\u092F\u0940 \u092A\u094D\u0930\u0924\u093F \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0939\u0948\u0964 \u0930\u0940\u092B\u093C\u094D\u0930\u0947\u0936 \u0915\u0930\u0915\u0947 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "ux.historyDraftSaveFailed": "\u0921\u094D\u0930\u093E\u092B\u093C\u094D\u091F \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0906\u092A \u0905\u092D\u0940 \u091C\u0928\u0930\u0947\u0936\u0928 \u092A\u0943\u0937\u094D\u0920 \u092A\u0930 \u0939\u0948\u0902\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "ux.historyParametersHint": "\u092F\u0947 \u091A\u0941\u0928\u0947 \u0939\u0941\u090F \u0915\u093E\u0930\u094D\u092F \u0915\u0947 \u092A\u0941\u0930\u093E\u0928\u0947 \u092A\u0948\u0930\u093E\u092E\u0940\u091F\u0930 \u0939\u0948\u0902\u0964 \u0905\u0917\u0932\u093E \u091C\u0928\u0930\u0947\u0936\u0928 \u0906\u0909\u091F\u092A\u0941\u091F \u0938\u0947\u091F\u093F\u0902\u0917 \u0915\u0947 \u0905\u0928\u0941\u0938\u093E\u0930 \u0939\u094B\u0917\u093E\u0964",
+    "ux.imageCount": "{count} \u091A\u093F\u0924\u094D\u0930",
+    "ux.imageUnsaved": "\u091A\u093F\u0924\u094D\u0930 \u092E\u0947\u0902 \u092C\u093F\u0928\u093E \u0938\u0939\u0947\u091C\u0947 \u092C\u0926\u0932\u093E\u0935 \u0939\u0948\u0902\u0964 \u0907\u0928\u094D\u0939\u0947\u0902 \u091B\u094B\u0921\u093C\u0928\u093E \u0935\u093E\u092A\u0938 \u0928\u0939\u0940\u0902 \u0915\u093F\u092F\u093E \u091C\u093E \u0938\u0915\u0924\u093E; \u0938\u0902\u092A\u093E\u0926\u0928 \u091C\u093E\u0930\u0940 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0930\u0926\u094D\u0926 \u0915\u0930\u0947\u0902\u0964",
+    "ux.moderationAuto": "\u0938\u094D\u0935\u091A\u093E\u0932\u093F\u0924",
+    "ux.moderationLow": "\u0915\u092E \u0938\u0916\u094D\u0924",
+    "ux.openRecovery": "\u091C\u0928\u0930\u0947\u0936\u0928 \u092A\u0943\u0937\u094D\u0920 \u092A\u0930 \u0939\u0932 \u0915\u0930\u0947\u0902",
+    "ux.recovery.credentials": "\u092A\u094D\u0930\u092E\u093E\u0923\u0940\u0915\u0930\u0923 \u0935\u093F\u092B\u0932\u0964 \u0926\u094B\u092C\u093E\u0930\u093E \u092C\u0928\u093E\u0928\u0947 \u0938\u0947 \u092A\u0939\u0932\u0947 \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0940 API \u0915\u0941\u0902\u091C\u0940 \u092F\u093E \u0938\u094D\u0925\u093E\u0928\u0940\u092F \u0932\u0949\u0917\u093F\u0928 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "ux.recovery.input": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F, \u0938\u0902\u0926\u0930\u094D\u092D \u092B\u093C\u093E\u0907\u0932\u094B\u0902 \u0914\u0930 \u091C\u0928\u0930\u0947\u0936\u0928 \u0938\u0947\u091F\u093F\u0902\u0917 \u092E\u0947\u0902 \u0905\u0938\u092E\u0930\u094D\u0925\u093F\u0924 \u0907\u0928\u092A\u0941\u091F \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "ux.recovery.quota": "\u0915\u093E\u0930\u094D\u092F \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u0915\u094B\u091F\u093E \u092F\u093E \u0916\u093E\u0924\u0947 \u0915\u093E \u0936\u0947\u0937 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
+    "ux.recovery.temporary": "\u091C\u0928\u0930\u0947\u0936\u0928 \u092A\u0942\u0930\u093E \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0938\u092B\u0932 \u091A\u093F\u0924\u094D\u0930 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0939\u0948\u0902; \u0909\u092A\u0932\u092C\u094D\u0927 \u0939\u094B\u0928\u0947 \u092A\u0930 \u0935\u093F\u092B\u0932 \u091A\u093F\u0924\u094D\u0930 \u092B\u093F\u0930 \u092C\u0928\u093E\u090F\u0901\u0964",
+    "ux.referenceAdded": "\u0907\u0938 \u0915\u093E\u0930\u094D\u092F \u0915\u0947 \u0938\u0902\u0926\u0930\u094D\u092D\u094B\u0902 \u092E\u0947\u0902 \u091C\u094B\u0921\u093C\u093E \u0917\u092F\u093E",
+    "ux.referenceFailed": "\u0938\u0902\u0926\u0930\u094D\u092D \u0928\u0939\u0940\u0902 \u091C\u094B\u0921\u093C\u093E \u091C\u093E \u0938\u0915\u093E\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "ux.restoreDraft": "\u0907\u0928\u092A\u0941\u091F \u092C\u0939\u093E\u0932 \u0915\u0930\u0947\u0902",
+    "ux.restoreInputsHint": "\u0915\u0947\u0935\u0932 \u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u0914\u0930 \u0938\u0902\u0926\u0930\u094D\u092D \u092C\u0939\u093E\u0932 \u0915\u0930\u0947\u0902; \u092E\u094C\u091C\u0942\u0926\u093E \u091C\u0928\u0930\u0947\u0936\u0928 \u0938\u0947\u091F\u093F\u0902\u0917 \u092C\u0928\u093E\u090F \u0930\u0916\u0947\u0902\u0964",
+    "ux.tasks": "\u0915\u093E\u0930\u094D\u092F",
+    "ux.useSize": "{width} \xD7 {height} \u0909\u092A\u092F\u094B\u0917 \u0915\u0930\u0947\u0902",
+    "ux.viewPreview": "\u092A\u0942\u0930\u094D\u0935\u093E\u0935\u0932\u094B\u0915\u0928 \u0926\u0947\u0916\u0947\u0902",
+    "version.continuePortable": "\u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u0915\u093E \u0909\u092A\u092F\u094B\u0917 \u091C\u093E\u0930\u0940 \u0930\u0916\u0947\u0902",
+    "version.dismissFailed": "\u0938\u0942\u091A\u0928\u093E \u0915\u0940 \u0938\u094D\u0925\u093F\u0924\u093F \u0938\u0939\u0947\u091C\u0940 \u0928\u0939\u0940\u0902 \u0917\u0908\u0964 \u092C\u093E\u0926 \u092E\u0947\u0902 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "version.dismissOnboarding": "\u0926\u094B\u092C\u093E\u0930\u093E \u0928 \u0926\u093F\u0916\u093E\u090F\u0901",
+    "version.onboardingBody": "\u0907\u0938 \u0930\u093F\u0932\u0940\u091C\u093C \u092E\u0947\u0902 macOS DMG \u0914\u0930 Windows App ZIP \u091C\u094B\u0921\u093C\u0947 \u0917\u090F \u0939\u0948\u0902\u0964 \u0928\u090F \u0909\u092A\u092F\u094B\u0917\u0915\u0930\u094D\u0924\u093E \u092E\u093E\u0928\u0915 \u092A\u0948\u0915\u0947\u091C \u091A\u0941\u0928\u0947\u0902; \u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u092A\u0948\u0915\u0947\u091C \u092D\u0940 \u0915\u093E\u092E \u0915\u0930\u0924\u093E \u0930\u0939\u0947\u0917\u093E\u0964",
+    "version.onboardingDataPortable": "\u0906\u092A\u0915\u093E \u092E\u094C\u091C\u0942\u0926\u093E \u0921\u0947\u091F\u093E \u0907\u0938 \u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u092A\u0948\u0915\u0947\u091C \u0915\u0947 data/ \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u092E\u0947\u0902 \u0930\u0939\u0947\u0917\u093E\u0964",
+    "version.onboardingMigration": "\u092E\u093E\u0928\u0915 \u0910\u092A \u092A\u0930 \u091C\u093E\u0924\u0947 \u0938\u092E\u092F \u092E\u093E\u0907\u0917\u094D\u0930\u0947\u0936\u0928 \u0938\u0939\u093E\u092F\u0915 \u0938\u0947 \u092A\u0941\u0930\u093E\u0928\u0947 \u0921\u0947\u091F\u093E \u0915\u0940 \u092A\u094D\u0930\u0924\u093F \u092C\u0928\u093E\u090F\u0901\u0964 \u092E\u0942\u0932 \u0921\u0947\u091F\u093E \u0928 \u0916\u093F\u0938\u0915\u0947\u0917\u093E, \u0928 \u0913\u0935\u0930\u0930\u093E\u0907\u091F \u0939\u094B\u0917\u093E\u0964",
+    "version.onboardingStandardData": "\u092E\u093E\u0928\u0915 \u0910\u092A \u0921\u0947\u091F\u093E \u0915\u094B \u0938\u093F\u0938\u094D\u091F\u092E \u0910\u092A \u092B\u093C\u094B\u0932\u094D\u0921\u0930 \u092E\u0947\u0902 \u0930\u0916\u0924\u093E \u0939\u0948: macOS Application Support / Windows %APPDATA%\u0964",
+    "version.onboardingStatus": "{version} \u092A\u0930 \u0905\u092A\u0921\u0947\u091F \u0939\u094B \u0917\u092F\u093E\u0964 \u092A\u094B\u0930\u094D\u091F\u0947\u092C\u0932 \u091C\u093E\u0930\u0940 \u0930\u0916 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902 \u092F\u093E \u092E\u093E\u0928\u0915 \u0910\u092A \u092A\u0930 \u091C\u093E \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "version.onboardingTitle": "0.5.5 \u092E\u0947\u0902 \u092E\u093E\u0928\u0915 \u0910\u092A \u092A\u0948\u0915\u0947\u091C \u091C\u094B\u0921\u093C\u0947 \u0917\u090F",
+    "version.standardDownload": "\u092E\u093E\u0928\u0915 \u0910\u092A \u0921\u093E\u0909\u0928\u0932\u094B\u0921 \u0915\u0930\u0947\u0902"
   };
 
   // codex_image/webui/frontend/src/i18n/vi.ts
@@ -13416,6 +14957,7 @@
     "api.provider": "Provider API",
     "imageInput.title": "H\xECnh \u1EA3nh",
     "imageInput.uploadAria": "Nh\u1EA5p, th\u1EA3 ho\u1EB7c d\xE1n h\xECnh \u1EA3nh v\xE0 t\u1EC7p",
+    "imageInput.uploadImages": "Nh\u1EA5p, k\xE9o th\u1EA3 ho\u1EB7c d\xE1n h\xECnh \u1EA3nh",
     "imageInput.uploadFull": "Nh\u1EA5p, th\u1EA3 ho\u1EB7c d\xE1n h\xECnh \u1EA3nh v\xE0 t\u1EC7p",
     "imageInput.uploadCompact": "Th\xEAm \u0111\u1EA7u v\xE0o",
     "imageInput.uploadSubtitle": "H\u1ED7 tr\u1EE3 h\xECnh \u1EA3nh v\xE0 t\u1EC7p tham chi\u1EBFu Responses",
@@ -13588,7 +15130,6 @@
     "output.mainModelCustomForInput": "S\u1EED d\u1EE5ng m\xF4 h\xECnh t\xF9y ch\u1EC9nh cho \u0111\u1EA7u v\xE0o hi\u1EC7n t\u1EA1i",
     "output.apiDirect": "API tr\u1EF1c ti\u1EBFp",
     "output.apiToolModel": "S\u1EED d\u1EE5ng m\xF4 h\xECnh h\xECnh \u1EA3nh API",
-    "output.mainModelUnused": "M\xF4 h\xECnh ch\xEDnh kh\xF4ng \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng cho y\xEAu c\u1EA7u n\xE0y",
     "output.transparencyFidelityHint": "N\u1EC1n trong su\u1ED1t l\xE0 y\xEAu c\u1EA7u \u0111\u1EA7u ra b\u1EA1n \u0111\xE3 ch\u1ECDn, \u0111\u01B0\u1EE3c b\u1ED5 sung c\u1EA3 \u1EDF ch\u1EBF \u0111\u1ED9 Nguy\xEAn v\u0103n v\xE0 Gi\u1EEF nguy\xEAn \xFD.",
     "output.transparentBackground": "N\u1EC1n trong su\u1ED1t",
     "output.transparencyUnavailable": "Kh\xF4ng h\u1ED7 tr\u1EE3 trong su\u1ED1t",
@@ -13651,11 +15192,9 @@
     "output.qualityMedium": "Trung b\xECnh",
     "output.qualityHigh": "Cao",
     "output.quantity": "S\u1ED1 l\u01B0\u1EE3ng",
-    "output.pixelPreview": "Pixel \u0111\u1EA7u ra: 1024 x 1024 px",
-    "output.pixelPreviewValue": "Pixel \u0111\u1EA7u ra: {value}",
-    "output.pixelPreviewAuto": "Pixel \u0111\u1EA7u ra: t\u1EF1 \u0111\u1ED9ng (OpenAI ch\u1ECDn t\u1EF1 \u0111\u1ED9ng)",
     "output.format": "\u0110\u1ECBnh d\u1EA1ng",
     "output.compression": "N\xE9n",
+    "output.extraOptions": "T\xF9y ch\u1ECDn b\u1ED5 sung",
     "output.moderation": "Ki\u1EC3m duy\u1EC7t",
     "preview.title": "Xem tr\u01B0\u1EDBc",
     "preview.selectedZero": "0 \u0111\xE3 ch\u1ECDn",
@@ -13667,7 +15206,7 @@
     "preview.taskFailed": "T\xE1c v\u1EE5 th\u1EA5t b\u1EA1i",
     "preview.partialFailed": "M\u1ED9t s\u1ED1 h\xECnh \u1EA3nh kh\xF4ng th\xE0nh c\xF4ng",
     "preview.failedOutput": "H\xECnh \u1EA3nh {index} kh\xF4ng th\xE0nh c\xF4ng",
-    "preview.progressLine": "\u0110\xE3 ho\xE0n th\xE0nh {generated} / {total} \xB7 \u0111\xE3 tr\xF4i qua {elapsed}",
+    "preview.progressLine": "\u0110\xE3 ho\xE0n th\xE0nh {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "\u0110\xE3 ho\xE0n th\xE0nh {generated} / {total} \xB7 th\u1EA5t b\u1EA1i {failed}",
     "preview.elapsedLine": "\u0110\xE3 tr\xF4i qua {elapsed}",
     "preview.lastError": "L\u1ED7i cu\u1ED1i c\xF9ng: {error}",
@@ -13724,6 +15263,13 @@
     "promptPopover.notReturned": "Kh\xF4ng tr\u1EA3 v\u1EC1",
     "promptPopover.noOptimized": "Kh\xF4ng c\xF3 l\u1EDDi nh\u1EAFc t\u1ED1i \u01B0u h\xF3a n\xE0o \u0111\u01B0\u1EE3c tr\u1EA3 v\u1EC1",
     "promptPopover.submitted": "Xem l\u1EDDi nh\u1EAFc \u0111\xE3 g\u1EEDi",
+    "promptPopover.response": "Xem d\u1EEF li\u1EC7u ph\u1EA3n h\u1ED3i g\u1ED1c",
+    "promptPopover.responseNote": "JSON / s\u1EF1 ki\u1EC7n lu\u1ED3ng t\u1EEB nh\xE0 cung c\u1EA5p. D\u1EEF li\u1EC7u \u1EA3nh v\xE0 th\xF4ng tin x\xE1c th\u1EF1c \u0111\u01B0\u1EE3c l\u01B0\u1EE3c b\u1ECF; ph\u1EA3n h\u1ED3i qu\xE1 d\xE0i \u0111\u01B0\u1EE3c \u0111\xE1nh d\u1EA5u c\u1EAFt b\u1EDBt.",
+    "promptPopover.copyResponse": "Sao ch\xE9p JSON ph\u1EA3n h\u1ED3i",
+    "promptPopover.retryResponse": "T\u1EA3i l\u1EA1i",
+    "promptPopover.responseMissing": "T\xE1c v\u1EE5 n\xE0y ch\u01B0a l\u01B0u ph\u1EA3n h\u1ED3i g\u1ED1c t\u1EEB nh\xE0 cung c\u1EA5p.",
+    "promptPopover.responseLoading": "\u0110ang t\u1EA3i ph\u1EA3n h\u1ED3i\u2026",
+    "promptPopover.responseError": "Kh\xF4ng th\u1EC3 t\u1EA3i ph\u1EA3n h\u1ED3i. Vui l\xF2ng th\u1EED l\u1EA1i.",
     "promptPopover.close": "\u0110\xF3ng so s\xE1nh l\u1EDDi nh\u1EAFc",
     "promptPopover.copyOptimized": "Sao ch\xE9p l\u1EDDi nh\u1EAFc \u0111\u01B0\u1EE3c t\u1ED1i \u01B0u h\xF3a",
     "promptPopover.copied": "\u0110\xE3 sao ch\xE9p",
@@ -13926,7 +15472,7 @@
     "settings.savedRestartStatus": "\u0110\xE3 l\u01B0u c\xE0i \u0111\u1EB7t l\u01B0u tr\u1EEF. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 \xE1p d\u1EE5ng.",
     "systemSettings.title": "C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
     "userConfigBackup.title": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c",
-    "userConfigBackup.back": "Quay l\u1EA1i C\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
+    "userConfigBackup.back": "Quay l\u1EA1i L\u01B0u tr\u1EEF v\xE0 th\xF4ng b\xE1o",
     "userConfigBackup.entryTitle": "Sao l\u01B0u v\xE0 kh\xF4i ph\u1EE5c c\u1EA5u h\xECnh",
     "userConfigBackup.entryCopy": "Di chuy\u1EC3n chip, \u1EA3nh d\xF9ng chung, m\u1EABu v\xE0 c\xE0i \u0111\u1EB7t h\u1EC7 th\u1ED1ng",
     "userConfigBackup.modeLabel": "Sao l\u01B0u ho\u1EB7c kh\xF4i ph\u1EE5c",
@@ -13998,6 +15544,11 @@
     "userConfigBackup.resultCounts": "{section}: th\xEAm {added} \xB7 thay th\u1EBF {replaced} \xB7 b\u1ECF qua {skipped} \xB7 b\u1EA3n kh\xF4i ph\u1EE5c {copies}",
     "userConfigBackup.restartRequired": "\u0110\u01B0\u1EDDng d\u1EABn l\u01B0u tr\u1EEF \u0111\xE3 \u0111\u01B0\u1EE3c kh\xF4i ph\u1EE5c. Kh\u1EDFi \u0111\u1ED9ng l\u1EA1i WebUI \u0111\u1EC3 s\u1EED d\u1EE5ng.",
     "userConfigBackup.restoreContinues": "Qu\xE1 tr\xECnh ghi \u0111\xE3 b\u1EAFt \u0111\u1EA7u. \u0110\xF3ng b\u1EA3ng n\xE0y kh\xF4ng h\u1EE7y kh\xF4i ph\u1EE5c; h\xE3y m\u1EDF l\u1EA1i \u0111\u1EC3 xem k\u1EBFt qu\u1EA3.",
+    "userConfigBackup.keepWorking": "Ti\u1EBFp t\u1EE5c thao t\xE1c",
+    "userConfigBackup.cancelAndClose": "H\u1EE7y truy\u1EC1n v\xE0 \u0111\xF3ng",
+    "userConfigBackup.discardAndClose": "X\xF3a b\u1EA3n sao l\u01B0u t\u1EA1m v\xE0 \u0111\xF3ng",
+    "userConfigBackup.creatingBackup": "\u0110ang t\u1EA1o b\u1EA3n sao l\u01B0u\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u0110\xE3 kh\xF4i ph\u1EE5c c\xE0i \u0111\u1EB7t. C\xE1c ch\u1EC9nh s\u1EEDa ch\u01B0a l\u01B0u \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i; khi l\u01B0u, c\xE1c gi\xE1 tr\u1ECB hi\u1EC7n t\u1EA1i trong bi\u1EC3u m\u1EABu s\u1EBD \u0111\u01B0\u1EE3c \xE1p d\u1EE5ng.",
     "userConfigBackup.closeActiveConfirm": "M\u1ED9t l\u01B0\u1EE3t t\u1EA3i l\xEAn ho\u1EB7c sao l\u01B0u v\u1EABn \u0111ang ch\u1EA1y. \u0110\xF3ng v\xE0 h\u1EE7y ch\u1EE9?",
     "userConfigBackup.discardReadyConfirm": "\u0110\xF3ng s\u1EBD x\xF3a b\u1EA3n t\u1EA1m tr\xEAn m\xE1y ch\u1EE7. C\xE1c t\u1EC7p \u0111\xE3 l\u01B0u tr\xEAn thi\u1EBFt b\u1ECB v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF. Ti\u1EBFp t\u1EE5c ch\u1EE9?",
     "user_config_restore_system_notification_permission_missing": "Th\xF4ng b\xE1o h\u1EC7 th\u1ED1ng kh\xF4ng \u0111\u01B0\u1EE3c b\u1EADt v\xEC tr\xECnh duy\u1EC7t ch\u01B0a c\u1EA5p quy\u1EC1n.",
@@ -14059,11 +15610,11 @@
     "apiSettings.providerIconPlaceholder": "T\xF9y ch\u1ECDn, v\xED d\u1EE5 \u{1FA84}",
     "apiSettings.connectionScope": "C\xE0i \u0111\u1EB7t k\u1EBFt n\u1ED1i",
     "apiSettings.connectionPreview": "Xem tr\u01B0\u1EDBc k\u1EBFt n\u1ED1i",
-    "apiSettings.modelBindings": "Li\xEAn k\u1EBFt m\xF4 h\xECnh",
+    "apiSettings.modelBindings": "M\xF4 h\xECnh",
     "apiSettings.modelBindingsHint": "M\u1ED9t provider c\xF3 th\u1EC3 li\xEAn k\u1EBFt \u0111\u1ED3ng th\u1EDDi nhi\u1EC1u m\xF4 h\xECnh v\xE0 giao th\u1EE9c.",
-    "apiSettings.addModelBinding": "Th\xEAm li\xEAn k\u1EBFt m\xF4 h\xECnh",
-    "apiSettings.remoteModelName": "T\xEAn m\xF4 h\xECnh t\u1EEB nh\xE0 cung c\u1EA5p",
-    "apiSettings.fetchModels": "L\u1EA5y m\xF4 h\xECnh kh\u1EA3 d\u1EE5ng",
+    "apiSettings.addModelBinding": "Th\xEAm m\xF4 h\xECnh",
+    "apiSettings.remoteModelName": "T\xEAn m\xF4 h\xECnh nh\xE0 cung c\u1EA5p",
+    "apiSettings.fetchModels": "L\u1EA5y m\xF4 h\xECnh",
     "apiSettings.fetchingModels": "\u0110ang l\u1EA5y m\xF4 h\xECnh\u2026",
     "apiSettings.selectAvailableModel": "Ch\u1ECDn m\xF4 h\xECnh kh\u1EA3 d\u1EE5ng",
     "apiSettings.modelsFetched": "T\xECm th\u1EA5y {count} m\xF4 h\xECnh. Ch\u1ECDn m\xF4 h\xECnh ph\xF9 h\u1EE3p v\u1EDBi li\xEAn k\u1EBFt n\xE0y.",
@@ -14141,6 +15692,7 @@
     "apiSettings.savingStatus": "\u0110ang l\u01B0u c\xE0i \u0111\u1EB7t API...",
     "apiSettings.autoSaving": "T\u1EF1 \u0111\u1ED9ng l\u01B0u...",
     "apiSettings.autoSaved": "T\u1EF1 \u0111\u1ED9ng l\u01B0u",
+    "apiSettings.defaultMappingInvalid": "C\xE0i \u0111\u1EB7t nh\xE0 cung c\u1EA5p m\u1EB7c \u0111\u1ECBnh ch\u01B0a \u0111\u1EA7y \u0111\u1EE7. H\xE3y t\u1EA3i l\u1EA1i c\xE0i \u0111\u1EB7t v\xE0 th\u1EED l\u1EA1i.",
     "apiSettings.saveFailed": "Kh\xF4ng l\u01B0u \u0111\u01B0\u1EE3c c\xE0i \u0111\u1EB7t API",
     "apiSettings.savedSummary": "\u0110\xE3 l\u01B0u \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u0111\u1ED3ng th\u1EDDi {concurrency}",
     "apiSettings.savedShort": "\u0110\xE3 l\u01B0u",
@@ -14811,6 +16363,7 @@
     "api.provider": "API \u4F9B\u5E94\u5546",
     "imageInput.title": "\u56FE\u50CF\u8F93\u5165",
     "imageInput.uploadAria": "\u70B9\u51FB\u3001\u62D6\u5165\u6216\u7C98\u8D34\u56FE\u7247\u4E0E\u6587\u4EF6",
+    "imageInput.uploadImages": "\u70B9\u51FB\u3001\u62D6\u5165\u6216\u7C98\u8D34\u56FE\u7247",
     "imageInput.uploadFull": "\u70B9\u51FB\u3001\u62D6\u5165\u6216\u7C98\u8D34\u56FE\u7247\u4E0E\u6587\u4EF6",
     "imageInput.uploadCompact": "\u6DFB\u52A0\u8F93\u5165",
     "imageInput.uploadSubtitle": "\u652F\u6301\u56FE\u7247\u4E0E Responses \u53C2\u8003\u6587\u4EF6",
@@ -14983,7 +16536,6 @@
     "output.mainModelCustomForInput": "\u6309\u5F53\u524D\u8F93\u5165\u4F7F\u7528\u81EA\u5B9A\u4E49\u6A21\u578B",
     "output.apiDirect": "API \u76F4\u8FDE",
     "output.apiToolModel": "\u4F7F\u7528 API \u56FE\u50CF\u751F\u6210\u6A21\u578B",
-    "output.mainModelUnused": "\u76F4\u63A5\u4F7F\u7528\u6240\u9009\u56FE\u50CF\u6A21\u578B\u751F\u6210",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9009\u62E9\u7684\u8F93\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u4F1A\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
     "output.transparencyUnavailable": "\u4E0D\u652F\u6301\u900F\u660E",
@@ -15046,11 +16598,9 @@
     "output.qualityMedium": "\u4E2D",
     "output.qualityHigh": "\u9AD8",
     "output.quantity": "\u6570\u91CF",
-    "output.pixelPreview": "\u8F93\u51FA\u50CF\u7D20: 1024 x 1024 px",
-    "output.pixelPreviewValue": "\u8F93\u51FA\u50CF\u7D20: {value}",
-    "output.pixelPreviewAuto": "\u8F93\u51FA\u50CF\u7D20: auto\uFF08OpenAI \u81EA\u52A8\u9009\u62E9\uFF09",
-    "output.format": "\u8F93\u51FA\u683C\u5F0F",
+    "output.format": "\u683C\u5F0F",
     "output.compression": "\u538B\u7F29\u7387",
+    "output.extraOptions": "\u989D\u5916\u9009\u9879",
     "output.moderation": "\u5BA1\u6838",
     "preview.title": "\u9884\u89C8\u7ED3\u679C",
     "preview.selectedZero": "\u5DF2\u9009 0",
@@ -15062,7 +16612,7 @@
     "preview.taskFailed": "\u4EFB\u52A1\u5931\u8D25",
     "preview.partialFailed": "\u90E8\u5206\u56FE\u7247\u751F\u6210\u5931\u8D25",
     "preview.failedOutput": "\u7B2C {index} \u5F20\u5931\u8D25",
-    "preview.progressLine": "\u5DF2\u5B8C\u6210 {generated} / {total} \xB7 \u8BA1\u65F6 {elapsed}",
+    "preview.progressLine": "\u5DF2\u5B8C\u6210 {generated} / {total} \xB7 {elapsed}",
     "preview.failureLine": "\u5DF2\u5B8C\u6210 {generated} / {total} \xB7 \u5931\u8D25 {failed}",
     "preview.elapsedLine": "\u8BA1\u65F6 {elapsed}",
     "preview.lastError": "\u4E0A\u6B21\u9519\u8BEF\uFF1A{error}",
@@ -15119,6 +16669,13 @@
     "promptPopover.notReturned": "\u672A\u8FD4\u56DE",
     "promptPopover.noOptimized": "\u672A\u8FD4\u56DE\u4F18\u5316\u63D0\u793A\u8BCD",
     "promptPopover.submitted": "\u67E5\u770B\u5B9E\u9645\u63D0\u4EA4\u63D0\u793A\u8BCD",
+    "promptPopover.response": "\u67E5\u770B\u4EFB\u52A1\u8FD4\u56DE\u6E90\u6570\u636E\u4FE1\u606F",
+    "promptPopover.responseNote": "\u4F9B\u5E94\u5546\u8FD4\u56DE\u7684 JSON / \u6D41\u5F0F\u4E8B\u4EF6\u3002\u56FE\u7247\u6570\u636E\u4E0E\u51ED\u636E\u5DF2\u7701\u7565\uFF0C\u8D85\u957F\u54CD\u5E94\u4F1A\u6807\u8BB0\u622A\u65AD\u3002",
+    "promptPopover.copyResponse": "\u590D\u5236\u8FD4\u56DE JSON",
+    "promptPopover.retryResponse": "\u91CD\u65B0\u52A0\u8F7D",
+    "promptPopover.responseMissing": "\u6B64\u4EFB\u52A1\u672A\u4FDD\u5B58\u4F9B\u5E94\u5546\u539F\u59CB\u54CD\u5E94\u3002",
+    "promptPopover.responseLoading": "\u6B63\u5728\u8BFB\u53D6\u8FD4\u56DE\u6570\u636E\u2026",
+    "promptPopover.responseError": "\u8BFB\u53D6\u5931\u8D25\uFF0C\u8BF7\u91CD\u65B0\u52A0\u8F7D\u3002",
     "promptPopover.close": "\u5173\u95ED\u63D0\u793A\u8BCD",
     "promptPopover.copyOptimized": "\u590D\u5236\u4F18\u5316\u540E\u63D0\u793A\u8BCD",
     "promptPopover.copied": "\u5DF2\u590D\u5236",
@@ -15321,7 +16878,7 @@
     "settings.savedRestartStatus": "\u5B58\u50A8\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F WebUI \u540E\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7EDF\u8BBE\u7F6E",
     "userConfigBackup.title": "\u5907\u4EFD\u4E0E\u6062\u590D",
-    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7EDF\u8BBE\u7F6E",
+    "userConfigBackup.back": "\u8FD4\u56DE\u5B58\u50A8\u4E0E\u901A\u77E5",
     "userConfigBackup.entryTitle": "\u914D\u7F6E\u5907\u4EFD\u4E0E\u6062\u590D",
     "userConfigBackup.entryCopy": "\u8FC1\u79FB chip\u3001\u516C\u7528\u56FE\u3001\u6A21\u677F\u548C\u7CFB\u7EDF\u8BBE\u7F6E",
     "userConfigBackup.modeLabel": "\u5907\u4EFD\u6216\u6062\u590D",
@@ -15393,6 +16950,11 @@
     "userConfigBackup.resultCounts": "{section}\uFF1A\u65B0\u589E {added} \xB7 \u66FF\u6362 {replaced} \xB7 \u8DF3\u8FC7 {skipped} \xB7 \u6062\u590D\u526F\u672C {copies}",
     "userConfigBackup.restartRequired": "\u5B58\u50A8\u8DEF\u5F84\u5DF2\u7ECF\u6062\u590D\uFF1B\u5F53\u524D\u8FDB\u7A0B\u4ECD\u4F7F\u7528\u539F\u8DEF\u5F84\uFF0C\u8BF7\u91CD\u542F WebUI\u3002",
     "userConfigBackup.restoreContinues": "\u6062\u590D\u5199\u5165\u5DF2\u7ECF\u5F00\u59CB\uFF0C\u5173\u95ED\u9762\u677F\u4E0D\u4F1A\u53D6\u6D88\u64CD\u4F5C\u3002\u7A0D\u540E\u91CD\u65B0\u6253\u5F00\u53EF\u67E5\u770B\u7ED3\u679C\u3002",
+    "userConfigBackup.keepWorking": "\u7EE7\u7EED\u64CD\u4F5C",
+    "userConfigBackup.cancelAndClose": "\u53D6\u6D88\u4EFB\u52A1\u5E76\u5173\u95ED",
+    "userConfigBackup.discardAndClose": "\u5220\u9664\u4E34\u65F6\u5907\u4EFD\u5E76\u5173\u95ED",
+    "userConfigBackup.creatingBackup": "\u6B63\u5728\u521B\u5EFA\u5907\u4EFD\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u8BBE\u7F6E\u5DF2\u4ECE\u5907\u4EFD\u6062\u590D\uFF1B\u672A\u4FDD\u5B58\u7684\u4FEE\u6539\u5DF2\u4FDD\u7559\uFF0C\u4FDD\u5B58\u5C06\u5E94\u7528\u5F53\u524D\u5185\u5BB9\u3002",
     "userConfigBackup.closeActiveConfirm": "\u4E0A\u4F20\u6216\u5907\u4EFD\u4ECD\u5728\u8FDB\u884C\u3002\u5173\u95ED\u5E76\u53D6\u6D88\u5417\uFF1F",
     "userConfigBackup.discardReadyConfirm": "\u5173\u95ED\u4F1A\u5220\u9664\u670D\u52A1\u7AEF\u4E34\u65F6\u5907\u4EFD\uFF1B\u5DF2\u7ECF\u4FDD\u5B58\u5230\u672C\u673A\u7684\u6587\u4EF6\u4E0D\u53D7\u5F71\u54CD\u3002\u786E\u5B9A\u5417\uFF1F",
     "user_config_restore_system_notification_permission_missing": "\u6D4F\u89C8\u5668\u672A\u6388\u4E88\u7CFB\u7EDF\u901A\u77E5\u6743\u9650\uFF0C\u8BE5\u504F\u597D\u672A\u542F\u7528\u3002",
@@ -15454,11 +17016,11 @@
     "apiSettings.providerIconPlaceholder": "\u53EF\u9009\uFF0C\u4F8B\u5982 \u{1FA84}",
     "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
     "apiSettings.connectionPreview": "\u8FDE\u63A5\u9884\u89C8",
-    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindings": "\u6A21\u578B",
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
-    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
-    "apiSettings.remoteModelName": "\u4E2D\u8F6C\u7AD9\u6A21\u578B\u540D\u79F0",
-    "apiSettings.fetchModels": "\u83B7\u53D6\u53EF\u7528\u6A21\u578B",
+    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B",
+    "apiSettings.remoteModelName": "\u670D\u52A1\u5546\u6A21\u578B\u540D",
+    "apiSettings.fetchModels": "\u83B7\u53D6\u6A21\u578B",
     "apiSettings.fetchingModels": "\u6B63\u5728\u83B7\u53D6\u2026",
     "apiSettings.selectAvailableModel": "\u9009\u62E9\u53EF\u7528\u6A21\u578B",
     "apiSettings.modelsFetched": "\u83B7\u53D6\u5230 {count} \u4E2A\u6A21\u578B\uFF0C\u8BF7\u9009\u62E9\u4E0E\u5F53\u524D\u578B\u53F7\u5339\u914D\u7684\u6A21\u578B\u3002",
@@ -15536,6 +17098,7 @@
     "apiSettings.savingStatus": "\u6B63\u5728\u4FDD\u5B58 API \u8BBE\u7F6E...",
     "apiSettings.autoSaving": "\u6B63\u5728\u81EA\u52A8\u4FDD\u5B58...",
     "apiSettings.autoSaved": "\u5DF2\u81EA\u52A8\u4FDD\u5B58",
+    "apiSettings.defaultMappingInvalid": "\u9ED8\u8BA4\u4F9B\u5E94\u5546\u914D\u7F6E\u4E0D\u5B8C\u6574\uFF0C\u8BF7\u91CD\u65B0\u8F7D\u5165\u8BBE\u7F6E\u540E\u91CD\u8BD5\u3002",
     "apiSettings.saveFailed": "API \u8BBE\u7F6E\u4FDD\u5B58\u5931\u8D25",
     "apiSettings.savedSummary": "\u5DF2\u4FDD\u5B58 \xB7 Codex {codex} \xB7 API {provider} \xB7 {mode} \xB7 {model} \xB7 \u5E76\u53D1 {concurrency}",
     "apiSettings.savedShort": "\u5DF2\u4FDD\u5B58",
@@ -15854,8 +17417,8 @@
     "taskStatus.nonRetryableShort": "\u4E0D\u53EF\u91CD\u8A66",
     "taskStatus.manualRetryShort": "\u53EF\u624B\u52D5\u91CD\u8A66",
     "taskStatus.stoppedShort": "\u5DF2\u505C\u6B62",
-    "taskStatus.runtime": "\u8017\u6642{duration}",
-    "taskStatus.runtimeCompleted": "\u8017\u6642{duration}\xB7 \u5B8C\u6210{time}",
+    "taskStatus.runtime": "\u8017\u6642 {duration}",
+    "taskStatus.runtimeCompleted": "\u8017\u6642 {duration} \xB7 \u5B8C\u6210 {time}",
     "taskStatus.completedAt": "\u5B8C\u6210{time}",
     "taskCard.count": "{count}\u5F35",
     "taskCard.successCount": "\u6210\u529F{count}",
@@ -16178,6 +17741,7 @@
     "api.provider": "API\u4F9B\u61C9\u5546",
     "imageInput.title": "\u5716\u7247\u8F38\u5165",
     "imageInput.uploadAria": "\u9EDE\u9078\u3001\u62D6\u66F3\u6216\u8CBC\u4E0A\u5716\u7247\u8207\u6A94\u6848",
+    "imageInput.uploadImages": "\u9EDE\u64CA\u3001\u62D6\u5165\u6216\u8CBC\u4E0A\u5716\u7247",
     "imageInput.uploadFull": "\u9EDE\u9078\u3001\u62D6\u66F3\u6216\u8CBC\u4E0A\u5716\u7247\u8207\u6A94\u6848",
     "imageInput.uploadCompact": "\u65B0\u589E\u8F38\u5165",
     "imageInput.uploadSubtitle": "\u652F\u63F4\u5716\u7247\u8207 Responses \u53C3\u8003\u6A94\u6848",
@@ -16349,7 +17913,6 @@
     "output.mainModelCustomForInput": "\u4F9D\u76EE\u524D\u8F38\u5165\u4F7F\u7528\u81EA\u8A02\u6A21\u578B",
     "output.apiDirect": "API\u76F4\u9023",
     "output.apiToolModel": "\u4F7F\u7528 API \u5F71\u50CF\u751F\u6210\u6A21\u578B",
-    "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
     "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
@@ -16412,11 +17975,9 @@
     "output.qualityMedium": "\u4E2D",
     "output.qualityHigh": "\u9AD8",
     "output.quantity": "\u6578\u91CF",
-    "output.pixelPreview": "\u8F38\u51FA\u50CF\u7D20: 1024 x 1024px",
-    "output.pixelPreviewValue": "\u8F38\u51FA\u50CF\u7D20:{value}",
-    "output.pixelPreviewAuto": "\u8F38\u51FA\u50CF\u7D20: auto\uFF08OpenAI \u81EA\u52D5\u9078\u64C7\uFF09",
-    "output.format": "\u8F38\u51FA\u683C\u5F0F",
+    "output.format": "\u683C\u5F0F",
     "output.compression": "\u58D3\u7E2E\u7387",
+    "output.extraOptions": "\u984D\u5916\u9078\u9805",
     "output.moderation": "\u5BE9\u6838",
     "preview.title": "\u9810\u89BD",
     "preview.selectedZero": "\u5DF2\u9078 0",
@@ -16428,9 +17989,9 @@
     "preview.taskFailed": "\u4EFB\u52D9\u5931\u6557",
     "preview.partialFailed": "\u90E8\u5206\u5716\u7247\u7522\u751F\u5931\u6557",
     "preview.failedOutput": "\u7B2C{index}\u5F35\u5931\u6557",
-    "preview.progressLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 \u8A08\u6642{elapsed}",
+    "preview.progressLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 {elapsed}",
     "preview.failureLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 \u5931\u6557{failed}",
-    "preview.elapsedLine": "\u8A08\u6642{elapsed}",
+    "preview.elapsedLine": "\u8A08\u6642 {elapsed}",
     "preview.lastError": "\u4E0A\u6B21\u932F\u8AA4\uFF1A{error}",
     "preview.continueGenerating": "\u7E7C\u7E8C\u751F\u6210\u4E2D",
     "preview.waitingContinue": "\u7B49\u5F85\u7E7C\u7E8C\u751F\u6210",
@@ -16485,6 +18046,13 @@
     "promptPopover.notReturned": "\u672A\u56DE\u50B3",
     "promptPopover.noOptimized": "\u672A\u56DE\u50B3\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
     "promptPopover.submitted": "\u67E5\u770B\u5BE6\u969B\u63D0\u4EA4\u63D0\u793A\u8A5E",
+    "promptPopover.response": "\u67E5\u770B\u4EFB\u52D9\u50B3\u56DE\u539F\u59CB\u8CC7\u6599",
+    "promptPopover.responseNote": "\u4F9B\u61C9\u5546\u50B3\u56DE\u7684 JSON\uFF0F\u4E32\u6D41\u4E8B\u4EF6\u3002\u5716\u7247\u8CC7\u6599\u8207\u6191\u8B49\u5DF2\u7701\u7565\uFF0C\u904E\u9577\u56DE\u61C9\u6703\u6A19\u8A18\u622A\u65B7\u3002",
+    "promptPopover.copyResponse": "\u8907\u88FD\u50B3\u56DE JSON",
+    "promptPopover.retryResponse": "\u91CD\u65B0\u8F09\u5165",
+    "promptPopover.responseMissing": "\u6B64\u4EFB\u52D9\u672A\u5132\u5B58\u4F9B\u61C9\u5546\u539F\u59CB\u56DE\u61C9\u3002",
+    "promptPopover.responseLoading": "\u6B63\u5728\u8B80\u53D6\u50B3\u56DE\u8CC7\u6599\u2026",
+    "promptPopover.responseError": "\u8B80\u53D6\u5931\u6557\uFF0C\u8ACB\u91CD\u65B0\u8F09\u5165\u3002",
     "promptPopover.close": "\u95DC\u9589\u63D0\u793A\u8A5E",
     "promptPopover.copyOptimized": "\u8907\u88FD\u512A\u5316\u5F8C\u63D0\u793A\u8A5E",
     "promptPopover.copied": "\u5DF2\u8907\u88FD",
@@ -16687,7 +18255,7 @@
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
     "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
-    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.back": "\u8FD4\u56DE\u5132\u5B58\u8207\u901A\u77E5",
     "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
     "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u6A21\u677F\u53CA\u7CFB\u7D71\u8A2D\u5B9A",
     "userConfigBackup.backupTab": "\u5099\u4EFD",
@@ -16761,11 +18329,11 @@
     "apiSettings.providerIconPlaceholder": "\u53EF\u9078\uFF0C\u4F8B\u5982 \u{1FA84}",
     "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
     "apiSettings.connectionPreview": "\u9023\u7DDA\u9810\u89BD",
-    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindings": "\u6A21\u578B",
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
-    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
-    "apiSettings.remoteModelName": "\u4E2D\u8F49\u7AD9\u6A21\u578B\u540D\u7A31",
-    "apiSettings.fetchModels": "\u53D6\u5F97\u53EF\u7528\u6A21\u578B",
+    "apiSettings.addModelBinding": "\u65B0\u589E\u6A21\u578B",
+    "apiSettings.remoteModelName": "\u670D\u52D9\u5546\u6A21\u578B\u540D\u7A31",
+    "apiSettings.fetchModels": "\u53D6\u5F97\u6A21\u578B",
     "apiSettings.fetchingModels": "\u6B63\u5728\u53D6\u5F97\u2026",
     "apiSettings.selectAvailableModel": "\u9078\u64C7\u53EF\u7528\u6A21\u578B",
     "apiSettings.modelsFetched": "\u53D6\u5F97 {count} \u500B\u6A21\u578B\uFF0C\u8ACB\u9078\u64C7\u8207\u76EE\u524D\u578B\u865F\u76F8\u7B26\u7684\u6A21\u578B\u3002",
@@ -16843,6 +18411,7 @@
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
     "apiSettings.autoSaving": "\u6B63\u5728\u81EA\u52D5\u5132\u5B58...",
     "apiSettings.autoSaved": "\u5DF2\u81EA\u52D5\u5132\u5B58",
+    "apiSettings.defaultMappingInvalid": "\u9810\u8A2D\u4F9B\u61C9\u5546\u8A2D\u5B9A\u4E0D\u5B8C\u6574\uFF0C\u8ACB\u91CD\u65B0\u8F09\u5165\u8A2D\u5B9A\u5F8C\u518D\u8A66\u3002",
     "apiSettings.saveFailed": "API\u8A2D\u5B9A\u5132\u5B58\u5931\u6557",
     "apiSettings.savedSummary": "\u5DF2\u5132\u5B58 \xB7Codex{codex}\xB7API{provider}\xB7{mode}\xB7{model}\xB7 \u4E26\u767C{concurrency}",
     "apiSettings.savedShort": "\u5DF2\u5132\u5B58",
@@ -17009,7 +18578,101 @@
     "modelParameters.invalidJson": "JSON \u683C\u5F0F\u7121\u6548",
     "modelParameters.migrated": "\u5DF2\u6309\u76EE\u524D\u6A21\u578B\u517C\u5BB9\u8655\u7406 {count} \u500B\u820A\u53C3\u6578",
     "modelParameters.historyConfiguration": "\u6B77\u53F2\u8A2D\u5B9A",
-    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9"
+    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9",
+    "queue.realtimePolling": "\u4EFB\u52D9\u72C0\u614B\u5DF2\u5207\u63DB\u70BA\u5B9A\u6642\u66F4\u65B0\uFF0C\u6B63\u5728\u6062\u5FA9\u5373\u6642\u9023\u7DDA\u2026",
+    "referenceFiles.chooseResponses": "\u9078\u64C7 Responses \u901A\u9053",
+    "status.taskChangedDuringLoad": "\u4EFB\u52D9\u72C0\u614B\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u91CD\u65B0\u9078\u64C7\u8A72\u4EFB\u52D9\u3002",
+    "userConfigBackup.apiKeyConfirm": "\u5099\u4EFD\u6A94\u5C07\u5305\u542B API Key \u4E14\u4E0D\u6703\u52A0\u5BC6\u3002\u4ECD\u8981\u5EFA\u7ACB\u55CE\uFF1F",
+    "userConfigBackup.archiveMeta": "{count} \u985E \xB7 \u683C\u5F0F v{version}",
+    "userConfigBackup.backToPreview": "\u8FD4\u56DE\u9810\u89BD",
+    "userConfigBackup.backupCopy": "\u9078\u64C7\u8981\u5BEB\u5165\u5099\u4EFD\u6A94\u7684\u8A2D\u5B9A\u3002\u751F\u6210\u4EFB\u52D9\u548C OAuth \u767B\u5165\u72C0\u614B\u4E0D\u6703\u5305\u542B\u5728\u5167\u3002",
+    "userConfigBackup.backupProgress": "\u5099\u4EFD\u9032\u5EA6",
+    "userConfigBackup.cancelled": "\u5099\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.chooseArchive": "\u9078\u64C7\u5099\u4EFD ZIP",
+    "userConfigBackup.chooseArchiveCopy": "\u6A94\u6848\u6703\u5148\u4E0A\u50B3\u4E26\u9A57\u8B49\uFF0C\u9810\u89BD\u4E0D\u6703\u4FEE\u6539\u73FE\u6709\u8CC7\u6599\u3002",
+    "userConfigBackup.keepWorking": "\u7E7C\u7E8C\u64CD\u4F5C",
+    "userConfigBackup.cancelAndClose": "\u53D6\u6D88\u4EFB\u52D9\u4E26\u95DC\u9589",
+    "userConfigBackup.discardAndClose": "\u522A\u9664\u66AB\u5B58\u5099\u4EFD\u4E26\u95DC\u9589",
+    "userConfigBackup.creatingBackup": "\u6B63\u5728\u5EFA\u7ACB\u5099\u4EFD\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u8A2D\u5B9A\u5DF2\u5F9E\u5099\u4EFD\u9084\u539F\uFF1B\u672A\u5132\u5B58\u7684\u4FEE\u6539\u5DF2\u4FDD\u7559\uFF0C\u5132\u5B58\u5F8C\u5C07\u5957\u7528\u76EE\u524D\u5167\u5BB9\u3002",
+    "userConfigBackup.closeActiveConfirm": "\u4E0A\u50B3\u6216\u5099\u4EFD\u4ECD\u5728\u9032\u884C\u3002\u95DC\u9589\u4E26\u53D6\u6D88\u55CE\uFF1F",
+    "userConfigBackup.create": "\u5EFA\u7ACB\u5099\u4EFD",
+    "userConfigBackup.creatingSession": "\u6B63\u5728\u6E96\u5099\u4E0A\u50B3\u2026",
+    "userConfigBackup.discardReadyConfirm": "\u95DC\u9589\u6703\u522A\u9664\u4F3A\u670D\u5668\u7AEF\u7684\u66AB\u5B58\u5099\u4EFD\uFF1B\u5DF2\u5132\u5B58\u5230\u672C\u6A5F\u7684\u6A94\u6848\u4E0D\u53D7\u5F71\u97FF\u3002\u78BA\u5B9A\u55CE\uFF1F",
+    "userConfigBackup.download": "\u4E0B\u8F09\u5099\u4EFD",
+    "userConfigBackup.downloaded": "\u4E0B\u8F09\u5DF2\u958B\u59CB\uFF1B24 \u5C0F\u6642\u6709\u6548\u671F\u5167\u4ECD\u53EF\u518D\u6B21\u4E0B\u8F09",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u500B\u6B77\u53F2\u4EFB\u52D9\u5C07\u5931\u53BB\u516C\u7528\u5716\u7247\u53C3\u7167",
+    "userConfigBackup.incrementalCopy": "\u4FDD\u7559\u73FE\u6709\u8CC7\u6599\uFF0C\u7565\u904E\u91CD\u8907\u5167\u5BB9\uFF0C\u70BA\u885D\u7A81\u9805\u76EE\u5EFA\u7ACB\u5FA9\u539F\u526F\u672C\u3002",
+    "userConfigBackup.itemCount": "{count} \u9805",
+    "userConfigBackup.modeLabel": "\u5099\u4EFD\u6216\u9084\u539F",
+    "userConfigBackup.previewCounts": "\u6A94\u5167 {count} \u9805 \xB7 \u91CD\u8907 {duplicate} \xB7 \u885D\u7A81 {conflict}",
+    "userConfigBackup.previewTitle": "\u9084\u539F\u9810\u89BD",
+    "userConfigBackup.providerRetention": "{count} \u500B\u542B\u6191\u8B49\u7684\u4F9B\u61C9\u5546\u5C07\u4F9D\u5B89\u5168\u898F\u5247\u4FDD\u7559",
+    "userConfigBackup.replaceConfirmCopy": "\u53D6\u4EE3\u53EA\u5F71\u97FF\u6240\u9078\u985E\u5225\uFF0C\u4F46\u6703\u522A\u9664\u9019\u4E9B\u985E\u5225\u7684\u73FE\u6709\u5167\u5BB9\u3002\u6B64\u64CD\u4F5C\u5B8C\u6210\u5F8C\u7121\u6CD5\u5FA9\u539F\u3002",
+    "userConfigBackup.replaceImpact": "{section}\uFF1A\u6E05\u9664\u76EE\u524D {current} \u9805\uFF0C\u518D\u532F\u5165\u5099\u4EFD {archive} \u9805",
+    "userConfigBackup.restartRequired": "\u5132\u5B58\u8DEF\u5F91\u5DF2\u9084\u539F\uFF1B\u76EE\u524D\u7A0B\u5E8F\u4ECD\u4F7F\u7528\u539F\u8DEF\u5F91\uFF0C\u8ACB\u91CD\u65B0\u555F\u52D5 WebUI\u3002",
+    "userConfigBackup.restoreContinues": "\u9084\u539F\u5BEB\u5165\u5DF2\u958B\u59CB\uFF0C\u95DC\u9589\u9762\u677F\u4E0D\u6703\u53D6\u6D88\u64CD\u4F5C\u3002\u7A0D\u5F8C\u91CD\u65B0\u958B\u555F\u53EF\u67E5\u770B\u7D50\u679C\u3002",
+    "userConfigBackup.restoreModeLabel": "\u9084\u539F\u6A21\u5F0F",
+    "userConfigBackup.restoreProgress": "\u9084\u539F\u4E0A\u50B3\u9032\u5EA6",
+    "userConfigBackup.restoreSelected": "\u9084\u539F\u6240\u9078\u5167\u5BB9",
+    "userConfigBackup.restoring": "\u6B63\u5728\u9084\u539F\uFF0C\u8ACB\u52FF\u95DC\u9589 WebUI\u2026",
+    "userConfigBackup.resultCounts": "{section}\uFF1A\u65B0\u589E {added} \xB7 \u53D6\u4EE3 {replaced} \xB7 \u7565\u904E {skipped} \xB7 \u5FA9\u539F\u526F\u672C {copies}",
+    "userConfigBackup.selectAtLeastOne": "\u8ACB\u81F3\u5C11\u9078\u64C7\u4E00\u985E\u8CC7\u6599",
+    "userConfigBackup.selectSections": "\u9078\u64C7\u8CC7\u6599",
+    "userConfigBackup.status.cancelled": "\u5099\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.status.expired": "\u5099\u4EFD\u5DF2\u904E\u671F",
+    "userConfigBackup.status.failed": "\u5099\u4EFD\u5931\u6557",
+    "userConfigBackup.status.interrupted": "\u5099\u4EFD\u56E0 WebUI \u4E2D\u65B7\u800C\u505C\u6B62",
+    "userConfigBackup.status.packing": "\u6B63\u5728\u5C01\u88DD\u2026",
+    "userConfigBackup.status.planning": "\u6B63\u5728\u898F\u5283\u5099\u4EFD\u2026",
+    "userConfigBackup.status.queued": "\u5099\u4EFD\u5DF2\u6392\u5165\u968A\u5217\u2026",
+    "userConfigBackup.status.ready": "\u5099\u4EFD\u5DF2\u5C31\u7DD2\uFF0C24 \u5C0F\u6642\u5167\u53EF\u91CD\u8907\u4E0B\u8F09",
+    "userConfigBackup.summaryFailed": "\u7121\u6CD5\u8B80\u53D6\u8A2D\u5B9A\u6458\u8981",
+    "userConfigBackup.summaryLoading": "\u6B63\u5728\u8B80\u53D6\u8A2D\u5B9A\u6458\u8981\u2026",
+    "userConfigBackup.uploading": "\u6B63\u5728\u4E0A\u50B3\u5099\u4EFD\u6A94\u2026",
+    "userConfigBackup.validating": "\u6B63\u5728\u9A57\u8B49\u5099\u4EFD\u6A94\u2026",
+    "userConfigBackup.validationReady": "\u9A57\u8B49\u5B8C\u6210\uFF0C\u8ACB\u9078\u64C7\u9084\u539F\u65B9\u5F0F",
+    "userConfigBackup.versionUnsupported": "\u6B64\u5099\u4EFD\u4F86\u81EA\u8F03\u65B0\u7684\u683C\u5F0F\u7248\u672C\uFF0C\u53EA\u80FD\u6AA2\u8996\uFF0C\u7121\u6CD5\u9084\u539F",
+    "userConfigBackup.warningCount": "{count} \u500B\u8B66\u544A",
+    "user_config_backup_failed": "\u7121\u6CD5\u8B80\u53D6\u6216\u5C01\u88DD\u5099\u4EFD\u8CC7\u6599\uFF0C\u8ACB\u6AA2\u67E5\u6240\u9078\u5167\u5BB9\u5F8C\u91CD\u8A66\u3002",
+    "user_config_backup_gallery_invalid": "\u516C\u7528\u5716\u5EAB\u4E2D\u6709\u5716\u7247\u6A94\u6848\u8207\u7D00\u9304\u4E0D\u4E00\u81F4\u3002\u8ACB\u91CD\u65B0\u5132\u5B58\u6216\u79FB\u9664\u7570\u5E38\u5716\u7247\u5F8C\u518D\u8A66\u3002",
+    "user_config_backup_insufficient_space": "\u78C1\u789F\u53EF\u7528\u7A7A\u9593\u4E0D\u8DB3\uFF0C\u7121\u6CD5\u5EFA\u7ACB\u5099\u4EFD\u3002",
+    "user_config_backup_internal_error": "\u5099\u4EFD\u670D\u52D9\u767C\u751F\u5167\u90E8\u932F\u8AA4\uFF0C\u8ACB\u91CD\u65B0\u555F\u52D5 WebUI \u5F8C\u91CD\u8A66\uFF1B\u82E5\u4ECD\u5931\u6557\uFF0C\u8ACB\u67E5\u770B\u555F\u52D5\u7D00\u9304\u3002",
+    "user_config_backup_io_error": "\u5099\u4EFD\u6A94\u6848\u8B80\u5BEB\u5931\u6557\uFF0C\u8ACB\u6AA2\u67E5\u78C1\u789F\u548C\u76EE\u9304\u6B0A\u9650\u3002",
+    "user_config_backup_source_changed": "\u8A2D\u5B9A\u5728\u5099\u4EFD\u904E\u7A0B\u4E2D\u767C\u751F\u8B8A\u66F4\uFF0C\u8ACB\u505C\u6B62\u7DE8\u8F2F\u5F8C\u91CD\u8A66\u3002",
+    "user_config_backup_source_unreadable": "\u5099\u4EFD\u7121\u6CD5\u8B80\u53D6\u8A2D\u5B9A\u6A94\uFF0C\u8ACB\u6AA2\u67E5\u6A94\u6848\u6B0A\u9650\u5F8C\u91CD\u8A66\u3002",
+    "user_config_restore_active_tasks": "\u4ECD\u6709\u57F7\u884C\u4E2D\u7684\u4EFB\u52D9\uFF0C\u8ACB\u7B49\u5F85\u4EFB\u52D9\u7D50\u675F\u5F8C\u518D\u53D6\u4EE3",
+    "user_config_restore_failed": "\u9084\u539F\u5931\u6557\uFF0C\u73FE\u6709\u8A2D\u5B9A\u5DF2\u4FDD\u7559",
+    "user_config_restore_preview_stale": "\u76EE\u524D\u8A2D\u5B9A\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u6A94",
+    "user_config_restore_system_notification_permission_missing": "\u700F\u89BD\u5668\u672A\u6388\u4E88\u7CFB\u7D71\u901A\u77E5\u6B0A\u9650\uFF0C\u56E0\u6B64\u672A\u555F\u7528\u6B64\u504F\u597D\u8A2D\u5B9A\u3002",
+    "user_config_restore_version_unsupported": "\u5099\u4EFD\u683C\u5F0F\u7248\u672C\u904E\u65B0\uFF0C\u7121\u6CD5\u9084\u539F",
+    "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u7684\u5716\u7247\u4E26\u7D50\u675F\u4EFB\u52D9\uFF0C\u4E0D\u518D\u88DC\u9F4A\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.addReference": "\u65B0\u589E\u53C3\u7167",
+    "ux.addingReference": "\u6B63\u5728\u52A0\u5165\u53C3\u8003\u5716\u2026",
+    "ux.checkProvider": "\u6AA2\u67E5\u4F9B\u61C9\u5546\u8A2D\u5B9A",
+    "ux.collapseReference": "\u6536\u8D77",
+    "ux.discardEdits": "\u653E\u68C4\u4FEE\u6539",
+    "ux.draftRestored": "\u5DF2\u9084\u539F\u63D0\u793A\u8A5E\u8207\u53C3\u8003\u8F38\u5165\uFF1B\u751F\u6210\u53C3\u6578\u7DAD\u6301\u76EE\u524D\u9078\u64C7\u3002",
+    "ux.editInputs": "\u4FEE\u6539\u8F38\u5165\u8207\u53C3\u6578",
+    "ux.editInputsReady": "\u5DF2\u8F09\u5165\u4EFB\u52D9\u8F38\u5165\u8207\u53C3\u6578\uFF0C\u53EF\u4FEE\u6539\u5F8C\u91CD\u65B0\u751F\u6210\u3002",
+    "ux.errorDetails": "\u932F\u8AA4\u8A73\u60C5",
+    "ux.execution": "\u672C\u6B21\u751F\u6210",
+    "ux.historyParametersHint": "\u4EE5\u4E0B\u662F\u6240\u9078\u4EFB\u52D9\u7684\u6B77\u53F2\u53C3\u6578\u3002\u672C\u6B21\u751F\u6210\u4EE5\u300C\u8F38\u51FA\u8A2D\u5B9A\u300D\u70BA\u6E96\u3002",
+    "ux.imageCount": "{count} \u5F35",
+    "ux.imageUnsaved": "\u5716\u7247\u9084\u6709\u672A\u5132\u5B58\u7684\u4FEE\u6539\u3002\u653E\u68C4\u5F8C\u7121\u6CD5\u5FA9\u539F\uFF1B\u53D6\u6D88\u53EF\u7E7C\u7E8C\u7DE8\u8F2F\u3002",
+    "ux.moderationAuto": "\u81EA\u52D5",
+    "ux.moderationLow": "\u8F03\u5BEC\u9B06",
+    "ux.openRecovery": "\u9032\u5165\u751F\u6210\u9801\u9762\u8655\u7406",
+    "ux.recovery.credentials": "\u6191\u8B49\u9A57\u8B49\u5931\u6557\u3002\u8ACB\u6838\u5C0D\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684 API Key \u6216\u672C\u6A5F\u767B\u5165\u72C0\u614B\uFF0C\u4FEE\u6B63\u5F8C\u518D\u751F\u6210\u3002",
+    "ux.recovery.input": "\u4E0D\u652F\u63F4\u6B64\u8ACB\u6C42\u8F38\u5165\u3002\u8ACB\u6AA2\u67E5\u63D0\u793A\u8A5E\u3001\u53C3\u8003\u6A94\u6848\u548C\u751F\u6210\u53C3\u6578\u3002",
+    "ux.recovery.quota": "\u984D\u5EA6\u6216\u5E33\u6236\u9918\u984D\u4E0D\u8DB3\u3002\u8ACB\u6AA2\u67E5\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684\u5E33\u6236\u9650\u5236\u3002",
+    "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u5716\u7247\u6703\u4FDD\u7559\uFF1B\u53EF\u91CD\u8A66\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.referenceAdded": "\u5DF2\u52A0\u5165\u672C\u6B21\u53C3\u8003\u8F38\u5165",
+    "ux.referenceFailed": "\u672A\u80FD\u52A0\u5165\u53C3\u8003\u5716\uFF0C\u8ACB\u91CD\u8A66\u3002",
+    "ux.restoreDraft": "\u9084\u539F\u8F38\u5165",
+    "ux.restoreInputsHint": "\u50C5\u9084\u539F\u63D0\u793A\u8A5E\u548C\u53C3\u8003\u8F38\u5165\uFF0C\u751F\u6210\u53C3\u6578\u7DAD\u6301\u76EE\u524D\u9078\u64C7\u3002",
+    "ux.tasks": "\u4EFB\u52D9",
+    "ux.useSize": "\u63A1\u7528 {width} \xD7 {height}"
   };
 
   // codex_image/webui/frontend/src/i18n/zh-tw.ts
@@ -17160,8 +18823,8 @@
     "taskStatus.nonRetryableShort": "\u4E0D\u53EF\u91CD\u8A66",
     "taskStatus.manualRetryShort": "\u53EF\u624B\u52D5\u91CD\u8A66",
     "taskStatus.stoppedShort": "\u5DF2\u505C\u6B62",
-    "taskStatus.runtime": "\u8017\u6642{duration}",
-    "taskStatus.runtimeCompleted": "\u8017\u6642{duration}\xB7 \u5B8C\u6210{time}",
+    "taskStatus.runtime": "\u8017\u6642 {duration}",
+    "taskStatus.runtimeCompleted": "\u8017\u6642 {duration} \xB7 \u5B8C\u6210 {time}",
     "taskStatus.completedAt": "\u5B8C\u6210{time}",
     "taskCard.count": "{count}\u5F35",
     "taskCard.successCount": "\u6210\u529F{count}",
@@ -17484,6 +19147,7 @@
     "api.provider": "API\u4F9B\u61C9\u5546",
     "imageInput.title": "\u5716\u7247\u8F38\u5165",
     "imageInput.uploadAria": "\u9EDE\u9078\u3001\u62D6\u66F3\u6216\u8CBC\u4E0A\u5716\u7247\u8207\u6A94\u6848",
+    "imageInput.uploadImages": "\u9EDE\u64CA\u3001\u62D6\u5165\u6216\u8CBC\u4E0A\u5716\u7247",
     "imageInput.uploadFull": "\u9EDE\u9078\u3001\u62D6\u66F3\u6216\u8CBC\u4E0A\u5716\u7247\u8207\u6A94\u6848",
     "imageInput.uploadCompact": "\u65B0\u589E\u8F38\u5165",
     "imageInput.uploadSubtitle": "\u652F\u63F4\u5716\u7247\u8207 Responses \u53C3\u8003\u6A94\u6848",
@@ -17655,7 +19319,6 @@
     "output.mainModelCustomForInput": "\u4F9D\u76EE\u524D\u8F38\u5165\u4F7F\u7528\u81EA\u8A02\u6A21\u578B",
     "output.apiDirect": "API\u76F4\u9023",
     "output.apiToolModel": "\u4F7F\u7528 API \u5F71\u50CF\u751F\u6210\u6A21\u578B",
-    "output.mainModelUnused": "\u4E3B\u6A21\u578B\u4E0D\u53C3\u8207\u672C\u6B21\u8ACB\u6C42",
     "output.transparencyFidelityHint": "\u900F\u660E\u80CC\u666F\u662F\u4F60\u9078\u64C7\u7684\u8F38\u51FA\u8981\u6C42\uFF0C\u539F\u6587\u548C\u4FDD\u771F\u6A21\u5F0F\u4E5F\u6703\u9644\u52A0\u6B64\u8981\u6C42\u3002",
     "output.transparentBackground": "\u900F\u660E\u80CC\u666F",
     "output.transparencyUnavailable": "\u4E0D\u652F\u63F4\u900F\u660E",
@@ -17718,11 +19381,9 @@
     "output.qualityMedium": "\u4E2D",
     "output.qualityHigh": "\u9AD8",
     "output.quantity": "\u6578\u91CF",
-    "output.pixelPreview": "\u8F38\u51FA\u50CF\u7D20: 1024 x 1024px",
-    "output.pixelPreviewValue": "\u8F38\u51FA\u50CF\u7D20:{value}",
-    "output.pixelPreviewAuto": "\u8F38\u51FA\u50CF\u7D20: auto\uFF08OpenAI \u81EA\u52D5\u9078\u64C7\uFF09",
-    "output.format": "\u8F38\u51FA\u683C\u5F0F",
+    "output.format": "\u683C\u5F0F",
     "output.compression": "\u58D3\u7E2E\u7387",
+    "output.extraOptions": "\u984D\u5916\u9078\u9805",
     "output.moderation": "\u5BE9\u6838",
     "preview.title": "\u9810\u89BD",
     "preview.selectedZero": "\u5DF2\u9078 0",
@@ -17734,9 +19395,9 @@
     "preview.taskFailed": "\u4EFB\u52D9\u5931\u6557",
     "preview.partialFailed": "\u90E8\u5206\u5716\u7247\u7522\u751F\u5931\u6557",
     "preview.failedOutput": "\u7B2C{index}\u5F35\u5931\u6557",
-    "preview.progressLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 \u8A08\u6642{elapsed}",
+    "preview.progressLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 {elapsed}",
     "preview.failureLine": "\u5DF2\u5B8C\u6210{generated}/{total}\xB7 \u5931\u6557{failed}",
-    "preview.elapsedLine": "\u8A08\u6642{elapsed}",
+    "preview.elapsedLine": "\u8A08\u6642 {elapsed}",
     "preview.lastError": "\u4E0A\u6B21\u932F\u8AA4\uFF1A{error}",
     "preview.continueGenerating": "\u7E7C\u7E8C\u751F\u6210\u4E2D",
     "preview.waitingContinue": "\u7B49\u5F85\u7E7C\u7E8C\u751F\u6210",
@@ -17791,6 +19452,13 @@
     "promptPopover.notReturned": "\u672A\u56DE\u50B3",
     "promptPopover.noOptimized": "\u672A\u56DE\u50B3\u6700\u4F73\u5316\u63D0\u793A\u8A5E",
     "promptPopover.submitted": "\u67E5\u770B\u5BE6\u969B\u63D0\u4EA4\u63D0\u793A\u8A5E",
+    "promptPopover.response": "\u67E5\u770B\u4EFB\u52D9\u56DE\u50B3\u539F\u59CB\u8CC7\u6599",
+    "promptPopover.responseNote": "\u4F9B\u61C9\u5546\u56DE\u50B3\u7684 JSON\uFF0F\u4E32\u6D41\u4E8B\u4EF6\u3002\u5716\u7247\u8CC7\u6599\u8207\u6191\u8B49\u5DF2\u7701\u7565\uFF0C\u904E\u9577\u56DE\u61C9\u6703\u6A19\u8A18\u622A\u65B7\u3002",
+    "promptPopover.copyResponse": "\u8907\u88FD\u56DE\u50B3 JSON",
+    "promptPopover.retryResponse": "\u91CD\u65B0\u8F09\u5165",
+    "promptPopover.responseMissing": "\u6B64\u4EFB\u52D9\u672A\u5132\u5B58\u4F9B\u61C9\u5546\u539F\u59CB\u56DE\u61C9\u3002",
+    "promptPopover.responseLoading": "\u6B63\u5728\u8B80\u53D6\u56DE\u50B3\u8CC7\u6599\u2026",
+    "promptPopover.responseError": "\u8B80\u53D6\u5931\u6557\uFF0C\u8ACB\u91CD\u65B0\u8F09\u5165\u3002",
     "promptPopover.close": "\u95DC\u9589\u63D0\u793A\u8A5E",
     "promptPopover.copyOptimized": "\u8907\u88FD\u512A\u5316\u5F8C\u63D0\u793A\u8A5E",
     "promptPopover.copied": "\u5DF2\u8907\u88FD",
@@ -17993,7 +19661,7 @@
     "settings.savedRestartStatus": "\u5132\u5B58\u8A2D\u5B9A\u5DF2\u5132\u5B58\uFF0C\u91CD\u555F WebUI \u5F8C\u751F\u6548",
     "systemSettings.title": "\u7CFB\u7D71\u8A2D\u5B9A",
     "userConfigBackup.title": "\u5099\u4EFD\u8207\u9084\u539F",
-    "userConfigBackup.back": "\u8FD4\u56DE\u7CFB\u7D71\u8A2D\u5B9A",
+    "userConfigBackup.back": "\u8FD4\u56DE\u5132\u5B58\u8207\u901A\u77E5",
     "userConfigBackup.entryTitle": "\u8A2D\u5B9A\u5099\u4EFD\u8207\u9084\u539F",
     "userConfigBackup.entryCopy": "\u79FB\u8F49 chip\u3001\u5171\u7528\u5716\u7247\u3001\u7BC4\u672C\u8207\u7CFB\u7D71\u8A2D\u5B9A",
     "userConfigBackup.backupTab": "\u5099\u4EFD",
@@ -18067,11 +19735,11 @@
     "apiSettings.providerIconPlaceholder": "\u9078\u586B\uFF0C\u4F8B\u5982 \u{1FA84}",
     "apiSettings.connectionScope": "\u8FDE\u63A5\u7EA7\u8BBE\u7F6E",
     "apiSettings.connectionPreview": "\u9023\u7DDA\u9810\u89BD",
-    "apiSettings.modelBindings": "\u6A21\u578B\u7ED1\u5B9A",
+    "apiSettings.modelBindings": "\u6A21\u578B",
     "apiSettings.modelBindingsHint": "\u4E00\u4E2A\u4F9B\u5E94\u5546\u53EF\u540C\u65F6\u7ED1\u5B9A\u591A\u4E2A\u578B\u53F7\u548C\u534F\u8BAE\u3002",
-    "apiSettings.addModelBinding": "\u6DFB\u52A0\u6A21\u578B\u7ED1\u5B9A",
-    "apiSettings.remoteModelName": "\u4E2D\u8F49\u7AD9\u6A21\u578B\u540D\u7A31",
-    "apiSettings.fetchModels": "\u53D6\u5F97\u53EF\u7528\u6A21\u578B",
+    "apiSettings.addModelBinding": "\u65B0\u589E\u6A21\u578B",
+    "apiSettings.remoteModelName": "\u670D\u52D9\u5546\u6A21\u578B\u540D\u7A31",
+    "apiSettings.fetchModels": "\u53D6\u5F97\u6A21\u578B",
     "apiSettings.fetchingModels": "\u6B63\u5728\u53D6\u5F97\u2026",
     "apiSettings.selectAvailableModel": "\u9078\u64C7\u53EF\u7528\u6A21\u578B",
     "apiSettings.modelsFetched": "\u53D6\u5F97 {count} \u500B\u6A21\u578B\uFF0C\u8ACB\u9078\u64C7\u8207\u76EE\u524D\u578B\u865F\u76F8\u7B26\u7684\u6A21\u578B\u3002",
@@ -18149,6 +19817,7 @@
     "apiSettings.savingStatus": "\u6B63\u5728\u5132\u5B58API\u8A2D\u5B9A...",
     "apiSettings.autoSaving": "\u6B63\u5728\u81EA\u52D5\u5132\u5B58...",
     "apiSettings.autoSaved": "\u5DF2\u81EA\u52D5\u5132\u5B58",
+    "apiSettings.defaultMappingInvalid": "\u9810\u8A2D\u4F9B\u61C9\u5546\u8A2D\u5B9A\u4E0D\u5B8C\u6574\uFF0C\u8ACB\u91CD\u65B0\u8F09\u5165\u8A2D\u5B9A\u5F8C\u518D\u8A66\u3002",
     "apiSettings.saveFailed": "API\u8A2D\u5B9A\u5132\u5B58\u5931\u6557",
     "apiSettings.savedSummary": "\u5DF2\u5132\u5B58 \xB7Codex{codex}\xB7API{provider}\xB7{mode}\xB7{model}\xB7 \u4E26\u767C{concurrency}",
     "apiSettings.savedShort": "\u5DF2\u5132\u5B58",
@@ -18315,7 +19984,101 @@
     "modelParameters.invalidJson": "JSON \u683C\u5F0F\u7121\u6548",
     "modelParameters.migrated": "\u5DF2\u4F9D\u76EE\u524D\u6A21\u578B\u76F8\u5BB9\u8655\u7406 {count} \u500B\u820A\u53C3\u6578",
     "modelParameters.historyConfiguration": "\u6B77\u53F2\u8A2D\u5B9A",
-    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9"
+    "modelParameters.legacyTask": "\u820A\u7248\u4EFB\u52D9",
+    "queue.realtimePolling": "\u4EFB\u52D9\u72C0\u614B\u5DF2\u5207\u63DB\u70BA\u5B9A\u6642\u66F4\u65B0\uFF0C\u6B63\u5728\u6062\u5FA9\u5373\u6642\u9023\u7DDA\u2026",
+    "referenceFiles.chooseResponses": "\u9078\u64C7 Responses \u901A\u9053",
+    "status.taskChangedDuringLoad": "\u4EFB\u52D9\u72C0\u614B\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u91CD\u65B0\u9078\u64C7\u8A72\u4EFB\u52D9\u3002",
+    "userConfigBackup.apiKeyConfirm": "\u5099\u4EFD\u6A94\u5C07\u5305\u542B API Key \u4E14\u4E0D\u6703\u52A0\u5BC6\u3002\u4ECD\u8981\u5EFA\u7ACB\u55CE\uFF1F",
+    "userConfigBackup.archiveMeta": "{count} \u985E \xB7 \u683C\u5F0F v{version}",
+    "userConfigBackup.backToPreview": "\u8FD4\u56DE\u9810\u89BD",
+    "userConfigBackup.backupCopy": "\u9078\u64C7\u8981\u5BEB\u5165\u5099\u4EFD\u6A94\u7684\u8A2D\u5B9A\u3002\u751F\u6210\u4EFB\u52D9\u548C OAuth \u767B\u5165\u72C0\u614B\u4E0D\u6703\u5305\u542B\u5728\u5167\u3002",
+    "userConfigBackup.backupProgress": "\u5099\u4EFD\u9032\u5EA6",
+    "userConfigBackup.cancelled": "\u5099\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.chooseArchive": "\u9078\u64C7\u5099\u4EFD ZIP",
+    "userConfigBackup.chooseArchiveCopy": "\u6A94\u6848\u6703\u5148\u4E0A\u50B3\u4E26\u9A57\u8B49\uFF0C\u9810\u89BD\u4E0D\u6703\u4FEE\u6539\u73FE\u6709\u8CC7\u6599\u3002",
+    "userConfigBackup.keepWorking": "\u7E7C\u7E8C\u64CD\u4F5C",
+    "userConfigBackup.cancelAndClose": "\u53D6\u6D88\u4EFB\u52D9\u4E26\u95DC\u9589",
+    "userConfigBackup.discardAndClose": "\u522A\u9664\u66AB\u5B58\u5099\u4EFD\u4E26\u95DC\u9589",
+    "userConfigBackup.creatingBackup": "\u6B63\u5728\u5EFA\u7ACB\u5099\u4EFD\u2026",
+    "userConfigBackup.settingsUpdatedDraftKept": "\u8A2D\u5B9A\u5DF2\u5F9E\u5099\u4EFD\u9084\u539F\uFF1B\u672A\u5132\u5B58\u7684\u4FEE\u6539\u5DF2\u4FDD\u7559\uFF0C\u5132\u5B58\u5F8C\u5C07\u5957\u7528\u76EE\u524D\u5167\u5BB9\u3002",
+    "userConfigBackup.closeActiveConfirm": "\u4E0A\u50B3\u6216\u5099\u4EFD\u4ECD\u5728\u9032\u884C\u3002\u95DC\u9589\u4E26\u53D6\u6D88\u55CE\uFF1F",
+    "userConfigBackup.create": "\u5EFA\u7ACB\u5099\u4EFD",
+    "userConfigBackup.creatingSession": "\u6B63\u5728\u6E96\u5099\u4E0A\u50B3\u2026",
+    "userConfigBackup.discardReadyConfirm": "\u95DC\u9589\u6703\u522A\u9664\u4F3A\u670D\u5668\u7AEF\u7684\u66AB\u5B58\u5099\u4EFD\uFF1B\u5DF2\u5132\u5B58\u5230\u672C\u6A5F\u7684\u6A94\u6848\u4E0D\u53D7\u5F71\u97FF\u3002\u78BA\u5B9A\u55CE\uFF1F",
+    "userConfigBackup.download": "\u4E0B\u8F09\u5099\u4EFD",
+    "userConfigBackup.downloaded": "\u4E0B\u8F09\u5DF2\u958B\u59CB\uFF1B24 \u5C0F\u6642\u6709\u6548\u671F\u5167\u4ECD\u53EF\u518D\u6B21\u4E0B\u8F09",
+    "userConfigBackup.galleryReferenceImpact": "{count} \u500B\u6B77\u53F2\u4EFB\u52D9\u5C07\u5931\u53BB\u5171\u7528\u5716\u7247\u53C3\u7167",
+    "userConfigBackup.incrementalCopy": "\u4FDD\u7559\u73FE\u6709\u8CC7\u6599\uFF0C\u7565\u904E\u91CD\u8907\u5167\u5BB9\uFF0C\u70BA\u885D\u7A81\u9805\u76EE\u5EFA\u7ACB\u5FA9\u539F\u526F\u672C\u3002",
+    "userConfigBackup.itemCount": "{count} \u9805",
+    "userConfigBackup.modeLabel": "\u5099\u4EFD\u6216\u9084\u539F",
+    "userConfigBackup.previewCounts": "\u6A94\u5167 {count} \u9805 \xB7 \u91CD\u8907 {duplicate} \xB7 \u885D\u7A81 {conflict}",
+    "userConfigBackup.previewTitle": "\u9084\u539F\u9810\u89BD",
+    "userConfigBackup.providerRetention": "{count} \u500B\u542B\u6191\u8B49\u7684\u4F9B\u61C9\u5546\u5C07\u4F9D\u5B89\u5168\u898F\u5247\u4FDD\u7559",
+    "userConfigBackup.replaceConfirmCopy": "\u53D6\u4EE3\u53EA\u5F71\u97FF\u6240\u9078\u985E\u5225\uFF0C\u4F46\u6703\u522A\u9664\u9019\u4E9B\u985E\u5225\u7684\u73FE\u6709\u5167\u5BB9\u3002\u6B64\u64CD\u4F5C\u5B8C\u6210\u5F8C\u7121\u6CD5\u5FA9\u539F\u3002",
+    "userConfigBackup.replaceImpact": "{section}\uFF1A\u6E05\u9664\u76EE\u524D {current} \u9805\uFF0C\u518D\u532F\u5165\u5099\u4EFD {archive} \u9805",
+    "userConfigBackup.restartRequired": "\u5132\u5B58\u8DEF\u5F91\u5DF2\u9084\u539F\uFF1B\u76EE\u524D\u7A0B\u5E8F\u4ECD\u4F7F\u7528\u539F\u8DEF\u5F91\uFF0C\u8ACB\u91CD\u65B0\u555F\u52D5 WebUI\u3002",
+    "userConfigBackup.restoreContinues": "\u9084\u539F\u5BEB\u5165\u5DF2\u958B\u59CB\uFF0C\u95DC\u9589\u9762\u677F\u4E0D\u6703\u53D6\u6D88\u64CD\u4F5C\u3002\u7A0D\u5F8C\u91CD\u65B0\u958B\u555F\u53EF\u67E5\u770B\u7D50\u679C\u3002",
+    "userConfigBackup.restoreModeLabel": "\u9084\u539F\u6A21\u5F0F",
+    "userConfigBackup.restoreProgress": "\u9084\u539F\u4E0A\u50B3\u9032\u5EA6",
+    "userConfigBackup.restoreSelected": "\u9084\u539F\u6240\u9078\u5167\u5BB9",
+    "userConfigBackup.restoring": "\u6B63\u5728\u9084\u539F\uFF0C\u8ACB\u52FF\u95DC\u9589 WebUI\u2026",
+    "userConfigBackup.resultCounts": "{section}\uFF1A\u65B0\u589E {added} \xB7 \u53D6\u4EE3 {replaced} \xB7 \u7565\u904E {skipped} \xB7 \u5FA9\u539F\u526F\u672C {copies}",
+    "userConfigBackup.selectAtLeastOne": "\u8ACB\u81F3\u5C11\u9078\u64C7\u4E00\u985E\u8CC7\u6599",
+    "userConfigBackup.selectSections": "\u9078\u64C7\u8CC7\u6599",
+    "userConfigBackup.status.cancelled": "\u5099\u4EFD\u5DF2\u53D6\u6D88",
+    "userConfigBackup.status.expired": "\u5099\u4EFD\u5DF2\u904E\u671F",
+    "userConfigBackup.status.failed": "\u5099\u4EFD\u5931\u6557",
+    "userConfigBackup.status.interrupted": "\u5099\u4EFD\u56E0 WebUI \u4E2D\u65B7\u800C\u505C\u6B62",
+    "userConfigBackup.status.packing": "\u6B63\u5728\u5C01\u88DD\u2026",
+    "userConfigBackup.status.planning": "\u6B63\u5728\u898F\u5283\u5099\u4EFD\u2026",
+    "userConfigBackup.status.queued": "\u5099\u4EFD\u5DF2\u6392\u5165\u4F47\u5217\u2026",
+    "userConfigBackup.status.ready": "\u5099\u4EFD\u5DF2\u5C31\u7DD2\uFF0C24 \u5C0F\u6642\u5167\u53EF\u91CD\u8907\u4E0B\u8F09",
+    "userConfigBackup.summaryFailed": "\u7121\u6CD5\u8B80\u53D6\u8A2D\u5B9A\u6458\u8981",
+    "userConfigBackup.summaryLoading": "\u6B63\u5728\u8B80\u53D6\u8A2D\u5B9A\u6458\u8981\u2026",
+    "userConfigBackup.uploading": "\u6B63\u5728\u4E0A\u50B3\u5099\u4EFD\u6A94\u2026",
+    "userConfigBackup.validating": "\u6B63\u5728\u9A57\u8B49\u5099\u4EFD\u6A94\u2026",
+    "userConfigBackup.validationReady": "\u9A57\u8B49\u5B8C\u6210\uFF0C\u8ACB\u9078\u64C7\u9084\u539F\u65B9\u5F0F",
+    "userConfigBackup.versionUnsupported": "\u6B64\u5099\u4EFD\u4F86\u81EA\u8F03\u65B0\u7684\u683C\u5F0F\u7248\u672C\uFF0C\u53EA\u80FD\u6AA2\u8996\uFF0C\u7121\u6CD5\u9084\u539F",
+    "userConfigBackup.warningCount": "{count} \u500B\u8B66\u544A",
+    "user_config_backup_failed": "\u7121\u6CD5\u8B80\u53D6\u6216\u5C01\u88DD\u5099\u4EFD\u8CC7\u6599\uFF0C\u8ACB\u6AA2\u67E5\u6240\u9078\u5167\u5BB9\u5F8C\u91CD\u8A66\u3002",
+    "user_config_backup_gallery_invalid": "\u5171\u7528\u5716\u5EAB\u4E2D\u6709\u5716\u7247\u6A94\u6848\u8207\u7D00\u9304\u4E0D\u4E00\u81F4\u3002\u8ACB\u91CD\u65B0\u5132\u5B58\u6216\u79FB\u9664\u7570\u5E38\u5716\u7247\u5F8C\u518D\u8A66\u3002",
+    "user_config_backup_insufficient_space": "\u78C1\u789F\u53EF\u7528\u7A7A\u9593\u4E0D\u8DB3\uFF0C\u7121\u6CD5\u5EFA\u7ACB\u5099\u4EFD\u3002",
+    "user_config_backup_internal_error": "\u5099\u4EFD\u670D\u52D9\u767C\u751F\u5167\u90E8\u932F\u8AA4\uFF0C\u8ACB\u91CD\u65B0\u555F\u52D5 WebUI \u5F8C\u91CD\u8A66\uFF1B\u82E5\u4ECD\u5931\u6557\uFF0C\u8ACB\u67E5\u770B\u555F\u52D5\u7D00\u9304\u3002",
+    "user_config_backup_io_error": "\u5099\u4EFD\u6A94\u6848\u8B80\u5BEB\u5931\u6557\uFF0C\u8ACB\u6AA2\u67E5\u78C1\u789F\u548C\u76EE\u9304\u6B0A\u9650\u3002",
+    "user_config_backup_source_changed": "\u8A2D\u5B9A\u5728\u5099\u4EFD\u904E\u7A0B\u4E2D\u767C\u751F\u8B8A\u66F4\uFF0C\u8ACB\u505C\u6B62\u7DE8\u8F2F\u5F8C\u91CD\u8A66\u3002",
+    "user_config_backup_source_unreadable": "\u5099\u4EFD\u7121\u6CD5\u8B80\u53D6\u8A2D\u5B9A\u6A94\uFF0C\u8ACB\u6AA2\u67E5\u6A94\u6848\u6B0A\u9650\u5F8C\u91CD\u8A66\u3002",
+    "user_config_restore_active_tasks": "\u4ECD\u6709\u57F7\u884C\u4E2D\u7684\u4EFB\u52D9\uFF0C\u8ACB\u7B49\u5F85\u4EFB\u52D9\u7D50\u675F\u5F8C\u518D\u53D6\u4EE3",
+    "user_config_restore_failed": "\u9084\u539F\u5931\u6557\uFF0C\u73FE\u6709\u8A2D\u5B9A\u5DF2\u4FDD\u7559",
+    "user_config_restore_preview_stale": "\u76EE\u524D\u8A2D\u5B9A\u5DF2\u8B8A\u66F4\uFF0C\u8ACB\u91CD\u65B0\u9A57\u8B49\u5099\u4EFD\u6A94",
+    "user_config_restore_system_notification_permission_missing": "\u700F\u89BD\u5668\u672A\u6388\u4E88\u7CFB\u7D71\u901A\u77E5\u6B0A\u9650\uFF0C\u56E0\u6B64\u672A\u555F\u7528\u6B64\u504F\u597D\u8A2D\u5B9A\u3002",
+    "user_config_restore_version_unsupported": "\u5099\u4EFD\u683C\u5F0F\u7248\u672C\u904E\u65B0\uFF0C\u7121\u6CD5\u9084\u539F",
+    "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u7684\u5716\u7247\u4E26\u7D50\u675F\u4EFB\u52D9\uFF0C\u4E0D\u518D\u88DC\u9F4A\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.addReference": "\u65B0\u589E\u53C3\u7167",
+    "ux.addingReference": "\u6B63\u5728\u52A0\u5165\u53C3\u8003\u5716\u2026",
+    "ux.checkProvider": "\u6AA2\u67E5\u4F9B\u61C9\u5546\u8A2D\u5B9A",
+    "ux.collapseReference": "\u6536\u5408",
+    "ux.discardEdits": "\u653E\u68C4\u4FEE\u6539",
+    "ux.draftRestored": "\u5DF2\u9084\u539F\u63D0\u793A\u8A5E\u8207\u53C3\u8003\u8F38\u5165\uFF1B\u751F\u6210\u53C3\u6578\u7DAD\u6301\u76EE\u524D\u9078\u64C7\u3002",
+    "ux.editInputs": "\u4FEE\u6539\u8F38\u5165\u8207\u53C3\u6578",
+    "ux.editInputsReady": "\u5DF2\u8F09\u5165\u4EFB\u52D9\u8F38\u5165\u8207\u53C3\u6578\uFF0C\u53EF\u4FEE\u6539\u5F8C\u91CD\u65B0\u751F\u6210\u3002",
+    "ux.errorDetails": "\u932F\u8AA4\u8A73\u60C5",
+    "ux.execution": "\u672C\u6B21\u751F\u6210",
+    "ux.historyParametersHint": "\u4EE5\u4E0B\u662F\u6240\u9078\u4EFB\u52D9\u7684\u6B77\u53F2\u53C3\u6578\u3002\u672C\u6B21\u751F\u6210\u4EE5\u300C\u8F38\u51FA\u8A2D\u5B9A\u300D\u70BA\u6E96\u3002",
+    "ux.imageCount": "{count} \u5F35",
+    "ux.imageUnsaved": "\u5716\u7247\u9084\u6709\u672A\u5132\u5B58\u7684\u4FEE\u6539\u3002\u653E\u68C4\u5F8C\u7121\u6CD5\u5FA9\u539F\uFF1B\u53D6\u6D88\u53EF\u7E7C\u7E8C\u7DE8\u8F2F\u3002",
+    "ux.moderationAuto": "\u81EA\u52D5",
+    "ux.moderationLow": "\u8F03\u5BEC\u9B06",
+    "ux.openRecovery": "\u9032\u5165\u751F\u6210\u9801\u9762\u8655\u7406",
+    "ux.recovery.credentials": "\u6191\u8B49\u9A57\u8B49\u5931\u6557\u3002\u8ACB\u6838\u5C0D\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684 API Key \u6216\u672C\u6A5F\u767B\u5165\u72C0\u614B\uFF0C\u4FEE\u6B63\u5F8C\u518D\u751F\u6210\u3002",
+    "ux.recovery.input": "\u4E0D\u652F\u63F4\u6B64\u8ACB\u6C42\u8F38\u5165\u3002\u8ACB\u6AA2\u67E5\u63D0\u793A\u8A5E\u3001\u53C3\u8003\u6A94\u6848\u548C\u751F\u6210\u53C3\u6578\u3002",
+    "ux.recovery.quota": "\u984D\u5EA6\u6216\u5E33\u6236\u9918\u984D\u4E0D\u8DB3\u3002\u8ACB\u6AA2\u67E5\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684\u5E33\u6236\u9650\u5236\u3002",
+    "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u5716\u7247\u6703\u4FDD\u7559\uFF1B\u53EF\u91CD\u8A66\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.referenceAdded": "\u5DF2\u52A0\u5165\u672C\u6B21\u53C3\u8003\u8F38\u5165",
+    "ux.referenceFailed": "\u672A\u80FD\u52A0\u5165\u53C3\u8003\u5716\uFF0C\u8ACB\u91CD\u8A66\u3002",
+    "ux.restoreDraft": "\u9084\u539F\u8F38\u5165",
+    "ux.restoreInputsHint": "\u50C5\u9084\u539F\u63D0\u793A\u8A5E\u548C\u53C3\u8003\u8F38\u5165\uFF0C\u751F\u6210\u53C3\u6578\u7DAD\u6301\u76EE\u524D\u9078\u64C7\u3002",
+    "ux.tasks": "\u4EFB\u52D9",
+    "ux.useSize": "\u63A1\u7528 {width} \xD7 {height}"
   };
 
   // codex_image/webui/frontend/src/i18n/dictionaries.ts
@@ -18340,11 +20103,11 @@
 
   // codex_image/webui/frontend/src/state.ts
   function getLegacyBridge() {
-    const bridge7 = window.__codexImageWebUI;
-    if (!bridge7) {
+    const bridge8 = window.__codexImageWebUI;
+    if (!bridge8) {
       throw new Error("WebUI legacy bridge is not initialized");
     }
-    return bridge7;
+    return bridge8;
   }
   function getState() {
     return getLegacyBridge().state;
@@ -18582,7 +20345,14 @@
     if (documentPositionListenersBound) return;
     documentPositionListenersBound = true;
     window.addEventListener("resize", positionOpenThemedSelectMenus);
-    document.addEventListener("scroll", positionOpenThemedSelectMenus, true);
+    document.addEventListener("scroll", (event) => {
+      const target = event.target;
+      openInstances.forEach((instance) => {
+        if (target === document || target instanceof Element && target.contains(instance.host)) {
+          closeThemedSelect(instance, instance.menu.contains(document.activeElement));
+        }
+      });
+    }, true);
   }
   function mountThemedSelect(select) {
     if (!select || select.multiple || instances.has(select)) {
@@ -19493,7 +21263,7 @@
 
   // codex_image/webui/frontend/src/history-context-menu.ts
   function createHistoryContextMenu(deps) {
-    const els9 = {
+    const els11 = {
       resultSummary: document.querySelector("#historyResultSummary")
     };
     const historyState = {
@@ -19643,7 +21413,7 @@
           await deps.actions.archiveHistoryTaskIds(taskIds, false);
         }
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
       }
     }
     function clampNumber(value, min, max) {
@@ -20565,28 +22335,28 @@
     const incomingTime = Date.parse(incoming?.updated_at || incoming?.created_at || "");
     return Number.isFinite(previousTime) && Number.isFinite(incomingTime) && incomingTime < previousTime;
   }
-  function versionState(state5, version) {
+  function versionState(state6, version) {
     if (!version || !version.instance || !Number.isSafeInteger(version.revision) || version.revision < 1) return null;
-    let current = syncStates.get(state5);
+    let current = syncStates.get(state6);
     if (current?.retired.has(version.instance)) return false;
     if (!current || current.instance !== version.instance) {
       const retired = current?.retired || /* @__PURE__ */ new Set();
       if (current) retired.add(current.instance);
       current = { instance: version.instance, retired, queue: 0, tasks: 0, lastChange: 0, changes: /* @__PURE__ */ new Map() };
-      syncStates.set(state5, current);
+      syncStates.set(state6, current);
     }
     return current;
   }
-  function acceptQueueSnapshot(state5, version) {
-    const current = versionState(state5, version);
+  function acceptQueueSnapshot(state6, version) {
+    const current = versionState(state6, version);
     if (current === false) return false;
     if (!current || !version) return true;
     if (version.revision < Math.max(current.queue, current.tasks, current.lastChange)) return false;
     current.queue = version.revision;
     return true;
   }
-  function acceptTaskUpdate(state5, task, version) {
-    const current = versionState(state5, version);
+  function acceptTaskUpdate(state6, task, version) {
+    const current = versionState(state6, version);
     if (current === false || !task?.task_id) return false;
     if (!current || !version) return true;
     const id = String(task.task_id);
@@ -20598,7 +22368,7 @@
 
   // codex_image/webui/frontend/src/history-detail-controller.ts
   function createHistoryDetailController(deps) {
-    const els9 = {
+    const els11 = {
       page: document.querySelector(".history-page"),
       resultSummary: document.querySelector("#historyResultSummary"),
       detail: document.querySelector("#historyDetail")
@@ -20614,15 +22384,15 @@
         deps.renderToolbar();
       }
       const loadToken = ++historyDetailLoadToken;
-      const keepCurrentDetail = els9.detail?.dataset.historyDetailMode === "task" && Boolean(detailTask?.task_id);
+      const keepCurrentDetail = els11.detail?.dataset.historyDetailMode === "task" && Boolean(detailTask?.task_id);
       deps.selection.dispatch({ type: "detail", id: taskId });
       deps.resetTaskConfirmations();
       deps.filters.updateHistoryUrl();
       deps.renderSelection(taskId);
-      els9.page?.classList.add("history-detail-open");
+      els11.page?.classList.add("history-detail-open");
       if (keepCurrentDetail) {
-        els9.detail?.classList.add("history-detail-pending");
-        els9.detail?.setAttribute("aria-busy", "true");
+        els11.detail?.classList.add("history-detail-pending");
+        els11.detail?.setAttribute("aria-busy", "true");
       } else {
         renderDetailShell(translate("history.loadingDetail"));
       }
@@ -20639,8 +22409,8 @@
         renderDetailShell(errorMessage(error, translate("history.detailFailed")), "history-error");
       } finally {
         if (isCurrentHistoryDetailLoad(loadToken, taskId)) {
-          els9.detail?.classList.remove("history-detail-pending");
-          els9.detail?.removeAttribute("aria-busy");
+          els11.detail?.classList.remove("history-detail-pending");
+          els11.detail?.removeAttribute("aria-busy");
         }
       }
     }
@@ -20670,17 +22440,17 @@
         const current = { ...incoming, favorite: incoming.favorite ?? previous.favorite, tags: incoming.tags ?? previous.tags };
         if (JSON.stringify(current) !== JSON.stringify(previous)) {
           const active = document.activeElement;
-          const focused = active && els9.detail?.contains(active) ? active : null;
+          const focused = active && els11.detail?.contains(active) ? active : null;
           const identity = focused ? [...focused.attributes].filter((attr) => attr.name === "id" || attr.name.startsWith("data-history-")) : [];
           renderTaskDetail(current);
           if (identity.length) {
-            [...els9.detail?.querySelectorAll("button, input, a, [tabindex]") || []].find((element) => element.tagName === focused?.tagName && identity.every((attr) => element.getAttribute(attr.name) === attr.value))?.focus({ preventScroll: true });
+            [...els11.detail?.querySelectorAll("button, input, a, [tabindex]") || []].find((element) => element.tagName === focused?.tagName && identity.every((attr) => element.getAttribute(attr.name) === attr.value))?.focus({ preventScroll: true });
           }
         }
       } catch (error) {
         if (signal?.aborted) throw error;
         if (isCurrentHistoryDetailLoad(token, taskId) && detailTask === previous) {
-          setText(els9.resultSummary, errorMessage(error, translate("history.detailFailed")));
+          setText(els11.resultSummary, errorMessage(error, translate("history.detailFailed")));
         }
       }
     }
@@ -20712,10 +22482,10 @@
       });
     }
     function renderDetailShell(message, className = "history-detail-empty") {
-      if (!els9.detail) return;
-      els9.detail.dataset.historyDetailMode = "empty";
+      if (!els11.detail) return;
+      els11.detail.dataset.historyDetailMode = "empty";
       detailTask = null;
-      els9.detail.innerHTML = `
+      els11.detail.innerHTML = `
     <div class="history-detail-header">
       <div>
         <h2 class="history-detail-title history-detail-empty-title">${escapeHtml3(translate("history.detail"))}</h2>
@@ -20753,19 +22523,19 @@
       };
     }
     function renderHistoryManagementDetail() {
-      if (!els9.detail) return;
-      els9.detail.dataset.historyDetailMode = "management";
+      if (!els11.detail) return;
+      els11.detail.dataset.historyDetailMode = "management";
       detailTask = null;
-      els9.detail.innerHTML = historyManagementPanelHtml(historyActionPanelCopy(), {
+      els11.detail.innerHTML = historyManagementPanelHtml(historyActionPanelCopy(), {
         selectionMode: deps.selection.snapshot().selectionMode
       });
     }
     function renderSelectionDetail() {
-      if (!els9.detail) return;
+      if (!els11.detail) return;
       const count = deps.selection.snapshot().selectedTaskIds.size;
       if (!count) return;
-      els9.detail.dataset.historyDetailMode = "selection";
-      els9.detail.innerHTML = historySelectionPanelHtml({
+      els11.detail.dataset.historyDetailMode = "selection";
+      els11.detail.innerHTML = historySelectionPanelHtml({
         copy: historyActionPanelCopy(),
         count,
         expandedSection: historyActionPanelExpanded,
@@ -20773,7 +22543,7 @@
       });
     }
     function syncHistorySelectionDetail() {
-      if (!els9.detail) return;
+      if (!els11.detail) return;
       const resolution = historySelectionDetailResolution({
         selectedCount: deps.selection.snapshot().selectedTaskIds.size,
         selectedTaskId: deps.selection.snapshot().selectedTaskId,
@@ -20796,9 +22566,9 @@
       return value || translate("history.detail");
     }
     function renderTaskDetail(task) {
-      if (!els9.detail) return;
+      if (!els11.detail) return;
       detailTask = task;
-      els9.detail.dataset.historyDetailMode = "task";
+      els11.detail.dataset.historyDetailMode = "task";
       const taskId = String(task.task_id || deps.selection.snapshot().selectedTaskId || "");
       const urls = taskOutputRecords(task);
       const selectedCount = taskSelectedOutputIndexes(task).size;
@@ -20830,7 +22600,7 @@
         Array.isArray(task.tags) ? task.tags : [],
         escapeHtml3
       );
-      els9.detail.innerHTML = `
+      els11.detail.innerHTML = `
     <div class="history-detail-header">
       <div>
         <p class="history-detail-kicker">${escapeHtml3(historyTaskModeLabel(task.mode))}</p>
@@ -20878,7 +22648,7 @@
     ${promptCompareHtml(task)}
   `;
       const grounding = createGroundingAttribution(task);
-      const imageGrid = els9.detail.querySelector(".history-detail-images");
+      const imageGrid = els11.detail.querySelector(".history-detail-images");
       if (grounding && imageGrid) imageGrid.insertAdjacentElement("afterend", grounding);
     }
     function promptTextForKind(kind) {
@@ -20926,7 +22696,7 @@
       deps.selection.dispatch({ type: "location", id: taskId });
       deps.resetTaskConfirmations();
       detailTask = detail;
-      els9.page?.classList.add("history-detail-open");
+      els11.page?.classList.add("history-detail-open");
       deps.filters.updateHistoryUrl();
       deps.renderSelection(taskId);
       deps.renderToolbar();
@@ -20949,11 +22719,11 @@
           nextTaskId = historyAdjacentTaskId(cursorTaskId, direction);
         }
         if (!nextTaskId) {
-          setText(els9.resultSummary, translate("history.noMore"));
+          setText(els11.resultSummary, translate("history.noMore"));
           return;
         }
         if (visitedTaskIds.has(nextTaskId)) {
-          setText(els9.resultSummary, translate("history.noMore"));
+          setText(els11.resultSummary, translate("history.noMore"));
           return;
         }
         visitedTaskIds.add(nextTaskId);
@@ -20970,7 +22740,7 @@
           });
           return;
         } catch (error) {
-          setText(els9.resultSummary, errorMessage(error, translate("history.detailFailed")));
+          setText(els11.resultSummary, errorMessage(error, translate("history.detailFailed")));
           return;
         }
       }
@@ -20986,14 +22756,14 @@
           onTaskNavigate: openHistoryTaskLightboxByDirection
         });
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("history.detailFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("history.detailFailed")));
       }
     }
     function closeDetail() {
       const narrow = window.matchMedia("(max-width: 1100px)").matches;
-      const mode = els9.detail?.dataset.historyDetailMode || "management";
+      const mode = els11.detail?.dataset.historyDetailMode || "management";
       if (historyDetailCloseEffect({ narrow, mode }) === "dismiss") {
-        els9.page?.classList.remove("history-detail-open");
+        els11.page?.classList.remove("history-detail-open");
         historyDetailReturnFocus?.focus();
         historyDetailReturnFocus = null;
         return;
@@ -21001,7 +22771,7 @@
       historyDetailLoadToken += 1;
       deps.selection.dispatch({ type: "reset" });
       detailTask = null;
-      els9.page?.classList.remove("history-detail-open");
+      els11.page?.classList.remove("history-detail-open");
       deps.filters.updateHistoryUrl();
       deps.renderSelection("");
       deps.renderToolbar();
@@ -21012,21 +22782,21 @@
     function openHistoryManagementPanel(trigger) {
       historyDetailReturnFocus = trigger;
       renderHistoryManagementDetail();
-      els9.page?.classList.add("history-detail-open");
-      requestAnimationFrame(() => els9.detail?.querySelector(".history-detail-title")?.focus());
+      els11.page?.classList.add("history-detail-open");
+      requestAnimationFrame(() => els11.detail?.querySelector(".history-detail-title")?.focus());
     }
     function openHistorySelectionPanel(trigger) {
       if (!deps.selection.snapshot().selectedTaskIds.size) return;
       historyDetailReturnFocus = trigger;
       renderSelectionDetail();
-      els9.page?.classList.add("history-detail-open");
-      requestAnimationFrame(() => els9.detail?.querySelector(".history-detail-title")?.focus());
+      els11.page?.classList.add("history-detail-open");
+      requestAnimationFrame(() => els11.detail?.querySelector(".history-detail-title")?.focus());
     }
     function toggleActionSection(requested) {
       historyActionPanelExpanded = nextHistoryActionPanelSection(historyActionPanelExpanded, requested);
       deps.closeActionPickers();
       renderSelectionDetail();
-      requestAnimationFrame(() => els9.detail?.querySelector(`[data-history-toggle-action-section="${requested}"]`)?.focus());
+      requestAnimationFrame(() => els11.detail?.querySelector(`[data-history-toggle-action-section="${requested}"]`)?.focus());
     }
     return {
       loadTaskDetail,
@@ -21393,7 +23163,7 @@
 
   // codex_image/webui/frontend/src/history-filters-controller.ts
   function createHistoryFiltersController(options) {
-    const els9 = {
+    const els11 = {
       mobileFiltersButton: document.querySelector("#historyMobileFiltersButton"),
       mobileFilterCount: document.querySelector("#historyMobileFilterCount"),
       total: document.querySelector("#historyTotal"),
@@ -21522,19 +23292,19 @@
       );
       const count = items.length;
       const hidden = count === 0;
-      els9.activeFilters?.classList.toggle("hidden", hidden);
-      els9.activeFilters?.toggleAttribute("hidden", hidden);
-      els9.activeFilters?.setAttribute(
+      els11.activeFilters?.classList.toggle("hidden", hidden);
+      els11.activeFilters?.toggleAttribute("hidden", hidden);
+      els11.activeFilters?.setAttribute(
         "aria-label",
         hidden ? translate("sidebar.filters") : formatTranslation("history.activeFilterCount", { count })
       );
       setText(
-        els9.activeFiltersLabel,
+        els11.activeFiltersLabel,
         hidden ? "" : formatTranslation("history.activeFilterCount", { count })
       );
-      setText(els9.clearAllFilters, translate("history.clearAllFilters"));
-      if (els9.activeFilterList) {
-        els9.activeFilterList.innerHTML = items.map((item) => {
+      setText(els11.clearAllFilters, translate("history.clearAllFilters"));
+      if (els11.activeFilterList) {
+        els11.activeFilterList.innerHTML = items.map((item) => {
           const label = historyActiveFilterLabel(item);
           const removeLabel = formatTranslation(
             "history.removeFilter",
@@ -21556,14 +23326,14 @@
       `;
         }).join("");
       }
-      els9.mobileFilterCount?.classList.toggle("hidden", hidden);
-      els9.mobileFilterCount?.toggleAttribute("hidden", hidden);
-      setText(els9.mobileFilterCount, hidden ? "" : String(count));
-      els9.mobileFiltersButton?.classList.toggle(
+      els11.mobileFilterCount?.classList.toggle("hidden", hidden);
+      els11.mobileFilterCount?.toggleAttribute("hidden", hidden);
+      setText(els11.mobileFilterCount, hidden ? "" : String(count));
+      els11.mobileFiltersButton?.classList.toggle(
         "has-active-filters",
         !hidden
       );
-      els9.mobileFiltersButton?.setAttribute(
+      els11.mobileFiltersButton?.setAttribute(
         "aria-label",
         hidden ? translate("sidebar.filters") : formatTranslation("history.filtersActive", { count })
       );
@@ -21591,7 +23361,7 @@
       };
       options.resetSelection();
       options.clearDeleteConfirmation();
-      if (els9.search) els9.search.value = historyState.q;
+      if (els11.search) els11.search.value = historyState.q;
       syncHistorySearchClear();
       syncHistoryFilterButtonsFromState();
       renderHistoryOrganizationFilters();
@@ -21656,16 +23426,16 @@
         if (section && historyState[key2]) section.open = true;
       }
       options.selectLocationTask(params.get("task") || "");
-      if (els9.search) els9.search.value = historyState.q;
+      if (els11.search) els11.search.value = historyState.q;
       syncHistorySearchClear();
       syncHistorySortMode();
       syncHistoryViewMode();
       renderHistoryActiveFilters();
     }
     function syncHistorySearchClear() {
-      const hasQuery = Boolean(els9.search?.value.trim());
-      els9.searchClear?.classList.toggle("hidden", !hasQuery);
-      els9.searchClear?.toggleAttribute("hidden", !hasQuery);
+      const hasQuery = Boolean(els11.search?.value.trim());
+      els11.searchClear?.classList.toggle("hidden", !hasQuery);
+      els11.searchClear?.toggleAttribute("hidden", !hasQuery);
     }
     function updateHistoryUrl() {
       const params = new URLSearchParams();
@@ -21713,17 +23483,17 @@
         historyOrganizationApiSupported = true;
         historySummary = summary;
         historyTags = Array.isArray(summary.tags) ? summary.tags : [];
-        setText(els9.total, formatTranslation("history.total", { total: summary.total, archived: summary.archived_total }));
+        setText(els11.total, formatTranslation("history.total", { total: summary.total, archived: summary.archived_total }));
         renderHistoryOrganizationFilters(summary);
         renderHistoryTagManager();
-        renderFacetButtons(els9.modeList, "mode", summary.modes || [], translate("history.allTypes"));
-        renderFacetButtons(els9.monthList, "month", summary.months.map((item) => ({ value: item.month, count: item.count })), translate("history.allMonths"));
-        renderFacetButtons(els9.promptModeList, "prompt_mode", summary.prompt_modes || [], translate("history.allPromptModes"));
-        renderFacetButtons(els9.qualityList, "quality", summary.qualities || [], translate("history.allQualities"));
-        renderFacetButtons(els9.ratioList, "ratio", summary.ratios, translate("history.allRatios"));
-        renderFacetButtons(els9.orientationList, "orientation", summary.orientations || [], translate("history.allOrientations"));
-        renderFacetButtons(els9.backendList, "backend", summary.backends || [], translate("history.allBackends"));
-        renderFacetButtons(els9.providerList, "provider", summary.providers || [], translate("history.allProviders"));
+        renderFacetButtons(els11.modeList, "mode", summary.modes || [], translate("history.allTypes"));
+        renderFacetButtons(els11.monthList, "month", summary.months.map((item) => ({ value: item.month, count: item.count })), translate("history.allMonths"));
+        renderFacetButtons(els11.promptModeList, "prompt_mode", summary.prompt_modes || [], translate("history.allPromptModes"));
+        renderFacetButtons(els11.qualityList, "quality", summary.qualities || [], translate("history.allQualities"));
+        renderFacetButtons(els11.ratioList, "ratio", summary.ratios, translate("history.allRatios"));
+        renderFacetButtons(els11.orientationList, "orientation", summary.orientations || [], translate("history.allOrientations"));
+        renderFacetButtons(els11.backendList, "backend", summary.backends || [], translate("history.allBackends"));
+        renderFacetButtons(els11.providerList, "provider", summary.providers || [], translate("history.allProviders"));
         syncArchiveButtons();
         renderHistoryActiveFilters();
       } catch (error) {
@@ -21736,18 +23506,18 @@
           error,
           translate("history.summaryFailed")
         );
-        setText(els9.total, message);
+        setText(els11.total, message);
         if (historyOrganizationApiSupported === false) {
-          setText(els9.resultSummary, message);
+          setText(els11.resultSummary, message);
         }
         if (options2.throwOnError) throw error;
       }
     }
     function renderHistoryOrganizationFilters(summary) {
       const counts = summary || historySummary || {};
-      if (els9.favoriteList) {
+      if (els11.favoriteList) {
         const active = historyOrganizationFilters.favorite;
-        els9.favoriteList.innerHTML = `
+        els11.favoriteList.innerHTML = `
       <button
         class="history-filter-button${active ? " active" : ""}"
         type="button"
@@ -21759,10 +23529,10 @@
       </button>
     `;
       }
-      if (!els9.tagFilterList) return;
+      if (!els11.tagFilterList) return;
       const selected = new Set(historyOrganizationFilters.tagIds);
       const untaggedActive = historyOrganizationFilters.untagged;
-      els9.tagFilterList.innerHTML = [
+      els11.tagFilterList.innerHTML = [
         `
       <button
         class="history-filter-button${untaggedActive ? " active" : ""}"
@@ -21791,16 +23561,16 @@
       ].join("");
     }
     function renderHistoryTagManager() {
-      if (!els9.tagManagerList) return;
+      if (!els11.tagManagerList) return;
       if (!historyTags.length) {
-        els9.tagManagerList.innerHTML = `
+        els11.tagManagerList.innerHTML = `
       <div class="history-tag-manager-empty">
         ${escapeHtml3(translate("history.noTags"))}
       </div>
     `;
         return;
       }
-      els9.tagManagerList.innerHTML = historyTags.map((tag) => {
+      els11.tagManagerList.innerHTML = historyTags.map((tag) => {
         const confirming = historyTagDeleteConfirmId === tag.tag_id;
         const affectedDeleteLabel = formatTranslation(
           "history.deleteTagAffected",
@@ -21844,7 +23614,7 @@
     function applyHistoryOrganizationFilterChange(filters2) {
       if (historyOrganizationApiSupported === false) {
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           translate("history.backendRestartRequired")
         );
         return;
@@ -21874,12 +23644,12 @@
     }
     async function createHistoryTagFromManager() {
       if (historyTagManagerCreatePending) return;
-      const name = els9.tagNameInput?.value.trim() || "";
+      const name = els11.tagNameInput?.value.trim() || "";
       if (!name) {
-        els9.tagNameInput?.focus();
+        els11.tagNameInput?.focus();
         return;
       }
-      const form = els9.tagManager?.querySelector(
+      const form = els11.tagManager?.querySelector(
         "[data-history-tag-create]"
       );
       const controls = form?.querySelectorAll("input, button");
@@ -21887,20 +23657,20 @@
       controls?.forEach((control) => {
         control.disabled = true;
       });
-      setText(els9.tagManagerStatus, "");
+      setText(els11.tagManagerStatus, "");
       try {
         const tag = await createHistoryTag(name);
-        if (els9.tagNameInput) els9.tagNameInput.value = "";
+        if (els11.tagNameInput) els11.tagNameInput.value = "";
         await loadSummary();
         setText(
-          els9.tagManagerStatus,
+          els11.tagManagerStatus,
           `${translate("history.createTag")}\uFF1A${tag.name}`
         );
       } catch (error) {
         const message = historyTagCreateErrorMessage(error);
-        setText(els9.tagManagerStatus, message);
+        setText(els11.tagManagerStatus, message);
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           message
         );
       } finally {
@@ -21911,7 +23681,7 @@
       }
     }
     async function renameHistoryTagFromManager(tagId) {
-      const input = els9.tagManagerList?.querySelector(
+      const input = els11.tagManagerList?.querySelector(
         `[data-history-tag-name="${CSS.escape(tagId)}"]`
       );
       const name = input?.value.trim() || "";
@@ -21935,7 +23705,7 @@
         await loadSummary();
       } catch (error) {
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           historyTagMutationErrorMessage(error)
         );
       }
@@ -21970,7 +23740,7 @@
         await loadSummary();
       } catch (error) {
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           errorMessage(
             error,
             translate("history.organizationFailed")
@@ -21998,7 +23768,7 @@
     function syncHistorySortMode() {
       const sort = historyState.sort === "oldest" ? "oldest" : "newest";
       historyState.sort = sort;
-      els9.sortToggle?.querySelectorAll("[data-history-sort]").forEach((button) => {
+      els11.sortToggle?.querySelectorAll("[data-history-sort]").forEach((button) => {
         const active = button.dataset.historySort === sort;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", active ? "true" : "false");
@@ -22037,9 +23807,9 @@
     function syncHistoryViewMode() {
       const view = historyState.view === "list" ? "list" : "grid";
       historyState.view = view;
-      els9.taskList?.classList.toggle("history-view-grid", view === "grid");
-      els9.taskList?.classList.toggle("history-view-list", view === "list");
-      els9.viewToggle?.querySelectorAll("[data-history-view]").forEach((button) => {
+      els11.taskList?.classList.toggle("history-view-grid", view === "grid");
+      els11.taskList?.classList.toggle("history-view-list", view === "list");
+      els11.viewToggle?.querySelectorAll("[data-history-view]").forEach((button) => {
         const active = button.dataset.historyView === view;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", active ? "true" : "false");
@@ -22069,37 +23839,37 @@
     function bind() {
       if (bound) return;
       bound = true;
-      els9.tagManager?.querySelector(
+      els11.tagManager?.querySelector(
         "[data-history-tag-create]"
       )?.addEventListener("submit", (event) => {
         event.preventDefault();
         void createHistoryTagFromManager();
       }, { signal: lifetime2.signal });
-      els9.search?.addEventListener("input", () => {
+      els11.search?.addEventListener("input", () => {
         syncHistorySearchClear();
         window.clearTimeout(searchTimer);
         searchTimer = window.setTimeout(() => {
-          historyState.q = els9.search?.value.trim() || "";
+          historyState.q = els11.search?.value.trim() || "";
           options.resetSelection();
           renderHistoryActiveFilters();
           updateHistoryUrl();
           void options.loadTasks({ reset: true });
         }, 180);
       }, { signal: lifetime2.signal });
-      els9.searchClear?.addEventListener("click", () => {
-        if (els9.search) els9.search.value = "";
+      els11.searchClear?.addEventListener("click", () => {
+        if (els11.search) els11.search.value = "";
         syncHistorySearchClear();
-        els9.search?.focus();
+        els11.search?.focus();
         historyState.q = "";
         options.resetSelection();
         renderHistoryActiveFilters();
         updateHistoryUrl();
         void options.loadTasks({ reset: true });
       }, { signal: lifetime2.signal });
-      els9.sortToggle?.addEventListener("click", (event) => {
+      els11.sortToggle?.addEventListener("click", (event) => {
         const target = event.target;
         const button = target?.closest("[data-history-sort]");
-        if (!button || !els9.sortToggle?.contains(button)) return;
+        if (!button || !els11.sortToggle?.contains(button)) return;
         applyHistorySort(button.dataset.historySort || "newest");
       }, { signal: lifetime2.signal });
     }
@@ -22121,16 +23891,16 @@
         "#historyTagManageToggle"
       );
       if (tagManageToggle) {
-        const opening = Boolean(els9.tagManager?.hidden);
-        if (els9.tagManager) {
-          els9.tagManager.hidden = !opening;
-          els9.tagManager.classList.toggle("hidden", !opening);
+        const opening = Boolean(els11.tagManager?.hidden);
+        if (els11.tagManager) {
+          els11.tagManager.hidden = !opening;
+          els11.tagManager.classList.toggle("hidden", !opening);
         }
-        els9.tagManageToggle?.setAttribute(
+        els11.tagManageToggle?.setAttribute(
           "aria-expanded",
           opening ? "true" : "false"
         );
-        if (opening) els9.tagNameInput?.focus();
+        if (opening) els11.tagNameInput?.focus();
         return true;
       }
       const renameTagButton = target?.closest(
@@ -22389,7 +24159,7 @@
   function createHistoryLayoutController(options) {
     const lifetime2 = new AbortController();
     let bound = false;
-    const els9 = {
+    const els11 = {
       page: document.querySelector(".history-page"),
       sidebar: document.querySelector(".history-sidebar"),
       leftResizer: document.querySelector('[data-history-resizer="left"]'),
@@ -22425,7 +24195,7 @@
       return { targetHeight: 220, minWidth: 150, maxWidth: 430 };
     }
     function isHistoryTaskCardVisible(taskId) {
-      const list2 = els9.taskList;
+      const list2 = els11.taskList;
       const card = options.card(taskId);
       if (!list2 || !card) return false;
       const listRect = list2.getBoundingClientRect();
@@ -22458,7 +24228,7 @@
       return Math.min(max, Math.max(min, value));
     }
     function isHistoryResizableLayout() {
-      return Boolean(els9.page) && !window.matchMedia("(max-width: 1100px)").matches;
+      return Boolean(els11.page) && !window.matchMedia("(max-width: 1100px)").matches;
     }
     function readHistoryLayoutPreference() {
       try {
@@ -22474,7 +24244,7 @@
       }
     }
     function historyLayoutMaxCombinedWidth() {
-      const pageWidth = els9.page?.getBoundingClientRect().width || window.innerWidth || 0;
+      const pageWidth = els11.page?.getBoundingClientRect().width || window.innerWidth || 0;
       return Math.max(
         HISTORY_LAYOUT_LIMITS.leftMin + HISTORY_LAYOUT_LIMITS.rightMin,
         pageWidth - HISTORY_LAYOUT_LIMITS.middleMin
@@ -22501,22 +24271,22 @@
     }
     function getCurrentHistoryLayoutWidths() {
       const fromStyle = {
-        left: parseCssPixels(els9.page?.style.getPropertyValue("--history-sidebar-width") || ""),
-        right: parseCssPixels(els9.page?.style.getPropertyValue("--history-detail-width") || "")
+        left: parseCssPixels(els11.page?.style.getPropertyValue("--history-sidebar-width") || ""),
+        right: parseCssPixels(els11.page?.style.getPropertyValue("--history-detail-width") || "")
       };
       if (fromStyle.left && fromStyle.right) return fromStyle;
-      const sidebarWidth = els9.sidebar?.getBoundingClientRect().width || HISTORY_LAYOUT_DEFAULTS.left;
-      const detailWidth = els9.detail?.getBoundingClientRect().width || HISTORY_LAYOUT_DEFAULTS.right;
+      const sidebarWidth = els11.sidebar?.getBoundingClientRect().width || HISTORY_LAYOUT_DEFAULTS.left;
+      const detailWidth = els11.detail?.getBoundingClientRect().width || HISTORY_LAYOUT_DEFAULTS.right;
       return constrainHistoryLayoutWidths(sidebarWidth, detailWidth);
     }
     function applyHistoryLayoutWidths(left, right, options2 = {}) {
-      if (!els9.page) return;
+      if (!els11.page) return;
       const keepTaskId = options2.preserveActiveTask ? activeHistoryTaskVisible() : "";
       const widths = constrainHistoryLayoutWidths(left, right, options2.prioritySide || "");
-      els9.page.style.setProperty("--history-sidebar-width", `${widths.left}px`);
-      els9.page.style.setProperty("--history-detail-width", `${widths.right}px`);
-      els9.leftResizer?.setAttribute("aria-valuenow", String(widths.left));
-      els9.rightResizer?.setAttribute("aria-valuenow", String(widths.right));
+      els11.page.style.setProperty("--history-sidebar-width", `${widths.left}px`);
+      els11.page.style.setProperty("--history-detail-width", `${widths.right}px`);
+      els11.leftResizer?.setAttribute("aria-valuenow", String(widths.left));
+      els11.rightResizer?.setAttribute("aria-valuenow", String(widths.right));
       scheduleHistoryGridLayout({ keepTaskId });
       if (options2.persist) {
         try {
@@ -22527,7 +24297,7 @@
     }
     function applyPendingHistoryResize(resize = activeHistoryResizer) {
       historyResizeFrame = 0;
-      if (!resize || !els9.page) return;
+      if (!resize || !els11.page) return;
       const delta = resize.latestX - resize.startX;
       const nextLeft = resize.side === "left" ? resize.startLeft + delta : resize.startLeft;
       const nextRight = resize.side === "right" ? resize.startRight - delta : resize.startRight;
@@ -22537,10 +24307,10 @@
         resize.side,
         resize.maxCombinedWidth
       );
-      els9.page.style.setProperty("--history-sidebar-width", `${widths.left}px`);
-      els9.page.style.setProperty("--history-detail-width", `${widths.right}px`);
-      els9.leftResizer?.setAttribute("aria-valuenow", String(widths.left));
-      els9.rightResizer?.setAttribute("aria-valuenow", String(widths.right));
+      els11.page.style.setProperty("--history-sidebar-width", `${widths.left}px`);
+      els11.page.style.setProperty("--history-detail-width", `${widths.right}px`);
+      els11.leftResizer?.setAttribute("aria-valuenow", String(widths.left));
+      els11.rightResizer?.setAttribute("aria-valuenow", String(widths.right));
     }
     function layoutHistoryGridAfterResize(resize = activeHistoryResizer) {
       if (!resize) return;
@@ -22605,7 +24375,7 @@
       options.closeContextMenu();
       event.preventDefault();
       element.setPointerCapture?.(event.pointerId);
-      els9.page?.classList.add("history-resizing");
+      els11.page?.classList.add("history-resizing");
     }
     function updateHistoryResize(event) {
       if (!activeHistoryResizer || event.pointerId !== activeHistoryResizer.pointerId) return;
@@ -22635,13 +24405,13 @@
         localStorage.setItem(HISTORY_LAYOUT_STORAGE_KEY, JSON.stringify(widths));
       } catch {
       }
-      els9.page?.classList.remove("history-resizing");
+      els11.page?.classList.remove("history-resizing");
       if (keepTaskId) ensureHistoryTaskCardVisible(keepTaskId);
     }
     function bindHistoryResizerEvents() {
       if (bound) return;
       bound = true;
-      for (const resizer of [els9.leftResizer, els9.rightResizer]) {
+      for (const resizer of [els11.leftResizer, els11.rightResizer]) {
         const side = resizer?.dataset.historyResizer;
         if (!resizer || side !== "left" && side !== "right") continue;
         resizer.addEventListener("pointerdown", (event) => startHistoryResize(side, event, resizer), { signal: lifetime2.signal });
@@ -22663,7 +24433,7 @@
       }, { signal: lifetime2.signal });
     }
     function bindHistoryGridResizeObserver() {
-      const root = els9.taskList;
+      const root = els11.taskList;
       if (!root || historyGridResizeObserver || !("ResizeObserver" in window)) return;
       historyGridResizeController = createHistoryGridResizeController({
         isResizing: () => Boolean(activeHistoryResizer),
@@ -22682,7 +24452,7 @@
       })));
     }
     function bindHistoryGridMutationObserver() {
-      const root = els9.taskList;
+      const root = els11.taskList;
       if (!root || historyGridMutationObserver || !("MutationObserver" in window)) return;
       historyGridMutationObserver = new MutationObserver(() => {
         if (options.view() !== "grid" || !historyGridLayoutIsIncomplete(root)) return;
@@ -22700,7 +24470,7 @@
       return Number.isFinite(ratio) && ratio > 0 ? clampNumber(ratio, 0.42, 3.2) : 1;
     }
     function captureHistoryGridLayoutSnapshot() {
-      const root = els9.taskList;
+      const root = els11.taskList;
       if (!root || options.view() !== "grid" || !root.classList.contains("history-view-grid")) return null;
       const cards = historyTaskCards(root);
       if (!cards.length) return null;
@@ -22791,21 +24561,21 @@
 
   // codex_image/webui/frontend/src/history-list-view.ts
   function createHistoryListView(taskList, sentinel) {
-    const els9 = { taskList, sentinel };
+    const els11 = { taskList, sentinel };
     function historyTaskCardElement(taskId) {
-      if (!taskId || !els9.taskList) return null;
-      return historyTaskCards(els9.taskList).find((card) => card.dataset.historyTaskCardId === taskId) || null;
+      if (!taskId || !els11.taskList) return null;
+      return historyTaskCards(els11.taskList).find((card) => card.dataset.historyTaskCardId === taskId) || null;
     }
     function setLoadMoreState(label, options = {}) {
-      if (!els9.sentinel) return;
-      els9.sentinel.textContent = label;
-      els9.sentinel.hidden = Boolean(options.hidden);
-      els9.sentinel.toggleAttribute("aria-busy", Boolean(options.busy));
+      if (!els11.sentinel) return;
+      els11.sentinel.textContent = label;
+      els11.sentinel.hidden = Boolean(options.hidden);
+      els11.sentinel.toggleAttribute("aria-busy", Boolean(options.busy));
     }
     function captureHistoryScrollAnchorSkipping(taskIds) {
-      if (!els9.taskList) return null;
-      const rootTop = els9.taskList.getBoundingClientRect().top;
-      for (const card of historyTaskCards(els9.taskList)) {
+      if (!els11.taskList) return null;
+      const rootTop = els11.taskList.getBoundingClientRect().top;
+      for (const card of historyTaskCards(els11.taskList)) {
         const taskId = String(card.dataset.historyTaskCardId || "");
         if (!taskId || taskIds.has(taskId)) continue;
         const rect = card.getBoundingClientRect();
@@ -22815,12 +24585,12 @@
       return null;
     }
     function renderTaskListMessage(className, message) {
-      if (!els9.taskList) return;
-      els9.taskList.innerHTML = `<div class="${className}">${escapeHtml3(message)}</div>`;
+      if (!els11.taskList) return;
+      els11.taskList.innerHTML = `<div class="${className}">${escapeHtml3(message)}</div>`;
     }
     function captureFocus() {
       const active = document.activeElement;
-      if (!active || !els9.taskList?.contains(active)) return null;
+      if (!active || !els11.taskList?.contains(active)) return null;
       const taskId = active.closest("[data-history-task-card-id]")?.dataset.historyTaskCardId;
       const selector = ["[data-history-task-id]", "[data-history-favorite-task]"].find((value) => active.matches(value));
       return taskId && selector ? { taskId, selector } : null;
@@ -22843,12 +24613,12 @@
 
   // codex_image/webui/frontend/src/history-list-controller.ts
   function createHistoryListController(deps) {
-    const els9 = {
+    const els11 = {
       resultSummary: document.querySelector("#historyResultSummary"),
       taskList: document.querySelector("#historyTaskList"),
       sentinel: document.querySelector("[data-history-load-more]")
     };
-    const view = createHistoryListView(els9.taskList, els9.sentinel);
+    const view = createHistoryListView(els11.taskList, els11.sentinel);
     const { historyTaskCardElement, setLoadMoreState, captureHistoryScrollAnchorSkipping, renderTaskListMessage } = view;
     const historyState = {
       nextCursor: null,
@@ -22883,12 +24653,12 @@
       pendingFrames.clear();
     }
     function maybeLoadMoreFromScroll() {
-      if (disposed || !els9.taskList || historyState.loading) return;
-      if (els9.taskList.scrollTop <= 320 && !historyState.newerExhausted) {
+      if (disposed || !els11.taskList || historyState.loading) return;
+      if (els11.taskList.scrollTop <= 320 && !historyState.newerExhausted) {
         void loadTasks({ direction: "previous" });
         return;
       }
-      const remaining = els9.taskList.scrollHeight - els9.taskList.scrollTop - els9.taskList.clientHeight;
+      const remaining = els11.taskList.scrollHeight - els11.taskList.scrollTop - els11.taskList.clientHeight;
       if (remaining <= 320 && !historyState.exhausted) void loadTasks({ direction: "next" });
     }
     async function loadTasks({
@@ -22926,7 +24696,7 @@
       const requestId = ++historyState.requestId;
       const backgroundReset = reset && preserveSelection;
       const initialWindowRevision = historyState.windowRevision;
-      const initialScrollTop = els9.taskList?.scrollTop ?? 0;
+      const initialScrollTop = els11.taskList?.scrollTop ?? 0;
       const restoreLoadMore = () => setLoadMoreState(historyState.exhausted ? translate("history.noMore") : "", {
         hidden: !historyState.exhausted,
         busy: false
@@ -22941,7 +24711,7 @@
       if (reset && !backgroundReset) {
         clearWindow();
         if (!preserveSelection) deps.resetSelectionForLoad();
-        if (els9.taskList) els9.taskList.innerHTML = "";
+        if (els11.taskList) els11.taskList.innerHTML = "";
         deps.renderToolbar();
       }
       setLoadMoreState(translate("history.loadingMore"), { busy: true });
@@ -22984,8 +24754,8 @@
             },
             requestFrame: requestWindowFrame,
             restore: (scrollAnchor) => {
-              if (els9.taskList) {
-                restoreHistoryScrollAnchor(els9.taskList, scrollAnchor);
+              if (els11.taskList) {
+                restoreHistoryScrollAnchor(els11.taskList, scrollAnchor);
               }
             },
             enableSave: () => deps.enablePositionSave()
@@ -23004,7 +24774,7 @@
         if (requestId !== historyState.requestId) return emptyResult;
         const tasks = data.tasks || [];
         validateOrganizationRows(tasks);
-        if (backgroundReset && (historyState.windowRevision !== initialWindowRevision || Math.abs((els9.taskList?.scrollTop ?? 0) - initialScrollTop) > 8)) {
+        if (backgroundReset && (historyState.windowRevision !== initialWindowRevision || Math.abs((els11.taskList?.scrollTop ?? 0) - initialScrollTop) > 8)) {
           restoreLoadMore();
           return emptyResult;
         }
@@ -23042,8 +24812,8 @@
         }
         if (requestId === historyState.requestId) {
           const message = errorMessage(error, translate("history.tasksFailed"));
-          if (els9.taskList && historyTaskCards(els9.taskList).length) {
-            setText(els9.resultSummary, message);
+          if (els11.taskList && historyTaskCards(els11.taskList).length) {
+            setText(els11.resultSummary, message);
           } else {
             renderTaskListMessage("history-error", message);
           }
@@ -23106,15 +24876,15 @@
       deps.reconcileSelection();
     }
     function taskWindowCursor(reset, direction) {
-      if (reset || !els9.taskList) return null;
-      if (direction === "previous") return historyWindowEdgeCursor(els9.taskList, "top");
-      return historyState.nextCursor || historyWindowEdgeCursor(els9.taskList, "bottom");
+      if (reset || !els11.taskList) return null;
+      if (direction === "previous") return historyWindowEdgeCursor(els11.taskList, "top");
+      return historyState.nextCursor || historyWindowEdgeCursor(els11.taskList, "bottom");
     }
     function renderTasks3(tasks, { position }) {
-      if (!els9.taskList) return;
+      if (!els11.taskList) return;
       deps.filters.syncHistoryViewMode();
-      const anchor = position === "replace" ? null : captureHistoryScrollAnchor(els9.taskList);
-      if (position === "replace") els9.taskList.innerHTML = "";
+      const anchor = position === "replace" ? null : captureHistoryScrollAnchor(els11.taskList);
+      if (position === "replace") els11.taskList.innerHTML = "";
       const uniqueTasks = tasks.filter((task) => {
         if (historyState.loadedTaskIds.has(task.task_id)) return false;
         historyState.loadedTaskIds.add(task.task_id);
@@ -23123,37 +24893,37 @@
       });
       const html = uniqueTasks.map(deps.renderCard).join("");
       if (html) {
-        els9.taskList.querySelector(".history-empty, .history-error")?.remove();
+        els11.taskList.querySelector(".history-empty, .history-error")?.remove();
         if (position === "prepend") {
-          els9.taskList.insertAdjacentHTML("afterbegin", html);
+          els11.taskList.insertAdjacentHTML("afterbegin", html);
         } else {
-          els9.taskList.insertAdjacentHTML("beforeend", html);
+          els11.taskList.insertAdjacentHTML("beforeend", html);
         }
       }
       trimMountedTaskCards(position === "prepend" ? "bottom" : "top");
       deps.layout.layoutJustifiedHistoryGrid();
-      restoreHistoryScrollAnchor(els9.taskList, anchor);
-      if (!els9.taskList.querySelector(".history-task-card")) {
+      restoreHistoryScrollAnchor(els11.taskList, anchor);
+      if (!els11.taskList.querySelector(".history-task-card")) {
         renderTaskListMessage("history-empty", translate("history.noMatches"));
       }
-      setText(els9.resultSummary, formatTranslation("history.loadedCount", { count: historyState.loadedTaskIds.size }));
+      setText(els11.resultSummary, formatTranslation("history.loadedCount", { count: historyState.loadedTaskIds.size }));
       deps.renderSelection();
     }
     function refreshHistoryWindowAfterMutation(mutate, options = {}) {
       historyState.windowRevision++;
-      if (!els9.taskList) {
+      if (!els11.taskList) {
         mutate();
         return;
       }
       const removedTaskIds = new Set(options.removedTaskIds || []);
-      const currentAnchor = captureHistoryScrollAnchor(els9.taskList);
+      const currentAnchor = captureHistoryScrollAnchor(els11.taskList);
       const anchor = currentAnchor && !removedTaskIds.has(currentAnchor.taskId) ? currentAnchor : captureHistoryScrollAnchorSkipping(removedTaskIds);
       mutate();
-      if (!els9.taskList.querySelector(".history-task-card")) {
+      if (!els11.taskList.querySelector(".history-task-card")) {
         renderTaskListMessage("history-empty", translate("history.noMatches"));
       }
       deps.layout.layoutJustifiedHistoryGrid();
-      restoreHistoryScrollAnchor(els9.taskList, anchor);
+      restoreHistoryScrollAnchor(els11.taskList, anchor);
       deps.renderSelection();
       requestWindowFrame(maybeLoadMoreFromScroll);
     }
@@ -23258,8 +25028,8 @@
       });
     }
     function trimMountedTaskCards(edge) {
-      if (!els9.taskList) return;
-      const cards = historyTaskCards(els9.taskList);
+      if (!els11.taskList) return;
+      const cards = historyTaskCards(els11.taskList);
       const overflow = cards.length - MAX_MOUNTED_TASK_CARDS;
       if (overflow <= 0) return;
       const removedCards = edge === "bottom" ? cards.slice(cards.length - overflow) : cards.slice(0, overflow);
@@ -23273,9 +25043,9 @@
         historyState.newerExhausted = false;
       } else {
         historyState.exhausted = false;
-        historyState.nextCursor = historyWindowEdgeCursor(els9.taskList, "bottom") || historyState.nextCursor;
+        historyState.nextCursor = historyWindowEdgeCursor(els11.taskList, "bottom") || historyState.nextCursor;
       }
-      els9.taskList.querySelector(".history-window-notice")?.remove();
+      els11.taskList.querySelector(".history-window-notice")?.remove();
     }
     function historyTaskSummary(taskId) {
       const task = historyState.loadedTaskSummaries.get(taskId);
@@ -23368,7 +25138,7 @@
 
   // codex_image/webui/frontend/src/history-organization-ui.ts
   function createHistoryOrganizationUi(deps) {
-    const els9 = {
+    const els11 = {
       resultSummary: document.querySelector("#historyResultSummary"),
       detail: document.querySelector("#historyDetail")
     };
@@ -23493,13 +25263,13 @@
         deps.list.applyHistoryOrganizations(result.organizations);
         await deps.filters.loadSummary();
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           `${translate("history.createTag")}\uFF1A${result.tag.name}`
         );
       } catch (error) {
         const message = deps.filters.historyTagCreateErrorMessage(error);
         setText(status, message);
-        setText(els9.resultSummary, message);
+        setText(els11.resultSummary, message);
         if (input) input.disabled = false;
         if (submit) submit.disabled = false;
         input?.focus();
@@ -23679,7 +25449,7 @@
         const result = await createHistoryExport(taskIds, mode);
         triggerHistoryExportDownload(result);
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           `${translate("history.exportStarted")} \xB7 ${formatTranslation(
             "history.exportSummary",
             {
@@ -23696,7 +25466,7 @@
           translate("history.exportFailed")
         );
         setText(statusElement, message);
-        setText(els9.resultSummary, message);
+        setText(els11.resultSummary, message);
       } finally {
         historyExportPending = false;
         actionRoot?.querySelectorAll("button").forEach((button) => {
@@ -23729,7 +25499,7 @@
       );
       if (exportModeButton) {
         const mode = exportModeButton.dataset.historyExportMode === "images_with_prompts" ? "images_with_prompts" : "images_only";
-        const inlineStatus = els9.detail?.contains(exportModeButton) ? els9.detail.querySelector("[data-history-action-export-status]") : null;
+        const inlineStatus = els11.detail?.contains(exportModeButton) ? els11.detail.querySelector("[data-history-action-export-status]") : null;
         void runHistoryExport(
           mode,
           inlineStatus ? [...deps.selection.snapshot().selectedTaskIds] : historyExportTaskIds.slice(),
@@ -23852,43 +25622,43 @@
   function emptyHistorySelection() {
     return { selectedTaskIds: /* @__PURE__ */ new Set(), selectedTaskId: "", selectionAnchorTaskId: "", selectionMode: false };
   }
-  function reduceHistorySelection(state5, action) {
+  function reduceHistorySelection(state6, action) {
     if (action.type === "reset") return emptyHistorySelection();
-    if (action.type === "enter-touch") return { ...state5, selectionMode: true };
+    if (action.type === "enter-touch") return { ...state6, selectionMode: true };
     if (action.type === "location" || action.type === "reload") {
-      const id = action.type === "location" ? action.id : state5.selectedTaskId;
+      const id = action.type === "location" ? action.id : state6.selectedTaskId;
       return { selectedTaskIds: new Set(id ? [id] : []), selectedTaskId: id, selectionAnchorTaskId: id, selectionMode: false };
     }
     if (action.type === "detail") {
-      if (state5.selectedTaskIds.size === 1 && state5.selectedTaskIds.has(action.id)) {
-        return { ...state5, selectedTaskId: action.id };
+      if (state6.selectedTaskIds.size === 1 && state6.selectedTaskIds.has(action.id)) {
+        return { ...state6, selectedTaskId: action.id };
       }
       return { selectedTaskIds: /* @__PURE__ */ new Set([action.id]), selectedTaskId: action.id, selectionAnchorTaskId: action.id, selectionMode: false };
     }
-    if (action.type === "context-delete") return { ...state5, selectedTaskIds: new Set(action.ids) };
+    if (action.type === "context-delete") return { ...state6, selectedTaskIds: new Set(action.ids) };
     if (action.type === "failed") {
-      return { selectedTaskIds: new Set(action.ids), selectedTaskId: action.ids[0] || "", selectionAnchorTaskId: action.ids[0] || "", selectionMode: action.ids.length ? state5.selectionMode : false };
+      return { selectedTaskIds: new Set(action.ids), selectedTaskId: action.ids[0] || "", selectionAnchorTaskId: action.ids[0] || "", selectionMode: action.ids.length ? state6.selectionMode : false };
     }
     if (action.type === "replace") {
       const ids2 = new Set(action.ids.filter(Boolean));
       const first = [...ids2][0] || "";
-      return { selectedTaskIds: ids2, selectedTaskId: ids2.has(action.primary) ? action.primary : first, selectionAnchorTaskId: ids2.has(action.anchor) ? action.anchor : first, selectionMode: ids2.size ? state5.selectionMode : false };
+      return { selectedTaskIds: ids2, selectedTaskId: ids2.has(action.primary) ? action.primary : first, selectionAnchorTaskId: ids2.has(action.anchor) ? action.anchor : first, selectionMode: ids2.size ? state6.selectionMode : false };
     }
-    const ids = new Set(state5.selectedTaskIds);
+    const ids = new Set(state6.selectedTaskIds);
     if (action.type === "drop") {
       ids.delete(action.id);
-      return { ...state5, selectedTaskIds: ids, selectionAnchorTaskId: action.clearAnchor && state5.selectionAnchorTaskId === action.id ? "" : state5.selectionAnchorTaskId };
+      return { ...state6, selectedTaskIds: ids, selectionAnchorTaskId: action.clearAnchor && state6.selectionAnchorTaskId === action.id ? "" : state6.selectionAnchorTaskId };
     }
     if (ids.has(action.id)) ids.delete(action.id);
     else ids.add(action.id);
-    return { ...state5, selectedTaskIds: ids, selectedTaskId: ids.has(action.id) ? action.id : [...ids][0] || "", selectionAnchorTaskId: action.anchor ? action.id : state5.selectionAnchorTaskId };
+    return { ...state6, selectedTaskIds: ids, selectedTaskId: ids.has(action.id) ? action.id : [...ids][0] || "", selectionAnchorTaskId: action.anchor ? action.id : state6.selectionAnchorTaskId };
   }
   function createHistorySelectionModel() {
-    let state5 = emptyHistorySelection();
+    let state6 = emptyHistorySelection();
     return {
-      snapshot: () => ({ ...state5, selectedTaskIds: new Set(state5.selectedTaskIds) }),
+      snapshot: () => ({ ...state6, selectedTaskIds: new Set(state6.selectedTaskIds) }),
       dispatch(action) {
-        state5 = reduceHistorySelection(state5, action);
+        state6 = reduceHistorySelection(state6, action);
       }
     };
   }
@@ -24138,15 +25908,15 @@
     return source.kind === "upload" ? { kind: "local", id: imageReferenceKey(source) } : { kind: source.kind, id: source.id };
   }
   function captureImageMentions() {
-    const { els: els9, state: state5, methods } = getLegacyBridge();
-    if (!els9.promptEditor) return null;
+    const { els: els11, state: state6, methods } = getLegacyBridge();
+    if (!els11.promptEditor) return null;
     const mentions = [];
     let marker = "\0image-mention:";
     while (methods.getPromptText().includes(marker)) marker += ":";
-    const marked = methods.promptTextFromNode(els9.promptEditor, (chip) => {
+    const marked = methods.promptTextFromNode(els11.promptEditor, (chip) => {
       const key2 = chip.dataset.imageRefKey;
       const stored = chip.dataset.imageRefSource ? JSON.parse(chip.dataset.imageRefSource) : null;
-      const source = !stored?.missing && state5.images.find((item) => key2 ? imageReferenceKey(item) === key2 : item.kind === "gallery" && item.id === chip.dataset.galleryId);
+      const source = !stored?.missing && state6.images.find((item) => key2 ? imageReferenceKey(item) === key2 : item.kind === "gallery" && item.id === chip.dataset.galleryId);
       const pointer = source ? sourcePointer(source) : stored || { kind: "gallery", id: chip.dataset.galleryId };
       const text = (chip.dataset.imageRefText || `@${chip.dataset.galleryName}`).replace(/\u00a0/g, " ").replace(/\r\n?/g, "\n");
       mentions.push({ text, source: pointer });
@@ -24173,8 +25943,8 @@
   var baseline = "";
   var drafts = [];
   function capture() {
-    const { state: state5, methods } = getLegacyBridge();
-    return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state5.images || []).map((item) => ({ ...item })), files: (state5.referenceFiles || []).map((item) => ({ ...item })), mode: state5.mode };
+    const { state: state6, methods } = getLegacyBridge();
+    return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state6.images || []).map((item) => ({ ...item })), files: (state6.referenceFiles || []).map((item) => ({ ...item })), mode: state6.mode };
   }
   function key(draft) {
     return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
@@ -24220,77 +25990,76 @@
       "#promptTemplateDrawer.open, #galleryDrawer.open, .modal-overlay:not(.hidden), .prompt-popover:not(.hidden), .confirm-popover:not(.hidden), .compression-popover:not(.hidden), .task-notification-center:not(.hidden)"
     ));
   }
-  function handleRunTaskShortcut(event, els9, methods) {
+  function handleRunTaskShortcut(event, els11, methods) {
     if (!isRunTaskShortcut(event)) return;
-    if (hasOpenShortcutBlockingLayer() || els9.runButton.disabled) return;
+    if (hasOpenShortcutBlockingLayer() || els11.runButton.disabled) return;
     event.preventDefault();
     void call(methods, "runTask");
   }
   var systemSettingsBackdropPointerDown = false;
-  function bindSharedTopNavSettingsEvents(els9, methods) {
-    els9.systemSettingsModalClose?.addEventListener("click", () => call(methods, "closeSystemSettingsModal"));
-    els9.systemSettingsModal?.addEventListener("pointerdown", (event) => {
-      systemSettingsBackdropPointerDown = event.target === els9.systemSettingsModal;
+  function bindSharedTopNavSettingsEvents(els11, methods) {
+    els11.systemSettingsModalClose?.addEventListener("click", () => call(methods, "closeSystemSettingsModal"));
+    els11.systemSettingsModal?.addEventListener("pointerdown", (event) => {
+      systemSettingsBackdropPointerDown = event.target === els11.systemSettingsModal;
     });
-    els9.systemSettingsModal?.addEventListener("click", (event) => {
-      if (event.target === els9.systemSettingsModal && systemSettingsBackdropPointerDown) {
+    els11.systemSettingsModal?.addEventListener("click", (event) => {
+      if (event.target === els11.systemSettingsModal && systemSettingsBackdropPointerDown) {
         call(methods, "closeSystemSettingsModal");
       }
       systemSettingsBackdropPointerDown = false;
     });
-    els9.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
-    els9.authSourceGroup?.addEventListener("click", (event) => call(methods, "handleAuthSourceClick", event));
-    els9.modelFamilyOptions?.addEventListener("click", (event) => {
+    els11.saveSettingsButton?.addEventListener("click", () => call(methods, "saveSettings"));
+    els11.authSourceGroup?.addEventListener("click", (event) => call(methods, "handleAuthSourceClick", event));
+    els11.modelFamilyOptions?.addEventListener("click", (event) => {
       const item = event.target?.closest?.("[data-family-id]");
       if (item?.dataset.familyId) call(methods, "selectModelFamily", item.dataset.familyId);
     });
-    els9.modelFamilyOptions?.addEventListener("keydown", (event) => call(methods, "handleModelFamilyOptionsKeydown", event));
-    els9.concreteModelSelect?.addEventListener("change", () => call(methods, "selectConcreteModel", els9.concreteModelSelect.value));
-    els9.generationProviderSelect?.addEventListener("change", () => call(methods, "selectGenerationProvider", els9.generationProviderSelect.value));
-    els9.generationProviderSettingsButton?.addEventListener("click", () => call(methods, "openGenerationProviderSettings"));
-    els9.apiProviderQuick?.addEventListener("change", () => {
-      call(methods, "selectApiProvider", els9.apiProviderQuick?.value || call(methods, "currentApiProviderId"));
+    els11.modelFamilyOptions?.addEventListener("keydown", (event) => call(methods, "handleModelFamilyOptionsKeydown", event));
+    els11.concreteModelSelect?.addEventListener("change", () => call(methods, "selectConcreteModel", els11.concreteModelSelect.value));
+    els11.generationProviderSelect?.addEventListener("change", () => call(methods, "selectGenerationProvider", els11.generationProviderSelect.value));
+    els11.generationProviderSettingsButton?.addEventListener("click", () => call(methods, "openGenerationProviderSettings"));
+    els11.apiProviderQuick?.addEventListener("change", () => {
+      call(methods, "selectApiProvider", els11.apiProviderQuick?.value || call(methods, "currentApiProviderId"));
     });
-    els9.apiProvider?.addEventListener("change", () => {
-      call(methods, "selectApiProvider", els9.apiProvider?.value || call(methods, "currentApiProviderId"));
+    els11.apiProvider?.addEventListener("change", () => {
+      call(methods, "selectApiProvider", els11.apiProvider?.value || call(methods, "currentApiProviderId"));
     });
-    els9.apiProviderSearch?.addEventListener("input", () => call(methods, "renderApiProviderList"));
-    els9.apiProviderList?.addEventListener("click", (event) => {
+    els11.apiProviderSearch?.addEventListener("input", () => call(methods, "renderApiProviderList"));
+    els11.apiProviderList?.addEventListener("click", (event) => {
       if (event.target?.closest?.("[data-api-provider-sort-handle]")) return;
       const button = event.target?.closest?.("[data-api-provider-id]");
       if (!button) return;
       call(methods, "selectApiProvider", button.dataset.apiProviderId);
     });
-    els9.editApiProviderButton?.addEventListener("click", () => call(methods, "editApiProvider"));
-    els9.copyApiProviderButton?.addEventListener("click", () => call(methods, "copyApiProvider"));
-    els9.addApiProviderButton?.addEventListener("click", () => call(methods, "addApiProvider"));
-    els9.sortApiProvidersButton?.addEventListener("click", () => call(methods, "toggleApiProviderSortMode"));
-    els9.deleteApiProviderButton?.addEventListener("click", () => call(methods, "confirmDeleteApiProvider", els9.deleteApiProviderButton));
-    els9.cancelApiProviderEditButton?.addEventListener("click", () => call(methods, "cancelApiProviderEdit"));
-    els9.saveApiProviderEditButton?.addEventListener("click", () => call(methods, "saveApiProviderEdit"));
-    els9.addProviderBindingButton?.addEventListener("click", () => call(methods, "addProviderBinding"));
-    els9.apiProviderBindings?.addEventListener("click", (event) => {
+    els11.editApiProviderButton?.addEventListener("click", () => call(methods, "editApiProvider"));
+    els11.copyApiProviderButton?.addEventListener("click", () => call(methods, "copyApiProvider"));
+    els11.addApiProviderButton?.addEventListener("click", () => call(methods, "addApiProvider"));
+    els11.sortApiProvidersButton?.addEventListener("click", () => call(methods, "toggleApiProviderSortMode"));
+    els11.deleteApiProviderButton?.addEventListener("click", () => call(methods, "confirmDeleteApiProvider", els11.deleteApiProviderButton));
+    els11.cancelApiProviderEditButton?.addEventListener("click", () => call(methods, "cancelApiProviderEdit"));
+    els11.saveApiProviderEditButton?.addEventListener("click", () => call(methods, "saveApiProviderEdit"));
+    els11.addProviderBindingButton?.addEventListener("click", () => call(methods, "addProviderBinding"));
+    els11.apiProviderBindings?.addEventListener("click", (event) => {
       const button = event.target?.closest?.("[data-remove-provider-binding]");
       if (button?.dataset.removeProviderBinding) call(methods, "removeProviderBinding", button.dataset.removeProviderBinding);
     });
-    els9.apiProviderBindings?.addEventListener("change", (event) => call(methods, "handleProviderBindingEditorChange", event));
-    els9.apiKeyRevealButton?.addEventListener("pointerdown", (event) => call(methods, "revealApiKeyWhilePressed", event));
-    els9.apiKeyRevealButton?.addEventListener("pointerup", () => call(methods, "hideApiKeyReveal"));
-    els9.apiKeyRevealButton?.addEventListener("pointercancel", () => call(methods, "hideApiKeyReveal"));
-    els9.apiKeyRevealButton?.addEventListener("pointerleave", () => call(methods, "hideApiKeyReveal"));
-    els9.apiKeyRevealButton?.addEventListener("blur", () => call(methods, "hideApiKeyReveal"));
-    els9.apiKeyRevealButton?.addEventListener("keydown", (event) => {
+    els11.apiProviderBindings?.addEventListener("change", (event) => call(methods, "handleProviderBindingEditorChange", event));
+    els11.apiKeyRevealButton?.addEventListener("pointerdown", (event) => call(methods, "revealApiKeyWhilePressed", event));
+    els11.apiKeyRevealButton?.addEventListener("pointerup", () => call(methods, "hideApiKeyReveal"));
+    els11.apiKeyRevealButton?.addEventListener("pointercancel", () => call(methods, "hideApiKeyReveal"));
+    els11.apiKeyRevealButton?.addEventListener("pointerleave", () => call(methods, "hideApiKeyReveal"));
+    els11.apiKeyRevealButton?.addEventListener("blur", () => call(methods, "hideApiKeyReveal"));
+    els11.apiKeyRevealButton?.addEventListener("keydown", (event) => {
       if (event.key === " " || event.key === "Enter") call(methods, "revealApiKeyWhilePressed", event);
     });
-    els9.apiKeyRevealButton?.addEventListener("keyup", () => call(methods, "hideApiKeyReveal"));
-    els9.apiKey?.addEventListener("input", () => call(methods, "updateApiKeyRevealButton"));
-    els9.apiBaseUrl?.addEventListener("input", () => call(methods, "updateApiRequestEndpointPreview"));
+    els11.apiKeyRevealButton?.addEventListener("keyup", () => call(methods, "hideApiKeyReveal"));
+    els11.apiKey?.addEventListener("input", () => call(methods, "updateApiKeyRevealButton"));
     call(methods, "bindOverlayPopoverEvents");
   }
-  function bindWebUIEvents(state5, els9, methods) {
+  function bindWebUIEvents(state6, els11, methods) {
     call(methods, "bindShellUiEvents");
     call(methods, "bindFormControlEvents");
-    els9.clearPromptButton.addEventListener("click", () => {
+    els11.clearPromptButton.addEventListener("click", () => {
       preserveComposerDraft();
       call(methods, "setPromptText", "");
       markComposerBaseline();
@@ -24298,21 +26067,21 @@
       call(methods, "updatePromptCount");
       call(methods, "updateRequestPreview");
     });
-    els9.quickGalleryRail?.addEventListener("mouseover", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
-    els9.quickGalleryRail?.addEventListener("focusin", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
-    els9.quickGalleryRail?.addEventListener("click", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
-    els9.quickGalleryList?.addEventListener("scroll", () => call(methods, "scheduleQuickGalleryFocusUpdate"));
-    els9.quickGalleryList?.addEventListener("wheel", (event) => call(methods, "handleQuickGalleryBoundaryWheel", event), { passive: false });
-    els9.addGalleryCategoryButton?.addEventListener("click", () => call(methods, "createGalleryCategory"));
-    els9.addToGalleryClose?.addEventListener("click", () => call(methods, "closeAddToGallery"));
-    els9.addToGalleryModal?.addEventListener("click", (event) => {
-      if (event.target === els9.addToGalleryModal) call(methods, "closeAddToGallery");
+    els11.quickGalleryRail?.addEventListener("mouseover", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
+    els11.quickGalleryRail?.addEventListener("focusin", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
+    els11.quickGalleryRail?.addEventListener("click", (event) => call(methods, "handleQuickGalleryCategoryEvent", event));
+    els11.quickGalleryList?.addEventListener("scroll", () => call(methods, "scheduleQuickGalleryFocusUpdate"));
+    els11.quickGalleryList?.addEventListener("wheel", (event) => call(methods, "handleQuickGalleryBoundaryWheel", event), { passive: false });
+    els11.addGalleryCategoryButton?.addEventListener("click", () => call(methods, "createGalleryCategory"));
+    els11.addToGalleryClose?.addEventListener("click", () => call(methods, "closeAddToGallery"));
+    els11.addToGalleryModal?.addEventListener("click", (event) => {
+      if (event.target === els11.addToGalleryModal) call(methods, "closeAddToGallery");
     });
-    els9.saveToGalleryButton?.addEventListener("click", () => call(methods, "saveUploadToGallery"));
-    bindSharedTopNavSettingsEvents(els9, methods);
-    els9.runButton.addEventListener("click", () => call(methods, "runTask"));
-    document.addEventListener("keydown", (event) => handleRunTaskShortcut(event, els9, methods));
-    els9.refreshButton.addEventListener("click", () => {
+    els11.saveToGalleryButton?.addEventListener("click", () => call(methods, "saveUploadToGallery"));
+    bindSharedTopNavSettingsEvents(els11, methods);
+    els11.runButton.addEventListener("click", () => call(methods, "runTask"));
+    document.addEventListener("keydown", (event) => handleRunTaskShortcut(event, els11, methods));
+    els11.refreshButton.addEventListener("click", () => {
       void handleRefreshButtonClick(methods);
     });
     call(methods, "bindTaskListControlEvents");
@@ -24322,8 +26091,8 @@
   function call2(methods, name, ...args) {
     return methods[name]?.(...args);
   }
-  function bootWebUI(state5, els9, methods) {
-    bindWebUIEvents(state5, els9, methods);
+  function bootWebUI(state6, els11, methods) {
+    bindWebUIEvents(state6, els11, methods);
     call2(methods, "restoreThemePreference");
     call2(methods, "restoreSidebarWidth");
     call2(methods, "restoreMainModel");
@@ -24528,9 +26297,9 @@
       apiProviderSearch: document.querySelector("#apiProviderSearch"),
       apiProviderList: document.querySelector("#apiProviderList"),
       apiProviderDetail: document.querySelector("#apiProviderDetail"),
+      apiProviderDetailName: document.querySelector("#apiProviderDetailName"),
       apiProviderDetailBaseUrl: document.querySelector("#apiProviderDetailBaseUrl"),
       apiProviderDetailKey: document.querySelector("#apiProviderDetailKey"),
-      apiProviderDetailMode: document.querySelector("#apiProviderDetailMode"),
       apiProviderDetailConcurrency: document.querySelector("#apiProviderDetailConcurrency"),
       apiProviderEditor: document.querySelector("#apiProviderEditor"),
       apiProviderEditorTitle: document.querySelector("#apiProviderEditorTitle"),
@@ -24544,7 +26313,7 @@
       cancelApiProviderEditButton: document.querySelector("#cancelApiProviderEditButton"),
       saveApiProviderEditButton: document.querySelector("#saveApiProviderEditButton"),
       apiBaseUrl: document.querySelector("#apiBaseUrl"),
-      apiRequestEndpointPreview: document.querySelector("#apiRequestEndpointPreview"),
+      providerBindingsCount: document.querySelector("#providerBindingsCount"),
       apiKey: document.querySelector("#apiKey"),
       apiKeyRevealButton: document.querySelector("#apiKeyRevealButton"),
       apiImagesConcurrency: document.querySelector("#apiImagesConcurrency"),
@@ -24674,7 +26443,6 @@
       transparentBackgroundField: document.querySelector("#transparentBackgroundField"),
       promptFidelityField: document.querySelector("#promptFidelityField"),
       promptFidelity: document.querySelector("#promptFidelity"),
-      apiDirectSettingsNotice: document.querySelector("#apiDirectSettingsNotice"),
       settingsGrid: document.querySelector("#settingsGrid"),
       model: document.querySelector("#model"),
       size: document.querySelector("#size"),
@@ -24685,7 +26453,6 @@
       resolution: document.querySelector("#resolution"),
       ratio: document.querySelector("#ratio"),
       orientation: document.querySelector("#orientation"),
-      pixelPreview: document.querySelector("#pixelPreview"),
       customSize: document.querySelector("#customSize"),
       customSizeHint: document.querySelector("#customSizeHint"),
       customWidth: document.querySelector("#customWidth"),
@@ -24722,9 +26489,9 @@
   }
 
   // codex_image/webui/frontend/src/legacy-bridge.ts
-  function installLegacyBridge(bridge7) {
-    window.__codexImageWebUI = bridge7;
-    return bridge7;
+  function installLegacyBridge(bridge8) {
+    window.__codexImageWebUI = bridge8;
+    return bridge8;
   }
   function bindBridgeMethod(name, options = {}) {
     const proxy2 = (...args) => {
@@ -24778,22 +26545,22 @@
   var getPromptText = (...args) => legacyMethod("getPromptText", ...args);
   var syncRunButtonLabel = (...args) => legacyMethod("syncRunButtonLabel", ...args);
   function updateTaskInState(task) {
-    const state5 = getLegacyBridge().state;
+    const state6 = getLegacyBridge().state;
     if (!task?.task_id) return false;
     const taskId = String(task.task_id);
-    const previousIndex = state5.tasks.findIndex((item) => String(item.task_id) === taskId);
+    const previousIndex = state6.tasks.findIndex((item) => String(item.task_id) === taskId);
     if (previousIndex === -1) {
-      state5.tasks.unshift(task);
+      state6.tasks.unshift(task);
       return true;
     }
-    const previousTask = state5.tasks[previousIndex];
+    const previousTask = state6.tasks[previousIndex];
     if (taskUpdateIsOlder(previousTask, task)) return false;
     if (previousTask?.local_pending) {
       revokeTaskUploadPreviewUrls(previousTask);
     }
-    state5.tasks = state5.tasks.map((item, index) => index === previousIndex ? task : item);
-    if (state5.pendingTaskId && String(state5.pendingTaskId) === taskId && !task.local_pending) {
-      state5.pendingTaskId = null;
+    state6.tasks = state6.tasks.map((item, index) => index === previousIndex ? task : item);
+    if (state6.pendingTaskId && String(state6.pendingTaskId) === taskId && !task.local_pending) {
+      state6.pendingTaskId = null;
     }
     return true;
   }
@@ -24819,25 +26586,25 @@
   }
   var uiClockVisibilityBound = false;
   function startUiClock() {
-    const state5 = getLegacyBridge().state;
+    const state6 = getLegacyBridge().state;
     if (!uiClockVisibilityBound) {
       uiClockVisibilityBound = true;
       document.addEventListener("visibilitychange", handleUiClockVisibilityChange);
     }
-    if (state5.uiClockTimerId || document.hidden) return;
-    state5.uiClockTimerId = window.setInterval(updateElapsedDisplays, 100);
+    if (state6.uiClockTimerId || document.hidden) return;
+    state6.uiClockTimerId = window.setInterval(updateElapsedDisplays, 100);
   }
   function handleUiClockVisibilityChange() {
-    const state5 = getLegacyBridge().state;
+    const state6 = getLegacyBridge().state;
     if (document.hidden) {
-      if (state5.uiClockTimerId) {
-        window.clearInterval(state5.uiClockTimerId);
-        state5.uiClockTimerId = null;
+      if (state6.uiClockTimerId) {
+        window.clearInterval(state6.uiClockTimerId);
+        state6.uiClockTimerId = null;
       }
       return;
     }
-    if (!state5.uiClockTimerId) {
-      state5.uiClockTimerId = window.setInterval(updateElapsedDisplays, 100);
+    if (!state6.uiClockTimerId) {
+      state6.uiClockTimerId = window.setInterval(updateElapsedDisplays, 100);
       updateElapsedDisplays();
     }
   }
@@ -24877,12 +26644,12 @@
     });
   }
   function updateTaskElapsedDisplays() {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const activeTasks = state5.tasks.filter((task) => taskNeedsElapsedTick(task));
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const activeTasks = state6.tasks.filter((task) => taskNeedsElapsedTick(task));
     if (!activeTasks.length) return;
     const tasksById = new Map(activeTasks.map((task) => [String(task.task_id || ""), task]));
     const visited = /* @__PURE__ */ new Set();
-    for (const root of /* @__PURE__ */ new Set([els9.taskActiveList, els9.taskList])) {
+    for (const root of /* @__PURE__ */ new Set([els11.taskActiveList, els11.taskList])) {
       if (!(root instanceof HTMLElement)) continue;
       root.querySelectorAll(".task-card[data-task-id]").forEach((card) => {
         if (visited.has(card)) return;
@@ -24893,9 +26660,9 @@
     }
   }
   function updatePreviewElapsedDisplay() {
-    const { els: els9 } = getLegacyBridge();
-    if (!els9.previewGrid) return;
-    els9.previewGrid.querySelectorAll("[data-preview-elapsed]").forEach((element) => {
+    const { els: els11 } = getLegacyBridge();
+    if (!els11.previewGrid) return;
+    els11.previewGrid.querySelectorAll("[data-preview-elapsed]").forEach((element) => {
       updateElapsedTimerElement(element, elapsedMillisecondsSince(element.dataset.previewStart));
     });
   }
@@ -24931,83 +26698,83 @@
     }
   }
   function updatePromptCount() {
-    const { els: els9 } = getLegacyBridge();
-    if (!els9.charCount) return;
-    els9.charCount.textContent = `${getPromptText().length}`;
+    const { els: els11 } = getLegacyBridge();
+    if (!els11.charCount) return;
+    els11.charCount.textContent = `${getPromptText().length}`;
     if (getPromptText().trim()) {
-      els9.promptEditor?.removeAttribute("aria-invalid");
+      els11.promptEditor?.removeAttribute("aria-invalid");
       const fieldError = document.getElementById("promptValidationError");
       if (fieldError) fieldError.hidden = true;
-      if (els9.statusText?.textContent === translate("status.emptyPrompt")) {
-        els9.statusText.textContent = "";
-        els9.statusText.classList.remove("error");
+      if (els11.statusText?.textContent === translate("status.emptyPrompt")) {
+        els11.statusText.textContent = "";
+        els11.statusText.classList.remove("error");
       }
     }
   }
   function addPendingTask(task) {
-    const state5 = getLegacyBridge().state;
-    state5.historyTaskReveal = null;
-    state5.historyTaskRevealSeq += 1;
-    state5.pendingTaskId = task.task_id;
-    state5.selectedTaskId = task.task_id;
-    state5.tasks = [task, ...state5.tasks.filter((item) => item.task_id !== task.task_id)];
+    const state6 = getLegacyBridge().state;
+    state6.historyTaskReveal = null;
+    state6.historyTaskRevealSeq += 1;
+    state6.pendingTaskId = task.task_id;
+    state6.selectedTaskId = task.task_id;
+    state6.tasks = [task, ...state6.tasks.filter((item) => item.task_id !== task.task_id)];
     renderTasks();
     renderPreview(task);
   }
   function replacePendingTask(pendingTaskId, completedTask) {
-    const state5 = getLegacyBridge().state;
-    const currentTask = state5.tasks.find((task) => task.task_id === completedTask.task_id && !task.local_pending);
+    const state6 = getLegacyBridge().state;
+    const currentTask = state6.tasks.find((task) => task.task_id === completedTask.task_id && !task.local_pending);
     if (currentTask && taskUpdateIsOlder(currentTask, completedTask)) completedTask = currentTask;
-    const removedPendingTasks = state5.tasks.filter((task) => task?.local_pending && (task.task_id === completedTask.task_id || task.task_id === pendingTaskId));
-    state5.tasks = [
+    const removedPendingTasks = state6.tasks.filter((task) => task?.local_pending && (task.task_id === completedTask.task_id || task.task_id === pendingTaskId));
+    state6.tasks = [
       completedTask,
-      ...state5.tasks.filter((task) => task.task_id !== completedTask.task_id && task.task_id !== pendingTaskId)
+      ...state6.tasks.filter((task) => task.task_id !== completedTask.task_id && task.task_id !== pendingTaskId)
     ];
     removedPendingTasks.forEach(revokeTaskUploadPreviewUrls);
-    state5.selectedTaskId = completedTask.task_id;
-    state5.pendingTaskId = null;
+    state6.selectedTaskId = completedTask.task_id;
+    state6.pendingTaskId = null;
     renderTasks();
     renderPreview(completedTask);
   }
   function markPendingTaskFailed(pendingTaskId, message) {
-    const state5 = getLegacyBridge().state;
-    const task = state5.tasks.find((item) => item.task_id === pendingTaskId);
+    const state6 = getLegacyBridge().state;
+    const task = state6.tasks.find((item) => item.task_id === pendingTaskId);
     if (!task) return;
     task.status = "failed";
     task.error = message;
     task.updated_at = (/* @__PURE__ */ new Date()).toISOString();
-    state5.selectedTaskId = pendingTaskId;
-    state5.pendingTaskId = null;
+    state6.selectedTaskId = pendingTaskId;
+    state6.pendingTaskId = null;
     renderTasks();
     renderPreview(task);
   }
   function startRunFeedback(task, actionLabel = null) {
-    const { state: state5 } = getLegacyBridge();
+    const { state: state6 } = getLegacyBridge();
     stopRunFeedback();
-    state5.runFeedbackAction = actionLabel;
-    state5.runStartedAt = timestampMs(task.started_at || task.created_at) || Date.now();
-    state5.runTimerId = window.setInterval(updateRunFeedback, 100);
+    state6.runFeedbackAction = actionLabel;
+    state6.runStartedAt = timestampMs(task.started_at || task.created_at) || Date.now();
+    state6.runTimerId = window.setInterval(updateRunFeedback, 100);
     updateRunFeedback();
   }
   function updateRunFeedback() {
-    const { state: state5 } = getLegacyBridge();
-    if (!state5.runStartedAt) return;
-    const elapsed = formatDurationTenths(elapsedMillisecondsSince(state5.runStartedAt));
-    const action = state5.runFeedbackAction || (state5.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
+    const { state: state6 } = getLegacyBridge();
+    if (!state6.runStartedAt) return;
+    const elapsed = formatDurationTenths(elapsedMillisecondsSince(state6.runStartedAt));
+    const action = state6.runFeedbackAction || (state6.mode === "edit" ? translate("runFeedback.editing") : translate("runFeedback.generating"));
     setStatus(formatTranslation("runFeedback.status", { action, elapsed }), "running");
     updateElapsedDisplays();
-    if (state5.selectedTaskId === state5.pendingTaskId) {
+    if (state6.selectedTaskId === state6.pendingTaskId) {
       renderPreview();
     }
   }
   function stopRunFeedback() {
-    const { state: state5 } = getLegacyBridge();
-    if (state5.runTimerId) {
-      window.clearInterval(state5.runTimerId);
+    const { state: state6 } = getLegacyBridge();
+    if (state6.runTimerId) {
+      window.clearInterval(state6.runTimerId);
     }
-    state5.runTimerId = null;
-    state5.runStartedAt = null;
-    state5.runFeedbackAction = null;
+    state6.runTimerId = null;
+    state6.runStartedAt = null;
+    state6.runFeedbackAction = null;
     syncRunButtonLabel();
   }
 
@@ -25344,7 +27111,6 @@
     addImages: proxy("addImages"),
     clearImages: proxy("clearImages"),
     updateImageStripDensity: proxy("updateImageStripDensity"),
-    updatePixelPreview: proxy("updatePixelPreview"),
     updatePreviewElapsedDisplay,
     updatePromptCount,
     updateQuantity: proxy("updateQuantity"),
@@ -25414,51 +27180,52 @@
   // codex_image/webui/frontend/src/background-controls.ts
   var transparentPreference = false;
   function setBackgroundControl(value) {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     const background = value === "transparent" || value === "opaque" ? value : "auto";
     transparentPreference = background === "transparent";
-    if (els9.background) els9.background.value = background;
-    if (els9.transparentBackground) els9.transparentBackground.checked = background === "transparent";
+    if (els11.background) els11.background.value = background;
+    if (els11.transparentBackground) els11.transparentBackground.checked = background === "transparent";
   }
   function updateTransparencyControls() {
-    const { els: els9, state: state5 } = getLegacyBridge();
-    if (!els9.transparentBackground) return;
-    const supported = !state5.generationCatalog || isGptImageModel(state5.selectedModelId || "");
-    const formatSupported = els9.outputFormat?.value !== "jpeg";
-    if (els9.background?.value === "transparent") transparentPreference = true;
+    const { els: els11, state: state6 } = getLegacyBridge();
+    if (!els11.transparentBackground) return;
+    const supported = !state6.generationCatalog || isGptImageModel(state6.selectedModelId || "");
+    const formatSupported = els11.outputFormat?.value !== "jpeg";
+    if (els11.background?.value === "transparent") transparentPreference = true;
     const enabled = supported && formatSupported && transparentPreference;
-    if (supported && els9.background) {
-      if (enabled) els9.background.value = "transparent";
-      else if (els9.background.value === "transparent") els9.background.value = "auto";
+    if (supported && els11.background) {
+      if (enabled) els11.background.value = "transparent";
+      else if (els11.background.value === "transparent") els11.background.value = "auto";
     }
-    els9.transparentBackground.checked = enabled;
-    els9.transparentBackground.disabled = !supported || !formatSupported;
-    els9.transparentBackgroundField?.classList.toggle("hidden", !supported);
+    els11.transparentBackground.checked = enabled;
+    els11.transparentBackground.disabled = !supported || !formatSupported;
+    els11.transparentBackgroundField?.classList.toggle("hidden", !supported);
     const label = document.getElementById("transparentBackgroundLabel");
     const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
     if (label) {
       label.dataset.i18n = labelKey;
       label.textContent = translate(labelKey);
+      label.title = label.textContent;
     }
-    if (els9.transparentBackgroundField) {
-      els9.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");
+    if (els11.transparentBackgroundField) {
+      els11.transparentBackgroundField.title = formatSupported ? "" : translate("output.transparencyFormat");
     }
   }
 
   // codex_image/webui/frontend/src/output-size-layout.ts
   function setCustomSizeModeLayout(isCustom) {
-    const { els: els9, state: state5 } = getLegacyBridge();
+    const { els: els11, state: state6 } = getLegacyBridge();
     const preset = document.getElementById("presetSizeFields");
     if (preset) {
       preset.inert = isCustom;
       preset.setAttribute("aria-hidden", String(isCustom));
     }
-    if (els9.customSize) {
-      els9.customSize.inert = !isCustom;
-      els9.customSize.setAttribute("aria-hidden", String(!isCustom));
+    if (els11.customSize) {
+      els11.customSize.inert = !isCustom;
+      els11.customSize.setAttribute("aria-hidden", String(!isCustom));
     }
-    els9.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
-    state5.customSizeMode = isCustom;
+    els11.settingsGrid?.classList.toggle("custom-size-mode", isCustom);
+    state6.customSizeMode = isCustom;
   }
 
   // codex_image/webui/frontend/src/aspect-ratio-controls.ts
@@ -25541,10 +27308,8 @@
     rect.setAttribute("width", String(geometry.width));
     rect.setAttribute("height", String(geometry.height));
     rect.setAttribute("rx", "1");
-    rect.setAttribute("fill", "none");
-    rect.setAttribute("stroke", "currentColor");
-    rect.setAttribute("stroke-width", "1.35");
-    rect.setAttribute("vector-effect", "non-scaling-stroke");
+    rect.setAttribute("fill", "currentColor");
+    rect.setAttribute("stroke", "none");
     svg.append(rect);
     return svg;
   }
@@ -25761,6 +27526,7 @@
     const label = document.createElement("span");
     label.className = "model-parameter-label";
     label.textContent = translate(definition.label_key);
+    label.classList.toggle("output-label-pair", /^\p{Script=Han}{2}$/u.test(label.textContent));
     field.append(label);
     return field;
   }
@@ -25772,8 +27538,8 @@
   }
   function interactiveModel(context) {
     if (context.readOnly) return context.model;
-    const { state: state5 } = getLegacyBridge();
-    return state5.generationCatalog?.models.find((model) => model.id === state5.selectedModelId) || context.model;
+    const { state: state6 } = getLegacyBridge();
+    return state6.generationCatalog?.models.find((model) => model.id === state6.selectedModelId) || context.model;
   }
   function commitValue(context, definition, value, rerender = false) {
     if (context.readOnly) return;
@@ -25952,12 +27718,12 @@
     return renderNumeric(definition, value, context, false);
   }
   function setValidationError(modelId, parameterId, message) {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const errors = state5.parameterValidationErrorsByModel[modelId] || {};
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const errors = state6.parameterValidationErrorsByModel[modelId] || {};
     if (message) errors[parameterId] = message;
     else delete errors[parameterId];
-    state5.parameterValidationErrorsByModel[modelId] = errors;
-    if (els9.runButton) els9.runButton.disabled = !state5.authAvailable || Object.keys(errors).length > 0;
+    state6.parameterValidationErrorsByModel[modelId] = errors;
+    if (els11.runButton) els11.runButton.disabled = !state6.authAvailable || Object.keys(errors).length > 0;
   }
   function renderText(definition, value, context) {
     const field = fieldShell(definition);
@@ -26227,67 +27993,66 @@
     refreshSegmentedIndicators();
   }
   function ensureModelDraft(model) {
-    const { state: state5 } = getLegacyBridge();
-    const previous = state5.parameterDraftsByModel[model.id] || {};
+    const { state: state6 } = getLegacyBridge();
+    const previous = state6.parameterDraftsByModel[model.id] || {};
     const report = initializeParameterDraft(model, previous);
-    state5.parameterDraftsByModel[model.id] = report.values;
-    state5.parameterDraftVersionsByModel[model.id] = model.version;
+    state6.parameterDraftsByModel[model.id] = report.values;
+    state6.parameterDraftVersionsByModel[model.id] = model.version;
     return report;
   }
   function renderModelParameters(model, options = { readOnly: false }) {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const root = options.root || els9.modelParameterGrid;
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const root = options.root || els11.modelParameterGrid;
     if (!root) return;
     if (options.readOnly) {
-      renderParameterDefinitionsInto(root, model, options.values || {}, { readOnly: true, operation: state5.mode });
+      renderParameterDefinitionsInto(root, model, options.values || {}, { readOnly: true, operation: state6.mode });
       return;
     }
     ensureModelDraft(model);
-    const visibility = legacyParameterVisibility(model.id, els9.size?.value);
+    const visibility = legacyParameterVisibility(model.id, els11.size?.value);
     const legacyGpt = visibility.legacyGpt;
-    state5.customSizeTransitionSeq += 1;
-    state5.customSizeMode = visibility.customSize;
+    state6.customSizeTransitionSeq += 1;
+    state6.customSizeMode = visibility.customSize;
     const legacyElements = [
       document.getElementById("outputSizeSettings"),
       document.getElementById("outputFileSettings"),
-      els9.sizeModeGroup?.closest(".custom-size-control"),
-      els9.orientation?.closest(".orientation-field"),
-      els9.resolution?.closest(".resolution-field"),
-      els9.ratio?.closest(".ratio-field"),
-      els9.quality?.closest(".quantity-quality-row"),
-      els9.pixelPreview,
-      els9.outputFormatField,
-      els9.moderation?.closest(".moderation-field")
+      els11.sizeModeGroup?.closest(".custom-size-control"),
+      els11.orientation?.closest(".orientation-field"),
+      els11.resolution?.closest(".resolution-field"),
+      els11.ratio?.closest(".ratio-field"),
+      els11.quality?.closest(".quantity-quality-row"),
+      els11.outputFormatField,
+      els11.moderation?.closest(".moderation-field")
     ].filter(Boolean);
     legacyElements.forEach((element) => {
       element.classList.toggle("hidden", !legacyGpt);
     });
     setCustomSizeModeLayout(visibility.customSize);
-    els9.webSearchField?.classList.toggle("hidden", !legacyGpt);
-    els9.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
+    els11.webSearchField?.classList.toggle("hidden", !legacyGpt);
+    els11.transparentBackgroundField?.classList.toggle("hidden", !legacyGpt);
     root.classList.toggle("hidden", legacyGpt);
     if (legacyGpt) root.replaceChildren();
     else renderInteractiveParameterDefinitionsInto(
       root,
       model,
-      state5.parameterDraftsByModel[model.id] || {},
-      state5.mode
+      state6.parameterDraftsByModel[model.id] || {},
+      state6.mode
     );
   }
   function setParameterValue(modelId, parameterId, value) {
-    const { state: state5 } = getLegacyBridge();
-    const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
+    const { state: state6 } = getLegacyBridge();
+    const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
     const definition = model?.parameters.find((item) => item.id === parameterId);
     if (!model || !definition || !parameterValueValid(definition, value)) return;
-    state5.parameterDraftsByModel[modelId] = {
-      ...state5.parameterDraftsByModel[modelId] || {},
+    state6.parameterDraftsByModel[modelId] = {
+      ...state6.parameterDraftsByModel[modelId] || {},
       [parameterId]: cloneValue(value)
     };
     if (definition.scope === "application") {
-      state5.generationCatalog?.models.forEach((item) => {
+      state6.generationCatalog?.models.forEach((item) => {
         if (item.parameters.some((parameter) => parameter.id === parameterId)) {
-          state5.parameterDraftsByModel[item.id] = {
-            ...state5.parameterDraftsByModel[item.id] || {},
+          state6.parameterDraftsByModel[item.id] = {
+            ...state6.parameterDraftsByModel[item.id] || {},
             [parameterId]: cloneValue(value)
           };
         }
@@ -26297,8 +28062,8 @@
     getLegacyBridge().methods.updateRequestPreview?.();
   }
   function renderCurrentModelParameters() {
-    const { state: state5 } = getLegacyBridge();
-    const model = state5.generationCatalog?.models.find((item) => item.id === state5.selectedModelId);
+    const { state: state6 } = getLegacyBridge();
+    const model = state6.generationCatalog?.models.find((item) => item.id === state6.selectedModelId);
     if (model) renderModelParameters(model, { readOnly: false });
   }
 
@@ -26359,8 +28124,8 @@
     }));
   }
   function saveCurrentModelParameterDraft() {
-    const { state: state5, methods } = getLegacyBridge();
-    const model = state5.generationCatalog?.models.find((item) => item.id === state5.selectedModelId);
+    const { state: state6, methods } = getLegacyBridge();
+    const model = state6.generationCatalog?.models.find((item) => item.id === state6.selectedModelId);
     if (!model || typeof methods.currentTaskParams !== "function") return;
     if (!isGptImageModel(model.id)) {
       methods.persistModelSelection?.();
@@ -26368,16 +28133,16 @@
     }
     const values = canonicalControlValues(methods.currentTaskParams(), selectedProviderBinding()?.protocol_profile || "");
     const allowed = new Set(model.parameters.map((parameter) => parameter.id));
-    state5.parameterDraftsByModel[model.id] = {
-      ...state5.parameterDraftsByModel[model.id] || {},
+    state6.parameterDraftsByModel[model.id] = {
+      ...state6.parameterDraftsByModel[model.id] || {},
       ...Object.fromEntries(Object.entries(values).filter(([id]) => allowed.has(id)))
     };
     methods.persistModelSelection?.();
   }
   function restoreCurrentModelParameterDraft() {
-    const { state: state5, els: els9, methods } = getLegacyBridge();
-    const modelId = state5.selectedModelId || "";
-    const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
+    const { state: state6, els: els11, methods } = getLegacyBridge();
+    const modelId = state6.selectedModelId || "";
+    const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
     if (!model) return;
     if (!isGptImageModel(model.id)) {
       renderCurrentModelParameters();
@@ -26385,24 +28150,24 @@
     }
     const draft = {
       ...Object.fromEntries(model.parameters.map((parameter) => [parameter.id, parameter.default])),
-      ...state5.parameterDraftsByModel[modelId] || {}
+      ...state6.parameterDraftsByModel[modelId] || {}
     };
-    if (typeof draft["canvas.resolution"] === "string" && els9.resolution) els9.resolution.value = draft["canvas.resolution"];
-    if (typeof draft["canvas.aspect_ratio"] === "string" && els9.ratio) els9.ratio.value = draft["canvas.aspect_ratio"];
+    if (typeof draft["canvas.resolution"] === "string" && els11.resolution) els11.resolution.value = draft["canvas.resolution"];
+    if (typeof draft["canvas.aspect_ratio"] === "string" && els11.ratio) els11.ratio.value = draft["canvas.aspect_ratio"];
     if ((draft["canvas.resolution"] || draft["canvas.aspect_ratio"]) && typeof methods.updateSizeFromPreset === "function") {
       methods.updateSizeFromPreset();
     }
     if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
-    if (typeof draft["gpt.quality"] === "string" && els9.quality) els9.quality.value = draft["gpt.quality"];
-    if (typeof draft["output.format"] === "string" && els9.outputFormat) els9.outputFormat.value = draft["output.format"];
+    if (typeof draft["gpt.quality"] === "string" && els11.quality) els11.quality.value = draft["gpt.quality"];
+    if (typeof draft["output.format"] === "string" && els11.outputFormat) els11.outputFormat.value = draft["output.format"];
     setBackgroundControl(draft["gpt.background"]);
-    if (typeof draft["gpt.moderation"] === "string" && els9.moderation) els9.moderation.value = draft["gpt.moderation"];
-    if (typeof draft["gpt.output_compression"] === "number" && els9.compression) els9.compression.value = String(draft["gpt.output_compression"]);
-    if (typeof draft["gpt.web_search"] === "boolean" && els9.webSearch) {
-      els9.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
+    if (typeof draft["gpt.moderation"] === "string" && els11.moderation) els11.moderation.value = draft["gpt.moderation"];
+    if (typeof draft["gpt.output_compression"] === "number" && els11.compression) els11.compression.value = String(draft["gpt.output_compression"]);
+    if (typeof draft["gpt.web_search"] === "boolean" && els11.webSearch) {
+      els11.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
     }
-    if (typeof draft["output.count"] === "number" && els9.nInput) els9.nInput.value = String(draft["output.count"]);
-    methods.syncRadioButtons?.(els9.quality, els9.outputFormat, els9.moderation, els9.nInput);
+    if (typeof draft["output.count"] === "number" && els11.nInput) els11.nInput.value = String(draft["output.count"]);
+    methods.syncRadioButtons?.(els11.quality, els11.outputFormat, els11.moderation, els11.nInput);
     methods.updateQuantity?.();
     methods.updateCompression?.();
     renderCurrentModelParameters();
@@ -26439,23 +28204,23 @@
     return models.length > 1;
   }
   function selectConcreteModel(modelId) {
-    const { state: state5 } = getLegacyBridge();
-    const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
+    const { state: state6 } = getLegacyBridge();
+    const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
     if (!model) return;
-    const sourceModel = state5.generationCatalog?.models.find((item) => item.id === state5.selectedModelId);
+    const sourceModel = state6.generationCatalog?.models.find((item) => item.id === state6.selectedModelId);
     const familyChanged = sourceModel?.family_id !== model.family_id;
     saveCurrentModelParameterDraft();
     if (sourceModel?.family_id === model.family_id) {
-      state5.parameterDraftsByModel[model.id] = migratePortableModelDraft(
+      state6.parameterDraftsByModel[model.id] = migratePortableModelDraft(
         sourceModel,
         model,
-        state5.parameterDraftsByModel[sourceModel.id] || {},
-        state5.parameterDraftsByModel[model.id] || {}
+        state6.parameterDraftsByModel[sourceModel.id] || {},
+        state6.parameterDraftsByModel[model.id] || {}
       );
     }
-    state5.selectedModelId = model.id;
-    state5.selectedFamilyId = model.family_id;
-    state5.lastModelByFamily[model.family_id] = model.id;
+    state6.selectedModelId = model.id;
+    state6.selectedFamilyId = model.family_id;
+    state6.lastModelByFamily[model.family_id] = model.id;
     getLegacyBridge().methods.persistModelSelection?.();
     if (familyChanged) renderModelSelectors();
     else updateConcreteModelSelection(model.id);
@@ -26467,25 +28232,25 @@
     getLegacyBridge().methods.updateRequestPreview?.();
   }
   function updateConcreteModelSelection(modelId) {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const modelSelect = els9.concreteModelSelect;
-    const modelOptions = els9.concreteModelOptions;
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const modelSelect = els11.concreteModelSelect;
+    const modelOptions = els11.concreteModelOptions;
     if (modelSelect) modelSelect.value = modelId;
     modelOptions?.querySelectorAll("[data-model-id]").forEach((button) => {
       const active = button.dataset.modelId === modelId;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", active ? "true" : "false");
     });
-    const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
+    const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
     if (modelSelect) modelSelect.title = model?.display_name || "";
     refreshSegmentedIndicators();
   }
   function renderModelSelectors() {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const catalog = state5.generationCatalog;
-    const familyOptions = els9.modelFamilyOptions;
-    const modelSelect = els9.concreteModelSelect;
-    const modelOptions = els9.concreteModelOptions;
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const catalog = state6.generationCatalog;
+    const familyOptions = els11.modelFamilyOptions;
+    const modelSelect = els11.concreteModelSelect;
+    const modelOptions = els11.concreteModelOptions;
     const modelField = modelSelect?.closest(".concrete-model-field");
     if (!catalog) {
       if (familyOptions) {
@@ -26498,7 +28263,7 @@
       modelField?.classList.add("hidden");
       return;
     }
-    const selectedFamily = catalog.families.find((family) => family.id === state5.selectedFamilyId);
+    const selectedFamily = catalog.families.find((family) => family.id === state6.selectedFamilyId);
     if (familyOptions) {
       familyOptions.querySelectorAll("[data-family-id]").forEach((item) => item.remove());
       familyOptions.removeAttribute("aria-disabled");
@@ -26506,7 +28271,7 @@
         const item = document.createElement("button");
         item.type = "button";
         item.role = "radio";
-        const active = family.id === state5.selectedFamilyId;
+        const active = family.id === state6.selectedFamilyId;
         item.className = `model-family-segment radio-btn${active ? " active" : ""}`;
         item.dataset.familyId = family.id;
         item.title = family.display_name;
@@ -26524,7 +28289,7 @@
       });
     }
     if (modelSelect && selectedFamily) {
-      const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2" || model.id === state5.selectedModelId || catalog.providers.some((provider) => provider.bindings.some((binding) => binding.canonical_model_id === model.id && binding.operations.includes(state5.mode))));
+      const familyModels = modelsForFamily(catalog, selectedFamily.id).filter((model) => selectedFamily.id !== "gpt-image" || model.id === "gpt-image-2" || model.id === state6.selectedModelId || catalog.providers.some((provider) => provider.bindings.some((binding) => binding.canonical_model_id === model.id && binding.operations.includes(state6.mode))));
       const gptVersions = selectedFamily.id === "gpt-image";
       const expanded = !gptVersions && usesExpandedConcreteModelOptions(familyModels);
       modelField?.classList.toggle("hidden", gptVersions || !expanded);
@@ -26536,9 +28301,9 @@
         option2.title = model.display_name;
         modelSelect.append(option2);
       });
-      modelSelect.value = state5.selectedModelId || "";
+      modelSelect.value = state6.selectedModelId || "";
       modelSelect.disabled = modelSelect.options.length === 0;
-      modelSelect.title = catalog.models.find((model) => model.id === state5.selectedModelId)?.display_name || "";
+      modelSelect.title = catalog.models.find((model) => model.id === state6.selectedModelId)?.display_name || "";
       modelSelect.classList.toggle("hidden", expanded);
       if (modelOptions) {
         modelOptions.replaceChildren();
@@ -26546,7 +28311,7 @@
         if (expanded) {
           familyModels.forEach((model) => {
             const button = document.createElement("button");
-            const active = model.id === state5.selectedModelId;
+            const active = model.id === state6.selectedModelId;
             button.type = "button";
             button.className = `radio-btn${active ? " active" : ""}`;
             button.dataset.modelId = model.id;
@@ -26618,23 +28383,23 @@
     return eligible[0]?.id ?? null;
   }
   function selectedProviderBinding() {
-    const { state: state5 } = getLegacyBridge();
-    const provider = state5.generationCatalog?.providers.find((item) => item.id === state5.selectedProviderId);
-    const candidates = provider?.bindings.filter((binding) => binding.canonical_model_id === state5.selectedModelId && binding.operations.includes(state5.mode) && binding.available !== false) || [];
-    return candidates.find((binding) => binding.id === state5.selectedProviderBindingId) || candidates[0] || null;
+    const { state: state6 } = getLegacyBridge();
+    const provider = state6.generationCatalog?.providers.find((item) => item.id === state6.selectedProviderId);
+    const candidates = provider?.bindings.filter((binding) => binding.canonical_model_id === state6.selectedModelId && binding.operations.includes(state6.mode) && binding.available !== false) || [];
+    return candidates.find((binding) => binding.id === state6.selectedProviderBindingId) || candidates[0] || null;
   }
   function syncCodexCatalogMode(mode) {
-    const { state: state5 } = getLegacyBridge();
-    const catalog = state5.generationCatalog;
+    const { state: state6 } = getLegacyBridge();
+    const catalog = state6.generationCatalog;
     if (!catalog) return;
     catalog.codex.mode = mode;
-    if (state5.selectedProviderId !== "codex") return;
+    if (state6.selectedProviderId !== "codex") return;
     const selected = preferredProviderBinding(
-      eligibleProviderBindings(catalog, state5.selectedModelId, state5.mode),
+      eligibleProviderBindings(catalog, state6.selectedModelId, state6.mode),
       "codex",
       mode
     );
-    if (selected) state5.selectedProviderBindingId = selected.binding.id;
+    if (selected) state6.selectedProviderBindingId = selected.binding.id;
     renderProviderSelection();
   }
   function settingsTabForProvider(_providerId) {
@@ -26658,20 +28423,20 @@
     }
   }
   function renderProviderSelection() {
-    const { state: state5, els: els9 } = getLegacyBridge();
-    const select = els9.generationProviderSelect;
-    const catalog = state5.generationCatalog;
-    const entries = catalog ? providerMenuBindings(catalog, state5.selectedModelId, state5.mode) : [];
+    const { state: state6, els: els11 } = getLegacyBridge();
+    const select = els11.generationProviderSelect;
+    const catalog = state6.generationCatalog;
+    const entries = catalog ? providerMenuBindings(catalog, state6.selectedModelId, state6.mode) : [];
     const resolved = catalog ? resolveProviderSelection(
-      entries.filter((entry) => entry.binding.canonical_model_id === state5.selectedModelId),
-      state5.lastProviderSelectionByModel[state5.selectedModelId || ""],
-      state5.lastProviderByModel[state5.selectedModelId || ""],
-      catalog.default_provider_by_model[state5.selectedModelId || ""],
+      entries.filter((entry) => entry.binding.canonical_model_id === state6.selectedModelId),
+      state6.lastProviderSelectionByModel[state6.selectedModelId || ""],
+      state6.lastProviderByModel[state6.selectedModelId || ""],
+      catalog.default_provider_by_model[state6.selectedModelId || ""],
       catalog.codex.mode
     ) : null;
-    state5.selectedProviderId = resolved?.provider.id || null;
-    state5.selectedProviderBindingId = resolved?.binding.id || null;
-    state5.authAvailable = Boolean(resolved);
+    state6.selectedProviderId = resolved?.provider.id || null;
+    state6.selectedProviderBindingId = resolved?.binding.id || null;
+    state6.authAvailable = Boolean(resolved);
     if (select) {
       select.replaceChildren();
       if (!resolved) {
@@ -26696,30 +28461,30 @@
       select.setAttribute("aria-invalid", resolved ? "false" : "true");
       syncThemedSelect(select);
     }
-    if (catalog && els9.statusText?.dataset.statusSource === "codex-health") {
+    if (catalog && els11.statusText?.dataset.statusSource === "codex-health") {
       getLegacyBridge().methods.setStatus?.("", "");
     }
-    if (els9.runButton) els9.runButton.disabled = !resolved;
+    if (els11.runButton) els11.runButton.disabled = !resolved;
   }
   function selectGenerationProvider(selectionOrProviderId) {
-    const { state: state5 } = getLegacyBridge();
-    const catalog = state5.generationCatalog;
-    if (!catalog || !state5.selectedModelId) return;
-    const entries = providerMenuBindings(catalog, state5.selectedModelId, state5.mode);
-    const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId) || preferredProviderBinding(entries.filter((entry) => entry.binding.canonical_model_id === state5.selectedModelId), selectionOrProviderId, catalog.codex.mode) || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
+    const { state: state6 } = getLegacyBridge();
+    const catalog = state6.generationCatalog;
+    if (!catalog || !state6.selectedModelId) return;
+    const entries = providerMenuBindings(catalog, state6.selectedModelId, state6.mode);
+    const selected = entries.find((entry) => entry.selectionKey === selectionOrProviderId) || preferredProviderBinding(entries.filter((entry) => entry.binding.canonical_model_id === state6.selectedModelId), selectionOrProviderId, catalog.codex.mode) || preferredProviderBinding(entries, selectionOrProviderId, catalog.codex.mode);
     if (!selected) {
       renderProviderSelection();
       return;
     }
     const modelId = selected.binding.canonical_model_id;
-    state5.lastProviderByModel[modelId] = selected.provider.id;
-    state5.lastProviderSelectionByModel[modelId] = selected.selectionKey;
-    if (modelId !== state5.selectedModelId) {
+    state6.lastProviderByModel[modelId] = selected.provider.id;
+    state6.lastProviderSelectionByModel[modelId] = selected.selectionKey;
+    if (modelId !== state6.selectedModelId) {
       selectConcreteModel(modelId);
       return;
     }
-    state5.selectedProviderId = selected.provider.id;
-    state5.selectedProviderBindingId = selected.binding.id;
+    state6.selectedProviderId = selected.provider.id;
+    state6.selectedProviderBindingId = selected.binding.id;
     getLegacyBridge().methods.persistModelSelection?.();
     renderProviderSelection();
     getLegacyBridge().methods.updateModeSpecificSettings?.();
@@ -26739,6 +28504,23 @@
     });
   }
 
+  // codex_image/webui/frontend/src/output-controls.ts
+  var { els: els2 } = getLegacyBridge();
+
+  // codex_image/webui/frontend/src/main-model-combobox.ts
+  var bridge = getLegacyBridge();
+  var state2 = bridge.state;
+  var els3 = bridge.els;
+  function closeMainModelCombobox() {
+    state2.mainModelComboboxOpen = false;
+    state2.mainModelOptionIndex = 0;
+    state2.mainModelShowAllOptions = false;
+    els3.mainModelOptions?.classList.add("hidden");
+    els3.mainModelCombobox?.setAttribute("aria-expanded", "false");
+    els3.mainModel?.setAttribute("aria-expanded", "false");
+    els3.mainModel?.removeAttribute("aria-activedescendant");
+  }
+
   // codex_image/webui/frontend/src/mode-settings-visibility.ts
   function resolveModeSettingsVisibility({
     catalogAvailable,
@@ -26749,35 +28531,31 @@
     if (!catalogAvailable) {
       return {
         showMainModel: !legacyDirectApi,
-        showApiDirectNotice: legacyDirectApi,
         showPromptFidelity: true
       };
     }
     if (!isGptImageModel(modelId)) {
       return {
         showMainModel: false,
-        showApiDirectNotice: false,
         showPromptFidelity: false
       };
     }
     if (!protocolProfile) {
       return {
         showMainModel: false,
-        showApiDirectNotice: false,
         showPromptFidelity: true
       };
     }
     const usesResponses = protocolProfile.endsWith("_responses");
     return {
       showMainModel: usesResponses,
-      showApiDirectNotice: !usesResponses,
       showPromptFidelity: true
     };
   }
 
   // codex_image/webui/frontend/src/api-mode-settings.ts
-  var bridge = getLegacyBridge();
-  var els2 = bridge.els;
+  var bridge2 = getLegacyBridge();
+  var els4 = bridge2.els;
   function legacyMethod2(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -26806,31 +28584,32 @@
     element.classList.add("hidden");
   }
   function applyModeSettingsVisibility(visibility) {
-    const showModeSettings = visibility.showMainModel || visibility.showApiDirectNotice || visibility.showPromptFidelity;
-    setModeSpecificElementVisibility(els2.modeSettingsSlot, showModeSettings);
-    setModeSpecificElementVisibility(els2.modeSpecificSettings, showModeSettings);
-    setModeSpecificElementVisibility(els2.mainModelField, visibility.showMainModel);
-    setModeSpecificElementVisibility(els2.apiDirectSettingsNotice, visibility.showApiDirectNotice);
-    setModeSpecificElementVisibility(els2.promptFidelityField, visibility.showPromptFidelity);
+    const showModeSettings = visibility.showMainModel || visibility.showPromptFidelity;
+    els4.modeSpecificSettings?.classList.toggle("without-main-model", !visibility.showMainModel);
+    if (!visibility.showMainModel) closeMainModelCombobox();
+    setModeSpecificElementVisibility(els4.modeSettingsSlot, showModeSettings);
+    setModeSpecificElementVisibility(els4.modeSpecificSettings, showModeSettings);
+    setModeSpecificElementVisibility(els4.mainModelField, visibility.showMainModel);
+    setModeSpecificElementVisibility(els4.promptFidelityField, visibility.showPromptFidelity);
   }
   function updateWebSearchAvailability(authSource = currentAuthSource()) {
     const binding = selectedProviderBinding();
     const supported = binding ? binding.protocol_profile.endsWith("_responses") : authSource === "api" ? currentApiMode() === "responses" : currentCodexMode() === "responses";
-    if (els2.webSearch) {
-      const wasChecked = Boolean(els2.webSearch.checked);
-      els2.webSearch.disabled = !supported;
-      if (!supported) els2.webSearch.checked = false;
-      if (wasChecked && !els2.webSearch.checked) {
-        els2.webSearch.dispatchEvent(new Event("input"));
+    if (els4.webSearch) {
+      const wasChecked = Boolean(els4.webSearch.checked);
+      els4.webSearch.disabled = !supported;
+      if (!supported) els4.webSearch.checked = false;
+      if (wasChecked && !els4.webSearch.checked) {
+        els4.webSearch.dispatchEvent(new Event("input"));
       }
     }
-    if (els2.webSearchField) {
-      els2.webSearchField.classList.toggle("is-disabled", !supported);
-      els2.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
+    if (els4.webSearchField) {
+      els4.webSearchField.classList.toggle("is-disabled", !supported);
+      els4.webSearchField.setAttribute("aria-disabled", supported ? "false" : "true");
     }
   }
   function setModeSettingsVariant(isDirectApi, visibility) {
-    const slot = els2.modeSettingsSlot;
+    const slot = els4.modeSettingsSlot;
     if (slot) {
       slot.style.height = "";
       slot.classList.remove("is-transitioning");
@@ -26859,9 +28638,9 @@
   }
 
   // codex_image/webui/frontend/src/auth-source.ts
-  var bridge2 = getLegacyBridge();
-  var state2 = bridge2.state;
-  var els3 = bridge2.els;
+  var bridge3 = getLegacyBridge();
+  var state3 = bridge3.state;
+  var els5 = bridge3.els;
   function legacyMethod3(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -26872,7 +28651,7 @@
   function setStatus2(message, type) {
     legacyMethod3("setStatus", message, type);
   }
-  function updateRequestPreview() {
+  function updateRequestPreview2() {
     legacyMethod3("updateRequestPreview");
   }
   function currentApiMode2() {
@@ -26894,34 +28673,34 @@
     try {
       const response = await fetch("/api/health");
       const data = await response.json();
-      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
-      state2.authStatus = data.auth || null;
-      renderAuthSource(state2.authStatus);
-      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
-      els3.runButton.disabled = !state2.authAvailable;
-      if (!state2.authAvailable && !state2.generationCatalog) {
+      if (!state3.generationCatalog) state3.authAvailable = Boolean(data.auth_available);
+      state3.authStatus = data.auth || null;
+      renderAuthSource(state3.authStatus);
+      els5.apiStatus.className = `status-dot ${state3.authAvailable ? "ok" : "error"}`;
+      if (state3.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      els5.runButton.disabled = !state3.authAvailable;
+      if (!state3.authAvailable && !state3.generationCatalog) {
         setStatus2(translate("auth.missingCodexSession"), "error");
-        if (els3.statusText) els3.statusText.dataset.statusSource = "codex-health";
+        if (els5.statusText) els5.statusText.dataset.statusSource = "codex-health";
       }
-      updateRequestPreview();
+      updateRequestPreview2();
     } catch (error) {
-      if (state2.generationCatalog) {
+      if (state3.generationCatalog) {
         getLegacyBridge().methods.renderProviderSelection?.();
         getLegacyBridge().methods.updateModeSpecificSettings?.();
-        updateRequestPreview();
+        updateRequestPreview2();
         return;
       }
-      state2.authAvailable = false;
-      els3.apiStatus.className = "status-dot error";
-      els3.runButton.disabled = true;
+      state3.authAvailable = false;
+      els5.apiStatus.className = "status-dot error";
+      els5.runButton.disabled = true;
       setStatus2(error.message, "error");
     }
   }
   async function applyAuthSource(source) {
-    state2.pendingAuthSource = source;
+    state3.pendingAuthSource = source;
     applyAuthSourceSelection(source);
-    updateRequestPreview();
+    updateRequestPreview2();
     try {
       const response = await fetch("/api/auth", {
         method: "PATCH",
@@ -26932,23 +28711,23 @@
       if (!response.ok) {
         throw new Error(data.detail || translate("auth.switchFailed"));
       }
-      state2.pendingAuthSource = null;
-      state2.authStatus = data;
-      if (!state2.generationCatalog) state2.authAvailable = Boolean(data.auth_available);
+      state3.pendingAuthSource = null;
+      state3.authStatus = data;
+      if (!state3.generationCatalog) state3.authAvailable = Boolean(data.auth_available);
       renderAuthSource(data);
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      if (state3.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
       getLegacyBridge().methods.updateModeSpecificSettings?.();
-      els3.apiStatus.className = `status-dot ${state2.authAvailable ? "ok" : "error"}`;
-      els3.runButton.disabled = !state2.authAvailable;
-      setStatus2(authSourceDetailText(data), state2.authAvailable ? "ok" : "error");
-      updateRequestPreview();
+      els5.apiStatus.className = `status-dot ${state3.authAvailable ? "ok" : "error"}`;
+      els5.runButton.disabled = !state3.authAvailable;
+      setStatus2(authSourceDetailText(data), state3.authAvailable ? "ok" : "error");
+      updateRequestPreview2();
       return true;
     } catch (error) {
-      state2.pendingAuthSource = null;
-      renderAuthSource(state2.authStatus);
-      if (state2.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
+      state3.pendingAuthSource = null;
+      renderAuthSource(state3.authStatus);
+      if (state3.generationCatalog) getLegacyBridge().methods.renderProviderSelection?.();
       getLegacyBridge().methods.updateModeSpecificSettings?.();
-      updateRequestPreview();
+      updateRequestPreview2();
       setStatus2(error.message || translate("auth.switchFailed"), "error");
       return false;
     }
@@ -26964,22 +28743,22 @@
     void setAuthSource(source, button);
   }
   function renderAuthSource(auth) {
-    const selected = state2.pendingAuthSource || auth?.selected_source || "codex";
+    const selected = state3.pendingAuthSource || auth?.selected_source || "codex";
     applyAuthSourceSelection(selected);
-    if (els3.authSourceDetail) {
+    if (els5.authSourceDetail) {
       const text = auth ? authSourceDetailText(auth) : translate("auth.checking");
-      els3.authSourceDetail.textContent = text;
-      els3.authSourceDetail.title = text;
+      els5.authSourceDetail.textContent = text;
+      els5.authSourceDetail.title = text;
     }
   }
   function applyAuthSourceSelection(source) {
     const selected = source || "codex";
-    els3.authSourceGroup?.querySelectorAll("[data-auth-source]").forEach((button) => {
+    els5.authSourceGroup?.querySelectorAll("[data-auth-source]").forEach((button) => {
       const active = button.dataset.authSource === selected;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", active ? "true" : "false");
     });
-    els3.apiProviderQuick?.classList.add("hidden");
+    els5.apiProviderQuick?.classList.add("hidden");
     updateModeSpecificSettings(selected);
   }
   function authSourceDetailText(auth) {
@@ -27005,8 +28784,8 @@
     return translate("auth.notActive");
   }
   function currentAuthSource2() {
-    if (state2.selectedProviderId) return state2.selectedProviderId === "codex" ? "codex" : "api";
-    return state2.pendingAuthSource || state2.authStatus?.selected_source || "codex";
+    if (state3.selectedProviderId) return state3.selectedProviderId === "codex" ? "codex" : "api";
+    return state3.pendingAuthSource || state3.authStatus?.selected_source || "codex";
   }
   function isDirectApiMode(authSource = currentAuthSource2()) {
     return authSource === "api" && currentApiMode2() !== "responses" || authSource === "codex" && currentCodexMode2() !== "responses";
@@ -27400,21 +29179,59 @@
     element.selected = selected;
     return element;
   }
+  function openProviderBindingCard(container, bindingId, options = {}) {
+    if (!container) return;
+    const cards = [...container.querySelectorAll("details[data-binding-id]")];
+    const selected = cards.find((card) => card.dataset.bindingId === bindingId);
+    if (!selected) return;
+    cards.forEach((card) => {
+      card.open = card === selected;
+    });
+    if (options.focus) {
+      const model = selected.querySelector("[data-binding-model]");
+      const trigger = model?.closest(".field")?.querySelector(".themed-select-trigger");
+      (trigger || model)?.focus();
+    }
+  }
   function renderProviderBindingCards(container, bindings, models, providerId, defaults) {
     if (!container) return;
-    const disclosureState = new Map([...container.querySelectorAll("details[data-binding-id]")].map((card) => [card.dataset.bindingId, card.open]));
+    const sameProvider = container.dataset.bindingProviderId === providerId;
+    const previousCards = sameProvider ? [...container.querySelectorAll("details[data-binding-id]")] : [];
+    const disclosureState = new Map(previousCards.map((card) => [card.dataset.bindingId, card.open]));
+    const advancedState = new Map(previousCards.map((card) => [
+      card.dataset.bindingId,
+      card.querySelector(".provider-binding-advanced")?.open || false
+    ]));
+    const openBindingId = previousCards.find((card) => card.open)?.dataset.bindingId;
+    container.dataset.bindingProviderId = providerId;
     destroyThemedSelects(container);
     const normalizedBindings = normalizeProviderBindings(bindings, providerId);
     const cards = normalizedBindings.map((binding, index) => {
       const card = document.createElement("details");
       card.className = "provider-binding-card";
+      card.setAttribute("name", `${container.id || "provider-bindings"}-${providerId}`);
       card.dataset.bindingId = binding.id;
-      card.open = disclosureState.get(binding.id) ?? normalizedBindings.length === 1;
+      card.open = disclosureState.has(binding.id) ? binding.id === openBindingId : !previousCards.length && normalizedBindings.length === 1;
       const legend = document.createElement("summary");
       legend.className = "provider-binding-summary";
+      const summaryMain = document.createElement("span");
+      summaryMain.className = "provider-binding-summary-main";
+      const summaryState = document.createElement("span");
+      summaryState.className = "provider-binding-summary-state";
+      legend.append(summaryMain, summaryState);
       const updateSummary = () => {
         const model = models.find((item) => item.id === modelSelect.value);
-        legend.textContent = `${model?.display_name || modelSelect.value} \xB7 ${BINDING_PROTOCOL_LABELS[protocolSelect.value]} \xB7 ${remoteInput.value}`;
+        const modelName = model?.display_name || modelSelect.value;
+        summaryMain.textContent = card.open ? modelName : `${modelName} \xB7 ${BINDING_PROTOCOL_LABELS[protocolSelect.value]} \xB7 ${remoteInput.value}`;
+        const nonDefaults = [
+          compatibilitySelect.value !== "standard" ? BINDING_COMPATIBILITY_LABELS[compatibilitySelect.value] : "",
+          !transparencySelect.disabled && transparencySelect.value === "prompt" ? translate("apiSettings.transparencyPrompt") : "",
+          ratioPromptInput.checked ? translate("apiSettings.appendRatioPrompt") : ""
+        ].filter(Boolean).join(" \xB7 ");
+        summaryState.textContent = nonDefaults;
+        summaryState.hidden = !nonDefaults;
+        advancedSummaryState.textContent = nonDefaults;
+        advancedSummaryState.hidden = !nonDefaults;
       };
       const remove = document.createElement("button");
       remove.type = "button";
@@ -27514,6 +29331,21 @@
       ratioPromptLabel.dataset.i18n = "apiSettings.appendRatioPrompt";
       ratioPromptLabel.textContent = translate("apiSettings.appendRatioPrompt");
       ratioPromptField.append(ratioPromptInput, ratioPromptLabel);
+      const advanced = document.createElement("details");
+      advanced.className = "provider-binding-advanced";
+      advanced.open = advancedState.get(binding.id) || false;
+      const advancedSummary = document.createElement("summary");
+      advancedSummary.className = "provider-binding-advanced-summary";
+      const advancedLabel = document.createElement("span");
+      advancedLabel.dataset.i18n = "apiSettings.advancedSettings";
+      advancedLabel.textContent = translate("apiSettings.advancedSettings");
+      const advancedSummaryState = document.createElement("span");
+      advancedSummaryState.className = "provider-binding-advanced-state";
+      advancedSummary.append(advancedLabel, advancedSummaryState);
+      const advancedGrid = document.createElement("div");
+      advancedGrid.className = "provider-binding-advanced-grid";
+      advancedGrid.append(compatibilityField, transparencyField, ratioPromptField);
+      advanced.append(advancedSummary, advancedGrid);
       const defaultField = document.createElement("label");
       defaultField.className = "provider-binding-toggle provider-binding-default";
       defaultField.dataset.i18nAttr = "title:apiSettings.defaultProviderForModel";
@@ -27529,7 +29361,7 @@
       footer.className = "provider-binding-footer";
       const footerSettings = document.createElement("div");
       footerSettings.className = "provider-binding-footer-settings";
-      footerSettings.append(ratioPromptField, defaultField);
+      footerSettings.append(defaultField);
       footer.append(footerSettings, remove);
       card.dataset.bindingOriginalModelId = binding.canonical_model_id;
       card.dataset.bindingPreviousModelId = binding.canonical_model_id;
@@ -27537,13 +29369,23 @@
       card.dataset.bindingOriginalParameterCodec = binding.parameter_codec;
       card.dataset.bindingProtocolChanged = "false";
       card.dataset.bindingCompatibilityChanged = "false";
-      grid.append(modelField, protocolField, remoteField, compatibilityField, transparencyField, footer);
+      grid.append(modelField, protocolField, remoteField, advanced, footer);
       card.append(legend, grid);
       updateSummary();
+      legend.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (card.open) card.open = false;
+        else openProviderBindingCard(container, binding.id);
+      });
       card.addEventListener("change", () => queueMicrotask(updateSummary));
       remoteInput.addEventListener("input", updateSummary);
-      card.addEventListener("invalid", () => {
-        card.open = true;
+      card.addEventListener("toggle", () => {
+        if (card.open) openProviderBindingCard(container, binding.id);
+        updateSummary();
+      });
+      card.addEventListener("invalid", (event) => {
+        openProviderBindingCard(container, binding.id);
+        if (event.target instanceof Element && advanced.contains(event.target)) advanced.open = true;
       }, true);
       return card;
     });
@@ -27589,7 +29431,7 @@
 
   // codex_image/webui/frontend/src/api-provider-binding-editor.ts
   function handleProviderBindingEditorChange(event, context) {
-    const { state: state5, els: els9, updateApiRequestEndpointPreview: updateApiRequestEndpointPreview2 } = context;
+    const { state: state6, els: els11, updateProviderBindingCount: updateProviderBindingCount2 } = context;
     const target = event.target;
     const card = target?.closest("[data-binding-id]");
     if (!target || !card) return;
@@ -27621,15 +29463,15 @@
       }
       card.dataset.bindingProtocolChanged = "true";
       card.dataset.bindingCompatibilityChanged = "true";
-      if (state5.apiProviderDraftIsNew && defaultProtocol) {
+      if (state6.apiProviderDraftIsNew && defaultProtocol) {
         const suggestion = bindingTemplateSuggestion(bindingTemplateForProtocol(modelId, defaultProtocol));
-        const currentBase = String(els9.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els9.apiBaseUrl.value = suggestion.base_url;
+        const currentBase = String(els11.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els11.apiBaseUrl.value = suggestion.base_url;
       }
       const remoteInput = card.querySelector("[data-binding-remote-model]");
-      const model = state5.generationCatalog?.models.find((item) => item.id === modelId);
+      const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
       const previousModelId = card.dataset.bindingPreviousModelId || card.dataset.bindingOriginalModelId || "";
-      const previousModel = state5.generationCatalog?.models.find((item) => item.id === previousModelId);
+      const previousModel = state6.generationCatalog?.models.find((item) => item.id === previousModelId);
       if (remoteInput) remoteInput.value = remoteModelAfterSelection(
         remoteInput.value,
         previousModel?.official_model_id || previousModelId,
@@ -27642,7 +29484,7 @@
     if (target.matches("[data-binding-default]")) {
       const modelId = card.querySelector("[data-binding-model]")?.value;
       if (modelId) {
-        els9.apiProviderBindings?.querySelectorAll("[data-binding-id]").forEach((item) => {
+        els11.apiProviderBindings?.querySelectorAll("[data-binding-id]").forEach((item) => {
           if (item === card) return;
           if (item.querySelector("[data-binding-model]")?.value !== modelId) return;
           const checkbox = item.querySelector("[data-binding-default]");
@@ -27666,16 +29508,16 @@
         syncThemedSelect(compatibilitySelect);
       }
       card.dataset.bindingCompatibilityChanged = "true";
-      if (state5.apiProviderDraftIsNew) {
+      if (state6.apiProviderDraftIsNew) {
         const templateId = bindingTemplateForProtocol(modelId, protocol);
         const suggestion = bindingTemplateSuggestion(templateId);
-        const currentBase = String(els9.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els9.apiBaseUrl.value = suggestion.base_url;
+        const currentBase = String(els11.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els11.apiBaseUrl.value = suggestion.base_url;
       }
     }
     if (target.matches("[data-binding-compatibility]")) {
       card.dataset.bindingCompatibilityChanged = "true";
-      if (state5.apiProviderDraftIsNew) {
+      if (state6.apiProviderDraftIsNew) {
         const modelId = card.querySelector("[data-binding-model]")?.value || "";
         const protocol = card.querySelector("[data-binding-protocol]")?.value || availableProtocolsForModel(modelId)[0];
         const templateId = bindingTemplateForCompatibility(
@@ -27684,11 +29526,11 @@
           target.value
         );
         const suggestion = bindingTemplateSuggestion(templateId);
-        const currentBase = String(els9.apiBaseUrl?.value || "").trim();
-        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els9.apiBaseUrl.value = suggestion.base_url;
+        const currentBase = String(els11.apiBaseUrl?.value || "").trim();
+        if (!currentBase || isBindingTemplateBaseUrl(currentBase)) els11.apiBaseUrl.value = suggestion.base_url;
       }
     }
-    updateApiRequestEndpointPreview2();
+    updateProviderBindingCount2();
   }
 
   // codex_image/webui/frontend/src/api-provider-credentials.ts
@@ -27763,7 +29605,7 @@
   function scrollActiveApiProviderCardIntoView(providerId, align = "center") {
     window.requestAnimationFrame(() => {
       const grid = providerChoiceGrid();
-      const panel = grid?.closest(".system-settings-section");
+      const panel = grid?.closest(".system-settings-scroll, .system-settings-section");
       if (!grid || !panel || panel.clientHeight === 0) return;
       const escapedId = CSS.escape(providerId);
       const card = grid.querySelector(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);
@@ -27851,6 +29693,21 @@
       providers
     };
   }
+  function withoutApiProvider(settings, providerId) {
+    const current = normalizeApiSettings(settings);
+    const providers = current.providers.filter((provider) => provider.id !== providerId);
+    if (!providers.length || providers.length === current.providers.length) return null;
+    const defaults = {};
+    for (const provider of providers) {
+      for (const binding of provider.bindings) {
+        const modelId = binding.canonical_model_id;
+        const previousDefault = current.default_provider_by_model[modelId];
+        const stillSupported = providers.some((candidate) => candidate.id === previousDefault && candidate.bindings.some((item) => item.canonical_model_id === modelId));
+        defaults[modelId] ?? (defaults[modelId] = stillSupported ? previousDefault : provider.id);
+      }
+    }
+    return normalizeApiSettings({ ...current, providers, default_provider_by_model: defaults });
+  }
   function applyProviderDraft(settings, draft) {
     var _a, _b;
     const normalized = normalizeApiSettings(settings);
@@ -27919,6 +29776,9 @@
     const data = await response.json();
     if (!response.ok) {
       const detail = String(data.detail || "");
+      if (detail === "default_provider_mapping_missing" || detail === "invalid_default_provider_mapping") {
+        throw new Error(translate("apiSettings.defaultMappingInvalid"));
+      }
       if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
       if (detail === "api_key_origin_change_confirmation_required") {
         throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
@@ -27955,8 +29815,8 @@
     return Array.from(list2.querySelectorAll(".api-provider-sort-row[data-api-provider-id]")).map((row) => row.dataset.apiProviderId || "").filter(Boolean);
   }
   function sortModeEnabled() {
-    const bridge7 = getLegacyBridge();
-    return Boolean(bridge7.state.apiProviderSortMode && providerList?.classList.contains("is-sorting"));
+    const bridge8 = getLegacyBridge();
+    return Boolean(bridge8.state.apiProviderSortMode && providerList?.classList.contains("is-sorting"));
   }
   function sameOrder(left, right) {
     return left.length === right.length && left.every((id, index) => id === right[index]);
@@ -28047,7 +29907,7 @@
     }
   }
   function scrollContainer() {
-    return providerList?.closest(".system-settings-section") || null;
+    return providerList?.closest(".system-settings-scroll, .system-settings-section") || null;
   }
   function autoScrollStep() {
     const session = dragSession;
@@ -28211,26 +30071,26 @@
   function restoreModelSelection() {
     try {
       const stored = JSON.parse(localStorage.getItem(MODEL_SELECTION_STORAGE_KEY) || "{}");
-      const { state: state5 } = getLegacyBridge();
-      state5.selectedModelId = typeof stored.selectedModelId === "string" ? stored.selectedModelId : null;
-      state5.lastModelByFamily = stringRecord(stored.lastModelByFamily);
-      state5.lastProviderByModel = stringRecord(stored.lastProviderByModel);
-      state5.lastProviderSelectionByModel = stringRecord(stored.lastProviderSelectionByModel);
-      state5.parameterDraftsByModel = draftRecord(stored.parameterDraftsByModel);
-      state5.parameterDraftVersionsByModel = positiveIntegerRecord(stored.parameterDraftVersionsByModel);
+      const { state: state6 } = getLegacyBridge();
+      state6.selectedModelId = typeof stored.selectedModelId === "string" ? stored.selectedModelId : null;
+      state6.lastModelByFamily = stringRecord(stored.lastModelByFamily);
+      state6.lastProviderByModel = stringRecord(stored.lastProviderByModel);
+      state6.lastProviderSelectionByModel = stringRecord(stored.lastProviderSelectionByModel);
+      state6.parameterDraftsByModel = draftRecord(stored.parameterDraftsByModel);
+      state6.parameterDraftVersionsByModel = positiveIntegerRecord(stored.parameterDraftVersionsByModel);
     } catch {
       localStorage.removeItem(MODEL_SELECTION_STORAGE_KEY);
     }
   }
   function persistModelSelection() {
-    const { state: state5 } = getLegacyBridge();
+    const { state: state6 } = getLegacyBridge();
     const stored = {
-      ...state5.selectedModelId ? { selectedModelId: state5.selectedModelId } : {},
-      lastModelByFamily: stringRecord(state5.lastModelByFamily),
-      lastProviderByModel: stringRecord(state5.lastProviderByModel),
-      lastProviderSelectionByModel: stringRecord(state5.lastProviderSelectionByModel),
-      parameterDraftsByModel: draftRecord(state5.parameterDraftsByModel),
-      parameterDraftVersionsByModel: positiveIntegerRecord(state5.parameterDraftVersionsByModel)
+      ...state6.selectedModelId ? { selectedModelId: state6.selectedModelId } : {},
+      lastModelByFamily: stringRecord(state6.lastModelByFamily),
+      lastProviderByModel: stringRecord(state6.lastProviderByModel),
+      lastProviderSelectionByModel: stringRecord(state6.lastProviderSelectionByModel),
+      parameterDraftsByModel: draftRecord(state6.parameterDraftsByModel),
+      parameterDraftVersionsByModel: positiveIntegerRecord(state6.parameterDraftVersionsByModel)
     };
     localStorage.setItem(MODEL_SELECTION_STORAGE_KEY, JSON.stringify(stored));
   }
@@ -28314,76 +30174,76 @@
     };
   }
   async function refreshGenerationCatalog() {
-    const { state: state5 } = getLegacyBridge();
+    const { state: state6 } = getLegacyBridge();
     let followedBindingModel = false;
     try {
       const response = await fetch("/api/generation-catalog", { headers: { Accept: "application/json" } });
       const payload = await response.json();
       if (!response.ok || !isGenerationCatalog(payload)) throw new Error("generation catalog unavailable");
       const previousBinding = selectedProviderBinding();
-      const updatedBinding = payload.providers.find((provider) => provider.id === state5.selectedProviderId)?.bindings.find((binding) => binding.id === previousBinding?.id);
-      const sourceModel = state5.generationCatalog?.models.find((model) => model.id === state5.selectedModelId);
+      const updatedBinding = payload.providers.find((provider) => provider.id === state6.selectedProviderId)?.bindings.find((binding) => binding.id === previousBinding?.id);
+      const sourceModel = state6.generationCatalog?.models.find((model) => model.id === state6.selectedModelId);
       const targetModel = payload.models.find((model) => model.id === updatedBinding?.canonical_model_id);
-      const updatedEntry = targetModel && eligibleProviderBindings(payload, targetModel.id, state5.mode).find((entry) => entry.provider.id === state5.selectedProviderId && entry.binding.id === previousBinding?.id);
+      const updatedEntry = targetModel && eligibleProviderBindings(payload, targetModel.id, state6.mode).find((entry) => entry.provider.id === state6.selectedProviderId && entry.binding.id === previousBinding?.id);
       if (sourceModel && targetModel && updatedEntry && sourceModel.id !== targetModel.id) {
         saveCurrentModelParameterDraft();
         if (sourceModel.family_id === targetModel.family_id) {
-          state5.parameterDraftsByModel[targetModel.id] = migratePortableModelDraft(
+          state6.parameterDraftsByModel[targetModel.id] = migratePortableModelDraft(
             sourceModel,
             targetModel,
-            state5.parameterDraftsByModel[sourceModel.id] || {},
-            state5.parameterDraftsByModel[targetModel.id] || {}
+            state6.parameterDraftsByModel[sourceModel.id] || {},
+            state6.parameterDraftsByModel[targetModel.id] || {}
           );
         }
-        state5.selectedModelId = targetModel.id;
-        state5.lastModelByFamily[targetModel.family_id] = targetModel.id;
-        state5.lastProviderByModel[targetModel.id] = updatedEntry.provider.id;
-        state5.lastProviderSelectionByModel[targetModel.id] = updatedEntry.selectionKey;
+        state6.selectedModelId = targetModel.id;
+        state6.lastModelByFamily[targetModel.family_id] = targetModel.id;
+        state6.lastProviderByModel[targetModel.id] = updatedEntry.provider.id;
+        state6.lastProviderSelectionByModel[targetModel.id] = updatedEntry.selectionKey;
         followedBindingModel = true;
       }
-      state5.generationCatalog = payload;
-      state5.generationCatalogError = null;
+      state6.generationCatalog = payload;
+      state6.generationCatalogError = null;
       const selection2 = initialCatalogSelection(
         payload,
-        state5.selectedModelId,
-        state5.lastProviderByModel,
-        state5.mode,
-        state5.lastProviderSelectionByModel
+        state6.selectedModelId,
+        state6.lastProviderByModel,
+        state6.mode,
+        state6.lastProviderSelectionByModel
       );
-      if (!followedBindingModel && selection2.modelId !== state5.selectedModelId && isGptImageModel(state5.selectedModelId) && isGptImageModel(selection2.modelId)) {
-        const previousModel = payload.models.find((model) => model.id === state5.selectedModelId);
+      if (!followedBindingModel && selection2.modelId !== state6.selectedModelId && isGptImageModel(state6.selectedModelId) && isGptImageModel(selection2.modelId)) {
+        const previousModel = payload.models.find((model) => model.id === state6.selectedModelId);
         const restoredModel = payload.models.find((model) => model.id === selection2.modelId);
         if (previousModel) {
-          state5.parameterDraftsByModel[restoredModel.id] = migratePortableModelDraft(
+          state6.parameterDraftsByModel[restoredModel.id] = migratePortableModelDraft(
             previousModel,
             restoredModel,
-            state5.parameterDraftsByModel[previousModel.id] || {},
-            state5.parameterDraftsByModel[restoredModel.id] || {}
+            state6.parameterDraftsByModel[previousModel.id] || {},
+            state6.parameterDraftsByModel[restoredModel.id] || {}
           );
         }
-        state5.lastModelByFamily[restoredModel.family_id] = restoredModel.id;
+        state6.lastModelByFamily[restoredModel.family_id] = restoredModel.id;
         followedBindingModel = true;
       }
-      state5.selectedFamilyId = selection2.familyId;
-      state5.selectedModelId = selection2.modelId;
-      state5.selectedProviderId = selection2.providerId;
-      state5.selectedProviderBindingId = selection2.bindingId;
+      state6.selectedFamilyId = selection2.familyId;
+      state6.selectedModelId = selection2.modelId;
+      state6.selectedProviderId = selection2.providerId;
+      state6.selectedProviderBindingId = selection2.bindingId;
       if (selection2.modelId && selection2.providerId && selection2.bindingId) {
-        state5.lastProviderByModel[selection2.modelId] = selection2.providerId;
-        state5.lastProviderSelectionByModel[selection2.modelId] = `${selection2.providerId}::${selection2.bindingId}`;
+        state6.lastProviderByModel[selection2.modelId] = selection2.providerId;
+        state6.lastProviderSelectionByModel[selection2.modelId] = `${selection2.providerId}::${selection2.bindingId}`;
       }
       persistModelSelection();
     } catch (error) {
-      state5.generationCatalog = null;
-      state5.generationCatalogError = error instanceof Error ? error.message : "generation catalog unavailable";
-      state5.selectedFamilyId = null;
-      state5.selectedModelId = null;
-      state5.selectedProviderId = null;
-      state5.selectedProviderBindingId = null;
+      state6.generationCatalog = null;
+      state6.generationCatalogError = error instanceof Error ? error.message : "generation catalog unavailable";
+      state6.selectedFamilyId = null;
+      state6.selectedModelId = null;
+      state6.selectedProviderId = null;
+      state6.selectedProviderBindingId = null;
     }
     renderModelSelectors();
     renderProviderSelection();
-    if (state5.generationCatalog && (followedBindingModel || !getLegacyBridge().methods.isOutputSettingsLocked?.())) {
+    if (state6.generationCatalog && (followedBindingModel || !getLegacyBridge().methods.isOutputSettingsLocked?.())) {
       getLegacyBridge().methods.restoreCurrentModelParameterDraft?.();
     }
     if (followedBindingModel) {
@@ -28408,6 +30268,8 @@
   var systemSettingsHeightAnimationTimer;
   var systemSettingsReturnFocus = null;
   var userConfigBackupOpen = false;
+  var userConfigBackupControllerActive = false;
+  var userConfigBackupScrollTop = 0;
   var userConfigBackupTrigger = null;
   var storagePanelScrollTop = 0;
   var MIN_SYSTEM_SETTINGS_MODAL_EDGE = 30;
@@ -28422,12 +30284,12 @@
     return void 0;
   }
   function systemSettingsPanel() {
-    const { els: els9 } = getLegacyBridge();
-    return els9.systemSettingsModal?.querySelector(".system-settings-modal-panel") || null;
+    const { els: els11 } = getLegacyBridge();
+    return els11.systemSettingsModal?.querySelector(".system-settings-modal-panel") || null;
   }
   function shouldAnimateSystemSettingsHeight() {
-    const { els: els9 } = getLegacyBridge();
-    if (els9.systemSettingsModal?.classList.contains("hidden")) return false;
+    const { els: els11 } = getLegacyBridge();
+    if (els11.systemSettingsModal?.classList.contains("hidden")) return false;
     return !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   }
   function clearSystemSettingsHeightAnimation(panel) {
@@ -28441,8 +30303,8 @@
     panel.style.height = "";
   }
   function positionSystemSettingsModal() {
-    const { els: els9 } = getLegacyBridge();
-    const modal = els9.systemSettingsModal;
+    const { els: els11 } = getLegacyBridge();
+    const modal = els11.systemSettingsModal;
     const panel = systemSettingsPanel();
     if (!modal || !panel || modal.classList.contains("hidden")) return;
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
@@ -28492,14 +30354,14 @@
     systemSettingsHeightAnimationTimer = window.setTimeout(() => cleanup(), 320);
   }
   function setSystemSettingsTab(tab, options = {}) {
-    if (userConfigBackupOpen) closeUserConfigBackupView({ restoreFocus: false, force: true });
     const selected = normalizedTab(tab);
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
+    if (userConfigBackupViewIsOpen()) userConfigBackupScrollTop = els11.userConfigBackupView.scrollTop;
     const panel = systemSettingsPanel();
     const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
     const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
     if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
-    const buttons = Array.from(els9.systemSettingsTabs?.querySelectorAll("[data-system-settings-tab]") || []);
+    const buttons = Array.from(els11.systemSettingsTabs?.querySelectorAll("[data-system-settings-tab]") || []);
     buttons.forEach((button) => {
       const active = button.dataset.systemSettingsTab === selected;
       button.classList.toggle("active", active);
@@ -28507,114 +30369,82 @@
       button.tabIndex = active ? 0 : -1;
     });
     [
-      ["api", els9.systemSettingsApiPanel],
-      ["network", els9.systemSettingsNetworkPanel],
-      ["language", els9.systemSettingsLanguagePanel],
-      ["storage", els9.systemSettingsStoragePanel]
+      ["api", els11.systemSettingsApiPanel],
+      ["network", els11.systemSettingsNetworkPanel],
+      ["language", els11.systemSettingsLanguagePanel],
+      ["storage", els11.systemSettingsStoragePanel]
     ].forEach(([name, panel2]) => {
       if (!panel2) return;
       const active = name === selected;
       panel2.hidden = !active;
       panel2.setAttribute("aria-hidden", active ? "false" : "true");
     });
+    if (selected === "storage" && userConfigBackupOpen) els11.userConfigBackupView.scrollTop = userConfigBackupScrollTop;
     if (options.refresh === false) return;
-    if (selected === "storage") maybeCall("refreshSettings");
+    if (selected === "storage" && !userConfigBackupOpen) maybeCall("refreshSettings");
     if (selected === "network") {
       maybeCall("refreshNetworkEgress");
       maybeCall("refreshLanAccess");
     }
     if (selected === "api") {
-      maybeCall("setApiSettingsFeedback", "", "");
-      if (!getLegacyBridge().state.apiProviderEditingId) maybeCall("populateApiSettingsForm");
+      if (!getLegacyBridge().state.apiProviderEditingId) {
+        maybeCall("setApiSettingsFeedback", "", "");
+        maybeCall("populateApiSettingsForm");
+      }
       maybeCall("updateModeSpecificSettings");
     }
     refreshSegmentedIndicators();
     if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
   }
   function userConfigBackupViewIsOpen() {
-    return userConfigBackupOpen;
+    const { els: els11 } = getLegacyBridge();
+    return userConfigBackupOpen && !els11.systemSettingsStoragePanel?.hidden && !els11.systemSettingsModal?.classList.contains("hidden");
+  }
+  function showStorageChild(backup) {
+    const { els: els11 } = getLegacyBridge();
+    for (const child of Array.from(els11.systemSettingsStoragePanel?.children || [])) {
+      if (!(child instanceof HTMLElement)) continue;
+      const visible = child === els11.userConfigBackupView === backup;
+      child.hidden = !visible;
+      child.inert = !visible;
+      child.setAttribute("aria-hidden", String(!visible));
+    }
   }
   function openUserConfigBackupView(trigger) {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
+    setSystemSettingsTab("storage", { refresh: false });
     if (userConfigBackupOpen) return;
-    setSystemSettingsTab("storage");
-    userConfigBackupOpen = true;
     userConfigBackupTrigger = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    storagePanelScrollTop = Number(els9.systemSettingsStoragePanel?.scrollTop || 0);
+    const scroll = els11.systemSettingsStoragePanel?.querySelector(".system-settings-scroll");
+    storagePanelScrollTop = Number(scroll?.scrollTop || 0);
     const panel = systemSettingsPanel();
     const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
     const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
     if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
-    if (els9.systemSettingsTabs instanceof HTMLElement) {
-      els9.systemSettingsTabs.hidden = true;
-      els9.systemSettingsTabs.inert = true;
-      els9.systemSettingsTabs.setAttribute("aria-hidden", "true");
+    userConfigBackupOpen = true;
+    showStorageChild(true);
+    els11.userConfigBackupView.scrollTop = userConfigBackupScrollTop;
+    if (!userConfigBackupControllerActive) {
+      userConfigBackupControllerActive = true;
+      maybeCall("openUserConfigBackupController");
     }
-    [
-      els9.systemSettingsApiPanel,
-      els9.systemSettingsNetworkPanel,
-      els9.systemSettingsLanguagePanel,
-      els9.systemSettingsStoragePanel
-    ].forEach((settingsPanel) => {
-      if (!settingsPanel) return;
-      settingsPanel.hidden = true;
-      settingsPanel.inert = true;
-      settingsPanel.setAttribute("aria-hidden", "true");
-    });
-    if (els9.userConfigBackupView instanceof HTMLElement) {
-      els9.userConfigBackupView.hidden = false;
-      els9.userConfigBackupView.inert = false;
-      els9.userConfigBackupView.setAttribute("aria-hidden", "false");
-    }
-    els9.userConfigBackupBackButton?.classList.remove("hidden");
-    if (els9.systemSettingsTitle) {
-      els9.systemSettingsTitle.dataset.i18n = "userConfigBackup.title";
-      els9.systemSettingsTitle.textContent = translate("userConfigBackup.title");
-    }
-    maybeCall("openUserConfigBackupController");
     refreshSegmentedIndicators();
     if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
-    els9.userConfigBackupBackButton?.focus({ preventScroll: true });
+    els11.userConfigBackupBackButton?.focus({ preventScroll: true });
   }
   function closeUserConfigBackupView(options = {}) {
     if (!userConfigBackupOpen) return true;
-    if (!options.force && maybeCall("guardUserConfigBackupClose", options.closeModal === true) === false) return false;
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     const panel = systemSettingsPanel();
     const animateHeight = Boolean(panel && shouldAnimateSystemSettingsHeight());
     const beforeHeight = animateHeight && panel ? panel.getBoundingClientRect().height : 0;
     if (animateHeight && panel) clearSystemSettingsHeightAnimation(panel);
+    if (userConfigBackupViewIsOpen()) userConfigBackupScrollTop = els11.userConfigBackupView.scrollTop;
     userConfigBackupOpen = false;
-    if (els9.userConfigBackupView instanceof HTMLElement) {
-      els9.userConfigBackupView.hidden = true;
-      els9.userConfigBackupView.inert = true;
-      els9.userConfigBackupView.setAttribute("aria-hidden", "true");
-    }
-    if (els9.systemSettingsTabs instanceof HTMLElement) {
-      els9.systemSettingsTabs.hidden = false;
-      els9.systemSettingsTabs.inert = false;
-      els9.systemSettingsTabs.setAttribute("aria-hidden", "false");
-    }
-    els9.userConfigBackupBackButton?.classList.add("hidden");
-    if (els9.systemSettingsTitle) {
-      els9.systemSettingsTitle.dataset.i18n = "systemSettings.title";
-      els9.systemSettingsTitle.textContent = translate("systemSettings.title");
-    }
-    [
-      ["api", els9.systemSettingsApiPanel],
-      ["network", els9.systemSettingsNetworkPanel],
-      ["language", els9.systemSettingsLanguagePanel],
-      ["storage", els9.systemSettingsStoragePanel]
-    ].forEach(([name, settingsPanel]) => {
-      if (!(settingsPanel instanceof HTMLElement)) return;
-      settingsPanel.inert = false;
-      const active = name === "storage";
-      settingsPanel.hidden = !active;
-      settingsPanel.setAttribute("aria-hidden", active ? "false" : "true");
-    });
+    showStorageChild(false);
     setSystemSettingsTab("storage", { refresh: false });
-    if (els9.systemSettingsStoragePanel) els9.systemSettingsStoragePanel.scrollTop = storagePanelScrollTop;
-    maybeCall("closeUserConfigBackupController");
+    const scroll = els11.systemSettingsStoragePanel?.querySelector(".system-settings-scroll");
+    if (scroll) scroll.scrollTop = storagePanelScrollTop;
     refreshSegmentedIndicators();
     if (animateHeight && panel) animateSystemSettingsPanelHeight(panel, beforeHeight);
     if (options.restoreFocus !== false && userConfigBackupTrigger?.isConnected) {
@@ -28624,8 +30454,8 @@
     return true;
   }
   function openSystemSettingsModal(tab = "api") {
-    const { els: els9 } = getLegacyBridge();
-    const modal = els9.systemSettingsModal;
+    const { els: els11 } = getLegacyBridge();
+    const modal = els11.systemSettingsModal;
     const wasHidden = modal?.classList.contains("hidden") ?? true;
     if (wasHidden) {
       const activeElement = document.activeElement;
@@ -28638,13 +30468,12 @@
     refreshSegmentedIndicators();
   }
   function closeSystemSettingsModal(options = {}) {
-    if (userConfigBackupOpen && !closeUserConfigBackupView({
-      restoreFocus: false,
-      force: options.force === true,
-      closeModal: true
-    })) return;
-    const { els: els9 } = getLegacyBridge();
-    const modal = els9.systemSettingsModal;
+    if (userConfigBackupControllerActive && !options.force && maybeCall("guardUserConfigBackupClose") === false) return;
+    closeUserConfigBackupView({ restoreFocus: false });
+    if (userConfigBackupControllerActive) maybeCall("closeUserConfigBackupController");
+    userConfigBackupControllerActive = false;
+    const { els: els11 } = getLegacyBridge();
+    const modal = els11.systemSettingsModal;
     const activeElement = document.activeElement;
     if (modal && activeElement instanceof HTMLElement && modal.contains(activeElement)) {
       const returnFocus = systemSettingsReturnFocus;
@@ -28677,6 +30506,16 @@
     event.preventDefault();
     setSystemSettingsTab(button.dataset.systemSettingsTab || "api");
   }
+  function handleSystemSettingsTabKeydown(event) {
+    const button = event.target?.closest("[data-system-settings-tab]");
+    if (!button || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const tabs = Array.from(getLegacyBridge().els.systemSettingsTabs.querySelectorAll("[data-system-settings-tab]"));
+    const index = tabs.indexOf(button);
+    const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    event.preventDefault();
+    tabs[next]?.focus({ preventScroll: true });
+    setSystemSettingsTab(tabs[next]?.dataset.systemSettingsTab);
+  }
   function handleSystemSettingsResize() {
     positionSystemSettingsModal();
   }
@@ -28685,7 +30524,7 @@
     openUserConfigBackupView(trigger instanceof HTMLElement ? trigger : void 0);
   }
   function handleSystemSettingsKeydown(event) {
-    if (event.key !== "Escape" || !userConfigBackupOpen) return;
+    if (event.key !== "Escape" || !userConfigBackupViewIsOpen() || document.querySelector(".confirm-popover:not(.hidden)")) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     closeUserConfigBackupView();
@@ -28693,10 +30532,11 @@
   function initSystemSettingsFeature() {
     if (systemSettingsFeatureInitialized) return;
     systemSettingsFeatureInitialized = true;
-    const { els: els9 } = getLegacyBridge();
-    els9.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
-    els9.openUserConfigBackupButton?.addEventListener("click", handleUserConfigBackupEntry);
-    els9.userConfigBackupBackButton?.addEventListener("click", () => closeUserConfigBackupView());
+    const { els: els11 } = getLegacyBridge();
+    els11.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
+    els11.systemSettingsTabs?.addEventListener("keydown", handleSystemSettingsTabKeydown);
+    els11.openUserConfigBackupButton?.addEventListener("click", handleUserConfigBackupEntry);
+    els11.userConfigBackupBackButton?.addEventListener("click", () => closeUserConfigBackupView());
     window.addEventListener("resize", handleSystemSettingsResize);
     document.addEventListener("keydown", handleSystemSettingsKeydown, true);
     Object.assign(getLegacyBridge().methods, {
@@ -28711,10 +30551,11 @@
   }
 
   // codex_image/webui/frontend/src/api-provider-settings.ts
-  var bridge3 = getLegacyBridge();
-  var state3 = bridge3.state;
-  var els4 = bridge3.els;
+  var bridge4 = getLegacyBridge();
+  var state4 = bridge4.state;
+  var els6 = bridge4.els;
   var apiSettingsAutosaveTimerId = null;
+  var apiSettingsSaving = false;
   function legacyMethod4(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -28725,7 +30566,7 @@
   function setStatus3(message, type) {
     legacyMethod4("setStatus", message, type);
   }
-  function updateRequestPreview2() {
+  function updateRequestPreview3() {
     legacyMethod4("updateRequestPreview");
   }
   function closePromptPopover() {
@@ -28748,28 +30589,13 @@
     label.textContent = provider?.name || provider?.id || "";
     target.append(label);
   }
-  function providerById(providerId, settings = state3.apiSettings) {
+  function providerById(providerId, settings = state4.apiSettings) {
     const normalized = normalizeApiSettings(settings);
     return normalized.providers.find((provider) => provider.id === providerId) || normalized.providers[0];
   }
-  function apiBaseUrlForEndpoint(value) {
-    const withoutQueryOrFragment = String(value || DEFAULT_API_BASE_URL).trim().split(/[?#]/, 1)[0] || "";
-    let baseUrl = withoutQueryOrFragment.replace(/\/+$/, "") || DEFAULT_API_BASE_URL;
-    for (const suffix of ["/responses", "/images/generations", "/images/edits"]) {
-      if (!baseUrl.endsWith(suffix)) continue;
-      baseUrl = baseUrl.slice(0, -suffix.length).replace(/\/+$/, "");
-      break;
-    }
-    return baseUrl || DEFAULT_API_BASE_URL;
-  }
-  function updateApiRequestEndpointPreview() {
-    if (!els4.apiRequestEndpointPreview) return;
-    const provider = state3.apiProviderDraft || activeApiProvider();
-    const baseUrl = apiBaseUrlForEndpoint(els4.apiBaseUrl?.value || provider?.base_url);
-    const bindingCount = readProviderBindingCards(els4.apiProviderBindings).length || provider?.bindings?.length || 0;
-    const preview = `${baseUrl} \xB7 ${bindingCount} \xB7 ${translate("apiSettings.modelBindings")}`;
-    els4.apiRequestEndpointPreview.textContent = preview;
-    els4.apiRequestEndpointPreview.title = preview;
+  function updateProviderBindingCount() {
+    const count = readProviderBindingCards(els6.apiProviderBindings).length;
+    setElementText(els6.providerBindingsCount, `(${count})`);
   }
   function providerHasApiKey(provider) {
     return Boolean(provider?.api_key || provider?.api_key_set);
@@ -28779,16 +30605,11 @@
     return provider.api_key_masked || translate("apiSettings.keySaved");
   }
   function providerMetaLabel(provider) {
-    return [
-      `${provider?.bindings?.length || 0} \xB7 ${translate("apiSettings.modelBindings")}`,
-      formatTranslation("apiSettings.concurrencyValue", {
-        concurrency: String(normalizeApiImagesConcurrency(provider?.concurrency ?? provider?.images_concurrency))
-      })
-    ].filter(Boolean).join(" \xB7 ");
+    return `${translate("apiSettings.modelBindings")} (${provider?.bindings?.length || 0})`;
   }
   function uniqueCopiedProviderId(provider) {
     const base = String(provider?.id || provider?.name || "provider").trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "provider";
-    const existing = new Set((state3.apiSettings.providers || []).map((item) => item.id));
+    const existing = new Set((state4.apiSettings.providers || []).map((item) => item.id));
     const root = `${base}-copy`;
     if (!existing.has(root)) return root;
     for (let index = 2; index < 1e3; index += 1) {
@@ -28800,7 +30621,7 @@
   function copiedProviderName(provider) {
     const sourceName = String(provider?.name || provider?.id || translate("apiSettings.newProvider")).trim();
     const rootName = formatTranslation("apiSettings.copyProviderName", { name: sourceName });
-    const existing = new Set((state3.apiSettings.providers || []).map((item) => String(item.name || "").trim()));
+    const existing = new Set((state4.apiSettings.providers || []).map((item) => String(item.name || "").trim()));
     if (!existing.has(rootName)) return rootName;
     for (let index = 2; index < 1e3; index += 1) {
       const candidate = `${rootName} ${index}`;
@@ -28812,71 +30633,71 @@
     if (element) element.textContent = String(value ?? "");
   }
   function setApiKeyRevealVisible(visible) {
-    if (!els4.apiKey) return;
-    const canReveal = Boolean(els4.apiKey.value);
+    if (!els6.apiKey) return;
+    const canReveal = Boolean(els6.apiKey.value);
     const shouldReveal = Boolean(visible && canReveal);
-    els4.apiKey.type = shouldReveal ? "text" : "password";
-    els4.apiKeyRevealButton?.setAttribute("aria-pressed", shouldReveal ? "true" : "false");
+    els6.apiKey.type = shouldReveal ? "text" : "password";
+    els6.apiKeyRevealButton?.setAttribute("aria-pressed", shouldReveal ? "true" : "false");
     const label = translate(shouldReveal ? "apiSettings.hideApiKey" : "apiSettings.showApiKey");
-    els4.apiKeyRevealButton?.setAttribute("aria-label", label);
-    els4.apiKeyRevealButton?.setAttribute("title", label);
-    els4.apiKeyRevealButton?.classList.toggle("active", shouldReveal);
+    els6.apiKeyRevealButton?.setAttribute("aria-label", label);
+    els6.apiKeyRevealButton?.setAttribute("title", label);
+    els6.apiKeyRevealButton?.classList.toggle("active", shouldReveal);
   }
   function hideApiKeyReveal() {
     setApiKeyRevealVisible(false);
   }
   function updateApiKeyRevealButton() {
-    if (!els4.apiKeyRevealButton) return;
-    const canReveal = Boolean(els4.apiKey?.value);
-    if (canReveal) els4.apiKey?.removeAttribute("aria-invalid");
+    if (!els6.apiKeyRevealButton) return;
+    const canReveal = Boolean(els6.apiKey?.value);
+    if (canReveal) els6.apiKey?.removeAttribute("aria-invalid");
     if (!canReveal) hideApiKeyReveal();
-    els4.apiKeyRevealButton.disabled = !canReveal;
+    els6.apiKeyRevealButton.disabled = !canReveal;
     const label = translate("apiSettings.showApiKey");
-    els4.apiKeyRevealButton.setAttribute("aria-label", label);
-    els4.apiKeyRevealButton.setAttribute("title", label);
+    els6.apiKeyRevealButton.setAttribute("aria-label", label);
+    els6.apiKeyRevealButton.setAttribute("title", label);
   }
   function revealApiKeyWhilePressed(event) {
-    if (!els4.apiKey?.value || els4.apiKeyRevealButton?.disabled) return;
+    if (!els6.apiKey?.value || els6.apiKeyRevealButton?.disabled) return;
     event?.preventDefault();
     setApiKeyRevealVisible(true);
   }
   function scrollApiProviderEditorIntoView() {
     window.requestAnimationFrame(() => {
-      els4.apiProviderEditor?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+      els6.apiProviderEditor?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
     });
   }
   function setApiProviderEditorVisible(visible) {
-    els4.apiProviderSection?.classList.toggle("editing", visible);
-    els4.apiProviderSection?.setAttribute("aria-hidden", visible ? "true" : "false");
-    if (visible) els4.apiProviderSection?.setAttribute("inert", "");
-    else els4.apiProviderSection?.removeAttribute("inert");
-    els4.apiProviderEditor?.classList.toggle("hidden", !visible);
-    els4.apiProviderEditor?.setAttribute("aria-hidden", visible ? "false" : "true");
-    els4.apiProviderDetail?.classList.toggle("hidden", visible);
-    els4.apiSettingsActions?.classList.toggle("hidden", visible);
-    els4.apiSettingsActions?.setAttribute("aria-hidden", visible ? "true" : "false");
-    if (els4.editApiProviderButton) els4.editApiProviderButton.disabled = visible;
-    if (els4.addApiProviderButton) els4.addApiProviderButton.disabled = visible;
-    if (els4.copyApiProviderButton) els4.copyApiProviderButton.disabled = visible;
-    if (els4.sortApiProvidersButton) els4.sortApiProvidersButton.disabled = visible;
-    if (els4.deleteApiProviderButton) {
-      els4.deleteApiProviderButton.disabled = visible || normalizeApiSettings(state3.apiSettings).providers.length <= 1;
+    els6.apiProviderSection?.classList.toggle("editing", visible);
+    els6.apiProviderSection?.setAttribute("aria-hidden", visible ? "true" : "false");
+    if (visible) els6.apiProviderSection?.setAttribute("inert", "");
+    else els6.apiProviderSection?.removeAttribute("inert");
+    els6.apiProviderEditor?.classList.toggle("hidden", !visible);
+    els6.apiProviderEditor?.setAttribute("aria-hidden", visible ? "false" : "true");
+    els6.apiProviderDetail?.classList.toggle("hidden", visible);
+    els6.apiSettingsActions?.classList.toggle("hidden", visible);
+    els6.apiSettingsActions?.setAttribute("aria-hidden", visible ? "true" : "false");
+    if (els6.editApiProviderButton) els6.editApiProviderButton.disabled = visible;
+    if (els6.addApiProviderButton) els6.addApiProviderButton.disabled = visible;
+    if (els6.copyApiProviderButton) els6.copyApiProviderButton.disabled = visible;
+    if (els6.sortApiProvidersButton) els6.sortApiProvidersButton.disabled = visible;
+    if (els6.deleteApiProviderButton) {
+      els6.deleteApiProviderButton.disabled = visible || normalizeApiSettings(state4.apiSettings).providers.length <= 1;
     }
     if (!visible) hideApiKeyReveal();
   }
   function apiProviderEditorActive() {
-    return Boolean(state3.apiProviderEditingId && state3.apiProviderDraft);
+    return Boolean(state4.apiProviderEditingId && state4.apiProviderDraft);
   }
   function draftProviderFromForm() {
-    const draft = state3.apiProviderDraft || activeApiProvider();
-    const bindingCards = readProviderBindingCards(els4.apiProviderBindings);
+    const draft = state4.apiProviderDraft || activeApiProvider();
+    const bindingCards = readProviderBindingCards(els6.apiProviderBindings);
     return normalizeApiProvider({
       ...draft,
-      name: els4.apiProviderName?.value || draft.name,
-      icon_emoji: els4.apiProviderIconEmoji ? els4.apiProviderIconEmoji.value : draft.icon_emoji,
-      base_url: els4.apiBaseUrl?.value || DEFAULT_API_BASE_URL,
-      api_key: els4.apiKey?.value || "",
-      concurrency: normalizeApiImagesConcurrency(els4.apiImagesConcurrency?.value),
+      name: els6.apiProviderName?.value || draft.name,
+      icon_emoji: els6.apiProviderIconEmoji ? els6.apiProviderIconEmoji.value : draft.icon_emoji,
+      base_url: els6.apiBaseUrl?.value || DEFAULT_API_BASE_URL,
+      api_key: els6.apiKey?.value || "",
+      concurrency: normalizeApiImagesConcurrency(els6.apiImagesConcurrency?.value),
       bindings: bindingCards,
       default_model_ids: bindingCards.filter((binding) => binding.is_default).map((binding) => binding.canonical_model_id),
       api_key_set: Boolean(draft.api_key_set || draft.api_key || draft.api_key_source_provider_id),
@@ -28885,28 +30706,28 @@
     }, 0);
   }
   function writeProviderForm(provider) {
-    if (els4.apiProviderName) els4.apiProviderName.value = provider.name || "";
-    if (els4.apiProviderIconEmoji) els4.apiProviderIconEmoji.value = provider.icon_emoji || "";
-    if (els4.apiBaseUrl) els4.apiBaseUrl.value = provider.base_url || DEFAULT_API_BASE_URL;
-    if (els4.apiImagesConcurrency) els4.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
-    if (els4.apiKey) {
-      els4.apiKey.value = provider.api_key || "";
-      els4.apiKey.placeholder = provider.api_key_set && !provider.api_key ? translate("apiSettings.savedKeyPlaceholder") : "sk-...";
+    if (els6.apiProviderName) els6.apiProviderName.value = provider.name || "";
+    if (els6.apiProviderIconEmoji) els6.apiProviderIconEmoji.value = provider.icon_emoji || "";
+    if (els6.apiBaseUrl) els6.apiBaseUrl.value = provider.base_url || DEFAULT_API_BASE_URL;
+    if (els6.apiImagesConcurrency) els6.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
+    if (els6.apiKey) {
+      els6.apiKey.value = provider.api_key || "";
+      els6.apiKey.placeholder = provider.api_key_set && !provider.api_key ? translate("apiSettings.savedKeyPlaceholder") : "sk-...";
     }
     hideApiKeyReveal();
     updateApiKeyRevealButton();
     renderProviderBindingCards(
-      els4.apiProviderBindings,
+      els6.apiProviderBindings,
       provider.bindings || [],
-      state3.generationCatalog?.models || [],
+      state4.generationCatalog?.models || [],
       provider.id,
       defaultsForProviderDraft(provider)
     );
-    updateApiRequestEndpointPreview();
+    updateProviderBindingCount();
     resetApiAdvancedSettings();
   }
   function defaultsForProviderDraft(provider) {
-    const defaults = { ...state3.apiSettings.default_provider_by_model || {} };
+    const defaults = { ...state4.apiSettings.default_provider_by_model || {} };
     Object.keys(defaults).forEach((modelId) => {
       if (defaults[modelId] === provider.id) delete defaults[modelId];
     });
@@ -28917,25 +30738,25 @@
   }
   function renderApiProviderList() {
     cancelApiProviderSortInteraction(true);
-    const settings = normalizeApiSettings(state3.apiSettings);
-    state3.apiSettings = settings;
-    const sorting = Boolean(state3.apiProviderSortMode && settings.providers.length > 1);
+    const settings = normalizeApiSettings(state4.apiSettings);
+    state4.apiSettings = settings;
+    const sorting = Boolean(state4.apiProviderSortMode && settings.providers.length > 1);
     const searchQuery = updateApiProviderListPresentation(settings.providers.length, sorting);
-    setElementText(els4.apiProviderCount, formatTranslation("apiSettings.providerCount", {
+    setElementText(els6.apiProviderCount, formatTranslation("apiSettings.providerCount", {
       count: String(settings.providers.length)
     }));
-    if (els4.sortApiProvidersButton) {
+    if (els6.sortApiProvidersButton) {
       const canSort = settings.providers.length > 1;
-      els4.sortApiProvidersButton.classList.toggle("hidden", !canSort);
-      els4.sortApiProvidersButton.classList.toggle("active", sorting);
-      els4.sortApiProvidersButton.disabled = apiProviderEditorActive() || !canSort;
-      els4.sortApiProvidersButton.textContent = translate(sorting ? "apiSettings.finishSortProviders" : "apiSettings.sortProviders");
-      els4.sortApiProvidersButton.setAttribute("aria-pressed", sorting ? "true" : "false");
+      els6.sortApiProvidersButton.classList.toggle("hidden", !canSort);
+      els6.sortApiProvidersButton.classList.toggle("active", sorting);
+      els6.sortApiProvidersButton.disabled = apiProviderEditorActive() || !canSort;
+      els6.sortApiProvidersButton.textContent = translate(sorting ? "apiSettings.finishSortProviders" : "apiSettings.sortProviders");
+      els6.sortApiProvidersButton.setAttribute("aria-pressed", sorting ? "true" : "false");
     }
-    els4.addApiProviderButton?.classList.toggle("hidden", sorting || apiProviderEditorActive());
-    if (!els4.apiProviderList) return;
-    els4.apiProviderList.classList.toggle("is-sorting", sorting);
-    els4.apiProviderList.setAttribute("role", sorting ? "list" : "listbox");
+    els6.addApiProviderButton?.classList.toggle("hidden", sorting || apiProviderEditorActive());
+    if (!els6.apiProviderList) return;
+    els6.apiProviderList.classList.toggle("is-sorting", sorting);
+    els6.apiProviderList.setAttribute("role", sorting ? "list" : "listbox");
     if (sorting) {
       const rows = settings.providers.map((provider) => {
         const row = document.createElement("div");
@@ -28970,7 +30791,7 @@
         row.append(content, handle);
         return row;
       });
-      els4.apiProviderList.replaceChildren(...rows);
+      els6.apiProviderList.replaceChildren(...rows);
       return;
     }
     const visibleProviders = settings.providers.filter((provider) => apiProviderMatchesSearch(provider, searchQuery));
@@ -28988,56 +30809,65 @@
       const meta = document.createElement("span");
       meta.textContent = providerMetaLabel(provider);
       button.append(name, meta);
+      if (active) {
+        const check = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        check.classList.add("api-provider-choice-check");
+        check.setAttribute("viewBox", "0 0 24 24");
+        check.setAttribute("aria-hidden", "true");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M9 16.2 4.8 12l-1.6 1.6L9 19.4 21 7.4l-1.6-1.6Z");
+        check.append(path);
+        button.append(check);
+      }
       return button;
     });
     if (!buttons.length) {
       const empty = document.createElement("div");
       empty.className = "api-provider-search-empty";
       empty.textContent = translate("apiSettings.noProviderSearchResults");
-      els4.apiProviderList.replaceChildren(empty);
+      els6.apiProviderList.replaceChildren(empty);
       return;
     }
-    els4.apiProviderList.replaceChildren(...buttons);
+    els6.apiProviderList.replaceChildren(...buttons);
     if (!searchQuery) scrollActiveApiProviderCardIntoView(settings.active_provider_id, "center");
   }
   function renderApiProviderDetail() {
     const provider = activeApiProvider();
-    setElementText(els4.apiProviderDetailBaseUrl, provider.base_url || DEFAULT_API_BASE_URL);
-    setElementText(els4.apiProviderDetailKey, providerKeyLabel(provider));
-    setElementText(
-      els4.apiProviderDetailMode,
-      `${provider.bindings?.length || 0} \xB7 ${translate("apiSettings.modelBindings")}`
-    );
-    setElementText(els4.apiProviderDetailConcurrency, normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
+    setElementText(els6.apiProviderDetailName, provider.name || provider.id);
+    setElementText(els6.apiProviderDetailBaseUrl, provider.base_url || DEFAULT_API_BASE_URL);
+    if (els6.apiProviderDetailName) els6.apiProviderDetailName.title = provider.name || provider.id;
+    if (els6.apiProviderDetailBaseUrl) els6.apiProviderDetailBaseUrl.title = provider.base_url || DEFAULT_API_BASE_URL;
+    setElementText(els6.apiProviderDetailKey, providerKeyLabel(provider));
+    setElementText(els6.apiProviderDetailConcurrency, normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
   }
   function renderApiProviderEditor() {
     const editing = apiProviderEditorActive();
     setApiProviderEditorVisible(editing);
     if (!editing) return;
-    const isNew = Boolean(state3.apiProviderDraftIsNew);
-    setElementText(els4.apiProviderEditorTitle, translate(isNew ? "apiSettings.newProviderTitle" : "apiSettings.editProvider"));
-    writeProviderForm(state3.apiProviderDraft);
+    const isNew = Boolean(state4.apiProviderDraftIsNew);
+    setElementText(els6.apiProviderEditorTitle, translate(isNew ? "apiSettings.newProviderTitle" : "apiSettings.editProvider"));
+    writeProviderForm(state4.apiProviderDraft);
   }
   function activeApiProvider() {
-    const settings = normalizeApiSettings(state3.apiSettings);
-    state3.apiSettings = settings;
+    const settings = normalizeApiSettings(state4.apiSettings);
+    state4.apiSettings = settings;
     return settings.providers.find((provider) => provider.id === settings.active_provider_id) || settings.providers[0];
   }
   function restoreApiSettings() {
     try {
       const saved = JSON.parse(localStorage.getItem(API_SETTINGS_STORAGE_KEY) || "{}");
-      state3.apiSettings = normalizeApiSettings(saved);
+      state4.apiSettings = normalizeApiSettings(saved);
     } catch {
-      state3.apiSettings = normalizeApiSettings();
+      state4.apiSettings = normalizeApiSettings();
     }
   }
   function persistApiSettings() {
     try {
       localStorage.setItem(API_SETTINGS_STORAGE_KEY, JSON.stringify({
-        codex_mode: state3.apiSettings.codex_mode,
-        active_provider_id: state3.apiSettings.active_provider_id,
-        default_provider_by_model: state3.apiSettings.default_provider_by_model,
-        providers: state3.apiSettings.providers.map((provider) => ({
+        codex_mode: state4.apiSettings.codex_mode,
+        active_provider_id: state4.apiSettings.active_provider_id,
+        default_provider_by_model: state4.apiSettings.default_provider_by_model,
+        providers: state4.apiSettings.providers.map((provider) => ({
           id: provider.id,
           name: provider.name,
           icon_emoji: provider.icon_emoji || "",
@@ -29051,7 +30881,7 @@
     }
   }
   function mergeApiProviderKeys(serverSettings) {
-    const localById = new Map((state3.apiSettings.providers || []).map((provider) => [provider.id, provider]));
+    const localById = new Map((state4.apiSettings.providers || []).map((provider) => [provider.id, provider]));
     const normalized = normalizeApiSettings(serverSettings);
     normalized.providers = normalized.providers.map((provider) => {
       const local = localById.get(provider.id);
@@ -29059,93 +30889,98 @@
     });
     return normalized;
   }
-  async function refreshApiSettings() {
+  async function refreshApiSettings(options = {}) {
     try {
       const response = await fetch("/api/api-settings");
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("apiSettings.loadFailed"));
-      state3.apiSettings = mergeApiProviderKeys(data.settings || {});
-      populateApiSettingsForm();
+      state4.apiSettings = mergeApiProviderKeys(data.settings || {});
+      populateApiSettingsForm({ preserveEditor: true });
+      if (options.afterRestore && apiProviderEditorActive()) {
+        setApiSettingsFeedback(translate("userConfigBackup.settingsUpdatedDraftKept"), "");
+      }
       renderAuthSourceAfterProviderChange();
     } catch (error) {
       setApiSettingsFeedback(error.message || translate("apiSettings.loadFailed"), "error");
     }
   }
-  function populateApiSettingsForm() {
+  function populateApiSettingsForm(options = {}) {
     const provider = activeApiProvider();
-    if (els4.apiProviderQuick) {
-      els4.apiProviderQuick.innerHTML = "";
-      state3.apiSettings.providers.forEach((item) => {
+    if (els6.apiProviderQuick) {
+      els6.apiProviderQuick.innerHTML = "";
+      state4.apiSettings.providers.forEach((item) => {
         const option2 = document.createElement("option");
         option2.value = item.id;
         option2.textContent = item.name || item.id;
-        els4.apiProviderQuick.append(option2);
+        els6.apiProviderQuick.append(option2);
       });
-      els4.apiProviderQuick.value = provider.id;
+      els6.apiProviderQuick.value = provider.id;
     }
-    if (els4.apiProvider) {
-      els4.apiProvider.innerHTML = "";
-      state3.apiSettings.providers.forEach((item) => {
+    if (els6.apiProvider) {
+      els6.apiProvider.innerHTML = "";
+      state4.apiSettings.providers.forEach((item) => {
         const option2 = document.createElement("option");
         option2.value = item.id;
         option2.textContent = item.name || item.id;
-        els4.apiProvider.append(option2);
+        els6.apiProvider.append(option2);
       });
-      els4.apiProvider.value = provider.id;
+      els6.apiProvider.value = provider.id;
     }
     renderApiProviderList();
     renderApiProviderDetail();
-    renderApiProviderEditor();
+    if (!options.preserveEditor || !apiProviderEditorActive()) renderApiProviderEditor();
     updateModeSpecificSettings();
   }
   function readApiSettingsForm(options = {}) {
-    const settings = normalizeApiSettings(state3.apiSettings);
-    state3.apiSettings = options.applyProviderDraft ? applyApiProviderDraft(settings) : normalizeApiSettings(settings);
-    return state3.apiSettings;
+    const settings = normalizeApiSettings(state4.apiSettings);
+    state4.apiSettings = options.applyProviderDraft ? applyApiProviderDraft(settings) : normalizeApiSettings(settings);
+    return state4.apiSettings;
   }
   function currentApiProviderId() {
-    if (state3.selectedProviderId && state3.selectedProviderId !== "codex") return state3.selectedProviderId;
+    if (state4.selectedProviderId && state4.selectedProviderId !== "codex") return state4.selectedProviderId;
     return activeApiProvider().id;
   }
   function currentApiProviderLabel2() {
-    const selected = state3.generationCatalog?.providers.find((provider2) => provider2.id === state3.selectedProviderId);
+    const selected = state4.generationCatalog?.providers.find((provider2) => provider2.id === state4.selectedProviderId);
     if (selected) return String(selected.name || selected.id);
     const provider = activeApiProvider();
     return String(provider.name || provider.id || "").trim() || provider.id;
   }
   function addApiProvider() {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    state3.apiProviderSortMode = false;
+    state4.apiProviderSortMode = false;
     const id = `provider-${Date.now()}`;
-    state3.apiProviderEditingId = id;
-    state3.apiProviderDraftIsNew = true;
-    state3.apiProviderDraft = normalizeApiProvider({
+    state4.apiProviderEditingId = id;
+    state4.apiProviderDraftIsNew = true;
+    state4.apiProviderDraft = normalizeApiProvider({
       id,
       name: translate("apiSettings.newProvider"),
       base_url: DEFAULT_API_BASE_URL,
       concurrency: DEFAULT_API_IMAGES_CONCURRENCY,
       bindings: [bindingFromProtocol(`${id}-gpt-image-2`, "gpt-image-2", DEFAULT_API_IMAGE_MODEL, "openai_images")]
-    }, state3.apiSettings.providers.length);
+    }, state4.apiSettings.providers.length);
     populateApiSettingsForm();
     setApiSettingsFeedback(translate("apiSettings.newDraftStatus"), "running");
     scrollApiProviderEditorIntoView();
-    els4.apiProviderName?.focus();
+    els6.apiProviderName?.focus();
   }
   function copyApiProvider() {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    state3.apiProviderSortMode = false;
+    state4.apiProviderSortMode = false;
     const provider = activeApiProvider();
     const copiesSavedKey = providerHasApiKey(provider);
     const id = uniqueCopiedProviderId(provider);
-    state3.apiProviderEditingId = id;
-    state3.apiProviderDraftIsNew = true;
-    state3.apiProviderDraft = normalizeApiProvider({
+    state4.apiProviderEditingId = id;
+    state4.apiProviderDraftIsNew = true;
+    state4.apiProviderDraft = normalizeApiProvider({
       ...provider,
       bindings: provider.bindings.map((binding, index) => ({ ...binding, id: `${id}-binding-${index + 1}` })),
       id,
@@ -29154,42 +30989,47 @@
       api_key_set: copiesSavedKey,
       api_key_masked: provider.api_key_masked || "",
       api_key_source_provider_id: copiesSavedKey ? provider.id : ""
-    }, state3.apiSettings.providers.length);
+    }, state4.apiSettings.providers.length);
     populateApiSettingsForm();
     setApiSettingsFeedback(translate(copiesSavedKey ? "apiSettings.copyProviderStatus" : "apiSettings.copyProviderWithoutKeyStatus"), "running");
     scrollApiProviderEditorIntoView();
-    els4.apiProviderName?.focus();
+    els6.apiProviderName?.focus();
   }
-  function deleteApiProvider() {
+  async function deleteApiProvider() {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    if (state3.apiSettings.providers.length <= 1) return;
-    const activeId = state3.apiSettings.active_provider_id;
-    state3.apiSettings.providers = state3.apiSettings.providers.filter((provider) => provider.id !== activeId);
-    state3.apiSettings.active_provider_id = state3.apiSettings.providers[0]?.id || "default";
-    Object.entries(state3.apiSettings.default_provider_by_model || {}).forEach(([modelId, providerId]) => {
-      if (providerId === activeId) delete state3.apiSettings.default_provider_by_model[modelId];
+    const activeId = state4.apiSettings.active_provider_id;
+    const candidate = withoutApiProvider(state4.apiSettings, activeId);
+    if (!candidate) return;
+    if (!await saveApiSettings({ auto: true, candidateSettings: candidate })) {
+      els6.deleteApiProviderButton?.focus({ preventScroll: true });
+      return;
+    }
+    Object.entries(state4.lastProviderByModel || {}).forEach(([modelId, providerId]) => {
+      if (providerId === activeId) delete state4.lastProviderByModel[modelId];
     });
-    Object.entries(state3.lastProviderByModel || {}).forEach(([modelId, providerId]) => {
-      if (providerId === activeId) delete state3.lastProviderByModel[modelId];
+    Object.entries(state4.lastProviderSelectionByModel || {}).forEach(([modelId, selection2]) => {
+      if (String(selection2).startsWith(`${activeId}::`)) delete state4.lastProviderSelectionByModel[modelId];
     });
-    if (state3.apiSettings.providers.length <= 1) state3.apiProviderSortMode = false;
+    getLegacyBridge().methods.persistModelSelection?.();
+    if (state4.apiSettings.providers.length <= 1) state4.apiProviderSortMode = false;
     populateApiSettingsForm();
-    persistApiSettings();
     renderAuthSourceAfterProviderChange();
-    setApiSettingsFeedback(translate("apiSettings.deleteProviderStatus"), "running");
-    queueApiSettingsAutosave();
+    scrollActiveApiProviderCardIntoView(activeApiProvider().id, "nearest");
+    els6.apiProviderList?.querySelector("[aria-selected='true']")?.focus({ preventScroll: true });
   }
-  function confirmDeleteApiProvider(anchor = els4.deleteApiProviderButton) {
+  function confirmDeleteApiProvider(anchor = els6.deleteApiProviderButton) {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    if (state3.apiSettings.providers.length <= 1) return;
+    if (state4.apiSettings.providers.length <= 1) return;
     const provider = activeApiProvider();
-    openConfirmPopover(anchor || els4.deleteApiProviderButton, {
+    openConfirmPopover(anchor || els6.deleteApiProviderButton, {
       title: translate("apiSettings.deleteProviderTitle"),
       message: formatTranslation("apiSettings.deleteProviderMessage", {
         provider: provider.name || provider.id
@@ -29205,10 +31045,10 @@
       return;
     }
     closePromptPopover();
-    state3.apiProviderEditingId = null;
-    state3.apiProviderDraft = null;
-    state3.apiProviderDraftIsNew = false;
-    if (els4.apiProviderSearch) els4.apiProviderSearch.value = "";
+    state4.apiProviderEditingId = null;
+    state4.apiProviderDraft = null;
+    state4.apiProviderDraftIsNew = false;
+    if (els6.apiProviderSearch) els6.apiProviderSearch.value = "";
     populateApiSettingsForm();
     setApiSettingsFeedback("", "");
     openSystemSettingsModal("api");
@@ -29221,19 +31061,20 @@
     closeSystemSettingsModal();
   }
   function selectApiProvider(providerId, anchor) {
+    if (apiSettingsSaving) return;
     const id = String(providerId || "").trim();
     if (!id) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    if (state3.apiProviderSortMode) return;
+    if (state4.apiProviderSortMode) return;
     const provider = providerById(id);
     const providerChanged = provider.id !== activeApiProvider().id;
     if (!providerChanged && provider.id === currentApiProviderId()) return;
     const continueSwitch = () => {
-      state3.apiSettings = normalizeApiSettings({
-        ...state3.apiSettings,
+      state4.apiSettings = normalizeApiSettings({
+        ...state4.apiSettings,
         active_provider_id: provider.id
       });
       populateApiSettingsForm();
@@ -29247,45 +31088,48 @@
     continueSwitch();
   }
   function editApiProvider() {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) return;
-    state3.apiProviderSortMode = false;
+    state4.apiProviderSortMode = false;
     const provider = activeApiProvider();
-    state3.apiProviderEditingId = provider.id;
-    state3.apiProviderDraftIsNew = false;
-    state3.apiProviderDraft = normalizeApiProvider({
+    state4.apiProviderEditingId = provider.id;
+    state4.apiProviderDraftIsNew = false;
+    state4.apiProviderDraft = normalizeApiProvider({
       ...provider,
-      default_model_ids: Object.keys(state3.apiSettings.default_provider_by_model || {}).filter((modelId) => state3.apiSettings.default_provider_by_model[modelId] === provider.id)
+      default_model_ids: Object.keys(state4.apiSettings.default_provider_by_model || {}).filter((modelId) => state4.apiSettings.default_provider_by_model[modelId] === provider.id)
     }, 0);
     populateApiSettingsForm();
     setApiSettingsFeedback(translate("apiSettings.editDraftStatus"), "running");
     scrollApiProviderEditorIntoView();
-    els4.apiProviderName?.focus();
+    els6.apiProviderName?.focus();
   }
   function cancelApiProviderEdit() {
+    if (apiSettingsSaving) return;
     if (!apiProviderEditorActive()) return;
-    els4.systemSettingsApiTab?.focus({ preventScroll: true });
-    state3.apiProviderEditingId = null;
-    state3.apiProviderDraft = null;
-    state3.apiProviderDraftIsNew = false;
+    els6.systemSettingsApiTab?.focus({ preventScroll: true });
+    state4.apiProviderEditingId = null;
+    state4.apiProviderDraft = null;
+    state4.apiProviderDraftIsNew = false;
     populateApiSettingsForm();
     setApiSettingsFeedback("", "");
     scrollActiveApiProviderCardIntoView(activeApiProvider().id, "center");
   }
   function toggleApiProviderSortMode() {
+    if (apiSettingsSaving) return;
     if (apiProviderEditorActive()) {
       setApiSettingsFeedback(translate("apiSettings.finishEditFirst"), "error");
       return;
     }
-    const settings = normalizeApiSettings(state3.apiSettings);
+    const settings = normalizeApiSettings(state4.apiSettings);
     if (settings.providers.length <= 1) return;
     cancelApiProviderSortInteraction(true);
-    state3.apiProviderSortMode = !state3.apiProviderSortMode;
+    state4.apiProviderSortMode = !state4.apiProviderSortMode;
     renderApiProviderList();
-    if (!state3.apiProviderSortMode) scrollActiveApiProviderCardIntoView(settings.active_provider_id, "center");
-    setApiSettingsFeedback(state3.apiProviderSortMode ? translate("apiSettings.sortProviderModeStatus") : "", state3.apiProviderSortMode ? "running" : "");
+    if (!state4.apiProviderSortMode) scrollActiveApiProviderCardIntoView(settings.active_provider_id, "center");
+    setApiSettingsFeedback(state4.apiProviderSortMode ? translate("apiSettings.sortProviderModeStatus") : "", state4.apiProviderSortMode ? "running" : "");
   }
   function focusedApiProviderSortId() {
-    if (!state3.apiProviderSortMode) return "";
+    if (!state4.apiProviderSortMode) return "";
     const handle = document.activeElement?.closest(
       "button[data-api-provider-sort-handle][data-api-provider-id]"
     );
@@ -29295,12 +31139,13 @@
     if (!providerId) return;
     window.requestAnimationFrame(() => {
       const escapedId = CSS.escape(providerId);
-      els4.apiProviderList?.querySelector(`button[data-api-provider-sort-handle][data-api-provider-id="${escapedId}"]`)?.focus({ preventScroll: true });
+      els6.apiProviderList?.querySelector(`button[data-api-provider-sort-handle][data-api-provider-id="${escapedId}"]`)?.focus({ preventScroll: true });
     });
   }
   function reorderApiProviders(orderedIds, focusProviderId = "") {
-    if (!state3.apiProviderSortMode || apiProviderEditorActive() || !Array.isArray(orderedIds)) return false;
-    const settings = normalizeApiSettings(state3.apiSettings);
+    if (apiSettingsSaving) return false;
+    if (!state4.apiProviderSortMode || apiProviderEditorActive() || !Array.isArray(orderedIds)) return false;
+    const settings = normalizeApiSettings(state4.apiSettings);
     const currentIds = settings.providers.map((provider) => provider.id);
     const candidate = orderedIds.map((id) => String(id || ""));
     if (!isCompleteProviderOrder(candidate, currentIds)) return false;
@@ -29309,7 +31154,7 @@
       settings.providers.map((provider) => [provider.id, provider])
     );
     const providers = candidate.map((id) => providersById.get(id));
-    state3.apiSettings = normalizeApiSettings({
+    state4.apiSettings = normalizeApiSettings({
       ...settings,
       providers,
       active_provider_id: settings.active_provider_id
@@ -29328,7 +31173,7 @@
   function addProviderBinding() {
     if (!apiProviderEditorActive()) return;
     const draft = draftProviderFromForm();
-    const models = state3.generationCatalog?.models || [];
+    const models = state4.generationCatalog?.models || [];
     const model = models.find((item) => !draft.bindings.some((binding) => binding.canonical_model_id === item.id)) || models[0];
     if (!model) {
       setApiSettingsFeedback(translate("apiSettings.catalogRequiredForBinding"), "error");
@@ -29347,23 +31192,19 @@
       protocol,
       [...model.operations]
     ));
-    if (!state3.apiSettings.default_provider_by_model?.[model.id]) {
+    if (!state4.apiSettings.default_provider_by_model?.[model.id]) {
       draft.default_model_ids = [.../* @__PURE__ */ new Set([...draft.default_model_ids || [], model.id])];
     }
-    state3.apiProviderDraft = draft;
+    state4.apiProviderDraft = draft;
     renderProviderBindingCards(
-      els4.apiProviderBindings,
+      els6.apiProviderBindings,
       draft.bindings,
       models,
       draft.id,
       defaultsForProviderDraft(draft)
     );
-    const added = [...els4.apiProviderBindings.querySelectorAll("details[data-binding-id]")].find((card) => card.dataset.bindingId === bindingId);
-    if (added) {
-      added.open = true;
-      added.querySelector("summary")?.focus();
-    }
-    updateApiRequestEndpointPreview();
+    openProviderBindingCard(els6.apiProviderBindings, bindingId, { focus: true });
+    updateProviderBindingCount();
   }
   function removeProviderBinding(bindingId) {
     if (!apiProviderEditorActive()) return;
@@ -29373,25 +31214,25 @@
       return;
     }
     draft.bindings = draft.bindings.filter((binding) => binding.id !== bindingId);
-    state3.apiProviderDraft = draft;
+    state4.apiProviderDraft = draft;
     renderProviderBindingCards(
-      els4.apiProviderBindings,
+      els6.apiProviderBindings,
       draft.bindings,
-      state3.generationCatalog?.models || [],
+      state4.generationCatalog?.models || [],
       draft.id,
       defaultsForProviderDraft(draft)
     );
-    updateApiRequestEndpointPreview();
+    updateProviderBindingCount();
   }
   function renderAuthSourceAfterProviderChange() {
-    legacyMethod4("renderAuthSource", state3.authStatus);
+    legacyMethod4("renderAuthSource", state4.authStatus);
     legacyMethod4("renderProviderSelection");
     updateModeSpecificSettings();
-    updateRequestPreview2();
+    updateRequestPreview3();
   }
   function currentApiImageModel() {
     const provider = activeApiProvider();
-    const binding = provider.bindings?.find((item) => item.canonical_model_id === state3.selectedModelId) || provider.bindings?.find((item) => item.canonical_model_id === "gpt-image-2") || provider.bindings?.[0];
+    const binding = provider.bindings?.find((item) => item.canonical_model_id === state4.selectedModelId) || provider.bindings?.find((item) => item.canonical_model_id === "gpt-image-2") || provider.bindings?.[0];
     return String(binding?.remote_model_id || provider.image_model || DEFAULT_API_IMAGE_MODEL).trim() || DEFAULT_API_IMAGE_MODEL;
   }
   function currentApiMode3() {
@@ -29401,11 +31242,11 @@
   }
   function currentCodexMode3() {
     const binding = selectedProviderBinding();
-    if (state3.selectedProviderId === "codex" && binding) {
+    if (state4.selectedProviderId === "codex" && binding) {
       return binding.protocol_profile === "codex_responses" ? "responses" : "images";
     }
-    state3.apiSettings = normalizeApiSettings(state3.apiSettings);
-    return normalizeCodexMode(state3.apiSettings.codex_mode);
+    state4.apiSettings = normalizeApiSettings(state4.apiSettings);
+    return normalizeCodexMode(state4.apiSettings.codex_mode);
   }
   function currentApiImagesConcurrency() {
     const provider = activeApiProvider();
@@ -29432,20 +31273,21 @@
   function syncCodexModeNotes() {
   }
   function selectCodexMode(mode, anchor) {
+    if (apiSettingsSaving) return false;
     const normalized = normalizeCodexMode(mode);
     void anchor;
-    state3.apiSettings = normalizeApiSettings({ ...state3.apiSettings, codex_mode: normalized });
+    state4.apiSettings = normalizeApiSettings({ ...state4.apiSettings, codex_mode: normalized });
     legacyMethod4("syncCodexCatalogMode", normalized);
     legacyMethod4("selectGenerationProvider", providerBindingSelectionKey("codex", `codex-gpt-image-2-${normalized}`));
     legacyMethod4("renderProviderSelection");
     updateModeSpecificSettings();
-    updateRequestPreview2();
+    updateRequestPreview3();
     persistApiSettings();
     queueApiSettingsAutosave();
     return true;
   }
   function queueApiSettingsAutosave(options = {}) {
-    if (apiProviderEditorActive()) return;
+    if (apiSettingsSaving || apiProviderEditorActive()) return;
     if (apiSettingsAutosaveTimerId !== null) {
       window.clearTimeout(apiSettingsAutosaveTimerId);
     }
@@ -29474,7 +31316,7 @@
     const providerName = String(
       task?.api_provider_name || task?.params?.api_provider_name || task?.request?.webui_api_provider_name || task?.request?.api_provider_name || task?.provider || ""
     ).trim();
-    const configuredProvider = providerId ? state3.apiSettings.providers.find((provider) => provider.id === providerId) : null;
+    const configuredProvider = providerId ? state4.apiSettings.providers.find((provider) => provider.id === providerId) : null;
     const label = providerName || configuredProvider?.name || providerId;
     if (!label) return "";
     return !providerId || label === providerId ? label : `${label} (${providerId})`;
@@ -29489,13 +31331,13 @@
     return [backendLabel, provider].filter(Boolean).join(" \xB7 ");
   }
   function setApiSettingsFeedback(message, type = "") {
-    [els4.apiSettingsStatus].filter(Boolean).forEach((statusElement) => {
+    [els6.apiSettingsStatus].filter(Boolean).forEach((statusElement) => {
       statusElement.textContent = message;
       statusElement.className = `api-settings-feedback settings-action-status ${type || ""}`.trim();
     });
   }
   function saveButtons() {
-    return [els4.saveApiProviderEditButton].filter(Boolean);
+    return [els6.saveApiProviderEditButton].filter(Boolean);
   }
   function setSaveButtonsDisabled(disabled) {
     saveButtons().forEach((button) => {
@@ -29507,28 +31349,42 @@
       saving: translate("apiSettings.saving"),
       saved: translate("apiSettings.savedShort"),
       failed: translate("apiSettings.saveFailedShort"),
-      default: translate("apiSettings.saveProvider")
+      default: translate("action.save")
     }[stateName];
-    if (els4.saveApiProviderEditButton) els4.saveApiProviderEditButton.textContent = providerText;
+    if (els6.saveApiProviderEditButton) els6.saveApiProviderEditButton.textContent = providerText;
   }
   async function saveApiSettings(options = {}) {
+    if (apiSettingsSaving) return false;
     const autoSave = Boolean(options.auto);
     const silent = autoSave && Boolean(options.silent);
     if (autoSave && apiProviderEditorActive()) return true;
-    const sortFocusId = autoSave ? focusedApiProviderSortId() : "";
-    if (state3.apiSettingsSaveTimerId) {
-      window.clearTimeout(state3.apiSettingsSaveTimerId);
-      state3.apiSettingsSaveTimerId = null;
+    if (apiSettingsAutosaveTimerId !== null) {
+      window.clearTimeout(apiSettingsAutosaveTimerId);
+      apiSettingsAutosaveTimerId = null;
     }
-    const previousSettings = normalizeApiSettings(state3.apiSettings);
-    const previousEditingId = state3.apiProviderEditingId;
+    const sortFocusId = autoSave ? focusedApiProviderSortId() : "";
+    if (state4.apiSettingsSaveTimerId) {
+      window.clearTimeout(state4.apiSettingsSaveTimerId);
+      state4.apiSettingsSaveTimerId = null;
+    }
+    const previousSettings = normalizeApiSettings(state4.apiSettings);
+    const previousEditingId = state4.apiProviderEditingId;
     const previousDraft = apiProviderEditorActive() ? draftProviderFromForm() : null;
-    const previousDraftIsNew = state3.apiProviderDraftIsNew;
+    const previousDraftIsNew = state4.apiProviderDraftIsNew;
     let confirmedOriginChange = null;
     if (!autoSave && apiProviderEditorActive()) {
-      const bindings = readProviderBindingCards(els4.apiProviderBindings);
-      if (!bindings.length || bindings.some((binding) => !binding.canonical_model_id || !binding.remote_model_id || !binding.operations.length)) {
+      const bindings = readProviderBindingCards(els6.apiProviderBindings);
+      const invalidBinding = bindings.find((binding) => !binding.canonical_model_id || !binding.remote_model_id || !binding.operations.length);
+      if (!bindings.length || invalidBinding) {
         setApiSettingsFeedback(translate("apiSettings.bindingRequiredFields"), "error");
+        if (invalidBinding) {
+          openProviderBindingCard(els6.apiProviderBindings, invalidBinding.id, { focus: true });
+          if (!invalidBinding.remote_model_id) {
+            els6.apiProviderBindings?.querySelector(
+              `[data-binding-id="${CSS.escape(invalidBinding.id)}"] [data-binding-remote-model]`
+            )?.focus();
+          }
+        }
         return false;
       }
       const overlap = validateProviderBindingOverlaps(bindings);
@@ -29537,7 +31393,7 @@
           model: overlap.canonicalModelId,
           operation: overlap.operation
         }), "error");
-        els4.apiProviderBindings?.querySelector(`[data-binding-id="${CSS.escape(overlap.secondBindingId)}"]`)?.scrollIntoView?.({ block: "nearest" });
+        openProviderBindingCard(els6.apiProviderBindings, overlap.secondBindingId, { focus: true });
         return false;
       }
       const providerDraft = draftProviderFromForm();
@@ -29546,15 +31402,15 @@
         previousSettings.providers
       );
       if (credentialDecision.kind === "key_required") {
-        els4.apiKey?.setAttribute("aria-invalid", "true");
+        els6.apiKey?.setAttribute("aria-invalid", "true");
         setApiSettingsFeedback(translate("apiSettings.apiKeyRequired"), "error");
-        els4.apiKey?.focus();
+        els6.apiKey?.focus();
         return false;
       }
       const requestedConfirmation = options.originChangeConfirmation || null;
       if (credentialDecision.kind === "confirm_origin_change") {
         if (!isConfirmedProviderOriginChange(credentialDecision, requestedConfirmation)) {
-          openConfirmPopover(els4.saveApiProviderEditButton, {
+          openConfirmPopover(els6.saveApiProviderEditButton, {
             title: translate("apiSettings.originChangeTitle"),
             message: translate("apiSettings.originChangeMessage"),
             detail: formatTranslation("apiSettings.originChangeDetail", {
@@ -29564,7 +31420,7 @@
             cancelText: translate("apiSettings.enterNewKey"),
             confirmText: translate("apiSettings.keepKeyAndSave"),
             focusCancel: true,
-            onCancel: () => els4.apiKey?.focus(),
+            onCancel: () => els6.apiKey?.focus(),
             onConfirm: () => saveApiSettings({
               originChangeConfirmation: {
                 providerId: credentialDecision.providerId,
@@ -29577,9 +31433,9 @@
         }
         confirmedOriginChange = requestedConfirmation;
       }
-      els4.apiKey?.removeAttribute("aria-invalid");
+      els6.apiKey?.removeAttribute("aria-invalid");
     }
-    const settings = readApiSettingsForm({ applyProviderDraft: !autoSave });
+    const settings = options.candidateSettings || readApiSettingsForm({ applyProviderDraft: !autoSave });
     persistApiSettings();
     const payload = apiSettingsSavePayload(settings, confirmedOriginChange);
     if (!autoSave) {
@@ -29587,12 +31443,17 @@
       setSaveButtonText("saving");
     }
     if (!silent) setApiSettingsFeedback(translate(autoSave ? "apiSettings.autoSaving" : "apiSettings.savingStatus"), "running");
+    apiSettingsSaving = true;
+    const panel = els6.systemSettingsApiPanel;
+    const previousFocus = document.activeElement;
+    panel?.setAttribute("inert", "");
+    panel?.setAttribute("aria-busy", "true");
     try {
       const data = await patchApiSettings(payload);
-      state3.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
-      state3.apiProviderEditingId = null;
-      state3.apiProviderDraft = null;
-      state3.apiProviderDraftIsNew = false;
+      state4.apiSettings = clearProviderApiKeyInputs(normalizeApiSettings(data.settings || {}));
+      state4.apiProviderEditingId = null;
+      state4.apiProviderDraft = null;
+      state4.apiProviderDraftIsNew = false;
       persistApiSettings();
       populateApiSettingsForm();
       focusApiProviderSortHandle(sortFocusId);
@@ -29604,20 +31465,20 @@
         concurrency: currentApiImagesConcurrency()
       }), "ok");
       if (!autoSave) setSaveButtonText("saved");
-      state3.apiSettingsSaveTimerId = window.setTimeout(() => {
+      state4.apiSettingsSaveTimerId = window.setTimeout(() => {
         if (!autoSave) setSaveButtonText("default");
-        state3.apiSettingsSaveTimerId = null;
+        state4.apiSettingsSaveTimerId = null;
       }, 1600);
       if (!silent) setStatus3(translate("apiSettings.savedStatus"), "ok");
       await refreshGenerationCatalog();
       await refreshHealth();
-      updateRequestPreview2();
+      updateRequestPreview3();
       return true;
     } catch (error) {
-      state3.apiSettings = previousSettings;
-      state3.apiProviderEditingId = previousEditingId;
-      state3.apiProviderDraft = previousDraft;
-      state3.apiProviderDraftIsNew = previousDraftIsNew;
+      state4.apiSettings = previousSettings;
+      state4.apiProviderEditingId = previousEditingId;
+      state4.apiProviderDraft = previousDraft;
+      state4.apiProviderDraftIsNew = previousDraftIsNew;
       persistApiSettings();
       populateApiSettingsForm();
       focusApiProviderSortHandle(sortFocusId);
@@ -29626,11 +31487,15 @@
       setStatus3(error.message || translate("apiSettings.saveFailed"), "error");
       return false;
     } finally {
+      apiSettingsSaving = false;
+      panel?.removeAttribute("inert");
+      panel?.removeAttribute("aria-busy");
       if (!autoSave) setSaveButtonsDisabled(false);
-      if (!autoSave && !state3.apiSettingsSaveTimerId && els4.saveApiProviderEditButton?.textContent !== translate("apiSettings.saveProvider")) {
-        state3.apiSettingsSaveTimerId = window.setTimeout(() => {
+      if (previousFocus?.isConnected && panel?.contains(previousFocus) && !previousFocus.closest("[inert], .hidden")) previousFocus.focus({ preventScroll: true });
+      if (!autoSave && !state4.apiSettingsSaveTimerId && els6.saveApiProviderEditButton?.textContent !== translate("action.save")) {
+        state4.apiSettingsSaveTimerId = window.setTimeout(() => {
           setSaveButtonText("default");
-          state3.apiSettingsSaveTimerId = null;
+          state4.apiSettingsSaveTimerId = null;
         }, 1600);
       }
     }
@@ -29638,16 +31503,16 @@
   function applyApiProviderDraft(settings) {
     if (!apiProviderEditorActive()) return normalizeApiSettings(settings);
     const result = applyProviderDraft(settings, draftProviderFromForm());
-    state3.apiProviderEditingId = null;
-    state3.apiProviderDraft = null;
-    state3.apiProviderDraftIsNew = false;
+    state4.apiProviderEditingId = null;
+    state4.apiProviderDraft = null;
+    state4.apiProviderDraftIsNew = false;
     return result;
   }
   function handleProviderBindingEditorChange2(event) {
     handleProviderBindingEditorChange(event, {
-      state: { apiProviderDraftIsNew: state3.apiProviderDraftIsNew, generationCatalog: state3.generationCatalog },
-      els: { apiBaseUrl: els4.apiBaseUrl, apiProviderBindings: els4.apiProviderBindings },
-      updateApiRequestEndpointPreview
+      state: { apiProviderDraftIsNew: state4.apiProviderDraftIsNew, generationCatalog: state4.generationCatalog },
+      els: { apiBaseUrl: els6.apiBaseUrl, apiProviderBindings: els6.apiProviderBindings },
+      updateProviderBindingCount
     });
   }
 
@@ -29656,21 +31521,21 @@
   function initApiSettingsFeature() {
     if (apiSettingsFeatureInitialized) return;
     apiSettingsFeatureInitialized = true;
-    const { els: els9, state: state5 } = getLegacyBridge();
+    const { els: els11, state: state6 } = getLegacyBridge();
     initProviderModelDiscovery({
-      container: els9.apiProviderBindings,
-      connectionInputs: [els9.apiBaseUrl, els9.apiKey],
+      container: els11.apiProviderBindings,
+      connectionInputs: [els11.apiBaseUrl, els11.apiKey],
       getConnection: () => ({
-        provider_id: String(state5.apiProviderDraft?.id || ""),
-        api_key_source_provider_id: String(state5.apiProviderDraft?.api_key_source_provider_id || ""),
-        base_url: String(els9.apiBaseUrl?.value || "").trim(),
-        api_key: String(els9.apiKey?.value || "").trim()
+        provider_id: String(state6.apiProviderDraft?.id || ""),
+        api_key_source_provider_id: String(state6.apiProviderDraft?.api_key_source_provider_id || ""),
+        base_url: String(els11.apiBaseUrl?.value || "").trim(),
+        api_key: String(els11.apiKey?.value || "").trim()
       })
     });
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
-      const bridge7 = getLegacyBridge();
-      renderAuthSource(bridge7.state.authStatus);
-      if (!bridge7.els.systemSettingsModal?.classList.contains("hidden") && !bridge7.els.systemSettingsApiPanel?.hidden) {
+      const bridge8 = getLegacyBridge();
+      renderAuthSource(bridge8.state.authStatus);
+      if (!bridge8.els.systemSettingsModal?.classList.contains("hidden") && !bridge8.els.systemSettingsApiPanel?.hidden) {
         setApiSettingsFeedback("", "");
       }
     });
@@ -29714,7 +31579,7 @@
       selectCodexMode,
       setApiKeyRevealVisible,
       updateApiKeyRevealButton,
-      updateApiRequestEndpointPreview,
+      updateProviderBindingCount,
       revealApiKeyWhilePressed,
       renderApiProviderList,
       syncCodexModeNotes,
@@ -29747,10 +31612,10 @@
   var saving = false;
   var initialized2 = false;
   function feedback(message, error = false) {
-    const { els: els9 } = getLegacyBridge();
-    if (!els9.lanAccessStatus) return;
-    els9.lanAccessStatus.textContent = message;
-    els9.lanAccessStatus.classList.toggle("error", error);
+    const { els: els11 } = getLegacyBridge();
+    if (!els11.lanAccessStatus) return;
+    els11.lanAccessStatus.textContent = message;
+    els11.lanAccessStatus.classList.toggle("error", error);
   }
   async function copyAddress(input, button) {
     try {
@@ -29769,22 +31634,29 @@
     }
   }
   function render(settings) {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     currentSettings = settings;
-    if (els9.lanAccessEnabled) els9.lanAccessEnabled.checked = settings.enabled;
+    if (els11.lanAccessEnabled) els11.lanAccessEnabled.checked = settings.enabled;
     const key2 = settings.host_override ? "hostOverride" : settings.restart_required ? settings.enabled ? "pendingEnable" : "pendingDisable" : settings.active ? "active" : "localOnly";
     feedback(translate(`lanAccess.${key2}`));
-    if (!els9.lanAccessAddresses) return;
-    els9.lanAccessAddresses.replaceChildren();
-    els9.lanAccessAddresses.hidden = !settings.enabled && !settings.active;
-    if (els9.lanAccessAddresses.hidden) return;
-    if (!settings.addresses.length) {
+    if (!els11.lanAccessAddresses) return;
+    els11.lanAccessAddresses.replaceChildren();
+    els11.lanAccessAddresses.hidden = !settings.enabled && !settings.active;
+    if (els11.lanAccessAddresses.hidden) return;
+    const addresses = settings.addresses.filter((address) => {
+      try {
+        return !/^198\.(18|19)\./.test(new URL(address).hostname);
+      } catch {
+        return false;
+      }
+    });
+    if (!addresses.length) {
       const note = document.createElement("p");
       note.className = "lan-access-help";
       note.textContent = translate("lanAccess.noAddress");
-      els9.lanAccessAddresses.append(note);
+      els11.lanAccessAddresses.append(note);
     }
-    for (const address of settings.addresses) {
+    for (const address of addresses) {
       const row = document.createElement("div");
       row.className = "lan-access-address";
       const input = document.createElement("input");
@@ -29799,14 +31671,14 @@
       button.setAttribute("aria-label", formatTranslation("lanAccess.copyAddress", { address }));
       button.addEventListener("click", () => void copyAddress(input, button));
       row.append(input, button);
-      els9.lanAccessAddresses.append(row);
+      els11.lanAccessAddresses.append(row);
     }
   }
   async function refreshLanAccess() {
     if (saving) return;
     const sequence = ++requestSequence;
-    const { els: els9 } = getLegacyBridge();
-    if (els9.lanAccessEnabled) els9.lanAccessEnabled.disabled = true;
+    const { els: els11 } = getLegacyBridge();
+    if (els11.lanAccessEnabled) els11.lanAccessEnabled.disabled = true;
     try {
       const response = await fetch("/api/lan-access");
       if (!response.ok) throw new Error("read failed");
@@ -29815,19 +31687,19 @@
     } catch {
       if (sequence === requestSequence) feedback(translate("lanAccess.failed"), true);
     } finally {
-      if (sequence === requestSequence && els9.lanAccessEnabled) {
-        els9.lanAccessEnabled.disabled = currentSettings === null;
+      if (sequence === requestSequence && els11.lanAccessEnabled) {
+        els11.lanAccessEnabled.disabled = currentSettings === null;
       }
     }
   }
   async function saveLanAccess() {
-    const { els: els9 } = getLegacyBridge();
-    if (saving || !els9.lanAccessEnabled || !currentSettings) return;
+    const { els: els11 } = getLegacyBridge();
+    if (saving || !els11.lanAccessEnabled || !currentSettings) return;
     saving = true;
-    const restoreFocus = document.activeElement === els9.lanAccessEnabled;
+    const restoreFocus = document.activeElement === els11.lanAccessEnabled;
     ++requestSequence;
-    els9.lanAccessEnabled.disabled = true;
-    const enabled = els9.lanAccessEnabled.checked;
+    els11.lanAccessEnabled.disabled = true;
+    const enabled = els11.lanAccessEnabled.checked;
     feedback(translate("lanAccess.saving"));
     try {
       const response = await fetch("/api/lan-access", {
@@ -29838,19 +31710,19 @@
       if (!response.ok) throw new Error("save failed");
       render(await response.json());
     } catch {
-      els9.lanAccessEnabled.checked = currentSettings.enabled;
+      els11.lanAccessEnabled.checked = currentSettings.enabled;
       feedback(translate("lanAccess.failed"), true);
     } finally {
       saving = false;
-      els9.lanAccessEnabled.disabled = false;
-      if (restoreFocus && document.activeElement === document.body) els9.lanAccessEnabled.focus();
+      els11.lanAccessEnabled.disabled = false;
+      if (restoreFocus && document.activeElement === document.body) els11.lanAccessEnabled.focus();
     }
   }
   function initLanAccessSettingsFeature() {
     if (initialized2) return;
     initialized2 = true;
-    const { els: els9, methods } = getLegacyBridge();
-    els9.lanAccessEnabled?.addEventListener("change", () => void saveLanAccess());
+    const { els: els11, methods } = getLegacyBridge();
+    els11.lanAccessEnabled?.addEventListener("change", () => void saveLanAccess());
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
       if (currentSettings && !saving) render(currentSettings);
     });
@@ -29907,6 +31779,18 @@
   // codex_image/webui/frontend/src/network-egress-settings.ts
   var networkEgressFeatureInitialized = false;
   var currentNetworkEgress = null;
+  var lastRenderedNetworkForm = null;
+  var restoredNetworkDraft = false;
+  function networkFormSnapshot() {
+    const { els: els11 } = getLegacyBridge();
+    return JSON.stringify([
+      els11.networkEgressMode?.value,
+      els11.networkEgressCustomProxy?.value,
+      els11.networkEgressTimeoutMinutes?.value,
+      els11.networkEgressRetryCount?.value,
+      els11.networkEgressFakeIpDnsFallback?.checked
+    ]);
+  }
   function normalizedMode(value) {
     return value === "direct" || value === "custom" ? value : "system";
   }
@@ -29914,32 +31798,32 @@
     return `networkEgress.${mode}`;
   }
   function setNetworkEgressFeedback(message, type = "") {
-    const { els: els9 } = getLegacyBridge();
-    if (!els9.networkEgressStatus) return;
-    els9.networkEgressStatus.textContent = message;
-    els9.networkEgressStatus.classList.toggle("ok", type === "ok");
-    els9.networkEgressStatus.classList.toggle("error", type === "error");
-    els9.networkEgressStatus.classList.toggle("running", type === "running");
+    const { els: els11 } = getLegacyBridge();
+    if (!els11.networkEgressStatus) return;
+    els11.networkEgressStatus.textContent = message;
+    els11.networkEgressStatus.classList.toggle("ok", type === "ok");
+    els11.networkEgressStatus.classList.toggle("error", type === "error");
+    els11.networkEgressStatus.classList.toggle("running", type === "running");
   }
   function selectedNetworkEgressMode() {
-    const { els: els9 } = getLegacyBridge();
-    return normalizedMode(els9.networkEgressMode?.value);
+    const { els: els11 } = getLegacyBridge();
+    return normalizedMode(els11.networkEgressMode?.value);
   }
   function clearNetworkRequestPolicyError(field) {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     const fields = field ? [field] : ["timeout", "retry"];
     fields.forEach((name) => {
-      const input = name === "timeout" ? els9.networkEgressTimeoutMinutes : els9.networkEgressRetryCount;
-      const error = name === "timeout" ? els9.networkEgressTimeoutError : els9.networkEgressRetryError;
+      const input = name === "timeout" ? els11.networkEgressTimeoutMinutes : els11.networkEgressRetryCount;
+      const error = name === "timeout" ? els11.networkEgressTimeoutError : els11.networkEgressRetryError;
       input?.removeAttribute("aria-invalid");
       if (error) error.hidden = true;
     });
   }
   function showNetworkRequestPolicyError(result) {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     clearNetworkRequestPolicyError();
-    const input = result.field === "timeout" ? els9.networkEgressTimeoutMinutes : els9.networkEgressRetryCount;
-    const error = result.field === "timeout" ? els9.networkEgressTimeoutError : els9.networkEgressRetryError;
+    const input = result.field === "timeout" ? els11.networkEgressTimeoutMinutes : els11.networkEgressRetryCount;
+    const error = result.field === "timeout" ? els11.networkEgressTimeoutError : els11.networkEgressRetryError;
     input?.setAttribute("aria-invalid", "true");
     if (error) {
       error.textContent = translate(result.errorKey);
@@ -29948,78 +31832,84 @@
     input?.focus();
   }
   function renderNetworkEgressMode(mode) {
-    const { els: els9 } = getLegacyBridge();
-    if (els9.networkEgressMode) els9.networkEgressMode.value = mode;
+    const { els: els11 } = getLegacyBridge();
+    if (els11.networkEgressMode) els11.networkEgressMode.value = mode;
     const buttons = Array.from(
-      els9.systemSettingsNetworkPanel?.querySelectorAll("[data-network-egress-mode]") || []
+      els11.systemSettingsNetworkPanel?.querySelectorAll("[data-network-egress-mode]") || []
     );
     buttons.forEach((button) => {
       const active = button.dataset.networkEgressMode === mode;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", active ? "true" : "false");
     });
-    if (els9.networkEgressCustomProxyField) {
-      els9.networkEgressCustomProxyField.hidden = mode !== "custom";
+    if (els11.networkEgressCustomProxyField) {
+      els11.networkEgressCustomProxyField.hidden = mode !== "custom";
     }
   }
-  function renderNetworkEgress(payload) {
-    const { els: els9 } = getLegacyBridge();
+  function renderNetworkEgress(payload, preserveDraft = false) {
+    const { els: els11 } = getLegacyBridge();
+    const keepDraft = preserveDraft && lastRenderedNetworkForm !== null && networkFormSnapshot() !== lastRenderedNetworkForm;
     currentNetworkEgress = payload;
-    const mode = normalizedMode(payload.settings?.mode);
-    renderNetworkEgressMode(mode);
-    if (els9.networkEgressCustomProxy) {
-      els9.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
+    if (!keepDraft) {
+      const mode = normalizedMode(payload.settings?.mode);
+      renderNetworkEgressMode(mode);
+      if (els11.networkEgressCustomProxy) {
+        els11.networkEgressCustomProxy.value = payload.settings?.custom_proxy_url || "";
+      }
+      if (els11.networkEgressTimeoutMinutes) {
+        els11.networkEgressTimeoutMinutes.value = String(
+          editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds)
+        );
+      }
+      if (els11.networkEgressRetryCount) {
+        els11.networkEgressRetryCount.value = String(
+          payload.settings?.image_request_retry_count ?? 2
+        );
+      }
+      if (els11.networkEgressFakeIpDnsFallback) {
+        els11.networkEgressFakeIpDnsFallback.checked = payload.settings?.asset_fake_ip_dns_fallback === true;
+        els11.networkEgressFakeIpDnsFallback.disabled = false;
+      }
+      clearNetworkRequestPolicyError();
+      lastRenderedNetworkForm = networkFormSnapshot();
+      restoredNetworkDraft = false;
     }
-    if (els9.networkEgressTimeoutMinutes) {
-      els9.networkEgressTimeoutMinutes.value = String(
-        editableTimeoutMinutes(payload.settings?.image_request_timeout_seconds)
-      );
-    }
-    if (els9.networkEgressRetryCount) {
-      els9.networkEgressRetryCount.value = String(
-        payload.settings?.image_request_retry_count ?? 2
-      );
-    }
-    if (els9.networkEgressFakeIpDnsFallback) {
-      els9.networkEgressFakeIpDnsFallback.checked = payload.settings?.asset_fake_ip_dns_fallback === true;
-      els9.networkEgressFakeIpDnsFallback.disabled = false;
-    }
-    clearNetworkRequestPolicyError();
-    if (els9.networkEgressCompatibilityNotice) {
+    if (els11.networkEgressCompatibilityNotice) {
       const environmentFallback = payload.resolved?.image_request_timeout_source === "environment";
-      els9.networkEgressCompatibilityNotice.hidden = !environmentFallback;
-      els9.networkEgressCompatibilityNotice.textContent = environmentFallback ? formatTranslation("networkEgress.environmentTimeoutActive", {
+      els11.networkEgressCompatibilityNotice.hidden = !environmentFallback;
+      els11.networkEgressCompatibilityNotice.textContent = environmentFallback ? formatTranslation("networkEgress.environmentTimeoutActive", {
         seconds: payload.resolved.image_request_timeout_seconds
       }) : "";
     }
-    if (els9.networkEgressCurrentRoute) {
+    if (els11.networkEgressCurrentRoute) {
       const resolvedMode = normalizedMode(payload.resolved?.mode);
-      els9.networkEgressCurrentRoute.textContent = formatTranslation(
+      els11.networkEgressCurrentRoute.textContent = formatTranslation(
         "networkEgress.currentRoute",
         { route: translate(modeTranslationKey(resolvedMode)) }
       );
     }
+    return keepDraft;
   }
   function networkEgressRouteFormPayload() {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     return {
       mode: selectedNetworkEgressMode(),
-      custom_proxy_url: String(els9.networkEgressCustomProxy?.value || "").trim()
+      custom_proxy_url: String(els11.networkEgressCustomProxy?.value || "").trim()
     };
   }
   function networkEgressFormPayload() {
-    const { els: els9 } = getLegacyBridge();
+    const { els: els11 } = getLegacyBridge();
     const routePayload = networkEgressRouteFormPayload();
     const commonPayload = {
       ...routePayload,
-      asset_fake_ip_dns_fallback: els9.networkEgressFakeIpDnsFallback?.checked === true
+      asset_fake_ip_dns_fallback: els11.networkEgressFakeIpDnsFallback?.checked === true
     };
-    if (!els9.networkEgressTimeoutMinutes && !els9.networkEgressRetryCount) {
+    if (!els11.networkEgressTimeoutMinutes && !els11.networkEgressRetryCount) {
       return { ok: true, payload: commonPayload };
     }
     const policy = parseNetworkRequestPolicy(
-      String(els9.networkEgressTimeoutMinutes?.value || ""),
-      String(els9.networkEgressRetryCount?.value || "")
+      String(els11.networkEgressTimeoutMinutes?.value || ""),
+      String(els11.networkEgressRetryCount?.value || "")
     );
     if (!policy.ok) return policy;
     return {
@@ -30039,13 +31929,14 @@
       return false;
     }
   }
-  async function refreshNetworkEgress() {
+  async function refreshNetworkEgress(options = {}) {
     try {
       const response = await fetch("/api/network-egress");
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("networkEgress.loadFailed"));
-      renderNetworkEgress(data);
-      setNetworkEgressFeedback("", "");
+      const keptDraft = renderNetworkEgress(data, true);
+      restoredNetworkDraft = keptDraft && (restoredNetworkDraft || options.afterRestore === true);
+      setNetworkEgressFeedback(restoredNetworkDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : "", "");
     } catch (error) {
       setNetworkEgressFeedback(
         error.message || translate("networkEgress.loadFailed"),
@@ -30054,8 +31945,8 @@
     }
   }
   async function saveNetworkEgress() {
-    const { els: els9 } = getLegacyBridge();
-    if (!els9.saveNetworkEgressButton) return;
+    const { els: els11 } = getLegacyBridge();
+    if (!els11.saveNetworkEgressButton) return;
     const routePayload = networkEgressRouteFormPayload();
     if (!networkEgressPayloadIsValid(routePayload)) {
       setNetworkEgressFeedback(translate("networkEgress.saveFailed"), "error");
@@ -30068,8 +31959,8 @@
       return;
     }
     clearNetworkRequestPolicyError();
-    els9.saveNetworkEgressButton.disabled = true;
-    if (els9.networkEgressFakeIpDnsFallback) els9.networkEgressFakeIpDnsFallback.disabled = true;
+    els11.saveNetworkEgressButton.disabled = true;
+    if (els11.networkEgressFakeIpDnsFallback) els11.networkEgressFakeIpDnsFallback.disabled = true;
     try {
       const response = await fetch("/api/network-egress", {
         method: "PATCH",
@@ -30086,22 +31977,22 @@
         "error"
       );
     } finally {
-      els9.saveNetworkEgressButton.disabled = false;
-      if (els9.networkEgressFakeIpDnsFallback) els9.networkEgressFakeIpDnsFallback.disabled = false;
+      els11.saveNetworkEgressButton.disabled = false;
+      if (els11.networkEgressFakeIpDnsFallback) els11.networkEgressFakeIpDnsFallback.disabled = false;
     }
   }
   async function testNetworkEgress() {
-    const { els: els9, state: state5 } = getLegacyBridge();
-    if (!els9.testNetworkEgressButton) return;
+    const { els: els11, state: state6 } = getLegacyBridge();
+    if (!els11.testNetworkEgressButton) return;
     const routePayload = networkEgressRouteFormPayload();
     if (!networkEgressPayloadIsValid(routePayload)) {
       setNetworkEgressFeedback(translate("networkEgress.testFailed"), "error");
       return;
     }
-    els9.testNetworkEgressButton.disabled = true;
+    els11.testNetworkEgressButton.disabled = true;
     setNetworkEgressFeedback(translate("networkEgress.test"), "running");
     try {
-      const selectedProviderId = String(state5.selectedProviderId || "").trim();
+      const selectedProviderId = String(state6.selectedProviderId || "").trim();
       const payload = networkEgressRoutePayload(routePayload);
       const testPayload = {
         ...payload,
@@ -30129,7 +32020,7 @@
         "error"
       );
     } finally {
-      els9.testNetworkEgressButton.disabled = false;
+      els11.testNetworkEgressButton.disabled = false;
     }
   }
   function handleNetworkEgressModeClick(event) {
@@ -30142,21 +32033,22 @@
   function initNetworkEgressSettingsFeature() {
     if (networkEgressFeatureInitialized) return;
     networkEgressFeatureInitialized = true;
-    const { els: els9 } = getLegacyBridge();
-    els9.systemSettingsNetworkPanel?.addEventListener(
+    const { els: els11 } = getLegacyBridge();
+    els11.systemSettingsNetworkPanel?.addEventListener(
       "click",
       handleNetworkEgressModeClick
     );
-    els9.testNetworkEgressButton?.addEventListener("click", testNetworkEgress);
-    els9.saveNetworkEgressButton?.addEventListener("click", saveNetworkEgress);
-    els9.networkEgressTimeoutMinutes?.addEventListener("input", () => {
+    els11.testNetworkEgressButton?.addEventListener("click", testNetworkEgress);
+    els11.saveNetworkEgressButton?.addEventListener("click", saveNetworkEgress);
+    els11.networkEgressTimeoutMinutes?.addEventListener("input", () => {
       clearNetworkRequestPolicyError("timeout");
     });
-    els9.networkEgressRetryCount?.addEventListener("input", () => {
+    els11.networkEgressRetryCount?.addEventListener("input", () => {
       clearNetworkRequestPolicyError("retry");
     });
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
-      if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress);
+      if (currentNetworkEgress) renderNetworkEgress(currentNetworkEgress, true);
+      if (restoredNetworkDraft) setNetworkEgressFeedback(translate("userConfigBackup.settingsUpdatedDraftKept"), "");
     });
     Object.assign(getLegacyBridge().methods, {
       refreshNetworkEgress,
@@ -30207,9 +32099,113 @@
     return false;
   }
 
+  // codex_image/webui/frontend/src/provider-response-details.ts
+  function mountProviderResponseDetails(host, taskId, onLayout) {
+    const details2 = document.createElement("details");
+    details2.className = "prompt-popover-submitted prompt-popover-response";
+    const summary = document.createElement("summary");
+    summary.textContent = translate("promptPopover.response");
+    const status = document.createElement("p");
+    status.className = "prompt-response-status";
+    status.setAttribute("role", "status");
+    const note = document.createElement("p");
+    note.className = "prompt-response-note";
+    note.textContent = translate("promptPopover.responseNote");
+    note.hidden = true;
+    const tools = document.createElement("div");
+    tools.className = "prompt-response-actions";
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "prompt-copy-button prompt-copy-inline";
+    copy.textContent = translate("templates.copy");
+    copy.setAttribute("aria-label", translate("promptPopover.copyResponse"));
+    copy.disabled = true;
+    copy.hidden = true;
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "prompt-copy-button prompt-copy-inline";
+    retry.textContent = translate("promptPopover.retryResponse");
+    retry.hidden = true;
+    tools.append(copy, retry);
+    const pre = document.createElement("pre");
+    pre.className = "prompt-popover-submitted-text prompt-response-json";
+    pre.tabIndex = 0;
+    pre.hidden = true;
+    pre.setAttribute("aria-label", translate("promptPopover.response"));
+    details2.append(summary, status, note, tools, pre);
+    host.append(details2);
+    let disposed = false;
+    let loaded = false;
+    let pending = false;
+    let controller = null;
+    let copyTimer;
+    let requestTimer;
+    async function load() {
+      if (pending || loaded || disposed) return;
+      if (!taskId) {
+        loaded = true;
+        status.textContent = translate("promptPopover.responseMissing");
+        return;
+      }
+      pending = true;
+      retry.hidden = true;
+      status.textContent = translate("promptPopover.responseLoading");
+      controller = new AbortController();
+      requestTimer = window.setTimeout(() => controller?.abort(), 2e4);
+      try {
+        const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}/provider-responses`, {
+          signal: controller.signal,
+          cache: "no-store"
+        });
+        if (!response.ok) throw new Error("provider_response_unavailable");
+        const data = await response.json();
+        if (data?.version !== 1 || !Array.isArray(data.records)) throw new Error("provider_response_invalid");
+        if (disposed) return;
+        loaded = true;
+        status.textContent = data.records.length ? "" : translate("promptPopover.responseMissing");
+        if (data.records.length) {
+          pre.textContent = JSON.stringify(data, null, 2);
+          pre.hidden = false;
+          copy.disabled = false;
+          copy.hidden = false;
+          note.hidden = false;
+        }
+      } catch {
+        if (disposed) return;
+        status.textContent = translate("promptPopover.responseError");
+        retry.hidden = false;
+      } finally {
+        window.clearTimeout(requestTimer);
+        pending = false;
+        if (!disposed) onLayout();
+      }
+    }
+    details2.addEventListener("toggle", () => {
+      if (details2.open) void load();
+      onLayout();
+    });
+    retry.addEventListener("click", () => {
+      void load();
+    });
+    copy.addEventListener("click", async () => {
+      if (!pre.textContent || !await copyTextToClipboard(pre.textContent) || disposed) return;
+      copy.textContent = translate("promptPopover.copied");
+      window.clearTimeout(copyTimer);
+      copyTimer = window.setTimeout(() => {
+        copy.textContent = translate("templates.copy");
+      }, 1200);
+    });
+    return () => {
+      disposed = true;
+      controller?.abort();
+      window.clearTimeout(requestTimer);
+      window.clearTimeout(copyTimer);
+    };
+  }
+
   // codex_image/webui/frontend/src/overlay-popovers.ts
-  var bridge4 = getLegacyBridge();
-  var els5 = bridge4.els;
+  var bridge5 = getLegacyBridge();
+  var els7 = bridge5.els;
   var overlayPopoversInitialized = false;
   var overlayPopoverEventsBound = false;
   var confirmPopoverEl = null;
@@ -30218,6 +32214,7 @@
     onConfirm: null
   };
   var promptPopoverEl = null;
+  var disposeProviderResponseDetails = null;
   var promptPopoverState = {
     anchor: null,
     data: null,
@@ -30284,6 +32281,11 @@
     overlayPopoverEventsBound = true;
     document.addEventListener("click", handleDocumentClick);
     document.addEventListener("keydown", handleDocumentKeydown);
+    window.addEventListener("resize", () => {
+      if (promptPopoverState.anchor && promptPopoverEl && !promptPopoverEl.classList.contains("hidden")) {
+        positionPromptPopover(promptPopoverState.anchor, promptPopoverEl);
+      }
+    });
   }
   function ensureConfirmPopover() {
     if (confirmPopoverEl) return confirmPopoverEl;
@@ -30409,6 +32411,7 @@
     return promptPopoverEl;
   }
   function openPromptPopover(anchor, data) {
+    disposeProviderResponseDetails?.();
     const popover = ensurePromptPopover();
     const originalPrompt = data.originalPrompt || data.submittedPrompt || "";
     const submittedPrompt = data.submittedPrompt || originalPrompt || "";
@@ -30448,8 +32451,20 @@
     popover.querySelector("[data-copy-optimized-prompt]")?.addEventListener("click", (event) => {
       copyOptimizedPrompt(event.currentTarget);
     });
+    const reposition = () => {
+      if (promptPopoverState.anchor === anchor && !popover.classList.contains("hidden")) {
+        positionPromptPopover(anchor, popover);
+      }
+    };
+    popover.querySelector("details")?.addEventListener("toggle", reposition);
+    disposeProviderResponseDetails = mountProviderResponseDetails(
+      popover.querySelector(".prompt-popover-body"),
+      String(data.taskId || ""),
+      reposition
+    );
     popover.classList.remove("hidden");
     positionPromptPopover(anchor, popover);
+    popover.querySelector(".prompt-popover-close")?.focus({ preventScroll: true });
   }
   function positionPromptPopover(anchor, popover) {
     const anchorRect = anchor.getBoundingClientRect();
@@ -30469,7 +32484,7 @@
     );
     const preferredTop = anchorRect.top - height - margin;
     const fallbackTop = anchorRect.bottom + margin;
-    const top = preferredTop >= margin ? preferredTop : clampPopoverPosition(fallbackTop, margin, window.innerHeight - height - margin);
+    const top = preferredTop >= margin ? clampPopoverPosition(preferredTop, margin, window.innerHeight - height - margin) : clampPopoverPosition(fallbackTop, margin, window.innerHeight - height - margin);
     popover.style.left = `${left}px`;
     popover.style.top = `${top}px`;
   }
@@ -30495,6 +32510,11 @@
   }
   function closePromptPopover2() {
     if (!promptPopoverEl) return;
+    disposeProviderResponseDetails?.();
+    disposeProviderResponseDetails = null;
+    if (promptPopoverEl.contains(document.activeElement)) {
+      promptPopoverState.anchor?.focus({ preventScroll: true });
+    }
     promptPopoverEl.classList.add("hidden");
     promptPopoverState.anchor = null;
     promptPopoverState.data = null;
@@ -30542,8 +32562,8 @@
         closeConfirmPopover();
       }
     }
-    if (!els5.compressionPopover || els5.compressionPopover.classList.contains("hidden")) return;
-    if (els5.compressionPopover.contains(target) || els5.outputFormatField?.contains(target)) return;
+    if (!els7.compressionPopover || els7.compressionPopover.classList.contains("hidden")) return;
+    if (els7.compressionPopover.contains(target) || els7.outputFormatField?.contains(target)) return;
     closeCompressionPopover();
   }
   function handleDocumentKeydown(event) {
@@ -30553,19 +32573,19 @@
         closeConfirmPopover();
         return;
       }
-      if (els5.imageEditorModal && !els5.imageEditorModal.classList.contains("hidden")) {
+      if (els7.imageEditorModal && !els7.imageEditorModal.classList.contains("hidden")) {
         closeImageEditor();
         return;
       }
-      if (els5.systemSettingsModal && !els5.systemSettingsModal.classList.contains("hidden")) {
+      if (els7.systemSettingsModal && !els7.systemSettingsModal.classList.contains("hidden")) {
         closeApiSettingsModal2();
         return;
       }
-      if (els5.promptTemplateDrawer?.classList.contains("open")) {
+      if (els7.promptTemplateDrawer?.classList.contains("open")) {
         closePromptTemplateDrawer();
         return;
       }
-      if (els5.galleryDrawer?.classList.contains("open")) {
+      if (els7.galleryDrawer?.classList.contains("open")) {
         closeGallery();
         return;
       }
@@ -30642,14 +32662,14 @@
     window.updateQueueElapsedDisplays = updateQueueElapsedDisplays;
   }
   function bindQueueControls() {
-    const els9 = getEls();
-    els9.queueButton?.addEventListener("click", jumpToActiveTaskGroup);
+    const els11 = getEls();
+    els11.queueButton?.addEventListener("click", jumpToActiveTaskGroup);
   }
   function startRealtimeUpdates({ migrateLegacyArchives = false } = {}) {
-    const state5 = getState();
+    const state6 = getState();
     closeRealtimeUpdates();
     realtimeUpdatesEnabled = true;
-    state5.realtimeSnapshotNeedsArchiveMigration = migrateLegacyArchives;
+    state6.realtimeSnapshotNeedsArchiveMigration = migrateLegacyArchives;
     if (!window.EventSource) {
       realtimeConnectionNeedsResync = true;
       void requestRealtimeResync();
@@ -30659,13 +32679,13 @@
     return true;
   }
   function connectRealtimeSource() {
-    const state5 = getState();
-    state5.realtimeSource?.close();
+    const state6 = getState();
+    state6.realtimeSource?.close();
     const source = new EventSource(REALTIME_EVENTS_URL);
-    state5.realtimeSource = source;
+    state6.realtimeSource = source;
     resetRealtimeWatchdog(source);
     source.onopen = () => {
-      if (state5.realtimeSource !== source) return;
+      if (state6.realtimeSource !== source) return;
       resetRealtimeWatchdog(source);
       if (!realtimeConnectionNeedsResync) return;
       realtimeConnectionNeedsResync = false;
@@ -30676,19 +32696,19 @@
       clearRealtimeReconnectStatus();
     };
     source.addEventListener("heartbeat", () => {
-      if (state5.realtimeSource === source) resetRealtimeWatchdog(source);
+      if (state6.realtimeSource === source) resetRealtimeWatchdog(source);
     });
     source.onmessage = (event) => {
-      if (state5.realtimeSource !== source) return;
+      if (state6.realtimeSource !== source) return;
       resetRealtimeWatchdog(source);
       handleRealtimeMessage(event).catch((error) => {
-        if (state5.realtimeSource !== source) return;
+        if (state6.realtimeSource !== source) return;
         console.error(error);
         getLegacyBridge().methods.setStatus(errorMessage2(error, translate("queue.realtimeUpdateFailed")), "error");
       });
     };
     source.onerror = () => {
-      if (state5.realtimeSource !== source) return;
+      if (state6.realtimeSource !== source) return;
       realtimeConnectionNeedsResync = true;
       void requestRealtimeResync();
       if (!realtimePollingHealthy) {
@@ -30727,7 +32747,7 @@
     realtimeResyncPromise = null;
   }
   function closeRealtimeUpdates() {
-    const state5 = getState();
+    const state6 = getState();
     realtimeUpdatesEnabled = false;
     realtimePollingHealthy = false;
     realtimeConnectionNeedsResync = false;
@@ -30735,17 +32755,17 @@
     stopRealtimeFallback();
     if (realtimeWatchdogTimerId !== null) window.clearTimeout(realtimeWatchdogTimerId);
     realtimeWatchdogTimerId = null;
-    if (!state5.realtimeSource) return;
-    state5.realtimeSource.close();
-    state5.realtimeSource = null;
+    if (!state6.realtimeSource) return;
+    state6.realtimeSource.close();
+    state6.realtimeSource = null;
   }
   async function resyncRealtimeState(signal) {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
-    const shouldMigrateArchives = state5.realtimeSnapshotNeedsArchiveMigration;
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
+    const shouldMigrateArchives = state6.realtimeSnapshotNeedsArchiveMigration;
     await refreshQueue({ signal, throwOnError: true });
     signal.throwIfAborted();
-    await bridge7.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives, signal });
+    await bridge8.methods.refreshTasks({ migrateLegacyArchives: shouldMigrateArchives, signal });
   }
   function requestRealtimeResync() {
     realtimeResyncRequested = true;
@@ -30773,23 +32793,23 @@
         if (generation !== realtimeGeneration) return;
         if (realtimeConnectionNeedsResync) {
           realtimePollingHealthy = true;
-          const bridge7 = getLegacyBridge();
-          if (["", translate("status.waiting"), translate("queue.realtimeDisconnected")].includes(bridge7.els.statusText?.textContent || "")) {
-            bridge7.methods.setStatus(translate("queue.realtimePolling"), "");
+          const bridge8 = getLegacyBridge();
+          if (["", translate("status.waiting"), translate("queue.realtimeDisconnected")].includes(bridge8.els.statusText?.textContent || "")) {
+            bridge8.methods.setStatus(translate("queue.realtimePolling"), "");
           }
         }
       }
     })().catch((error) => {
       if (generation !== realtimeGeneration) return;
-      const bridge7 = getLegacyBridge();
+      const bridge8 = getLegacyBridge();
       if (realtimeConnectionNeedsResync) {
         realtimePollingHealthy = false;
-        bridge7.methods.setStatus(translate("queue.realtimeDisconnected"), "error");
+        bridge8.methods.setStatus(translate("queue.realtimeDisconnected"), "error");
         return;
       }
       if (error instanceof DOMException && error.name === "AbortError") return;
       console.error(error);
-      bridge7.methods.setStatus(errorMessage2(error, translate("queue.realtimeUpdateFailed")), "error");
+      bridge8.methods.setStatus(errorMessage2(error, translate("queue.realtimeUpdateFailed")), "error");
     }).finally(() => {
       if (generation !== realtimeGeneration) return;
       realtimeResyncPromise = null;
@@ -30799,9 +32819,9 @@
     return resyncPromise;
   }
   function clearRealtimeReconnectStatus() {
-    const bridge7 = getLegacyBridge();
-    if (![translate("queue.realtimeDisconnected"), translate("queue.realtimePolling")].includes(bridge7.els.statusText?.textContent || "")) return;
-    bridge7.methods.setStatus("", "");
+    const bridge8 = getLegacyBridge();
+    if (![translate("queue.realtimeDisconnected"), translate("queue.realtimePolling")].includes(bridge8.els.statusText?.textContent || "")) return;
+    bridge8.methods.setStatus("", "");
   }
   async function handleRealtimeMessage(event) {
     if (!event.data) return;
@@ -30810,33 +32830,33 @@
   }
   async function handleRealtimePayload(payload, { signal } = {}) {
     signal?.throwIfAborted();
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
     if (payload?.type === "snapshot") {
       applyQueueState(payload.queue, { sync: payload.sync });
-      await bridge7.methods.applyTasksSnapshot(payload.tasks || [], {
-        migrateLegacyArchives: state5.realtimeSnapshotNeedsArchiveMigration,
+      await bridge8.methods.applyTasksSnapshot(payload.tasks || [], {
+        migrateLegacyArchives: state6.realtimeSnapshotNeedsArchiveMigration,
         ...payload.task_groups ? { taskGroups: payload.task_groups } : {},
         sync: payload.sync,
         signal
       });
       signal?.throwIfAborted();
-      if (acceptQueueSnapshot(state5, payload.sync)) applyQueueTasks(state5.queue);
+      if (acceptQueueSnapshot(state6, payload.sync)) applyQueueTasks(state6.queue);
       return;
     }
     if (payload?.type === "queue") {
       const updatedTasks = payload.tasks || [];
-      const queueMutated = Boolean(payload.queue?.updated_at && payload.queue.updated_at !== state5.queue.updated_at);
+      const queueMutated = Boolean(payload.queue?.updated_at && payload.queue.updated_at !== state6.queue.updated_at);
       applyQueueState(payload.queue, { deferTaskListRender: true, sync: payload.sync });
       await applyRealtimeTaskPayloads(updatedTasks, payload.sync);
-      if (!acceptQueueSnapshot(state5, payload.sync)) return;
+      if (!acceptQueueSnapshot(state6, payload.sync)) return;
       if (queueMutated && !updatedTasks.length && !queueTaskCount(payload.queue)) {
-        await bridge7.methods.refreshTasks({ signal });
+        await bridge8.methods.refreshTasks({ signal });
         return;
       }
-      applyQueueTasks(state5.queue);
+      applyQueueTasks(state6.queue);
       if (!updatedTasks.length && !queueTaskCount(payload.queue)) {
-        bridge7.methods.renderTasks?.({ preserveScroll: true });
+        bridge8.methods.renderTasks?.({ preserveScroll: true });
       }
       return;
     }
@@ -30845,39 +32865,39 @@
     }
   }
   async function applyRealtimeTaskPayloads(tasks, sync) {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
     for (const task of tasks) {
-      if (!acceptTaskUpdate(state5, task, sync)) continue;
-      const previousTask = state5.tasks.find((item) => String(item.task_id) === String(task?.task_id));
-      bridge7.methods.notifyTaskUpdate?.(previousTask, task);
-      await bridge7.methods.applyTaskUpdate(task);
+      if (!acceptTaskUpdate(state6, task, sync)) continue;
+      const previousTask = state6.tasks.find((item) => String(item.task_id) === String(task?.task_id));
+      bridge8.methods.notifyTaskUpdate?.(previousTask, task);
+      await bridge8.methods.applyTaskUpdate(task);
     }
   }
   async function refreshQueue({ signal, throwOnError = false } = {}) {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
-    let requestSeq = ++state5.queueRequestSeq;
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
+    let requestSeq = ++state6.queueRequestSeq;
     const generation = realtimeGeneration;
-    let expectedQueue = state5.queue;
+    let expectedQueue = state6.queue;
     try {
       const response = await fetch("/api/queue", { signal: signal ?? null });
       const data = await response.json();
       signal?.throwIfAborted();
-      if (requestSeq !== state5.queueRequestSeq) return;
+      if (requestSeq !== state6.queueRequestSeq) return;
       if (!response.ok) {
         throw new Error(data.detail || translate("queue.readFailed"));
       }
-      if (!acceptQueueSnapshot(state5, data.sync)) return;
+      if (!acceptQueueSnapshot(state6, data.sync)) return;
       const applying = handleRealtimePayload({ type: "queue", queue: data, sync: data.sync }, { signal });
-      expectedQueue = state5.queue;
-      requestSeq = state5.queueRequestSeq;
+      expectedQueue = state6.queue;
+      requestSeq = state6.queueRequestSeq;
       await applying;
     } catch (error) {
       if (signal?.aborted) throw error;
-      if (requestSeq !== state5.queueRequestSeq || generation !== realtimeGeneration || state5.queue !== expectedQueue) return;
+      if (requestSeq !== state6.queueRequestSeq || generation !== realtimeGeneration || state6.queue !== expectedQueue) return;
       if (throwOnError) throw error;
-      bridge7.methods.setStatus(errorMessage2(error, translate("queue.readFailed")), "error");
+      bridge8.methods.setStatus(errorMessage2(error, translate("queue.readFailed")), "error");
     }
   }
   function defaultQueueState() {
@@ -30896,18 +32916,18 @@
     getState().queueRequestSeq += 1;
   }
   function applyQueueState(queue, { deferTaskListRender = false, sync } = {}) {
-    const state5 = getState();
-    if (!acceptQueueSnapshot(state5, sync)) return;
+    const state6 = getState();
+    if (!acceptQueueSnapshot(state6, sync)) return;
     if (!sync) invalidateQueueRequests();
-    state5.queue = normalizeQueueState(queue);
+    state6.queue = normalizeQueueState(queue);
     renderQueue({ deferTaskListRender });
   }
   function renderQueue({ deferTaskListRender = false } = {}) {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
-    const summary = state5.queue.summary || {};
-    const waitingCount = Number(summary.waiting_count ?? state5.queue.waiting.length ?? 0);
-    const runningCount = Number(summary.running_count ?? state5.queue.running.length ?? 0);
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
+    const summary = state6.queue.summary || {};
+    const waitingCount = Number(summary.waiting_count ?? state6.queue.waiting.length ?? 0);
+    const runningCount = Number(summary.running_count ?? state6.queue.running.length ?? 0);
     const channelCount = Number(summary.channel_count ?? 0);
     const usableChannelCount = Number(summary.usable_channel_count ?? channelCount);
     const dispatchPending = isQueueDispatchPending();
@@ -30918,18 +32938,18 @@
       usableChannelCount,
       dispatchPending
     });
-    bridge7.methods.updateDocumentTitle();
+    bridge8.methods.updateDocumentTitle();
     if (dispatchPending) {
       scheduleQueueDispatchSync();
     } else {
       clearQueueDispatchSync();
     }
     const nextRenderKey = queueListRenderKey();
-    if (state5.queueRenderKey === nextRenderKey) {
+    if (state6.queueRenderKey === nextRenderKey) {
       updateQueueElapsedDisplays();
       return;
     }
-    state5.queueRenderKey = nextRenderKey;
+    state6.queueRenderKey = nextRenderKey;
     if (!deferTaskListRender) {
       renderActiveTaskGroupForQueueChange();
     }
@@ -30938,8 +32958,8 @@
     return (Array.isArray(queue?.waiting) ? queue.waiting.length : 0) + (Array.isArray(queue?.running) ? queue.running.length : 0);
   }
   function renderActiveTaskGroupForQueueChange() {
-    const bridge7 = getLegacyBridge();
-    bridge7.methods.renderTasks?.({ preserveScroll: true });
+    const bridge8 = getLegacyBridge();
+    bridge8.methods.renderTasks?.({ preserveScroll: true });
   }
   function renderQueueStatusChip({
     waitingCount,
@@ -30948,56 +32968,56 @@
     usableChannelCount,
     dispatchPending
   }) {
-    const els9 = getEls();
+    const els11 = getEls();
     const total = waitingCount + runningCount;
     const channelText = usableChannelCount === channelCount ? formatTranslation("queue.channel", { count: channelCount }) : formatTranslation("queue.availableChannels", { usable: usableChannelCount, total: channelCount });
     const text = dispatchPending ? formatTranslation("queue.dispatching", { waiting: waitingCount }) : total ? formatTranslation("queue.runningWaiting", { running: runningCount, waiting: waitingCount }) : translate("queue.empty");
     const label = total ? formatTranslation("queue.statusLabel", { text, channelText }) : translate("queue.emptyAria");
-    if (els9.queueStatusText) els9.queueStatusText.textContent = text;
-    if (els9.queueButton) {
-      els9.queueButton.setAttribute("aria-label", label);
-      els9.queueButton.title = total ? translate("queue.jumpTitle") : translate("queue.emptyTitle");
-      els9.queueButton.classList.toggle("has-queue", total > 0 || dispatchPending);
+    if (els11.queueStatusText) els11.queueStatusText.textContent = text;
+    if (els11.queueButton) {
+      els11.queueButton.setAttribute("aria-label", label);
+      els11.queueButton.title = total ? translate("queue.jumpTitle") : translate("queue.emptyTitle");
+      els11.queueButton.classList.toggle("has-queue", total > 0 || dispatchPending);
     }
   }
   function jumpToActiveTaskGroup() {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
-    const hasActiveTasks = Boolean((state5.queue.running || []).length || (state5.queue.waiting || []).length);
-    bridge7.methods.openCompactTasks?.();
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
+    const hasActiveTasks = Boolean((state6.queue.running || []).length || (state6.queue.waiting || []).length);
+    bridge8.methods.openCompactTasks?.();
     if (!hasActiveTasks) return;
-    bridge7.methods.revealActiveTaskGroup?.();
+    bridge8.methods.revealActiveTaskGroup?.();
   }
   function isQueueDispatchPending() {
-    const state5 = getState();
-    const summary = state5.queue.summary || {};
-    const waitingCount = Number(summary.waiting_count ?? state5.queue.waiting.length ?? 0);
-    const runningCount = Number(summary.running_count ?? state5.queue.running.length ?? 0);
+    const state6 = getState();
+    const summary = state6.queue.summary || {};
+    const waitingCount = Number(summary.waiting_count ?? state6.queue.waiting.length ?? 0);
+    const runningCount = Number(summary.running_count ?? state6.queue.running.length ?? 0);
     const channelCount = Number(summary.channel_count ?? 0);
     const usableChannelCount = Number(summary.usable_channel_count ?? channelCount);
     return waitingCount > 0 && runningCount === 0 && usableChannelCount > 0;
   }
   function scheduleQueueDispatchSync() {
-    const state5 = getState();
-    if (state5.queueDispatchSyncTimerId) return;
-    state5.queueDispatchSyncTimerId = window.setTimeout(() => {
-      state5.queueDispatchSyncTimerId = null;
+    const state6 = getState();
+    if (state6.queueDispatchSyncTimerId) return;
+    state6.queueDispatchSyncTimerId = window.setTimeout(() => {
+      state6.queueDispatchSyncTimerId = null;
       if (isQueueDispatchPending()) {
         void refreshQueue();
       }
     }, QUEUE_DISPATCH_RESYNC_DELAY_MS);
   }
   function clearQueueDispatchSync() {
-    const state5 = getState();
-    if (!state5.queueDispatchSyncTimerId) return;
-    window.clearTimeout(state5.queueDispatchSyncTimerId);
-    state5.queueDispatchSyncTimerId = null;
+    const state6 = getState();
+    if (!state6.queueDispatchSyncTimerId) return;
+    window.clearTimeout(state6.queueDispatchSyncTimerId);
+    state6.queueDispatchSyncTimerId = null;
   }
   function queueListRenderKey() {
-    const state5 = getState();
+    const state6 = getState();
     return JSON.stringify({
-      summary: state5.queue.summary || {},
-      running: (state5.queue.running || []).map((task) => [
+      summary: state6.queue.summary || {},
+      running: (state6.queue.running || []).map((task) => [
         task.task_id,
         task.status,
         task.viewed_at,
@@ -31007,7 +33027,7 @@
         task.started_at,
         task.attempts
       ]),
-      waiting: (state5.queue.waiting || []).map((task) => [
+      waiting: (state6.queue.waiting || []).map((task) => [
         task.task_id,
         task.status,
         task.prompt,
@@ -31017,7 +33037,7 @@
     });
   }
   function applyQueueTasks(queue) {
-    const bridge7 = getLegacyBridge();
+    const bridge8 = getLegacyBridge();
     const tasks = [
       ...Array.isArray(queue?.waiting) ? queue.waiting : [],
       ...Array.isArray(queue?.running) ? queue.running : []
@@ -31026,37 +33046,37 @@
     const needsTaskReconcile = activeTasksNeedQueueReconcile(queueTaskIds);
     if (!tasks.length) {
       if (needsTaskReconcile) {
-        void bridge7.methods.refreshTasks();
+        void bridge8.methods.refreshTasks();
       }
       return;
     }
     let changed = false;
     tasks.forEach((task) => {
-      const previousTask = bridge7.state.tasks.find((item) => String(item.task_id) === String(task.task_id));
-      bridge7.methods.notifyTaskUpdate?.(previousTask, task);
-      changed = bridge7.methods.updateTaskInState(task) || changed;
-      if (String(task.task_id) === String(bridge7.state.selectedTaskId) && bridge7.methods.taskHasViewableUpdate(task)) {
-        void bridge7.methods.markTaskViewed(task.task_id);
+      const previousTask = bridge8.state.tasks.find((item) => String(item.task_id) === String(task.task_id));
+      bridge8.methods.notifyTaskUpdate?.(previousTask, task);
+      changed = bridge8.methods.updateTaskInState(task) || changed;
+      if (String(task.task_id) === String(bridge8.state.selectedTaskId) && bridge8.methods.taskHasViewableUpdate(task)) {
+        void bridge8.methods.markTaskViewed(task.task_id);
       }
     });
     if (!changed) {
       if (needsTaskReconcile) {
-        void bridge7.methods.refreshTasks();
+        void bridge8.methods.refreshTasks();
       }
       return;
     }
-    bridge7.methods.cleanupSessionSelections();
-    bridge7.methods.renderTasks({ preserveScroll: true });
-    bridge7.methods.renderArchiveButton();
-    bridge7.methods.renderArchiveModal();
-    bridge7.methods.renderPreview();
+    bridge8.methods.cleanupSessionSelections();
+    bridge8.methods.renderTasks({ preserveScroll: true });
+    bridge8.methods.renderArchiveButton();
+    bridge8.methods.renderArchiveModal();
+    bridge8.methods.renderPreview();
     if (needsTaskReconcile) {
-      void bridge7.methods.refreshTasks();
+      void bridge8.methods.refreshTasks();
     }
   }
   function activeTasksNeedQueueReconcile(queueTaskIds) {
-    const bridge7 = getLegacyBridge();
-    return bridge7.state.tasks.some((task) => {
+    const bridge8 = getLegacyBridge();
+    return bridge8.state.tasks.some((task) => {
       const taskId = String(task?.task_id || "");
       if (!taskId || queueTaskIds.has(taskId) || task?.local_pending) return false;
       const status = String(task?.status || "");
@@ -31187,9 +33207,9 @@
   var SIDEBAR_MAX_WIDTH = 520;
   var SIDEBAR_DEFAULT_WIDTH = 347;
   var COMPACT_SHELL_MAX_WIDTH = 1180;
-  var bridge5 = getLegacyBridge();
-  var state4 = bridge5.state;
-  var els6 = bridge5.els;
+  var bridge6 = getLegacyBridge();
+  var state5 = bridge6.state;
+  var els8 = bridge6.els;
   var shellUiInitialized = false;
   var shellUiEventsBound = false;
   var sidebarResizeFrameId = null;
@@ -31252,15 +33272,15 @@
   function renderPreview2() {
     legacyMethod6("renderPreview");
   }
-  function updateRequestPreview3() {
+  function updateRequestPreview4() {
     legacyMethod6("updateRequestPreview");
   }
   function clearTaskParameterInspection() {
     legacyMethod6("clearTaskParameterInspection");
   }
   function handleShellLocaleChange() {
-    if (!els6.statusText) return;
-    const current = String(els6.statusText.textContent || "").trim();
+    if (!els8.statusText) return;
+    const current = String(els8.statusText.textContent || "").trim();
     const waitingLabels = [translate("status.waiting", "zh-CN"), translate("status.waiting", "en")];
     if (waitingLabels.includes(current)) {
       markComposerBaseline();
@@ -31271,39 +33291,39 @@
     if (shellUiEventsBound) return;
     shellUiEventsBound = true;
     bindThemeSwitcher(
-      els6.themeSwitcher,
+      els8.themeSwitcher,
       (preference) => applyThemePreference(preference)
     );
     bindSystemThemePreference(handleThemeSystemChange);
     document.addEventListener(LOCALE_CHANGE_EVENT, handleShellLocaleChange);
-    if (els6.copyJsonButton) {
-      els6.copyJsonButton.addEventListener("click", copyJson);
+    if (els8.copyJsonButton) {
+      els8.copyJsonButton.addEventListener("click", copyJson);
     }
-    els6.newTaskButton?.addEventListener("click", resetForm);
-    els6.sidebarResizeHandle?.addEventListener("pointerdown", startSidebarResize);
-    els6.sidebarResizeHandle?.addEventListener("keydown", handleSidebarResizeKeydown);
-    els6.sidebarResizeHandle?.addEventListener("dblclick", resetSidebarWidth);
+    els8.newTaskButton?.addEventListener("click", resetForm);
+    els8.sidebarResizeHandle?.addEventListener("pointerdown", startSidebarResize);
+    els8.sidebarResizeHandle?.addEventListener("keydown", handleSidebarResizeKeydown);
+    els8.sidebarResizeHandle?.addEventListener("dblclick", resetSidebarWidth);
     syncSidebarResizeHandleAria();
   }
   function normalizeThemePreference2(value) {
     return normalizeThemePreference(value);
   }
-  function resolveEffectiveTheme2(preference = state4.themePreference) {
+  function resolveEffectiveTheme2(preference = state5.themePreference) {
     return resolveEffectiveTheme(
       normalizeThemePreference2(preference)
     );
   }
   function updateThemeSwitcher() {
     syncThemeSwitcher(
-      els6.themeSwitcher,
-      state4.themePreference
+      els8.themeSwitcher,
+      state5.themePreference
     );
   }
   function applyThemePreference(preference, { persist = true } = {}) {
-    state4.themePreference = normalizeThemePreference2(preference);
-    applyDocumentTheme(state4.themePreference);
+    state5.themePreference = normalizeThemePreference2(preference);
+    applyDocumentTheme(state5.themePreference);
     if (persist) {
-      persistThemePreference(state4.themePreference);
+      persistThemePreference(state5.themePreference);
     }
     updateThemeSwitcher();
   }
@@ -31314,7 +33334,7 @@
     );
   }
   function handleThemeSystemChange() {
-    if (state4.themePreference === "system") {
+    if (state5.themePreference === "system") {
       applyThemePreference("system", { persist: false });
     }
   }
@@ -31338,7 +33358,7 @@
     return Math.min(sidebarMaxWidth(), Math.max(SIDEBAR_MIN_WIDTH, width));
   }
   function sidebarWidthFromCss() {
-    const widthOwner = els6.sidebar || document.documentElement;
+    const widthOwner = els8.sidebar || document.documentElement;
     const inlineWidth = Number.parseInt(widthOwner.style.getPropertyValue("--sidebar-width") || "", 10);
     if (!Number.isNaN(inlineWidth)) return clampSidebarWidth(inlineWidth);
     const tokenWidth = Number.parseInt(getComputedStyle(widthOwner).getPropertyValue("--sidebar-width") || "", 10);
@@ -31348,7 +33368,7 @@
     return sidebarWidthFromCss() ?? SIDEBAR_DEFAULT_WIDTH;
   }
   function syncSidebarResizeHandleAria(width = null) {
-    const handle = els6.sidebarResizeHandle;
+    const handle = els8.sidebarResizeHandle;
     if (!handle) return;
     const currentWidth = width !== null ? width : currentSidebarWidth();
     handle.setAttribute("aria-valuemin", String(SIDEBAR_MIN_WIDTH));
@@ -31357,7 +33377,7 @@
   }
   function applySidebarWidth(width, { persist = true } = {}) {
     const nextWidth = clampSidebarWidth(width);
-    (els6.sidebar || document.documentElement).style.setProperty("--sidebar-width", `${nextWidth}px`);
+    (els8.sidebar || document.documentElement).style.setProperty("--sidebar-width", `${nextWidth}px`);
     syncSidebarResizeHandleAria(nextWidth);
     if (persist) {
       try {
@@ -31389,48 +33409,48 @@
     applySidebarWidth(width, { persist: true });
   }
   function startSidebarResize(event) {
-    if (!els6.sidebar || event.button !== 0) return;
+    if (!els8.sidebar || event.button !== 0) return;
     event.preventDefault();
     const currentWidth = currentSidebarWidth();
-    state4.sidebarResize = {
+    state5.sidebarResize = {
       pointerId: event.pointerId,
       startX: event.clientX,
       startWidth: currentWidth,
       lastWidth: currentWidth
     };
-    els6.sidebar.classList.add("resizing");
-    if (els6.sidebarResizeShield) {
-      els6.sidebarResizeShield.hidden = false;
+    els8.sidebar.classList.add("resizing");
+    if (els8.sidebarResizeShield) {
+      els8.sidebarResizeShield.hidden = false;
     }
-    els6.sidebarResizeHandle?.setPointerCapture?.(event.pointerId);
+    els8.sidebarResizeHandle?.setPointerCapture?.(event.pointerId);
     window.addEventListener("pointermove", updateSidebarResize);
     window.addEventListener("pointerup", finishSidebarResize);
     window.addEventListener("pointercancel", finishSidebarResize);
   }
   function updateSidebarResize(event) {
-    const resize = state4.sidebarResize;
+    const resize = state5.sidebarResize;
     if (!resize || event.pointerId !== resize.pointerId) return;
     event.preventDefault();
     resize.lastWidth = resize.startWidth + event.clientX - resize.startX;
     scheduleSidebarResizeWidth(resize.lastWidth);
   }
   function finishSidebarResize(event) {
-    const resize = state4.sidebarResize;
+    const resize = state5.sidebarResize;
     if (!resize || event.pointerId !== resize.pointerId) return;
     const nextWidth = resize.lastWidth ?? resize.startWidth;
-    state4.sidebarResize = null;
-    els6.sidebar?.classList.remove("resizing");
-    if (els6.sidebarResizeShield) {
-      els6.sidebarResizeShield.hidden = true;
+    state5.sidebarResize = null;
+    els8.sidebar?.classList.remove("resizing");
+    if (els8.sidebarResizeShield) {
+      els8.sidebarResizeShield.hidden = true;
     }
-    els6.sidebarResizeHandle?.releasePointerCapture?.(event.pointerId);
+    els8.sidebarResizeHandle?.releasePointerCapture?.(event.pointerId);
     window.removeEventListener("pointermove", updateSidebarResize);
     window.removeEventListener("pointerup", finishSidebarResize);
     window.removeEventListener("pointercancel", finishSidebarResize);
     flushSidebarResizeWidth(nextWidth);
   }
   function handleSidebarResizeKeydown(event) {
-    if (!els6.sidebar) return;
+    if (!els8.sidebar) return;
     const step = event.shiftKey ? 32 : 16;
     const currentWidth = currentSidebarWidth();
     if (event.key === "ArrowLeft") {
@@ -31448,9 +33468,9 @@
     }
   }
   function updateDocumentTitle() {
-    const summary = state4.queue.summary || {};
-    const waitingCount = Number(summary.waiting_count ?? state4.queue.waiting.length ?? 0);
-    const runningCount = Number(summary.running_count ?? state4.queue.running.length ?? 0);
+    const summary = state5.queue.summary || {};
+    const waitingCount = Number(summary.waiting_count ?? state5.queue.waiting.length ?? 0);
+    const runningCount = Number(summary.running_count ?? state5.queue.running.length ?? 0);
     const total = waitingCount + runningCount;
     let status = "";
     if (runningCount > 0) {
@@ -31458,7 +33478,7 @@
     } else if (waitingCount > 0) {
       status = formatTranslation("document.queuedWaiting", { count: waitingCount });
     } else {
-      const selected = state4.tasks.find((item) => String(item.task_id) === String(state4.selectedTaskId));
+      const selected = state5.tasks.find((item) => String(item.task_id) === String(state5.selectedTaskId));
       status = selected ? formatTaskStatus2(selected) : "";
     }
     const defaultTitle = getLegacyBridge().constants.defaultDocumentTitle;
@@ -31466,48 +33486,48 @@
     document.title = webAppDocumentTitle(status, fullTitle);
   }
   function setStatus4(message, type) {
-    if (!els6.statusText) return;
-    delete els6.statusText.dataset.statusSource;
-    els6.statusText.textContent = message;
-    els6.statusText.className = `status-text ${type || ""}`;
+    if (!els8.statusText) return;
+    delete els8.statusText.dataset.statusSource;
+    els8.statusText.textContent = message;
+    els8.statusText.className = `status-text ${type || ""}`;
   }
   function resetForm() {
     preserveComposerDraft();
-    state4.taskInputRestoreSeq += 1;
+    state5.taskInputRestoreSeq += 1;
     const outputSettingsLocked = Boolean(legacyMethod6("isOutputSettingsLocked"));
     closePromptPopover3();
     closePromptSnippetPopover2();
     closeArchiveModal2();
     closeGallery2();
     closeImageEditor2();
-    state4.historyTaskReveal = null;
-    state4.historyTaskRevealSeq += 1;
-    state4.selectedTaskId = null;
+    state5.historyTaskReveal = null;
+    state5.historyTaskRevealSeq += 1;
+    state5.selectedTaskId = null;
     clearTaskParameterInspection();
-    state4.mode = "generate";
-    revokeUploadPreviewUrls(state4.images);
-    state4.images = [];
+    state5.mode = "generate";
+    revokeUploadPreviewUrls(state5.images);
+    state5.images = [];
     legacyMethod6("clearReferenceFiles", { silent: true });
-    state4.batchMode = false;
-    state4.batchSelectedTaskIds = [];
-    state4.batchSelectionAnchorTaskId = null;
+    state5.batchMode = false;
+    state5.batchSelectedTaskIds = [];
+    state5.batchSelectionAnchorTaskId = null;
     finishBatchMarqueeSelection();
     setPromptText("");
     if (!outputSettingsLocked) {
-      if (els6.customSizeToggle) els6.customSizeToggle.checked = false;
-      if (els6.nInput) els6.nInput.value = "1";
-      if (els6.resolution) els6.resolution.value = "standard";
-      if (els6.ratio) els6.ratio.value = "1:1";
-      if (els6.orientation) els6.orientation.value = "square";
-      els6.size.value = "1024x1024";
-      els6.quality.value = "auto";
-      els6.outputFormat.value = "png";
+      if (els8.customSizeToggle) els8.customSizeToggle.checked = false;
+      if (els8.nInput) els8.nInput.value = "1";
+      if (els8.resolution) els8.resolution.value = "standard";
+      if (els8.ratio) els8.ratio.value = "1:1";
+      if (els8.orientation) els8.orientation.value = "square";
+      els8.size.value = "1024x1024";
+      els8.quality.value = "auto";
+      els8.outputFormat.value = "png";
       setBackgroundControl("auto");
-      els6.moderation.value = "auto";
-      els6.compression.value = "80";
-      if (els6.promptFidelity) els6.promptFidelity.value = "off";
-      if (els6.webSearch) els6.webSearch.checked = false;
-      [els6.nInput, els6.resolution, els6.ratio, els6.orientation, els6.quality, els6.outputFormat, els6.moderation, els6.promptFidelity, els6.webSearch].forEach((sel) => {
+      els8.moderation.value = "auto";
+      els8.compression.value = "80";
+      if (els8.promptFidelity) els8.promptFidelity.value = "off";
+      if (els8.webSearch) els8.webSearch.checked = false;
+      [els8.nInput, els8.resolution, els8.ratio, els8.orientation, els8.quality, els8.outputFormat, els8.moderation, els8.promptFidelity, els8.webSearch].forEach((sel) => {
         if (sel) sel.dispatchEvent(new Event("change"));
       });
       updateSizeFromPreset();
@@ -31519,14 +33539,14 @@
     renderImageStrip();
     renderTasks2();
     renderPreview2();
-    updateRequestPreview3();
+    updateRequestPreview4();
     if (outputSettingsLocked) legacyMethod6("showLockedOutputSettings");
     markComposerBaseline();
     setStatus4(translate("status.waiting"), "");
   }
   async function copyJson() {
-    if (!els6.requestJson) return;
-    if (!await copyTextToClipboard(els6.requestJson.textContent)) return;
+    if (!els8.requestJson) return;
+    if (!await copyTextToClipboard(els8.requestJson.textContent)) return;
     setStatus4(translate("status.jsonCopied"), "ok");
   }
   function initShellUiFeature() {
@@ -31617,18 +33637,18 @@
     return !getLegacyBridge().state.taskNotificationSeenKeys.has(taskNotificationSeenKey(nextTask, status));
   }
   function openTaskNotificationCenter() {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotificationCenterOpen = true;
-    state5.taskNotifications = state5.taskNotifications.map((notification) => ({
+    const state6 = getLegacyBridge().state;
+    state6.taskNotificationCenterOpen = true;
+    state6.taskNotifications = state6.taskNotifications.map((notification) => ({
       ...notification,
       unread: false
     }));
     renderTaskNotifications();
   }
   function closeTaskNotificationCenter() {
-    const state5 = getLegacyBridge().state;
-    if (!state5.taskNotificationCenterOpen) return;
-    state5.taskNotificationCenterOpen = false;
+    const state6 = getLegacyBridge().state;
+    if (!state6.taskNotificationCenterOpen) return;
+    state6.taskNotificationCenterOpen = false;
     renderTaskNotifications();
   }
   function toggleTaskNotificationCenter() {
@@ -31639,37 +33659,37 @@
     openTaskNotificationCenter();
   }
   function renderTaskNotifications() {
-    const bridge7 = getLegacyBridge();
-    const state5 = bridge7.state;
-    const els9 = bridge7.els;
-    const unreadCount = state5.taskNotifications.filter((notification) => notification.unread).length;
-    state5.taskNotificationUnreadCount = unreadCount;
+    const bridge8 = getLegacyBridge();
+    const state6 = bridge8.state;
+    const els11 = bridge8.els;
+    const unreadCount = state6.taskNotifications.filter((notification) => notification.unread).length;
+    state6.taskNotificationUnreadCount = unreadCount;
     const unreadLabel = unreadCount > 0 ? formatTranslation("notifications.unread", { count: unreadCount }) : translate("notifications.title");
-    if (els9.taskNotificationBadge) {
-      els9.taskNotificationBadge.textContent = "";
-      els9.taskNotificationBadge.setAttribute("aria-hidden", "true");
-      els9.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
+    if (els11.taskNotificationBadge) {
+      els11.taskNotificationBadge.textContent = "";
+      els11.taskNotificationBadge.setAttribute("aria-hidden", "true");
+      els11.taskNotificationBadge.classList.toggle("hidden", unreadCount === 0);
     }
-    if (els9.taskNotificationButton) {
-      els9.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
-      els9.taskNotificationButton.setAttribute("aria-label", unreadLabel);
-      els9.taskNotificationButton.title = unreadLabel;
-      els9.taskNotificationButton.setAttribute("aria-expanded", state5.taskNotificationCenterOpen ? "true" : "false");
+    if (els11.taskNotificationButton) {
+      els11.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0);
+      els11.taskNotificationButton.setAttribute("aria-label", unreadLabel);
+      els11.taskNotificationButton.title = unreadLabel;
+      els11.taskNotificationButton.setAttribute("aria-expanded", state6.taskNotificationCenterOpen ? "true" : "false");
     }
-    if (els9.taskNotificationUnreadSummary) {
-      els9.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
-      els9.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
+    if (els11.taskNotificationUnreadSummary) {
+      els11.taskNotificationUnreadSummary.textContent = formatTranslation("notifications.unreadSummary", { count: unreadCount });
+      els11.taskNotificationUnreadSummary.classList.toggle("hidden", unreadCount === 0);
     }
-    if (els9.taskNotificationCenter) {
-      els9.taskNotificationCenter.classList.toggle("hidden", !state5.taskNotificationCenterOpen);
-      els9.taskNotificationCenter.setAttribute("aria-hidden", state5.taskNotificationCenterOpen ? "false" : "true");
+    if (els11.taskNotificationCenter) {
+      els11.taskNotificationCenter.classList.toggle("hidden", !state6.taskNotificationCenterOpen);
+      els11.taskNotificationCenter.setAttribute("aria-hidden", state6.taskNotificationCenterOpen ? "false" : "true");
     }
-    if (!els9.taskNotificationList) return;
-    if (!state5.taskNotifications.length) {
-      els9.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
+    if (!els11.taskNotificationList) return;
+    if (!state6.taskNotifications.length) {
+      els11.taskNotificationList.innerHTML = `<div class="task-notification-empty">${translate("notifications.empty")}</div>`;
       return;
     }
-    els9.taskNotificationList.innerHTML = state5.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
+    els11.taskNotificationList.innerHTML = state6.taskNotifications.map((notification) => taskNotificationItemHtml(notification)).join("");
   }
   async function requestSystemNotificationPermission() {
     if (typeof Notification === "undefined") {
@@ -31690,23 +33710,23 @@
     return true;
   }
   function bindTaskNotificationEvents() {
-    const els9 = getLegacyBridge().els;
-    els9.taskNotificationButton?.addEventListener("click", (event) => {
+    const els11 = getLegacyBridge().els;
+    els11.taskNotificationButton?.addEventListener("click", (event) => {
       event.stopPropagation();
       toggleTaskNotificationCenter();
     });
-    els9.taskNotificationClearButton?.addEventListener("click", (event) => {
+    els11.taskNotificationClearButton?.addEventListener("click", (event) => {
       event.stopPropagation();
       clearTaskNotifications();
     });
-    els9.taskNotificationList?.addEventListener("click", (event) => {
+    els11.taskNotificationList?.addEventListener("click", (event) => {
       const item = eventTargetElement(event)?.closest("[data-task-notification-id]");
       if (!(item instanceof HTMLElement)) return;
       const notification = notificationById(item.dataset.taskNotificationId);
       if (notification) void openNotificationTask(notification);
     });
-    els9.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
-    els9.taskNotificationSystem?.addEventListener("change", (event) => {
+    els11.taskNotificationInApp?.addEventListener("change", handleTaskNotificationInAppChange);
+    els11.taskNotificationSystem?.addEventListener("change", (event) => {
       void handleTaskNotificationSystemChange(event);
     });
     document.addEventListener("click", handleTaskNotificationDocumentClick);
@@ -31715,9 +33735,9 @@
   function handleTaskNotificationInAppChange(event) {
     const input = event.currentTarget;
     if (!(input instanceof HTMLInputElement)) return;
-    const state5 = getLegacyBridge().state;
-    state5.taskNotificationSettings = {
-      ...state5.taskNotificationSettings,
+    const state6 = getLegacyBridge().state;
+    state6.taskNotificationSettings = {
+      ...state6.taskNotificationSettings,
       inApp: input.checked
     };
     persistTaskNotificationSettings();
@@ -31725,40 +33745,40 @@
   async function handleTaskNotificationSystemChange(event) {
     const input = event.currentTarget;
     if (!(input instanceof HTMLInputElement)) return;
-    const state5 = getLegacyBridge().state;
+    const state6 = getLegacyBridge().state;
     if (!input.checked) {
-      state5.taskNotificationSettings = { ...state5.taskNotificationSettings, system: false };
+      state6.taskNotificationSettings = { ...state6.taskNotificationSettings, system: false };
       persistTaskNotificationSettings();
       return;
     }
     const granted = await requestSystemNotificationPermission();
-    state5.taskNotificationSettings = { ...state5.taskNotificationSettings, system: granted };
+    state6.taskNotificationSettings = { ...state6.taskNotificationSettings, system: granted };
     input.checked = granted;
     persistTaskNotificationSettings();
   }
   function handleTaskNotificationDocumentClick(event) {
     const target = event.target;
-    const els9 = getLegacyBridge().els;
+    const els11 = getLegacyBridge().els;
     if (!(target instanceof Node)) return;
-    if (els9.taskNotificationCenter?.contains(target) || els9.taskNotificationButton?.contains(target)) return;
+    if (els11.taskNotificationCenter?.contains(target) || els11.taskNotificationButton?.contains(target)) return;
     closeTaskNotificationCenter();
   }
   function handleTaskNotificationKeydown(event) {
     if (event.key === "Escape") closeTaskNotificationCenter();
   }
   function addTaskNotification(notification) {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotifications = [notification, ...state5.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
+    const state6 = getLegacyBridge().state;
+    state6.taskNotifications = [notification, ...state6.taskNotifications].slice(0, MAX_TASK_NOTIFICATIONS);
     renderTaskNotifications();
   }
   function clearTaskNotifications() {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotifications = [];
+    const state6 = getLegacyBridge().state;
+    state6.taskNotifications = [];
     renderTaskNotifications();
   }
   function showTaskNotificationToast(notification) {
-    const bridge7 = getLegacyBridge();
-    const region = bridge7.els.taskNotificationToastRegion;
+    const bridge8 = getLegacyBridge();
+    const region = bridge8.els.taskNotificationToastRegion;
     if (!region) return;
     const toast = document.createElement("button");
     toast.type = "button";
@@ -31772,9 +33792,9 @@
     region.prepend(toast);
     const timerId = window.setTimeout(() => {
       toast.remove();
-      bridge7.state.taskNotificationToastTimerIds = bridge7.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
+      bridge8.state.taskNotificationToastTimerIds = bridge8.state.taskNotificationToastTimerIds.filter((id) => id !== timerId);
     }, TASK_NOTIFICATION_TOAST_MS);
-    bridge7.state.taskNotificationToastTimerIds.push(timerId);
+    bridge8.state.taskNotificationToastTimerIds.push(timerId);
   }
   function sendSystemTaskNotification(notification) {
     const settings = getLegacyBridge().state.taskNotificationSettings;
@@ -31789,8 +33809,8 @@
     };
   }
   async function openNotificationTask(notification) {
-    const bridge7 = getLegacyBridge();
-    const task = bridge7.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
+    const bridge8 = getLegacyBridge();
+    const task = bridge8.state.tasks.find((item) => String(item.task_id) === String(notification.task_id));
     markTaskNotificationRead(notification.id);
     closeTaskNotificationCenter();
     if (!task) {
@@ -31799,7 +33819,7 @@
     }
     window.focus();
     try {
-      const selectTask = bridge7.methods.selectTask;
+      const selectTask = bridge8.methods.selectTask;
       if (typeof selectTask !== "function") throw new Error("selectTask is unavailable");
       await selectTask(task.task_id);
     } catch {
@@ -31807,8 +33827,8 @@
     }
   }
   function markTaskNotificationRead(notificationId) {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotifications = state5.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
+    const state6 = getLegacyBridge().state;
+    state6.taskNotifications = state6.taskNotifications.map((notification) => notification.id === notificationId ? { ...notification, unread: false } : notification);
     renderTaskNotifications();
   }
   function notificationById(notificationId) {
@@ -31867,8 +33887,8 @@
     return notification.message;
   }
   function firstTaskThumbnailUrl(task) {
-    const bridge7 = getLegacyBridge();
-    const urls = bridge7.methods.taskThumbnailUrls?.(task);
+    const bridge8 = getLegacyBridge();
+    const urls = bridge8.methods.taskThumbnailUrls?.(task);
     if (Array.isArray(urls) && urls[0]) return String(urls[0]);
     if (Array.isArray(task.thumbnail_urls) && task.thumbnail_urls[0]) return String(task.thumbnail_urls[0]);
     const output = Array.isArray(task.outputs) ? task.outputs.find((record2) => record2?.status === "completed") : null;
@@ -31917,26 +33937,26 @@
     return `${task.task_id}:${status}:${revision}`;
   }
   function rememberTaskNotification(task, status) {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
-    while (state5.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
-      const firstKey = state5.taskNotificationSeenKeys.values().next().value;
+    const state6 = getLegacyBridge().state;
+    state6.taskNotificationSeenKeys.add(taskNotificationSeenKey(task, status));
+    while (state6.taskNotificationSeenKeys.size > MAX_SEEN_TASK_NOTIFICATION_KEYS) {
+      const firstKey = state6.taskNotificationSeenKeys.values().next().value;
       if (typeof firstKey !== "string") break;
-      state5.taskNotificationSeenKeys.delete(firstKey);
+      state6.taskNotificationSeenKeys.delete(firstKey);
     }
     persistTaskNotificationSeenKeys();
   }
   function restoreTaskNotificationSettings() {
-    const state5 = getLegacyBridge().state;
-    state5.taskNotificationSettings = defaultTaskNotificationSettings();
+    const state6 = getLegacyBridge().state;
+    state6.taskNotificationSettings = defaultTaskNotificationSettings();
     try {
       const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) || "{}");
-      state5.taskNotificationSettings = {
+      state6.taskNotificationSettings = {
         inApp: stored.inApp !== false,
         system: stored.system === true && typeof Notification !== "undefined" && Notification.permission === "granted"
       };
     } catch {
-      state5.taskNotificationSettings = defaultTaskNotificationSettings();
+      state6.taskNotificationSettings = defaultTaskNotificationSettings();
     }
     persistTaskNotificationSettings();
     syncTaskNotificationSettingsInputs();
@@ -31952,22 +33972,22 @@
     syncTaskNotificationSettingsInputs();
   }
   function syncTaskNotificationSettingsInputs() {
-    const bridge7 = getLegacyBridge();
-    const settings = bridge7.state.taskNotificationSettings;
-    if (bridge7.els.taskNotificationInApp instanceof HTMLInputElement) {
-      bridge7.els.taskNotificationInApp.checked = settings.inApp;
+    const bridge8 = getLegacyBridge();
+    const settings = bridge8.state.taskNotificationSettings;
+    if (bridge8.els.taskNotificationInApp instanceof HTMLInputElement) {
+      bridge8.els.taskNotificationInApp.checked = settings.inApp;
     }
-    if (bridge7.els.taskNotificationSystem instanceof HTMLInputElement) {
-      bridge7.els.taskNotificationSystem.checked = settings.system;
+    if (bridge8.els.taskNotificationSystem instanceof HTMLInputElement) {
+      bridge8.els.taskNotificationSystem.checked = settings.system;
     }
   }
   function restoreTaskNotificationSeenKeys() {
-    const state5 = getLegacyBridge().state;
+    const state6 = getLegacyBridge().state;
     try {
       const stored = JSON.parse(localStorage.getItem(TASK_NOTIFICATION_SEEN_KEY) || "[]");
-      state5.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key2) => typeof key2 === "string") : []);
+      state6.taskNotificationSeenKeys = new Set(Array.isArray(stored) ? stored.filter((key2) => typeof key2 === "string") : []);
     } catch {
-      state5.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
+      state6.taskNotificationSeenKeys = /* @__PURE__ */ new Set();
     }
   }
   function persistTaskNotificationSeenKeys() {
@@ -32009,11 +34029,21 @@
   }
 
   // codex_image/webui/frontend/src/storage-settings.ts
-  var bridge6 = getLegacyBridge();
-  var els7 = bridge6.els;
+  var bridge7 = getLegacyBridge();
+  var els9 = bridge7.els;
   var storageSettingsFeatureInitialized = false;
   var previousPaths = {};
   var previousPathsAnnounced = false;
+  var lastRenderedStorageForm = null;
+  var restoredStorageDraft = false;
+  function storageFormSnapshot() {
+    return JSON.stringify([
+      els9.settingsInputRoot?.value,
+      els9.settingsOutputRoot?.value,
+      els9.settingsGalleryRoot?.value,
+      els9.settingsSourceDataRoot?.value
+    ]);
+  }
   var pathLabels = {
     input_root: "settings.inputRoot",
     output_root: "settings.outputRoot",
@@ -32021,8 +34051,8 @@
     source_data_root: "settings.sourceDataRoot"
   };
   function renderPreviousPaths() {
-    const details2 = els7.settingsPreviousPaths;
-    const list2 = els7.settingsPreviousPathsList;
+    const details2 = els9.settingsPreviousPaths;
+    const list2 = els9.settingsPreviousPathsList;
     if (!details2 || !list2) return;
     list2.replaceChildren();
     for (const [key2, label] of Object.entries(pathLabels)) {
@@ -32050,13 +34080,16 @@
   function closePromptPopover4() {
     legacyMethod7("closePromptPopover");
   }
-  async function refreshSettings() {
-    if (!els7.settingsInputRoot) return;
+  async function refreshSettings(options = {}) {
+    if (!els9.settingsInputRoot) return;
     try {
       const response = await fetch("/api/settings");
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("settings.loadFailed"));
-      populateSettingsForm(data.settings || {});
+      const dirty = lastRenderedStorageForm !== null && storageFormSnapshot() !== lastRenderedStorageForm;
+      if (!dirty) populateSettingsForm(data.settings || {});
+      restoredStorageDraft = dirty && (restoredStorageDraft || options.afterRestore === true);
+      if (restoredStorageDraft && els9.settingsStatus) els9.settingsStatus.textContent = translate("userConfigBackup.settingsUpdatedDraftKept");
       previousPaths = data.previous_paths || {};
       renderPreviousPaths();
       if (Object.keys(previousPaths).length && !previousPathsAnnounced) {
@@ -32064,50 +34097,52 @@
         showTransientNotice(translate("settings.previousPathsNotice"));
       }
     } catch (error) {
-      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.loadFailed");
+      if (els9.settingsStatus) els9.settingsStatus.textContent = error.message || translate("settings.loadFailed");
     }
   }
   function populateSettingsForm(settings) {
-    if (els7.settingsInputRoot) els7.settingsInputRoot.value = settings.input_root || "";
-    if (els7.settingsOutputRoot) els7.settingsOutputRoot.value = settings.output_root || "";
-    if (els7.settingsGalleryRoot) els7.settingsGalleryRoot.value = settings.gallery_root || "";
-    if (els7.settingsSourceDataRoot) els7.settingsSourceDataRoot.value = settings.source_data_root || "";
+    if (els9.settingsInputRoot) els9.settingsInputRoot.value = settings.input_root || "";
+    if (els9.settingsOutputRoot) els9.settingsOutputRoot.value = settings.output_root || "";
+    if (els9.settingsGalleryRoot) els9.settingsGalleryRoot.value = settings.gallery_root || "";
+    if (els9.settingsSourceDataRoot) els9.settingsSourceDataRoot.value = settings.source_data_root || "";
+    lastRenderedStorageForm = storageFormSnapshot();
+    restoredStorageDraft = false;
   }
   function openSettingsModal() {
     closePromptPopover4();
     refreshSettings();
-    if (els7.settingsStatus) els7.settingsStatus.textContent = translate("settings.status");
+    if (els9.settingsStatus) els9.settingsStatus.textContent = restoredStorageDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : translate("settings.status");
     openSystemSettingsModal("storage");
   }
   function closeSettingsModal() {
     closeSystemSettingsModal();
   }
   async function saveSettings() {
-    if (!els7.saveSettingsButton) return;
-    els7.saveSettingsButton.disabled = true;
+    if (!els9.saveSettingsButton) return;
+    els9.saveSettingsButton.disabled = true;
     try {
       const response = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          input_root: els7.settingsInputRoot?.value || "",
-          output_root: els7.settingsOutputRoot?.value || "",
-          gallery_root: els7.settingsGalleryRoot?.value || "",
-          source_data_root: els7.settingsSourceDataRoot?.value || ""
+          input_root: els9.settingsInputRoot?.value || "",
+          output_root: els9.settingsOutputRoot?.value || "",
+          gallery_root: els9.settingsGalleryRoot?.value || "",
+          source_data_root: els9.settingsSourceDataRoot?.value || ""
         })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || translate("settings.saveFailed"));
       populateSettingsForm(data.settings || {});
-      if (els7.settingsStatus) {
-        els7.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
+      if (els9.settingsStatus) {
+        els9.settingsStatus.textContent = data.restart_required ? translate("settings.savedRestart") : translate("settings.saved");
       }
       setStatus6(translate("settings.savedRestartStatus"), "ok");
     } catch (error) {
-      if (els7.settingsStatus) els7.settingsStatus.textContent = error.message || translate("settings.saveFailed");
+      if (els9.settingsStatus) els9.settingsStatus.textContent = error.message || translate("settings.saveFailed");
       setStatus6(error.message || translate("settings.saveFailed"), "error");
     } finally {
-      els7.saveSettingsButton.disabled = false;
+      els9.saveSettingsButton.disabled = false;
     }
   }
   function initStorageSettingsFeature() {
@@ -32115,8 +34150,8 @@
     storageSettingsFeatureInitialized = true;
     document.addEventListener(LOCALE_CHANGE_EVENT, () => {
       renderPreviousPaths();
-      if (!els7.systemSettingsModal?.classList.contains("hidden") && !els7.systemSettingsStoragePanel?.hidden && els7.settingsStatus) {
-        els7.settingsStatus.textContent = translate("settings.status");
+      if (!els9.systemSettingsModal?.classList.contains("hidden") && !els9.systemSettingsStoragePanel?.hidden && els9.settingsStatus) {
+        els9.settingsStatus.textContent = restoredStorageDraft ? translate("userConfigBackup.settingsUpdatedDraftKept") : translate("settings.status");
       }
     });
     Object.assign(getLegacyBridge().methods, {
@@ -32144,8 +34179,8 @@
   function initializeHistoryShell(options) {
     if (historyShellInitialized) return;
     historyShellInitialized = true;
-    const bridge7 = getLegacyBridge();
-    const methods = bridge7.methods;
+    const bridge8 = getLegacyBridge();
+    const methods = bridge8.methods;
     Object.assign(methods, {
       syncReferenceFileAvailability: () => {
       },
@@ -32164,7 +34199,7 @@
       closeGallery: noOp,
       closePromptTemplateDrawer: noOp,
       applyTasksSnapshot: async (tasks) => {
-        bridge7.state.tasks = Array.isArray(tasks) ? tasks : [];
+        bridge8.state.tasks = Array.isArray(tasks) ? tasks : [];
       },
       applyTaskUpdate: async (task) => {
         if (!task?.task_id) return;
@@ -32177,7 +34212,7 @@
         await options.refreshHistoryTasks?.(void 0, signal);
       },
       selectTask: async (taskId) => {
-        bridge7.state.selectedTaskId = String(taskId);
+        bridge8.state.selectedTaskId = String(taskId);
         await options.selectHistoryTask(String(taskId));
       },
       revealActiveTaskGroup: () => {
@@ -32205,7 +34240,7 @@
     initSegmentedIndicatorFeature();
     initMobileShell();
     methods.bindShellUiEvents?.();
-    bindSharedTopNavSettingsEvents(bridge7.els, methods);
+    bindSharedTopNavSettingsEvents(bridge8.els, methods);
     methods.restoreThemePreference?.();
     methods.restoreApiSettings?.();
     methods.restoreModelSelection?.();
@@ -32221,7 +34256,7 @@
 
   // codex_image/webui/frontend/src/history-task-actions.ts
   function createHistoryTaskActions(deps) {
-    const els9 = {
+    const els11 = {
       resultSummary: document.querySelector("#historyResultSummary")
     };
     const historyState = {
@@ -32245,7 +34280,7 @@
         await deps.filters.loadSummary();
       } catch (error) {
         setText(
-          els9.resultSummary,
+          els11.resultSummary,
           errorMessage(
             error,
             translate("history.organizationFailed")
@@ -32273,7 +34308,7 @@
     }
     async function archiveHistoryTaskIds(ids, archived) {
       if (!ids.length) return;
-      setText(els9.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
+      setText(els11.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
       try {
         const tasks = await Promise.all(ids.map((taskId) => setTaskArchiveState(taskId, archived)));
         ids.forEach((taskId) => deps.selection.dispatch({ type: "drop", id: taskId }));
@@ -32287,9 +34322,9 @@
         });
         deps.reconcileSelection();
         await deps.filters.loadSummary();
-        setText(els9.resultSummary, archived ? formatTranslation("batch.archivedCount", { count: ids.length }) : formatTranslation("archive.restoredCount", { count: ids.length }));
+        setText(els11.resultSummary, archived ? formatTranslation("batch.archivedCount", { count: ids.length }) : formatTranslation("archive.restoredCount", { count: ids.length }));
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
+        setText(els11.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
       } finally {
         deps.renderToolbar();
         deps.details.syncHistorySelectionDetail();
@@ -32297,7 +34332,7 @@
     }
     async function archiveSingleTask(taskId, archived) {
       if (!taskId) return;
-      setText(els9.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
+      setText(els11.resultSummary, archived ? translate("archive.archiving") : translate("archive.restoring"));
       try {
         const task = await setTaskArchiveState(taskId, archived);
         historyState.deleteConfirmTaskId = "";
@@ -32307,9 +34342,9 @@
         }
         deps.list.upsertHistoryTaskSummaryCard(taskId, task);
         await deps.filters.loadSummary();
-        setText(els9.resultSummary, archived ? translate("taskActions.archived") : translate("archive.restored"));
+        setText(els11.resultSummary, archived ? translate("taskActions.archived") : translate("archive.restored"));
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
+        setText(els11.resultSummary, errorMessage(error, archived ? translate("taskActions.archiveFailed") : translate("archive.restoreFailed")));
       }
     }
     async function deleteSelectedTasks() {
@@ -32326,7 +34361,7 @@
         deps.renderToolbar();
         return;
       }
-      setText(els9.resultSummary, translate("archive.deleting"));
+      setText(els11.resultSummary, translate("archive.deleting"));
       try {
         const results = await Promise.allSettled(ids.map(async (taskId) => {
           const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { method: "DELETE" });
@@ -32342,12 +34377,12 @@
         await deps.filters.loadSummary();
         if (deletedIds.length) {
           const skipped = failedIds.length ? ` \xB7 ${translate("taskActions.deleteFailed")} ${failedIds.length}` : "";
-          setText(els9.resultSummary, formatTranslation("batch.deletedCount", { count: deletedIds.length, skipped }));
+          setText(els11.resultSummary, formatTranslation("batch.deletedCount", { count: deletedIds.length, skipped }));
         } else {
-          setText(els9.resultSummary, translate("taskActions.deleteFailed"));
+          setText(els11.resultSummary, translate("taskActions.deleteFailed"));
         }
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
       } finally {
         deps.renderSelection();
         deps.renderToolbar();
@@ -32365,7 +34400,7 @@
         if (confirmInMenu) deps.rerenderContextMenu();
         return false;
       }
-      setText(els9.resultSummary, translate("archive.deleting"));
+      setText(els11.resultSummary, translate("archive.deleting"));
       try {
         const response = await fetch(`/api/tasks/${encodeURIComponent(taskId)}`, { method: "DELETE" });
         const data = await response.json().catch(() => ({}));
@@ -32375,10 +34410,10 @@
         historyState.contextMenuDeleteConfirmKey = "";
         deps.list.removeHistoryTaskIdsFromWindow([taskId]);
         await deps.filters.loadSummary();
-        setText(els9.resultSummary, translate("taskActions.deleted"));
+        setText(els11.resultSummary, translate("taskActions.deleted"));
         return true;
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
         return false;
       } finally {
         deps.renderToolbar();
@@ -32401,7 +34436,7 @@
         historyState.deleteUnselectedConfirmTaskId = "";
         deps.details.renderTaskDetail(data.task || {});
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
       }
     }
     async function deleteUnselectedOutputs(taskId) {
@@ -32419,7 +34454,7 @@
         deps.details.renderTaskDetail(data.task || {});
         deps.list.upsertHistoryTaskSummaryCard(taskId, data.task || {});
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskActions.deleteFailed")));
       }
     }
     async function writeClipboardText(text) {
@@ -32442,17 +34477,17 @@
         if (button) {
           setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
         } else {
-          setText(els9.resultSummary, translate("history.noPrompt"));
+          setText(els11.resultSummary, translate("history.noPrompt"));
         }
         return;
       }
       try {
         if (!await writeClipboardText(text)) return;
         if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
-        setText(els9.resultSummary, translate("history.promptCopied"));
+        setText(els11.resultSummary, translate("history.promptCopied"));
       } catch (error) {
         if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopyFailedShort"));
-        setText(els9.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
       }
     }
     async function copyOutputPromptToClipboard(outputIndex, button) {
@@ -32461,17 +34496,17 @@
         if (button) {
           setPromptCopyButtonFeedback(button, translate("history.noPromptShort"));
         } else {
-          setText(els9.resultSummary, translate("history.noPrompt"));
+          setText(els11.resultSummary, translate("history.noPrompt"));
         }
         return;
       }
       try {
         if (!await writeClipboardText(text)) return;
         if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopiedShort"));
-        setText(els9.resultSummary, translate("history.promptCopied"));
+        setText(els11.resultSummary, translate("history.promptCopied"));
       } catch (error) {
         if (button) setPromptCopyButtonFeedback(button, translate("history.promptCopyFailedShort"));
-        setText(els9.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
       }
     }
     function reuseHistoryTask(taskId) {
@@ -32486,7 +34521,7 @@
         }));
         window.location.href = "/";
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
       }
     }
     async function copyHistoryTaskId(taskIds) {
@@ -32494,9 +34529,9 @@
       if (!ids.length) return;
       try {
         if (!await writeClipboardText(ids.join("\n"))) return;
-        setText(els9.resultSummary, ids.length > 1 ? formatTranslation("history.taskIdsCopied", { count: ids.length }) : translate("taskContext.idCopied"));
+        setText(els11.resultSummary, ids.length > 1 ? formatTranslation("history.taskIdsCopied", { count: ids.length }) : translate("taskContext.idCopied"));
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("taskContext.actionFailed")));
       }
     }
     async function copyHistoryTaskPrompts(taskIds) {
@@ -32512,14 +34547,14 @@
         }
       }
       if (!prompts.length) {
-        setText(els9.resultSummary, translate("history.noPrompt"));
+        setText(els11.resultSummary, translate("history.noPrompt"));
         return;
       }
       try {
         if (!await writeClipboardText(prompts.join("\n\n---\n\n"))) return;
-        setText(els9.resultSummary, taskIds.length > 1 ? formatTranslation("history.promptsCopied", { count: prompts.length }) : translate("history.promptCopied"));
+        setText(els11.resultSummary, taskIds.length > 1 ? formatTranslation("history.promptsCopied", { count: prompts.length }) : translate("history.promptCopied"));
       } catch (error) {
-        setText(els9.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
+        setText(els11.resultSummary, errorMessage(error, translate("history.promptCopyFailed")));
       }
     }
     function triggerHistoryDownload(url, filename = "") {
@@ -32556,7 +34591,7 @@
         }
       }
       setText(
-        els9.resultSummary,
+        els11.resultSummary,
         downloaded > 1 ? formatTranslation("history.batchDownloadStarted", { count: downloaded }) : downloaded === 1 ? translate("history.downloadStarted") : translate("history.noDownloadableOutputs")
       );
     }
@@ -33265,11 +35300,11 @@
       const oview = out === buffer ? view : createView(out);
       const len = this.outputLen;
       const outLen = len / 4;
-      const state5 = this.get();
-      if (len % 4 || outLen > state5.length)
+      const state6 = this.get();
+      if (len % 4 || outLen > state6.length)
         throw new Error("invalid outputLen");
       for (let i = 0; i < outLen; i++)
-        oview.setUint32(4 * i, state5[i], isLE);
+        oview.setUint32(4 * i, state6[i], isLE);
     }
     digest() {
       const { buffer, outputLen } = this;
@@ -34026,7 +36061,7 @@
 
   // codex_image/webui/frontend/src/history-transfer-ui.ts
   function createHistoryTransferUi(options) {
-    const els9 = {
+    const els11 = {
       page: document.querySelector(".history-page"),
       backupDialog: document.querySelector("#historyBackupDialog"),
       backupTitle: document.querySelector("#historyBackupTitle"),
@@ -34076,7 +36111,7 @@
       element.classList.toggle("hidden", hidden);
     }
     function historyBackupScope() {
-      const selected = els9.backupDialog?.querySelector('input[name="history-backup-scope"]:checked')?.value;
+      const selected = els11.backupDialog?.querySelector('input[name="history-backup-scope"]:checked')?.value;
       if (selected === "selected") {
         return { kind: "selected", taskIds: [...selectedTaskIdsSnapshot] };
       }
@@ -34085,41 +36120,41 @@
     }
     function renderHistoryBackupScopeEstimates() {
       if (historyBackupDownloaded) {
-        setHistoryTransferHidden(els9.backupScopeEstimate, true);
+        setHistoryTransferHidden(els11.backupScopeEstimate, true);
         return;
       }
       for (const kind2 of ["selected", "filtered", "all"]) {
-        const target = els9.backupDialog?.querySelector(
+        const target = els11.backupDialog?.querySelector(
           `[data-history-backup-scope-count="${kind2}"]`
         ) || null;
         const estimate2 = historyBackupEstimates.get(kind2);
-        const state6 = historyBackupEstimateStates.get(kind2) || "idle";
+        const state7 = historyBackupEstimateStates.get(kind2) || "idle";
         const text = estimate2 ? formatTranslation("historyBackup.scopeCount", {
           eligible: estimate2.eligible_tasks,
           total: estimate2.total_tasks
-        }) : state6 === "loading" ? translate("historyBackup.scopeCounting") : state6 === "unavailable" ? translate("historyBackup.scopeCountUnavailable") : kind2 === "selected" && selectedTaskIdsSnapshot.length === 0 ? translate("historyBackup.scopeNoneSelected") : "";
+        }) : state7 === "loading" ? translate("historyBackup.scopeCounting") : state7 === "unavailable" ? translate("historyBackup.scopeCountUnavailable") : kind2 === "selected" && selectedTaskIdsSnapshot.length === 0 ? translate("historyBackup.scopeNoneSelected") : "";
         setText(target, text);
       }
       const locked = historyBackupViewState(currentBackupJob).scopeLocked;
-      setHistoryTransferHidden(els9.backupScopeEstimate, locked);
+      setHistoryTransferHidden(els11.backupScopeEstimate, locked);
       if (locked) {
-        setText(els9.backupScopeEstimate, "");
+        setText(els11.backupScopeEstimate, "");
         return;
       }
       const kind = historyBackupScope().kind;
       const estimate = historyBackupEstimates.get(kind);
-      const state5 = historyBackupEstimateStates.get(kind) || "idle";
+      const state6 = historyBackupEstimateStates.get(kind) || "idle";
       if (estimate) {
-        setText(els9.backupScopeEstimate, formatTranslation("historyBackup.willBackup", {
+        setText(els11.backupScopeEstimate, formatTranslation("historyBackup.willBackup", {
           eligible: estimate.eligible_tasks,
           excluded: estimate.excluded_nonterminal
         }));
       } else if (kind === "selected" && selectedTaskIdsSnapshot.length === 0) {
-        setText(els9.backupScopeEstimate, translate("historyBackup.selectTasksFirst"));
-      } else if (state5 === "unavailable") {
-        setText(els9.backupScopeEstimate, translate("historyBackup.scopeCountUnavailable"));
+        setText(els11.backupScopeEstimate, translate("historyBackup.selectTasksFirst"));
+      } else if (state6 === "unavailable") {
+        setText(els11.backupScopeEstimate, translate("historyBackup.scopeCountUnavailable"));
       } else {
-        setText(els9.backupScopeEstimate, translate("historyBackup.scopeCounting"));
+        setText(els11.backupScopeEstimate, translate("historyBackup.scopeCounting"));
       }
     }
     async function loadHistoryBackupScopeEstimates() {
@@ -34168,9 +36203,9 @@
       return translate("historyBackup.errorIo");
     }
     function focusHistoryTransferError(kind, message) {
-      const summary = kind === "backup" ? els9.backupLive : els9.importLive;
+      const summary = kind === "backup" ? els11.backupLive : els11.importLive;
       setText(summary, message);
-      if (summary && !(kind === "backup" ? els9.backupDialog : els9.importDialog)?.hidden) {
+      if (summary && !(kind === "backup" ? els11.backupDialog : els11.importDialog)?.hidden) {
         summary.focus();
       }
     }
@@ -34185,13 +36220,13 @@
     }
     function renderHistoryBackupLockedScope(job) {
       const locked = historyBackupViewState(job).scopeLocked;
-      setHistoryTransferHidden(els9.backupScopeState, !locked);
+      setHistoryTransferHidden(els11.backupScopeState, !locked);
       if (!job || !locked) {
-        setText(els9.backupScopeState, "");
+        setText(els11.backupScopeState, "");
         return;
       }
       const countsKnown = Number(job.total_tasks || 0) > 0 || !["queued", "planning"].includes(job.status);
-      setText(els9.backupScopeState, formatTranslation(
+      setText(els11.backupScopeState, formatTranslation(
         countsKnown ? "historyBackup.scopeLocked" : "historyBackup.scopeLockedPending",
         {
           scope: historyBackupScopeText(job.scope_kind),
@@ -34202,62 +36237,62 @@
     function renderHistoryBackupJob(job) {
       currentBackupJob = job;
       if (historyBackupDownloaded) {
-        setHistoryTransferHidden(els9.backupScopeFieldset, true);
-        setHistoryTransferHidden(els9.backupScopeHelp, true);
-        setHistoryTransferHidden(els9.backupScopeEstimate, true);
-        setHistoryTransferHidden(els9.backupScopeState, true);
-        setHistoryTransferHidden(els9.backupProgressSummary, true);
-        setHistoryTransferHidden(els9.backupWarning, true);
-        setHistoryTransferHidden(els9.backupComplete, false);
-        setHistoryTransferHidden(els9.backupStart, true);
-        setHistoryTransferHidden(els9.backupCancel, true);
-        setHistoryTransferHidden(els9.backupDownload, true);
-        setHistoryTransferHidden(els9.backupDismiss, false);
-        els9.backupDismiss?.classList.remove("ghost-button");
-        els9.backupDismiss?.classList.add("run-button");
-        if (els9.backupDismiss) els9.backupDismiss.dataset.i18n = "historyBackup.closePanel";
-        setText(els9.backupDismiss, translate("historyBackup.closePanel"));
+        setHistoryTransferHidden(els11.backupScopeFieldset, true);
+        setHistoryTransferHidden(els11.backupScopeHelp, true);
+        setHistoryTransferHidden(els11.backupScopeEstimate, true);
+        setHistoryTransferHidden(els11.backupScopeState, true);
+        setHistoryTransferHidden(els11.backupProgressSummary, true);
+        setHistoryTransferHidden(els11.backupWarning, true);
+        setHistoryTransferHidden(els11.backupComplete, false);
+        setHistoryTransferHidden(els11.backupStart, true);
+        setHistoryTransferHidden(els11.backupCancel, true);
+        setHistoryTransferHidden(els11.backupDownload, true);
+        setHistoryTransferHidden(els11.backupDismiss, false);
+        els11.backupDismiss?.classList.remove("ghost-button");
+        els11.backupDismiss?.classList.add("run-button");
+        if (els11.backupDismiss) els11.backupDismiss.dataset.i18n = "historyBackup.closePanel";
+        setText(els11.backupDismiss, translate("historyBackup.closePanel"));
         return;
       }
-      setHistoryTransferHidden(els9.backupScopeFieldset, false);
-      setHistoryTransferHidden(els9.backupScopeHelp, false);
-      setHistoryTransferHidden(els9.backupProgressSummary, false);
-      setHistoryTransferHidden(els9.backupComplete, true);
-      els9.backupDismiss?.classList.remove("run-button");
-      els9.backupDismiss?.classList.add("ghost-button");
+      setHistoryTransferHidden(els11.backupScopeFieldset, false);
+      setHistoryTransferHidden(els11.backupScopeHelp, false);
+      setHistoryTransferHidden(els11.backupProgressSummary, false);
+      setHistoryTransferHidden(els11.backupComplete, true);
+      els11.backupDismiss?.classList.remove("run-button");
+      els11.backupDismiss?.classList.add("ghost-button");
       const view = historyBackupViewState(job);
       const missingInputWarning = job && Number(job.missing_input_files || 0) > 0 ? formatTranslation("historyBackup.missingInputsWarning", {
         tasks: Number(job.tasks_with_missing_inputs || 0),
         files: Number(job.missing_input_files || 0)
       }) : "";
-      setHistoryTransferHidden(els9.backupWarning, !missingInputWarning);
-      setText(els9.backupWarning, missingInputWarning);
-      setHistoryTransferHidden(els9.backupStart, view.active || view.ready);
-      setHistoryTransferHidden(els9.backupCancel, !view.active);
-      setHistoryTransferHidden(els9.backupDownload, !view.ready);
-      setHistoryTransferHidden(els9.backupDismiss, !view.dismissible);
+      setHistoryTransferHidden(els11.backupWarning, !missingInputWarning);
+      setText(els11.backupWarning, missingInputWarning);
+      setHistoryTransferHidden(els11.backupStart, view.active || view.ready);
+      setHistoryTransferHidden(els11.backupCancel, !view.active);
+      setHistoryTransferHidden(els11.backupDownload, !view.ready);
+      setHistoryTransferHidden(els11.backupDismiss, !view.dismissible);
       const dismissKey = view.ready ? "historyBackup.discard" : "historyBackup.dismiss";
-      if (els9.backupDismiss) els9.backupDismiss.dataset.i18n = dismissKey;
-      setText(els9.backupDismiss, translate(dismissKey));
-      if (els9.backupScopeFieldset) els9.backupScopeFieldset.disabled = view.scopeLocked;
+      if (els11.backupDismiss) els11.backupDismiss.dataset.i18n = dismissKey;
+      setText(els11.backupDismiss, translate(dismissKey));
+      if (els11.backupScopeFieldset) els11.backupScopeFieldset.disabled = view.scopeLocked;
       renderHistoryBackupLockedScope(job);
       renderHistoryBackupScopeEstimates();
-      setHistoryTransferHidden(els9.backupProgressRegion, view.progressMode === "hidden");
-      if (els9.backupProgress) {
+      setHistoryTransferHidden(els11.backupProgressRegion, view.progressMode === "hidden");
+      if (els11.backupProgress) {
         if (view.progressMode === "indeterminate") {
-          els9.backupProgress.removeAttribute("value");
+          els11.backupProgress.removeAttribute("value");
         } else {
-          els9.backupProgress.value = view.progressValue;
+          els11.backupProgress.value = view.progressValue;
         }
       }
       if (!job) {
-        setText(els9.backupStats, "");
-        setText(els9.backupLive, translate("historyBackup.idle"));
+        setText(els11.backupStats, "");
+        setText(els11.backupLive, translate("historyBackup.idle"));
         return;
       }
       const totalBytes = Number(job.total_bytes || 0);
       const completedBytes = Number(job.completed_bytes || 0);
-      setText(els9.backupStats, formatTranslation("historyBackup.stats", {
+      setText(els11.backupStats, formatTranslation("historyBackup.stats", {
         total: job.total_tasks || 0,
         eligible: job.eligible_tasks || 0,
         excluded: job.excluded_nonterminal || 0,
@@ -34266,7 +36301,7 @@
       const statusAnnouncement = job.status === "failed" ? historyBackupErrorText(String(job.error_code || "")) : job.status === "ready" ? translate("historyBackup.readyDetail") : historyBackupStatusText(job);
       const announcement = missingInputWarning ? `${statusAnnouncement} ${missingInputWarning}` : statusAnnouncement;
       if (announcement !== lastBackupAnnouncement) {
-        setText(els9.backupLive, announcement);
+        setText(els11.backupLive, announcement);
         lastBackupAnnouncement = announcement;
       }
     }
@@ -34275,7 +36310,7 @@
       currentBackupJob = null;
       renderHistoryBackupJob(null);
       lastBackupAnnouncement = translate("historyBackup.downloaded");
-      els9.backupComplete?.focus();
+      els11.backupComplete?.focus();
     }
     function restoreHistoryDialogFocus(kind) {
       const target = kind === "backup" ? historyBackupReturnFocus : historyImportReturnFocus;
@@ -34284,13 +36319,13 @@
       else historyImportReturnFocus = null;
     }
     function syncHistoryTransferModalState() {
-      const backupOpen = Boolean(els9.backupDialog && !els9.backupDialog.hidden);
-      const importOpen = Boolean(els9.importDialog && !els9.importDialog.hidden);
-      if (els9.page) els9.page.inert = backupOpen || importOpen;
+      const backupOpen = Boolean(els11.backupDialog && !els11.backupDialog.hidden);
+      const importOpen = Boolean(els11.importDialog && !els11.importDialog.hidden);
+      if (els11.page) els11.page.inert = backupOpen || importOpen;
     }
     function activeHistoryTransferDialog() {
-      if (els9.backupDialog && !els9.backupDialog.hidden) return els9.backupDialog;
-      if (els9.importDialog && !els9.importDialog.hidden) return els9.importDialog;
+      if (els11.backupDialog && !els11.backupDialog.hidden) return els11.backupDialog;
+      if (els11.importDialog && !els11.importDialog.hidden) return els11.importDialog;
       return null;
     }
     function trapHistoryTransferFocus(event) {
@@ -34319,29 +36354,29 @@
       return true;
     }
     function closeHistoryBackupDialog(options2 = {}) {
-      if (!els9.backupDialog) return;
+      if (!els11.backupDialog) return;
       historyBackupDownloaded = false;
       historyBackupEstimateGeneration += 1;
-      setHistoryTransferHidden(els9.backupDialog, true);
-      els9.backupDialog.setAttribute("aria-hidden", "true");
+      setHistoryTransferHidden(els11.backupDialog, true);
+      els11.backupDialog.setAttribute("aria-hidden", "true");
       syncHistoryTransferModalState();
       if (options2.restoreFocus !== false) restoreHistoryDialogFocus("backup");
     }
     function openHistoryBackupDialog(trigger, taskIds, preferSelected = false) {
-      if (els9.importDialog && !els9.importDialog.hidden) closeHistoryImportDialog({ restoreFocus: false });
+      if (els11.importDialog && !els11.importDialog.hidden) closeHistoryImportDialog({ restoreFocus: false });
       historyBackupReturnFocus = trigger;
       selectedTaskIdsSnapshot = [...taskIds];
       const selectedCount = selectedTaskIdsSnapshot.length;
-      if (els9.backupSelectedScope) {
-        els9.backupSelectedScope.disabled = selectedCount === 0;
-        els9.backupSelectedScope.checked = preferSelected && selectedCount > 0;
+      if (els11.backupSelectedScope) {
+        els11.backupSelectedScope.disabled = selectedCount === 0;
+        els11.backupSelectedScope.checked = preferSelected && selectedCount > 0;
       }
-      if (!els9.backupSelectedScope?.checked) {
-        const filtered = els9.backupDialog?.querySelector('input[name="history-backup-scope"][value="filtered"]');
+      if (!els11.backupSelectedScope?.checked) {
+        const filtered = els11.backupDialog?.querySelector('input[name="history-backup-scope"][value="filtered"]');
         if (filtered) filtered.checked = true;
       }
-      setHistoryTransferHidden(els9.backupDialog, false);
-      els9.backupDialog?.setAttribute("aria-hidden", "false");
+      setHistoryTransferHidden(els11.backupDialog, false);
+      els11.backupDialog?.setAttribute("aria-hidden", "false");
       syncHistoryTransferModalState();
       renderHistoryBackupJob(currentBackupJob);
       if (historyBackupViewState(currentBackupJob).scopeLocked) {
@@ -34352,7 +36387,7 @@
       } else {
         void loadHistoryBackupScopeEstimates();
       }
-      els9.backupTitle?.focus();
+      els11.backupTitle?.focus();
     }
     function importGroupItems(preview, group) {
       if (group === "restorable") return preview.restorable || [];
@@ -34389,14 +36424,14 @@
     }
     function renderHistoryImportPreview(preview) {
       currentImportPreview = preview;
-      setHistoryTransferHidden(els9.importPreview, !preview);
-      if (!preview || !els9.importPreview) {
-        if (els9.importConfirm) els9.importConfirm.disabled = true;
-        setHistoryTransferHidden(els9.importConfirm, true);
+      setHistoryTransferHidden(els11.importPreview, !preview);
+      if (!preview || !els11.importPreview) {
+        if (els11.importConfirm) els11.importConfirm.disabled = true;
+        setHistoryTransferHidden(els11.importConfirm, true);
         return;
       }
       for (const group of ["restorable", "duplicate", "conflict", "invalid"]) {
-        const details2 = els9.importPreview.querySelector(`[data-history-import-group="${group}"]`);
+        const details2 = els11.importPreview.querySelector(`[data-history-import-group="${group}"]`);
         const items = importGroupItems(preview, group);
         const summary = details2?.querySelector("summary");
         if (summary) summary.textContent = `${translate(`historyImport.${group}`)} \xB7 ${items.length}`;
@@ -34404,14 +36439,14 @@
         if (list2) list2.innerHTML = items.map((item) => `<li><code>${escapeHtml3(item.task_id)}</code>${item.reason ? ` <span class="history-import-reason">${escapeHtml3(historyImportReasonText(item.reason))}</span>` : ""}</li>`).join("");
       }
       const canRestore = preview.restorable.length > 0;
-      if (els9.importConfirm) els9.importConfirm.disabled = !canRestore;
-      setHistoryTransferHidden(els9.importConfirm, false);
-      setHistoryTransferHidden(els9.importCancel, false);
+      if (els11.importConfirm) els11.importConfirm.disabled = !canRestore;
+      setHistoryTransferHidden(els11.importConfirm, false);
+      setHistoryTransferHidden(els11.importCancel, false);
     }
     function renderHistoryImportResult(result) {
       currentImportResult = result;
-      setHistoryTransferHidden(els9.importResult, !result);
-      if (!result || !els9.importResult) return;
+      setHistoryTransferHidden(els11.importResult, !result);
+      if (!result || !els11.importResult) return;
       const values = {
         restored: result.restored,
         duplicates: result.duplicates,
@@ -34422,7 +36457,7 @@
         cleanup_warnings: result.cleanup_warnings
       };
       for (const [key2, items] of Object.entries(values)) {
-        setText(els9.importResult.querySelector(`[data-history-import-result="${key2}"] dd`), String(items?.length || 0));
+        setText(els11.importResult.querySelector(`[data-history-import-result="${key2}"] dd`), String(items?.length || 0));
       }
     }
     function historyImportPhaseText(phase) {
@@ -34431,29 +36466,29 @@
     }
     function renderHistoryImportPhase(phase) {
       currentImportPhase = phase;
-      setText(els9.importLive, historyImportPhaseText(phase));
+      setText(els11.importLive, historyImportPhaseText(phase));
       const restoring = phase === "restoring";
       const cancellable = ["creating", "uploading", "validating", "validated"].includes(phase);
-      setHistoryTransferHidden(els9.importCancel, !cancellable || restoring);
-      if (els9.importFile) els9.importFile.disabled = restoring;
+      setHistoryTransferHidden(els11.importCancel, !cancellable || restoring);
+      if (els11.importFile) els11.importFile.disabled = restoring;
     }
     function closeHistoryImportDialog(options2 = {}) {
-      if (!els9.importDialog) return;
-      setHistoryTransferHidden(els9.importDialog, true);
-      els9.importDialog.setAttribute("aria-hidden", "true");
+      if (!els11.importDialog) return;
+      setHistoryTransferHidden(els11.importDialog, true);
+      els11.importDialog.setAttribute("aria-hidden", "true");
       syncHistoryTransferModalState();
       if (options2.restoreFocus !== false) restoreHistoryDialogFocus("import");
     }
     function openHistoryImportDialog(trigger) {
-      if (els9.backupDialog && !els9.backupDialog.hidden) closeHistoryBackupDialog({ restoreFocus: false });
+      if (els11.backupDialog && !els11.backupDialog.hidden) closeHistoryBackupDialog({ restoreFocus: false });
       historyImportReturnFocus = trigger;
-      setHistoryTransferHidden(els9.importDialog, false);
-      els9.importDialog?.setAttribute("aria-hidden", "false");
+      setHistoryTransferHidden(els11.importDialog, false);
+      els11.importDialog?.setAttribute("aria-hidden", "false");
       syncHistoryTransferModalState();
       renderHistoryImportPhase(currentImportPhase);
       renderHistoryImportPreview(currentImportPreview);
       renderHistoryImportResult(currentImportResult);
-      els9.importTitle?.focus();
+      els11.importTitle?.focus();
     }
     const backupController = createHistoryBackupController({
       onStatus: (job) => renderHistoryBackupJob(job),
@@ -34469,7 +36504,7 @@
     const importController = createHistoryImportController({
       onPhase: (phase) => renderHistoryImportPhase(phase),
       onProgress: (uploaded, total) => {
-        if (els9.importProgress) els9.importProgress.value = total > 0 ? Math.min(100, Math.round(uploaded * 100 / total)) : 0;
+        if (els11.importProgress) els11.importProgress.value = total > 0 ? Math.min(100, Math.round(uploaded * 100 / total)) : 0;
       }
     });
     async function startHistoryBackup() {
@@ -34493,8 +36528,8 @@
     }
     async function dismissHistoryBackupResult() {
       const job = currentBackupJob;
-      if (!job || !els9.backupDismiss) return;
-      els9.backupDismiss.disabled = true;
+      if (!job || !els11.backupDismiss) return;
+      els11.backupDismiss.disabled = true;
       try {
         if (await backupController.dismiss(job.job_id)) {
           currentBackupJob = null;
@@ -34503,7 +36538,7 @@
       } catch (error) {
         focusHistoryTransferError("backup", historyBackupErrorText(String(error?.code || "")));
       } finally {
-        els9.backupDismiss.disabled = false;
+        els11.backupDismiss.disabled = false;
       }
     }
     function clearHistoryImportUI() {
@@ -34513,13 +36548,13 @@
       currentImportResult = null;
       renderHistoryImportPreview(null);
       renderHistoryImportResult(null);
-      if (els9.importConfirm) els9.importConfirm.disabled = true;
-      setHistoryTransferHidden(els9.importConfirm, true);
-      if (els9.importFile) {
-        els9.importFile.value = "";
-        els9.importFile.disabled = false;
+      if (els11.importConfirm) els11.importConfirm.disabled = true;
+      setHistoryTransferHidden(els11.importConfirm, true);
+      if (els11.importFile) {
+        els11.importFile.value = "";
+        els11.importFile.disabled = false;
       }
-      if (els9.importProgress) els9.importProgress.value = 0;
+      if (els11.importProgress) els11.importProgress.value = 0;
     }
     async function cancelActiveHistoryImport() {
       try {
@@ -34563,13 +36598,13 @@
             };
           }
           focusHistoryTransferError("import", translate("historyImport.reselect"));
-          if (els9.importFile) els9.importFile.disabled = false;
+          if (els11.importFile) els11.importFile.disabled = false;
         }
       }
     }
     async function restoreHistoryImportSelection() {
       if (!currentImportPreview?.restorable.length) return;
-      setHistoryTransferHidden(els9.importCancel, true);
+      setHistoryTransferHidden(els11.importCancel, true);
       const terminalSessionId = importController.activeSessionId();
       try {
         const result = await importController.restore();
@@ -34615,14 +36650,14 @@
         } else if (session.status === "uploading") {
           historyImportResumePending = true;
           renderHistoryImportPhase("uploading");
-          setText(els9.importLive, translate("historyImport.reselect"));
+          setText(els11.importLive, translate("historyImport.reselect"));
         } else if (session.status === "restored") {
           renderHistoryImportPhase("restored");
         } else {
           renderHistoryImportPhase(session.status === "interrupted" ? "interrupted" : "failed");
         }
       } catch {
-        setText(els9.importLive, translate("historyImport.failed"));
+        setText(els11.importLive, translate("historyImport.failed"));
       }
     }
     function handleClick(target) {
@@ -34688,24 +36723,24 @@
       const backupScopeInput = target?.closest(
         'input[name="history-backup-scope"]'
       );
-      if (backupScopeInput && els9.backupDialog?.contains(backupScopeInput)) {
+      if (backupScopeInput && els11.backupDialog?.contains(backupScopeInput)) {
         renderHistoryBackupScopeEstimates();
         return true;
       }
-      if (target === els9.importFile) {
-        const file = els9.importFile?.files?.[0];
-        if (els9.importFile) els9.importFile.value = "";
+      if (target === els11.importFile) {
+        const file = els11.importFile?.files?.[0];
+        if (els11.importFile) els11.importFile.value = "";
         if (file) void chooseHistoryImport(file);
         return true;
       }
       return false;
     }
     function handleEscape() {
-      if (els9.backupDialog && !els9.backupDialog.hidden) {
+      if (els11.backupDialog && !els11.backupDialog.hidden) {
         closeHistoryBackupDialog();
         return true;
       }
-      if (els9.importDialog && !els9.importDialog.hidden) {
+      if (els11.importDialog && !els11.importDialog.hidden) {
         closeHistoryImportDialog();
         return true;
       }
@@ -34735,7 +36770,7 @@
   // codex_image/webui/frontend/src/history.ts
   var lifetime = new AbortController();
   var eventsBound = false;
-  var els8 = {
+  var els10 = {
     page: document.querySelector(".history-page"),
     sidebar: document.querySelector(".history-sidebar"),
     mobileFiltersButton: document.querySelector("#historyMobileFiltersButton"),
@@ -34759,7 +36794,7 @@
     await list.loadTasks({ reset: true, throwOnError: true });
   }
   function updateTaskSelectionVisuals(taskId = selection.snapshot().selectedTaskId) {
-    els8.taskList?.querySelectorAll(".history-task-card").forEach((card) => {
+    els10.taskList?.querySelectorAll(".history-task-card").forEach((card) => {
       const cardTaskId = card.dataset.historyTaskCardId || "";
       const active = Boolean(selection.snapshot().selectedTaskIds.size === 1 && taskId && cardTaskId === taskId);
       const selected = selection.snapshot().selectedTaskIds.has(cardTaskId);
@@ -34770,7 +36805,7 @@
     });
   }
   function visibleHistoryTaskIds() {
-    return Array.from(els8.taskList?.querySelectorAll(".history-task-card[data-history-task-card-id]") || []).map((card) => String(card.dataset.historyTaskCardId || "")).filter(Boolean);
+    return Array.from(els10.taskList?.querySelectorAll(".history-task-card[data-history-task-card-id]") || []).map((card) => String(card.dataset.historyTaskCardId || "")).filter(Boolean);
   }
   function focusHistoryTaskButton(taskId) {
     const card = list.historyTaskCardElement(taskId);
@@ -34784,9 +36819,9 @@
     if (event.altKey || event.metaKey || event.ctrlKey) return false;
     const target = event.target;
     const taskButton = target?.closest("[data-history-task-id]");
-    if (!taskButton || !els8.taskList?.contains(taskButton)) return false;
+    if (!taskButton || !els10.taskList?.contains(taskButton)) return false;
     const taskId = taskButton.dataset.historyTaskId || "";
-    const nextCard = historyTaskArrowTargetCard(els8.taskList, taskId, event.key, filters.snapshot().view);
+    const nextCard = historyTaskArrowTargetCard(els10.taskList, taskId, event.key, filters.snapshot().view);
     if (!nextCard && filters.snapshot().view === "list" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) return false;
     event.preventDefault();
     event.stopPropagation();
@@ -34812,7 +36847,7 @@
       selection.snapshot().selectedTaskId
     );
     if (!selection.snapshot().selectedTaskId) {
-      els8.page?.classList.remove("history-detail-open");
+      els10.page?.classList.remove("history-detail-open");
     }
   }
   function clearHistoryTaskSelection({ updateVisuals = true } = {}) {
@@ -34864,7 +36899,7 @@
   }
   function historySelectAllShortcutBlocked() {
     return Boolean(
-      els8.backupDialog && !els8.backupDialog.hidden || els8.importDialog && !els8.importDialog.hidden || organizer.isOpen() || contextMenu.isOpen() || isHistoryLightboxOpen()
+      els10.backupDialog && !els10.backupDialog.hidden || els10.importDialog && !els10.importDialog.hidden || organizer.isOpen() || contextMenu.isOpen() || isHistoryLightboxOpen()
     );
   }
   function handleHistorySelectAllShortcut(event) {
@@ -34879,19 +36914,19 @@
   }
   function renderBulkToolbar() {
     const count = selection.snapshot().selectedTaskIds.size;
-    els8.page?.classList.toggle("history-bulk-selecting", count > 1 || selection.snapshot().selectionMode);
-    els8.page?.classList.toggle("history-selection-mode", selection.snapshot().selectionMode);
-    els8.selectionDock?.classList.toggle("hidden", count === 0);
-    els8.selectionDock?.toggleAttribute("hidden", count === 0);
+    els10.page?.classList.toggle("history-bulk-selecting", count > 1 || selection.snapshot().selectionMode);
+    els10.page?.classList.toggle("history-selection-mode", selection.snapshot().selectionMode);
+    els10.selectionDock?.classList.toggle("hidden", count === 0);
+    els10.selectionDock?.toggleAttribute("hidden", count === 0);
     setText(
-      els8.selectionDockCount,
+      els10.selectionDockCount,
       count ? formatTranslation("history.selectedCount", { count }) : ""
     );
     if (!count) {
       details.resetActionPanel();
       organizer.closeHistoryOrganizePicker({ restoreFocus: false });
     }
-    if (count && els8.detail?.dataset.historyDetailMode === "selection") details.renderSelectionDetail();
+    if (count && els10.detail?.dataset.historyDetailMode === "selection") details.renderSelectionDetail();
   }
   function bindEvents() {
     if (eventsBound) return;
@@ -34914,15 +36949,15 @@
     document.addEventListener("click", (event) => {
       const target = event.target;
       if (shouldClearHistoryTaskFromBlankSurface({
-        detailMode: els8.detail?.dataset.historyDetailMode || "management",
+        detailMode: els10.detail?.dataset.historyDetailMode || "management",
         selectedCount: selection.snapshot().selectedTaskIds.size,
         selectionMode: selection.snapshot().selectionMode,
-        isTaskListBlankSurface: target === els8.taskList,
+        isTaskListBlankSurface: target === els10.taskList,
         button: event.button,
         hasModifier: event.shiftKey || event.metaKey || event.ctrlKey || event.altKey
       })) {
         clearHistoryTaskSelection();
-        els8.page?.classList.remove("history-detail-open");
+        els10.page?.classList.remove("history-detail-open");
         return;
       }
       const openManagement = target?.closest("[data-history-open-management]");
@@ -35083,28 +37118,28 @@
       }
       if (filters.handleClick(target)) return;
     }, { signal: lifetime.signal });
-    els8.taskList?.addEventListener("contextmenu", (event) => {
+    els10.taskList?.addEventListener("contextmenu", (event) => {
       const target = event.target;
       const card = target?.closest(".history-task-card[data-history-task-card-id]");
-      if (!card || !els8.taskList?.contains(card)) return;
+      if (!card || !els10.taskList?.contains(card)) return;
       event.preventDefault();
       event.stopPropagation();
       contextMenu.openHistoryContextMenu(card.dataset.historyTaskCardId || "", event.clientX, event.clientY);
     }, { signal: lifetime.signal });
-    els8.taskList?.addEventListener("dblclick", (event) => {
+    els10.taskList?.addEventListener("dblclick", (event) => {
       const target = event.target;
       const card = target?.closest(".history-task-card[data-history-task-card-id]");
-      if (!card || !els8.taskList?.contains(card)) return;
+      if (!card || !els10.taskList?.contains(card)) return;
       event.preventDefault();
       event.stopPropagation();
       void details.openHistoryTaskLightbox(card.dataset.historyTaskCardId || "");
     }, { signal: lifetime.signal });
-    els8.taskList?.addEventListener("keydown", (event) => {
+    els10.taskList?.addEventListener("keydown", (event) => {
       if (handleHistoryTaskArrowNavigation(event)) return;
       if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
       const target = event.target;
       const card = target?.closest(".history-task-card[data-history-task-card-id]");
-      if (!card || !els8.taskList?.contains(card)) return;
+      if (!card || !els10.taskList?.contains(card)) return;
       event.preventDefault();
       const rect = card.getBoundingClientRect();
       contextMenu.openHistoryContextMenu(card.dataset.historyTaskCardId || "", rect.left + 18, rect.top + 18);
@@ -35116,15 +37151,15 @@
       if (target && contextMenu.contains(target)) return;
       contextMenu.closeHistoryContextMenu();
     }, { capture: true, signal: lifetime.signal });
-    els8.refresh?.addEventListener("click", () => {
+    els10.refresh?.addEventListener("click", () => {
       void filters.loadSummary();
       void list.loadTasks({ reset: true });
     }, { signal: lifetime.signal });
-    els8.taskList?.addEventListener("dragstart", (event) => {
+    els10.taskList?.addEventListener("dragstart", (event) => {
       const target = event.target;
       if (target?.closest(".history-task-thumb img")) event.preventDefault();
     }, { signal: lifetime.signal });
-    els8.taskList?.addEventListener("scroll", () => {
+    els10.taskList?.addEventListener("scroll", () => {
       contextMenu.closeHistoryContextMenu();
       list.maybeLoadMoreFromScroll();
       historyPositionSaveController.schedule();
@@ -35172,7 +37207,7 @@
         clearHistoryTaskSelection();
         return;
       }
-      if (els8.page?.classList.contains("history-detail-open")) {
+      if (els10.page?.classList.contains("history-detail-open")) {
         details.closeDetail();
         return;
       }
@@ -35181,10 +37216,10 @@
   }
   async function bootHistoryPage() {
     initializeHistoryMobileFilters({
-      page: els8.page,
-      sidebar: els8.sidebar,
-      trigger: els8.mobileFiltersButton,
-      backdrop: els8.filtersBackdrop
+      page: els10.page,
+      sidebar: els10.sidebar,
+      trigger: els10.mobileFiltersButton,
+      backdrop: els10.filtersBackdrop
     });
     initializeHistoryShell({
       selectHistoryTask: details.loadTaskDetail,
@@ -35192,7 +37227,7 @@
         if (task) await details.refreshTaskDetail({ task, signal });
         await refreshHistoryForRealtimeTask({
           task,
-          scroller: els8.taskList,
+          scroller: els10.taskList,
           loadSummary: () => filters.loadSummary({ signal, throwOnError: true }),
           reloadNewestWindow: async () => {
             await list.loadTasks({ reset: true, signal, throwOnError: true, preserveSelection: true });
@@ -35261,7 +37296,7 @@
   var historyPositionSaveController = createHistoryPositionSaveController({
     requestFrame: (callback) => window.requestAnimationFrame(callback),
     cancelFrame: (frameId) => window.cancelAnimationFrame(frameId),
-    capture: () => els8.taskList ? captureHistoryScrollAnchor(els8.taskList) : null,
+    capture: () => els10.taskList ? captureHistoryScrollAnchor(els10.taskList) : null,
     save: filters.saveCurrentHistoryLocation
   });
   var transfers = createHistoryTransferUi({

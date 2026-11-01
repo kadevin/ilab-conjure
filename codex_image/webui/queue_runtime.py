@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import logging
 from typing import Any, AsyncContextManager, Awaitable, Callable
 
@@ -18,11 +18,14 @@ from codex_image.generation.errors import (
 )
 from codex_image.generation.snapshot import execution_plan_from_snapshot
 from codex_image.generation.types import GenerationCommand, ImageInput
-from codex_image.http_connection import transport_failure
+from codex_image.http_connection import exception_chain, transport_failure
 from codex_image.prompt_guard import build_prompt_guard_instructions
 from codex_image.providers.registry import ProviderRegistry, default_registry
+from codex_image.providers.contracts import ExecutionProgress
+from codex_image.providers.result_assets import asset_load_failure
 
 from .reference_image_order import ordered_reference_data_urls
+from .provider_responses import RecordingTransport
 from .auth_routing import (
     DEFAULT_API_PROVIDER_ID,
     _apply_api_execution_snapshot,
@@ -568,6 +571,8 @@ def _queue_execution_contract(
 ) -> QueueExecutionContract:
     network_snapshot = ctx.network_egress_manager.snapshot()
     transport = ctx.network_egress_manager.transport(network_snapshot)
+    if isinstance(metadata, dict) and metadata.get("task_id"):
+        transport = RecordingTransport(transport, ctx.storage, str(metadata["task_id"]))
     if isinstance(metadata, dict):
         metadata["network_egress"] = network_snapshot.task_metadata()
     params = metadata.get("params") if isinstance(metadata, dict) and isinstance(metadata.get("params"), dict) else {}
@@ -593,6 +598,15 @@ def _queue_execution_contract(
         registry=registry,
     )
     if snapshot_plan is not None:
+        if snapshot_plan.binding.protocol_profile == "t8_images" and metadata is not None:
+            task_id = str(metadata["task_id"])
+
+            def save_progress(state: dict[str, Any]) -> None:
+                ctx.storage.mutate_metadata(task_id, lambda current: current.update(provider_task=state))
+
+            snapshot_plan = replace(snapshot_plan, progress=ExecutionProgress(
+                state=dict(metadata.get("provider_task") or {}), save=save_progress,
+            ))
         if snapshot_plan.provider.id == "codex":
             channel_matches = channel.auth_source == "codex"
         else:
@@ -836,8 +850,9 @@ def _structured_task_error(
     *, sensitive_values: tuple[str, ...] = (),
 ):
     snapshot = metadata.get("generation_snapshot")
-    if isinstance(snapshot, dict) and isinstance(exc, GenerationProviderError):
-        error: GenerationProviderError | None = exc
+    provider_failure = next((item for item in exception_chain(exc) if isinstance(item, GenerationProviderError)), None)
+    if isinstance(snapshot, dict) and provider_failure is not None:
+        error: GenerationProviderError | None = provider_failure
     elif isinstance(snapshot, dict):
         error = provider_error_from_exception(
             exc,
@@ -847,6 +862,13 @@ def _structured_task_error(
         )
     else:
         error = None
+    if error is not None and (_is_non_retryable_error(exc) or transport_failure(exc) is not None):
+        if asset_load_failure(exc) is not None:
+            error = provider_error("asset_download_failed", provider_id=error.detail.provider_id,
+                                   canonical_model_id=error.detail.canonical_model_id,
+                                   protocol_profile=error.detail.protocol_profile, retryable=False)
+        else:
+            error = GenerationProviderError(replace(error.detail, retryable=False), status_code=error.status_code)
     credentials = list(sensitive_values)
     try:
         for provider in ctx.api_settings.read_connections():

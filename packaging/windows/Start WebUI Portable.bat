@@ -29,9 +29,11 @@ set "ILAB_CONJURE_BUNDLE_DIR=%BUNDLE_DIR%"
 set "ILAB_CONJURE_DATA_DIR=%DATA_DIR%"
 set "PYTHONPATH=%APP_DIR%;%APP_DIR%\.deps"
 set "CERTIFI_CA_BUNDLE=%BUNDLE_DIR%python\Lib\site-packages\certifi\cacert.pem"
-if exist "%CERTIFI_CA_BUNDLE%" (
+if exist "%CERTIFI_CA_BUNDLE%" if not defined SSL_CERT_FILE if not defined SSL_CERT_DIR (
   set "SSL_CERT_FILE=%CERTIFI_CA_BUNDLE%"
-  set "REQUESTS_CA_BUNDLE=%CERTIFI_CA_BUNDLE%"
+)
+if exist "%CERTIFI_CA_BUNDLE%" if not defined REQUESTS_CA_BUNDLE if not defined SSL_CERT_DIR (
+  set "REQUESTS_CA_BUNDLE=%SSL_CERT_FILE%"
 )
 set "AUTH_SETTINGS_PATH=%DATA_DIR%\webui-auth-settings.json"
 "%PYTHON_BIN%" -m codex_image.webui.startup_auth --settings-path "%AUTH_SETTINGS_PATH%" >nul

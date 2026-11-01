@@ -32,7 +32,7 @@ export function apiProviderMatchesSearch(provider: any, query: string): boolean 
 export function scrollActiveApiProviderCardIntoView(providerId: string, align: "center" | "nearest" = "center"): void {
   window.requestAnimationFrame(() => {
     const grid = providerChoiceGrid();
-    const panel = grid?.closest<HTMLElement>(".system-settings-section");
+    const panel = grid?.closest<HTMLElement>(".system-settings-scroll, .system-settings-section");
     if (!grid || !panel || panel.clientHeight === 0) return;
     const escapedId = CSS.escape(providerId);
     const card = grid.querySelector<HTMLElement>(`.api-provider-choice[data-api-provider-id="${escapedId}"]`);

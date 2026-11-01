@@ -68,11 +68,21 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         self.assertNotIn("provider-binding-api-mode", source)
         self.assertNotIn("调用方式", source)
 
+    def test_history_and_workbench_share_the_same_api_settings_controls(self) -> None:
+        history = Path("codex_image/webui/static/history.html").read_text(encoding="utf-8")
+
+        def api_panel(html: str) -> list[str]:
+            panel = html.split('<section id="systemSettingsApiPanel"', 1)[1]
+            panel = panel.split('<section id="systemSettingsNetworkPanel"', 1)[0]
+            return [line.strip() for line in panel.splitlines() if line.strip()]
+
+        self.assertEqual(api_panel(self.html), api_panel(history))
+
     def test_provider_summary_uses_model_binding_language_not_legacy_request_mode(self) -> None:
-        self.assertIn(
-            '<dt data-i18n="apiSettings.modelBindings">模型绑定</dt>',
-            self.html,
-        )
+        self.assertNotIn('id="apiProviderDetailMode"', self.html)
+        self.assertIn('id="providerBindingsCount"', self.html)
+        self.assertIn('export function updateProviderBindingCount()', self.provider_editor)
+        self.assertIn('`${translate("apiSettings.modelBindings")} (${provider?.bindings?.length || 0})`', self.provider_editor)
         self.assertNotIn('<dt data-i18n="apiSettings.mode">调用方式</dt>', self.html)
         self.assertIn('translate("apiSettings.modelBindings")', self.provider_editor)
         self.assertNotRegex(self.provider_editor, r'`\$\{provider\?\.bindings\?\.length \|\| 0\} bindings`')
@@ -94,14 +104,14 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.styles,
-            r"\.provider-binding-remote-model\s*\{[^}]*min-width:\s*0[^}]*grid-column:\s*auto",
+            r"\.provider-binding-remote-model\s*\{[^}]*min-width:\s*0[^}]*grid-column:\s*1\s*/\s*-1",
         )
         source = self.module.read_text(encoding="utf-8")
         self.assertIn('compatibilityLabel.textContent = "兼容层"', source)
         self.assertIn('compatibilitySelect.dataset.bindingCompatibility = ""', source)
         self.assertRegex(
             source,
-            r"grid\.append\(modelField,\s*protocolField,\s*remoteField,\s*compatibilityField,\s*transparencyField,\s*footer\)",
+            r"grid\.append\(modelField,\s*protocolField,\s*remoteField,\s*advanced,\s*footer\)",
         )
         self.assertRegex(
             self.styles,
@@ -109,7 +119,7 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.styles,
-            r"@media \(max-width:\s*620px\)[\s\S]*?\.provider-binding-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)",
+            r"@media \(max-width:\s*620px\)[\s\S]*?\.provider-binding-grid,\s*\.provider-binding-advanced-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)",
         )
         self.assertRegex(
             self.styles,
@@ -154,12 +164,12 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         self.assertRegex(
             self.styles,
             r"\.api-provider-name-inputs\s*\{[^}]*display:\s*grid[^}]*"
-            r"grid-template-columns:\s*minmax\(96px,\s*auto\)\s+minmax\(0,\s*1fr\)",
+            r"grid-template-columns:\s*44px\s+minmax\(0,\s*1fr\)",
         )
         self.assertRegex(
             self.styles,
             r"\.api-provider-icon-input\s*\{[^}]*display:\s*grid[^}]*"
-            r"grid-template-columns:\s*auto\s+24px[^}]*border:\s*1px\s+solid\s+var\(--line\)",
+            r"grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*border:\s*1px\s+solid\s+var\(--line\)",
         )
         self.assertRegex(
             self.html,
@@ -174,48 +184,40 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.styles,
-            r"\.api-provider-editor-actions\s*\{[^}]*position:\s*sticky[^}]*bottom:\s*0[^}]*z-index:\s*2[^}]*background:\s*var\(--surface\)[^}]*border-top:",
+            r"\.system-settings-section \.settings-save-actions\s*\{[^}]*position:\s*relative[^}]*z-index:\s*2[^}]*background:\s*var\(--surface\)[^}]*border-top:",
         )
         self.assertRegex(
             self.modal_styles,
-            r"\.system-settings-section\s*\{[^}]*overflow-y:\s*auto",
+            r"\.system-settings-scroll\s*\{[^}]*overflow-y:\s*auto",
         )
         self.assertRegex(
             self.styles,
             r"@media \(max-width:\s*520px\)[\s\S]*?\.api-provider-editor-actions\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)",
         )
 
-    def test_binding_action_and_connection_preview_have_distinct_visual_roles(self) -> None:
-        dictionary = Path("codex_image/webui/frontend/src/i18n/zh-cn.ts").read_text(encoding="utf-8")
-
-        self.assertRegex(
-            self.html,
-            r'class="provider-bindings-connection"[\s\S]*?'
-            r'data-i18n="apiSettings.connectionPreview">连接预览</span>[\s\S]*?'
-            r'id="apiRequestEndpointPreview"',
-        )
-        self.assertIn('"apiSettings.connectionPreview": "连接预览"', dictionary)
+    def test_binding_action_and_count_replace_duplicate_connection_preview(self) -> None:
+        self.assertNotIn('id="apiRequestEndpointPreview"', self.html)
+        self.assertNotIn('class="provider-bindings-connection"', self.html)
+        self.assertNotIn('data-i18n="apiSettings.editHint"', self.html)
+        self.assertNotIn(".provider-bindings-connection", self.styles)
+        self.assertIn('id="providerBindingsCount"', self.html)
+        self.assertIn('setElementText(els.providerBindingsCount, `(${count})`)', self.provider_editor)
         self.assertRegex(
             self.styles,
-            r"\.provider-binding-add\s*\{[^}]*"
-            r"background:\s*var\(--primary-light\)[^}]*"
-            r"border-color:\s*color-mix\(in srgb,\s*var\(--primary\)",
+            r"\.provider-binding-add\s*\{[^}]*border:\s*0[^}]*"
+            r"background:\s*var\(--surface-soft\)",
         )
         self.assertRegex(
             self.styles,
-            r"\.provider-bindings-connection\s*\{[^}]*"
-            r"display:\s*grid[^}]*"
-            r"grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)[^}]*"
-            r"min-height:\s*34px[^}]*"
-            r"border-left:\s*3px\s+solid",
+            r"\.api-provider-choice\.active\s*\{[^}]*"
+            r"background:\s*var\(--primary-light\)[^}]*box-shadow:\s*none",
         )
+        self.assertIn(".api-provider-choice-check", self.styles)
+        self.assertNotIn(".api-provider-add-button::before", self.styles)
         self.assertRegex(
             self.styles,
-            r"\.provider-bindings-connection-label\s*\{[^}]*font-weight:\s*600",
-        )
-        self.assertRegex(
-            self.styles,
-            r"\.provider-bindings-connection code\s*\{[^}]*min-width:\s*0[^}]*text-overflow:\s*ellipsis",
+            r"\.api-provider-detail-actions,\s*\.api-provider-editor-actions\s*\{"
+            r"[^}]*justify-content:\s*center",
         )
 
     def test_provider_editor_compacts_connection_fields_and_derives_binding_operations(self) -> None:
@@ -236,24 +238,27 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.styles,
-            r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)",
+            r"\.compact-api-settings-grid\s*\{[^}]*grid-template-columns:\s*"
+            r"minmax\(0,\s*1fr\)\s+auto",
         )
-        for field, column, span, row in (
-            ("api-provider-name-field", 1, 4, 1),
-            ("api-concurrency-field", 5, 2, 1),
-            ("api-base-url-field", 1, 3, 2),
-            ("api-key-field", 4, 3, 2),
+        for field, column, row in (
+            ("api-provider-name-field", "1", "1"),
+            ("api-concurrency-field", "2", "1"),
+            ("api-base-url-field", r"1\s*/\s*-1", "auto"),
+            ("api-key-field", r"1\s*/\s*-1", "auto"),
         ):
             with self.subTest(field=field):
                 self.assertRegex(
                     self.styles,
                     rf"\.compact-api-settings-grid > \.{field}\s*\{{[^}}]*"
-                    rf"grid-column:\s*{column}\s*/\s*span\s+{span}[^}}]*"
-                    rf"grid-row:\s*{row}",
+                    rf"grid-column:\s*{column}[^}}]*grid-row:\s*{row}",
                 )
         self.assertRegex(
             self.styles,
-            r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?\.compact-api-settings-grid > \.api-concurrency-field\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)[^}]*align-items:\s*center",
+            r"\.compact-api-settings-grid > \.api-provider-name-field,[\s\S]*?"
+            r"\.compact-api-settings-grid > \.api-concurrency-field\s*\{"
+            r"[^}]*display:\s*grid[^}]*grid-template-columns:\s*6\.5em\s+minmax\(0,\s*1fr\)"
+            r"[^}]*align-items:\s*center",
         )
         self.assertNotIn("data-binding-operation", source)
         self.assertNotIn("支持操作", source)
@@ -261,7 +266,13 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         self.assertIn("model?.operations || existingOperations", self.binding_editor)
         self.assertIn("provider-binding-footer", source)
         self.assertIn('ratioPromptInput.dataset.bindingRatioPrompt = ""', source)
-        self.assertRegex(source, r"footerSettings\.append\(ratioPromptField,\s*defaultField\)")
+        self.assertRegex(source, r"advancedGrid\.append\(compatibilityField,\s*transparencyField,\s*ratioPromptField\)")
+        self.assertRegex(source, r"footerSettings\.append\(defaultField\)")
+        self.assertIn('advanced.className = "provider-binding-advanced"', source)
+        self.assertIn('summaryState.hidden = !nonDefaults', source)
+        self.assertIn('advancedSummaryState.hidden = !nonDefaults', source)
+        self.assertIn('cards.forEach(card => { card.open = card === selected; })', source)
+        self.assertIn('if (card.open) openProviderBindingCard(container, binding.id)', source)
         self.assertRegex(source, r"footer\.append\(footerSettings,\s*remove\)")
         self.assertRegex(
             self.styles,
@@ -269,7 +280,15 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.styles,
-            r"\.provider-binding-footer-settings\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*nowrap[^}]*gap:\s*20px",
+            r"\.provider-binding-footer-settings\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*wrap[^}]*gap:\s*8px",
+        )
+        self.assertRegex(
+            self.styles,
+            r"\.provider-binding-toggle\s*\{[^}]*white-space:\s*normal",
+        )
+        self.assertRegex(
+            self.styles,
+            r"\.provider-binding-toggle span\s*\{[^}]*overflow-wrap:\s*anywhere",
         )
         self.assertNotIn("provider-binding-footer-actions", source)
 
@@ -284,7 +303,7 @@ class WebUIStaticProviderBindingTests(unittest.TestCase):
         )
         self.assertRegex(
             self.modal_styles,
-            r"\.system-settings-section\s*\{[^}]*position:\s*relative[^}]*z-index:\s*1[^}]*overflow-y:\s*auto",
+            r"\.system-settings-section\s*\{[^}]*position:\s*relative[^}]*z-index:\s*1[^}]*overflow:\s*hidden",
         )
 
     def test_provider_editor_moves_focus_before_hiding_the_focused_form(self) -> None:

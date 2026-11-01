@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge } from "./state";
+import { mountProviderResponseDetails } from "./provider-response-details";
 
 const bridge = getLegacyBridge();
 const els = bridge.els;
@@ -14,6 +15,7 @@ const confirmPopoverState = {
 };
 
 let promptPopoverEl = null;
+let disposeProviderResponseDetails = null;
 const promptPopoverState = {
   anchor: null,
   data: null,
@@ -51,6 +53,11 @@ function bindOverlayPopoverEvents() {
   overlayPopoverEventsBound = true;
   document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleDocumentKeydown);
+  window.addEventListener("resize", () => {
+    if (promptPopoverState.anchor && promptPopoverEl && !promptPopoverEl.classList.contains("hidden")) {
+      positionPromptPopover(promptPopoverState.anchor, promptPopoverEl);
+    }
+  });
 }
 
 function ensureConfirmPopover() {
@@ -192,6 +199,7 @@ function ensurePromptPopover() {
 }
 
 function openPromptPopover(anchor, data) {
+  disposeProviderResponseDetails?.();
   const popover = ensurePromptPopover();
   const originalPrompt = data.originalPrompt || data.submittedPrompt || "";
   const submittedPrompt = data.submittedPrompt || originalPrompt || "";
@@ -231,8 +239,18 @@ function openPromptPopover(anchor, data) {
   popover.querySelector("[data-copy-optimized-prompt]")?.addEventListener("click", (event) => {
     copyOptimizedPrompt(event.currentTarget);
   });
+  const reposition = () => {
+    if (promptPopoverState.anchor === anchor && !popover.classList.contains("hidden")) {
+      positionPromptPopover(anchor, popover);
+    }
+  };
+  popover.querySelector("details")?.addEventListener("toggle", reposition);
+  disposeProviderResponseDetails = mountProviderResponseDetails(
+    popover.querySelector(".prompt-popover-body"), String(data.taskId || ""), reposition,
+  );
   popover.classList.remove("hidden");
   positionPromptPopover(anchor, popover);
+  popover.querySelector(".prompt-popover-close")?.focus({ preventScroll: true });
 }
 
 function positionPromptPopover(anchor, popover) {
@@ -254,7 +272,7 @@ function positionPromptPopover(anchor, popover) {
   const preferredTop = anchorRect.top - height - margin;
   const fallbackTop = anchorRect.bottom + margin;
   const top = preferredTop >= margin
-    ? preferredTop
+    ? clampPopoverPosition(preferredTop, margin, window.innerHeight - height - margin)
     : clampPopoverPosition(fallbackTop, margin, window.innerHeight - height - margin);
   popover.style.left = `${left}px`;
   popover.style.top = `${top}px`;
@@ -284,6 +302,11 @@ function clampPopoverPosition(value, min, max) {
 
 function closePromptPopover() {
   if (!promptPopoverEl) return;
+  disposeProviderResponseDetails?.();
+  disposeProviderResponseDetails = null;
+  if (promptPopoverEl.contains(document.activeElement)) {
+    promptPopoverState.anchor?.focus({ preventScroll: true });
+  }
   promptPopoverEl.classList.add("hidden");
   promptPopoverState.anchor = null;
   promptPopoverState.data = null;

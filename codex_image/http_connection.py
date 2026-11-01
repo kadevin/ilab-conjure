@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 import errno
+import socket
 import ssl
 
 import httpx
@@ -43,10 +44,21 @@ class HTTPTransportFailure(RuntimeError):
         chain = exception_chain(error)
         codes = list(dict.fromkeys(
             errno.errorcode[item.errno] for item in chain
-            if isinstance(item, OSError) and item.errno in errno.errorcode
+            if isinstance(item, OSError) and not isinstance(item, (ssl.SSLError, socket.gaierror, socket.herror))
+            and item.errno in errno.errorcode
         ))
-        reason = ("TLS_CERTIFICATE_VERIFY_FAILED" if _certificate_failure(error)
-                  else "/".join([type(error).__name__, *codes]))
+        if _certificate_failure(error):
+            reason = "TLS_CERTIFICATE_VERIFY_FAILED"
+        elif any(isinstance(item, ssl.SSLEOFError) for item in chain):
+            reason = "TLS_UNEXPECTED_EOF"
+        elif any(isinstance(item, ssl.SSLError) for item in chain):
+            reason = "TLS_HANDSHAKE_FAILED"
+        elif dns_error := next((item for item in chain if isinstance(item, socket.gaierror)), None):
+            dns_name = next((name for name in dir(socket) if name.startswith("EAI_")
+                             and getattr(socket, name) == dns_error.errno), "RESOLUTION_FAILED")
+            reason = f"DNS_{dns_name}"
+        else:
+            reason = "/".join([type(error).__name__, *codes])
         # Never interpolate exception messages, URLs, query strings, headers or request bodies.
         super().__init__(f"HTTP request failed [stage={phase}, host={hostname}, route={route}, "
                          f"attempts={attempts}, reason={reason}]")
@@ -76,16 +88,14 @@ async def stream_with_connection_retries(
                     return
             except (httpx.ConnectError, httpx.ConnectTimeout) as exc:
                 if opened:
-                    if phase != "upstream_request":
-                        raise HTTPTransportFailure(phase=phase, hostname=hostname, route=route,
-                                                   attempts=attempts, error=exc) from exc
-                    raise
+                    raise HTTPTransportFailure(phase=phase, hostname=hostname, route=route,
+                                               attempts=attempts, error=exc) from exc
                 if _certificate_failure(exc) or (round_index == retry_count and index == len(urls) - 1):
                     raise HTTPTransportFailure(phase=phase, hostname=hostname, route=route,
                                                attempts=attempts, error=exc) from exc
-            except httpx.TransportError as exc:
-                if phase == "upstream_request":
-                    raise
+            except httpx.RequestError as exc:
+                # Reads/writes can fail after the server accepted a generation.
+                # Preserve the boundary so no outer retry replays that POST.
                 raise HTTPTransportFailure(phase=phase, hostname=hostname, route=route,
                                            attempts=attempts, error=exc) from exc
         await asyncio.sleep(connection_retry_delay(round_index))

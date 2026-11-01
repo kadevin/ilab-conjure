@@ -8,6 +8,8 @@ from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+from .runtime_security import python_security_error
+
 
 RUNTIME_IMPORTS = ("fastapi", "uvicorn", "multipart", "httpx", "PIL")
 PIN_PATTERN = re.compile(
@@ -55,6 +57,8 @@ def dependency_mismatches(
 
 
 def verify_runtime_dependencies(requirements_path: Path) -> list[str]:
+    if problem := python_security_error():
+        return [problem]
     mismatches = dependency_mismatches(requirements_path)
     if mismatches:
         return mismatches

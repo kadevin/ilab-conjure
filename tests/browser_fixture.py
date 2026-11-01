@@ -1,4 +1,4 @@
-"""Isolated host for the three real-browser frontend acceptance suites.
+"""Isolated host for the real-browser frontend acceptance suites.
 
 Run: python -m tests.browser_fixture
 Open http://127.0.0.1:18792/qa in the in-app browser and choose a suite.
@@ -32,6 +32,14 @@ BROWSER_SUITES = {
     "history": "history_page.browser",
     "image-mentions": "image_mentions.browser",
     "prompt-paste": "prompt_paste.browser",
+    "workbench-layout": "workbench_layout.browser",
+    "api-settings": "api_settings.browser",
+    "api-provider-delete": "api_provider_delete.browser",
+    "workbench-feedback": "workbench_feedback.browser",
+    "ui-icons": "ui_icons.browser",
+    "output-controls": "output_controls.browser",
+    "main-model": "main_model.browser",
+    "prompt-response": "prompt_response.browser",
 }
 
 
@@ -47,6 +55,11 @@ def acceptance_html(filename: str) -> str:
           report(event.message || "Resource failed: " + (target.src || target.href || target.tagName));
         }, true);
         addEventListener("unhandledrejection", event => report(String(event.reason)));
+        // Only the explicit transfer-boundary suite can delay requests before app startup.
+        if (new URL(location.href).searchParams.has("qa-transfer-boundaries")) {
+          const nativeFetch = window.fetch.bind(window);
+          window.fetch = (request, init) => parent.__qaTransferFetch(request, init, nativeFetch);
+        }
         document.documentElement.dataset.qaErrorCapture = "ready";
       })();
     </script>"""
@@ -118,7 +131,7 @@ def main() -> None:
             def acceptance_page(suite: str):
                 if suite not in BROWSER_SUITES:
                     raise HTTPException(404)
-                script = "history_page.browser" if suite == "history" else "browser_harness"
+                script = BROWSER_SUITES[suite] if suite in ("history", "workbench-layout", "api-settings", "api-provider-delete", "workbench-feedback", "ui-icons", "output-controls", "main-model", "prompt-response") else "browser_harness"
                 return HTMLResponse(
                     f'<!doctype html><html><body><h1>{suite} acceptance</h1>'
                     '<pre id="results">Running</pre>'

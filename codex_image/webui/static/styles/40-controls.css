@@ -231,8 +231,8 @@
 
 .brand-new-icon {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   flex: 0 0 auto;
 }
 
@@ -280,10 +280,17 @@
   animation: soft-spin 1s linear infinite;
 }
 
+/* Native and rich-text inputs share the theme's placeholder contrast. */
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
 .ghost-button {
-  background: transparent;
+  background: var(--secondary-action-surface);
   color: var(--text-secondary);
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   height: 32px;
   padding: 0 12px;
   border-radius: 6px;
@@ -299,9 +306,19 @@
     box-shadow var(--motion-base);
 }
 
-.ghost-button:hover {
-  background: var(--surface-soft);
+.ghost-button:where(:not(:disabled)):hover {
+  background: var(--secondary-action-hover);
   color: var(--text);
+}
+
+.ghost-button:where(:not(:disabled)):active {
+  background: var(--secondary-action-pressed);
+  color: var(--text);
+}
+
+.ghost-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .icon-button {
@@ -325,6 +342,7 @@
 }
 
 .resource-manage-button:hover,
+.resource-manage-button:active,
 .resource-manage-button:focus-visible {
   border-color: var(--primary-strong);
   background: var(--primary-strong);
@@ -332,29 +350,41 @@
 }
 
 .button-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.button-icon svg,
-svg.button-icon {
-  stroke: currentColor;
+/* Shared symbols are filled silhouettes; legacy drawing tools keep their own strokes. */
+svg[data-ui-icon] {
+  flex-shrink: 0;
+  fill: currentColor;
+  stroke: none;
+}
+
+svg[data-ui-icon] use {
+  fill: currentColor;
+  stroke: none;
 }
 
 .quiet-danger-button {
   color: var(--text-secondary);
-  border-color: var(--line);
+  border-color: transparent;
 }
 
-.quiet-danger-button:hover,
+.quiet-danger-button:where(:not(:disabled)):hover,
 .quiet-danger-button:focus-visible {
   color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 30%, var(--line));
-  background: color-mix(in srgb, var(--danger-soft) 62%, var(--surface));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+}
+
+.quiet-danger-button:where(:not(:disabled)):active {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 20%, var(--surface));
 }
 
 .drawer-close-button {
@@ -857,8 +887,8 @@ select.themed-select-native {
 }
 
 .ratio-group .aspect-ratio-icon {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 
 .radio-btn.active {

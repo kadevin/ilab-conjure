@@ -526,6 +526,7 @@ export function createUserConfigTransferController(options: UserConfigTransferCo
       options.onBackupStatus?.(job);
       if (!BACKUP_TERMINAL.has(job.status)) schedule(token, () => pollBackup(token));
     } catch (error) {
+      if (disposed || token !== generation) return;
       options.onError?.(stableError(error));
       if (!disposed && token === generation) schedule(token, () => pollBackup(token));
     }
@@ -538,6 +539,7 @@ export function createUserConfigTransferController(options: UserConfigTransferCo
       options.onRestoreStatus?.(snapshot);
       if (!RESTORE_TERMINAL.has(snapshot.session.status)) schedule(token, () => pollRestore(token));
     } catch (error) {
+      if (disposed || token !== generation) return;
       options.onError?.(stableError(error));
       if (!disposed && token === generation) schedule(token, () => pollRestore(token));
     }
@@ -580,8 +582,22 @@ export function createUserConfigTransferController(options: UserConfigTransferCo
       const token = generation;
       schedule(token, () => pollRestore(token));
     },
-    clearBackup(): void { backupJobId = null; if (!restoreSessionId) clearTimer(); persist(); },
-    clearRestore(): void { restoreSessionId = null; if (!backupJobId) clearTimer(); persist(); },
+    clearBackup(): void {
+      generation += 1;
+      backupJobId = null;
+      clearTimer();
+      persist();
+      const token = generation;
+      if (restoreSessionId) schedule(token, () => pollRestore(token));
+    },
+    clearRestore(): void {
+      generation += 1;
+      restoreSessionId = null;
+      clearTimer();
+      persist();
+      const token = generation;
+      if (backupJobId) schedule(token, () => pollBackup(token));
+    },
     activeBackupJobId: () => backupJobId,
     activeRestoreSessionId: () => restoreSessionId,
     dispose(): void { disposed = true; generation += 1; clearTimer(); },

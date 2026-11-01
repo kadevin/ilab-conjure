@@ -1,7 +1,8 @@
 param(
   [string]$Version = "",
   [string]$OutputDir = ".dist",
-  [string]$PythonVersion = "3.11.9"
+  [string]$PythonVersion = "3.14.10",
+  [string]$PythonSha256 = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -41,7 +42,14 @@ $ManifestPath = Join-Path $BuildRoot "portable-build.json"
 
 $PythonEmbedZip = "python-${PythonVersion}-embed-amd64.zip"
 $PythonEmbedUrl = "https://www.python.org/ftp/python/${PythonVersion}/${PythonEmbedZip}"
-$GetPipUrl = "https://bootstrap.pypa.io/get-pip.py"
+$PipWheelUrl = "https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl"
+$PipWheelSha256 = "fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+if (-not $PythonSha256 -and $PythonVersion -eq "3.14.10") {
+  $PythonSha256 = "90905e64a840557d8c1bc4f5b74db3d7ee85e3ffb217611cac1c7813acea4159"
+}
+if ($PythonSha256 -notmatch '^[0-9a-fA-F]{64}$') {
+  throw "A verified -PythonSha256 is required for this Python version."
+}
 
 $AppItems = @(
   "codex_image",
@@ -126,6 +134,9 @@ if (-not (Test-Path $EmbedZipPath)) {
   Invoke-WebRequest -Uri $PythonEmbedUrl -OutFile $EmbedZipPath
 }
 
+if ((Get-FileHash -Path $EmbedZipPath -Algorithm SHA256).Hash -ne $PythonSha256) {
+  throw "Python runtime SHA256 mismatch."
+}
 Expand-Archive -Path $EmbedZipPath -DestinationPath $PythonDir -Force
 
 $PythonPathFile = Get-ChildItem -Path $PythonDir -Filter "python*._pth" | Select-Object -First 1
@@ -161,27 +172,40 @@ if (-not $HasImportSite) {
 Set-Content -Path $PythonPathFile.FullName -Value $NextPathLines -Encoding ASCII
 
 $PythonExe = Join-Path $PythonDir "python.exe"
-$GetPipPath = Join-Path $CacheDir "get-pip.py"
-if (-not (Test-Path $GetPipPath)) {
-  Write-Host "Downloading $GetPipUrl"
-  Invoke-WebRequest -Uri $GetPipUrl -OutFile $GetPipPath
+& $PythonExe (Join-Path $AppDir "codex_image\runtime_security.py")
+if ($LASTEXITCODE -ne 0) { throw "Python security baseline check failed." }
+$PipWheelPath = Join-Path $CacheDir "pip-26.2.2-py3-none-any.whl"
+if (-not (Test-Path $PipWheelPath)) {
+  Invoke-WebRequest -Uri $PipWheelUrl -OutFile $PipWheelPath
 }
-
+if ((Get-FileHash -Path $PipWheelPath -Algorithm SHA256).Hash -ne $PipWheelSha256) {
+  throw "pip wheel SHA256 mismatch."
+}
 $env:PIP_DISABLE_PIP_VERSION_CHECK = "1"
 $env:PIP_NO_CACHE_DIR = "1"
-
-& $PythonExe $GetPipPath --no-warn-script-location
+& $PythonExe -m zipfile -e $PipWheelPath (Join-Path $PythonDir "Lib\site-packages")
+if ($LASTEXITCODE -ne 0) { throw "Could not bootstrap the verified pip wheel." }
+& $PythonExe -m pip --version
+if ($LASTEXITCODE -ne 0) { throw "Could not run pip." }
 & $PythonExe -m pip install --require-hashes --no-warn-script-location -r (Join-Path $AppDir "requirements-webui.txt")
+if ($LASTEXITCODE -ne 0) { throw "Runtime dependency installation failed." }
 $CertifiCaBundle = Join-Path $PythonDir "Lib\site-packages\certifi\cacert.pem"
 if (-not (Test-Path $CertifiCaBundle)) {
   throw "certifi CA bundle was not installed at $CertifiCaBundle"
 }
 & $PythonExe -m pip freeze | Set-Content -Path (Join-Path $BundleRoot "python-requirements.lock.txt") -Encoding UTF8
+if ($LASTEXITCODE -ne 0) { throw "Runtime dependency inventory failed." }
 & $PythonExe -c "import fastapi, uvicorn, multipart, httpx, PIL; import portable_webui_app; print('portable import ok')"
+if ($LASTEXITCODE -ne 0) { throw "Packaged application import check failed." }
 & $PythonExe (Join-Path $ScriptDir "..\cleanup-runtime.py") `
   --app-dir $AppDir `
   --runtime-dir $PythonDir `
   --platform windows
+if ($LASTEXITCODE -ne 0) { throw "Packaged runtime cleanup failed." }
+& $PythonExe (Join-Path $AppDir "codex_image\runtime_security.py") --runtime
+if ($LASTEXITCODE -ne 0) { throw "Packaged runtime security check failed." }
+& $PythonExe -m codex_image.dependency_check --requirements (Join-Path $AppDir "requirements-webui.txt")
+if ($LASTEXITCODE -ne 0) { throw "Trimmed runtime dependency check failed." }
 
 if ($null -eq (Get-Command cargo -ErrorAction SilentlyContinue)) {
   throw "cargo was not found. Install Rust toolchain before building the portable tray launcher."

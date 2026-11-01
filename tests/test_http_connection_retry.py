@@ -26,9 +26,10 @@ from codex_image.webui.network_egress import NetworkEgressManager, NetworkEgress
 
 class HTTPConnectionRetryTests(unittest.TestCase):
     def setUp(self):
-        delay = patch("codex_image.http_connection.connection_retry_delay", return_value=0)
-        delay.start()
-        self.addCleanup(delay.stop)
+        for module in ("http_connection", "httpx_transport"):
+            delay = patch(f"codex_image.{module}.connection_retry_delay", return_value=0)
+            delay.start()
+            self.addCleanup(delay.stop)
 
     def transport(self, retries=2, fake_ip=False):
         with tempfile.TemporaryDirectory() as tmp:
@@ -92,6 +93,20 @@ class HTTPConnectionRetryTests(unittest.TestCase):
             self.transport().request(method="POST", url="https://upstream.example", headers={}, body=b"")
         self.assertEqual(len(calls), 1)
 
+    def test_ssl_and_dns_codes_are_not_reported_as_operating_system_errors(self):
+        for cause, expected in (
+            (ssl.SSLEOFError(ssl.SSL_ERROR_EOF, "private TLS details"), "TLS_UNEXPECTED_EOF"),
+            (socket.gaierror(socket.EAI_NONAME, "private hostname"), "DNS_EAI_NONAME"),
+        ):
+            with self.subTest(cause=type(cause).__name__):
+                error = httpx.ConnectError("private endpoint")
+                error.__cause__ = cause
+                failure = HTTPTransportFailure(phase="image_download", hostname="cdn.example",
+                                               route="system", attempts=1, error=error)
+                self.assertIn(expected, str(failure))
+                self.assertNotIn("ENOEXEC", str(failure))
+                self.assertNotIn("private", str(failure))
+
     def test_redirect_destination_failure_does_not_replay_original_post(self):
         for status in (302, 307):
             calls = []
@@ -126,7 +141,7 @@ class HTTPConnectionRetryTests(unittest.TestCase):
                     result = self.transport().request(method="POST", url="https://upstream.example", headers={}, body=b"")
                     self.assertEqual(result.status, failure)
                 else:
-                    with self.assertRaises((TimeoutError, httpx.WriteError)):
+                    with self.assertRaisesRegex(HTTPTransportFailure, "stage=upstream_request"):
                         self.transport().request(method="POST", url="https://upstream.example", headers={}, body=b"")
             self.assertEqual(len(calls), 1)
 
@@ -296,3 +311,70 @@ class HTTPConnectionRetryTests(unittest.TestCase):
                         asyncio.run(operation)
             self.assertEqual(calls["POST"], 1)
             self.assertEqual(calls["GET"], 2 if failures == 1 else 3)
+
+    def test_system_dns_and_invalid_assets_never_requeue_a_completed_generation(self):
+        from fastapi.testclient import TestClient
+        from codex_image.webui.app import create_app
+        from codex_image.webui.settings_store import ApiSettings, AuthSettings
+
+        png = BytesIO()
+        Image.new("RGB", (2, 2), "blue").save(png, format="PNG")
+        for source in ("api", "codex"):
+            for failure in ("dns_first", "dns_exhausted", "unsafe_address", "invalid_image", "http_error"):
+                with self.subTest(source=source, failure=failure), tempfile.TemporaryDirectory() as tmp, chdir(tmp):
+                    root, calls, lookups = Path(tmp), Counter(), []
+
+                    def handler(request):
+                        calls[request.method] += 1
+                        if request.method == "POST":
+                            return httpx.Response(200, json={"data": [{"url": "https://cdn.example/image?token=secret"}]})
+                        return httpx.Response(503 if failure == "http_error" else 200,
+                                              content=b"invalid" if failure == "invalid_image" else png.getvalue())
+
+                    def resolve(*args, **kwargs):
+                        lookups.append(True)
+                        if failure == "dns_exhausted" or (failure == "dns_first" and len(lookups) == 1):
+                            raise socket.gaierror(socket.EAI_AGAIN, "private resolver details")
+                        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (
+                            "127.0.0.1" if failure == "unsafe_address" else "8.8.8.8", 443,
+                        ))]
+
+                    AuthSettings(root / "auth.json").write_source(source)
+                    ApiSettings(root / "api.json").write({
+                        "base_url": "https://upstream.example/v1", "api_key": "synthetic",
+                        "image_model": "gpt-image-2", "api_mode": "images", "images_concurrency": 1,
+                    })
+                    NetworkEgressSettings(root / "network.json").write({"mode": "direct", "image_request_retry_count": 2})
+                    auth = AuthState(root / "synthetic-auth", "synthetic", "", "", "synthetic", None, {})
+                    image_client = CodexImagesImageClient(auth, transport=self.transport())
+                    app = create_app(
+                        output_root=root / "tasks", auth_settings_path=root / "auth.json",
+                        api_settings_path=root / "api.json", network_egress_settings_path=root / "network.json",
+                        client_factory=lambda: image_client, auth_checker=lambda: True,
+                        batch_delay_seconds=0, auto_start_queue=False, auto_retry=True,
+                    )
+                    with TestClient(app) as client, self.mock_client(handler), patch("socket.getaddrinfo", side_effect=resolve):
+                        created = client.post("/api/generate", data={"prompt": "synthetic", "size": "1024x1024", "codex_mode": "images"})
+                        self.assertEqual(created.status_code, 200)
+                        task_id = created.json()["task"]["task_id"]
+                        for _ in range(2):
+                            try:
+                                asyncio.run(app.state.queue_manager.run_available_once())
+                            except RuntimeError:
+                                pass
+                        stored = app.state.storage.read_metadata(task_id)
+                        self.assertEqual(calls["POST"], 1)
+                        self.assertEqual(stored["status"], "completed" if failure == "dns_first" else "failed")
+                        self.assertEqual(app.state.queue_storage.read_state()["waiting"], [])
+                        self.assertEqual(len(lookups), 2 if failure == "dns_first" else 3 if failure == "dns_exhausted" else 1)
+                        if failure == "dns_exhausted":
+                            self.assertIn("stage=image_dns_lookup", stored["error"])
+                            self.assertIn("DNS_EAI_AGAIN", stored["error"])
+                            self.assertNotIn("secret", stored["error"])
+                        if failure != "dns_first":
+                            failure = "recovered"
+                            retried = client.post(f"/api/tasks/{task_id}/retry-failed")
+                            self.assertEqual(retried.status_code, 200)
+                            asyncio.run(app.state.queue_manager.run_available_once())
+                            self.assertEqual(app.state.storage.read_metadata(task_id)["status"], "completed")
+                            self.assertEqual(calls["POST"], 2)

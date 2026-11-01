@@ -77,11 +77,11 @@ class WebUIStaticAccessibilityTests(unittest.TestCase):
         html = Path(
             "codex_image/webui/static/index.html"
         ).read_text(encoding="utf-8")
-        self.assertIn('id="pixelPreview" class="pixel-preview full-width"', html)
-        pixel_preview = re.search(r"\.pixel-preview\s*\{([^}]*)\}", component_styles)
-        self.assertIsNotNone(pixel_preview)
-        self.assertIn("color: var(--text-secondary)", pixel_preview.group(1))
-        self.assertIn("background: var(--surface-soft)", pixel_preview.group(1))
+        # Pixel dimensions now live in the generation summary, without a duplicate label.
+        self.assertIn('id="executionSummary" class="execution-summary" aria-live="polite"', html)
+        summary = re.search(r"(?m)^\.execution-summary\s*\{([^}]*)\}", component_styles)
+        self.assertIsNotNone(summary)
+        self.assertIn("color: var(--text-secondary)", summary.group(1))
 
     def test_static_segmented_controls_announce_group_and_pressed_state(
         self,

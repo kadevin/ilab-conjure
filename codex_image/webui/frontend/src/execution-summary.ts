@@ -9,7 +9,7 @@ export function updateExecutionSummary(): void {
   const model = state.generationCatalog?.models.find(item => item.id === selection.canonicalModelId);
   const provider = state.generationCatalog?.providers.find(item => item.id === selection.providerId);
   const p = selection.parameters;
-  const size = String(p["canvas.size"] || p["canvas.aspect_ratio"] || "");
+  const size = String(p["canvas.size"] || p["canvas.aspect_ratio"] || "").replace(/(\d+)x(\d+)/i, "$1 × $2");
   const resolution = String(p["output.resolution"] || p["canvas.resolution"] || "");
   element.textContent = [translate("ux.execution"), model?.display_name || translate("modelSelection.providerUnavailable"), provider?.name, size, resolution, formatTranslation("ux.imageCount", { count: Number(p["output.count"] || 1) }), p["gpt.background"] === "transparent" ? translate("output.transparentBackground") : ""].filter(Boolean).join(" · ");
   element.title = element.textContent;

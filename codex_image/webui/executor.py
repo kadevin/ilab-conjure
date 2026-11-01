@@ -6,8 +6,12 @@ import time
 from typing import Any, AsyncContextManager, Callable
 
 from codex_image.client import DEFAULT_MAIN_MODEL, CodexImagesImageClient, ImageResult, OpenAIImagesImageClient
-from codex_image.generation.errors import sanitize_generation_error_text
-from codex_image.http_connection import HTTPTransportFailure, transport_failure
+from codex_image.generation.errors import (
+    GenerationOutcomeUnknownError,
+    GenerationTimeoutError,
+    sanitize_generation_error_text,
+)
+from codex_image.http_connection import transport_failure
 from codex_image.prompt_guard import build_prompt_guard_instructions
 
 from .reference_image_order import ordered_reference_data_urls
@@ -61,6 +65,7 @@ from .task_metadata import (
     _positive_int,
     _write_progress_metadata,
 )
+from .task_outputs import _save_generated_output
 
 
 def _format_elapsed_seconds(seconds: float) -> str:
@@ -195,7 +200,7 @@ async def _execute_stored_task(
         else image_request_timeout_seconds
     )
     results, output_paths, output_records = _restore_completed_output_progress(storage, metadata, params, count)
-    transport_failures: list[HTTPTransportFailure] = []
+    output_failures: list[Exception] = []
     completed_output_numbers = {
         int(record["index"])
         for record in output_records
@@ -237,7 +242,7 @@ async def _execute_stored_task(
     candidate_output_numbers = retrying_failed_slots or list(range(1, count + 1))
     remaining_output_numbers = [index for index in candidate_output_numbers if index not in completed_output_numbers]
     if isinstance(client, ExecutionPlanImageClient):
-        client.prepare_output_count(len(remaining_output_numbers))
+        client.prepare_output_slots(remaining_output_numbers)
 
     async def call_image_client(*args: Any, **kwargs: Any) -> ImageResult:
         if isinstance(client, ExecutionPlanImageClient):
@@ -274,9 +279,7 @@ async def _execute_stored_task(
 
             def failed_output(exc: Exception) -> dict[str, Any]:
                 _raise_if_task_cancelled(storage, task_id)
-                failure = transport_failure(exc)
-                if failure is not None:
-                    transport_failures.append(failure)
+                output_failures.append(exc)
                 elapsed_seconds = _elapsed_seconds(slot_started_monotonic)
                 failed_at = utc_now()
                 failed_record = {
@@ -372,13 +375,14 @@ async def _execute_stored_task(
                             _raise_if_task_cancelled(storage, task_id)
                             if not isinstance(result, ImageResult):
                                 return {"index": output_number}
-                            results.append(result)
-                            output_path = storage.write_output(
+                            output_path = _save_generated_output(
+                                storage,
                                 task_id,
-                                result.image_bytes,
+                                result,
                                 result.output_format or str(params.get("output_format") or "png"),
                                 index=output_number,
                             )
+                            results.append(result)
                             output_paths.append(output_path)
                             output_record = {
                                 "index": output_number,
@@ -519,12 +523,14 @@ async def _execute_stored_task(
                     break
                 except Exception as exc:
                     _raise_if_task_cancelled(storage, task_id)
-                    failure = transport_failure(exc)
-                    if failure is not None:
-                        transport_failures.append(failure)
+                    output_failures.append(exc)
                     if is_explicit_file_input_rejection(exc) or _is_reference_file_missing_error(exc):
                         raise
-                    if _is_non_retryable_error(exc):
+                    # Do not replay this slot, but preserve partial success and
+                    # continue the other images the user already requested.
+                    if _is_non_retryable_error(exc) and not isinstance(
+                        exc, (GenerationOutcomeUnknownError, GenerationTimeoutError)
+                    ):
                         raise
                     if _is_usage_limit_error(exc):
                         raise
@@ -570,13 +576,14 @@ async def _execute_stored_task(
                         continue
             if result is None:
                 continue
-            results.append(result)
-            output_path = storage.write_output(
+            output_path = _save_generated_output(
+                storage,
                 task_id,
-                result.image_bytes,
+                result,
                 result.output_format or str(params.get("output_format") or "png"),
                 index=output_number,
             )
+            results.append(result)
             output_paths.append(output_path)
             output_record = {
                 "index": output_number,
@@ -629,10 +636,12 @@ async def _execute_stored_task(
     if not results and any(record.get("status") == "failed" for record in output_records):
         failure_messages = [str(record.get("error") or "") for record in output_records if record.get("status") == "failed"]
         error = RuntimeError("; ".join(message for message in failure_messages if message) or "All outputs failed")
-        if transport_failures:
-            # Keep the retry boundary through output aggregation; the queue must
-            # not replay a generation whose HTTP retries were already exhausted.
-            raise error from transport_failures[0]
+        if output_failures:
+            # Keep structured provider and request-stage information through aggregation.
+            terminal = next((failure for failure in output_failures
+                             if transport_failure(failure) is not None or _is_non_retryable_error(failure)),
+                            output_failures[0])
+            raise error from terminal
         raise error
 
     return _finalize_generated_task(

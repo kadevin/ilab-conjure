@@ -3,7 +3,8 @@ set -euo pipefail
 
 VERSION=""
 OUTPUT_DIR=".dist"
-PYTHON_VERSION="3.11.9"
+PYTHON_VERSION="3.14.10"
+PYTHON_SHA256=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -13,6 +14,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -o|--output-dir)
       OUTPUT_DIR="$2"
+      shift 2
+      ;;
+    --python-sha256)
+      PYTHON_SHA256="$2"
       shift 2
       ;;
     --python-version)
@@ -31,6 +36,15 @@ APP_LAUNCHER_NAME="Start iLab GPT CONJURE"
 APP_BUNDLE_NAME="${APP_LAUNCHER_NAME}.app"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# Official python.org Sigstore message digest; verify cached downloads too.
+if [[ -z "$PYTHON_SHA256" && "$PYTHON_VERSION" == "3.14.10" ]]; then
+  PYTHON_SHA256="286c7018aa2730f6747ca433dccdc2b31be45f078a9ea0ffa44d5f06368fd2d7"
+fi
+if [[ ! "$PYTHON_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]; then
+  echo "A verified --python-sha256 is required for this Python version" >&2
+  exit 1
+fi
+
 PYTHON_MINOR="${PYTHON_VERSION%.*}"
 HOST_ARCH="$(uname -m)"
 case "$HOST_ARCH" in
@@ -289,6 +303,7 @@ fi
 
 EXPANDED_PKG="${CACHE_DIR}/python-${PYTHON_VERSION}-expanded"
 rm -rf "$EXPANDED_PKG"
+printf "%s  %s\n" "$PYTHON_SHA256" "$PYTHON_PKG_PATH" | shasum -a 256 -c -
 pkgutil --expand-full "$PYTHON_PKG_PATH" "$EXPANDED_PKG"
 
 FRAMEWORK_PAYLOAD="${EXPANDED_PKG}/Python_Framework.pkg/Payload"
@@ -302,8 +317,9 @@ cp -R "${FRAMEWORK_PAYLOAD}/"* "$PYTHON_FRAMEWORK/"
 relocate_python_framework "$PYTHON_FRAMEWORK" "$PYTHON_MINOR"
 
 PYTHON_BIN="${PYTHON_FRAMEWORK}/Versions/${PYTHON_MINOR}/bin/python3"
+"$PYTHON_BIN" "${APP_DIR}/codex_image/runtime_security.py"
 "$PYTHON_BIN" -m ensurepip --upgrade
-"$PYTHON_BIN" -m pip install --upgrade pip
+"$PYTHON_BIN" -m pip install "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
 "$PYTHON_BIN" -m pip install --require-hashes --target "${APP_DIR}/.deps" -r "${APP_DIR}/requirements-webui.txt"
 if [[ ! -f "${APP_DIR}/.deps/certifi/cacert.pem" ]]; then
   echo "certifi CA bundle was not installed at ${APP_DIR}/.deps/certifi/cacert.pem" >&2
@@ -315,6 +331,8 @@ PYTHONPATH="${APP_DIR}:${APP_DIR}/.deps" "$PYTHON_BIN" -c "import fastapi, uvico
   --app-dir "$APP_DIR" \
   --runtime-dir "$PYTHON_DIR" \
   --platform macos
+PYTHONPATH="${APP_DIR}:${APP_DIR}/.deps" "$PYTHON_BIN" "${APP_DIR}/codex_image/runtime_security.py" --runtime
+PYTHONPATH="${APP_DIR}:${APP_DIR}/.deps" "$PYTHON_BIN" -m codex_image.dependency_check --requirements "${APP_DIR}/requirements-webui.txt"
 
 if ! command -v cargo >/dev/null 2>&1; then
   echo "cargo was not found. Install Rust toolchain before building the portable tray launcher." >&2

@@ -254,7 +254,7 @@ export function renderReferenceFiles(): void {
     remove.className = "thumb-remove reference-file-remove";
     remove.setAttribute("aria-label", formatTranslation("referenceFiles.remove", { filename: source.filename }));
     remove.title = translate("action.remove");
-    remove.innerHTML = '<span class="thumb-remove-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M4.5 4.5 11.5 11.5M11.5 4.5 4.5 11.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg></span>';
+    remove.innerHTML = '<span class="thumb-remove-icon" aria-hidden="true"><svg data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg></span>';
     remove.addEventListener("click", () => removeReferenceFile(index));
     tile.append(icon, name, remove);
     container.append(tile);
@@ -267,6 +267,19 @@ export function renderReferenceFiles(): void {
 
 export function syncReferenceFileAvailability(): void {
   const supported = responsesEnabled();
+  const binding = legacyMethod("selectedProviderBinding");
+  const showFileHint = Boolean(binding?.protocol_profile?.endsWith("_responses"));
+  const upload = getEls().imageUploadSource as HTMLElement | null;
+  const title = upload?.querySelector<HTMLElement>(".upload-title-full");
+  const titleKey = showFileHint ? "imageInput.uploadFull" : "imageInput.uploadImages";
+  if (title) {
+    title.dataset.i18n = titleKey;
+    title.textContent = translate(titleKey);
+  }
+  const ariaKey = showFileHint ? "imageInput.uploadAria" : "imageInput.uploadImages";
+  upload?.setAttribute("data-i18n-attr", `aria-label:${ariaKey}`);
+  upload?.setAttribute("aria-label", translate(ariaKey));
+  upload?.querySelector(".upload-subtitle")?.classList.toggle("hidden", !showFileHint);
   if (supported && requirementActionVisible) {
     requirementActionVisible = false;
     renderReferenceFiles();
@@ -288,7 +301,10 @@ export function initReferenceFileInputsFeature(): void {
     if (target?.matches?.("#generationProviderSelect, #apiMode")) syncReferenceFileAvailability();
   });
   els.authSourceGroup?.addEventListener("click", () => queueMicrotask(syncReferenceFileAvailability));
-  document.addEventListener(LOCALE_CHANGE_EVENT, renderReferenceFiles);
+  document.addEventListener(LOCALE_CHANGE_EVENT, () => {
+    renderReferenceFiles();
+    syncReferenceFileAvailability();
+  });
   syncReferenceFileAvailability();
   Object.assign(getLegacyBridge().methods, {
     referenceFileUploads,

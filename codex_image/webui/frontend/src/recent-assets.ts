@@ -8,6 +8,7 @@ const els = bridge.els;
 let recentAssetsFeatureInitialized = false;
 const RECENT_ASSET_RENDER_BATCH_SIZE = 12;
 const RECENT_ASSET_LOAD_AHEAD_PX = 96;
+const RECENT_ASSET_PREVIEW_VISIBILITY_KEY = "codex-image-recent-asset-previews-hidden";
 let recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
 let recentAssetPreviewsHidden = false;
 let recentAssetLoadState: "idle" | "loading" | "error" = "idle";
@@ -63,8 +64,21 @@ function syncRecentAssetPreviewVisibility() {
   els.recentAssetVisibilityToggle?.setAttribute("title", label);
 }
 
+function readRecentAssetPreviewsHidden(): boolean {
+  try {
+    return localStorage.getItem(RECENT_ASSET_PREVIEW_VISIBILITY_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
 function toggleRecentAssetPreviews() {
   recentAssetPreviewsHidden = !recentAssetPreviewsHidden;
+  try {
+    localStorage.setItem(RECENT_ASSET_PREVIEW_VISIBILITY_KEY, String(recentAssetPreviewsHidden));
+  } catch {
+    // Keep the toggle usable when browser storage is unavailable.
+  }
   syncRecentAssetPreviewVisibility();
 }
 
@@ -285,6 +299,8 @@ async function deleteRecentAsset(assetId: any) {
 export function initRecentAssetsFeature() {
   if (recentAssetsFeatureInitialized) return;
   recentAssetsFeatureInitialized = true;
+  recentAssetPreviewsHidden = readRecentAssetPreviewsHidden();
+  syncRecentAssetPreviewVisibility();
   els.recentAssetList?.addEventListener("wheel", handleRecentAssetWheel, { passive: false });
   els.recentAssetList?.addEventListener("scroll", handleRecentAssetScroll, { passive: true });
   els.recentAssetList?.addEventListener("click", handleRecentAssetClick);

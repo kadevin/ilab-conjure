@@ -7,7 +7,7 @@ BUNDLE_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="${BUNDLE_DIR}/app"
 DATA_DIR="${BUNDLE_DIR}/data"
 PYTHON_FRAMEWORK="${BUNDLE_DIR}/python/Python.framework"
-PYTHON_BIN="${BUNDLE_DIR}/python/Python.framework/Versions/3.11/bin/python3"
+PYTHON_BIN="${BUNDLE_DIR}/python/Python.framework/Versions/Current/bin/python3"
 PORT="8787"
 URL="http://127.0.0.1:${PORT}/"
 HEALTH_URL="${URL}api/health"
@@ -67,8 +67,12 @@ export ILAB_CONJURE_DATA_DIR="${DATA_DIR}"
 export PYTHONPATH="${APP_DIR}:${APP_DIR}/.deps"
 CERTIFI_CA_BUNDLE="${APP_DIR}/.deps/certifi/cacert.pem"
 if [ -f "$CERTIFI_CA_BUNDLE" ]; then
-  export SSL_CERT_FILE="$CERTIFI_CA_BUNDLE"
-  export REQUESTS_CA_BUNDLE="$CERTIFI_CA_BUNDLE"
+  if [ -z "${SSL_CERT_FILE:-}" ] && [ -z "${SSL_CERT_DIR:-}" ]; then
+    export SSL_CERT_FILE="$CERTIFI_CA_BUNDLE"
+  fi
+  if [ -z "${REQUESTS_CA_BUNDLE:-}" ] && [ -z "${SSL_CERT_DIR:-}" ]; then
+    export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE"
+  fi
 fi
 LOG_FILE="${DATA_DIR}/logs/webui-server.log"
 AUTH_SETTINGS_PATH="${DATA_DIR}/webui-auth-settings.json"

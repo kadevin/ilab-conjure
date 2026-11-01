@@ -7,6 +7,7 @@ import unittest
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
+from xml.etree import ElementTree
 
 from fastapi.testclient import TestClient
 
@@ -33,6 +34,8 @@ class WebUIPWATests(unittest.TestCase):
                 )
                 if url:
                     self.urls.append(url)
+                if tag == "use" and attributes.get("href", "").startswith("/static/"):
+                    self.urls.append(attributes["href"].split("#", 1)[0])
 
         for page, entry in (("index.html", "app.js"), ("history.html", "history.js")):
             with self.subTest(page=page):
@@ -50,6 +53,19 @@ class WebUIPWATests(unittest.TestCase):
             path = urlsplit(url).path
             if path.startswith("/static/"):
                 self.assertTrue((static / path.removeprefix("/static/")).is_file(), url)
+
+    def test_shared_icon_references_resolve_to_local_symbols(self) -> None:
+        static = Path("codex_image/webui/static")
+        root = ElementTree.parse(static / "icons/ui.svg").getroot()
+        symbols = {node.attrib["id"] for node in root.findall("{http://www.w3.org/2000/svg}symbol")}
+        sources = [static / "index.html", static / "history.html"]
+        sources.extend(Path("codex_image/webui/frontend/src").glob("*.ts"))
+        refs = set()
+        for path in sources:
+            refs.update(re.findall(r"/static/icons/ui\.svg\?v=1#([a-z-]+)", path.read_text(encoding="utf-8")))
+        self.assertGreater(len(refs), 20)
+        self.assertFalse(refs - symbols, f"Missing UI symbols: {refs - symbols}")
+        self.assertIn('"/static/icons/ui.svg?v=1"', (static / "service-worker.js").read_text(encoding="utf-8"))
 
     def test_static_pages_expose_pwa_manifest_and_service_worker_registration(self) -> None:
         index_html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")

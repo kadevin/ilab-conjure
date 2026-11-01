@@ -266,6 +266,8 @@
 }
 
 .system-settings-modal-panel {
+  --settings-control-border: color-mix(in srgb, var(--line) 75%, var(--control-border));
+  --settings-button-surface: var(--secondary-action-surface);
   width: min(624px, calc(100vw - 60px));
   max-height: min(760px, calc(100vh - var(--system-settings-modal-top, 30px) - 30px));
   overflow: hidden;
@@ -521,9 +523,23 @@
   flex: 0 1 auto;
   min-height: 0;
   max-height: calc(100vh - 190px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-right: 0;
+  overflow: hidden;
+  margin-inline: -8px;
   display: flex;
   flex-direction: column;
 }
+
+.system-settings-scroll {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  padding: 4px 8px 12px;
+  scroll-padding-block: 8px;
+}
+
+.system-settings-scroll::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.system-settings-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
+.system-settings-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }

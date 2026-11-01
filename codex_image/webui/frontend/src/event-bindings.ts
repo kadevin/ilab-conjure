@@ -98,7 +98,6 @@ export function bindSharedTopNavSettingsEvents(
   });
   els.apiKeyRevealButton?.addEventListener("keyup", () => call(methods, "hideApiKeyReveal"));
   els.apiKey?.addEventListener("input", () => call(methods, "updateApiKeyRevealButton"));
-  els.apiBaseUrl?.addEventListener("input", () => call(methods, "updateApiRequestEndpointPreview"));
   call(methods, "bindOverlayPopoverEvents");
 }
 

@@ -319,10 +319,7 @@ function ensurePreviewOutputCard(key: string) {
     <span class="preview-index hidden"></span>
     <span class="output-transparency-status hidden"></span>
     <button type="button" class="preview-select-button" data-preview-select-output-index="" aria-pressed="false" aria-label="${addFeaturedLabel}" title="${addFeaturedLabel}" data-i18n-attr="aria-label:preview.addFeatured;title:preview.addFeatured" hidden disabled>
-      <svg class="preview-select-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <circle cx="12" cy="12" r="8.5" />
-        <path d="m8.2 12.1 2.4 2.4 5.2-5.4" />
-      </svg>
+      <svg class="preview-select-icon" data-ui-icon="check-circle" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#check-circle"/></svg>
       <span class="preview-select-label" data-preview-select-label data-i18n="preview.featured">${featuredLabel}</span>
     </button>
     <img alt="" data-lightbox-url="">
@@ -788,14 +785,19 @@ function promptPopoverData(task: any, index: any) {
   const originalPrompt = task.prompt || task.prompt_for_model || "";
   const submittedPrompt = submittedPromptForTask(task);
   const optimizedPrompt = task.revised_prompts?.[index] || task.revised_prompt || "";
-  return { originalPrompt, submittedPrompt, optimizedPrompt };
+  return { originalPrompt, submittedPrompt, optimizedPrompt, taskId: task.task_id };
+}
+
+function previewSizeMetaHtml(task: any): string {
+  const size = String(task.params?.size || currentSize() || "");
+  return size && size.toLowerCase() !== "auto" ? `<p class="elapsed-meta">${escapeHtml(size)}</p>` : "";
 }
 
 function runningProgressCard(task: any, visibleOutputCount: any) {
   const elapsed = elapsedTimerSpan("running", taskProgressStartValue(task));
   const generated = taskGeneratedCount(task, visibleOutputCount);
   const total = taskTotalCount(task);
-  const size = escapeHtml(task.params?.size || currentSize());
+  const size = previewSizeMetaHtml(task);
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
   const failureNotice = runningFailureNotice(task);
@@ -805,7 +807,7 @@ function runningProgressCard(task: any, visibleOutputCount: any) {
       <div>
         <strong>${escapeHtml(translate("preview.continueGenerating"))}</strong>
         <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
-        <p class="elapsed-meta">${size}</p>
+        ${size}
         ${retryStateHtml}
         ${failureNotice}
       </div>
@@ -819,7 +821,7 @@ function waitingProgressCard(task: any, visibleOutputCount: any) {
   const elapsed = elapsedTimerSpan("waiting", elapsedFrom);
   const generated = taskGeneratedCount(task, visibleOutputCount);
   const total = taskTotalCount(task);
-  const size = escapeHtml(task.params?.size || currentSize());
+  const size = previewSizeMetaHtml(task);
   const retryReason = task.last_error
     ? `<p>${escapeHtml(formatTranslation("preview.lastError", { error: task.last_error }))}</p>`
     : "";
@@ -831,7 +833,7 @@ function waitingProgressCard(task: any, visibleOutputCount: any) {
       <div>
         <strong>${escapeHtml(translate("preview.waitingContinue"))}</strong>
         <p class="elapsed-line">${previewElapsedLineHtml("preview.progressLine", { generated, total }, elapsed)}</p>
-        <p class="elapsed-meta">${size}</p>
+        ${size}
         ${retryStateHtml}
         ${retryReason}
       </div>
@@ -890,7 +892,7 @@ function retryFailureSummaryButton(task: any) {
 function renderRunningPreview(task: any) {
   clearPreviewGridLayout();
   const elapsed = elapsedTimerSpan("running", taskProgressStartValue(task));
-  const size = escapeHtml(task.params?.size || currentSize());
+  const size = previewSizeMetaHtml(task);
   const modeLabel = task.mode === "edit" ? translate("preview.editMode") : translate("preview.generateMode");
   const retryState = taskRetryStateText(task);
   const retryStateHtml = retryState ? `<p data-preview-retry-state>${escapeHtml(retryState)}</p>` : "";
@@ -900,8 +902,8 @@ function renderRunningPreview(task: any) {
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
         <strong>${escapeHtml(formatTranslation("preview.runningTitle", { mode: modeLabel }))}</strong>
-        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
-        <p class="elapsed-meta">${size}</p>
+        <p class="elapsed-line">${elapsed}</p>
+        ${size}
         ${retryStateHtml}
         ${failureNotice}
       </div>
@@ -915,7 +917,7 @@ function renderWaitingPreview(task: any) {
   const submitting = task.status === "submitting";
   const elapsedFrom = task.started_at || task.queued_at || task.created_at;
   const elapsed = elapsedTimerSpan("waiting", elapsedFrom);
-  const size = escapeHtml(task.params?.size || currentSize());
+  const size = previewSizeMetaHtml(task);
   const title = submitting ? translate("preview.submittingTitle") : translate("preview.queuedTitle");
   const retryReason = !submitting && task.last_error
     ? `<p>${escapeHtml(formatTranslation("preview.lastError", { error: task.last_error }))}</p>`
@@ -927,8 +929,8 @@ function renderWaitingPreview(task: any) {
       <div class="waiting-spinner" aria-hidden="true"></div>
       <div>
         <strong>${escapeHtml(title)}</strong>
-        <p class="elapsed-line">${previewElapsedLineHtml("preview.elapsedLine", {}, elapsed)}</p>
-        <p class="elapsed-meta">${size}</p>
+        <p class="elapsed-line">${elapsed}</p>
+        ${size}
         ${retryStateHtml}
         ${retryReason}
       </div>

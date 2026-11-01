@@ -10,6 +10,9 @@ from urllib.parse import quote, unquote, urlsplit
 from fastapi import HTTPException
 
 from codex_image.client import ImageResult
+from codex_image.generation.errors import GenerationOutcomeUnknownError, GenerationProviderError, GenerationTimeoutError
+from codex_image.http_connection import exception_chain
+from codex_image.providers.result_assets import asset_load_failure
 
 from .storage import TaskStorage, utc_now
 from .task_enrichment import _input_sources, _input_urls
@@ -20,6 +23,18 @@ from .thumbnails import (
     inspect_image_transparency,
     thumbnail_needs_refresh,
 )
+
+
+class OutputSaveError(RuntimeError):
+    """Image bytes already exist; a failed local write must not regenerate them."""
+
+
+def _save_generated_output(storage: TaskStorage, task_id: str, result: ImageResult,
+                           output_format: str, *, index: int) -> Path:
+    try:
+        return storage.write_output(task_id, result.image_bytes, output_format, index=index)
+    except Exception as exc:
+        raise OutputSaveError("Generated image could not be saved locally") from exc
 
 
 @dataclass(frozen=True)
@@ -270,6 +285,12 @@ def _ordered_output_progress(
 
 
 def _is_non_retryable_error(exc: BaseException) -> bool:
+    if any(isinstance(item, (OutputSaveError, GenerationOutcomeUnknownError, GenerationTimeoutError))
+           or (isinstance(item, GenerationProviderError) and not item.detail.retryable)
+           for item in exception_chain(exc)):
+        return True
+    if asset_load_failure(exc) is not None:
+        return True
     if isinstance(exc, HTTPException):
         detail = str(exc.detail or "").lower()
         return exc.status_code in {400, 404} and "reference asset" in detail
@@ -914,6 +935,15 @@ def _write_queued_metadata(
 
 
 def _write_progress_metadata(
+    storage: TaskStorage, task_id: str, **progress: Any,
+) -> dict[str, Any]:
+    # The provider checkpoint can be written by the generation worker thread.
+    # Hold one lock across the progress read/modify/write, not just the write.
+    with storage._task_write_lock(task_id):
+        return _write_progress_metadata_locked(storage, task_id, **progress)
+
+
+def _write_progress_metadata_locked(
     storage: TaskStorage,
     task_id: str,
     *,

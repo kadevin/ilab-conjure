@@ -16,7 +16,7 @@ if %ERRORLEVEL% EQU 0 (
   set "SYSTEM_PYTHON=py -3"
 ) else (
   where python >nul 2>nul
-  if %ERRORLEVEL% NEQ 0 (
+  if errorlevel 1 (
     echo Python 3 was not found. Install Python 3 first.
     pause
     exit /b 1
@@ -25,19 +25,35 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 if not exist "%PYTHON_BIN%" (
+  %SYSTEM_PYTHON% "%PROJECT_DIR%codex_image\runtime_security.py"
+  if errorlevel 1 (
+    pause
+    exit /b 1
+  )
   echo Creating local virtual environment...
   %SYSTEM_PYTHON% -m venv "%VENV_DIR%"
-  if %ERRORLEVEL% NEQ 0 (
+  if errorlevel 1 (
     pause
     exit /b 1
   )
 )
 
+"%PYTHON_BIN%" "%PROJECT_DIR%codex_image\runtime_security.py"
+if errorlevel 1 (
+  pause
+  exit /b 1
+)
+
 "%PYTHON_BIN%" -m codex_image.dependency_check --requirements "%PROJECT_DIR%requirements-webui.txt" >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
+if errorlevel 1 (
+  "%PYTHON_BIN%" "%PROJECT_DIR%codex_image\runtime_security.py" --installer
+  if errorlevel 1 (
+    pause
+    exit /b 1
+  )
   echo Installing WebUI dependencies...
   "%PYTHON_BIN%" -m pip install --require-hashes -r requirements-webui.txt
-  if %ERRORLEVEL% NEQ 0 (
+  if errorlevel 1 (
     pause
     exit /b 1
   )

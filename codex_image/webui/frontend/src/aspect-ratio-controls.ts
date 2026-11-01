@@ -94,10 +94,8 @@ export function createAspectRatioIcon(value: string): SVGSVGElement | null {
   rect.setAttribute("width", String(geometry.width));
   rect.setAttribute("height", String(geometry.height));
   rect.setAttribute("rx", "1");
-  rect.setAttribute("fill", "none");
-  rect.setAttribute("stroke", "currentColor");
-  rect.setAttribute("stroke-width", "1.35");
-  rect.setAttribute("vector-effect", "non-scaling-stroke");
+  rect.setAttribute("fill", "currentColor");
+  rect.setAttribute("stroke", "none");
   svg.append(rect);
   return svg;
 }

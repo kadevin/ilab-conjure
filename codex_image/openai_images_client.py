@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import re
+import time
 import uuid
 from collections.abc import Mapping, Sequence
 from io import BytesIO
@@ -19,9 +20,18 @@ from .client_types import (
     normalize_openai_base_url,
 )
 from .http import HTTPResponse, Transport, UrllibTransport
+from .providers.result_assets import AssetLoadError
 
 
 _DIMENSION_SIZE_RE = re.compile(r"^\s*(\d{1,5})\s*[xX×]\s*(\d{1,5})\s*$")
+
+
+class PartialImageResultsError(RuntimeError):
+    def __init__(self, results, outcomes, completed_at) -> None:
+        super().__init__("Image batch interrupted after partial results")
+        self.results = list(results)
+        self.outcomes = list(outcomes)
+        self.completed_at = tuple(completed_at)
 
 
 def build_openai_images_headers(api_key: str, *, content_type: str) -> dict[str, str]:
@@ -430,27 +440,44 @@ class OpenAIImagesImageClient:
         *,
         request_payload: dict[str, Any] | None = None,
         url_fetcher: Any | None = None,
+        asset_outcomes: list[ImageResult | Exception] | None = None,
     ) -> list[ImageResult]:
         try:
             response = json.loads(body.decode("utf-8"))
-        except json.JSONDecodeError as exc:
-            raise RuntimeError("OpenAI-compatible images returned invalid JSON") from exc
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise AssetLoadError("OpenAI-compatible images returned invalid JSON") from exc
         if not isinstance(response, dict):
-            raise RuntimeError("OpenAI-compatible images returned non-object JSON")
+            raise AssetLoadError("OpenAI-compatible images returned non-object JSON")
         if isinstance(response.get("error"), dict):
-            raise RuntimeError(OpenAIImagesImageClient._format_api_error(response["error"]))
+            raise AssetLoadError(OpenAIImagesImageClient._format_api_error(response["error"]))
 
         data = response.get("data")
         if not isinstance(data, list):
-            raise RuntimeError("OpenAI-compatible images completed without image data")
+            raise AssetLoadError("OpenAI-compatible images completed without image data")
         usage = response.get("usage", {})
         request_payload = request_payload or {}
         response_usage = usage if isinstance(usage, dict) else {}
         results: list[ImageResult] = []
+        completed_at: list[float] = []
         for item in data:
             if not isinstance(item, dict) or not (item.get("b64_json") or item.get("url")):
+                if asset_outcomes is not None:
+                    asset_outcomes.append(AssetLoadError("generated response item has no image asset"))
+                    completed_at.append(time.monotonic())
                 continue
-            image_bytes = OpenAIImagesImageClient._image_bytes_from_response_item(item, url_fetcher=url_fetcher)
+            try:
+                image_bytes = OpenAIImagesImageClient._image_bytes_from_response_item(item, url_fetcher=url_fetcher)
+            except Exception as exc:
+                from concurrent.futures import CancelledError
+                if isinstance(exc, CancelledError) and results and asset_outcomes is not None:
+                    raise PartialImageResultsError(results, asset_outcomes, completed_at) from exc
+                if asset_outcomes is None or isinstance(exc, CancelledError):
+                    raise
+                failure = AssetLoadError("generated asset could not be loaded")
+                failure.__cause__ = exc
+                asset_outcomes.append(failure)
+                completed_at.append(time.monotonic())
+                continue
             media_type = str(
                 item.get("media_type") or item.get("mime_type") or item.get("mimeType") or ""
             ).split(";", 1)[0].strip().lower()
@@ -483,8 +510,11 @@ class OpenAIImagesImageClient:
                     usage=response_usage,
                 )
             )
-        if not results:
-            raise RuntimeError("OpenAI-compatible images completed without image data")
+            if asset_outcomes is not None:
+                asset_outcomes.append(results[-1])
+                completed_at.append(time.monotonic())
+        if not results and not asset_outcomes:
+            raise AssetLoadError("OpenAI-compatible images completed without image data")
         return results
 
     @staticmethod

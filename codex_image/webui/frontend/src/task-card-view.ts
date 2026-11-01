@@ -68,9 +68,7 @@ export function createTaskCardView(dependencies: TaskCardViewDependencies) {
         aria-hidden="true"
       >
         <span class="task-group-toggle" aria-hidden="true">
-          <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
-            <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-          </svg>
+          <svg class="task-group-toggle-icon" data-ui-icon="chevron-right" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-right"/></svg>
         </span>
       </span>
     </button>
@@ -162,9 +160,7 @@ export function createTaskCardView(dependencies: TaskCardViewDependencies) {
         </span>
         <span class="task-history-anchor-arrow" aria-hidden="true">
           <span class="task-group-toggle" aria-hidden="true">
-            <svg class="task-group-toggle-icon" viewBox="0 0 12 12" focusable="false">
-              <path d="M4 2.5 8 6 4 9.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-            </svg>
+            <svg class="task-group-toggle-icon" data-ui-icon="chevron-right" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#chevron-right"/></svg>
           </span>
         </span>
       </button>

@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 // State defaults also carry the browser document title; no live DOM is needed here.
 Object.assign(globalThis, { document: { title: 'Provider tests' } });
-const { applyProviderDraft, normalizeApiProvider, normalizeApiSettings } = await import('../../codex_image/webui/frontend/src/api-provider-model');
+const { applyProviderDraft, normalizeApiProvider, normalizeApiSettings, withoutApiProvider } = await import('../../codex_image/webui/frontend/src/api-provider-model');
 const { apiSettingsSavePayload, patchApiSettings } = await import('../../codex_image/webui/frontend/src/api-provider-save');
+const { translate } = await import('../../codex_image/webui/frontend/src/i18n');
 
 test('normalization preserves provider order, deduplicates ids and clamps concurrency', () => {
   const settings = normalizeApiSettings({ providers: [
@@ -19,6 +20,25 @@ test('draft default opt-out chooses another supporter without changing input', (
   const next = applyProviderDraft(settings, normalizeApiProvider({ ...settings.providers[0], default_model_ids: [] }));
   assert.equal(next.default_provider_by_model['gpt-image-2'], 'b');
   assert.equal(JSON.stringify(settings), before);
+});
+
+test('deleting a default provider repairs shared models and drops unsupported defaults without mutating input', () => {
+  const binding = (model: string) => ({ id: model, canonical_model_id: model, remote_model_id: model,
+    protocol_profile: 'openai_images', parameter_codec: 'gemini_openai_images', operations: ['generate', 'edit'] });
+  const settings = normalizeApiSettings({ active_provider_id: 'removed', providers: [
+    { id: 'unrelated', bindings: [binding('nano-banana-pro')] },
+    { id: 'removed', bindings: [binding('nano-banana-2'), binding('nano-banana-2-lite')] },
+    { id: 'fallback', api_key_set: true, bindings: [binding('nano-banana-2'), binding('nano-banana-pro')] },
+  ], default_provider_by_model: { 'nano-banana-2': 'removed', 'nano-banana-2-lite': 'removed', 'nano-banana-pro': 'fallback' } });
+  const before = JSON.stringify(settings);
+  const next = withoutApiProvider(settings, 'removed')!;
+  assert.deepEqual(next.providers.map(p => p.id), ['unrelated', 'fallback']);
+  assert.deepEqual(next.default_provider_by_model, { 'nano-banana-pro': 'fallback', 'nano-banana-2': 'fallback' });
+  assert.equal(next.active_provider_id, 'unrelated');
+  assert.equal(next.providers[1].api_key_set, true);
+  assert.equal(JSON.stringify(settings), before);
+  assert.equal(withoutApiProvider(settings, 'missing'), null);
+  assert.equal(withoutApiProvider(normalizeApiSettings({ providers: [{ id: 'only' }] }), 'only'), null);
 });
 
 test('save payload omits stored secrets, preserves explicit replacement and scoped origin confirmation', () => {
@@ -53,4 +73,12 @@ test('transport sends one PATCH and returns server settings without modifying pa
 test('transport rejection remains a failure for the coordinator rollback', async () => {
   const request = (async () => new Response(JSON.stringify({ detail: 'synthetic_failure' }), { status: 400 })) as typeof fetch;
   await assert.rejects(patchApiSettings({}, request), /synthetic_failure/);
+});
+
+test('invalid default mappings produce a translated actionable message', async () => {
+  for (const detail of ['default_provider_mapping_missing', 'invalid_default_provider_mapping']) {
+    const request = (async () => new Response(JSON.stringify({ detail }), { status: 400 })) as typeof fetch;
+    await assert.rejects(patchApiSettings({}, request), { message: translate('apiSettings.defaultMappingInvalid') });
+    assert.notEqual(translate('apiSettings.defaultMappingInvalid'), 'apiSettings.defaultMappingInvalid');
+  }
 });
