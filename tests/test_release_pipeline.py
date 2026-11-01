@@ -76,23 +76,30 @@ class ReleasePipelineTests(unittest.TestCase):
                     release.prepare(**args)
 
     def scenario(self, *, existing=False, published=False, upload_failure=False, bad_digest=False,
-                 missing=False, lookup_failure=False, create_failure=False):
+                 missing=False, lookup_failure=False, create_failure=False, draft_missing=False):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             asset = root / 'latest.json'; asset.write_text('synthetic')
             notes = root / 'notes.md'; notes.write_text('notes')
             calls = []
             state = {'tag_name': 'v1.0.0', 'draft': not published, 'id': 7, 'prerelease': False}
+            created = existing
 
             def fake(*args):
+                nonlocal created
                 calls.append(args)
                 if args[0] == 'api' and '/git/ref/' in args[1]:
                     return json.dumps({'object': {'type': 'commit', 'sha': 'a' * 40}})
                 if '--slurp' in args:
                     if lookup_failure:
                         raise subprocess.CalledProcessError(1, 'gh')
-                    return json.dumps([[state] if existing else []])
-                if args[:2] == ('release', 'create') and create_failure:
+                    return json.dumps([[state] if created and not draft_missing else []])
+                if args[:2] == ('release', 'create'):
+                    if create_failure:
+                        raise subprocess.CalledProcessError(1, 'gh')
+                    created = True
+                if args[0] == 'api' and '/releases/tags/' in args[1] and state['draft']:
+                    # Match GitHub: this endpoint cannot retrieve a draft.
                     raise subprocess.CalledProcessError(1, 'gh')
                 if args[:2] == ('release', 'upload') and upload_failure:
                     raise subprocess.CalledProcessError(1, 'gh')
@@ -107,9 +114,9 @@ class ReleasePipelineTests(unittest.TestCase):
                 try:
                     release.publish(repo='example/project', tag='v1.0.0', commit='a' * 40, files=[asset], notes=notes)
                 except (ValueError, subprocess.CalledProcessError):
-                    self.assertTrue(published or upload_failure or bad_digest or missing or lookup_failure or create_failure)
+                    self.assertTrue(published or upload_failure or bad_digest or missing or lookup_failure or create_failure or draft_missing)
                 else:
-                    self.assertFalse(published or upload_failure or bad_digest or missing or lookup_failure or create_failure)
+                    self.assertFalse(published or upload_failure or bad_digest or missing or lookup_failure or create_failure or draft_missing)
             return calls
 
     def test_draft_is_published_only_after_upload_and_digest_verification(self):
@@ -121,9 +128,11 @@ class ReleasePipelineTests(unittest.TestCase):
         check = next(i for i, c in enumerate(calls) if c[0] == 'api' and '/assets?' in c[1])
         self.assertGreater(publication, check)
         self.assertFalse(any(c[:2] == ('release', 'create') for c in self.scenario(existing=True)))
+        self.assertEqual(sum(c == ('api', 'repos/example/project/releases/7') for c in calls), 2)
+        self.assertFalse(any('/releases/tags/' in str(c) for c in calls))
 
     def test_failures_never_publish_or_retry_creation(self):
-        for flag in ('upload_failure', 'bad_digest', 'missing', 'lookup_failure', 'create_failure'):
+        for flag in ('upload_failure', 'bad_digest', 'missing', 'lookup_failure', 'create_failure', 'draft_missing'):
             with self.subTest(flag=flag):
                 calls = self.scenario(**{flag: True})
                 self.assertFalse(any('--draft=false' in c for c in calls))
