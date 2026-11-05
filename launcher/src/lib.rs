@@ -968,7 +968,8 @@ impl WebUiService {
             command_with_no_window(python)
                 .args(["-m", "codex_image.webui.startup_auth", "--settings-path"])
                 .arg(self.config.auth_settings_path())
-                .current_dir(&self.config.app_dir),
+                .current_dir(&self.config.app_dir)
+                .env("PYTHONPATH", python_path_for_app(&self.config.app_dir)),
             "initialize auth settings",
         )
     }

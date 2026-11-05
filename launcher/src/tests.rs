@@ -17,6 +17,64 @@ fn launcher_urls_match_fixed_local_webui_port() {
 }
 
 #[test]
+fn auth_initialization_loads_dependencies_from_the_packaged_app() {
+    let python = find_system_python().expect("Python 3 is required for the launcher startup test");
+    let root = env::temp_dir().join(format!(
+        "ilab-conjure-auth-startup-test-{}",
+        std::process::id()
+    ));
+    for (layout, bundled_dependencies) in [
+        ("standard/iLab CONJURE.app/Contents/Resources/app", true),
+        ("portable/app", true),
+        ("source", false),
+    ] {
+        let app_dir = root.join(layout);
+        let data_dir = app_dir.join("test-data");
+        let webui_dir = app_dir.join("codex_image/webui");
+        let dependency_dir = if bundled_dependencies {
+            app_dir.join(".deps")
+        } else {
+            app_dir.clone()
+        };
+        fs::create_dir_all(&webui_dir).unwrap();
+        fs::create_dir_all(&dependency_dir).unwrap();
+        fs::create_dir_all(&data_dir).unwrap();
+        // Reproduce the package's eager dependency import before startup_auth runs.
+        fs::write(
+            app_dir.join("codex_image/__init__.py"),
+            "from conjure_bundled_auth_fixture import AUTH_SOURCE\n",
+        )
+        .unwrap();
+        fs::write(webui_dir.join("__init__.py"), "").unwrap();
+        fs::write(
+            dependency_dir.join("conjure_bundled_auth_fixture.py"),
+            "AUTH_SOURCE = 'api'\n",
+        )
+        .unwrap();
+        fs::write(app_dir.join("codex_image/dependency_check.py"), "").unwrap();
+        fs::write(
+            webui_dir.join("startup_auth.py"),
+            "import json, sys\nfrom pathlib import Path\nfrom codex_image import AUTH_SOURCE\n\
+             Path(sys.argv[-1]).write_text(json.dumps({'selected_source': AUTH_SOURCE}))\n",
+        )
+        .unwrap();
+
+        let service = WebUiService::new(
+            LauncherConfig::from_dirs(app_dir.clone(), data_dir, DEFAULT_PORT).unwrap(),
+        );
+        assert!(dependency_probe(&python, &app_dir).unwrap());
+        let result = service.initialize_auth_settings(&python);
+        let log = fs::read_to_string(&service.config.log_path).unwrap();
+        assert!(result.is_ok(), "{layout}: {result:?}\n{log}");
+        let settings: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(service.config.auth_settings_path()).unwrap())
+                .unwrap();
+        assert_eq!(settings["selected_source"], "api", "{layout}");
+    }
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn rabbit_icon_has_rgba_pixels_and_visible_shape() {
     let (rgba, width, height) = rabbit_icon_rgba(32);
 
