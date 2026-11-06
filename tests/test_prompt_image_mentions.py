@@ -40,6 +40,16 @@ class PromptImageMentionTests(unittest.TestCase):
         with self.assertRaises(HTTPException):
             self.resolve(context)
 
+    def test_multipart_crlf_line_breaks_still_match_mention_parts(self):
+        parts = ["Line one\n", {"text": "@g.png", "source": {"kind": "gallery", "id": "g"}}]
+        context = {"version": 1, "template": "reference image {number}", "parts": parts, "model_parts": parts}
+        crlf = "Line one\r\n@g.png"
+        original, model, _ = resolve_prompt_image_mentions(
+            json.dumps(context), crlf, crlf, [], [{"kind": "gallery", "id": "g"}],
+        )
+        self.assertEqual(original, "Line one\nreference image 1")
+        self.assertEqual(model, original)
+
     def test_model_parts_cannot_switch_references(self):
         context = self.context()
         context["model_parts"] = json.loads(json.dumps(context["parts"]))
