@@ -14,7 +14,7 @@ from .reference_files import MAX_REFERENCE_FILE_BYTES, validate_reference_file
 _JSON_ROLES = frozenset({"metadata", "request", "organization"})
 
 
-_RASTER_ROLES = frozenset({"output", "input", "mask", "reference_asset", "gallery_reference"})
+_RASTER_ROLES = frozenset({"output", "input", "mask", "markup", "reference_asset", "gallery_reference"})
 
 
 _SUPPORTED_COMPRESSION = frozenset({zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED})
@@ -230,8 +230,12 @@ class HistoryBackupArchiveValidator:
                 task_json[task_id][entry.role] = parsed
             elif entry.role in _RASTER_ROLES:
                 try:
-                    validate_raster_image(payload, filename=Path(path).name)
-                except InvalidRasterImage:
+                    if entry.role == "output" and Path(path).suffix.lower() == ".svg":
+                        from codex_image.svg_validation import inspect_static_svg
+                        inspect_static_svg(payload)
+                    else:
+                        validate_raster_image(payload, filename=Path(path).name)
+                except (InvalidRasterImage, ValueError):
                     invalid_reasons.setdefault(task_id, "backup_import_raster_invalid")
             elif entry.role == "reference_file":
                 try:

@@ -1,3 +1,4 @@
+import { syncGptModelControls } from "./gpt-model-controls";
 import { isGptImageModel } from "./gpt-image-models";
 import { setBackgroundControl } from "./background-controls";
 import type { CatalogModel, CatalogParameterDefinition, GenerationOperation } from "./types";
@@ -23,12 +24,17 @@ export function canonicalControlValues(
     "canvas.aspect_ratio": taskParams.ratio,
     "canvas.resolution": taskParams.resolution,
     "gpt.quality": taskParams.quality,
+    "gpt.complexity": taskParams.complexity,
     "gpt.background": taskParams.background ?? "auto",
     "output.format": format,
     "gpt.moderation": taskParams.moderation,
     "gpt.web_search": protocolProfile.endsWith("_responses") && Boolean(taskParams.web_search),
     "output.count": taskParams.n,
   };
+  if (format === "gif") {
+    values["gpt.frame_count"] = taskParams.frame_count;
+    values["gpt.frame_duration_ms"] = taskParams.frame_duration_ms;
+  }
   if (format === "jpeg" || format === "webp") {
     values["gpt.output_compression"] = taskParams.output_compression;
   }
@@ -130,6 +136,7 @@ export function restoreCurrentModelParameterDraft(): void {
     renderCurrentModelParameters();
     return;
   }
+  syncGptModelControls(model);
   const draft = {
     ...Object.fromEntries(model.parameters.map((parameter) => [parameter.id, parameter.default])),
     ...(state.parameterDraftsByModel[modelId] || {}),
@@ -142,6 +149,10 @@ export function restoreCurrentModelParameterDraft(): void {
   if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
   if (typeof draft["gpt.quality"] === "string" && els.quality) els.quality.value = draft["gpt.quality"];
   if (typeof draft["output.format"] === "string" && els.outputFormat) els.outputFormat.value = draft["output.format"];
+  if (els.outputFormat?.selectedOptions?.[0]?.disabled) els.outputFormat.value = "png";
+  if (els.complexity) els.complexity.value = String(draft["gpt.complexity"] || "high");
+  if (els.frameCount) els.frameCount.value = String(draft["gpt.frame_count"] ?? 9);
+  if (els.frameDuration) els.frameDuration.value = String(draft["gpt.frame_duration_ms"] ?? 200);
   setBackgroundControl(draft["gpt.background"]);
   if (typeof draft["gpt.moderation"] === "string" && els.moderation) els.moderation.value = draft["gpt.moderation"];
   if (typeof draft["gpt.output_compression"] === "number" && els.compression) els.compression.value = String(draft["gpt.output_compression"]);
@@ -149,7 +160,7 @@ export function restoreCurrentModelParameterDraft(): void {
     els.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
   }
   if (typeof draft["output.count"] === "number" && els.nInput) els.nInput.value = String(draft["output.count"]);
-  methods.syncRadioButtons?.(els.quality, els.outputFormat, els.moderation, els.nInput);
+  methods.syncRadioButtons?.(els.complexity, els.quality, els.outputFormat, els.moderation, els.nInput);
   methods.updateQuantity?.();
   methods.updateCompression?.();
   renderCurrentModelParameters();

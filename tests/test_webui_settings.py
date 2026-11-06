@@ -60,7 +60,6 @@ from tests.webui_helpers import (
 from tests.helpers import assert_no_api_key
 
 
-
 def _fake_jwt(payload: dict[str, object]) -> str:
     def encode(data: dict[str, object]) -> str:
         raw = json.dumps(data, separators=(",", ":")).encode("utf-8")
@@ -478,20 +477,6 @@ class WebUISettingsTests(unittest.TestCase):
             self.assertEqual(response.json()["detail"], "source must be codex or api")
         self.assertEqual(persisted["source"], "api")
 
-    def test_account_routes_are_removed(self) -> None:
-        from codex_image.webui.app import create_app
-
-        with tempfile.TemporaryDirectory() as tmp:
-            app = create_app(output_root=Path(tmp), auto_start_queue=False)
-            client = TestClient(app)
-
-            list_response = client.get("/api/accounts")
-            refresh_response = client.post("/api/accounts/refresh")
-            patch_response = client.patch("/api/accounts/codex:local", json={"manual_disabled": True})
-
-        self.assertEqual(list_response.status_code, 404)
-        self.assertEqual(refresh_response.status_code, 404)
-        self.assertEqual(patch_response.status_code, 404)
 
     def test_legacy_auth_setting_falls_back_to_startup_detection(self) -> None:
         from codex_image.auth import AuthState

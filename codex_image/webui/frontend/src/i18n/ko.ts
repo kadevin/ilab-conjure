@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const KO_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "주석은 최대 16,777,216픽셀까지 지원합니다. 원본 크기를 먼저 줄이세요.",
+    "imageEditor.replacesMarkup": "이미지 편집을 저장하면 기존 주석이 제거됩니다.",
+    "output.qualityXhigh": "매우 높음",
+    "output.qualityMax": "최고",
+    "output.complexity": "복잡도",
+    "output.frameCount": "프레임 수",
+    "output.frameDuration": "프레임 시간(ms)",
+    "output.totalDuration": "총 시간",
+    "imageEditor.markup": "주석",
+    "imageEditor.image": "이미지",
+    "imageEditor.saveMarkup": "주석 저장",
+    "imageEditor.markupFirstOnly": "첫 번째 참조 이미지에만 주석을 사용할 수 있습니다",
+    "imageEditor.markupUnsupported": "이 모델 또는 API는 주석을 지원하지 않습니다. 변경하거나 주석을 제거하세요.",
     "app.newTask": "새로 만들기",
     "app.newTaskAria": "새 채팅 만들기",
     "sidebar.searchPlaceholder": "프롬프트 또는 작업 ID 검색",

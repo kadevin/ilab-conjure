@@ -1,8 +1,8 @@
-import unittest
+"""Compatibility entry; pure frontend suites are discovered centrally."""
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
-class ImageEditorFrontendTests(unittest.TestCase):
-    def test_image_editor_modules(self) -> None:
-        run_frontend(self, "image_editor_modules.test.ts")
+load_tests = compatibility_load_tests((
+    'image_editor_modules.test.ts',
+))

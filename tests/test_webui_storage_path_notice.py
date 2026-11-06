@@ -10,12 +10,10 @@ from fastapi.testclient import TestClient
 
 from codex_image.webui.app import create_app
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
 class StoragePathNoticeTests(unittest.TestCase):
-    def test_retained_path_frontend_behavior(self) -> None:
-        run_frontend(self, "storage_settings.test.ts")
 
     def test_unreadable_previous_directory_does_not_break_settings(self) -> None:
         from codex_image.webui.standard_storage import previous_default_storage_paths
@@ -78,3 +76,8 @@ class StoragePathNoticeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+load_tests = compatibility_load_tests((
+    'storage_settings.test.ts',
+))

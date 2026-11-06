@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import json
 import re
 import unittest
@@ -68,6 +70,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         self.assertNotRegex(styles, r"\.reference-file-requirement\s*\{[^}]*position:\s*absolute")
         self.assertNotIn(".reference-file-row", styles)
 
+    @frontend_test
     def test_selected_docx_renders_icon_filename_summary_and_accessible_tile(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -286,6 +289,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         self.assertNotIn("data-history-reference-file-lightbox", media)
         self.assertIn("historyReferenceFilesHtml(task)", history)
 
+    @frontend_test
     def test_history_reference_file_renderer_escapes_copy_and_derives_safe_downloads(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -349,20 +353,10 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_cache_versions_are_bumped_once(self) -> None:
-        index = (ROOT / "codex_image/webui/static/index.html").read_text(encoding="utf-8")
-        history = (ROOT / "codex_image/webui/static/history.html").read_text(encoding="utf-8")
-        worker = (ROOT / "codex_image/webui/static/service-worker.js").read_text(encoding="utf-8")
-        assets = set(re.findall(r'/static/(?:app|history)\.js\?v=[^"\s]+|/static/styles\.css\?v=[^"\s]+', index + history))
-        self.assertEqual(len(assets), 3)
-        for asset in assets:
-            self.assertIn(f'"{asset}"', worker)
-        self.assertRegex(worker, r'ilab-conjure-shell-v\d+')
 
     def test_design_system_documents_shared_input_rail_and_filename_summary_tiles(self) -> None:
         design_path = ROOT / "DESIGN.md"
-        if not design_path.exists():
-            self.skipTest("private design contract is not exported")
+        self.assertTrue(design_path.is_file(), "The public design contract is required")
         design = design_path.read_text(encoding="utf-8")
         self.assertIn("已选图片与文件共用同一条缩略图轨道", design)
         self.assertIn("生成页不提供最近参考文件列表", design)
@@ -541,6 +535,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         self.assertNotIn('legacyMethod("setAuthSource"', restore)
         self.assertNotIn('legacyMethod("selectCodexMode"', restore)
 
+    @frontend_test
     def test_same_task_a_b_a_stale_reference_restore_cannot_write(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -606,6 +601,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_task_restore_displays_files_on_current_api_images_channel(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -670,6 +666,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_history_file_handoff_aborts_when_auth_patch_fails(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -734,6 +731,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_provider_switch_has_no_reference_file_snapshot_transaction(self) -> None:
         module = (ROOT / "codex_image/webui/frontend/src/api-provider-settings.ts").read_text(encoding="utf-8")
         self.assertNotIn("guardReferenceFilesBeforePathSwitch", module)
@@ -798,6 +796,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_failed_provider_patch_does_not_mutate_reference_files(self) -> None:
         module = (ROOT / "codex_image/webui/frontend/src/api-provider-settings.ts").read_text(encoding="utf-8")
         save = module[module.index("export async function saveApiSettings") :]
@@ -931,6 +930,7 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
 
 
 class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
+    @frontend_test
     def test_composed_image_file_rail_runtime_contract(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -1131,6 +1131,7 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
         result = subprocess.run([node, "-e", harness], cwd=ROOT, check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_mixed_picker_partitions_images_files_and_unsupported_inputs(self) -> None:
         node = shutil.which("node")
         if node is None:

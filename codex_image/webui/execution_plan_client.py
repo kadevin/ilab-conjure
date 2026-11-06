@@ -83,7 +83,11 @@ class ExecutionPlanImageClient:
         registry: ProviderRegistry | None = None,
     ) -> None:
         self._plan = plan
-        self._uses_legacy_client_adapter = plan.binding.parameter_codec.startswith("gpt_")
+        self._uses_legacy_client_adapter = (
+            plan.binding.parameter_codec.startswith("gpt_")
+            and not plan.model.id.startswith("gpt-image-2.6-")
+            and not plan.command.markup_image
+        )
         if self._uses_legacy_client_adapter:
             base_registry = registry or default_registry()
             registry = ProviderRegistry(
@@ -243,6 +247,8 @@ class ExecutionPlanImageClient:
         metadata = dict(asset.metadata)
         mime_type = str(asset.mime_type or "").split(";", 1)[0].strip().lower()
         asset_format = mime_type.split("/", 1)[1] if mime_type.startswith("image/") else ""
+        if asset_format == "svg+xml":
+            asset_format = "svg"
         if asset_format == "jpg":
             asset_format = "jpeg"
         output_format = str(

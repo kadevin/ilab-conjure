@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const suites = ['workbench-layout?compact-only', 'api-provider-delete',
+const suites = ['image26', 'workbench-layout?compact-only', 'api-provider-delete',
   'api-settings?backup-navigation-only', 'api-settings?backup-boundaries-only'];
 const selected = process.argv.slice(2);
 if (selected.some(suite => !suites.includes(suite))) throw new Error('Unknown browser suite');

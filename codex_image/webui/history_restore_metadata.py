@@ -36,8 +36,11 @@ def _rewrite_restored_metadata(
     reference_assets: list[dict[str, Any]],
     gallery_refs: list[dict[str, Any]],
     reference_files: list[dict[str, Any]],
+    markup_name: str | None = None,
 ) -> dict[str, Any]:
     metadata = _drop_untrusted_local_paths(raw)
+    if markup_name is not None:
+        metadata["markup_file"] = markup_name
     metadata["task_id"] = task_id
     metadata["input_files"] = list(input_names)
     if mask_name is None:
@@ -82,6 +85,7 @@ def _rewrite_restored_request(
     reference_assets: list[dict[str, Any]],
     gallery_refs: list[dict[str, Any]],
     reference_files: list[dict[str, Any]],
+    markup_name: str | None = None,
 ) -> dict[str, Any]:
     request = _drop_untrusted_local_paths(raw)
     if "input_files" in raw or input_names:
@@ -95,6 +99,8 @@ def _rewrite_restored_request(
     }
     if mask_name is not None:
         image_refs["mask_file"] = mask_name
+    if markup_name is not None:
+        image_refs["markup_file"] = markup_name
     request["webui_image_refs"] = image_refs
     request["webui_file_refs"] = {"reference_files": reference_files}
     return request
@@ -106,7 +112,7 @@ def _drop_untrusted_local_paths(value: Any, key: str = "") -> Any:
         for child_key, child_value in value.items():
             name = str(child_key)
             if name in {
-                "input_files", "mask_file", "output_file", "output_files", "file",
+                "input_files", "mask_file", "markup_file", "output_file", "output_files", "file",
                 "thumbnail_file", "thumbnail_url", "input_urls", "input_thumbnail_urls",
                 "url", "output_url", "output_urls", "input_sources",
             }:

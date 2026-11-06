@@ -352,6 +352,10 @@ def _output_url(storage: TaskStorage, path: Path) -> str:
 
 
 def _output_thumbnail_fields(storage: TaskStorage, task_id: str, output_index: int, output_path: Path) -> dict[str, Any]:
+    if output_path.suffix.lower() in {".svg", ".gif"}:
+        # Retain vectors and animation in previews; raster thumbnails flatten them.
+        return {"thumbnail_file": storage.output_file(output_path), "thumbnail_url": _output_url(storage, output_path),
+                "sidebar_thumbnail_file": storage.output_file(output_path), "sidebar_thumbnail_url": _output_url(storage, output_path)}
     has_transparency = inspect_image_transparency(output_path)
     thumbnail_path = storage.output_thumbnail_path(task_id, output_index)
     if has_transparency:
@@ -876,6 +880,7 @@ def _write_queued_metadata(
     params: dict[str, Any],
     input_files: list[str],
     mask_file: str | None,
+    markup_file: str | None = None,
     gallery_refs: list[dict[str, Any]],
     reference_assets: list[dict[str, Any]] | None = None,
     reference_files: list[dict[str, Any]] | None = None,
@@ -899,6 +904,7 @@ def _write_queued_metadata(
         "params": params,
         "input_files": input_files,
         "mask_file": mask_file,
+        "markup_file": markup_file,
         "input_urls": _input_urls(task_id, input_files),
         "gallery_refs": gallery_refs,
         "reference_assets": reference_assets or [],

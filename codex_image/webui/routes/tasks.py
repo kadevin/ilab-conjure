@@ -430,6 +430,9 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         if not thumbnail_file:
             raise HTTPException(status_code=404, detail="Thumbnail unavailable")
         thumbnail_path = ctx.storage.output_path(thumbnail_file)
+        if thumbnail_path.suffix.lower() in {".svg", ".gif"}:
+            from .media import _media_response
+            return _media_response(thumbnail_path)
         return FileResponse(
             thumbnail_path,
             media_type="image/webp" if thumbnail_path.suffix == ".webp" else "image/jpeg",
@@ -458,6 +461,9 @@ def register_task_routes(app: FastAPI, ctx: WebUIContext) -> None:
         if not thumbnail_file:
             raise HTTPException(status_code=404, detail="Thumbnail unavailable")
         thumbnail_path = ctx.storage.output_path(thumbnail_file)
+        if thumbnail_path.suffix.lower() in {".svg", ".gif"}:
+            from .media import _media_response
+            return _media_response(thumbnail_path)
         return FileResponse(
             thumbnail_path,
             media_type="image/webp",

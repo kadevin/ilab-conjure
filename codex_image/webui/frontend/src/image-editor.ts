@@ -1,6 +1,7 @@
+import { selectedProviderBinding } from "./provider-selection";
 import { rebindEditedImageMentions } from "./prompt-image-mentions";
 import Konva from "konva";
-import { captureImageEditorCanvas, rememberImageEditorCanvasSnapshot } from "./image-editor-canvas";
+import { markImageEditorCanvasChanged, captureImageEditorCanvas, rememberImageEditorCanvasSnapshot } from "./image-editor-canvas";
 import { editedUploadFilename, imageEditorCanvasFromImage, imageEditorCanvasSnapshot, imageEditorClampedCanvasDimensions, imageEditorExportBlob, imageEditorExportDimensions, imageEditorLayerAttrs, loadImageEditorImage, resizeImageEditorBackingCanvas } from "./image-editor-canvas";
 import { createImageEditorDrawing } from "./image-editor-drawing";
 import { createImageEditorFill } from "./image-editor-fill-client";
@@ -46,6 +47,8 @@ const imageEditorState = {
   hasInstructionMarks: false,
 } as ImageEditorState;
 
+let markupMode = false;
+let modeSwitchPending = false;
 let imageEditorFeatureInitialized = false;
 let imageEditorLayerSequence = 0;
 const editorFill = createImageEditorFill();
@@ -86,8 +89,8 @@ const editorPointer = createImageEditorPointer({
   setImageEditorStatus: (...args: Parameters<typeof setImageEditorStatus>) => setImageEditorStatus(...args),
   renderImageEditor: (...args: Parameters<typeof renderImageEditor>) => renderImageEditor(...args),
   selectedImageEditorLayer: (...args: Parameters<typeof selectedImageEditorLayer>) => selectedImageEditorLayer(...args),
-  applyImageEditorLayerEraseDot: (...args: Parameters<typeof applyImageEditorLayerEraseDot>) => applyImageEditorLayerEraseDot(...args),
-  applyImageEditorLayerEraseSegment: (...args: Parameters<typeof applyImageEditorLayerEraseSegment>) => applyImageEditorLayerEraseSegment(...args),
+  applyImageEditorLayerEraseDot: (...args: Parameters<typeof applyImageEditorLayerEraseDot>) => markupMode ? eraseMarkup(args[1], args[1]) : applyImageEditorLayerEraseDot(...args),
+  applyImageEditorLayerEraseSegment: (...args: Parameters<typeof applyImageEditorLayerEraseSegment>) => markupMode ? eraseMarkup(args[1], args[2]) : applyImageEditorLayerEraseSegment(...args),
   updateImageEditorCropBox: (...args: Parameters<typeof updateImageEditorCropBox>) => updateImageEditorCropBox(...args),
   previewEditorArrow: (...args: Parameters<typeof previewEditorArrow>) => previewEditorArrow(...args),
   drawEditorBrushSegment: (...args: Parameters<typeof drawEditorBrushSegment>) => drawEditorBrushSegment(...args),
@@ -168,6 +171,88 @@ function nextImageEditorSession() {
 
 function imageEditorContext(canvas = imageEditorState.workCanvas) {
   return canvas?.getContext("2d", { willReadFrequently: true }) || null;
+}
+
+function eraseMarkup(from: any, to: any): boolean {
+  for (const canvas of [imageEditorState.workCanvas, imageEditorState.brushBoundaryCanvas, imageEditorState.brushOverlayCanvas]) {
+    const ctx = imageEditorContext(canvas);
+    if (!canvas || !ctx) continue;
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.lineWidth = imageEditorState.strokeWidth;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x + .01, to.y);
+    ctx.stroke();
+    ctx.restore();
+    markImageEditorCanvasChanged(canvas);
+  }
+  return true;
+}
+
+function markupSupported(): boolean {
+  const state = getState();
+  return !!state.generationCatalog?.models.find(model => model.id === state.selectedModelId)?.input_constraints.supports_markup
+    && selectedProviderBinding()?.protocol_profile === "openai_images"
+    && imageEditorState.sourceIndex === 0;
+}
+
+function updateEditorModeControls(): void {
+  const els = getEls();
+  document.getElementById("imageEditorModeGroup")?.classList.toggle("hidden", !markupSupported() && !imageEditorState.source?.markupFile);
+  document.querySelectorAll<HTMLButtonElement>("[data-image-editor-mode]").forEach(button => {
+    const active = (button.dataset.imageEditorMode === "markup") === markupMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  els.imageEditorModal?.classList.toggle("markup-mode", markupMode);
+  if (els.imageEditorSave) {
+    const key = markupMode ? "imageEditor.saveMarkup" : "action.save";
+    els.imageEditorSave.dataset.i18n = key;
+    els.imageEditorSave.textContent = translate(key);
+  }
+}
+
+async function loadExistingMarkup(): Promise<void> {
+  const file = imageEditorState.source?.markupFile;
+  if (!file) return;
+  const sessionId = imageEditorState.sessionId;
+  const image = await loadImageEditorImage(file);
+  if (sessionId !== imageEditorState.sessionId) return;
+  const canvas = imageEditorState.workCanvas;
+  if (!canvas || canvas.width !== image.naturalWidth || canvas.height !== image.naturalHeight) throw new Error("markup_dimensions_mismatch");
+  imageEditorContext()?.drawImage(image, 0, 0);
+  markImageEditorCanvasChanged(canvas);
+  // The loaded annotation is the undo baseline, not a new edit.
+  editorHistory.reset();
+  pushImageEditorHistory();
+}
+
+function requestEditorMode(markup: boolean, anchor: HTMLElement): void {
+  if (markup === markupMode || modeSwitchPending || !imageEditorState.image) return;
+  const change = async () => {
+    modeSwitchPending = true;
+    try {
+      const image = imageEditorState.image!;
+      if (markup && image.naturalWidth * image.naturalHeight > 16_777_216) {
+        setImageEditorStatus(translate("imageEditor.markupPixelLimit"), "error"); return;
+      }
+      markupMode = markup;
+      initializeImageEditorCanvases(image);
+      if (markup) await loadExistingMarkup();
+      imageEditorState.tool = markup ? "brush" : "crop";
+      updateEditorModeControls();
+      renderImageEditor();
+      setImageEditorStatus(!markup && imageEditorState.source?.markupFile ? translate("imageEditor.replacesMarkup") : "");
+    } finally { modeSwitchPending = false; }
+  };
+  if (editorHistory.canUndo() || imageEditorState.crop?.width) {
+    legacyMethod("openConfirmPopover", anchor, {
+      title: translate("ux.discardEdits"), message: translate("ux.imageUnsaved"), focusCancel: true,
+      confirmText: translate("ux.discardEdits"), onConfirm: () => void change(),
+    });
+  } else void change();
 }
 
 function imageEditorBrushBoundaryContext() {
@@ -277,7 +362,7 @@ function imageEditorBaseDimensions() {
 }
 
 function resizeImageEditorCanvas(width: number, height: number, offsetX = 0, offsetY = 0) {
-  const dimensions = imageEditorClampedCanvasDimensions(width, height);
+  const dimensions = markupMode ? imageEditorBaseDimensions() : imageEditorClampedCanvasDimensions(width, height);
   const stage = imageEditorState.konvaStage;
   const didResize = stage?.width?.() !== dimensions.width || stage?.height?.() !== dimensions.height;
   const didShift = Boolean(offsetX || offsetY);
@@ -565,7 +650,7 @@ function initializeImageEditorKonva(width: number, height: number) {
 
 function initializeImageEditorCanvases(image: any) {
   editorFill.cancel();
-  const dimensions = imageEditorExportDimensions(image);
+  const dimensions = markupMode ? { width: image.naturalWidth, height: image.naturalHeight, scale: 1 } : imageEditorExportDimensions(image);
   const baseCanvas = imageEditorCanvasFromImage(image, dimensions);
   const workCanvas = document.createElement("canvas");
   const brushBoundaryCanvas = document.createElement("canvas");
@@ -804,7 +889,7 @@ async function saveImageEdit() {
     catch { setImageEditorStatus(translate("imageEditor.saveFailed"), "error"); return; }
     if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
   }
-  const saveCanvas = imageEditorCanvasForSave();
+  const saveCanvas = markupMode ? imageEditorState.workCanvas : imageEditorCanvasForSave();
   if (!source || !isEditableImageSource(source) || !saveCanvas || !state.images.includes(source)) {
     setImageEditorStatus(translate("imageEditor.saveFailed"), "error");
     return;
@@ -818,6 +903,15 @@ async function saveImageEdit() {
       || imageEditorState.source !== source
       || sourceIndex < 0
     ) {
+      return;
+    }
+    if (markupMode) {
+      const pixels = saveCanvas.getContext("2d")?.getImageData(0, 0, saveCanvas.width, saveCanvas.height).data;
+      const hasMarks = pixels?.some((value: number, index: number) => index % 4 === 3 && value > 0);
+      state.images[sourceIndex] = { ...source, markupFile: hasMarks ? new File([blob], "markup.png", { type: "image/png", lastModified: Date.now() }) : undefined };
+      legacyMethod("renderImageStrip");
+      legacyMethod("updateRequestPreview");
+      closeImageEditor(true);
       return;
     }
     const filename = editedUploadFilename(source.originalFile?.name || source.name || source.file?.name);
@@ -934,6 +1028,7 @@ async function openImageEditor(index: any) {
   }
 
   const sessionId = nextImageEditorSession();
+  markupMode = Boolean(source.markupFile);
   imageEditorState.sourceIndex = index;
   imageEditorState.source = source;
   imageEditorState.originalFile = null;
@@ -956,7 +1051,11 @@ async function openImageEditor(index: any) {
     const image = await loadImageEditorImage(file);
     if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
     imageEditorState.image = image;
+    if (markupMode && image.naturalWidth * image.naturalHeight > 16_777_216) throw new Error("markup_pixel_limit");
     initializeImageEditorCanvases(image);
+    if (markupMode) await loadExistingMarkup();
+    imageEditorState.tool = markupMode ? "brush" : "crop";
+    updateEditorModeControls();
     renderImageEditor();
   } catch {
     if (sessionId !== imageEditorState.sessionId || imageEditorState.source !== source) return;
@@ -1003,6 +1102,7 @@ function closeImageEditor(force = false) {
 
 function setImageEditorTool(tool: any) {
   if (!["select", "brush", "arrow", "crop", "fill", "eraser"].includes(tool)) return;
+  if (markupMode && ["select", "crop"].includes(tool)) return;
   imageEditorState.tool = tool;
   editorPointer.clearDrawing();
   clearImageEditorPreview();
@@ -1037,7 +1137,7 @@ async function resetImageEdit() {
       || imageEditorState.originalFile !== file
     ) return;
     imageEditorState.image = image;
-    imageEditorState.tool = "crop";
+    imageEditorState.tool = markupMode ? "brush" : "crop";
     initializeImageEditorCanvases(image);
     renderImageEditor();
     setImageEditorStatus(translate("imageEditor.resetDone"));
@@ -1102,6 +1202,9 @@ function bindImageEditorStageEvents(stage: any) {
 
 function bindImageEditorEvents() {
   const els = getEls();
+  document.querySelectorAll<HTMLButtonElement>("[data-image-editor-mode]").forEach(button => {
+    button.addEventListener("click", () => requestEditorMode(button.dataset.imageEditorMode === "markup", button));
+  });
   els.imageEditorClose?.addEventListener("click", () => closeImageEditor());
   els.imageEditorCancel?.addEventListener("click", () => closeImageEditor());
   els.imageEditorModal?.addEventListener("click", (event: MouseEvent) => {

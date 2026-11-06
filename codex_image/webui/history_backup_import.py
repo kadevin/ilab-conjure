@@ -835,7 +835,8 @@ class HistoryBackupImportService:
             input_names: list[str] = []
             output_names_by_index: dict[int, str] = {}
             mask_name: str | None = None
-            for role in ("input", "mask", "output"):
+            markup_name: str | None = None
+            for role in ("input", "mask", "markup", "output"):
                 for entry, staged_path in sorted(members.get(role, []), key=lambda item: item[0].source_index or 0):
                     index = int(entry.source_index or 1)
                     archive_name = entry.path.rsplit("/", 1)[-1]
@@ -848,11 +849,13 @@ class HistoryBackupImportService:
                         expected_sha256=entry.sha256,
                     )
                     binaries.append(binary)
-                    if role in {"input", "mask"}:
+                    if role in {"input", "mask", "markup"}:
                         prefix = f"{task.task_id}-{role}-{index:02d}-"
                         local_name = prefix + archive_name
                         if role == "input":
                             input_names.append(local_name)
+                        elif role == "markup":
+                            markup_name = local_name
                         else:
                             mask_name = local_name
                     else:
@@ -871,7 +874,7 @@ class HistoryBackupImportService:
             ) if "prompt_image_mentions" in metadata else None
             metadata = _rewrite_restored_metadata(
                 metadata, task.task_id, input_names, mask_name, output_names_by_index,
-                reference_records, gallery_records, native_records,
+                reference_records, gallery_records, native_records, markup_name,
             )
             metadata["backup_import_fingerprint"] = task.fingerprint
             request = _rewrite_restored_request(
@@ -881,6 +884,7 @@ class HistoryBackupImportService:
                 reference_records,
                 gallery_records,
                 native_records,
+                markup_name,
             )
             restored_order = remap_reference_image_order(metadata.get("reference_image_order"), image_identities)
             if image_mentions is not None:
@@ -1461,7 +1465,7 @@ class HistoryBackupImportService:
                     raise ValueError("backup_import_private_journal_invalid") from None
                 name = absolute.name
                 allowed = (
-                    (root == roots[0] and (name.startswith(f"{task_id}-input-") or name.startswith(f"{task_id}-mask-")))
+                    (root == roots[0] and (name.startswith(f"{task_id}-input-") or name.startswith(f"{task_id}-mask-") or name.startswith(f"{task_id}-markup-")))
                     or (root == roots[1] and name.startswith(f"{task_id}-image-"))
                 )
             if not allowed or absolute.is_symlink():

@@ -79,6 +79,9 @@ export function bindFormControlEvents(): void {
     els.customWidth,
     els.customHeight,
     els.quality,
+    els.complexity,
+    els.frameCount,
+    els.frameDuration,
     els.outputFormat,
     els.moderation,
     els.compression,
@@ -88,9 +91,9 @@ export function bindFormControlEvents(): void {
     const handleParameterChange = () => {
     persistMainModel();
     updateQuantity();
-    updateCompression();
     if (element === els.customWidth || element === els.customHeight) handleCustomDimensionInput(element);
     updateCustomSize();
+    updateCompression();
     updateRequestPreview();
     saveCurrentModelParameterDraft();
     };
@@ -156,7 +159,7 @@ export function bindFormControlEvents(): void {
   });
   const handleCompressionKeydown = (event: KeyboardEvent) => {
     if (event.key === "Tab" && els.compressionPopover?.contains(document.activeElement)) {
-      const fields = [...(els.compressionPopover as HTMLElement).querySelectorAll<HTMLInputElement>("input:not(:disabled)")];
+      const fields = [...(els.compressionPopover as HTMLElement).querySelectorAll<HTMLInputElement>("input:not(:disabled)")].filter(field => field.getClientRects().length);
       const boundary = event.shiftKey ? fields[0] : fields[fields.length - 1];
       if (document.activeElement === boundary) closeCompressionPopover();
       return;

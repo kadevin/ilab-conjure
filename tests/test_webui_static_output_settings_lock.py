@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 from pathlib import Path
 import re
 import shutil
@@ -23,6 +25,7 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         self.assertIn('"imageInput.referenceTitle": "Reference input (optional)"', en)
         self.assertIn('does not change the system channel', en)
 
+    @frontend_test
     def test_summary_model_keeps_four_visible_outputs_and_mode_specific_details(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -429,7 +432,6 @@ class OutputSettingsLockFrontendContractTests(WebUIStaticTestCase):
         # variants reuse a band; adding a distinct locked-only band is forbidden.
         height_bands = set(re.findall(r"@media\s*\(max-height:\s*(\d+)px\)", responsive))
         self.assertEqual(height_bands, {"1390", "1100", "900"})
-
 
 
 if __name__ == "__main__":

@@ -133,6 +133,8 @@ function promptFidelityLabel(value: OutputSettingsSnapshot["prompt_fidelity"]): 
 }
 
 function qualityLabel(value: string): string {
+  if (value === "xhigh") return translate("output.qualityXhigh");
+  if (value === "max") return translate("output.qualityMax");
   const key = value === "low"
     ? "output.qualityLow"
     : value === "medium"
@@ -174,6 +176,13 @@ export function buildOutputSettingsSummaryModel(
       { label: translate("output.lock.prompt"), value: promptFidelityLabel(snapshot.prompt_fidelity) },
       { label: translate("output.quality"), value: qualityLabel(snapshot.quality) },
     );
+    if (snapshot.parameters["gpt.complexity"]) {
+      details.push({ label: translate("output.complexity"), value: qualityLabel(String(snapshot.parameters["gpt.complexity"])) });
+    }
+    if (snapshot.output_format === "gif") {
+      details.push({ label: translate("output.frameCount"), value: String(snapshot.parameters["gpt.frame_count"] ?? 9) });
+      details.push({ label: translate("output.frameDuration"), value: `${snapshot.parameters["gpt.frame_duration_ms"] ?? 200} ms` });
+    }
     if (context.responses) {
       details.push({
         label: translate("output.lock.search"),
@@ -441,7 +450,13 @@ function readPersistedLockState(): OutputSettingsSnapshot | null {
 }
 
 function applySnapshot(snapshot: OutputSettingsSnapshot): void {
-  legacyMethod("applyTaskOutputParams", { params: snapshot });
+  legacyMethod("applyTaskOutputParams", {
+    params: snapshot,
+    generation_snapshot: {
+      canonical_model_id: snapshot.canonical_model_id,
+      requested_parameters: snapshot.parameters,
+    },
+  });
 }
 
 export function isOutputSettingsLocked(): boolean {

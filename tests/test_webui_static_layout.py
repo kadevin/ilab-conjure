@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import json
 import re
 import shutil
@@ -11,6 +13,7 @@ from tests.webui_helpers import WebUIStaticTestCase
 
 
 class WebUIStaticLayoutTests(WebUIStaticTestCase):
+    @frontend_test
     def test_shared_theme_preference_runtime_and_shell_bridge(
         self,
     ) -> None:
@@ -486,26 +489,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"@media \(max-width: 1180px\)[\s\S]*?\.model-family-segment-label\s*\{[^}]*display:\s*none",
         )
 
-    def _extract_css_at_rule(self, styles: str, marker: str) -> str:
-        start = styles.index(marker)
-        return self._extract_css_at_rule_from(styles, marker, start)
-
-    def _extract_last_css_at_rule(self, styles: str, marker: str) -> str:
-        start = styles.rindex(marker)
-        return self._extract_css_at_rule_from(styles, marker, start)
-
-    def _extract_css_at_rule_from(self, styles: str, marker: str, start: int) -> str:
-        brace_start = styles.index("{", start)
-        depth = 0
-        for index in range(brace_start, len(styles)):
-            char = styles[index]
-            if char == "{":
-                depth += 1
-            elif char == "}":
-                depth -= 1
-                if depth == 0:
-                    return styles[start:index + 1]
-        raise AssertionError(f"Could not extract CSS at-rule {marker}")
 
     def test_selected_reference_files_do_not_expand_or_reflow_footer(self) -> None:
         module = Path("codex_image/webui/frontend/src/reference-file-inputs.ts").read_text(encoding="utf-8")
@@ -774,286 +757,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.recent-asset-delete\s*\{[^}]*opacity:\s*0")
         self.assertRegex(styles, r"\.recent-asset-button:hover\s+\.recent-asset-delete\s*,\s*\.recent-asset-button:focus-within\s+\.recent-asset-delete\s*\{[^}]*opacity:\s*1")
         self.assertRegex(styles, r"\.asset-thumb\s*\{[^}]*border-color:")
-    def test_input_sources_feature_has_typescript_source_contract(self) -> None:
-        input_source = self._input_sources_source()
-        legacy_source = self._bootstrap_source()
-
-        self.assertIn("export function initInputSourcesFeature", input_source)
-        self.assertIn("function addImageFiles", input_source)
-        self.assertIn("function handleImagePaste", input_source)
-        self.assertIn("function handleImageDrop", input_source)
-        self.assertIn("function pasteClipboardImages", input_source)
-        self.assertIn("function collectReferenceOutput", input_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", input_source)
-        for function_name in [
-            "uploadSource",
-            "gallerySource",
-            "assetSource",
-            "sourcePreviewUrl",
-            "addImageFiles",
-            "collectReferenceOutput",
-            "imageFileFromUrl",
-        ]:
-            self._assert_bootstrap_proxy(legacy_source, function_name)
-    def test_image_strip_feature_has_typescript_source_contract(self) -> None:
-        image_strip_source = self._image_strip_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initImageStripFeature } from "./image-strip"', main_source)
-        self.assertLess(main_source.index('import { initImageEditorFeature } from "./image-editor"'), main_source.index('import { initImageStripFeature } from "./image-strip"'))
-        self.assertLess(main_source.index("initImageEditorFeature()"), main_source.index("initImageStripFeature()"))
-        self.assertLess(main_source.index("initImageStripFeature()"), main_source.index("initPromptFeature()"))
-        self.assertIn("export function initImageStripFeature", image_strip_source)
-        self.assertIn("function renderImageStrip", image_strip_source)
-        self.assertIn("function clearImages", image_strip_source)
-        self.assertIn("function addImages", image_strip_source)
-        self.assertIn("function updateImageStripDensity", image_strip_source)
-        self.assertIn('legacyMethod("updateCustomRatioReferenceButtonState")', image_strip_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", image_strip_source)
-        for function_name in [
-            "renderImageStrip",
-            "clearImages",
-            "updateImageStripDensity",
-        ]:
-            self._assert_bootstrap_proxy(legacy_source, function_name)
-    def test_gallery_feature_has_typescript_source_contract(self) -> None:
-        gallery_source = self._gallery_source()
-        legacy_source = self._bootstrap_source()
-        event_source = Path("codex_image/webui/frontend/src/event-bindings.ts").read_text(encoding="utf-8")
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initGalleryFeature } from "./gallery"', main_source)
-        self.assertLess(main_source.index('import { initImageStripFeature } from "./image-strip"'), main_source.index('import { initGalleryCategoriesFeature } from "./gallery-categories"'))
-        self.assertLess(main_source.index("initGalleryItemActionsFeature()"), main_source.index("initGalleryFeature()"))
-        self.assertLess(main_source.index("initGalleryFeature()"), main_source.index("initApiSettingsFeature()"))
-        self.assertIn("export function initGalleryFeature", gallery_source)
-        self.assertNotIn("@ts-nocheck", gallery_source)
-        self.assertIn("function sortGalleryItems(items", gallery_source)
-        self.assertIn("function filterGalleryItems(category", gallery_source)
-        self.assertIn("async function refreshGallery()", gallery_source)
-        self.assertIn("async function openGallery(category", gallery_source)
-        self.assertIn("function closeGallery(options: any = {})", gallery_source)
-        self.assertIn("function findGalleryItem(itemId", gallery_source)
-        self.assertIn("function applyGalleryItemOrder(category", gallery_source)
-        self.assertIn("async function persistGalleryItemOrder(category", gallery_source)
-        self.assertIn("function handleGalleryManageButtonClick()", gallery_source)
-        self.assertIn('els.galleryManageButton?.addEventListener("click", handleGalleryManageButtonClick)', gallery_source)
-        self.assertNotIn('els.galleryManageButton?.addEventListener("click", () => call(methods, "openGallery"', event_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", gallery_source)
-        for function_name in [
-            "refreshRecentAssets",
-            "renderQuickGalleryDock",
-            "renderGalleryGridWithHeightTransition",
-            "openGalleryEditPopover",
-            "saveUploadToGallery",
-        ]:
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertNotRegex(legacy_source, r"\n(?:async\s+)?function refreshGallery\(")
-        self.assertIn('refreshGallery: proxy("refreshGallery")', legacy_source)
-    def test_gallery_categories_feature_has_typescript_source_contract(self) -> None:
-        source = self._gallery_categories_source()
-        gallery_source = self._gallery_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initGalleryCategoriesFeature } from "./gallery-categories"', main_source)
-        self.assertLess(main_source.index("initGalleryCategoriesFeature()"), main_source.index("initGalleryFeature()"))
-        self.assertIn("export function initGalleryCategoriesFeature", source)
-        self.assertIn("const DEFAULT_GALLERY_CATEGORY_LEGACY_LABELS", source)
-        self.assertIn("const DEFAULT_GALLERY_CATEGORY_I18N_KEYS", source)
-        self.assertIn("const DEFAULT_GALLERY_CATEGORY_ROLE_I18N_KEYS", source)
-        for function_name in [
-            "defaultGalleryCategories",
-            "normalizeGalleryCategory",
-            "normalizeGalleryCategories",
-            "handleQuickGalleryCategoryEvent",
-            "ensureActiveGalleryCategory",
-            "renderGalleryCategoryControls",
-            "renderGalleryDrawerCategoryTabs",
-            "renderGalleryCategoryManager",
-            "handleGalleryDrawerCategoryTabClick",
-            "handleGalleryCategoryListClick",
-            "toggleGalleryCategoryManager",
-            "refreshGalleryCategories",
-            "createGalleryCategory",
-            "updateGalleryCategory",
-            "deleteGalleryCategory",
-            "performDeleteGalleryCategory",
-            "setQuickGalleryCategory",
-            "setGalleryDrawerCategory",
-            "findGalleryCategory",
-            "categoryLabel",
-            "categoryPromptRole",
-            "applyGalleryCategoryOrder",
-            "persistGalleryCategoryOrder",
-            "handleGalleryCategoryDragStart",
-            "handleGalleryCategoryDragOver",
-            "handleGalleryCategoryDrop",
-            "handleGalleryCategoryDragEnd",
-        ]:
-            self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('els.galleryCategoryList?.addEventListener("click", handleGalleryCategoryListClick)', source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_recent_assets_feature_has_typescript_source_contract(self) -> None:
-        source = self._recent_assets_source()
-        gallery_source = self._gallery_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initRecentAssetsFeature } from "./recent-assets"', main_source)
-        self.assertLess(main_source.index("initRecentAssetsFeature()"), main_source.index("initGalleryFeature()"))
-        for function_name in [
-            "refreshRecentAssets",
-            "renderRecentAssets",
-            "deleteRecentAsset",
-        ]:
-            self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('fetch("/api/reference-assets/recent?limit=50")', source)
-        self.assertIn("const RECENT_ASSET_RENDER_BATCH_SIZE = 12", source)
-        self.assertIn('loading="lazy" decoding="async"', source)
-        self.assertIn("addReferenceAssetInput(item)", source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_quick_gallery_feature_has_typescript_source_contract(self) -> None:
-        source = self._quick_gallery_source()
-        gallery_source = self._gallery_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { prefersReducedMotion } from "./webui-utils";', source)
-        self.assertIn('import { initQuickGalleryFeature } from "./quick-gallery"', main_source)
-        self.assertLess(main_source.index("initQuickGalleryFeature()"), main_source.index("initGalleryFeature()"))
-        self.assertIn("const QUICK_GALLERY_WHEEL_COOLDOWN_MS", source)
-        for function_name in [
-            "renderQuickGalleryDock",
-            "renderQuickGalleryList",
-            "ensureQuickGalleryFocusItem",
-            "previewQuickGalleryItem",
-            "hideQuickGalleryPreview",
-            "scheduleQuickGalleryFocusUpdate",
-            "updateQuickGalleryFocus",
-            "handleQuickGalleryBoundaryWheel",
-            "triggerQuickGalleryBounce",
-            "currentQuickGalleryFocusIndex",
-            "focusQuickGalleryItem",
-            "scrollQuickGalleryItemToFocus",
-            "animateGalleryItemToInput",
-        ]:
-            self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn("data-quick-gallery-use", source)
-        self.assertIn("gallery-fly-clone", source)
-        self.assertIn('behavior: prefersReducedMotion() ? "auto" : behavior', source)
-        self.assertIn("if (prefersReducedMotion()) return;", source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_gallery_grid_feature_has_typescript_source_contract(self) -> None:
-        source = self._gallery_grid_source()
-        gallery_source = self._gallery_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initGalleryGridFeature } from "./gallery-grid"', main_source)
-        self.assertLess(main_source.index("initGalleryGridFeature()"), main_source.index("initGalleryFeature()"))
-        self.assertIn("const GALLERY_GRID_TRANSITION_MS = 220", source)
-        for function_name in [
-            "renderGalleryGrid",
-            "renderGalleryGridWithHeightTransition",
-            "shouldAnimateGalleryGridHeight",
-            "resetGalleryGridTransition",
-            "renderGalleryGridContent",
-            "activeGalleryGridItems",
-            "activeGalleryGridLayer",
-            "galleryGridLayerHtml",
-            "galleryGridContentHtml",
-            "bindGalleryGridActions",
-            "handleGalleryGridClick",
-        ]:
-            self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('els.galleryGrid?.addEventListener("click", handleGalleryGridClick)', source)
-        self.assertIn('nextLayer.className = "gallery-grid-layer mode-transition mode-collapsed"', source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_gallery_item_actions_feature_has_typescript_source_contract(self) -> None:
-        source = self._gallery_item_actions_source()
-        gallery_source = self._gallery_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initGalleryItemActionsFeature } from "./gallery-item-actions"', main_source)
-        self.assertLess(main_source.index("initGalleryItemActionsFeature()"), main_source.index("initGalleryFeature()"))
-        for function_name in [
-            "openAddToGallery",
-            "closeAddToGallery",
-            "canAddSourceToGallery",
-            "galleryImageFileForSource",
-            "saveUploadToGallery",
-            "renameGalleryItem",
-            "moveGalleryItem",
-            "editGalleryPromptNote",
-            "patchGalleryItem",
-            "selectGalleryReplacementFile",
-            "replaceGalleryItemImage",
-            "deleteGalleryItem",
-            "performDeleteGalleryItem",
-            "ensureGalleryEditPopover",
-            "openGalleryEditPopover",
-            "galleryEditFieldHtml",
-            "closeGalleryEditPopover",
-            "positionGalleryEditPopover",
-            "handleGalleryDocumentClick",
-        ]:
-            self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn("data-gallery-edit-save", source)
-        self.assertIn("data-gallery-edit-cancel", source)
-        self.assertIn('fetch(`/api/gallery/${encodeURIComponent(itemId)}/image`', source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_api_settings_feature_has_typescript_source_contract(self) -> None:
-        api_settings_source = self._api_settings_source()
-        auth_source = Path("codex_image/webui/frontend/src/auth-source.ts").read_text(encoding="utf-8")
-        provider_source = Path("codex_image/webui/frontend/src/api-provider-settings.ts").read_text(encoding="utf-8")
-        mode_source = Path("codex_image/webui/frontend/src/api-mode-settings.ts").read_text(encoding="utf-8")
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        for source in [api_settings_source, auth_source, provider_source, mode_source]:
-            self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initApiSettingsFeature } from "./api-settings"', main_source)
-        self.assertLess(main_source.index('import { initGalleryFeature } from "./gallery"'), main_source.index('import { initApiSettingsFeature } from "./api-settings"'))
-        self.assertLess(main_source.index('import { initApiSettingsFeature } from "./api-settings"'), main_source.index('import { initPromptFeature } from "./prompt"'))
-        self.assertLess(main_source.index("initGalleryFeature()"), main_source.index("initApiSettingsFeature()"))
-        self.assertLess(main_source.index("initApiSettingsFeature()"), main_source.index("initPromptFeature()"))
-        self.assertIn("export function initApiSettingsFeature", api_settings_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", api_settings_source)
-        self.assertIn("export async function refreshHealth()", auth_source)
-        self.assertIn("export async function setAuthSource(source", auth_source)
-        self.assertIn("export function renderAuthSource(auth", auth_source)
-        self.assertIn("export function currentAuthSource()", auth_source)
-        self.assertIn("export function updateModeSpecificSettings(authSource", mode_source)
-        self.assertIn("export function normalizeApiSettings(settings", Path("codex_image/webui/frontend/src/api-provider-model.ts").read_text(encoding="utf-8"))
-        self.assertIn("export function openApiSettingsModal()", provider_source)
-        self.assertIn("export function openGenerationProviderSettings()", provider_source)
-        self.assertIn("export function backendForAuthSource(authSource", provider_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", api_settings_source)
-        for function_name in [
-            "refreshHealth",
-            "setAuthSource",
-            "renderAuthSource",
-            "normalizeApiSettings",
-            "openApiSettingsModal",
-            "backendForAuthSource",
-            "updateModeSpecificSettings",
-        ]:
-            self.assertNotRegex(api_settings_source, rf"\n(?:async\s+)?function {function_name}\(")
-        for function_name in [
-            "refreshHealth",
-            "normalizeApiSettings",
-            "openApiSettingsModal",
-            "renderAuthSource",
-        ]:
-            self._assert_bootstrap_proxy(legacy_source, function_name)
 
     def test_api_settings_refresh_updates_top_auth_source_summary(self) -> None:
         provider_source = Path("codex_image/webui/frontend/src/api-provider-settings.ts").read_text(encoding="utf-8")
@@ -1066,188 +769,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn("populateApiSettingsForm({ preserveEditor: true });", refresh_body)
         self.assertIn("renderAuthSourceAfterProviderChange();", refresh_body)
 
-    def test_account_quota_feature_is_removed_from_typescript_contract(self) -> None:
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-        event_source = Path("codex_image/webui/frontend/src/event-bindings.ts").read_text(encoding="utf-8")
-
-        self.assertFalse(Path("codex_image/webui/frontend/src/account-quota.ts").exists())
-        self.assertNotIn('import { initAccountQuotaFeature } from "./account-quota"', main_source)
-        self.assertNotIn("initAccountQuotaFeature()", main_source)
-        self.assertNotIn("refreshAccountQuota", legacy_source)
-        self.assertNotIn("openAccountQuotaDrawer", legacy_source)
-        self.assertNotIn("closeAccountQuotaDrawer", legacy_source)
-        self.assertNotIn("accountQuota", event_source)
-    def test_storage_settings_feature_has_typescript_source_contract(self) -> None:
-        storage_settings_source = self._storage_settings_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initStorageSettingsFeature } from "./storage-settings"', main_source)
-        self.assertLess(main_source.index('import { initStorageSettingsFeature } from "./storage-settings"'), main_source.index('import { initPromptFeature } from "./prompt"'))
-        self.assertLess(main_source.index("initStorageSettingsFeature()"), main_source.index("initPromptFeature()"))
-        self.assertIn("export function initStorageSettingsFeature", storage_settings_source)
-        self.assertIn("async function refreshSettings(options: { afterRestore?: boolean } = {})", storage_settings_source)
-        self.assertIn("function populateSettingsForm(settings", storage_settings_source)
-        self.assertIn("function openSettingsModal()", storage_settings_source)
-        self.assertIn("function closeSettingsModal()", storage_settings_source)
-        self.assertIn("async function saveSettings()", storage_settings_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", storage_settings_source)
-        for function_name in [
-            "refreshSettings",
-            "populateSettingsForm",
-            "openSettingsModal",
-            "saveSettings",
-        ]:
-            self._assert_bootstrap_proxy(legacy_source, function_name)
-    def test_form_controls_feature_has_typescript_source_contract(self) -> None:
-        form_controls_source = self._form_controls_source()
-        size_source = Path("codex_image/webui/frontend/src/size-presets.ts").read_text(encoding="utf-8")
-        task_submit_source = Path("codex_image/webui/frontend/src/task-submit.ts").read_text(encoding="utf-8")
-        generation_request_source = Path("codex_image/webui/frontend/src/generation-request.ts").read_text(encoding="utf-8")
-        generation_route_source = Path("codex_image/webui/routes/generation.py").read_text(encoding="utf-8")
-        main_model_source = Path("codex_image/webui/frontend/src/main-model-combobox.ts").read_text(encoding="utf-8")
-        custom_size_source = Path("codex_image/webui/frontend/src/custom-size-controls.ts").read_text(encoding="utf-8")
-        output_source = Path("codex_image/webui/frontend/src/output-controls.ts").read_text(encoding="utf-8")
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        for source in [form_controls_source, size_source, main_model_source, custom_size_source, output_source]:
-            self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initFormControlsFeature } from "./form-controls"', main_source)
-        self.assertLess(main_source.index('import { initPromptFeature } from "./prompt"'), main_source.index('import { initFormControlsFeature } from "./form-controls"'))
-        self.assertLess(main_source.index('import { initFormControlsFeature } from "./form-controls"'), main_source.index('import { initTaskListControlsFeature } from "./task-list-controls"'))
-        self.assertLess(main_source.index("initPromptFeature()"), main_source.index("initFormControlsFeature()"))
-        self.assertLess(main_source.index("initFormControlsFeature()"), main_source.index("initTaskListControlsFeature()"))
-        self.assertIn("export function initFormControlsFeature", form_controls_source)
-        self.assertIn("function bindFormControlEvents()", form_controls_source)
-        self.assertIn("function setMode(mode", form_controls_source)
-        self.assertIn("export function updateSizeFromPreset(event", custom_size_source)
-        self.assertIn("export function syncSizeControlsFromSize(size", custom_size_source)
-        self.assertIn("export function customSizeValidationMessage(width", size_source)
-        self.assertIn("export function currentTaskParams()", size_source)
-        self.assertIn("const presetMatch = findPresetForSize(params.size)", size_source)
-        self.assertIn("params.resolution = presetMatch.resolution", size_source)
-        self.assertIn("params.ratio = presetMatch.ratio", size_source)
-        self.assertIn("params.orientation = presetMatch.orientation", size_source)
-        self.assertIn("const customRatio = currentCustomRatio()", size_source)
-        self.assertIn("params.ratio = customRatio", size_source)
-        self.assertNotIn('form.append("resolution"', task_submit_source)
-        self.assertNotIn('form.append("ratio"', task_submit_source)
-        self.assertNotIn('form.append("orientation"', task_submit_source)
-        self.assertIn("appendCanonicalGenerationFields(form, currentGenerationSelection())", task_submit_source)
-        self.assertIn('form.append("canonical_model_id", selection.canonicalModelId)', generation_request_source)
-        self.assertIn('form.append("provider_id", selection.providerId)', generation_request_source)
-        self.assertIn('form.append("parameters_json", JSON.stringify(sortedRecord(selection.parameters)))', generation_request_source)
-        self.assertIn("resolution: str | None = Form(None)", generation_route_source)
-        self.assertIn("ratio: str | None = Form(None)", generation_route_source)
-        self.assertIn("orientation: str | None = Form(None)", generation_route_source)
-        self.assertIn("export function restoreMainModel()", main_model_source)
-        self.assertIn("export function updateCompression()", output_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", form_controls_source)
-        self.assertIn("updateSizeFromPreset,", form_controls_source)
-        for function_name in [
-            "updateQuantity",
-            "updateCompression",
-            "handleOutputFormatDoubleClick",
-            "updateSizeFromPreset",
-            "syncSizeControlsFromSize",
-            "customSizeValidationMessage",
-            "updateCustomSize",
-            "mainModelOptionsForQuery",
-            "restoreMainModel",
-            "persistMainModel",
-            "currentTaskParams",
-            "updateRequestPreview",
-        ]:
-            self.assertNotRegex(form_controls_source, rf"\nfunction {function_name}\(")
-            self.assertNotRegex(legacy_source, rf"\nfunction {function_name}\(")
-        self.assertIn('updateSizeFromPreset: proxy("updateSizeFromPreset")', legacy_source)
-    def test_overlay_popovers_feature_has_typescript_source_contract(self) -> None:
-        overlay_source = self._overlay_popovers_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initOverlayPopoversFeature } from "./overlay-popovers"', main_source)
-        self.assertLess(main_source.index("initTaskSelectionFeature()"), main_source.index("initOverlayPopoversFeature()"))
-        self.assertLess(main_source.index("initOverlayPopoversFeature()"), main_source.index("initShellUiFeature()"))
-        self.assertIn("export function initOverlayPopoversFeature", overlay_source)
-        self.assertIn("function bindOverlayPopoverEvents()", overlay_source)
-        self.assertIn("function openConfirmPopover(anchor, options = {})", overlay_source)
-        self.assertIn("function openPromptPopover(anchor, data)", overlay_source)
-        self.assertIn("function handleDocumentKeydown(event)", overlay_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", overlay_source)
-        for function_name in [
-            "ensureConfirmPopover",
-            "openConfirmPopover",
-            "closeConfirmPopover",
-            "positionConfirmPopover",
-            "openPromptPopover",
-            "positionPromptPopover",
-            "clampPopoverPosition",
-            "closePromptPopover",
-            "copyOptimizedPrompt",
-            "handleDocumentClick",
-            "handleDocumentKeydown",
-        ]:
-            if function_name in {"ensureConfirmPopover", "positionConfirmPopover", "clampPopoverPosition", "copyOptimizedPrompt", "handleDocumentClick", "handleDocumentKeydown"}:
-                self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-            else:
-                self._assert_bootstrap_proxy(legacy_source, function_name)
-    def test_shell_ui_feature_has_typescript_source_contract(self) -> None:
-        shell_source = self._shell_ui_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initShellUiFeature } from "./shell-ui"', main_source)
-        self.assertLess(main_source.index("initOverlayPopoversFeature()"), main_source.index("initShellUiFeature()"))
-        self.assertLess(main_source.index("initShellUiFeature()"), main_source.index("initLightboxFeature()"))
-        self.assertIn("export function initShellUiFeature", shell_source)
-        self.assertIn("function bindShellUiEvents()", shell_source)
-        self.assertIn("function restoreThemePreference()", shell_source)
-        self.assertIn("function restoreSidebarWidth()", shell_source)
-        self.assertNotIn("setupPreviewPanelHeightSync", shell_source)
-        self.assertNotIn("syncPreviewPanelHeight", shell_source)
-        self.assertNotIn("ResizeObserver", shell_source)
-        self.assertIn("function resetForm()", shell_source)
-        self.assertIn("function setStatus(message, type)", shell_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", shell_source)
-        for function_name in [
-            "restoreThemePreference",
-            "applyThemePreference",
-            "restoreSidebarWidth",
-            "startSidebarResize",
-            "updateDocumentTitle",
-            "setStatus",
-            "resetForm",
-            "copyJson",
-        ]:
-            self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('restoreThemePreference: proxy("restoreThemePreference")', legacy_source)
-        self.assertNotIn("setupPreviewPanelHeightSync", legacy_source)
-    def test_account_quota_drawer_is_removed(self) -> None:
-        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
-        script = self._frontend_script_source()
-        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
-        removed_ids = {
-            "button": "account" + "QuotaButton",
-            "drawer": "account" + "QuotaDrawer",
-            "list": "account" + "QuotaList",
-            "close": "account" + "QuotaDrawerClose",
-        }
-
-        self.assertNotIn(f'id="{removed_ids["button"]}"', html)
-        self.assertNotIn(f'id="{removed_ids["drawer"]}"', html)
-        self.assertNotIn(f'id="{removed_ids["list"]}"', html)
-        self.assertNotIn(f'id="{removed_ids["close"]}"', html)
-        self.assertNotIn("accountQuota", script)
-        self.assertNotIn("/api/accounts", script)
-        self.assertNotIn("参与轮询", script)
-        self.assertNotIn("账号额度", html)
-        self.assertNotIn(".account-quota-", styles)
-        self.assertRegex(styles, r"\.drawer-close-button\s*\{[^}]*min-width:\s*44px")
-        self.assertRegex(styles, r"\.drawer-close-button\s*\{[^}]*align-items:\s*center")
-        self.assertRegex(styles, r"\.drawer-close-icon\s*\{[^}]*stroke:\s*currentColor")
     def test_sidebar_brand_uses_ilab_conjure_identity(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -1894,105 +1415,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             r"clamp\(\s*24px,\s*calc\(var\(--image-input-action-height\)\s*-\s*4px\),\s*32px\s*\)",
         )
 
-    def test_short_desktop_layout_reduces_input_prompt_and_output_settings_height(self) -> None:
-        responsive = Path(
-            "codex_image/webui/static/styles/80-utilities-responsive.css"
-        ).read_text(encoding="utf-8")
-        compact = self._extract_css_at_rule(
-            responsive,
-            "@media (max-height: 1390px) and (min-width: 900px)",
-        )
-        narrow_height_marker = "@media (max-height: 1100px) and (min-width: 900px)"
-        narrow_marker = "@container workspace (max-width: 1180px)"
-        top_level = compact
-        narrow_height = self._extract_css_at_rule(responsive, narrow_height_marker)
-        narrow = self._extract_css_at_rule(narrow_height, narrow_marker)
-
-        self.assertRegex(
-            compact,
-            r"\.image-input-workspace\s*\{[^}]*--image-input-main-height:\s*clamp\("
-            r"[\s\S]*102px,[\s\S]*150px",
-        )
-        self.assertRegex(
-            compact,
-            r"\.image-input-workspace\s*\{[^}]*--image-input-action-height:\s*clamp\("
-            r"[\s\S]*28px,[\s\S]*40px",
-        )
-        self.assertRegex(
-            compact,
-            r"\.image-input-workspace\s*\{[^}]*--image-input-thumb-size:\s*clamp\("
-            r"[\s\S]*54px,[\s\S]*calc\(var\(--image-input-main-height\)\s*-\s*26px\),\s*116px",
-        )
-        self.assertRegex(
-            compact,
-            r"--recent-asset-size:\s*clamp\(\s*24px,\s*"
-            r"calc\(var\(--image-input-action-height\)\s*-\s*4px\),\s*32px",
-        )
-        self.assertRegex(compact, r"\.image-uploader-grid\s*\{[^}]*padding:\s*clamp\(")
-        self.assertRegex(
-            compact,
-            r"\.controls-col\s+\.image-panel\s+\.panel-heading\s*\{[^}]*"
-            r"margin-bottom:\s*clamp\(4px,[^}]*16px\)",
-        )
-        self.assertRegex(
-            compact,
-            r"\.controls-col\s+\.prompt-box\s*\{[^}]*min-height:\s*0"
-            r"[^}]*height:\s*100%[^}]*max-height:\s*100%[^}]*overflow-y:\s*auto",
-        )
-        self.assertRegex(
-            compact,
-            r"\.controls-col\s+\.prompt-compose\s+\.run-button\s*\{[^}]*min-height:\s*0[^}]*height:\s*100%",
-        )
-        self.assertRegex(
-            compact,
-            r"\.settings-grid\s*\{[^}]*--compact-settings-control-height:\s*36px"
-            r"[\s\S]*--compact-settings-segment-height:\s*30px"
-            r"[\s\S]*gap:\s*var\(--compact-settings-gap\)",
-        )
-        self.assertRegex(
-            compact,
-            r"\.controls-col\s+\.output-settings-header\s*\{[^}]*min-height:\s*clamp\(24px,[^;]*32px\)"
-            r"[^}]*margin-bottom:\s*clamp\(",
-        )
-        self.assertRegex(
-            compact,
-            r"\.ratio-group\s*\{[^}]*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\)"
-            r"[^}]*grid-template-rows:\s*repeat\(2,\s*var\(--compact-settings-segment-height\)\)",
-        )
-        self.assertNotIn("--mode-settings-stable-height", responsive)
-        self.assertNotRegex(
-            top_level,
-            r"\.(?:orientation|resolution|ratio|quantity|quality|moderation)-field\s*\{[^}]*grid-row",
-        )
-        self.assertNotRegex(
-            top_level,
-            r"#(?:promptFidelityField|pixelPreview|outputFormatField)\s*\{[^}]*grid-row",
-        )
-        self.assertNotRegex(
-            top_level,
-            r"\.quantity-quality-row\s*\{[^}]*display:\s*contents",
-        )
-        self.assertNotRegex(
-            narrow,
-            r"#promptFidelityField\s*\{[^}]*grid-column:\s*2\s*/\s*3",
-        )
-        self.assertRegex(
-            narrow,
-            r"\.settings-grid\.custom-size-mode\s*\{[^}]*"
-            r"--custom-size-mode-card-height:\s*clamp\(\s*105px",
-        )
-        self.assertRegex(
-            narrow,
-            r"--custom-size-mode-card-height:\s*clamp\(\s*105px,\s*calc\(14\.76dvh\s*-\s*8\.4px\),\s*154px",
-        )
-        self.assertNotIn("#pixelPreview", compact)
-        self.assertRegex(
-            compact,
-            r"\.settings-grid\.custom-size-mode\s*\{[^}]*"
-            r"--custom-size-mode-card-height:\s*clamp\(130px",
-        )
-        self.assertRegex(Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8"), r"\.custom-ratio-hint\s*\{[^}]*display:\s*none")
-        self.assertNotIn(".api-direct-settings-grid", responsive)
     def test_very_short_desktop_uses_continuous_summary_height(self) -> None:
         responsive = Path("codex_image/webui/static/styles/80-utilities-responsive.css").read_text(encoding="utf-8")
         output = Path("codex_image/webui/static/styles/70-output-settings.css").read_text(encoding="utf-8")
@@ -2287,7 +1709,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
             source.index('modal?.setAttribute("aria-hidden", "true")'),
         )
 
-    def test_api_source_switcher_and_system_settings_modal_exist(self) -> None:
+    def test_provider_settings_and_system_settings_modal_contract(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
         event_source = Path("codex_image/webui/frontend/src/event-bindings.ts").read_text(encoding="utf-8")
@@ -2773,6 +2195,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('class="ghost-button text-sm" type="button">关闭</button>', html)
         self.assertRegex(styles, r"\.drawer-close-button\s*\{[^}]*flex:\s*0 0 44px")
         self.assertRegex(styles, r"\.drawer-close-button\s*\{[^}]*min-width:\s*44px")
+        self.assertRegex(styles, r"\.drawer-close-button\s*\{[^}]*align-items:\s*center")
+        self.assertRegex(styles, r"\.drawer-close-icon\s*\{[^}]*stroke:\s*currentColor")
+
     def test_output_quantity_uses_button_group_limited_to_four(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         script = self._frontend_script_source()
@@ -2810,7 +2235,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('addEventListener("dblclick", handleOutputFormatDoubleClick)', script)
         self.assertIn('event.key === "Escape"', script)
         self.assertIn('els.compressionPopover.classList.add("hidden")', script)
-        self.assertIn('els.compressionField?.classList.toggle("hidden", extraOptionsCompact && !compressionEnabled)', script)
+        self.assertIn('els.compressionField?.classList.toggle("hidden", !compressionEnabled)', script)
         self.assertNotIn("format-hidden", html)
         self.assertNotIn("format-hidden", script)
         self.assertNotIn("PNG 不适用", script)
@@ -2870,6 +2295,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         for label_html in re.findall(r"<label\b[\s\S]*?</label>", html):
             self.assertNotIn('class="radio-group"', label_html)
             self.assertNotIn('class="radio-btn"', label_html)
+    @frontend_test
     def test_orientation_events_preserve_requested_direction(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -2961,6 +2387,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertNotIn('form.append("background"', script)
         self.assertRegex(html, r'class="field-pair full-width quantity-quality-row"[\s\S]*id="quality"[\s\S]*id="quantityGroup"')
         self.assertRegex(styles, r"\.field-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(0,\s*1fr\)")
+    @frontend_test
     def test_custom_size_mode_preserves_preset_height_across_layouts(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3181,6 +2608,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.custom-ratio-image-button\s*\{[^}]*align-self:\s*center")
         self.assertRegex(styles, r"\.custom-size-row\s*\{[^}]*--measure-input-width:\s*88px")
         self.assertNotIn(".custom-size-field", styles)
+    @frontend_test
     def test_custom_size_swap_button_exchanges_dimensions(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3217,6 +2645,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
 
         self.assertEqual(result.returncode, 0, result.stderr)
+    @frontend_test
     def test_custom_size_can_use_first_reference_image_ratio(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3349,6 +2778,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
 
         self.assertEqual(result.returncode, 0, result.stderr)
+    @frontend_test
     def test_custom_size_manual_ratio_preserves_aspect_ratio_when_dimensions_change(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3421,6 +2851,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
 
         self.assertEqual(result.returncode, 0, result.stderr)
+    @frontend_test
     def test_custom_size_mode_prefills_current_preset_dimensions(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3491,6 +2922,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
 
         self.assertEqual(result.returncode, 0, result.stderr)
+    @frontend_test
     def test_custom_size_validation_rejects_invalid_dimensions(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3502,7 +2934,10 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 const els = {
                   customWidth: { value: "1024" },
                   customHeight: { value: "1024" },
+                  outputFormat: { value: "png" },
                 };
+                const state = { selectedModelId: "gpt-image-2" };
+                function getLegacyBridge() { return { state }; }
                 const GPT_IMAGE_2_MIN_PIXELS = 655360;
                 const GPT_IMAGE_2_MAX_PIXELS = 8294400;
                 const GPT_IMAGE_2_MAX_LONG_SHORT_RATIO = 3;
@@ -3549,6 +2984,17 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
                 els.customHeight.value = "3840";
                 if (customSizeValidationMessage() !== "总像素需在 655,360-8,294,400 之间") {
                   throw new Error(`expected maximum pixel error, got ${customSizeValidationMessage()}`);
+                }
+                state.selectedModelId = "gpt-image-2.6-flare";
+                els.outputFormat.value = "gif";
+                els.customWidth.value = "512";
+                els.customHeight.value = "512";
+                if (customSizeValidationMessage() !== "") {
+                  throw new Error("expected GIF to allow a small custom canvas");
+                }
+                els.customWidth.value = "513";
+                if (customSizeValidationMessage() !== "宽高需为 16 的倍数") {
+                  throw new Error("expected GIF to retain dimension step validation");
                 }
                 """,
             ]
@@ -3630,29 +3076,6 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertIn('window.addEventListener("mouseup", stopHistoryLightboxPanning)', shared_source)
         self.assertIn('window.addEventListener("blur", stopHistoryLightboxPanning)', shared_source)
         self.assertIn("event.buttons !== undefined && (event.buttons & 1) !== 1", shared_source)
-    def test_lightbox_feature_has_typescript_source_contract(self) -> None:
-        lightbox_source = self._lightbox_source()
-        legacy_source = self._bootstrap_source()
-
-        self.assertIn("export function initLightboxFeature", lightbox_source)
-        self.assertIn("function openLightbox", lightbox_source)
-        self.assertIn("function syncActiveLightboxUrls", lightbox_source)
-        self.assertIn("openHistoryLightbox", lightbox_source)
-        self.assertIn("closeHistoryLightbox", lightbox_source)
-        self.assertIn("syncHistoryLightboxUrls", lightbox_source)
-        self.assertIn("window.openLightbox = openLightbox", lightbox_source)
-        self.assertIn("window.addToInput = addToInput", lightbox_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", lightbox_source)
-        self.assertNotIn("function ensureLightboxElement", lightbox_source)
-        self.assertNotIn('class="lightbox-nav', lightbox_source)
-        for function_name in [
-            "isLightboxActive",
-            "setLightboxTransform",
-            "openLightbox",
-            "closeLightbox",
-        ]:
-            self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn("function syncActiveLightboxUrls(): void", legacy_source)
     def test_simplified_workspace_removes_unneeded_panels(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
 

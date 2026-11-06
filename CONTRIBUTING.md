@@ -41,15 +41,28 @@ then run the shared runner (Python standard library only):
 ```bash
 python -m tests.frontend_runner
 python -m tests.frontend_runner ux_recovery.test.ts
+python -m tests.frontend_runner tests.test_webui_static_layout.WebUIStaticLayoutTests.test_orientation_events_preserve_requested_direction
 ```
 
-Local `unittest discover` still includes these suites. In CI, the WebUI job runs
-the pure Node suites once and checks generated assets; the Python version matrix
+Local `unittest discover` automatically collects every pure `*.test.ts` and
+`*.test.cjs` file through `test_frontend_suites.py`. Do not add manual wrappers.
+Old domain-specific module commands remain compatibility entrypoints and do not
+duplicate discovery. Inline Node harnesses use `@frontend_test`; the shared runner
+discovers those marked methods as well, preserving their scenarios and test IDs.
+In CI, the WebUI job runs these pure frontend tests once and checks generated assets; the Python version matrix
 sets `ILAB_SKIP_PURE_FRONTEND_TESTS=1` to avoid repeating that work. The two tests
-that pass a real backend catalog into TypeScript remain in every Python job.
+that pass a real backend catalog into TypeScript, and the reference-file icon test
+that reads the backend file policy, remain in every Python job.
 Keep the full expected model list in `test_generation_catalog.py`, asset URL
 consistency in `test_webui_static_pwa.py`, and action pins in
 `test_release_contracts.py`, rather than copying those lists into feature tests.
+Frontend module and bootstrap contracts live in `test_webui_static_architecture.py`,
+short-height layout contracts in `test_webui_static_short_height.py`, and retired
+account entrypoint contracts in `test_legacy_account_pool_removed.py`. Keep data
+retention and compatibility scenarios even when consolidating their fixtures.
+Codec payload tests must assert independent expected fields, rather than compare
+two callers of the same payload builder. Public repository boundaries are checked
+against the actual Git index and CI guard, not a historical export allowlist.
 
 The real-browser suites share an isolated host:
 

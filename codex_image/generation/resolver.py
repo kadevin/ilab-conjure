@@ -210,3 +210,10 @@ def validate_command_inputs(command: GenerationCommand, model: ModelManifest) ->
         raise ValueError("mask_input_unsupported")
     if command.reference_files and not constraints.supports_reference_files:
         raise ValueError("reference_files_unsupported")
+    if command.markup_image:
+        if not constraints.supports_markup or command.operation != "edit" or not command.image_inputs:
+            raise ValueError("markup_requires_supported_image_edit")
+        if command.mask_image:
+            raise ValueError("markup_cannot_combine_with_mask")
+        from codex_image.markup_validation import validate_markup_image
+        validate_markup_image(command.markup_image, command.image_inputs[0].data_url)

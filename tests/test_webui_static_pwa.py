@@ -37,6 +37,7 @@ class WebUIPWATests(unittest.TestCase):
                 if tag == "use" and attributes.get("href", "").startswith("/static/"):
                     self.urls.append(attributes["href"].split("#", 1)[0])
 
+        application_assets = set()
         for page, entry in (("index.html", "app.js"), ("history.html", "history.js")):
             with self.subTest(page=page):
                 parser = PageAssets()
@@ -45,9 +46,15 @@ class WebUIPWATests(unittest.TestCase):
                     {f"/static/{entry}", "/static/styles.css", "/static/pwa.js"}
                     .issubset({urlsplit(url).path for url in parser.urls})
                 )
+                application_assets.update(
+                    url for url in parser.urls
+                    if urlsplit(url).path in {"/static/app.js", "/static/history.js", "/static/styles.css"}
+                )
                 for url in parser.urls:
                     self.assertIn(url, cached, f"{page} and service worker use different asset versions")
                     self.assertTrue(parse_qs(urlsplit(url).query).get("v"), url)
+
+        self.assertEqual(len(application_assets), 3)
 
         for url in cached:
             path = urlsplit(url).path

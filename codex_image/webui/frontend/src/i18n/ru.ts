@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const RU_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "Разметка поддерживает до 16 777 216 пикселей. Сначала уменьшите оригинал.",
+    "imageEditor.replacesMarkup": "Сохранение изменений изображения удалит существующую разметку.",
+    "output.qualityXhigh": "Очень высокое",
+    "output.qualityMax": "Максимум",
+    "output.complexity": "Сложность",
+    "output.frameCount": "Кадры",
+    "output.frameDuration": "Длительность кадра (мс)",
+    "output.totalDuration": "Общая длительность",
+    "imageEditor.markup": "Разметка",
+    "imageEditor.image": "Изображение",
+    "imageEditor.saveMarkup": "Сохранить разметку",
+    "imageEditor.markupFirstOnly": "Разметка доступна только на первом референсе",
+    "imageEditor.markupUnsupported": "Эта модель или API не поддерживает разметку. Смените их или удалите разметку.",
     "app.newTask": "Новый",
     "app.newTaskAria": "Новый чат",
     "sidebar.searchPlaceholder": "Поисковые запросы или задача ID",

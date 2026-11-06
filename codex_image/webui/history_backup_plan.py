@@ -187,6 +187,14 @@ class TaskBackupPlanner:
                 missing_input_files += 1
             else:
                 files.append(planned_file)
+        markup_file = str(metadata.get("markup_file") or "").strip()
+        if markup_file:
+            path = self.task_storage.task_owned_input_path(task_id, markup_file)
+            planned_file = self._optional_input_file(task_id, "markup", path, 1)
+            if planned_file is None:
+                missing_input_files += 1
+            else:
+                files.append(planned_file)
         for source_index, record in enumerate(_record_list(metadata.get("reference_assets")), start=1):
             try:
                 path = self.reference_asset_storage.image_path(_record_id(record))

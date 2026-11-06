@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const VI_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "Chú thích hỗ trợ tối đa 16.777.216 pixel. Hãy giảm kích thước ảnh gốc trước.",
+    "imageEditor.replacesMarkup": "Lưu chỉnh sửa ảnh sẽ xóa chú thích hiện có.",
+    "output.qualityXhigh": "Rất cao",
+    "output.qualityMax": "Tối đa",
+    "output.complexity": "Độ phức tạp",
+    "output.frameCount": "Số khung",
+    "output.frameDuration": "Thời gian mỗi khung (ms)",
+    "output.totalDuration": "Tổng thời gian",
+    "imageEditor.markup": "Chú thích",
+    "imageEditor.image": "Ảnh",
+    "imageEditor.saveMarkup": "Lưu chú thích",
+    "imageEditor.markupFirstOnly": "Chỉ hỗ trợ chú thích trên ảnh tham chiếu đầu tiên",
+    "imageEditor.markupUnsupported": "Mô hình hoặc API này không hỗ trợ chú thích. Hãy đổi hoặc xóa chú thích.",
     "mobile.taskActions": "Thao tác tác vụ",
     "mobile.photos": "Ảnh",
     "mobile.files": "Tệp",

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import json
 import os
 import re
@@ -177,6 +179,7 @@ class WebUIStaticBuildTests(WebUIStaticTestCase):
 
         for source in launcher_sources:
             self.assertIn("webui-server.log", source)
+    @frontend_test
     def test_frontend_scripts_have_valid_javascript_syntax(self) -> None:
         node = shutil.which("node")
         if node is None:

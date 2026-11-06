@@ -18,6 +18,7 @@ BackupFileRole = Literal[
     "output",
     "input",
     "mask",
+    "markup",
     "reference_asset",
     "gallery_reference",
     "reference_file",
@@ -39,6 +40,7 @@ _ROLE_DIRECTORIES: dict[str, str] = {
     "reference_asset": "inputs/images",
     "gallery_reference": "inputs/images",
     "mask": "inputs/masks",
+    "markup": "inputs/markups",
     "reference_file": "inputs/references",
 }
 _SAFE_TASK_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")

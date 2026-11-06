@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import shutil
 import subprocess
 from pathlib import Path
@@ -15,6 +17,7 @@ class WebUIOutputControlsTests(WebUIStaticTestCase):
         result = subprocess.run([node, "-e", harness], text=True, capture_output=True, check=False)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    @frontend_test
     def test_recent_preview_preference_handles_storage_failure(self) -> None:
         script = self._frontend_script_source()
         self.run_node("\n".join([
@@ -46,6 +49,7 @@ class WebUIOutputControlsTests(WebUIStaticTestCase):
             """,
         ]))
 
+    @frontend_test
     def test_output_radio_keyboard_skips_disabled_and_wraps(self) -> None:
         script = self._frontend_script_source()
         self.run_node("\n".join([

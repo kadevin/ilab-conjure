@@ -78,6 +78,7 @@ class InputConstraints:
     max_images: int
     supports_mask: bool
     supports_reference_files: bool
+    supports_markup: bool = False
 
 
 @dataclass(frozen=True)
@@ -116,6 +117,7 @@ class GenerationCommand:
     image_inputs: tuple[ImageInput, ...] = ()
     reference_files: tuple[ResponsesInputFile, ...] = ()
     mask_image: str | None = None
+    markup_image: str | None = None
     main_model: str | None = None
     instructions: str | None = None
     # Legacy-only transport options which are intentionally outside the

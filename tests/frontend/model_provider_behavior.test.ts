@@ -219,6 +219,7 @@ test("cross-family concrete model selection rebuilds the active family and its m
   let reconciledInspections = 0;
 
   (globalThis as any).document = {
+    getElementById: () => null,
     createElement: () => new FakeElement(),
     querySelectorAll: () => [],
   };
@@ -728,7 +729,7 @@ test("catalog refresh restores saved parameters before request preview, and hono
     restoreCurrentModelParameterDraft: () => order.push("restore"),
     updateRequestPreview: () => order.push("preview"),
   } } };
-  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => [], createElement: () => new FakeElement() };
   (globalThis as any).localStorage = { setItem: () => {} };
   globalThis.fetch = (async () => ({ ok: true, json: async () => catalog })) as any;
   try {
@@ -794,7 +795,7 @@ test("catalog refresh follows a changed selected binding instead of switching su
     globalThis.fetch = (async () => ({ ok: true, json: async () => after })) as any;
     return after;
   };
-  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => [], createElement: () => new FakeElement() };
   (globalThis as any).localStorage = { setItem() {} };
   try {
     for (const nextModel of ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
@@ -927,7 +928,7 @@ test("GPT versions share one parameter panel and are selected through provider b
   (globalThis as any).window = { __codexImageWebUI: { state, els, methods: {
     currentTaskParams: () => ({ quality: els.quality.value }), persistModelSelection() {},
   } } };
-  (globalThis as any).document = { querySelectorAll: () => [], createElement: () => new FakeElement() };
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => [], createElement: () => new FakeElement() };
   try {
     renderModelSelectors();
     renderProviderSelection();

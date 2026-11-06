@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import ast
+from functools import wraps
 import os
 import shutil
 import subprocess
@@ -16,6 +18,58 @@ FRONTEND = ROOT / "tests" / "frontend"
 # This suite consumes a real FastAPI response supplied by its Python test.
 BACKEND_FIXTURE_SUITES = frozenset({"catalog_payload_parity.test.ts"})
 SKIP_FRONTEND_ENV = "ILAB_SKIP_PURE_FRONTEND_TESTS"
+
+
+def frontend_test(method):
+    """Keep an inline Node harness locally, but run it once in frontend CI."""
+    @wraps(method)
+    def run(case):
+        if os.environ.get(SKIP_FRONTEND_ENV) == "1":
+            case.skipTest("pure frontend suite runs in the WebUI CI job")
+        return method(case)
+    return run
+
+
+def inline_frontend_tests() -> list[str]:
+    """Discover explicitly marked harnesses without importing backend fixtures."""
+    names = []
+    for path in sorted((ROOT / "tests").glob("test_webui_static*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for cls in tree.body:
+            if not isinstance(cls, ast.ClassDef):
+                continue
+            for method in cls.body:
+                if isinstance(method, ast.FunctionDef) and any(
+                    isinstance(decorator, ast.Name) and decorator.id == "frontend_test"
+                    for decorator in method.decorator_list
+                ):
+                    names.append(f"tests.{path.stem}.{cls.name}.{method.name}")
+    return names
+
+
+def node_suite(filenames: list[str] | tuple[str, ...] | None = None) -> unittest.TestSuite:
+    """One named unittest per discovered Node file, shared by both entrypoints."""
+    methods = {}
+    for filename in pure_frontend_suites() if filenames is None else filenames:
+        def run(case, name=filename):
+            run_frontend(case, name)
+        run.__doc__ = filename
+        name = "test_" + filename.split(".test.", 1)[0]
+        if name in methods:
+            raise ValueError(f"Duplicate frontend test name: {filename}")
+        methods[name] = run
+    case_type = type("PureFrontendTests", (unittest.TestCase,), methods)
+    case_type.__module__ = __name__
+    return unittest.defaultTestLoader.loadTestsFromTestCase(case_type)
+
+
+def compatibility_load_tests(filenames: tuple[str, ...]):
+    """Old module commands still work; discovery collects their suites centrally."""
+    def load_tests(loader, standard_tests, pattern):
+        if pattern is None:
+            standard_tests.addTests(node_suite(filenames))
+        return standard_tests
+    return load_tests
 
 
 def frontend_tools() -> tuple[str, Path]:
@@ -81,9 +135,11 @@ def run_frontend(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("suites", nargs="*", help="Frontend filenames; defaults to all pure suites")
+    parser.add_argument("suites", nargs="*", help="Node filenames or inline unittest IDs; defaults to all pure suites")
     args = parser.parse_args()
-    available = pure_frontend_suites()
+    node_names = pure_frontend_suites()
+    inline_names = inline_frontend_tests()
+    available = node_names + inline_names
     selected = args.suites or available
     if not selected:
         parser.error(f"no pure frontend suites found in {FRONTEND}")
@@ -97,13 +153,10 @@ def main() -> int:
         frontend_tools()
     except RuntimeError as error:
         parser.error(str(error))
-    suite = unittest.TestSuite()
-    for filename in selected:
-        case = unittest.FunctionTestCase(
-            lambda name=filename: run_frontend(unittest.TestCase(), name),
-            description=filename,
-        )
-        suite.addTest(case)
+    suite = node_suite([name for name in selected if name in node_names])
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromNames(
+        [name for name in selected if name in inline_names]
+    ))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     return 0 if result.wasSuccessful() else 1
 

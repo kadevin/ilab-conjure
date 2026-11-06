@@ -155,7 +155,7 @@ def _png_bytes(color: tuple[int, int, int]) -> bytes:
     return target.getvalue()
 
 
-def _full_restore_archive(task_id: str = "restore-all", *, ordered: bool = False) -> tuple[bytes, dict[str, bytes]]:
+def _full_restore_archive(task_id: str = "restore-all", *, ordered: bool = False, image26: bool = False) -> tuple[bytes, dict[str, bytes]]:
     binaries = {
         "output": _png_bytes((255, 0, 0)),
         "input": _png_bytes((0, 255, 0)),
@@ -224,6 +224,13 @@ def _full_restore_archive(task_id: str = "restore-all", *, ordered: bool = False
         "gallery_reference": f"tasks/{task_id}/inputs/images/gallery_reference-0001.png",
         "reference_file": f"tasks/{task_id}/inputs/references/reference_file-0001.pdf",
     }
+    if image26:
+        binaries["output"] = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M0 0h20v20H0z"/></svg>'
+        overlay = io.BytesIO()
+        Image.new("RGBA", (2, 2), (255, 0, 0, 128)).save(overlay, "PNG")
+        binaries["markup"] = overlay.getvalue()
+        role_paths["output"] = f"tasks/{task_id}/outputs/output-0001.svg"
+        role_paths["markup"] = f"tasks/{task_id}/inputs/markups/markup-0001.png"
     for role, path in role_paths.items():
         payloads[path] = binaries[role]
     entries = tuple(
@@ -318,6 +325,23 @@ class HistoryBackupImportTests(unittest.TestCase):
             free_ratio=0,
             recover_on_init=False,
         )
+
+    def test_svg_and_markup_restore_and_reexport_keep_original_bytes(self) -> None:
+        payload, binaries = _full_restore_archive("image26-restore", image26=True)
+        service, planner = self._restore_service(payload)
+        session_id = self._upload(payload, service=service)
+        service.validate(session_id)
+        result = service.restore(session_id)
+        self.assertEqual([item.task_id for item in result.restored], ["image26-restore"])
+        self.assertFalse(result.failed or result.invalid)
+        metadata = planner.task_storage.read_metadata("image26-restore")
+        self.assertTrue(metadata["output_files"][0].endswith(".svg"))
+        self.assertEqual(planner.task_storage.output_path(metadata["output_files"][0]).read_bytes(), binaries["output"])
+        self.assertEqual(planner.task_storage.input_path(metadata["markup_file"]).read_bytes(), binaries["markup"])
+        planned = planner.plan_task("image26-restore")
+        self.assertIn("markup", [file.entry.role for file in planned.files])
+        request = json.loads(planner.task_storage.request_path("image26-restore").read_text())
+        self.assertEqual(request["webui_image_refs"]["markup_file"], metadata["markup_file"])
 
     def test_restore_all_roles_and_organization_without_archive_paths(self) -> None:
         payload, binaries = _full_restore_archive()

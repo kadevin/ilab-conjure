@@ -17,6 +17,7 @@ from codex_image.generation.types import (
     GeneratedAsset,
     GenerationCommand,
     GenerationResult,
+    ImageInput,
 )
 from codex_image.providers.codex import CodexImagesAdapter, CodexResponsesAdapter
 from codex_image.providers.codecs.gpt_image import (
@@ -120,70 +121,73 @@ class _RecordingProtocol:
 
 
 class LegacyProviderAdapterTests(unittest.TestCase):
-    def test_codex_images_codec_matches_existing_payload(self) -> None:
-        from codex_image.codex_images_client import CodexImagesImageClient
+    def test_codex_images_codec_maps_explicit_payload(self) -> None:
+        for operation in ("generate", "edit"):
+            for remote_model in ("gpt-image-2", "relay/custom-gpt-image"):
+                with self.subTest(operation=operation, remote_model=remote_model):
+                    command = _command(operation=operation, count=2)
+                    expected = {
+                        "endpoint": "/images/generations", "model": remote_model,
+                        "prompt": "draw a rabbit", "n": 2, "output_format": "png",
+                        "size": "1024x1024", "quality": "low", "background": "opaque",
+                        "moderation": "auto",
+                    }
+                    if operation == "edit":
+                        command = replace(command,
+                            image_inputs=(ImageInput("data:image/png;base64,aW1hZ2U="),),
+                            mask_image="data:image/png;base64,bWFzaw==",
+                            parameters={**command.parameters, "gpt.output_compression": 80})
+                        expected.update({
+                            "endpoint": "/images/edits", "output_compression": 80,
+                            "images": [{"image_url": "data:image/png;base64,aW1hZ2U="}],
+                            "mask": {"image_url": "data:image/png;base64,bWFzaw=="},
+                        })
+                    binding = _binding(provider_id="codex", profile="codex_images",
+                        codec="gpt_codex_images", remote_model_id=remote_model)
+                    encoded = GptCodexImagesCodec().encode(command, get_model_manifest("gpt-image-2"), binding)
+                    self.assertEqual(dict(encoded.json_body or {}), expected)
+                    self.assertEqual(encoded.path, expected["endpoint"])
+                    self.assertEqual(encoded.method, "POST")
+                    self.assertEqual(encoded.content_type, "application/json")
+                    self.assertEqual(encoded.repeat_count, 1)
 
-        command = _command(count=2)
-        binding = _binding(
-            provider_id="codex",
-            profile="codex_images",
-            codec="gpt_codex_images",
-            remote_model_id="gpt-image-2",
-        )
-        legacy_client = object.__new__(CodexImagesImageClient)
-        legacy_client.image_model = "gpt-image-2"
-        legacy = legacy_client.build_payload(
-            prompt=command.prompt,
-            action="generate",
-            model=binding.remote_model_id,
-            input_images=[],
-            size="1024x1024",
-            quality="low",
-            background="opaque",
-            output_format="png",
-            moderation="auto",
-            n=2,
-        )
-
-        encoded = GptCodexImagesCodec().encode(
-            command, get_model_manifest("gpt-image-2"), binding
-        )
-
-        self.assertEqual(dict(encoded.json_body or {}), legacy)
-        self.assertEqual(encoded.path, "/images/generations")
-        self.assertEqual(encoded.repeat_count, 1)
-
-    def test_codex_responses_codec_matches_existing_payload(self) -> None:
-        from codex_image.codex_responses_client import CodexImageClient
-
-        command = _command()
-        binding = _binding(
-            provider_id="codex",
-            profile="codex_responses",
-            codec="gpt_codex_responses",
-            remote_model_id="gpt-image-2",
-        )
-        legacy_client = object.__new__(CodexImageClient)
-        legacy = legacy_client.build_payload(
-            prompt=command.prompt,
-            instructions=command.instructions,
-            action="generate",
-            main_model=command.main_model or "",
-            model=binding.remote_model_id,
-            input_images=[],
-            size="1024x1024",
-            quality="low",
-            background="opaque",
-            output_format="png",
-            moderation="auto",
-        )
-
-        encoded = GptCodexResponsesCodec().encode(
-            command, get_model_manifest("gpt-image-2"), binding
-        )
-
-        self.assertEqual(dict(encoded.json_body or {}), legacy)
-        self.assertEqual(encoded.path, "/responses")
+    def test_codex_responses_codec_maps_explicit_payload(self) -> None:
+        for operation in ("generate", "edit"):
+            for remote_model in ("gpt-image-2", "relay/custom-gpt-image"):
+                with self.subTest(operation=operation, remote_model=remote_model):
+                    command = _command(operation=operation, count=2)
+                    content = [{"type": "input_text", "text": "draw a rabbit"}]
+                    tool = {
+                        "type": "image_generation", "action": operation, "model": remote_model,
+                        "output_format": "png", "size": "1024x1024", "quality": "low",
+                        "background": "opaque", "moderation": "auto",
+                    }
+                    if operation == "edit":
+                        command = replace(command,
+                            image_inputs=(ImageInput("data:image/png;base64,aW1hZ2U="),),
+                            mask_image="data:image/png;base64,bWFzaw==",
+                            parameters={**command.parameters, "gpt.partial_images": 2,
+                                "gpt.output_compression": 80})
+                        content.append({"type": "input_image", "image_url": "data:image/png;base64,aW1hZ2U="})
+                        tool.update({"partial_images": 2, "output_compression": 80,
+                            "input_image_mask": {"image_url": "data:image/png;base64,bWFzaw=="}})
+                    expected = {
+                        "instructions": "preserve the prompt", "stream": True,
+                        "reasoning": {"effort": "medium", "summary": "auto"},
+                        "parallel_tool_calls": True, "include": ["reasoning.encrypted_content"],
+                        "model": "gpt-5.4-mini", "store": False,
+                        "tool_choice": {"type": "image_generation"},
+                        "input": [{"type": "message", "role": "user", "content": content}],
+                        "tools": [tool],
+                    }
+                    binding = _binding(provider_id="codex", profile="codex_responses",
+                        codec="gpt_codex_responses", remote_model_id=remote_model)
+                    encoded = GptCodexResponsesCodec().encode(command, get_model_manifest("gpt-image-2"), binding)
+                    self.assertEqual(dict(encoded.json_body or {}), expected)
+                    self.assertEqual(encoded.path, "/responses")
+                    self.assertEqual(encoded.method, "POST")
+                    self.assertEqual(encoded.content_type, "application/json")
+                    self.assertEqual(encoded.repeat_count, 2)
 
     def test_openai_images_codec_preserves_custom_remote_model_id(self) -> None:
         binding = _binding(profile="openai_images", codec="gpt_openai_images")

@@ -89,6 +89,7 @@ class TaskMetadata(TypedDict, total=False):
     tool_usages: list[dict[str, Any]]
     input_files: list[str]
     mask_file: str | None
+    markup_file: str | None
     input_urls: list[str]
     input_thumbnail_urls: list[str]
     gallery_refs: list[dict[str, Any]]

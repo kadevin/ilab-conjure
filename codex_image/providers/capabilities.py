@@ -13,15 +13,17 @@ class CodecCapability:
     mapped_parameter_ids: frozenset[str]
 
 
+_GPT_LEGACY_PARAMETERS = GPT_PARAMETER_IDS - {"gpt.complexity", "gpt.frame_count", "gpt.frame_duration_ms"}
+
 _GEMINI_PARAMETERS = GEMINI_PARAMETER_IDS
 
 CODEC_CAPABILITIES = {
     capability.codec_id: capability
     for capability in (
-        CodecCapability("gpt_codex_images", frozenset({"codex_images"}), GPT_PARAMETER_IDS),
-        CodecCapability("gpt_codex_responses", frozenset({"codex_responses"}), GPT_PARAMETER_IDS),
+        CodecCapability("gpt_codex_images", frozenset({"codex_images"}), _GPT_LEGACY_PARAMETERS),
+        CodecCapability("gpt_codex_responses", frozenset({"codex_responses"}), _GPT_LEGACY_PARAMETERS),
         CodecCapability("gpt_openai_images", frozenset({"openai_images"}), GPT_PARAMETER_IDS),
-        CodecCapability("gpt_openai_responses", frozenset({"openai_responses"}), GPT_PARAMETER_IDS),
+        CodecCapability("gpt_openai_responses", frozenset({"openai_responses"}), _GPT_LEGACY_PARAMETERS),
         CodecCapability(
             "gemini_interactions_image", frozenset({"gemini_interactions"}), _GEMINI_PARAMETERS
         ),

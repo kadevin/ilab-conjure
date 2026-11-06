@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const JA_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "注釈は最大16,777,216ピクセルです。先に元画像を縮小してください。",
+    "imageEditor.replacesMarkup": "画像の編集を保存すると既存の注釈が削除されます。",
+    "output.qualityXhigh": "超高",
+    "output.qualityMax": "最高",
+    "output.complexity": "複雑度",
+    "output.frameCount": "フレーム数",
+    "output.frameDuration": "各フレームの長さ（ms）",
+    "output.totalDuration": "合計時間",
+    "imageEditor.markup": "注釈",
+    "imageEditor.image": "画像",
+    "imageEditor.saveMarkup": "注釈を保存",
+    "imageEditor.markupFirstOnly": "注釈は最初の参照画像のみ対応",
+    "imageEditor.markupUnsupported": "このモデルまたは API は注釈に対応していません。変更するか注釈を削除してください。",
     "app.newTask": "新規",
     "app.newTaskAria": "新規チャット",
     "sidebar.searchPlaceholder": "プロンプトまたはタスク ID を検索",

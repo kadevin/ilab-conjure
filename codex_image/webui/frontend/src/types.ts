@@ -92,6 +92,7 @@ export interface CatalogModel {
   input_constraints: {
     max_images: number;
     supports_mask: boolean;
+    supports_markup?: boolean;
     supports_reference_files: boolean;
   };
   expand_advanced_parameters?: boolean;

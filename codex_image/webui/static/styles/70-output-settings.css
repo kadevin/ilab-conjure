@@ -1957,6 +1957,38 @@ input[type=range].slider:disabled::-moz-range-thumb {
   min-width: 0;
 }
 
+.output-file-settings.extended-quality .quality-field {
+  grid-column: 1 / -1;
+}
+
+.output-file-settings.extended-quality:not(.image26-controls) .quantity-field {
+  grid-column: 1 / -1;
+}
+
+.output-file-settings.image26-controls .quantity-quality-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.output-file-settings.image26-controls .complexity-field .radio-btn {
+  flex: 1;
+  padding-inline: 6px;
+}
+
+.output-file-settings.image26-controls .output-format-field > .themed-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.gif-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gif-options .control { width: 100%; min-width: 0; }
+.gif-duration { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; }
+.gif-duration output { font-variant-numeric: tabular-nums; }
+
 .preset-size-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

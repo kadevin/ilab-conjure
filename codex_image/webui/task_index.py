@@ -41,6 +41,7 @@ SUMMARY_KEYS = {
     "input_thumbnail_urls",
     "input_sources",
     "mask_file",
+    "markup_file",
     "gallery_refs",
     "reference_assets",
     "reference_image_order",

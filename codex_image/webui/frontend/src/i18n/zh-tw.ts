@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const ZH_TW_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "標註最大支援 1677 萬像素，請先縮小原圖",
+    "imageEditor.replacesMarkup": "儲存圖像編輯將移除原有標註",
+    "output.qualityXhigh": "超高",
+    "output.qualityMax": "最高",
+    "output.complexity": "複雜度",
+    "output.frameCount": "影格數",
+    "output.frameDuration": "每格時長（毫秒）",
+    "output.totalDuration": "總時長",
+    "imageEditor.markup": "標註",
+    "imageEditor.image": "圖像",
+    "imageEditor.saveMarkup": "儲存標註",
+    "imageEditor.markupFirstOnly": "標註僅支援第一張參考圖",
+    "imageEditor.markupUnsupported": "此模型或介面不支援標註，請切換或移除標註",
     "ux.historyDraftSaveFailed": "未能保留目前草稿，已留在生成頁。請稍後重試。",
     "ux.historyDraftRestoreFailed": "草稿還原失敗，已保留暫存副本。請重新整理再試。",
     "mobile.taskActions": "任務操作",

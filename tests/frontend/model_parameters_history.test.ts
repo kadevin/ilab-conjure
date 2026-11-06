@@ -41,6 +41,25 @@ const parameters: CatalogModel["parameters"] = [
   { id: "output.count", label_key: "output.quantity", group: "generation", control: "number", value_type: "integer", default: 1, allowed_values: [], scope: "application", minimum: 1, maximum: 4, step: 1, visible_when: [], operations: ["generate"], full_width: false },
 ];
 
+test("Image 2.6 GIF sizes survive parameter resolution and history migration", () => {
+  const gifModel: CatalogModel = {
+    id: "gpt-image-2.6-flare", family_id: "gpt-image", display_name: "Image 2.6",
+    official_model_id: "gpt-image-2.6-flare", version: 1, operations: ["generate"],
+    input_constraints: { max_images: 16, supports_mask: true, supports_reference_files: false },
+    parameters: [
+      { ...parameters[0], id: "canvas.size", default: "1024x1024", allowed_values: [] },
+      { ...parameters[0], id: "output.format", default: "png", allowed_values: ["png", "gif"] },
+    ],
+  };
+  for (const size of ["512x512", "3840x3840", "256x1024"]) {
+    const draft = { "canvas.size": size, "output.format": "gif" };
+    assert.equal(activeParameterValuesFor(gifModel, "generate", draft)["canvas.size"], size);
+    assert.equal(initializeParameterDraft(gifModel, draft).values["canvas.size"], size);
+  }
+  assert.equal(activeParameterValuesFor(gifModel, "generate", { "canvas.size": "513x512", "output.format": "gif" })["canvas.size"], "1024x1024");
+  assert.equal(activeParameterValuesFor(gifModel, "generate", { "canvas.size": "512x512", "output.format": "png" })["canvas.size"], "1024x1024");
+});
+
 const model: CatalogModel = {
   id: "model-a",
   family_id: "family-a",
@@ -136,7 +155,7 @@ function installGptAdoptionBridge(selectedModelId: string) {
     updateRequestPreview() { preview = currentGenerationSelection(); },
   };
   (globalThis as any).window = { __codexImageWebUI: { state, els, methods } };
-  (globalThis as any).document = { querySelectorAll: () => [] };
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => [] };
   return { state, els, preview: () => preview, restore() { Object.assign(globalThis, previous); } };
 }
 
@@ -603,15 +622,16 @@ test("history inspection closes when the selected model catches up with the task
   assert.equal(taskParameterInspectionAction(task, "nano-banana-2", true), "preserve");
 });
 
-test("GPT history reconciliation keeps the shared editor and current provider version", () => {
+test("GPT history reconciliation keeps the current provider when parameter contracts match", () => {
   const { state, restore } = installBridge();
   try {
+    state.generationCatalog = { ...catalog, models: [...catalog.models, ...gptVersions.map(id => ({ ...model, id }))] };
     for (const historicalModel of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
       const snapshot = { canonical_model_id: historicalModel } as any;
       const task = { task_id: "gpt-history", generation_snapshot: snapshot } as any;
       for (const selectedModel of ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]) {
-        assert.equal(taskParameterInspectionMatchesSelectedModel(snapshot, selectedModel), true);
-        assert.equal(taskParameterInspectionAction(task, selectedModel, false), "clear");
+        assert.equal(taskParameterInspectionMatchesSelectedModel(snapshot, selectedModel, state.generationCatalog), true);
+        assert.equal(taskParameterInspectionAction(task, selectedModel, false, state.generationCatalog), "clear");
         assert.equal(taskParameterInspectionAction(task, selectedModel, true), "preserve");
         Object.assign(state, {
           selectedModelId: selectedModel,

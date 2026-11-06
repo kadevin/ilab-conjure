@@ -112,7 +112,10 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("name: CI", text)
         self.assertIn("Public export guard", text)
         self.assertIn("github.repository == 'kadevin/ilab-conjure'", text)
-        self.assertNotIn("hashFiles('.public-export-manifest.json')", text)
+        jobs = text.split("\njobs:\n", 1)[1]
+        for line in jobs.splitlines():
+            if line.startswith("    if:"):
+                self.assertNotIn("hashFiles(", line, "hashFiles is unavailable in job-level if")
 
     def test_windows_portable_packaging_files_define_self_contained_bundle(self) -> None:
         build_script = Path("packaging/windows/build-portable.ps1")
@@ -411,7 +414,7 @@ class PortablePackagingTests(unittest.TestCase):
         self.assertIn("Konva", notices_text)
         self.assertIn("package-lock.json", notices_text)
 
-    def test_macos_standard_app_packaging_builds_unsigned_dmg(self) -> None:
+    def test_macos_standard_app_packaging_builds_ad_hoc_signed_dmg(self) -> None:
         build_script = Path("packaging/macos/build-app.sh")
         app_module = Path("packaging/macos/standard_webui_app.py")
         readme = Path("packaging/macos/README-app.md")
@@ -616,7 +619,6 @@ hdiutil() { printf 'dmg\n' >> "$TRACE"; touch "$DMG_PATH"; }
         self.assertIn("environment: release", text)
         # Release-note content, complete asset lists and signing failures are exercised
         # by test_release_pipeline instead of coupling this contract to inline awk.
-
 
 
 if __name__ == "__main__":
