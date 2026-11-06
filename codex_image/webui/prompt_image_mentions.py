@@ -7,6 +7,12 @@ from typing import Any
 from fastapi import HTTPException
 
 
+def _normalize_newlines(text: str) -> str:
+    # Browsers encode multipart text fields with CRLF line breaks, while the
+    # JSON-encoded mention parts keep the editor's LF breaks.
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def resolve_prompt_image_mentions(
     raw: str | None, prompt: str, model_prompt: str,
     uploads: list[dict[str, Any]], order: list[dict[str, str]] | None,
@@ -53,7 +59,7 @@ def resolve_prompt_image_mentions(
                 compiled.append(template.replace("{number}", str(number)))
                 normalized.append(mention)
                 references.append(mention)
-            if "".join(visible) != expected:
+            if _normalize_newlines("".join(visible)) != _normalize_newlines(expected):
                 raise ValueError("Prompt does not match mentions")
             return "".join(compiled), normalized, references
 
