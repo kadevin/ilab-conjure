@@ -16,7 +16,7 @@ export function updateTransparencyControls(): void {
   const { els, state } = getLegacyBridge();
   if (!els.transparentBackground) return;
   const supported = !state.generationCatalog || isGptImageModel(state.selectedModelId || "");
-  const formatSupported = els.outputFormat?.value !== "jpeg";
+  const formatSupported = ["png", "webp", "svg"].includes(els.outputFormat?.value || "png");
   if (els.background?.value === "transparent") transparentPreference = true;
   const enabled = supported && formatSupported && transparentPreference;
   if (supported && els.background) {
@@ -25,7 +25,7 @@ export function updateTransparencyControls(): void {
   }
   els.transparentBackground.checked = enabled;
   els.transparentBackground.disabled = !supported || !formatSupported;
-  els.transparentBackgroundField?.classList.toggle("hidden", !supported);
+  els.transparentBackgroundField?.classList.toggle("hidden", !supported || (state.selectedModelId?.startsWith("gpt-image-2.6-") && !formatSupported));
   const label = document.getElementById("transparentBackgroundLabel");
   const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
   if (label) {

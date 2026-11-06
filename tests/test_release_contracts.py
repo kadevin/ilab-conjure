@@ -25,13 +25,15 @@ PINNED_ACTIONS = {
 
 class ReleaseContractTests(unittest.TestCase):
     def test_public_repository_tracks_design_and_rejects_local_agent_rules(self) -> None:
-        manifest = json.loads(
-            (ROOT / ".public-export-manifest.json").read_text(encoding="utf-8")
-        )
-        self.assertIn("DESIGN.md", manifest["allowlist"])
-        self.assertNotIn("DESIGN.md", manifest["excluded_private_paths"])
-        self.assertIn("AGENT.md", manifest["excluded_private_paths"])
-        self.assertIn("AGENTS.md", manifest["excluded_private_paths"])
+        tracked = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=ROOT, check=True, capture_output=True, text=True,
+        ).stdout.split("\0")
+        self.assertIn("DESIGN.md", tracked)
+        self.assertTrue((ROOT / "DESIGN.md").is_file())
+        self.assertFalse([
+            path for path in tracked
+            if path in {"AGENT.md", "AGENTS.md"} or path.startswith("docs/superpowers/")
+        ], "Private agent rules must not enter the public index")
 
         workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
             encoding="utf-8"

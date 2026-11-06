@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 from io import BytesIO
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from PIL import Image
 
@@ -141,6 +141,42 @@ class ResultAssetTests(unittest.TestCase):
                 with self.assertRaisesRegex(AssetLoadError, "50 MiB limit"):
                     load_response_asset({"b64_json": "A" * 8})
         decode.assert_not_called()
+
+    def test_download_uses_decoded_format_when_raster_content_type_is_wrong(self) -> None:
+        from codex_image.http import HTTPResponse
+        from codex_image.providers.result_assets import download_asset_url
+
+        for image_format, mime in (('WEBP', 'image/webp'), ('JPEG', 'image/jpeg'),
+                                   ('PNG', 'image/png'), ('GIF', 'image/gif')):
+            data = self._image_bytes(image_format)
+            for header in ('image/png', 'image/jpeg', 'image/webp', 'image/gif'):
+                with self.subTest(image_format=image_format, header=header):
+                    transport = Mock()
+                    transport.request_asset_bounded.return_value = HTTPResponse(
+                        status=200, body=data, headers={'Content-Type': header},
+                    )
+                    asset = download_asset_url('https://cdn.example/wrong.png', transport=transport,
+                                               provider_base_url='https://api.example/v1', authorization=None)
+                    self.assertEqual(asset.image_bytes, data)
+                    self.assertEqual(asset.mime_type, mime)
+                    self.assertEqual((asset.width, asset.height), (4, 3))
+                    transport.request_asset_bounded.assert_called_once()
+
+    def test_download_still_rejects_invalid_images_and_non_raster_content_types(self) -> None:
+        from codex_image.http import HTTPResponse
+        from codex_image.providers.result_assets import AssetLoadError, download_asset_url
+
+        cases = [(b'<html>error</html>', 'image/png'), (b'RIFFinvalidWEBP', 'image/png'),
+                 (self._image_bytes('WEBP'), 'text/html'), (self._image_bytes('WEBP'), 'image/svg+xml')]
+        for data, header in cases:
+            with self.subTest(header=header, size=len(data)):
+                transport = Mock()
+                transport.request_asset_bounded.return_value = HTTPResponse(
+                    status=200, body=data, headers={'Content-Type': header},
+                )
+                with self.assertRaises(AssetLoadError):
+                    download_asset_url('https://cdn.example/wrong.png', transport=transport,
+                                       provider_base_url='https://api.example/v1', authorization=None)
 
 
 if __name__ == "__main__":

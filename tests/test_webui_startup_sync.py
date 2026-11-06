@@ -1,8 +1,8 @@
-import unittest
+"""Compatibility entry; pure frontend suites are discovered centrally."""
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
-class WebUIStartupSyncTests(unittest.TestCase):
-    def test_http_and_realtime_state_reconciliation(self) -> None:
-        run_frontend(self, "startup_sync.test.cjs")
+load_tests = compatibility_load_tests((
+    'startup_sync.test.cjs',
+))

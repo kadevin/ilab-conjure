@@ -241,6 +241,8 @@ class LocalWebUISecurityMiddleware:
                 response_headers = MutableHeaders(scope=message)
                 for name, value in _SECURITY_HEADERS.items():
                     response_headers[name] = value
+                if response_headers.get("content-type", "").split(";", 1)[0] == "image/svg+xml":
+                    response_headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
             await send(message)
 
         if rejection is not None:

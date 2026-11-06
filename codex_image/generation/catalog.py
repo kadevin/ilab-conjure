@@ -372,14 +372,46 @@ MODEL_MANIFESTS = (
     ),
 )
 
-# GPT Image versions share the same parameter contract and codecs.
-GPT_IMAGE_MODEL_IDS = frozenset({"gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"})
-MODEL_MANIFESTS = (MODEL_MANIFESTS[0], *(
-    replace(MODEL_MANIFESTS[0], id=model_id, official_model_id=model_id, display_name=name)
-    for model_id, name in (
-        ("gpt-image-2.5-flare", "GPT Image 2.5 Flare"),
-        ("gpt-image-2.5-sunburst", "GPT Image 2.5 Sunburst"),
+# Keep the original model's contract stable for Codex and existing snapshots.
+GPT_IMAGE_26_MODEL_IDS = frozenset({"gpt-image-2.6-flare", "gpt-image-2.6-sunburst"})
+GPT_IMAGE_MODEL_IDS = frozenset({"gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"}) | GPT_IMAGE_26_MODEL_IDS
+
+
+def _gpt_version_parameters(version: str) -> tuple[ParameterDefinition, ...]:
+    parameters = tuple(
+        replace(parameter, allowed_values=("auto", "low", "medium", "high", "xhigh", "max"))
+        if parameter.id == "gpt.quality" else
+        replace(parameter, allowed_values=("png", "jpeg", "webp", "svg", "gif"))
+        if parameter.id == "output.format" and version == "2.6" else parameter
+        for parameter in MODEL_MANIFESTS[0].parameters
     )
+    if version == "2.6":
+        parameters += (
+            _select("gpt.complexity", "output.complexity", "generation", "high",
+                    ("low", "medium", "high"), control="segmented"),
+            ParameterDefinition(
+                id="gpt.frame_count", label_key="output.frameCount", group="advanced",
+                control="number", value_type="integer", default=9, minimum=2, maximum=64, step=1,
+                visible_when=(ParameterCondition("output.format", "equals", "gif"),),
+                operations=frozenset({"generate"}),
+            ),
+            ParameterDefinition(
+                id="gpt.frame_duration_ms", label_key="output.frameDuration", group="advanced",
+                control="number", value_type="integer", default=200, minimum=20, maximum=2000, step=10,
+                visible_when=(ParameterCondition("output.format", "equals", "gif"),),
+                operations=frozenset({"generate"}),
+            ),
+        )
+    return parameters
+
+
+MODEL_MANIFESTS = (MODEL_MANIFESTS[0], *(
+    replace(MODEL_MANIFESTS[0], id=f"gpt-image-{version}-{variant}",
+            official_model_id=f"gpt-image-{version}-{variant}",
+            display_name=f"GPT Image {version} {variant.title()}",
+            parameters=_gpt_version_parameters(version),
+            input_constraints=replace(MODEL_MANIFESTS[0].input_constraints, supports_markup=True))
+    for version in ("2.5", "2.6") for variant in ("flare", "sunburst")
 ), *MODEL_MANIFESTS[1:])
 
 MODEL_MANIFESTS_BY_ID = {model.id: model for model in MODEL_MANIFESTS}

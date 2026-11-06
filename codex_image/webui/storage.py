@@ -262,8 +262,8 @@ class TaskStorage:
         return path
 
     def write_input(self, task_id: str, filename: str, data: bytes, *, kind: str = "input", index: int | None = None) -> Path:
-        if kind not in {"input", "mask"}:
-            raise ValueError("Input kind must be input or mask")
+        if kind not in {"input", "mask", "markup"}:
+            raise ValueError("Input kind must be input, mask or markup")
         self._validate_task_id(task_id)
         next_index = index if index is not None else self._next_input_index(task_id, kind)
         prefix = f"{task_id}-{kind}-{next_index:02d}-"
@@ -299,7 +299,7 @@ class TaskStorage:
                 raise ValueError("backup_restore_task_exists")
             finals: list[Path] = []
             for binary in plan.binaries:
-                if binary.role in {"input", "mask"}:
+                if binary.role in {"input", "mask", "markup"}:
                     prefix = f"{task_id}-{binary.role}-{binary.source_index:02d}-"
                     safe_name = _safe_filename(binary.filename, max_bytes=255 - len(prefix.encode("utf-8")))
                     final = self.input_root / f"{prefix}{safe_name}"
@@ -516,6 +516,7 @@ class TaskStorage:
             candidate in {self.metadata_path(task_id), self.request_path(task_id)}
             or name.startswith(f"{task_id}-input-")
             or name.startswith(f"{task_id}-mask-")
+            or name.startswith(f"{task_id}-markup-")
             or name.startswith(f"{task_id}-image-")
         ):
             raise OSError("backup_restore_path_invalid")
@@ -620,7 +621,7 @@ class TaskStorage:
         nonmetadata_source_paths = [path for path in source_data_paths if path.name != metadata_filename]
         artifact_paths = list(dict.fromkeys([
             *(path for path in self.input_root.glob("*")
-              if owned_artifact(path) and path.name.startswith((f"{task_id}-input-", f"{task_id}-mask-"))),
+              if owned_artifact(path) and path.name.startswith((f"{task_id}-input-", f"{task_id}-mask-", f"{task_id}-markup-"))),
             *output_paths,
             *thumbnail_paths,
             *nonmetadata_source_paths,

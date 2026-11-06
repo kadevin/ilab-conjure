@@ -1,8 +1,8 @@
-import unittest
+"""Compatibility entry; pure frontend suites are discovered centrally."""
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
-class RuntimeFeedbackFrontendTests(unittest.TestCase):
-    def test_runtime_feedback(self) -> None:
-        run_frontend(self, "runtime_feedback.test.ts")
+load_tests = compatibility_load_tests((
+    'runtime_feedback.test.ts',
+))

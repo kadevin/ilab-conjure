@@ -48,7 +48,7 @@ Start with an [app package](#app-packages), or [install from source](#install). 
 <details>
 <summary>Models and channels</summary>
 
-GPT Image supports Image 2, 2.5 Flare, and Sunburst with separate remote model bindings. Existing bindings do not upgrade automatically; Codex channels remain on Image 2. Gemini includes Nano Banana Pro, 2.1, 2, and 2 Lite; 2.1 supports 1K/2K/4K, up to 14 reference images, and Google Search.
+GPT Image supports Image 2 and the 2.5/2.6 Flare and Sunburst models with separate remote model bindings. Existing bindings do not upgrade automatically; Codex channels remain on Image 2. Gemini includes Nano Banana Pro, 2.1, 2, and 2 Lite; 2.1 supports 1K/2K/4K, up to 14 reference images, and Google Search.
 
 Responses channels offer a main model, defaulting to `gpt-6-luna`, with `gpt-6.1-terra` among the choices when supported by the provider. Saved choices are preserved; switch older `gpt-5.4-mini` selections manually. Direct Image channels do not use a main model. Fetching a provider's model list only helps fill the form; it neither saves settings nor verifies image generation support.
 
@@ -152,6 +152,8 @@ Open `Start WebUI.command` on macOS or `Start WebUI.bat` on Windows, then visit 
 2. Upload, drag, or paste references, or choose recent uploads and gallery images.
 3. Write a prompt, insert references or templates as needed, set output parameters, and start generation.
 4. Track tasks on the left and review/download results on the right. Open History Library to search, favorite, tag, or export tasks in bulk.
+
+GPT Image 2.6 adds complexity, extra-high/maximum quality, and SVG/GIF outputs through the Images API. SVG/GIF are generation-only. GIF frame count (2–64) and frame duration (20–2000 ms) live in More options, alongside the calculated total duration; high resolutions lower the frame limit to fit the local decoding budget. SVG batches use one output per request. Image 2.5/2.6 Images API edits support a separate transparent markup layer on the first reference image; markup is sent separately from the original and cannot be combined with a mask.
 
 In compact mode, transparency and compression are under the extra-options icon beside Format. JPEG/WebP compression ranges from 50% to 100%.
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import unittest
 from pathlib import Path
 import re
@@ -223,6 +225,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn("options.backupFilters()", body)
         self.assertNotIn("loadedTaskIds", body)
 
+    @frontend_test
     def test_history_backup_selection_is_frozen_without_mutating_live_selection(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         action_panel = Path("codex_image/webui/frontend/src/history-action-panel.ts").read_text(encoding="utf-8")
@@ -320,6 +323,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('file_data.get("size_bytes")', source)
         self.assertNotIn('file_data.get("bytes")', source)
 
+    @frontend_test
     def test_history_resume_pending_chooser_never_replaces_the_server_session(self) -> None:
         source = Path("codex_image/webui/frontend/src/history.ts").read_text(encoding="utf-8")
         choose_body = _typescript_function_body(_history_source("history-transfer-ui"), "chooseHistoryImport")
@@ -571,6 +575,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
                 f"{path.name} misses history.backToGenerator",
             )
 
+    @frontend_test
     def test_history_export_module_uses_server_download_without_blob(
         self,
     ) -> None:
@@ -1131,6 +1136,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
             styles,
         )
 
+    @frontend_test
     def test_history_organization_filter_runtime_contract(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -1315,6 +1321,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_history_tag_picker_creates_and_assigns_tag_to_tasks(
         self,
     ) -> None:
@@ -1500,6 +1507,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertIn('event.key === "ArrowUp"', source)
         self.assertIn('event.key === "ArrowDown"', source)
 
+    @frontend_test
     def test_history_lightbox_peek_carousel_runtime_contract(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -1647,6 +1655,7 @@ class WebUIStaticHistoryTests(unittest.TestCase):
         self.assertNotIn("dataset.historyReferenceFileName", source)
         self.assertNotIn("data-history-reference-file-lightbox", source)
 
+    @frontend_test
     def test_history_reference_file_handoff_serializes_only_current_task_metadata(self) -> None:
         node = shutil.which("node")
         if node is None:

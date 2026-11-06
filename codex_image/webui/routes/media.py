@@ -19,7 +19,7 @@ from codex_image.webui.task_metadata import (
 
 _TASK_ID_PATTERN = r"\d{14}-[0-9a-f]{8}"
 _TASK_INPUT_FILENAME_RE = re.compile(
-    rf"^(?P<task_id>{_TASK_ID_PATTERN})-(?:input|mask)-\d+-",
+    rf"^(?P<task_id>{_TASK_ID_PATTERN})-(?:input|mask|markup)-\d+-",
     re.IGNORECASE,
 )
 _TASK_OUTPUT_FILENAME_RE = re.compile(
@@ -101,12 +101,24 @@ def _task_output_path(
 
 def _media_response(path: Path) -> FileResponse:
     mime_type = _guess_mime_type(path.name).split(";", 1)[0].strip().lower()
-    if mime_type not in SUPPORTED_RASTER_MIME_TYPES:
+    headers = dict(_PRIVATE_MEDIA_CACHE)
+    if mime_type == "image/svg+xml":
+        from codex_image.svg_validation import inspect_static_svg
+        from codex_image.raster_validation import MAX_RASTER_BYTES
+        try:
+            if path.stat().st_size > MAX_RASTER_BYTES:
+                raise ValueError("SVG exceeds the byte limit")
+            inspect_static_svg(path.read_bytes())
+        except ValueError as exc:
+            raise HTTPException(status_code=415, detail="Invalid static SVG") from exc
+        headers.update({"Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+                        "X-Content-Type-Options": "nosniff"})
+    elif mime_type not in SUPPORTED_RASTER_MIME_TYPES:
         raise HTTPException(status_code=415, detail="Unsupported media type")
     return FileResponse(
         path,
         media_type=mime_type,
-        headers=_PRIVATE_MEDIA_CACHE,
+        headers=headers,
     )
 
 
@@ -126,6 +138,8 @@ def _legacy_input_path(ctx: WebUIContext, filename: str) -> Path | None:
         for item in metadata.get("input_files", [])
         if isinstance(metadata.get("input_files"), list) and item
     }
+    if metadata.get("markup_file"):
+        allowed_names.add(str(metadata["markup_file"]))
     mask_file = str(metadata.get("mask_file") or "")
     if mask_file:
         allowed_names.add(mask_file)
@@ -243,6 +257,14 @@ def register_media_routes(app: FastAPI, ctx: WebUIContext) -> None:
         path = _task_input_path(ctx, task_id, input_index)
         if path is None:
             raise HTTPException(status_code=404, detail="Input not found")
+        return _media_response(path)
+
+    @app.get("/api/tasks/{task_id}/markup")
+    def get_task_markup(task_id: str) -> FileResponse:
+        metadata = _read_task_metadata(ctx, task_id)
+        path = ctx.storage.task_owned_input_path(task_id, str(metadata.get("markup_file") or ""))
+        if path is None or not path.is_file():
+            raise HTTPException(status_code=404, detail="Markup not found")
         return _media_response(path)
 
     @app.get("/api/tasks/{task_id}/outputs/{output_index}/image")

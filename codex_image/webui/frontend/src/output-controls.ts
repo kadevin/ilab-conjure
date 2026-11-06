@@ -88,7 +88,8 @@ export function updateQuantity(): void {
 
 export function updateCompression(): void {
   const controls = document.querySelector<HTMLElement>(".controls-col");
-  const compact = !!controls && getComputedStyle(controls).getPropertyValue("--compact-composer").trim() === "1";
+  const image26 = getLegacyBridge().state.selectedModelId?.startsWith("gpt-image-2.6-");
+  const compact = image26 || !!controls && getComputedStyle(controls).getPropertyValue("--compact-composer").trim() === "1";
   const button = document.getElementById("outputCompressionButton");
   const options = document.querySelector("#outputFormatField .output-format-options");
   let layoutFocus: HTMLElement | null = null;
@@ -115,10 +116,26 @@ export function updateCompression(): void {
   els.compressionPopover?.setAttribute("data-i18n-attr", `aria-label:${labelKey}`);
   els.compressionPopover?.setAttribute("aria-label", translate(labelKey));
   updateTransparencyControls();
-  const compressionEnabled = els.outputFormat.value !== "png";
-  const optionsAvailable = compressionEnabled || (extraOptionsCompact && !els.transparentBackgroundField?.classList.contains("hidden"));
+  const format = els.outputFormat.value;
+  const compressionEnabled = ["jpeg", "webp"].includes(format);
+  const gif = image26 && format === "gif";
+  document.getElementById("gifOptions")?.classList.toggle("hidden", !gif);
+  if (els.frameCount) {
+    els.frameCount.disabled = !gif;
+    const size = els.size?.value === "custom" ? `${els.customWidth?.value}x${els.customHeight?.value}` : els.size?.value;
+    const dimensions = String(size || "").match(/^(\d+)x(\d+)$/);
+    const frameLimit = dimensions ? Math.floor(128 * 1024 * 1024 / (Number(dimensions[1]) * Number(dimensions[2]))) : 64;
+    els.frameCount.max = String(Math.max(2, Math.min(64, frameLimit)));
+  }
+  if (els.frameDuration) els.frameDuration.disabled = !gif;
+  const duration = document.getElementById("gifDuration");
+  if (duration) {
+    const seconds = Number(els.frameCount?.value) * Number(els.frameDuration?.value) / 1000;
+    duration.textContent = Number.isFinite(seconds) ? `${Number(seconds.toFixed(2))} s` : "—";
+  }
+  const optionsAvailable = gif || compressionEnabled || (extraOptionsCompact && !els.transparentBackgroundField?.classList.contains("hidden"));
   button?.classList.toggle("hidden", !optionsAvailable);
-  els.compressionField?.classList.toggle("hidden", extraOptionsCompact && !compressionEnabled);
+  els.compressionField?.classList.toggle("hidden", !compressionEnabled);
   els.compression.disabled = !compressionEnabled;
   if (!optionsAvailable) {
     closeCompressionPopover();
@@ -136,7 +153,7 @@ export function updateCompression(): void {
 }
 
 function focusFirstOutputOption(): void {
-  const first = els.compressionPopover?.querySelector("input:not(:disabled)") as HTMLElement | null;
+  const first = Array.from((els.compressionPopover as HTMLElement)?.querySelectorAll<HTMLInputElement>("input:not(:disabled)") || []).find(field => field.getClientRects().length);
   (first || els.compressionPopover)?.focus({ preventScroll: true });
 }
 

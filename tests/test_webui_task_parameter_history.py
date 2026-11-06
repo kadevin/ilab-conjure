@@ -4,7 +4,7 @@ from pathlib import Path
 
 from tests.webui_helpers import WebUIStaticTestCase
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
 class TaskParameterHistoryFrontendTests(WebUIStaticTestCase):
@@ -43,5 +43,7 @@ class TaskParameterHistoryFrontendTests(WebUIStaticTestCase):
         self.assertIn("showLockedOutputSettings()", body)
         self.assertNotIn("renderSummary(taskSnapshot", body)
 
-    def test_history_and_parameter_migration_behavior(self) -> None:
-        run_frontend(self, "model_parameters_history.test.ts")
+
+load_tests = compatibility_load_tests((
+    'model_parameters_history.test.ts',
+))

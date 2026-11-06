@@ -4,6 +4,7 @@ import asyncio
 from collections import Counter
 from contextlib import chdir, contextmanager
 import errno
+from io import BytesIO
 import json
 from pathlib import Path
 import socket
@@ -13,6 +14,7 @@ from unittest.mock import patch
 
 import httpx
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from codex_image.providers.registry import default_registry
 from codex_image.http import MAX_HTTP_RESPONSE_BYTES
@@ -26,8 +28,9 @@ from tests.helpers import TEST_PNG_BASE64, TEST_PNG_BYTES, TEST_WEBP_BASE64, TES
 
 class GenerationFailureBoundaryTests(unittest.TestCase):
     @contextmanager
-    def task(self, handler, *, profile="openai_images", codec="gpt_openai_images", count=1):
-        model = "gpt-image-2" if codec.startswith("gpt_") else "nano-banana-pro"
+    def task(self, handler, *, profile="openai_images", codec="gpt_openai_images", count=1,
+             canonical_model=None, requested_parameters=None, edit_files=None):
+        model = canonical_model or ("gpt-image-2" if codec.startswith("gpt_") else "nano-banana-pro")
         client_class = httpx.AsyncClient
         with tempfile.TemporaryDirectory(prefix="conjure-failure-test-") as tmp, chdir(tmp):
             root = Path(tmp)
@@ -36,7 +39,7 @@ class GenerationFailureBoundaryTests(unittest.TestCase):
                             "id": "relay", "name": "Relay", "base_url": "https://relay.example/v1",
                             "api_key": "synthetic-only", "concurrency": 1, "bindings": [{
                                 "id": "image", "canonical_model_id": model, "remote_model_id": "image",
-                                "protocol_profile": profile, "parameter_codec": codec, "operations": ["generate"],
+                                "protocol_profile": profile, "parameter_codec": codec, "operations": ["generate", "edit"] if edit_files else ["generate"],
                             }],
                         }]}
             (root / "api.json").write_text(json.dumps(settings))
@@ -63,9 +66,9 @@ class GenerationFailureBoundaryTests(unittest.TestCase):
                 client = TestClient(app)
                 parameters = {"canvas.size": "1024x1024"} if model.startswith("gpt") else {
                     "canvas.aspect_ratio": "1:1", "canvas.resolution": "1K"}
-                response = client.post("/api/generate", data={
+                response = client.post("/api/edit" if edit_files else "/api/generate", files=edit_files, data={
                     "prompt": "synthetic audit", "canonical_model_id": model, "provider_id": "relay",
-                    "parameters_json": json.dumps({**parameters, "output.count": count}),
+                    "parameters_json": json.dumps({**parameters, "output.count": count, **(requested_parameters or {})}),
                 })
                 self.assertEqual(response.status_code, 200, response.text)
                 yield app, client, response.json()["task"]["task_id"]
@@ -91,6 +94,49 @@ class GenerationFailureBoundaryTests(unittest.TestCase):
                 self.run_queue(app, task_id)
                 self.assertEqual(first["status"], "failed")
                 self.assertEqual(calls["POST"], 1)
+
+    def test_mislabeled_rasters_keep_actual_format_through_task_download(self):
+        for image_format, suffix, mime in (
+            ("PNG", ".png", "image/png"), ("JPEG", ".jpg", "image/jpeg"),
+            ("WEBP", ".webp", "image/webp"), ("GIF", ".gif", "image/gif"),
+        ):
+            buffer = BytesIO()
+            image = Image.new("RGB", (4, 3), "white")
+            options = {"save_all": True, "append_images": [Image.new("RGB", (4, 3), "black")],
+                       "duration": 20} if image_format == "GIF" else {}
+            image.save(buffer, format=image_format, **options)
+            image_bytes = buffer.getvalue()
+            calls = Counter()
+
+            def handler(request):
+                calls[request.method] += 1
+                if request.method == "POST":
+                    return httpx.Response(200, json={"data": [{"url": "https://cdn.example/wrong.png"}]})
+                return httpx.Response(200, content=image_bytes, headers={"Content-Type": "image/png"})
+
+            with self.subTest(image_format=image_format), self.task(handler) as (app, client, task_id):
+                task = self.run_queue(app, task_id)
+                self.assertEqual(task["status"], "completed")
+                self.assertEqual(task["output_format"], image_format.lower())
+                path = app.state.storage.output_path(task["output_file"])
+                self.assertEqual(path.suffix, suffix)
+                self.assertEqual(path.read_bytes(), image_bytes)
+                downloaded = client.get(task["output_url"])
+                self.assertEqual(downloaded.status_code, 200)
+                self.assertEqual(downloaded.headers["content-type"], mime)
+                self.assertEqual(downloaded.content, image_bytes)
+                with Image.open(BytesIO(downloaded.content)) as decoded:
+                    self.assertEqual(decoded.format, image_format)
+                    self.assertEqual(getattr(decoded, "n_frames", 1), 2 if image_format == "GIF" else 1)
+                thumbnail = client.get(f"/api/tasks/{task_id}/outputs/1/thumbnail")
+                self.assertEqual(thumbnail.status_code, 200)
+                with Image.open(BytesIO(thumbnail.content)) as decoded:
+                    self.assertGreater(decoded.width, 0)
+                reopened = app.state.reopen_for_test()
+                restored = reopened.state.storage.read_metadata(task_id)
+                self.assertEqual(restored["output_format"], image_format.lower())
+                self.assertEqual(reopened.state.storage.output_path(restored["output_file"]), path)
+                self.assertEqual(calls, Counter({"POST": 1, "GET": 1}))
 
     def test_asset_limits_and_malformed_urls_never_replay_generation(self):
         for failure in ("oversized", "malformed"):

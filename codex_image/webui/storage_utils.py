@@ -30,7 +30,7 @@ def _safe_extension(output_format: str) -> str:
     normalized = (output_format or "png").lower().strip().lstrip(".")
     if normalized in {"jpg", "jpeg"}:
         return "jpg"
-    if normalized in {"png", "webp"}:
+    if normalized in {"png", "webp", "gif", "svg"}:
         return normalized
     return "png"
 

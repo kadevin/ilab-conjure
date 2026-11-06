@@ -14,6 +14,7 @@ from codex_image.http_connection import HTTPTransportFailure, exception_chain
 from codex_image.raster_validation import (
     MAX_RASTER_BYTES,
     RasterValidationError,
+    SUPPORTED_RASTER_MIME_TYPES,
     inspect_raster_image,
 )
 
@@ -70,14 +71,19 @@ def _header(headers: Mapping[str, str], name: str) -> str:
     return ""
 
 
-def _validated_download(response: HTTPResponse) -> LoadedAsset:
+def _validated_download(response: HTTPResponse, *, allow_svg: bool = False) -> LoadedAsset:
     if not 200 <= response.status < 300:
         raise AssetLoadError(f"asset download failed with HTTP {response.status}")
     content_type = _header(response.headers, "content-type").split(";", 1)[0].strip().lower()
+    # Some image CDNs label WebP/JPEG bytes as PNG. A raster Content-Type is
+    # advisory; full decoding below determines the format and enforces limits.
+    # Non-raster declarations (HTML, SVG, etc.) still fail the MIME check.
+    declared_types = () if content_type in SUPPORTED_RASTER_MIME_TYPES else (content_type,)
     return _validated_asset(
         bytes(response.body),
-        declared_mime_types=(content_type,),
+        declared_mime_types=declared_types,
         source="asset download",
+        allow_svg=allow_svg,
     )
 
 
@@ -86,6 +92,7 @@ def _validated_asset(
     *,
     declared_mime_types: tuple[str, ...] = (),
     source: str = "generated asset",
+    allow_svg: bool = False,
 ) -> LoadedAsset:
     try:
         inspection = inspect_raster_image(
@@ -93,9 +100,13 @@ def _validated_asset(
             max_bytes=MAX_ASSET_BYTES,
         )
     except RasterValidationError as exc:
-        raise AssetLoadError(
-            f"{source} did not contain a valid raster image: {exc}"
-        ) from exc
+        if not allow_svg:
+            raise AssetLoadError(f"{source} did not contain a valid raster image: {exc}") from exc
+        from codex_image.svg_validation import inspect_static_svg
+        try:
+            inspection = inspect_static_svg(image_bytes)
+        except Exception as svg_error:
+            raise AssetLoadError(f"{source} did not contain a safe static SVG") from svg_error
     for declared in declared_mime_types:
         content_type = str(declared or "").split(";", 1)[0].strip().lower()
         if not content_type or content_type == "application/octet-stream":
@@ -168,10 +179,11 @@ def download_asset_url(
     transport: Transport,
     provider_base_url: str,
     authorization: str | None,
+    allow_svg: bool = False,
 ) -> LoadedAsset:
     try:
         return _download_asset_url(url, transport=transport,
-                                   provider_base_url=provider_base_url, authorization=authorization)
+                                   provider_base_url=provider_base_url, authorization=authorization, allow_svg=allow_svg)
     except (AssetLoadError, HTTPTransportFailure, concurrent.futures.CancelledError):
         raise
     except Exception as exc:
@@ -185,6 +197,7 @@ def download_asset_url(
 
 def _download_asset_url(
     url: str, *, transport: Transport, provider_base_url: str, authorization: str | None,
+    allow_svg: bool = False,
 ) -> LoadedAsset:
     parsed = urlsplit(str(url))
     if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
@@ -222,7 +235,7 @@ def _download_asset_url(
             redirected = urljoin(url, location) if location else ""
             if not redirected or not same_origin(url, redirected):
                 raise AssetLoadError("authenticated asset download refused a cross-origin redirect")
-    return _validated_download(response)
+    return _validated_download(response, allow_svg=allow_svg)
 
 
 def _decode_base64(value: str) -> bytes:
@@ -252,6 +265,7 @@ def load_response_asset(
     item: Mapping[str, Any],
     *,
     url_loader: Callable[[str], LoadedAsset | bytes] | None = None,
+    allow_svg: bool = False,
 ) -> LoadedAsset:
     declared_mime = str(
         item.get("mime_type") or item.get("mimeType") or item.get("media_type") or ""
@@ -265,6 +279,7 @@ def load_response_asset(
         return _validated_asset(
             image_bytes,
             declared_mime_types=(declared_mime, encoded_mime),
+            allow_svg=allow_svg,
         )
 
     image_url = str(item.get("url") or "")
@@ -273,6 +288,7 @@ def load_response_asset(
         return _validated_asset(
             image_bytes,
             declared_mime_types=(declared_mime, encoded_mime),
+            allow_svg=allow_svg,
         )
     try:
         parsed = urlsplit(image_url)
@@ -287,11 +303,13 @@ def load_response_asset(
                 loaded.image_bytes,
                 declared_mime_types=(declared_mime, loaded.mime_type),
                 source="generated asset download",
+                allow_svg=allow_svg,
             )
         return _validated_asset(
             bytes(loaded),
             declared_mime_types=(declared_mime,),
             source="generated asset download",
+            allow_svg=allow_svg,
         )
     raise AssetLoadError("generated response completed without a supported image asset")
 

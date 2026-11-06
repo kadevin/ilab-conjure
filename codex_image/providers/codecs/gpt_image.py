@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from codex_image.codex_responses_client import build_codex_responses_payload
@@ -13,6 +14,9 @@ GPT_PARAMETER_IDS = frozenset(
     {
         "canvas.size",
         "gpt.quality",
+        "gpt.complexity",
+        "gpt.frame_count",
+        "gpt.frame_duration_ms",
         "gpt.background",
         "output.format",
         "gpt.moderation",
@@ -30,6 +34,9 @@ def gpt_image_parameters(command: GenerationCommand) -> dict[str, Any]:
     return {
         "size": params.get("canvas.size"),
         "quality": params.get("gpt.quality"),
+        "complexity": params.get("gpt.complexity"),
+        "frame_count": params.get("gpt.frame_count"),
+        "frame_duration_ms": params.get("gpt.frame_duration_ms"),
         "background": params.get("gpt.background"),
         "output_format": params.get("output.format", "png"),
         "moderation": params.get("gpt.moderation"),
@@ -56,6 +63,15 @@ def _images_payload(
     binding: ProviderModelBinding,
 ) -> dict[str, Any]:
     parameters = gpt_image_parameters(command)
+    if (command.operation == "edit" or command.image_inputs) and parameters["output_format"] in {"svg", "gif"}:
+        raise ValueError("output_format_requires_generation")
+    if (command.canonical_model_id.startswith("gpt-image-2.6-") or command.markup_image) and binding.protocol_profile != "openai_images":
+        raise ValueError("image_feature_requires_openai_images")
+    if parameters["output_format"] == "gif":
+        from codex_image.raster_validation import MAX_RASTER_TOTAL_FRAME_PIXELS
+        size = re.fullmatch(r"(\d+)x(\d+)", str(parameters["size"] or ""))
+        if size and int(size[1]) * int(size[2]) * int(parameters["frame_count"] or 9) > MAX_RASTER_TOTAL_FRAME_PIXELS:
+            raise ValueError("gif_frame_pixel_limit_exceeded")
     transparency = transparency_request(command, binding)
     return build_openai_images_payload(
         prompt=transparency.prompt,
@@ -63,14 +79,18 @@ def _images_payload(
         model=binding.remote_model_id, default_model=binding.remote_model_id,
         input_images=[image.data_url for image in command.image_inputs],
         mask_image=command.mask_image,
+        markup_image=command.markup_image,
         size=parameters["size"],
         quality=parameters["quality"],
+        complexity=parameters["complexity"],
+        frame_count=parameters["frame_count"],
+        frame_duration_ms=parameters["frame_duration_ms"],
         background=transparency.background,
         output_format=parameters["output_format"],
         input_fidelity=parameters["input_fidelity"],
         moderation=parameters["moderation"],
         output_compression=parameters["output_compression"],
-        n=parameters["n"],
+        n=1 if parameters["output_format"] == "svg" else parameters["n"],
     )
 
 
@@ -80,6 +100,8 @@ def _responses_payload(
     *,
     codex: bool,
 ) -> dict[str, Any]:
+    if command.canonical_model_id.startswith("gpt-image-2.6-") or command.markup_image:
+        raise ValueError("image_feature_requires_openai_images")
     parameters = gpt_image_parameters(command)
     transparency = transparency_request(command, binding)
     builder = build_codex_responses_payload if codex else build_openai_responses_payload
@@ -135,7 +157,7 @@ class GptOpenAIImagesCodec(_GptCodec):
                 "multipart/form-data" if payload["endpoint"] == "/images/edits" else "application/json"
             ),
             json_body=payload,
-            repeat_count=1,
+            repeat_count=int(command.parameters.get("output.count", 1)) if payload.get("output_format") == "svg" else 1,
         )
 
 

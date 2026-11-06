@@ -9149,6 +9149,38 @@ input[type=range].slider:disabled::-moz-range-thumb {
   min-width: 0;
 }
 
+.output-file-settings.extended-quality .quality-field {
+  grid-column: 1 / -1;
+}
+
+.output-file-settings.extended-quality:not(.image26-controls) .quantity-field {
+  grid-column: 1 / -1;
+}
+
+.output-file-settings.image26-controls .quantity-quality-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.output-file-settings.image26-controls .complexity-field .radio-btn {
+  flex: 1;
+  padding-inline: 6px;
+}
+
+.output-file-settings.image26-controls .output-format-field > .themed-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.gif-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gif-options .control { width: 100%; min-width: 0; }
+.gif-duration { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; }
+.gif-duration output { font-variant-numeric: tabular-nums; }
+
 .preset-size-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -13821,6 +13853,13 @@ body.api-provider-sort-dragging * {
   }
 }
 
+.image-editor-mode-group { display: flex; gap: 6px; margin-bottom: 12px; }
+.image-editor-mode-group .active { color: var(--accent); background: var(--accent-soft); }
+.markup-mode .image-editor-side-panel,
+.markup-mode [data-image-editor-tool="select"],
+.markup-mode [data-image-editor-tool="crop"] { display: none; }
+.markup-mode .image-editor-workspace { grid-template-columns: minmax(0, 1fr); }
+
 /* source: styles/76-user-config-backup.css */
 .user-config-child-heading {
   display: flex;
@@ -15374,6 +15413,21 @@ button:disabled {
       grid-template-columns: var(--laptop-label-width) minmax(0, 1fr);
       align-items: center;
       gap: 6px;
+    }
+    .output-panel .image26-controls .complexity-field {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: center;
+      gap: 6px;
+    }
+    .output-panel .image26-controls #outputFormatField > .themed-select {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .output-panel .image26-controls .themed-select-trigger {
+      min-height: calc(var(--compact-parameter-height) + 6px);
+      height: calc(var(--compact-parameter-height) + 6px);
+      font-size: 12px;
     }
     .output-panel .output-compression-button > span { display: none; }
 

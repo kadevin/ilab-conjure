@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const ZH_CN_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "标注最大支持 1677 万像素，请先缩小原图",
+    "imageEditor.replacesMarkup": "保存图像编辑将移除原有标注",
+    "output.qualityXhigh": "超高",
+    "output.qualityMax": "最高",
+    "output.complexity": "复杂度",
+    "output.frameCount": "帧数",
+    "output.frameDuration": "每帧时长（毫秒）",
+    "output.totalDuration": "总时长",
+    "imageEditor.markup": "标注",
+    "imageEditor.image": "图像",
+    "imageEditor.saveMarkup": "保存标注",
+    "imageEditor.markupFirstOnly": "标注仅支持第一张参考图",
+    "imageEditor.markupUnsupported": "此模型或接口不支持标注，请切换或移除标注",
     "mobile.taskActions": "任务操作",
     "mobile.photos": "照片",
     "mobile.files": "文件",

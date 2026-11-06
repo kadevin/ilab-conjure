@@ -399,6 +399,19 @@
 
   // codex_image/webui/frontend/src/i18n/en.ts
   var EN_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Markup supports up to 16,777,216 pixels. Resize the original first.",
+    "imageEditor.replacesMarkup": "Saving image edits will remove the existing markup.",
+    "output.qualityXhigh": "Extra high",
+    "output.qualityMax": "Maximum",
+    "output.complexity": "Complexity",
+    "output.frameCount": "Frames",
+    "output.frameDuration": "Frame duration (ms)",
+    "output.totalDuration": "Total duration",
+    "imageEditor.markup": "Markup",
+    "imageEditor.image": "Image",
+    "imageEditor.saveMarkup": "Save markup",
+    "imageEditor.markupFirstOnly": "Markup is supported on the first reference image only",
+    "imageEditor.markupUnsupported": "This model or API does not support markup. Switch it or remove the markup.",
     "mobile.taskActions": "Task actions",
     "mobile.photos": "Photos",
     "mobile.files": "Files",
@@ -1805,6 +1818,19 @@
 
   // codex_image/webui/frontend/src/i18n/de.ts
   var DE_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Markierungen unterst\xFCtzen bis zu 16.777.216 Pixel. Verkleinern Sie zuerst das Original.",
+    "imageEditor.replacesMarkup": "Beim Speichern der Bildbearbeitung wird die vorhandene Markierung entfernt.",
+    "output.qualityXhigh": "Sehr hoch",
+    "output.qualityMax": "Maximum",
+    "output.complexity": "Komplexit\xE4t",
+    "output.frameCount": "Frames",
+    "output.frameDuration": "Dauer pro Frame (ms)",
+    "output.totalDuration": "Gesamtdauer",
+    "imageEditor.markup": "Markierung",
+    "imageEditor.image": "Bild",
+    "imageEditor.saveMarkup": "Markierung speichern",
+    "imageEditor.markupFirstOnly": "Markierungen sind nur auf dem ersten Referenzbild m\xF6glich",
+    "imageEditor.markupUnsupported": "Dieses Modell oder diese API unterst\xFCtzt keine Markierungen. Wechseln Sie oder entfernen Sie die Markierung.",
     "app.newTask": "Neu",
     "app.newTaskAria": "Neuer Chat",
     "sidebar.searchPlaceholder": "Suchaufforderungen oder Aufgabe ID",
@@ -3211,6 +3237,19 @@
 
   // codex_image/webui/frontend/src/i18n/es.ts
   var ES_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Las anotaciones admiten hasta 16.777.216 p\xEDxeles. Reduce primero la imagen original.",
+    "imageEditor.replacesMarkup": "Al guardar los cambios de imagen se eliminar\xE1 la anotaci\xF3n existente.",
+    "output.qualityXhigh": "Muy alta",
+    "output.qualityMax": "M\xE1xima",
+    "output.complexity": "Complejidad",
+    "output.frameCount": "Fotogramas",
+    "output.frameDuration": "Duraci\xF3n por fotograma (ms)",
+    "output.totalDuration": "Duraci\xF3n total",
+    "imageEditor.markup": "Anotaci\xF3n",
+    "imageEditor.image": "Imagen",
+    "imageEditor.saveMarkup": "Guardar anotaci\xF3n",
+    "imageEditor.markupFirstOnly": "Solo se admite anotar la primera imagen de referencia",
+    "imageEditor.markupUnsupported": "Este modelo o API no admite anotaciones. C\xE1mbialo o elimina la anotaci\xF3n.",
     "app.newTask": "Nuevo",
     "app.newTaskAria": "Nuevo chat",
     "sidebar.searchPlaceholder": "Mensajes de b\xFAsqueda o tarea ID",
@@ -4617,6 +4656,19 @@
 
   // codex_image/webui/frontend/src/i18n/fr.ts
   var FR_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Les annotations acceptent jusqu\u2019\xE0 16 777 216 pixels. R\xE9duisez d\u2019abord l\u2019image originale.",
+    "imageEditor.replacesMarkup": "Enregistrer les modifications de l\u2019image supprimera l\u2019annotation existante.",
+    "output.qualityXhigh": "Tr\xE8s haute",
+    "output.qualityMax": "Maximale",
+    "output.complexity": "Complexit\xE9",
+    "output.frameCount": "Images",
+    "output.frameDuration": "Dur\xE9e par image (ms)",
+    "output.totalDuration": "Dur\xE9e totale",
+    "imageEditor.markup": "Annotation",
+    "imageEditor.image": "Image",
+    "imageEditor.saveMarkup": "Enregistrer l\u2019annotation",
+    "imageEditor.markupFirstOnly": "Seule la premi\xE8re image de r\xE9f\xE9rence peut \xEAtre annot\xE9e",
+    "imageEditor.markupUnsupported": "Ce mod\xE8le ou cette API ne prend pas en charge les annotations. Changez-le ou supprimez l\u2019annotation.",
     "app.newTask": "Nouveau",
     "app.newTaskAria": "Nouvelle discussion",
     "sidebar.searchPlaceholder": "Rechercher des invites ou une t\xE2che ID",
@@ -6023,6 +6075,19 @@
 
   // codex_image/webui/frontend/src/i18n/ja.ts
   var JA_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u6CE8\u91C8\u306F\u6700\u592716,777,216\u30D4\u30AF\u30BB\u30EB\u3067\u3059\u3002\u5148\u306B\u5143\u753B\u50CF\u3092\u7E2E\u5C0F\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "imageEditor.replacesMarkup": "\u753B\u50CF\u306E\u7DE8\u96C6\u3092\u4FDD\u5B58\u3059\u308B\u3068\u65E2\u5B58\u306E\u6CE8\u91C8\u304C\u524A\u9664\u3055\u308C\u307E\u3059\u3002",
+    "output.qualityXhigh": "\u8D85\u9AD8",
+    "output.qualityMax": "\u6700\u9AD8",
+    "output.complexity": "\u8907\u96D1\u5EA6",
+    "output.frameCount": "\u30D5\u30EC\u30FC\u30E0\u6570",
+    "output.frameDuration": "\u5404\u30D5\u30EC\u30FC\u30E0\u306E\u9577\u3055\uFF08ms\uFF09",
+    "output.totalDuration": "\u5408\u8A08\u6642\u9593",
+    "imageEditor.markup": "\u6CE8\u91C8",
+    "imageEditor.image": "\u753B\u50CF",
+    "imageEditor.saveMarkup": "\u6CE8\u91C8\u3092\u4FDD\u5B58",
+    "imageEditor.markupFirstOnly": "\u6CE8\u91C8\u306F\u6700\u521D\u306E\u53C2\u7167\u753B\u50CF\u306E\u307F\u5BFE\u5FDC",
+    "imageEditor.markupUnsupported": "\u3053\u306E\u30E2\u30C7\u30EB\u307E\u305F\u306F API \u306F\u6CE8\u91C8\u306B\u5BFE\u5FDC\u3057\u3066\u3044\u307E\u305B\u3093\u3002\u5909\u66F4\u3059\u308B\u304B\u6CE8\u91C8\u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "app.newTask": "\u65B0\u898F",
     "app.newTaskAria": "\u65B0\u898F\u30C1\u30E3\u30C3\u30C8",
     "sidebar.searchPlaceholder": "\u30D7\u30ED\u30F3\u30D7\u30C8\u307E\u305F\u306F\u30BF\u30B9\u30AF ID \u3092\u691C\u7D22",
@@ -7429,6 +7494,19 @@
 
   // codex_image/webui/frontend/src/i18n/ko.ts
   var KO_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\uC8FC\uC11D\uC740 \uCD5C\uB300 16,777,216\uD53D\uC140\uAE4C\uC9C0 \uC9C0\uC6D0\uD569\uB2C8\uB2E4. \uC6D0\uBCF8 \uD06C\uAE30\uB97C \uBA3C\uC800 \uC904\uC774\uC138\uC694.",
+    "imageEditor.replacesMarkup": "\uC774\uBBF8\uC9C0 \uD3B8\uC9D1\uC744 \uC800\uC7A5\uD558\uBA74 \uAE30\uC874 \uC8FC\uC11D\uC774 \uC81C\uAC70\uB429\uB2C8\uB2E4.",
+    "output.qualityXhigh": "\uB9E4\uC6B0 \uB192\uC74C",
+    "output.qualityMax": "\uCD5C\uACE0",
+    "output.complexity": "\uBCF5\uC7A1\uB3C4",
+    "output.frameCount": "\uD504\uB808\uC784 \uC218",
+    "output.frameDuration": "\uD504\uB808\uC784 \uC2DC\uAC04(ms)",
+    "output.totalDuration": "\uCD1D \uC2DC\uAC04",
+    "imageEditor.markup": "\uC8FC\uC11D",
+    "imageEditor.image": "\uC774\uBBF8\uC9C0",
+    "imageEditor.saveMarkup": "\uC8FC\uC11D \uC800\uC7A5",
+    "imageEditor.markupFirstOnly": "\uCCAB \uBC88\uC9F8 \uCC38\uC870 \uC774\uBBF8\uC9C0\uC5D0\uB9CC \uC8FC\uC11D\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4",
+    "imageEditor.markupUnsupported": "\uC774 \uBAA8\uB378 \uB610\uB294 API\uB294 \uC8FC\uC11D\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uBCC0\uACBD\uD558\uAC70\uB098 \uC8FC\uC11D\uC744 \uC81C\uAC70\uD558\uC138\uC694.",
     "app.newTask": "\uC0C8\uB85C \uB9CC\uB4E4\uAE30",
     "app.newTaskAria": "\uC0C8 \uCC44\uD305 \uB9CC\uB4E4\uAE30",
     "sidebar.searchPlaceholder": "\uD504\uB86C\uD504\uD2B8 \uB610\uB294 \uC791\uC5C5 ID \uAC80\uC0C9",
@@ -8835,6 +8913,19 @@
 
   // codex_image/webui/frontend/src/i18n/pt.ts
   var PT_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Anota\xE7\xF5es aceitam at\xE9 16.777.216 pixels. Redimensione primeiro a imagem original.",
+    "imageEditor.replacesMarkup": "Salvar as edi\xE7\xF5es da imagem remover\xE1 a anota\xE7\xE3o existente.",
+    "output.qualityXhigh": "Muito alta",
+    "output.qualityMax": "M\xE1xima",
+    "output.complexity": "Complexidade",
+    "output.frameCount": "Quadros",
+    "output.frameDuration": "Dura\xE7\xE3o por quadro (ms)",
+    "output.totalDuration": "Dura\xE7\xE3o total",
+    "imageEditor.markup": "Anota\xE7\xE3o",
+    "imageEditor.image": "Imagem",
+    "imageEditor.saveMarkup": "Salvar anota\xE7\xE3o",
+    "imageEditor.markupFirstOnly": "Somente a primeira imagem de refer\xEAncia aceita anota\xE7\xF5es",
+    "imageEditor.markupUnsupported": "Este modelo ou API n\xE3o aceita anota\xE7\xF5es. Altere-o ou remova a anota\xE7\xE3o.",
     "app.newTask": "Novo",
     "app.newTaskAria": "Novo bate-papo",
     "sidebar.searchPlaceholder": "Solicita\xE7\xF5es de pesquisa ou tarefa ID",
@@ -10241,6 +10332,19 @@
 
   // codex_image/webui/frontend/src/i18n/ru.ts
   var RU_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u0420\u0430\u0437\u043C\u0435\u0442\u043A\u0430 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0434\u043E 16 777 216 \u043F\u0438\u043A\u0441\u0435\u043B\u0435\u0439. \u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0443\u043C\u0435\u043D\u044C\u0448\u0438\u0442\u0435 \u043E\u0440\u0438\u0433\u0438\u043D\u0430\u043B.",
+    "imageEditor.replacesMarkup": "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0443\u0434\u0430\u043B\u0438\u0442 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0443\u044E \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443.",
+    "output.qualityXhigh": "\u041E\u0447\u0435\u043D\u044C \u0432\u044B\u0441\u043E\u043A\u043E\u0435",
+    "output.qualityMax": "\u041C\u0430\u043A\u0441\u0438\u043C\u0443\u043C",
+    "output.complexity": "\u0421\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u044C",
+    "output.frameCount": "\u041A\u0430\u0434\u0440\u044B",
+    "output.frameDuration": "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u043A\u0430\u0434\u0440\u0430 (\u043C\u0441)",
+    "output.totalDuration": "\u041E\u0431\u0449\u0430\u044F \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C",
+    "imageEditor.markup": "\u0420\u0430\u0437\u043C\u0435\u0442\u043A\u0430",
+    "imageEditor.image": "\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435",
+    "imageEditor.saveMarkup": "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443",
+    "imageEditor.markupFirstOnly": "\u0420\u0430\u0437\u043C\u0435\u0442\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0442\u043E\u043B\u044C\u043A\u043E \u043D\u0430 \u043F\u0435\u0440\u0432\u043E\u043C \u0440\u0435\u0444\u0435\u0440\u0435\u043D\u0441\u0435",
+    "imageEditor.markupUnsupported": "\u042D\u0442\u0430 \u043C\u043E\u0434\u0435\u043B\u044C \u0438\u043B\u0438 API \u043D\u0435 \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443. \u0421\u043C\u0435\u043D\u0438\u0442\u0435 \u0438\u0445 \u0438\u043B\u0438 \u0443\u0434\u0430\u043B\u0438\u0442\u0435 \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443.",
     "app.newTask": "\u041D\u043E\u0432\u044B\u0439",
     "app.newTaskAria": "\u041D\u043E\u0432\u044B\u0439 \u0447\u0430\u0442",
     "sidebar.searchPlaceholder": "\u041F\u043E\u0438\u0441\u043A\u043E\u0432\u044B\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0438\u043B\u0438 \u0437\u0430\u0434\u0430\u0447\u0430 ID",
@@ -11647,6 +11751,19 @@
 
   // codex_image/webui/frontend/src/i18n/it.ts
   var IT_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Le annotazioni supportano fino a 16.777.216 pixel. Ridimensiona prima l\u2019originale.",
+    "imageEditor.replacesMarkup": "Salvare le modifiche all\u2019immagine rimuover\xE0 l\u2019annotazione esistente.",
+    "output.qualityXhigh": "Molto alta",
+    "output.qualityMax": "Massima",
+    "output.complexity": "Complessit\xE0",
+    "output.frameCount": "Fotogrammi",
+    "output.frameDuration": "Durata per fotogramma (ms)",
+    "output.totalDuration": "Durata totale",
+    "imageEditor.markup": "Annotazione",
+    "imageEditor.image": "Immagine",
+    "imageEditor.saveMarkup": "Salva annotazione",
+    "imageEditor.markupFirstOnly": "Le annotazioni sono disponibili solo sulla prima immagine di riferimento",
+    "imageEditor.markupUnsupported": "Questo modello o API non supporta le annotazioni. Cambialo o rimuovi l\u2019annotazione.",
     "app.newTask": "Nuovo",
     "app.newTaskAria": "Nuova chat",
     "sidebar.searchPlaceholder": "Richieste di ricerca o attivit\xE0 ID",
@@ -13053,6 +13170,19 @@
 
   // codex_image/webui/frontend/src/i18n/hi.ts
   var HI_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0905\u0927\u093F\u0915\u0924\u092E 16,777,216 \u092A\u093F\u0915\u094D\u0938\u0947\u0932 \u0915\u093E \u0938\u092E\u0930\u094D\u0925\u0928 \u0915\u0930\u0924\u093E \u0939\u0948\u0964 \u092A\u0939\u0932\u0947 \u092E\u0942\u0932 \u091B\u0935\u093F \u0915\u093E \u0906\u0915\u093E\u0930 \u0918\u091F\u093E\u090F\u0901\u0964",
+    "imageEditor.replacesMarkup": "\u091B\u0935\u093F \u0915\u0947 \u0938\u0902\u092A\u093E\u0926\u0928 \u0938\u0939\u0947\u091C\u0928\u0947 \u0938\u0947 \u092E\u094C\u091C\u0942\u0926\u093E \u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0939\u091F \u091C\u093E\u090F\u0917\u093E\u0964",
+    "output.qualityXhigh": "\u092C\u0939\u0941\u0924 \u0909\u091A\u094D\u091A",
+    "output.qualityMax": "\u0905\u0927\u093F\u0915\u0924\u092E",
+    "output.complexity": "\u091C\u091F\u093F\u0932\u0924\u093E",
+    "output.frameCount": "\u092B\u093C\u094D\u0930\u0947\u092E",
+    "output.frameDuration": "\u092A\u094D\u0930\u0924\u093F \u092B\u093C\u094D\u0930\u0947\u092E \u0905\u0935\u0927\u093F (ms)",
+    "output.totalDuration": "\u0915\u0941\u0932 \u0905\u0935\u0927\u093F",
+    "imageEditor.markup": "\u092E\u093E\u0930\u094D\u0915\u0905\u092A",
+    "imageEditor.image": "\u091B\u0935\u093F",
+    "imageEditor.saveMarkup": "\u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0938\u0939\u0947\u091C\u0947\u0902",
+    "imageEditor.markupFirstOnly": "\u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0915\u0947\u0935\u0932 \u092A\u0939\u0932\u0940 \u0938\u0902\u0926\u0930\u094D\u092D \u091B\u0935\u093F \u092A\u0930 \u0938\u092E\u0930\u094D\u0925\u093F\u0924 \u0939\u0948",
+    "imageEditor.markupUnsupported": "\u092F\u0939 \u092E\u0949\u0921\u0932 \u092F\u093E API \u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0915\u093E \u0938\u092E\u0930\u094D\u0925\u0928 \u0928\u0939\u0940\u0902 \u0915\u0930\u0924\u093E\u0964 \u0907\u0938\u0947 \u092C\u0926\u0932\u0947\u0902 \u092F\u093E \u092E\u093E\u0930\u094D\u0915\u0905\u092A \u0939\u091F\u093E\u090F\u0901\u0964",
     "app.newTask": "\u0928\u092F\u093E",
     "app.newTaskAria": "\u0928\u0908 \u091A\u0948\u091F",
     "sidebar.searchPlaceholder": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F \u092F\u093E \u0915\u093E\u0930\u094D\u092F ID \u0916\u094B\u091C\u0947\u0902",
@@ -14459,6 +14589,19 @@
 
   // codex_image/webui/frontend/src/i18n/vi.ts
   var VI_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "Ch\xFA th\xEDch h\u1ED7 tr\u1EE3 t\u1ED1i \u0111a 16.777.216 pixel. H\xE3y gi\u1EA3m k\xEDch th\u01B0\u1EDBc \u1EA3nh g\u1ED1c tr\u01B0\u1EDBc.",
+    "imageEditor.replacesMarkup": "L\u01B0u ch\u1EC9nh s\u1EEDa \u1EA3nh s\u1EBD x\xF3a ch\xFA th\xEDch hi\u1EC7n c\xF3.",
+    "output.qualityXhigh": "R\u1EA5t cao",
+    "output.qualityMax": "T\u1ED1i \u0111a",
+    "output.complexity": "\u0110\u1ED9 ph\u1EE9c t\u1EA1p",
+    "output.frameCount": "S\u1ED1 khung",
+    "output.frameDuration": "Th\u1EDDi gian m\u1ED7i khung (ms)",
+    "output.totalDuration": "T\u1ED5ng th\u1EDDi gian",
+    "imageEditor.markup": "Ch\xFA th\xEDch",
+    "imageEditor.image": "\u1EA2nh",
+    "imageEditor.saveMarkup": "L\u01B0u ch\xFA th\xEDch",
+    "imageEditor.markupFirstOnly": "Ch\u1EC9 h\u1ED7 tr\u1EE3 ch\xFA th\xEDch tr\xEAn \u1EA3nh tham chi\u1EBFu \u0111\u1EA7u ti\xEAn",
+    "imageEditor.markupUnsupported": "M\xF4 h\xECnh ho\u1EB7c API n\xE0y kh\xF4ng h\u1ED7 tr\u1EE3 ch\xFA th\xEDch. H\xE3y \u0111\u1ED5i ho\u1EB7c x\xF3a ch\xFA th\xEDch.",
     "mobile.taskActions": "Thao t\xE1c t\xE1c v\u1EE5",
     "mobile.photos": "\u1EA2nh",
     "mobile.files": "T\u1EC7p",
@@ -15865,6 +16008,19 @@
 
   // codex_image/webui/frontend/src/i18n/zh-cn.ts
   var ZH_CN_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u6807\u6CE8\u6700\u5927\u652F\u6301 1677 \u4E07\u50CF\u7D20\uFF0C\u8BF7\u5148\u7F29\u5C0F\u539F\u56FE",
+    "imageEditor.replacesMarkup": "\u4FDD\u5B58\u56FE\u50CF\u7F16\u8F91\u5C06\u79FB\u9664\u539F\u6709\u6807\u6CE8",
+    "output.qualityXhigh": "\u8D85\u9AD8",
+    "output.qualityMax": "\u6700\u9AD8",
+    "output.complexity": "\u590D\u6742\u5EA6",
+    "output.frameCount": "\u5E27\u6570",
+    "output.frameDuration": "\u6BCF\u5E27\u65F6\u957F\uFF08\u6BEB\u79D2\uFF09",
+    "output.totalDuration": "\u603B\u65F6\u957F",
+    "imageEditor.markup": "\u6807\u6CE8",
+    "imageEditor.image": "\u56FE\u50CF",
+    "imageEditor.saveMarkup": "\u4FDD\u5B58\u6807\u6CE8",
+    "imageEditor.markupFirstOnly": "\u6807\u6CE8\u4EC5\u652F\u6301\u7B2C\u4E00\u5F20\u53C2\u8003\u56FE",
+    "imageEditor.markupUnsupported": "\u6B64\u6A21\u578B\u6216\u63A5\u53E3\u4E0D\u652F\u6301\u6807\u6CE8\uFF0C\u8BF7\u5207\u6362\u6216\u79FB\u9664\u6807\u6CE8",
     "mobile.taskActions": "\u4EFB\u52A1\u64CD\u4F5C",
     "mobile.photos": "\u7167\u7247",
     "mobile.files": "\u6587\u4EF6",
@@ -17271,6 +17427,19 @@
 
   // codex_image/webui/frontend/src/i18n/zh-hk.ts
   var ZH_HK_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u6A19\u8A3B\u6700\u5927\u652F\u63F4 1677 \u842C\u50CF\u7D20\uFF0C\u8ACB\u5148\u7E2E\u5C0F\u539F\u5716",
+    "imageEditor.replacesMarkup": "\u5132\u5B58\u5716\u50CF\u7DE8\u8F2F\u5C07\u79FB\u9664\u539F\u6709\u6A19\u8A3B",
+    "output.qualityXhigh": "\u8D85\u9AD8",
+    "output.qualityMax": "\u6700\u9AD8",
+    "output.complexity": "\u8907\u96DC\u5EA6",
+    "output.frameCount": "\u5F71\u683C\u6578",
+    "output.frameDuration": "\u6BCF\u683C\u6642\u9577\uFF08\u6BEB\u79D2\uFF09",
+    "output.totalDuration": "\u7E3D\u6642\u9577",
+    "imageEditor.markup": "\u6A19\u8A3B",
+    "imageEditor.image": "\u5716\u50CF",
+    "imageEditor.saveMarkup": "\u5132\u5B58\u6A19\u8A3B",
+    "imageEditor.markupFirstOnly": "\u6A19\u8A3B\u50C5\u652F\u63F4\u7B2C\u4E00\u5F35\u53C3\u8003\u5716",
+    "imageEditor.markupUnsupported": "\u6B64\u6A21\u578B\u6216\u4ECB\u9762\u4E0D\u652F\u63F4\u6A19\u8A3B\uFF0C\u8ACB\u5207\u63DB\u6216\u79FB\u9664\u6A19\u8A3B",
     "ux.historyDraftSaveFailed": "\u672A\u80FD\u4FDD\u7559\u76EE\u524D\u8349\u7A3F\uFF0C\u5DF2\u7559\u5728\u751F\u6210\u9801\u3002\u8ACB\u7A0D\u5F8C\u91CD\u8A66\u3002",
     "ux.historyDraftRestoreFailed": "\u8349\u7A3F\u9084\u539F\u5931\u6557\uFF0C\u5DF2\u4FDD\u7559\u81E8\u6642\u526F\u672C\u3002\u8ACB\u91CD\u65B0\u6574\u7406\u518D\u8A66\u3002",
     "mobile.taskActions": "\u4EFB\u52D9\u64CD\u4F5C",
@@ -18677,6 +18846,19 @@
 
   // codex_image/webui/frontend/src/i18n/zh-tw.ts
   var ZH_TW_DICTIONARY = {
+    "imageEditor.markupPixelLimit": "\u6A19\u8A3B\u6700\u5927\u652F\u63F4 1677 \u842C\u50CF\u7D20\uFF0C\u8ACB\u5148\u7E2E\u5C0F\u539F\u5716",
+    "imageEditor.replacesMarkup": "\u5132\u5B58\u5716\u50CF\u7DE8\u8F2F\u5C07\u79FB\u9664\u539F\u6709\u6A19\u8A3B",
+    "output.qualityXhigh": "\u8D85\u9AD8",
+    "output.qualityMax": "\u6700\u9AD8",
+    "output.complexity": "\u8907\u96DC\u5EA6",
+    "output.frameCount": "\u5F71\u683C\u6578",
+    "output.frameDuration": "\u6BCF\u683C\u6642\u9577\uFF08\u6BEB\u79D2\uFF09",
+    "output.totalDuration": "\u7E3D\u6642\u9577",
+    "imageEditor.markup": "\u6A19\u8A3B",
+    "imageEditor.image": "\u5716\u50CF",
+    "imageEditor.saveMarkup": "\u5132\u5B58\u6A19\u8A3B",
+    "imageEditor.markupFirstOnly": "\u6A19\u8A3B\u50C5\u652F\u63F4\u7B2C\u4E00\u5F35\u53C3\u8003\u5716",
+    "imageEditor.markupUnsupported": "\u6B64\u6A21\u578B\u6216\u4ECB\u9762\u4E0D\u652F\u63F4\u6A19\u8A3B\uFF0C\u8ACB\u5207\u63DB\u6216\u79FB\u9664\u6A19\u8A3B",
     "ux.historyDraftSaveFailed": "\u672A\u80FD\u4FDD\u7559\u76EE\u524D\u8349\u7A3F\uFF0C\u5DF2\u7559\u5728\u751F\u6210\u9801\u3002\u8ACB\u7A0D\u5F8C\u91CD\u8A66\u3002",
     "ux.historyDraftRestoreFailed": "\u8349\u7A3F\u9084\u539F\u5931\u6557\uFF0C\u5DF2\u4FDD\u7559\u66AB\u5B58\u526F\u672C\u3002\u8ACB\u91CD\u65B0\u6574\u7406\u518D\u8A66\u3002",
     "mobile.taskActions": "\u4EFB\u52D9\u64CD\u4F5C",
@@ -25947,7 +26129,7 @@
     return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state6.images || []).map((item) => ({ ...item })), files: (state6.referenceFiles || []).map((item) => ({ ...item })), mode: state6.mode };
   }
   function key(draft) {
-    return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
+    return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map((item) => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified, item.markupFile?.size, item.markupFile?.lastModified]), draft.files.map((item) => [item.id, item.filename, item.file?.size, item.file?.lastModified, item.markupFile?.size, item.markupFile?.lastModified]), draft.mode]);
   }
   function markComposerBaseline(prompt) {
     const draft = capture();
@@ -26463,6 +26645,9 @@
       customRatioFromImageButton: document.querySelector("#customRatioFromImageButton"),
       swapCustomSizeButton: document.querySelector("#swapCustomSizeButton"),
       quality: document.querySelector("#quality"),
+      complexity: document.querySelector("#complexity"),
+      frameCount: document.querySelector("#frameCount"),
+      frameDuration: document.querySelector("#frameDuration"),
       outputFormat: document.querySelector("#outputFormat"),
       outputFormatField: document.querySelector("#outputFormatField"),
       outputFormatGroup: document.querySelector("#outputFormatGroup"),
@@ -27174,7 +27359,43 @@
 
   // codex_image/webui/frontend/src/gpt-image-models.ts
   function isGptImageModel(modelId) {
-    return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"].includes(String(modelId || ""));
+    return ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst", "gpt-image-2.6-flare", "gpt-image-2.6-sunburst"].includes(String(modelId || ""));
+  }
+
+  // codex_image/webui/frontend/src/gpt-model-controls.ts
+  function syncGptModelControls(model) {
+    const { els: els11, state: state6 } = getLegacyBridge();
+    const quality = model.parameters.find((parameter) => parameter.id === "gpt.quality");
+    const format = model.parameters.find((parameter) => parameter.id === "output.format");
+    const extended = !!quality?.allowed_values.includes("max");
+    const complexity = model.parameters.some((parameter) => parameter.id === "gpt.complexity");
+    const root = document.getElementById("outputFileSettings");
+    if (!root) return;
+    root?.classList.toggle("extended-quality", extended);
+    root?.classList.toggle("image26-controls", complexity);
+    document.getElementById("complexityField")?.classList.toggle("hidden", !complexity);
+    if (els11.complexity) els11.complexity.disabled = !complexity;
+    document.querySelectorAll("#qualityGroup [data-val]").forEach((button) => {
+      const supported = quality?.allowed_values.includes(button.dataset.val) ?? true;
+      button.hidden = !supported;
+      button.classList.toggle("hidden", !supported);
+      button.disabled = !supported;
+    });
+    for (const option2 of Array.from(els11.quality?.options || [])) {
+      option2.disabled = !(quality?.allowed_values.includes(option2.value) ?? true);
+    }
+    const select = els11.outputFormat;
+    if (!select) return;
+    for (const option2 of Array.from(select.options)) {
+      const supported = format?.allowed_values.includes(option2.value) ?? ["png", "jpeg", "webp"].includes(option2.value);
+      option2.hidden = !supported;
+      option2.disabled = !supported || state6.mode === "edit" && ["svg", "gif"].includes(option2.value);
+    }
+    if (select.selectedOptions[0]?.disabled) select.value = "png";
+    if (complexity) mountThemedSelect(select);
+    select.closest(".themed-select")?.classList.toggle("hidden", !complexity);
+    els11.outputFormatGroup?.classList.toggle("hidden", complexity);
+    syncThemedSelect(select);
   }
 
   // codex_image/webui/frontend/src/background-controls.ts
@@ -27190,7 +27411,7 @@
     const { els: els11, state: state6 } = getLegacyBridge();
     if (!els11.transparentBackground) return;
     const supported = !state6.generationCatalog || isGptImageModel(state6.selectedModelId || "");
-    const formatSupported = els11.outputFormat?.value !== "jpeg";
+    const formatSupported = ["png", "webp", "svg"].includes(els11.outputFormat?.value || "png");
     if (els11.background?.value === "transparent") transparentPreference = true;
     const enabled = supported && formatSupported && transparentPreference;
     if (supported && els11.background) {
@@ -27199,7 +27420,7 @@
     }
     els11.transparentBackground.checked = enabled;
     els11.transparentBackground.disabled = !supported || !formatSupported;
-    els11.transparentBackgroundField?.classList.toggle("hidden", !supported);
+    els11.transparentBackgroundField?.classList.toggle("hidden", !supported || state6.selectedModelId?.startsWith("gpt-image-2.6-") && !formatSupported);
     const label = document.getElementById("transparentBackgroundLabel");
     const labelKey = formatSupported ? "output.transparentBackground" : "output.transparencyUnavailable";
     if (label) {
@@ -27422,7 +27643,7 @@
     }
     return value;
   }
-  function gptSizeValid(value) {
+  function gptSizeValid(value, animation = false) {
     if (typeof value !== "string") return false;
     const match = value.match(/^(\d+)x(\d+)$/i);
     if (!match) return false;
@@ -27431,6 +27652,7 @@
     if (!Number.isInteger(width) || !Number.isInteger(height)) return false;
     if (width < 16 || width > 3840 || height < 16 || height > 3840) return false;
     if (width % 16 !== 0 || height % 16 !== 0) return false;
+    if (animation) return true;
     if (Math.max(width, height) / Math.min(width, height) > 3) return false;
     const pixels = width * height;
     return pixels >= 655360 && pixels <= 8294400;
@@ -27459,6 +27681,12 @@
       }
     }
     return true;
+  }
+  function modelParameterValueValid(model, definition, value, values) {
+    if (definition.id === "canvas.size" && model.id.startsWith("gpt-image-2.6-") && values["output.format"] === "gif") {
+      return gptSizeValid(value, true);
+    }
+    return parameterValueValid(definition, value);
   }
   function nextObjectChoiceValue(definition, value, key2, next) {
     const row = definition.object_choices?.find((item) => item.key === key2);
@@ -27503,7 +27731,7 @@
         continue;
       }
       const prior = previous[definition.id];
-      if (parameterValueValid(definition, prior)) {
+      if (modelParameterValueValid(model, definition, prior, previous)) {
         values[definition.id] = cloneValue(prior);
       } else {
         const replacement = cloneValue(definition.default);
@@ -27935,7 +28163,7 @@
   function resolvedParameterValues(model, values) {
     return Object.fromEntries(model.parameters.map((definition) => [
       definition.id,
-      parameterValueValid(definition, values[definition.id]) ? values[definition.id] : cloneValue(definition.default)
+      modelParameterValueValid(model, definition, values[definition.id], values) ? values[definition.id] : cloneValue(definition.default)
     ]));
   }
   function visibleParameterDefinitions(model, values, operation) {
@@ -28009,6 +28237,7 @@
       return;
     }
     ensureModelDraft(model);
+    syncGptModelControls(model);
     const visibility = legacyParameterVisibility(model.id, els11.size?.value);
     const legacyGpt = visibility.legacyGpt;
     state6.customSizeTransitionSeq += 1;
@@ -28043,7 +28272,7 @@
     const { state: state6 } = getLegacyBridge();
     const model = state6.generationCatalog?.models.find((item) => item.id === modelId);
     const definition = model?.parameters.find((item) => item.id === parameterId);
-    if (!model || !definition || !parameterValueValid(definition, value)) return;
+    if (!model || !definition || !modelParameterValueValid(model, definition, value, state6.parameterDraftsByModel[modelId] || {})) return;
     state6.parameterDraftsByModel[modelId] = {
       ...state6.parameterDraftsByModel[modelId] || {},
       [parameterId]: cloneValue(value)
@@ -28082,12 +28311,17 @@
       "canvas.aspect_ratio": taskParams.ratio,
       "canvas.resolution": taskParams.resolution,
       "gpt.quality": taskParams.quality,
+      "gpt.complexity": taskParams.complexity,
       "gpt.background": taskParams.background ?? "auto",
       "output.format": format,
       "gpt.moderation": taskParams.moderation,
       "gpt.web_search": protocolProfile.endsWith("_responses") && Boolean(taskParams.web_search),
       "output.count": taskParams.n
     };
+    if (format === "gif") {
+      values["gpt.frame_count"] = taskParams.frame_count;
+      values["gpt.frame_duration_ms"] = taskParams.frame_duration_ms;
+    }
     if (format === "jpeg" || format === "webp") {
       values["gpt.output_compression"] = taskParams.output_compression;
     }
@@ -28148,6 +28382,7 @@
       renderCurrentModelParameters();
       return;
     }
+    syncGptModelControls(model);
     const draft = {
       ...Object.fromEntries(model.parameters.map((parameter) => [parameter.id, parameter.default])),
       ...state6.parameterDraftsByModel[modelId] || {}
@@ -28160,6 +28395,10 @@
     if (typeof draft["canvas.size"] === "string") methods.syncSizeControlsFromSize?.(draft["canvas.size"]);
     if (typeof draft["gpt.quality"] === "string" && els11.quality) els11.quality.value = draft["gpt.quality"];
     if (typeof draft["output.format"] === "string" && els11.outputFormat) els11.outputFormat.value = draft["output.format"];
+    if (els11.outputFormat?.selectedOptions?.[0]?.disabled) els11.outputFormat.value = "png";
+    if (els11.complexity) els11.complexity.value = String(draft["gpt.complexity"] || "high");
+    if (els11.frameCount) els11.frameCount.value = String(draft["gpt.frame_count"] ?? 9);
+    if (els11.frameDuration) els11.frameDuration.value = String(draft["gpt.frame_duration_ms"] ?? 200);
     setBackgroundControl(draft["gpt.background"]);
     if (typeof draft["gpt.moderation"] === "string" && els11.moderation) els11.moderation.value = draft["gpt.moderation"];
     if (typeof draft["gpt.output_compression"] === "number" && els11.compression) els11.compression.value = String(draft["gpt.output_compression"]);
@@ -28167,7 +28406,7 @@
       els11.webSearch.checked = draft["gpt.web_search"] && (selectedProviderBinding()?.protocol_profile || "").endsWith("_responses");
     }
     if (typeof draft["output.count"] === "number" && els11.nInput) els11.nInput.value = String(draft["output.count"]);
-    methods.syncRadioButtons?.(els11.quality, els11.outputFormat, els11.moderation, els11.nInput);
+    methods.syncRadioButtons?.(els11.complexity, els11.quality, els11.outputFormat, els11.moderation, els11.nInput);
     methods.updateQuantity?.();
     methods.updateCompression?.();
     renderCurrentModelParameters();
@@ -29032,6 +29271,7 @@
     return [...model.operations];
   }
   function availableProtocolsForModel(modelId) {
+    if (modelId.startsWith("gpt-image-2.6-")) return ["openai_images"];
     if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
     if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
     return [];

@@ -1204,6 +1204,21 @@ button:disabled {
       align-items: center;
       gap: 6px;
     }
+    .output-panel .image26-controls .complexity-field {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: center;
+      gap: 6px;
+    }
+    .output-panel .image26-controls #outputFormatField > .themed-select {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .output-panel .image26-controls .themed-select-trigger {
+      min-height: calc(var(--compact-parameter-height) + 6px);
+      height: calc(var(--compact-parameter-height) + 6px);
+      font-size: 12px;
+    }
     .output-panel .output-compression-button > span { display: none; }
 
     .output-panel .custom-size { padding: 8px 12px; gap: 12px 16px; }

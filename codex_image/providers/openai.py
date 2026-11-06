@@ -41,6 +41,7 @@ def _asset_from_image_result(result: ImageResult) -> GeneratedAsset:
         "jpeg": "image/jpeg",
         "webp": "image/webp",
         "gif": "image/gif",
+        "svg": "image/svg+xml",
     }.get(output_format, "image/png")
     return GeneratedAsset(
         image_bytes=result.image_bytes,
@@ -101,7 +102,7 @@ class OpenAIImagesAdapter:
             results = client.parse_response_json_items(
                 response.body,
                 request_payload=payload,
-                url_fetcher=client._fetch_image_url,
+                url_fetcher=lambda url: client._fetch_image_url(url, allow_svg=payload.get("output_format") == "svg"),
                 asset_outcomes=outcomes,
             )
             if not results and outcomes:

@@ -978,10 +978,46 @@ class ClientTests(unittest.TestCase):
             base_url="https://api.example.com/v1",
             transport=transport,
         )
-        with self.assertRaisesRegex(RuntimeError, "invalid image URL asset"):
+        with self.assertRaisesRegex(RuntimeError, "invalid image URL asset: asset download failed with HTTP 403"):
             client.generate_image(prompt="draw private url")
         self.assertEqual(len(transport.requests), 2)
         self.assertNotIn("Authorization", transport.requests[1]["headers"])
+
+    def test_mislabeled_download_keeps_actual_format_through_provider_and_storage(self) -> None:
+        from codex_image.client import OpenAIImagesImageClient
+        from codex_image.providers.openai import image_results_to_generation
+        from codex_image.webui.execution_plan_client import ExecutionPlanImageClient
+        from codex_image.webui.storage import TaskStorage
+
+        transport = FakeTransport([
+            FakeResponse(status=200, body=json.dumps({'data': [{'url': 'https://cdn.example/wrong.png',
+                                                               'output_format': 'png'}]}).encode()),
+            FakeResponse(status=200, body=TEST_WEBP_BYTES, headers={'Content-Type': 'image/png'}),
+        ])
+        client = OpenAIImagesImageClient(api_key='synthetic', base_url='https://api.example/v1', transport=transport)
+        result = client.generate_image(prompt='synthetic', output_format='png')
+        self.assertEqual(result.output_format, 'webp')
+        self.assertEqual(result.image_bytes, TEST_WEBP_BYTES)
+        generated = image_results_to_generation([result])
+        self.assertEqual(generated.assets[0].mime_type, 'image/webp')
+        restored = ExecutionPlanImageClient._image_result(generated, generated.assets[0], {'output_format': 'png'})
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'source-data').mkdir()
+            storage = TaskStorage(root)
+            path = storage.write_output('20260101000000-abcd1234', restored.image_bytes, restored.output_format)
+            self.assertEqual(path.suffix, '.webp')
+            self.assertEqual(path.read_bytes(), TEST_WEBP_BYTES)
+        self.assertEqual([request['method'] for request in transport.requests], ['POST', 'GET'])
+        self.assertNotIn('Authorization', transport.requests[1]['headers'])
+
+    def test_openai_images_result_format_comes_from_bytes_when_metadata_is_wrong(self) -> None:
+        from codex_image.client import OpenAIImagesImageClient
+
+        body = json.dumps({'output_format': 'png', 'data': [{'b64_json': base64.b64encode(TEST_WEBP_BYTES).decode(),
+                                                          'output_format': 'jpeg'}]}).encode()
+        result = OpenAIImagesImageClient.parse_response_json(body, request_payload={'output_format': 'png'})
+        self.assertEqual(result.output_format, 'webp')
 
     def test_openai_images_client_decodes_data_url_output(self) -> None:
         png_bytes = TEST_PNG_BYTES

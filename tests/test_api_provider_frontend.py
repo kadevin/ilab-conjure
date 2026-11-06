@@ -1,11 +1,9 @@
-import unittest
+"""Compatibility entry; pure frontend suites are discovered centrally."""
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
-class ApiProviderFrontendTests(unittest.TestCase):
-    def test_provider_model_discovery(self) -> None:
-        run_frontend(self, "provider_model_discovery.test.ts")
-
-    def test_api_provider_model(self) -> None:
-        run_frontend(self, "api_provider_model.test.ts")
+load_tests = compatibility_load_tests((
+    'provider_model_discovery.test.ts',
+    'api_provider_model.test.ts',
+))

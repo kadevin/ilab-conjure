@@ -751,3 +751,10 @@
     transform: translateX(260%);
   }
 }
+
+.image-editor-mode-group { display: flex; gap: 6px; margin-bottom: 12px; }
+.image-editor-mode-group .active { color: var(--accent); background: var(--accent-soft); }
+.markup-mode .image-editor-side-panel,
+.markup-mode [data-image-editor-tool="select"],
+.markup-mode [data-image-editor-tool="crop"] { display: none; }
+.markup-mode .image-editor-workspace { grid-template-columns: minmax(0, 1fr); }

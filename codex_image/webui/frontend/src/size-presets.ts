@@ -152,6 +152,7 @@ export function customSizeValidationMessage(width: any = customDimensionValue(el
   if (width === null || height === null) return translate("output.customSizeRequired");
   if (width < 16 || width > 3840 || height < 16 || height > 3840) return translate("output.customSizeBounds");
   if (width % 16 !== 0 || height % 16 !== 0) return translate("output.customSizeMultiple");
+  if (getLegacyBridge().state.selectedModelId?.startsWith("gpt-image-2.6-") && els.outputFormat?.value === "gif") return "";
   if (Math.max(width, height) / Math.min(width, height) > GPT_IMAGE_2_MAX_LONG_SHORT_RATIO) return translate("output.customSizeRatio");
   const totalPixels = width * height;
   if (totalPixels < GPT_IMAGE_2_MIN_PIXELS || totalPixels > GPT_IMAGE_2_MAX_PIXELS) return translate("output.customSizePixels");
@@ -198,9 +199,16 @@ export function currentTaskParams(): any {
     background: els.background?.value || "auto",
     output_format: els.outputFormat.value,
     moderation: els.moderation.value,
-    output_compression: els.outputFormat.value === "png" ? null : Number(els.compression.value),
+    output_compression: ["jpeg", "webp"].includes(els.outputFormat.value) ? Number(els.compression.value) : null,
   };
   const { state } = getLegacyBridge();
+  if (state.selectedModelId?.startsWith("gpt-image-2.6-")) {
+    params.complexity = els.complexity?.value || "high";
+    if (params.output_format === "gif") {
+      params.frame_count = Number(els.frameCount?.value || 9);
+      params.frame_duration_ms = Number(els.frameDuration?.value || 200);
+    }
+  }
   if (!state.generationCatalog || isGptImageModel(state.selectedModelId)) {
     params.main_model = currentMainModel();
     params.prompt_fidelity = currentPromptFidelity();

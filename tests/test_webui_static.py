@@ -11,6 +11,7 @@ import unittest
 
 
 _DOMAIN_MODULES = (
+    "tests.test_webui_static_architecture",
     "tests.test_webui_static_build",
     "tests.test_webui_static_prompt",
     "tests.test_webui_static_tasks",

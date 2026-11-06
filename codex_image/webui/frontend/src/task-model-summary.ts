@@ -20,18 +20,24 @@ export function taskCanonicalModelId(task: unknown): string {
 
 export type TaskOutputSettingsView = "locked-summary" | "parameter-inspector" | "editor";
 
-export function modelsShareParameterEditor(leftModelId: string, rightModelId: string): boolean {
-  return leftModelId === rightModelId
-    || (isGptImageModel(leftModelId) && isGptImageModel(rightModelId));
+export function modelsShareParameterEditor(leftModelId: string, rightModelId: string, catalog?: GenerationCatalog | null): boolean {
+  if (leftModelId === rightModelId) return true;
+  if (!isGptImageModel(leftModelId) || !isGptImageModel(rightModelId)) return false;
+  const left = catalog?.models.find(model => model.id === leftModelId);
+  const right = catalog?.models.find(model => model.id === rightModelId);
+  // A shared family no longer guarantees the same formats, quality or timing controls.
+  return Boolean(left?.parameters && right?.parameters
+    && JSON.stringify(left.parameters) === JSON.stringify(right.parameters));
 }
 
 export function taskOutputSettingsView(
   task: unknown,
   selectedModelId: string,
   outputSettingsLocked: boolean,
+  catalog?: GenerationCatalog | null,
 ): TaskOutputSettingsView {
   if (outputSettingsLocked) return "locked-summary";
-  return modelsShareParameterEditor(taskCanonicalModelId(task), selectedModelId) ? "editor" : "parameter-inspector";
+  return modelsShareParameterEditor(taskCanonicalModelId(task), selectedModelId, catalog) ? "editor" : "parameter-inspector";
 }
 
 export function taskRequestedParameters(task: unknown): Record<string, unknown> {
@@ -63,6 +69,9 @@ export function taskOutputControlValues(task: unknown): Record<string, unknown> 
     ratio: preferredParameter(parameters, "canvas.aspect_ratio", params.ratio, request.ratio),
     resolution: preferredParameter(parameters, "canvas.resolution", params.resolution, request.resolution),
     quality: preferredParameter(parameters, "gpt.quality", params.quality, request.quality),
+    complexity: preferredParameter(parameters, "gpt.complexity", params.complexity, request.complexity),
+    frame_count: preferredParameter(parameters, "gpt.frame_count", params.frame_count, request.frame_count),
+    frame_duration_ms: preferredParameter(parameters, "gpt.frame_duration_ms", params.frame_duration_ms, request.frame_duration_ms),
     background: preferredParameter(parameters, "gpt.background", params.background, request.background),
     moderation: preferredParameter(parameters, "gpt.moderation", params.moderation, request.moderation),
     web_search: preferredParameter(parameters, "gpt.web_search", params.web_search, request.web_search),

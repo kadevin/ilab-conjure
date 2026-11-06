@@ -1,3 +1,4 @@
+import { syncGptModelControls } from "./gpt-model-controls";
 import { setCustomSizeModeLayout } from "./output-size-layout";
 import { isGptImageModel } from "./gpt-image-models";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
@@ -33,7 +34,7 @@ function cloneValue(value: unknown): unknown {
   return value;
 }
 
-function gptSizeValid(value: unknown): boolean {
+function gptSizeValid(value: unknown, animation = false): boolean {
   if (typeof value !== "string") return false;
   const match = value.match(/^(\d+)x(\d+)$/i);
   if (!match) return false;
@@ -42,6 +43,7 @@ function gptSizeValid(value: unknown): boolean {
   if (!Number.isInteger(width) || !Number.isInteger(height)) return false;
   if (width < 16 || width > 3840 || height < 16 || height > 3840) return false;
   if (width % 16 !== 0 || height % 16 !== 0) return false;
+  if (animation) return true;
   if (Math.max(width, height) / Math.min(width, height) > 3) return false;
   const pixels = width * height;
   return pixels >= 655360 && pixels <= 8294400;
@@ -75,6 +77,13 @@ export function parameterValueValid(definition: CatalogParameterDefinition, valu
     }
   }
   return true;
+}
+
+function modelParameterValueValid(model: CatalogModel, definition: CatalogParameterDefinition, value: unknown, values: Record<string, unknown>): boolean {
+  if (definition.id === "canvas.size" && model.id.startsWith("gpt-image-2.6-") && values["output.format"] === "gif") {
+    return gptSizeValid(value, true);
+  }
+  return parameterValueValid(definition, value);
 }
 
 export function nextObjectChoiceValue(
@@ -145,7 +154,7 @@ export function initializeParameterDraft(
       continue;
     }
     const prior = previous[definition.id];
-    if (parameterValueValid(definition, prior)) {
+    if (modelParameterValueValid(model, definition, prior, previous)) {
       values[definition.id] = cloneValue(prior);
     } else {
       const replacement = cloneValue(definition.default);
@@ -179,7 +188,7 @@ export function activeParameterValuesFor(
 ): Record<string, unknown> {
   const values = Object.fromEntries(model.parameters.map((definition) => {
     const value = draft[definition.id];
-    return [definition.id, cloneValue(parameterValueValid(definition, value) ? value : definition.default)];
+    return [definition.id, cloneValue(modelParameterValueValid(model, definition, value, draft) ? value : definition.default)];
   }));
   return Object.fromEntries(model.parameters
     .filter((definition) => definition.operations.includes(operation))
@@ -690,7 +699,7 @@ function resolvedParameterValues(
 ): Record<string, unknown> {
   return Object.fromEntries(model.parameters.map((definition) => [
     definition.id,
-    parameterValueValid(definition, values[definition.id]) ? values[definition.id] : cloneValue(definition.default),
+    modelParameterValueValid(model, definition, values[definition.id], values) ? values[definition.id] : cloneValue(definition.default),
   ]));
 }
 
@@ -790,6 +799,7 @@ export function renderModelParameters(
     return;
   }
   ensureModelDraft(model);
+  syncGptModelControls(model);
   const visibility = legacyParameterVisibility(model.id, els.size?.value);
   const legacyGpt = visibility.legacyGpt;
   state.customSizeTransitionSeq += 1;
@@ -825,7 +835,7 @@ export function setParameterValue(modelId: string, parameterId: string, value: u
   const { state } = getLegacyBridge();
   const model = state.generationCatalog?.models.find((item) => item.id === modelId);
   const definition = model?.parameters.find((item) => item.id === parameterId);
-  if (!model || !definition || !parameterValueValid(definition, value)) return;
+  if (!model || !definition || !modelParameterValueValid(model, definition, value, state.parameterDraftsByModel[modelId] || {})) return;
   state.parameterDraftsByModel[modelId] = {
     ...(state.parameterDraftsByModel[modelId] || {}),
     [parameterId]: cloneValue(value),

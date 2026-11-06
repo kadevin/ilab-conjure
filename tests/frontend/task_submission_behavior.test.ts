@@ -150,6 +150,7 @@ function resetSubmissionState(): void {
     storedReferenceFileInputs: () => [],
     syncGalleryInputsFromPrompt() {},
     syncPromptFromEditor() {},
+    updateCompression() {},
     uploadInputs: () => [],
   });
   initTaskSubmitFeature();

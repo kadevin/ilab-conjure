@@ -748,7 +748,6 @@ def output_url(task_id: str, index: int = 1, suffix: str = "png") -> str:
     return f"/outputs/{output_name(task_id, index, suffix)}"
 
 
-
 class WebUIStaticTestCase(unittest.TestCase):
     def assertCloseButtonUsesConsistentX(self, html: str, button_id: str, aria_label: str) -> None:
         self.assertRegex(
@@ -1020,3 +1019,24 @@ class WebUIStaticTestCase(unittest.TestCase):
         if not match:
             raise AssertionError(f"CSS block {selector} not found")
         return match.group(0)
+
+    def _extract_css_at_rule(self, styles: str, marker: str) -> str:
+        start = styles.index(marker)
+        return self._extract_css_at_rule_from(styles, marker, start)
+
+    def _extract_last_css_at_rule(self, styles: str, marker: str) -> str:
+        start = styles.rindex(marker)
+        return self._extract_css_at_rule_from(styles, marker, start)
+
+    def _extract_css_at_rule_from(self, styles: str, marker: str, start: int) -> str:
+        brace_start = styles.index("{", start)
+        depth = 0
+        for index in range(brace_start, len(styles)):
+            char = styles[index]
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    return styles[start:index + 1]
+        raise AssertionError(f"Could not extract CSS at-rule {marker}")

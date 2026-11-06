@@ -98,6 +98,7 @@ export function resolvedBindingOperations(
 }
 
 export function availableProtocolsForModel(modelId: string): BindingProtocol[] {
+  if (modelId.startsWith("gpt-image-2.6-")) return ["openai_images"];
   if (modelId.startsWith("nano-banana")) return ["gemini", "openai_images"];
   if (isGptImageModel(modelId)) return ["openai_images", "openai_responses"];
   return [];

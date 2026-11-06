@@ -151,19 +151,35 @@ test("locked task selection keeps the visual summary while unlocked cross-model 
   assert.equal(taskOutputSettingsView(geminiTask, "nano-banana-2-lite", false), "editor");
 });
 
-test("GPT history versions share the current parameter editor without changing the historical identity", () => {
+test("GPT models with matching parameter contracts share the editor without changing history", () => {
   const versions = ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"];
+  const matchingCatalog = { ...catalog, models: versions.map(id => ({ ...catalog.models[0], id, parameters: [] })) } as GenerationCatalog;
   for (const historicalModel of versions) {
     const task = { generation_snapshot: { canonical_model_id: historicalModel } };
     for (const selectedModel of versions) {
-      assert.equal(taskOutputSettingsView(task, selectedModel, false), "editor");
+      assert.equal(taskOutputSettingsView(task, selectedModel, false, matchingCatalog), "editor");
       assert.equal(taskOutputSettingsView(task, selectedModel, true), "locked-summary");
       assert.equal(taskCanonicalModelId(task), historicalModel);
     }
     assert.equal(taskOutputSettingsView(task, "nano-banana-2", false), "parameter-inspector");
     assert.equal(taskOutputSettingsView(task, "gpt-image-future", false), "parameter-inspector");
   }
-  assert.equal(taskOutputSettingsView({ params: { model: "gpt-image-2" } }, "gpt-image-2.5-flare", false), "editor");
+  assert.equal(taskOutputSettingsView({ params: { model: "gpt-image-2" } }, "gpt-image-2.5-flare", false, matchingCatalog), "editor");
+});
+
+test("different GPT parameter contracts require explicit adoption", () => {
+  const versions = ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.6-flare", "gpt-image-2.6-sunburst"];
+  const differentCatalog = { ...catalog, models: versions.map(id => ({
+    ...catalog.models[0], id, parameters: [{ id: "output.format", allowed_values: id.includes("2.6") ? ["png", "gif", "svg"] : ["png"] },
+      { id: "gpt.quality", allowed_values: id === "gpt-image-2" ? ["high"] : ["high", "max"] }],
+  })) } as GenerationCatalog;
+  const task = { generation_snapshot: { canonical_model_id: "gpt-image-2.6-flare" } };
+  for (const selected of versions.slice(0, 2)) {
+    assert.equal(taskOutputSettingsView(task, selected, false, differentCatalog), "parameter-inspector");
+  }
+  assert.equal(taskOutputSettingsView(task, "gpt-image-2.6-sunburst", false, differentCatalog), "editor");
+  assert.equal(taskOutputSettingsView(task, "gpt-image-2.6-sunburst", false), "parameter-inspector");
+  assert.equal(taskOutputSettingsView({ generation_snapshot: { canonical_model_id: "gpt-image-2.5-flare" } }, "gpt-image-2", false, differentCatalog), "parameter-inspector");
 });
 
 test("task cards use the shared Gemini brand mark asset", () => {
@@ -186,4 +202,20 @@ test("task channel summaries normalize provider protocol profiles", () => {
   assert.equal(taskChannelLabel({
     generation_snapshot: { protocol_profile: "gemini_generate_content" },
   }), "Gemini");
+});
+
+
+test("Image 2.6 history restores complexity and GIF timing from the frozen request", () => {
+  const values = taskOutputControlValues({
+    generation_snapshot: { requested_parameters: {
+      "gpt.complexity": "low", "gpt.quality": "max", "output.format": "gif",
+      "gpt.frame_count": 12, "gpt.frame_duration_ms": 100,
+    } },
+    params: { complexity: "high", frame_count: 9, frame_duration_ms: 200 },
+  });
+  assert.equal(values.complexity, "low");
+  assert.equal(values.quality, "max");
+  assert.equal(values.output_format, "gif");
+  assert.equal(values.frame_count, 12);
+  assert.equal(values.frame_duration_ms, 100);
 });

@@ -768,6 +768,7 @@ def _slim_request_payload(
     reference_assets: list[dict[str, Any]],
     reference_files: list[dict[str, Any]] | None = None,
     mask_file: str | None = None,
+    markup_file: str | None = None,
 ) -> dict[str, Any]:
     slim = _redact_request_data(request_payload)
     if isinstance(slim, dict):
@@ -776,6 +777,8 @@ def _slim_request_payload(
             "gallery_refs": gallery_refs,
             "reference_assets": reference_assets,
         }
+        if markup_file:
+            refs["markup_file"] = markup_file
         if mask_file:
             refs["mask_file"] = mask_file
         slim["webui_image_refs"] = refs

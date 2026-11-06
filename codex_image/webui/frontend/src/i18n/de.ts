@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const DE_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "Markierungen unterstützen bis zu 16.777.216 Pixel. Verkleinern Sie zuerst das Original.",
+    "imageEditor.replacesMarkup": "Beim Speichern der Bildbearbeitung wird die vorhandene Markierung entfernt.",
+    "output.qualityXhigh": "Sehr hoch",
+    "output.qualityMax": "Maximum",
+    "output.complexity": "Komplexität",
+    "output.frameCount": "Frames",
+    "output.frameDuration": "Dauer pro Frame (ms)",
+    "output.totalDuration": "Gesamtdauer",
+    "imageEditor.markup": "Markierung",
+    "imageEditor.image": "Bild",
+    "imageEditor.saveMarkup": "Markierung speichern",
+    "imageEditor.markupFirstOnly": "Markierungen sind nur auf dem ersten Referenzbild möglich",
+    "imageEditor.markupUnsupported": "Dieses Modell oder diese API unterstützt keine Markierungen. Wechseln Sie oder entfernen Sie die Markierung.",
     "app.newTask": "Neu",
     "app.newTaskAria": "Neuer Chat",
     "sidebar.searchPlaceholder": "Suchaufforderungen oder Aufgabe ID",

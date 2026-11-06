@@ -29,6 +29,7 @@ from codex_image.webui.app import create_app
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "codex_image/webui/static"
 BROWSER_SUITES = {
+    "image26": "image26.browser",
     "history": "history_page.browser",
     "image-mentions": "image_mentions.browser",
     "prompt-paste": "prompt_paste.browser",
@@ -142,7 +143,7 @@ def main() -> None:
             def acceptance_page(suite: str):
                 if suite not in BROWSER_SUITES:
                     raise HTTPException(404)
-                script = BROWSER_SUITES[suite] if suite in ("history", "workbench-layout", "api-settings", "api-provider-delete", "workbench-feedback", "ui-icons", "output-controls", "main-model", "prompt-response") else "browser_harness"
+                script = BROWSER_SUITES[suite] if suite in ("image26", "history", "workbench-layout", "api-settings", "api-provider-delete", "workbench-feedback", "ui-icons", "output-controls", "main-model", "prompt-response") else "browser_harness"
                 return HTMLResponse(
                     f'<!doctype html><html><body><h1>{suite} acceptance</h1>'
                     '<pre id="results">Running</pre>'

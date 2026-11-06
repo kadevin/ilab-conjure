@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const EN_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "Markup supports up to 16,777,216 pixels. Resize the original first.",
+    "imageEditor.replacesMarkup": "Saving image edits will remove the existing markup.",
+    "output.qualityXhigh": "Extra high",
+    "output.qualityMax": "Maximum",
+    "output.complexity": "Complexity",
+    "output.frameCount": "Frames",
+    "output.frameDuration": "Frame duration (ms)",
+    "output.totalDuration": "Total duration",
+    "imageEditor.markup": "Markup",
+    "imageEditor.image": "Image",
+    "imageEditor.saveMarkup": "Save markup",
+    "imageEditor.markupFirstOnly": "Markup is supported on the first reference image only",
+    "imageEditor.markupUnsupported": "This model or API does not support markup. Switch it or remove the markup.",
     "mobile.taskActions": "Task actions",
     "mobile.photos": "Photos",
     "mobile.files": "Files",

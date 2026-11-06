@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import json
 import re
 import shutil
@@ -430,6 +432,7 @@ class WebUIStaticI18nTests(WebUIStaticTestCase):
             self.assertIn(f'<option value="{locale}"', language_panel)
         self.assertNotIn("settings.status", language_panel)
 
+    @frontend_test
     def test_language_bootstrap_ignores_stale_restore_after_a_b_a_selection(self) -> None:
         node = shutil.which("node")
         if node is None:

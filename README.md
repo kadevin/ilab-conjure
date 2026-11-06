@@ -48,7 +48,7 @@ iLab CONJURE 是本地优先的 AI 图片生成工作台，支持 GPT Image、Ge
 <details>
 <summary>模型与通道说明</summary>
 
-GPT Image 支持 Image 2、2.5 Flare 和 Sunburst；API 供应商可分别绑定远端模型名，现有绑定不会自动升级。Codex 通道保持 Image 2。Gemini 包含 Nano Banana Pro、2.1、2 和 2 Lite，其中 2.1 支持 1K／2K／4K、最多 14 张参考图及 Google 搜索。
+GPT Image 支持 Image 2、2.5 和 2.6 的 Flare／Sunburst；API 供应商可分别绑定远端模型名，现有绑定不会自动升级。Codex 通道保持 Image 2。Gemini 包含 Nano Banana Pro、2.1、2 和 2 Lite，其中 2.1 支持 1K／2K／4K、最多 14 张参考图及 Google 搜索。
 
 Responses 通道可设置主模型，默认 `gpt-6-luna`，候选包含 `gpt-6.1-terra`（取决于供应商支持）；已保存的选择会保留，旧的 `gpt-5.4-mini` 可手动切换。Image 直连不使用主模型。模型列表查询仅辅助填写，不会自动保存或验证生图能力。
 
@@ -152,6 +152,8 @@ macOS 双击 `Start WebUI.command`，Windows 双击 `Start WebUI.bat`，然后�
 2. 上传、拖入或粘贴参考图，也可从最近上传、公用图库选择。
 3. 输入提示词，按需插入快捷引用或模板，调整输出参数后开始生成。
 4. 在左侧跟踪任务、右侧查看和下载结果；进入历史库搜索、收藏、打标签或批量导出。
+
+GPT Image 2.6 通过 Images API 提供复杂度、超高／最高质量，以及 SVG 和 GIF 输出。SVG／GIF 仅用于生成；GIF 的帧数（2–64）和每帧时长（20–2000 毫秒）收纳在“额外选项”，同时显示总时长；高分辨率下会按本地解码预算降低可选帧数上限。SVG 批量输出按单张请求执行。Image 2.5／2.6 的 Images API 编辑支持在第一张参考图上保存独立透明标注层；标注与原图分别发送，不能与蒙版同时使用。
 
 紧凑模式中，透明背景和压缩率收纳在“格式”旁的额外选项图标中；JPEG／WebP 的压缩率可调范围为 50%–100%。
 

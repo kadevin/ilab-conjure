@@ -10,7 +10,7 @@ function capture(): Draft {
   return { prompt: methods.getPromptText?.() || "", prompt_image_mentions: captureImageMentions(), images: (state.images || []).map((item: any) => ({ ...item })), files: (state.referenceFiles || []).map((item: any) => ({ ...item })), mode: state.mode };
 }
 function key(draft: Draft): string {
-  return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map(item => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size, item.file?.lastModified]), draft.mode]);
+  return JSON.stringify([draft.prompt, draft.prompt_image_mentions, draft.images.map(item => [item.id, item.name, item.file ? null : item.previewUrl, item.file?.size, item.file?.lastModified, item.markupFile?.size, item.markupFile?.lastModified]), draft.files.map(item => [item.id, item.filename, item.file?.size, item.file?.lastModified, item.markupFile?.size, item.markupFile?.lastModified]), draft.mode]);
 }
 export function composerFingerprint(): string { return key(capture()); }
 export function markComposerSubmitted(fingerprint: string): void {

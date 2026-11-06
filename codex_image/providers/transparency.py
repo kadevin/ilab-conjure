@@ -38,7 +38,7 @@ def transparency_request(
     background = parameters.get("gpt.background")
     if background != "transparent":
         return TransparencyRequest(command.prompt, command.instructions, background)
-    if parameters.get("output.format", "png") not in {"png", "webp"}:
+    if parameters.get("output.format", "png") not in {"png", "webp", "svg"}:
         raise ValueError("transparent_background_requires_png_or_webp")
     if binding.transparency_mode == "native":
         return TransparencyRequest(command.prompt, command.instructions, background)

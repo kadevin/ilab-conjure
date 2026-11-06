@@ -121,7 +121,7 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-922" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-923" />
   </head>
   <body>
     <div class="layout-container">
@@ -811,15 +811,28 @@
                           <button class="radio-btn" data-val="low" type="button" data-i18n="output.qualityLow">低</button>
                           <button class="radio-btn" data-val="medium" type="button" data-i18n="output.qualityMedium">中</button>
                           <button class="radio-btn" data-val="high" type="button" data-i18n="output.qualityHigh">高</button>
+                          <button class="radio-btn hidden" disabled data-val="xhigh" type="button" data-i18n="output.qualityXhigh">超高</button>
+                          <button class="radio-btn hidden" disabled data-val="max" type="button" data-i18n="output.qualityMax">最高</button>
                         </div>
                         <select id="quality" class="hidden">
                           <option value="auto" data-i18n="output.qualityAuto">自动</option>
                           <option value="low" data-i18n="output.qualityLow">低</option>
                           <option value="medium" data-i18n="output.qualityMedium">中</option>
                           <option value="high" data-i18n="output.qualityHigh">高</option>
+                          <option value="xhigh" data-i18n="output.qualityXhigh">超高</option>
+                          <option value="max" data-i18n="output.qualityMax">最高</option>
                         </select>
                       </div>
 
+                      <div id="complexityField" class="field complexity-field hidden">
+                        <span class="output-label-pair" data-i18n="output.complexity">复杂度</span>
+                        <div id="complexityGroup" class="radio-group" role="group" aria-label="复杂度" data-i18n-attr="aria-label:output.complexity">
+                          <button class="radio-btn" type="button" data-val="low" data-i18n="output.qualityLow">低</button>
+                          <button class="radio-btn" type="button" data-val="medium" data-i18n="output.qualityMedium">中</button>
+                          <button class="radio-btn active" type="button" data-val="high" data-i18n="output.qualityHigh">高</button>
+                        </div>
+                        <select id="complexity" class="hidden"><option value="low">low</option><option value="medium">medium</option><option value="high" selected>high</option></select>
+                      </div>
                       <div class="field quantity-field">
                         <span class="output-label-pair" data-i18n="output.quantity">数量</span>
                         <div class="radio-group quantity-group" id="quantityGroup" role="group" aria-label="数量" data-i18n-attr="aria-label:output.quantity">
@@ -859,10 +872,12 @@
                         <button class="radio-btn" data-val="jpeg" type="button">jpeg</button>
                         <button class="radio-btn" data-val="webp" type="button">webp</button>
                       </div>
-                      <select id="outputFormat" class="hidden">
+                      <select id="outputFormat" class="hidden" aria-label="输出格式" data-i18n-attr="aria-label:output.format">
                         <option value="png">png</option>
                         <option value="jpeg">jpeg</option>
                         <option value="webp">webp</option>
+                        <option value="svg" hidden disabled>svg</option>
+                        <option value="gif" hidden disabled>gif</option>
                       </select>
                       <div id="compressionPopover" class="compression-popover hidden" role="dialog" tabindex="-1" aria-hidden="true" aria-label="压缩率设置" data-i18n-attr="aria-label:output.compression">
                         <label id="compressionField" class="range-control compression-range">
@@ -872,6 +887,11 @@
                           </div>
                           <input id="compression" class="slider" type="range" min="50" max="100" step="1" value="80" />
                         </label>
+                        <div id="gifOptions" class="gif-options hidden">
+                          <label class="field"><span data-i18n="output.frameCount">帧数</span><input id="frameCount" class="control" type="number" min="2" max="64" step="1" value="9" disabled /></label>
+                          <label class="field"><span data-i18n="output.frameDuration">每帧时长（毫秒）</span><input id="frameDuration" class="control" type="number" min="20" max="2000" step="10" value="200" disabled /></label>
+                          <div class="gif-duration"><span data-i18n="output.totalDuration">总时长</span><output id="gifDuration" for="frameCount frameDuration" aria-live="polite">1.8 s</output></div>
+                        </div>
                       </div>
                     </div>
                     <div class="field moderation-field">
@@ -1391,6 +1411,10 @@
             <svg class="drawer-close-icon" data-ui-icon="close" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/static/icons/ui.svg?v=1#close"/></svg>
           </button>
         </div>
+        <div id="imageEditorModeGroup" class="image-editor-mode-group hidden" role="group" aria-label="编辑输入图片" data-i18n-attr="aria-label:imageEditor.title">
+          <button class="ghost-button text-sm active" type="button" data-image-editor-mode="image" aria-pressed="true" data-i18n="imageEditor.image">图像</button>
+          <button class="ghost-button text-sm" type="button" data-image-editor-mode="markup" aria-pressed="false" data-i18n="imageEditor.markup">标注</button>
+        </div>
         <div class="image-editor-toolbar" aria-label="图片编辑工具栏" data-i18n-attr="aria-label:imageEditor.toolbar">
           <div class="image-editor-tool-group" aria-label="工具" data-i18n-attr="aria-label:imageEditor.tools">
             <button id="imageEditorToolSelect" class="ghost-button text-sm image-editor-tool" type="button" data-image-editor-tool="select">
@@ -1579,7 +1603,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-904"></script>
+  <script src="/static/app.js?v=runtime-906"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.frontend_runner import frontend_test
+
 import json
 import re
 import shutil
@@ -55,148 +57,6 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn('els.taskList?.addEventListener("scroll"', history_source)
         self.assertIn("historyState.nextCursor", window)
 
-    def test_task_list_controls_feature_has_typescript_source_contract(self) -> None:
-        task_list_controls_source = self._task_list_controls_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initTaskListControlsFeature } from "./task-list-controls"', main_source)
-        self.assertIn('import { initTaskListRenderFeature } from "./task-list-render"', main_source)
-        self.assertIn('import { initTaskArchiveControlsFeature } from "./task-archive-controls"', main_source)
-        self.assertIn('import { initTaskBatchControlsFeature } from "./task-batch-controls"', main_source)
-        self.assertIn('import { initTaskActionsFeature } from "./task-actions"', main_source)
-        self.assertIn('import { initTaskCardSwipeFeature } from "./task-card-swipe"', main_source)
-        self.assertIn('import { initTaskSubmitFeature } from "./task-submit"', main_source)
-        self.assertLess(main_source.index('import { initPromptFeature } from "./prompt"'), main_source.index('import { initTaskListControlsFeature } from "./task-list-controls"'))
-        self.assertLess(main_source.index('import { initTaskListControlsFeature } from "./task-list-controls"'), main_source.index('import { initTaskFeature } from "./tasks"'))
-        self.assertLess(main_source.index("initPromptFeature()"), main_source.index("initTaskListControlsFeature()"))
-        self.assertLess(main_source.index("initTaskListControlsFeature()"), main_source.index("initTaskCardSwipeFeature()"))
-        self.assertLess(main_source.index("initTaskCardSwipeFeature()"), main_source.index("initTaskFeature()"))
-        self.assertLess(main_source.index("initTaskListControlsFeature()"), main_source.index("initTaskFeature()"))
-        self.assertLess(main_source.index("initTaskListControlsFeature()"), main_source.index("initTaskFeature()"))
-        self.assertIn("export function initTaskListControlsFeature", task_list_controls_source)
-        self.assertIn("function bindTaskListControlEvents()", task_list_controls_source)
-        self.assertIn("function replacementGroupKey(currentKey", task_list_controls_source)
-        self.assertIn("function handleTaskListClick(event", task_list_controls_source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", task_list_controls_source)
-        self.assertIn("selectTask", legacy_source)
-        self.assertIn('legacyMethod("setExpandedTaskGroupKey"', task_list_controls_source)
-        self.assertIn('legacyMethod("scrollExpandedTaskGroupToTop"', task_list_controls_source)
-        self.assertIn('data-task-group-toggle-key', task_list_controls_source)
-        self.assertIn('const interactiveRoot = els.taskHistoryShell || els.sidebarContent || els.taskList;', task_list_controls_source)
-        self.assertIn('const root = taskHistoryInteractiveRoot();', task_list_controls_source)
-        self.assertIn("if (!card || !root?.contains(card)) return;", task_list_controls_source)
-        self.assertIn("function handleTaskCardArrowNavigation", task_list_controls_source)
-        self.assertIn('event.key !== "ArrowUp" && event.key !== "ArrowDown"', task_list_controls_source)
-        self.assertIn("function isTaskListKeyboardInputTarget", task_list_controls_source)
-        self.assertIn('target.closest("button, input, select, textarea, a, [contenteditable=\'true\'], [role=\'textbox\']")', task_list_controls_source)
-        self.assertIn("if (isTaskListKeyboardInputTarget(event.target)) return;", task_list_controls_source)
-        self.assertIn("isTaskListKeyboardInputTarget(event.target)", task_list_controls_source)
-        self.assertIn('event.preventDefault();\n  event.stopPropagation();', task_list_controls_source)
-        self.assertIn('void legacyMethod("selectTask", nextCard.dataset.taskId)', task_list_controls_source)
-        self.assertIn('card.scrollIntoView({ block: "nearest", inline: "nearest" })', task_list_controls_source)
-        self.assertIn("if (handleTaskCardArrowNavigation(card, event)) return;", task_list_controls_source)
-        self.assertNotIn("!card || !els.taskList.contains(card)", task_list_controls_source)
-        for function_name in [
-            "bindTaskListEvents",
-            "handleTaskListClick",
-        ]:
-            self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('bindTaskListControlEvents: proxy("bindTaskListControlEvents")', legacy_source)
-
-        for moved_function_name in [
-            "updateBatchMarqueeSelection",
-            "applyBatchSelectionPreview",
-            "renderArchiveModal",
-            "archiveSelectedTasks",
-            "deleteSelectedTasks",
-            "openTaskDeleteConfirm",
-        ]:
-            self.assertNotRegex(task_list_controls_source, rf"\n(?:async\s+)?function {moved_function_name}\(")
-
-    def test_task_history_anchor_navigation_feature_has_typescript_source_contract(self) -> None:
-        card_source = Path("codex_image/webui/frontend/src/task-card-view.ts").read_text(encoding="utf-8")
-        model_source = Path("codex_image/webui/frontend/src/task-list-model.ts").read_text(encoding="utf-8")
-        viewport_source = Path("codex_image/webui/frontend/src/task-list-viewport.ts").read_text(encoding="utf-8")
-        anchor_source = self._task_history_anchors_source()
-        render_source = self._task_list_render_source()
-        controls_source = self._task_list_controls_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-        boot_source = Path("codex_image/webui/frontend/src/boot.ts").read_text(encoding="utf-8")
-        bootstrap_source = self._bootstrap_source()
-        elements_source = self._elements_source()
-        state_defaults = self._state_defaults_source()
-        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
-        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
-
-        self.assertIn('import { initTaskHistoryAnchorsFeature } from "./task-history-anchors"', main_source)
-        self.assertIn("initTaskHistoryAnchorsFeature();", main_source)
-        self.assertIn('call(methods, "restoreExpandedTaskGroupKey")', boot_source)
-        self.assertIn("export function initTaskHistoryAnchorsFeature()", anchor_source)
-        self.assertIn("function restoreExpandedTaskGroupKey()", anchor_source)
-        self.assertIn("function ensureExpandedTaskGroupKey(", anchor_source)
-        self.assertIn("function setExpandedTaskGroupKey(", anchor_source)
-        self.assertIn("TASK_HISTORY_ALL_COLLAPSED_SENTINEL", anchor_source)
-        self.assertNotIn("syncTaskHistoryAnchorInset", anchor_source)
-        self.assertNotIn("taskHistoryAnchorInsetObserver", anchor_source)
-        self.assertIn("scheduleLatestTaskNavigationRefresh();", anchor_source)
-        self.assertIn("function scrollExpandedTaskGroupToTop(", anchor_source)
-        self.assertIn("function renderTaskHistoryAnchors(", anchor_source)
-        self.assertIn("state.expandedTaskGroupAnimationPending = true", anchor_source)
-        self.assertIn("prefersReducedMotion", anchor_source)
-        self.assertIn("expandedTaskGroupAnimationPending: false", state_defaults)
-        self.assertIn("function finalizeExpandedTaskGroupBody(", viewport_source)
-        self.assertIn("const shouldAnimateExpand = !preserveExisting && animationPending;", viewport_source)
-        self.assertIn("state.expandedTaskGroupAnimationPending = false;", render_source)
-        self.assertIn('renderTaskHistoryAnchors: proxy("renderTaskHistoryAnchors")', bootstrap_source)
-        self.assertIn('restoreExpandedTaskGroupKey: proxy("restoreExpandedTaskGroupKey")', bootstrap_source)
-        self.assertIn('ensureExpandedTaskGroupKey: proxy("ensureExpandedTaskGroupKey")', bootstrap_source)
-        self.assertIn('scrollExpandedTaskGroupToTop: proxy("scrollExpandedTaskGroupToTop")', bootstrap_source)
-        self.assertIn('setExpandedTaskGroupKey: proxy("setExpandedTaskGroupKey")', bootstrap_source)
-        self.assertIn('taskHistoryShell: document.querySelector(".task-history-shell")', elements_source)
-        self.assertIn('sidebarContent: document.querySelector(".sidebar-content")', elements_source)
-        self.assertIn('taskActiveList: document.querySelector("#taskActiveList")', elements_source)
-        self.assertIn('taskHistoryTopAnchors: document.querySelector("#taskHistoryTopAnchors")', elements_source)
-        self.assertIn('taskHistoryCurrentAnchor: document.querySelector("#taskHistoryCurrentAnchor")', elements_source)
-        self.assertIn('taskHistoryBottomAnchors: document.querySelector("#taskHistoryBottomAnchors")', elements_source)
-        self.assertIn('taskHistoryLibrarySlot: document.querySelector("#taskHistoryLibrarySlot")', elements_source)
-        self.assertIn("expandedTaskGroupKey: null", state_defaults)
-        self.assertNotIn("taskHistoryAnchorLayoutFrameId", state_defaults)
-        self.assertNotIn("taskHistoryTopAnchorHeight", state_defaults)
-        self.assertNotIn("taskHistoryBottomAnchorHeight", state_defaults)
-        self.assertIn("const activeGroup = activeTaskGroup(tasks, query)", render_source)
-        self.assertIn("taskHistoryGroups(tasks, query)", render_source)
-        self.assertIn("ensureExpandedTaskGroupKey(groups)", render_source)
-        self.assertIn('const activeHtml = activeGroup ? activeTaskGroupHtml(activeGroup) : "";', render_source)
-        self.assertIn("renderActiveTaskGroup(activeHtml)", render_source)
-        self.assertIn("renderExpandedTaskGroupHeader(group, {", render_source)
-        self.assertIn("startExpanded: !shouldAnimateExpandedGroup", render_source)
-        self.assertIn("els.taskList.innerHTML = renderExpandedTaskGroupBodyShellHtml(group)", render_source)
-        self.assertIn("renderTaskHistoryAnchors(", render_source)
-        self.assertIn("top: groups", model_source)
-        self.assertIn("expandedKey: groups[0]?.key || expandedKey || null", model_source)
-        self.assertIn("data-task-group-toggle-key", card_source)
-        self.assertNotIn('addGroup("active"', render_source)
-        self.assertNotIn('id="taskExpandAllButton"', html)
-        self.assertNotIn('id="taskCollapseAllButton"', html)
-        self.assertIn('class="task-history-shell"', html)
-        self.assertRegex(
-            html,
-            r'id="taskActiveList"[\s\S]*id="taskHistoryTopAnchors"[\s\S]*id="taskHistoryCurrentAnchor"[\s\S]*id="taskList"[\s\S]*id="taskHistoryBottomAnchors"[\s\S]*id="taskHistoryLibrarySlot"',
-        )
-        self.assertIn('id="taskHistoryTopAnchors"', html)
-        self.assertIn('id="taskHistoryBottomAnchors"', html)
-        self.assertRegex(styles, r"\.task-active-list\s*\{[^}]*scrollbar-gutter:\s*stable")
-        self.assertRegex(styles, r"\.task-active-list\s*\{[^}]*overflow-x:\s*hidden")
-        self.assertNotRegex(
-            styles,
-            r"\.task-active-list\s*\{[^}]*padding-right:\s*var\(--task-history-scrollbar-offset",
-        )
-        self.assertRegex(styles, r"\.sidebar-content,\s*[\s\S]*\.task-active-list,\s*[\s\S]*\.dashboard,\s*[\s\S]*scrollbar-width:\s*thin")
-        self.assertIn("function collapseExpandedTaskGroup(", controls_source)
-        self.assertIn("setExpandedTaskGroupKey(null", controls_source)
-        self.assertNotIn('const nextKey = String(state.expandedTaskGroupKey) === key ? replacementGroupKey(key) : key;', controls_source)
-        self.assertNotIn("setAllTaskGroupsCollapsed", controls_source)
 
     def test_active_task_group_renders_running_and_waiting_sections(self) -> None:
         card_source = Path("codex_image/webui/frontend/src/task-card-view.ts").read_text(encoding="utf-8")
@@ -397,78 +257,6 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertIn("export function cancelRunningTask", queue_source)
         self.assertNotIn('item.classList.add("dragging")', queue_source)
 
-    def test_task_split_modules_have_typescript_source_contract(self) -> None:
-        card_source = Path("codex_image/webui/frontend/src/task-card-view.ts").read_text(encoding="utf-8")
-        model_source = Path("codex_image/webui/frontend/src/task-list-model.ts").read_text(encoding="utf-8")
-        render_source = self._task_list_render_source()
-        actions_source = self._task_actions_source()
-        submit_source = self._task_submit_source()
-        batch_source = self._task_batch_controls_source()
-        archive_source = self._task_archive_controls_source()
-
-        for source in [render_source, actions_source, submit_source, batch_source, archive_source]:
-            self.assertNotIn("@ts-nocheck", source)
-
-        for marker in [
-            "export function initTaskListRenderFeature",
-            "function renderTasks(options: { preserveScroll?: boolean; appendGroupKey?: string } = {})",
-            "function taskSearchQuery()",
-            "function filteredVisibleTasks(",
-        ]:
-            self.assertIn(marker, render_source)
-        self.assertIn("function taskCardHtml(", card_source)
-        self.assertIn("function taskHistoryGroups(", model_source)
-        self.assertIn("function taskMetaText(", card_source)
-        for marker in [
-            "export function initTaskActionsFeature",
-            "async function archiveTask(",
-            "async function deleteTask(",
-            "async function deleteTaskById(",
-            "function openTaskDeleteConfirm(",
-            "async function retryFailedTask(",
-            "async function acceptTaskSuccesses(",
-            "async function markTaskViewed(",
-        ]:
-            self.assertIn(marker, actions_source)
-        for marker in [
-            "export function initTaskSubmitFeature",
-            "function applyTaskToForm(",
-            "function buildPreviewRequest(",
-            "function createPendingTask(",
-            "function addQueuedTask(",
-            "async function runTask(",
-        ]:
-            self.assertIn(marker, submit_source)
-        for marker in [
-            "export function initTaskBatchControlsFeature",
-            "function toggleBatchMode(",
-            "function toggleBatchTaskSelection(",
-            "function syncBatchTaskSelectionVisuals(",
-            "function renderBatchToolbar()",
-            "async function archiveSelectedTasks()",
-            "function openBatchDeleteConfirm()",
-            "async function deleteSelectedTasks(",
-            "function handleTaskListPointerDown(",
-            "function finishBatchMarqueeSelection()",
-        ]:
-            self.assertIn(marker, batch_source)
-        for marker in [
-            "export function initTaskArchiveControlsFeature",
-            "function restoreLegacyArchivedTasks()",
-            "function clearLegacyArchivedTasks()",
-            "function isTaskArchived(",
-            "function firstVisibleTaskId()",
-            "function replaceTask(",
-            "function cleanupSessionSelections()",
-            "async function setTaskArchiveState(",
-            "function migrateLegacyArchivedTasks()",
-            "function renderArchiveButton()",
-            "async function restoreArchivedTask(",
-            "function openArchiveModal()",
-            "function closeArchiveModal()",
-            "function renderArchiveModal()",
-        ]:
-            self.assertIn(marker, archive_source)
 
     def test_task_search_rejects_browser_restored_values_until_manual_input(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
@@ -640,6 +428,7 @@ class WebUIStaticTaskTests(WebUIStaticTestCase):
         self.assertNotIn("--task-history-scrollbar-offset", styles)
         self.assertRegex(styles, r"\.sidebar-content\s*\{[^}]*scrollbar-gutter:\s*stable")
 
+    @frontend_test
     def test_latest_task_navigation_view_model_and_notice_count(self) -> None:
         node = shutil.which("node")
         if not node:
@@ -1560,6 +1349,7 @@ console.log(JSON.stringify({{
         self.assertNotIn("populateApiSettingsForm()", apply_source)
         self.assertNotIn("renderAuthSource(state.authStatus)", apply_source)
 
+    @frontend_test
     def test_history_image_summary_counts_explicit_running_slots(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -1701,6 +1491,7 @@ console.log(JSON.stringify({{
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_generation_preview_uses_restored_structured_output_urls(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -1735,6 +1526,7 @@ console.log(JSON.stringify({{
         result = subprocess.run([node, "-e", harness], check=False, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_generation_preview_deduplicates_reindexed_pruned_output(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -2003,114 +1795,6 @@ console.log(JSON.stringify({{
         self.assertIn('/api/queue/${encodeURIComponent(taskId)}/promote', queue_source)
         self.assertIn('/api/queue/${encodeURIComponent(taskId)}', queue_source)
         self.assertIn('/api/queue/reorder', queue_source)
-    def test_queue_feature_has_typescript_source_contract(self) -> None:
-        queue_source = self._queue_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-        state_source = self._state_source()
-        dom_source = self._dom_source()
-        legacy_source = self._bootstrap_source()
-        legacy_entry_source = Path("codex_image/webui/frontend/legacy-app.js").read_text(encoding="utf-8")
-        state_defaults_source = self._state_defaults_source()
-        elements_source = self._elements_source()
-        runtime_feedback_source = self._runtime_feedback_source()
-        utils_source = Path("codex_image/webui/frontend/src/webui-utils.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import "../legacy-app.js"', main_source)
-        self.assertIn('import { initInputSourcesFeature } from "./input-sources"', main_source)
-        self.assertIn('import { initImageEditorFeature } from "./image-editor"', main_source)
-        self.assertIn('import { initImageStripFeature } from "./image-strip"', main_source)
-        self.assertIn('import { initGalleryFeature } from "./gallery"', main_source)
-        self.assertIn('import { initApiSettingsFeature } from "./api-settings"', main_source)
-        self.assertIn('import { initStorageSettingsFeature } from "./storage-settings"', main_source)
-        self.assertIn('import { initPromptFeature } from "./prompt"', main_source)
-        self.assertIn('import { initTaskListControlsFeature } from "./task-list-controls"', main_source)
-        self.assertIn('import { initializeQueueFeature } from "./queue"', main_source)
-        self.assertIn('import { initTaskFeature } from "./tasks"', main_source)
-        self.assertIn('import { initLightboxFeature } from "./lightbox"', main_source)
-        self.assertIn("initInputSourcesFeature()", main_source)
-        self.assertIn("initImageEditorFeature()", main_source)
-        self.assertIn("initImageStripFeature()", main_source)
-        self.assertIn("initGalleryFeature()", main_source)
-        self.assertIn("initApiSettingsFeature()", main_source)
-        self.assertIn("initStorageSettingsFeature()", main_source)
-        self.assertIn("initPromptFeature()", main_source)
-        self.assertIn("initTaskListControlsFeature()", main_source)
-        self.assertIn("initTaskFeature()", main_source)
-        self.assertIn("initLightboxFeature()", main_source)
-        self.assertIn("initializeQueueFeature()", main_source)
-        self.assertLess(main_source.index('import "../legacy-app.js"'), main_source.index('import { initInputSourcesFeature } from "./input-sources"'))
-        self.assertLess(main_source.index('import { initInputSourcesFeature } from "./input-sources"'), main_source.index('import { initImageEditorFeature } from "./image-editor"'))
-        self.assertLess(main_source.index('import { initImageEditorFeature } from "./image-editor"'), main_source.index('import { initImageStripFeature } from "./image-strip"'))
-        self.assertLess(main_source.index('import { initImageStripFeature } from "./image-strip"'), main_source.index('import { initGalleryFeature } from "./gallery"'))
-        self.assertLess(main_source.index('import { initGalleryFeature } from "./gallery"'), main_source.index('import { initApiSettingsFeature } from "./api-settings"'))
-        self.assertLess(main_source.index('import { initApiSettingsFeature } from "./api-settings"'), main_source.index('import { initStorageSettingsFeature } from "./storage-settings"'))
-        self.assertLess(main_source.index('import { initStorageSettingsFeature } from "./storage-settings"'), main_source.index('import { initPromptFeature } from "./prompt"'))
-        self.assertLess(main_source.index('import { initPromptFeature } from "./prompt"'), main_source.index('import { initTaskListControlsFeature } from "./task-list-controls"'))
-        self.assertLess(main_source.index('import { initTaskListControlsFeature } from "./task-list-controls"'), main_source.index('import { initTaskFeature } from "./tasks"'))
-        self.assertLess(main_source.index("initInputSourcesFeature()"), main_source.index("initImageEditorFeature()"))
-        self.assertLess(main_source.index("initImageEditorFeature()"), main_source.index("initImageStripFeature()"))
-        self.assertLess(main_source.index("initImageStripFeature()"), main_source.index("initGalleryFeature()"))
-        self.assertLess(main_source.index("initGalleryFeature()"), main_source.index("initApiSettingsFeature()"))
-        self.assertLess(main_source.index("initApiSettingsFeature()"), main_source.index("initStorageSettingsFeature()"))
-        self.assertLess(main_source.index("initStorageSettingsFeature()"), main_source.index("initPromptFeature()"))
-        self.assertLess(main_source.index("initPromptFeature()"), main_source.index("initTaskListControlsFeature()"))
-        self.assertLess(main_source.index("initTaskListControlsFeature()"), main_source.index("initTaskFeature()"))
-        self.assertLess(main_source.index("initTaskFeature()"), main_source.index("initLightboxFeature()"))
-        self.assertLess(main_source.index("initLightboxFeature()"), main_source.index("initializeQueueFeature()"))
-        self.assertLess(main_source.index("initializeQueueFeature()"), main_source.index("boot()"))
-        self.assertIn("export function getState", state_source)
-        self.assertIn("window.__codexImageWebUI", state_source)
-        self.assertIn("export function getEls", dom_source)
-        self.assertIn("getLegacyBridge().els", dom_source)
-        self.assertLess(len(legacy_entry_source.splitlines()), 350)
-        self.assertIn('import { initializeLegacyBridge } from "./src/bootstrap"', legacy_entry_source)
-        self.assertIn("initializeLegacyBridge();", legacy_entry_source)
-        self.assertIn("export function createDefaultState", state_defaults_source)
-        self.assertIn("DEFAULT_GALLERY_CATEGORIES", state_defaults_source)
-        self.assertIn("DEFAULT_API_BASE_URL", state_defaults_source)
-        self.assertIn("export function createWebUIElements", elements_source)
-        self.assertIn("queueButton: document.querySelector(\"#queueButton\")", elements_source)
-        self.assertIn("queueStatusText: document.querySelector(\"#queueStatusText\")", elements_source)
-        self.assertIn("export function formatTaskStatus", runtime_feedback_source)
-        self.assertIn("export function startRunFeedback", runtime_feedback_source)
-        self.assertIn("export function startUiClock", runtime_feedback_source)
-        self.assertIn("export function addPendingTask", runtime_feedback_source)
-        self.assertIn("export function replacePendingTask", runtime_feedback_source)
-        self.assertIn("export function escapeHtml", utils_source)
-        self.assertIn("export function initializeQueueFeature", queue_source)
-        for function_name in [
-            "startRealtimeUpdates",
-            "closeRealtimeUpdates",
-            "handleRealtimeMessage",
-            "handleRealtimePayload",
-            "refreshQueue",
-            "defaultQueueState",
-            "normalizeQueueState",
-            "invalidateQueueRequests",
-            "applyQueueState",
-            "renderQueueStatusChip",
-            "jumpToActiveTaskGroup",
-            "applyQueueTasks",
-            "updateQueueElapsedDisplays",
-        ]:
-            self.assertIn(f"function {function_name}", queue_source)
-        self.assertIn("window.startRealtimeUpdates = startRealtimeUpdates", queue_source)
-        self.assertIn("window.closeRealtimeUpdates = closeRealtimeUpdates", queue_source)
-        self.assertIn("window.refreshQueue = refreshQueue", queue_source)
-        self.assertIn("window.applyQueueState = applyQueueState", queue_source)
-        self.assertIn("window.applyQueueTasks = applyQueueTasks", queue_source)
-        self.assertNotIn("window.closeQueueDrawer", queue_source)
-        self.assertIn("window.updateQueueElapsedDisplays = updateQueueElapsedDisplays", queue_source)
-        self.assertIn('els.queueButton?.addEventListener("click", jumpToActiveTaskGroup)', queue_source)
-        self.assertNotRegex(legacy_source, r"\nfunction startRealtimeUpdates\(")
-        self.assertNotRegex(legacy_source, r"\nasync function refreshQueue\(")
-        self.assertNotRegex(legacy_source, r"\nfunction renderQueue\(")
-        self.assertNotRegex(legacy_source, r"\nfunction startUiClock\(")
-        self.assertNotIn("bindQueueListEvents();", legacy_source)
-        self.assertIn("installLegacyBridge", legacy_source)
-        self.assertIn("startUiClock,", legacy_source)
-        self.assertIn("addPendingTask,", legacy_source)
-        self.assertIn("replacePendingTask,", legacy_source)
 
     def test_realtime_disconnect_keeps_reconnecting_and_resyncs_completed_tasks(self) -> None:
         queue_source = self._queue_source()
@@ -2140,63 +1824,6 @@ console.log(JSON.stringify({{
         self.assertIn("if (realtimeConnectionNeedsResync)", queue_source)
         self.assertIn("function clearRealtimeReconnectStatus", queue_source)
 
-    def test_task_notifications_feature_has_typescript_source_contract(self) -> None:
-        source = self._task_notifications_source()
-        queue_source = self._queue_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
-        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
-        state_defaults = self._state_defaults_source()
-        elements_source = self._elements_source()
-
-        self.assertIn('import { initTaskNotificationsFeature } from "./task-notifications"', main_source)
-        self.assertIn("initTaskNotificationsFeature();", main_source)
-        self.assertIn("export function initTaskNotificationsFeature", source)
-        self.assertIn("function notifyTaskUpdate(previousTask", source)
-        self.assertIn("function shouldNotifyTerminalTask(", source)
-        self.assertIn("if (taskWasCancelled(nextTask)) return;", source)
-        self.assertIn("function openTaskNotificationCenter()", source)
-        self.assertIn("function renderTaskNotifications()", source)
-        self.assertIn("function requestSystemNotificationPermission()", source)
-        self.assertIn("TASK_NOTIFICATION_SETTINGS_KEY", source)
-        self.assertIn("TASK_NOTIFICATION_SEEN_KEY", source)
-        self.assertIn("Notification.requestPermission()", source)
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-        self.assertIn('notifyTaskUpdate: proxy("notifyTaskUpdate")', self._bootstrap_source())
-        self.assertIn("bridge.methods.notifyTaskUpdate?.(previousTask, task)", queue_source)
-        self.assertIn("taskNotifications: []", state_defaults)
-        self.assertIn("taskNotificationButton: document.querySelector(\"#taskNotificationButton\")", elements_source)
-        self.assertIn("taskNotificationUnreadSummary: document.querySelector(\"#taskNotificationUnreadSummary\")", elements_source)
-        self.assertIn('id="taskNotificationButton"', html)
-        self.assertIn('aria-label="任务通知"', html)
-        self.assertIn('id="taskNotificationCenter"', html)
-        self.assertIn('id="taskNotificationUnreadSummary"', html)
-        self.assertIn('id="taskNotificationToastRegion"', html)
-        self.assertIn('id="taskNotificationBadge" class="task-notification-dot hidden"', html)
-        self.assertNotIn('id="taskNotificationBadge" class="queue-badge', html)
-        self.assertIn('formatTranslation("notifications.unread"', source)
-        self.assertIn('translate("notifications.title")', source)
-        self.assertIn('translate("notifications.taskCompleted")', source)
-        self.assertIn('formatTranslation("notifications.successCount"', source)
-        self.assertIn("function taskNotificationDisplayTitle", source)
-        self.assertIn("function taskNotificationDisplayMessage", source)
-        self.assertIn("success_count", source)
-        self.assertIn("prompt_snippet", source)
-        self.assertNotIn('return "任务已完成"', source)
-        self.assertNotIn('"生成失败"', source)
-        self.assertIn('els.taskNotificationButton.classList.toggle("has-unread", unreadCount > 0)', source)
-        self.assertIn('els.taskNotificationButton.setAttribute("aria-label", unreadLabel)', source)
-        self.assertIn('els.taskNotificationButton.title = unreadLabel', source)
-        self.assertIn('formatTranslation("notifications.unreadSummary"', source)
-        self.assertNotIn('els.taskNotificationBadge.textContent = String(unreadCount)', source)
-        self.assertIn(".task-notification-button", styles)
-        self.assertIn(".task-notification-button.has-unread", styles)
-        self.assertIn(".task-notification-dot", styles)
-        self.assertIn(".task-notification-unread-summary", styles)
-        self.assertNotIn(".task-notification-button .queue-badge", styles)
-        self.assertIn(".task-notification-center", styles)
-        self.assertIn(".task-notification-toast-region", styles)
-        self.assertIn(".task-notification-thumb", styles)
 
     def test_task_completion_toast_stays_above_image_lightboxes(self) -> None:
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
@@ -2213,146 +1840,6 @@ console.log(JSON.stringify({{
         self.assertGreater(toast_z_index, z_index(".history-lightbox"))
         self.assertNotRegex(styles, r"\.lightbox\s*\{[^}]*z-index:")
 
-    def test_task_feature_has_typescript_source_contract(self) -> None:
-        task_source = self._task_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", task_source)
-        for marker in [
-            "export function initTaskFeature",
-            "async function refreshTasks",
-            "async function applyTasksSnapshot",
-            "async function applyTaskUpdate",
-            "async function renderSelectedTaskPreview",
-        ]:
-            self.assertIn(marker, task_source)
-        self.assertIn("ensureSelectedTaskDetail(selectedTask.task_id, { signal })", task_source)
-        self.assertIn("renderPreview(detailedTask)", task_source)
-        self.assertIn("await renderSelectedTaskPreview(requestSeq, signal)", task_source)
-        self.assertIn("await renderSelectedTaskPreview()", task_source)
-
-        for function_name in [
-            "renderTasks",
-            "archiveTask",
-            "deleteTask",
-            "retryFailedTask",
-            "acceptTaskSuccesses",
-            "applyTaskToForm",
-            "buildPreviewRequest",
-            "createPendingTask",
-            "addQueuedTask",
-            "runTask",
-        ]:
-            self.assertNotRegex(task_source, rf"\n(?:async\s+)?function {function_name}\(")
-        for function_name in [
-            "refreshTasks",
-            "applyTasksSnapshot",
-            "applyTaskUpdate",
-            "renderTasks",
-            "retryFailedTask",
-            "acceptTaskSuccesses",
-            "taskRetryStateText",
-            "runTask",
-        ]:
-            self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-            self._assert_bootstrap_proxy(legacy_source, function_name)
-
-        self.assertLess(main_source.index('import "../legacy-app.js"'), main_source.index('import { initInputSourcesFeature } from "./input-sources"'))
-        self.assertLess(main_source.index("initInputSourcesFeature()"), main_source.index("initImageEditorFeature()"))
-        self.assertLess(main_source.index("initImageEditorFeature()"), main_source.index("initPromptFeature()"))
-        self.assertLess(main_source.index("initPromptFeature()"), main_source.index("initTaskListControlsFeature()"))
-        self.assertLess(main_source.index("initTaskListControlsFeature()"), main_source.index("initTaskFeature()"))
-        self.assertLess(main_source.index("initTaskFeature()"), main_source.index("initializeQueueFeature()"))
-        self.assertLess(main_source.index("initializeQueueFeature()"), main_source.index("boot()"))
-    def test_task_preview_feature_has_typescript_source_contract(self) -> None:
-        source = self._task_preview_source()
-        task_source = self._task_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initTaskPreviewFeature } from "./task-preview"', main_source)
-        self.assertLess(main_source.index("initTaskPreviewFeature()"), main_source.index("initTaskFeature()"))
-        for function_name in [
-            "renderPreview",
-            "previewStructureKey",
-            "previewPromptKey",
-            "renderOutputPreview",
-            "bindPreviewRetryButtons",
-            "updatePreviewDownloadActions",
-            "taskOutputZipUrl",
-            "outputDownloadFilename",
-            "promptPopoverData",
-            "runningProgressCard",
-            "waitingProgressCard",
-            "failureSummaryCard",
-            "renderRunningPreview",
-            "renderWaitingPreview",
-        ]:
-            self.assertRegex(source, rf"\nfunction {function_name}\(")
-            self.assertNotRegex(task_source, rf"\nfunction {function_name}\(")
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_task_derived_feature_has_typescript_source_contract(self) -> None:
-        source = self._task_derived_source()
-        task_source = self._task_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertNotIn("@ts-nocheck", source)
-        self.assertIn('import { initTaskDerivedFeature } from "./task-derived"', main_source)
-        self.assertLess(main_source.index("initTaskDerivedFeature()"), main_source.index("initTaskFeature()"))
-        self.assertIn("export function initTaskDerivedFeature", source)
-        self.assertIn("const GPT_IMAGE_2_SIZE_PRESETS", source)
-        self.assertIn("function taskRequestedSize(task: any)", source)
-        self.assertIn("function taskOutputSize(task: any)", source)
-        self.assertIn("function parseTaskSizeDimensions(size: any)", source)
-        self.assertIn("return parseTaskSizeDimensions(taskRequestedSize(task)) || parseTaskSizeDimensions(taskOutputSize(task));", source)
-        self.assertNotIn('String(task?.output_size || task?.params?.size || task?.request?.size || "")', source)
-        for function_name in [
-            "taskThumbnailUrls",
-            "taskOutputUrls",
-            "taskOutputRecordsByIndex",
-            "taskImageBlockStates",
-            "taskGeneratedCount",
-            "taskTotalCount",
-            "taskRatio",
-            "taskOrientation",
-            "taskPromptFidelity",
-            "taskResolution",
-            "taskDurationText",
-            "taskRuntimeText",
-            "formatDuration",
-        ]:
-            self.assertRegex(source, rf"\nfunction {function_name}\(")
-            self.assertNotRegex(task_source, rf"\nfunction {function_name}\(")
-        self.assertIn("Object.assign(getLegacyBridge().methods", source)
-    def test_task_selection_feature_has_typescript_source_contract(self) -> None:
-        task_selection_source = self._task_selection_source()
-        legacy_source = self._bootstrap_source()
-        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
-
-        self.assertIn('import { initTaskSelectionFeature } from "./task-selection"', main_source)
-        self.assertLess(main_source.index('import { initTaskFeature } from "./tasks"'), main_source.index('import { initTaskSelectionFeature } from "./task-selection"'))
-        self.assertLess(main_source.index('import { initTaskSelectionFeature } from "./task-selection"'), main_source.index('import { initLightboxFeature } from "./lightbox"'))
-        self.assertLess(main_source.index("initTaskFeature()"), main_source.index("initTaskSelectionFeature()"))
-        self.assertLess(main_source.index("initTaskSelectionFeature()"), main_source.index("initLightboxFeature()"))
-        self.assertIn("export function initTaskSelectionFeature", task_selection_source)
-        for function_name in [
-            "selectedTaskInputRestoreCurrent",
-            "applySelectedTaskRequestPreview",
-            "applyTaskInputRestoreSources",
-            "renderSelectedTask",
-            "ensureSelectedTaskDetail",
-            "restoreTaskInputs",
-            "selectTask",
-        ]:
-            self.assertRegex(task_selection_source, rf"\n(?:async\s+)?function {function_name}\(")
-            self.assertNotRegex(legacy_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn("Object.assign(getLegacyBridge().methods", task_selection_source)
-        self.assertIn('ensureSelectedTaskDetail: proxy("ensureSelectedTaskDetail")', legacy_source)
-        self.assertIn('selectTask: proxy("selectTask")', legacy_source)
-        self.assertIn("task.summary_only", task_selection_source)
-        self.assertIn("/api/tasks/${encodeURIComponent(taskId)}", task_selection_source)
-        self.assertIn("replaceSelectedTaskDetail", task_selection_source)
     def test_run_task_treats_submit_response_as_queued(self) -> None:
         script = self._frontend_script_source()
         submit_source = self._task_submit_source()
@@ -2439,6 +1926,7 @@ console.log(JSON.stringify({{
         self.assertIn('kind: "gallery"', script)
         self.assertIn('getState().images.filter((image) => image.kind === "upload")', script)
         self.assertIn('getState().images.filter((image) => image.kind === "gallery")', script)
+    @frontend_test
     def test_restored_task_quantity_syncs_button_group(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -2517,6 +2005,7 @@ console.log(JSON.stringify({{
 
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @frontend_test
     def test_restored_task_does_not_replace_current_api_provider(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -2781,6 +2270,7 @@ console.log(JSON.stringify({{
         self.assertRegex(styles, r"\.task-meta-row\s*\{[^}]*color:\s*var\(--text-muted\)")
         self.assertRegex(styles, r"\.task-runtime\s*\{[^}]*white-space:\s*nowrap")
 
+    @frontend_test
     def test_retry_terminal_runtime_excludes_idle_gap_between_attempts(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -2941,6 +2431,7 @@ console.log(JSON.stringify({{
         self.assertIn("data-task-retry-id", script)
         self.assertIn("data-preview-retry-state", script)
         self.assertNotIn("data-queue-meta-id", self._queue_source())
+    @frontend_test
     def test_first_running_attempt_is_not_labeled_as_retry(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -3638,6 +3129,7 @@ console.log(JSON.stringify({{
         self.assertIn("loadMoreSidebarTaskGroup", controls_source)
         self.assertIn("task?.terminal_at || task?.completed_at || task?.created_at", model_source)
 
+    @frontend_test
     def test_task_card_removal_keeps_sidebar_scroll_position(self) -> None:
         node = shutil.which("node")
         if node is None:

@@ -440,6 +440,7 @@ class WebUIRefactorContractTests(unittest.TestCase):
                 ("/api/tasks/{task_id}/viewed", "PATCH"),
                 ("/api/tasks/{task_id}/outputs.zip", "GET"),
                 ("/api/tasks/{task_id}/reveal-output", "POST"),
+                ("/api/tasks/{task_id}/markup", "GET"),
                 ("/api/tasks/{task_id}/inputs/{input_index}/image", "GET"),
                 ("/api/tasks/{task_id}/inputs/{input_index}/thumbnail", "GET"),
                 ("/api/tasks/{task_id}/reference-files/{file_index}/download", "GET"),

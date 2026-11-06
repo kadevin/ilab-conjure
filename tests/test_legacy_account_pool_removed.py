@@ -8,6 +8,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
+from fastapi.testclient import TestClient
+from tests.webui_helpers import WebUIStaticTestCase
+
 from codex_image.cli import build_parser
 from codex_image.webui.app import create_app
 from tests.helpers import TEST_PNG_BYTES
@@ -16,7 +19,7 @@ from tests.helpers import TEST_PNG_BYTES
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class LegacyAccountPoolRemovalTests(unittest.TestCase):
+class LegacyAccountPoolRemovalTests(WebUIStaticTestCase):
     def test_entrypoint_check_preserves_callers_legacy_data(self) -> None:
         with TemporaryDirectory(prefix="conjure-entrypoint-isolation-") as temporary:
             root = Path(temporary)
@@ -84,6 +87,56 @@ class LegacyAccountPoolRemovalTests(unittest.TestCase):
         for entry in commands + routes + parser.entries:
             with self.subTest(entry=entry):
                 self.assertFalse(any(name in entry.lower() for name in retired))
+
+
+    def test_account_quota_feature_is_removed_from_typescript_contract(self) -> None:
+        legacy_source = self._bootstrap_source()
+        main_source = Path("codex_image/webui/frontend/src/main.ts").read_text(encoding="utf-8")
+        event_source = Path("codex_image/webui/frontend/src/event-bindings.ts").read_text(encoding="utf-8")
+
+        self.assertFalse(Path("codex_image/webui/frontend/src/account-quota.ts").exists())
+        self.assertNotIn('import { initAccountQuotaFeature } from "./account-quota"', main_source)
+        self.assertNotIn("initAccountQuotaFeature()", main_source)
+        self.assertNotIn("refreshAccountQuota", legacy_source)
+        self.assertNotIn("openAccountQuotaDrawer", legacy_source)
+        self.assertNotIn("closeAccountQuotaDrawer", legacy_source)
+        self.assertNotIn("accountQuota", event_source)
+
+    def test_account_quota_drawer_is_removed(self) -> None:
+        html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
+        script = self._frontend_script_source()
+        styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
+        removed_ids = {
+            "button": "account" + "QuotaButton",
+            "drawer": "account" + "QuotaDrawer",
+            "list": "account" + "QuotaList",
+            "close": "account" + "QuotaDrawerClose",
+        }
+
+        self.assertNotIn(f'id="{removed_ids["button"]}"', html)
+        self.assertNotIn(f'id="{removed_ids["drawer"]}"', html)
+        self.assertNotIn(f'id="{removed_ids["list"]}"', html)
+        self.assertNotIn(f'id="{removed_ids["close"]}"', html)
+        self.assertNotIn("accountQuota", script)
+        self.assertNotIn("/api/accounts", script)
+        self.assertNotIn("参与轮询", script)
+        self.assertNotIn("账号额度", html)
+        self.assertNotIn(".account-quota-", styles)
+
+    def test_account_routes_are_removed(self) -> None:
+        from codex_image.webui.app import create_app
+
+        with TemporaryDirectory() as tmp, chdir(tmp):
+            app = create_app(output_root=Path(tmp), auto_start_queue=False)
+            client = TestClient(app)
+
+            list_response = client.get("/api/accounts")
+            refresh_response = client.post("/api/accounts/refresh")
+            patch_response = client.patch("/api/accounts/codex:local", json={"manual_disabled": True})
+
+        self.assertEqual(list_response.status_code, 404)
+        self.assertEqual(refresh_response.status_code, 404)
+        self.assertEqual(patch_response.status_code, 404)
 
 
 if __name__ == "__main__":

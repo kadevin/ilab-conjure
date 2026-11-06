@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const HI_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "मार्कअप अधिकतम 16,777,216 पिक्सेल का समर्थन करता है। पहले मूल छवि का आकार घटाएँ।",
+    "imageEditor.replacesMarkup": "छवि के संपादन सहेजने से मौजूदा मार्कअप हट जाएगा।",
+    "output.qualityXhigh": "बहुत उच्च",
+    "output.qualityMax": "अधिकतम",
+    "output.complexity": "जटिलता",
+    "output.frameCount": "फ़्रेम",
+    "output.frameDuration": "प्रति फ़्रेम अवधि (ms)",
+    "output.totalDuration": "कुल अवधि",
+    "imageEditor.markup": "मार्कअप",
+    "imageEditor.image": "छवि",
+    "imageEditor.saveMarkup": "मार्कअप सहेजें",
+    "imageEditor.markupFirstOnly": "मार्कअप केवल पहली संदर्भ छवि पर समर्थित है",
+    "imageEditor.markupUnsupported": "यह मॉडल या API मार्कअप का समर्थन नहीं करता। इसे बदलें या मार्कअप हटाएँ।",
     "app.newTask": "नया",
     "app.newTaskAria": "नई चैट",
     "sidebar.searchPlaceholder": "प्रॉम्प्ट या कार्य ID खोजें",

@@ -1,6 +1,19 @@
 import type { TranslationDictionary } from "./types";
 
 export const PT_DICTIONARY: TranslationDictionary = {
+    "imageEditor.markupPixelLimit": "Anotações aceitam até 16.777.216 pixels. Redimensione primeiro a imagem original.",
+    "imageEditor.replacesMarkup": "Salvar as edições da imagem removerá a anotação existente.",
+    "output.qualityXhigh": "Muito alta",
+    "output.qualityMax": "Máxima",
+    "output.complexity": "Complexidade",
+    "output.frameCount": "Quadros",
+    "output.frameDuration": "Duração por quadro (ms)",
+    "output.totalDuration": "Duração total",
+    "imageEditor.markup": "Anotação",
+    "imageEditor.image": "Imagem",
+    "imageEditor.saveMarkup": "Salvar anotação",
+    "imageEditor.markupFirstOnly": "Somente a primeira imagem de referência aceita anotações",
+    "imageEditor.markupUnsupported": "Este modelo ou API não aceita anotações. Altere-o ou remova a anotação.",
     "app.newTask": "Novo",
     "app.newTaskAria": "Novo bate-papo",
     "sidebar.searchPlaceholder": "Solicitações de pesquisa ou tarefa ID",

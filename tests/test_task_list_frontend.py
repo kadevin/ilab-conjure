@@ -1,8 +1,8 @@
-import unittest
+"""Compatibility entry; pure frontend suites are discovered centrally."""
 
-from tests.frontend_runner import run_frontend
+from tests.frontend_runner import compatibility_load_tests
 
 
-class TaskListFrontendTests(unittest.TestCase):
-    def test_task_list_modules(self) -> None:
-        run_frontend(self, "task_list_modules.test.ts")
+load_tests = compatibility_load_tests((
+    'task_list_modules.test.ts',
+))
