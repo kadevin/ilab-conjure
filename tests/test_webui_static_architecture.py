@@ -147,7 +147,7 @@ class FrontendArchitectureTests(WebUIStaticTestCase):
         ]:
             self.assertRegex(source, rf"\n(?:async\s+)?function {function_name}\(")
             self.assertNotRegex(gallery_source, rf"\n(?:async\s+)?function {function_name}\(")
-        self.assertIn('fetch("/api/reference-assets/recent?limit=50")', source)
+        self.assertIn('fetch("/api/reference-assets/recent?limit=50", { signal })', source)
         self.assertIn("const RECENT_ASSET_RENDER_BATCH_SIZE = 12", source)
         self.assertIn('loading="lazy" decoding="async"', source)
         self.assertIn("addReferenceAssetInput(item)", source)
