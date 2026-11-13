@@ -9,6 +9,7 @@ on normal shutdown. It never reads the user's task directories or settings.
 from __future__ import annotations
 
 import argparse
+import asyncio
 from datetime import datetime, timedelta, timezone
 import io
 import json
@@ -37,6 +38,8 @@ BROWSER_SUITES = {
     "api-settings": "api_settings.browser",
     "api-provider-delete": "api_provider_delete.browser",
     "workbench-feedback": "workbench_feedback.browser",
+    "task-context-delete": "task_context_delete.browser",
+    "recent-asset-refresh": "recent_asset_refresh.browser",
     "ui-icons": "ui_icons.browser",
     "output-controls": "output_controls.browser",
     "main-model": "main_model.browser",
@@ -143,7 +146,7 @@ def main() -> None:
             def acceptance_page(suite: str):
                 if suite not in BROWSER_SUITES:
                     raise HTTPException(404)
-                script = BROWSER_SUITES[suite] if suite in ("image26", "history", "workbench-layout", "api-settings", "api-provider-delete", "workbench-feedback", "ui-icons", "output-controls", "main-model", "prompt-response") else "browser_harness"
+                script = "browser_harness" if suite in ("image-mentions", "prompt-paste") else BROWSER_SUITES[suite]
                 return HTMLResponse(
                     f'<!doctype html><html><body><h1>{suite} acceptance</h1>'
                     '<pre id="results">Running</pre>'
@@ -164,6 +167,12 @@ def main() -> None:
             @app.get("/qa-history")
             def history_page():
                 return HTMLResponse(acceptance_html("history.html"))
+
+            @app.get("/qa-reference-thumbnail/{asset_id}")
+            async def slow_reference_thumbnail(asset_id: str, stalled: bool = False):
+                await asyncio.sleep(7 if stalled else 0.75)
+                path = app.state.reference_asset_storage.thumbnail_path(asset_id)
+                return FileResponse(path, media_type="image/webp", headers={"Cache-Control": "no-store"})
 
             @app.get("/qa-unexpected-requests")
             def network_report():

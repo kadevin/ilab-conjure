@@ -39765,11 +39765,13 @@ ${hint}` : hint);
   var recentAssetsFeatureInitialized = false;
   var RECENT_ASSET_RENDER_BATCH_SIZE = 12;
   var RECENT_ASSET_LOAD_AHEAD_PX = 96;
+  var RECENT_ASSET_REFRESH_TIMEOUT_MS = 5e3;
   var RECENT_ASSET_PREVIEW_VISIBILITY_KEY = "codex-image-recent-asset-previews-hidden";
   var recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
   var recentAssetPreviewsHidden = false;
   var recentAssetLoadState = "idle";
   var recentAssetLoadError = "";
+  var recentAssetRefreshController = null;
   function legacyMethod8(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -39843,27 +39845,42 @@ ${hint}` : hint);
     syncRecentAssetPreviewVisibility();
   }
   async function refreshRecentAssets() {
-    if (!els4.recentAssetList) return;
+    const list = els4.recentAssetList;
+    if (!list) return;
+    recentAssetRefreshController?.abort();
+    const controller = new AbortController();
+    recentAssetRefreshController = controller;
+    const { signal } = controller;
+    const timeout = window.setTimeout(() => controller.abort(), RECENT_ASSET_REFRESH_TIMEOUT_MS);
     recentAssetLoadState = "loading";
     recentAssetLoadError = "";
-    els4.recentAssetList.setAttribute("aria-busy", "true");
-    renderRecentAssets();
+    list.setAttribute("aria-busy", "true");
+    renderRecentAssetDock(list.childElementCount > 0);
+    let preparedImages;
     try {
-      const response = await fetch("/api/reference-assets/recent?limit=50");
+      const response = await fetch("/api/reference-assets/recent?limit=50", { signal });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.detail || translate("recentAssets.loadFailed"));
       }
-      state3.recentAssets = Array.isArray(data.items) ? data.items : [];
-      recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
+      signal.throwIfAborted();
+      const items = Array.isArray(data.items) ? data.items : [];
+      preparedImages = await prepareRecentAssetImages(list, items, signal);
+      signal.throwIfAborted();
+      state3.recentAssets = items;
       recentAssetLoadState = "idle";
     } catch (error) {
+      if (recentAssetRefreshController !== controller) return;
       recentAssetLoadState = "error";
-      recentAssetLoadError = error?.message || translate("recentAssets.loadFailed");
-      recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
+      recentAssetLoadError = signal.aborted ? translate("recentAssets.loadFailed") : error?.message || translate("recentAssets.loadFailed");
     } finally {
-      els4.recentAssetList.removeAttribute("aria-busy");
-      renderRecentAssets();
+      window.clearTimeout(timeout);
+      controller.abort();
+      if (recentAssetRefreshController === controller) {
+        recentAssetRefreshController = null;
+        list.removeAttribute("aria-busy");
+        renderRecentAssets(preparedImages);
+      }
     }
   }
   function renderRecentAssetStatus() {
@@ -39885,43 +39902,153 @@ ${hint}` : hint);
     <button class="ghost-button text-sm" type="button" data-recent-assets-retry>${escapeHtml4(translate("action.refresh"))}</button>
   `;
   }
-  function renderRecentAssets(appendFrom = 0) {
-    if (!els4.recentAssetDock || !els4.recentAssetList) return;
-    const items = state3.recentAssets.filter((item) => item?.id && item?.image_url);
-    const visibleItems = items.slice(0, recentAssetRenderLimit);
-    const append = appendFrom > 0 && els4.recentAssetList.childElementCount === appendFrom;
-    els4.recentAssetDock.classList.toggle("hidden", !items.length && recentAssetLoadState === "idle");
-    els4.recentAssetDock.classList.toggle("is-loading", recentAssetLoadState === "loading");
+  function renderRecentAssetDock(hasItems) {
+    els4.recentAssetDock?.classList.toggle("hidden", !hasItems && recentAssetLoadState === "idle");
+    els4.recentAssetDock?.classList.toggle("is-loading", recentAssetLoadState === "loading");
     renderRecentAssetStatus();
     syncRecentAssetPreviewVisibility();
-    const markup = (append ? visibleItems.slice(appendFrom) : visibleItems).map((item) => {
-      const name = recentAssetName(item);
-      const referenceCount = recentAssetReferenceCount(item);
-      const hideOnly = recentAssetRequiresHide(item);
-      const actionLabel = hideOnly ? formatTranslation("recentAssets.hide", { name }) : formatTranslation("recentAssets.delete", { name });
-      const actionTitle = hideOnly ? formatTranslation("recentAssets.inUse", { count: referenceCount }) : translate("recentAssets.deleteTitle");
-      const actionAttribute = hideOnly ? `data-reference-asset-hide="${escapeHtml4(item.id)}"` : `data-reference-asset-delete="${escapeHtml4(item.id)}"`;
-      const thumbnailUrl = item.thumbnail_url || item.image_url;
-      return `
-    <div class="recent-asset-button" title="${escapeHtml4(name)}">
-      <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml4(item.id)}" aria-label="${escapeHtml4(formatTranslation("recentAssets.use", { name }))}">
-        <img src="${escapeHtml4(thumbnailUrl)}" data-full-src="${escapeHtml4(item.image_url)}" alt="${escapeHtml4(name)}" loading="lazy" decoding="async">
-        <span>${escapeHtml4(name)}</span>
+  }
+  function recentAssetCards(list) {
+    return new Map(Array.from(
+      list.querySelectorAll(".recent-asset-button"),
+      (card) => [card.dataset.recentAssetId, card]
+    ));
+  }
+  function setRecentAssetImageSource(image, item) {
+    const thumbnailUrl = item.thumbnail_url || item.image_url;
+    if (image.dataset.thumbnailSrc === thumbnailUrl && image.dataset.fullSrc === item.image_url) return;
+    image.dataset.thumbnailSrc = thumbnailUrl;
+    image.dataset.fullSrc = item.image_url;
+    image.src = thumbnailUrl;
+  }
+  function useRecentAssetImageFallback(image) {
+    const originalUrl = image.dataset.fullSrc;
+    if (!originalUrl || image.getAttribute("src") === originalUrl) return false;
+    image.src = originalUrl;
+    return true;
+  }
+  function recentAssetsInViewport(list, items) {
+    if (recentAssetPreviewsHidden || !list.firstElementChild || !list.clientWidth) return [];
+    const style = getComputedStyle(list);
+    const gap = parseFloat(style.columnGap) || 0;
+    const padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+    const stride = list.firstElementChild.getBoundingClientRect().width + gap;
+    if (!stride) return [];
+    const count = Math.min(items.length, recentAssetRenderLimit);
+    const maxScroll = Math.max(0, count * stride - gap + padding - list.clientWidth);
+    const start = Math.min(Math.max(0, list.scrollLeft), maxScroll);
+    return items.slice(
+      Math.max(0, Math.floor(start / stride) - 1),
+      Math.min(count, Math.ceil((start + list.clientWidth) / stride) + 1)
+    );
+  }
+  async function decodeRecentAssetImage(item, signal) {
+    signal.throwIfAborted();
+    const image = new Image();
+    image.decoding = "async";
+    let cancel;
+    const aborted = new Promise((_resolve, reject) => {
+      cancel = () => {
+        image.removeAttribute("src");
+        reject(signal.reason);
+      };
+      signal.addEventListener("abort", cancel, { once: true });
+    });
+    try {
+      setRecentAssetImageSource(image, item);
+      try {
+        await Promise.race([image.decode(), aborted]);
+      } catch {
+        signal.throwIfAborted();
+        if (!useRecentAssetImageFallback(image)) throw new Error(translate("recentAssets.loadFailed"));
+        await Promise.race([image.decode(), aborted]).catch(() => {
+          signal.throwIfAborted();
+          throw new Error(translate("recentAssets.loadFailed"));
+        });
+      }
+      signal.throwIfAborted();
+      return image;
+    } finally {
+      signal.removeEventListener("abort", cancel);
+    }
+  }
+  async function prepareRecentAssetImages(list, items, signal) {
+    const validItems = items.filter((item) => item?.id && item?.image_url);
+    const cards = recentAssetCards(list);
+    const prepared = /* @__PURE__ */ new Map();
+    while (!signal.aborted) {
+      const missing = recentAssetsInViewport(list, validItems).filter((item) => {
+        if (prepared.has(item.id)) return false;
+        const current = cards.get(item.id)?.querySelector("img");
+        return !(current?.complete && current.naturalWidth > 0 && current.dataset.thumbnailSrc === (item.thumbnail_url || item.image_url) && current.dataset.fullSrc === item.image_url);
+      });
+      if (!missing.length) break;
+      await Promise.all(missing.map(async (item) => {
+        prepared.set(item.id, await decodeRecentAssetImage(item, signal));
+      }));
+    }
+    return prepared;
+  }
+  function createRecentAssetCard(id) {
+    const card = document.createElement("div");
+    card.className = "recent-asset-button";
+    card.dataset.recentAssetId = id;
+    card.innerHTML = `
+      <button class="recent-asset-use" type="button">
+        <img loading="lazy" decoding="async">
+        <span></span>
       </button>
-      <button class="recent-asset-delete${hideOnly ? " is-hide" : ""}" type="button" ${actionAttribute} aria-label="${escapeHtml4(actionLabel)}" title="${escapeHtml4(actionTitle)}">\xD7</button>
-    </div>
+      <button class="recent-asset-delete" type="button">\xD7</button>
   `;
-    }).join("");
-    if (append) els4.recentAssetList.insertAdjacentHTML("beforeend", markup);
-    else els4.recentAssetList.innerHTML = markup;
+    card.querySelector(".recent-asset-use").dataset.referenceAssetId = id;
+    return card;
+  }
+  function updateRecentAssetCard(card, item, preparedImage) {
+    const name = recentAssetName(item);
+    const hideOnly = recentAssetRequiresHide(item);
+    const use = card.querySelector(".recent-asset-use");
+    const action = card.querySelector(".recent-asset-delete");
+    let image = use.querySelector("img");
+    if (preparedImage) {
+      image.replaceWith(preparedImage);
+      image = preparedImage;
+    }
+    setRecentAssetImageSource(image, item);
+    image.alt = name;
+    card.title = name;
+    use.querySelector("span").textContent = name;
+    use.setAttribute("aria-label", formatTranslation("recentAssets.use", { name }));
+    action.classList.toggle("is-hide", hideOnly);
+    action.removeAttribute(hideOnly ? "data-reference-asset-delete" : "data-reference-asset-hide");
+    action.setAttribute(hideOnly ? "data-reference-asset-hide" : "data-reference-asset-delete", item.id);
+    action.setAttribute("aria-label", formatTranslation(hideOnly ? "recentAssets.hide" : "recentAssets.delete", { name }));
+    action.title = hideOnly ? formatTranslation("recentAssets.inUse", { count: recentAssetReferenceCount(item) }) : translate("recentAssets.deleteTitle");
+  }
+  function renderRecentAssets(preparedImages) {
+    const list = els4.recentAssetList;
+    if (!list) return;
+    const items = state3.recentAssets.filter((item) => item?.id && item?.image_url);
+    const visibleItems = items.slice(0, recentAssetRenderLimit);
+    const desiredIds = new Set(visibleItems.map((item) => item.id));
+    const cards = recentAssetCards(list);
+    const scrollLeft = list.scrollLeft;
+    const focused = document.activeElement;
+    renderRecentAssetDock(items.length > 0);
+    cards.forEach((card, id) => {
+      if (!desiredIds.has(id)) card.remove();
+    });
+    visibleItems.forEach((item, index) => {
+      const card = cards.get(item.id) || createRecentAssetCard(item.id);
+      updateRecentAssetCard(card, item, preparedImages?.get(item.id));
+      if (list.children[index] !== card) list.insertBefore(card, list.children[index] || null);
+    });
+    if (focused && list.contains(focused) && focused !== document.activeElement) focused.focus({ preventScroll: true });
+    if (list.scrollLeft !== scrollLeft) list.scrollLeft = scrollLeft;
   }
   function handleRecentAssetImageError(event) {
     const image = event.target;
     if (!(image instanceof HTMLImageElement)) return;
-    const originalUrl = image.dataset.fullSrc;
-    if (!originalUrl || image.getAttribute("src") === originalUrl) return;
-    image.removeAttribute("data-full-src");
-    image.src = originalUrl;
+    useRecentAssetImageFallback(image);
   }
   function handleRecentAssetClick(event) {
     const target = event.target instanceof Element ? event.target : null;
@@ -39965,11 +40092,8 @@ ${hint}` : hint);
     if (!list || recentAssetRenderLimit >= state3.recentAssets.length) return;
     const remaining = list.scrollWidth - list.clientWidth - list.scrollLeft;
     if (remaining > RECENT_ASSET_LOAD_AHEAD_PX) return;
-    const scrollLeft = list.scrollLeft;
-    const previousLimit = recentAssetRenderLimit;
     recentAssetRenderLimit += RECENT_ASSET_RENDER_BATCH_SIZE;
-    renderRecentAssets(previousLimit);
-    list.scrollLeft = scrollLeft;
+    renderRecentAssets();
   }
   function wheelDeltaInPixels2(event) {
     const dominantDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
@@ -40003,6 +40127,7 @@ ${hint}` : hint);
       }
       state3.recentAssets = state3.recentAssets.filter((item) => item.id !== assetId);
       renderRecentAssets();
+      if (recentAssetLoadState === "loading") void refreshRecentAssets();
       setStatus4(translate("recentAssets.hidden"), "ok");
     } catch (error) {
       setStatus4(error.message || translate("recentAssets.hideFailed"), "error");
@@ -40029,6 +40154,7 @@ ${hint}` : hint);
         setMode("generate");
       }
       renderRecentAssets();
+      if (recentAssetLoadState === "loading") void refreshRecentAssets();
       renderImageStrip3();
       updateRequestPreview3();
       setStatus4(translate("recentAssets.deleted"), "ok");
@@ -55558,6 +55684,7 @@ ${hint}` : hint);
   var TASK_CARD_REMOVAL_FALLBACK_MS = 320;
   var TASK_CARD_REFLOW_DURATION_MS = 180;
   var TASK_CARD_REFLOW_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+  var pendingTaskDeletions = /* @__PURE__ */ new Set();
   function legacyMethod35(name, ...args) {
     const method = getLegacyBridge().methods[name];
     if (typeof method !== "function") {
@@ -55775,9 +55902,14 @@ ${hint}` : hint);
       return false;
     }
   }
+  function isTaskDeletionPending(taskId) {
+    return pendingTaskDeletions.has(taskId);
+  }
   async function deleteTask(taskId) {
-    closePromptPopover5();
+    if (isTaskDeletionPending(taskId)) return false;
+    pendingTaskDeletions.add(taskId);
     try {
+      closePromptPopover5();
       await deleteTaskById(taskId);
       await runTaskCardRemovalTransition2([taskId], renderTasks5, "delete");
       await refreshTasksAfterDeletion2();
@@ -55789,6 +55921,8 @@ ${hint}` : hint);
     } catch (error) {
       setStatus18(errorMessage3(error, translate("taskActions.deleteFailed")), "error");
       return false;
+    } finally {
+      pendingTaskDeletions.delete(taskId);
     }
   }
   async function deleteTaskById(taskId) {
@@ -55896,7 +56030,8 @@ ${hint}` : hint);
       state23.taskViewedRequestIds.delete(String(taskId));
     }
   }
-  function openTaskDeleteConfirm2(deleteButton, taskId) {
+  function openTaskDeleteConfirm2(anchor, taskId, onCancel) {
+    if (isTaskDeletionPending(taskId)) return;
     closePromptPopover5();
     const task = state23.tasks.find((item) => String(item.task_id) === String(taskId));
     if (!task) return;
@@ -55905,12 +56040,13 @@ ${hint}` : hint);
       return;
     }
     const title = task.prompt || task.mode || taskId;
-    openConfirmPopover6(deleteButton, {
+    openConfirmPopover6(anchor, {
       title: translate("taskActions.deleteTitle"),
       focusCancel: true,
       message: translate("taskActions.deleteMessage"),
       detail: title,
       confirmText: translate("action.delete"),
+      onCancel,
       onConfirm: async () => {
         await deleteTask(taskId);
       }
@@ -56369,7 +56505,7 @@ ${hint}` : hint);
       stopRunFeedback2();
       setStatus19(translate("taskSubmit.queued"), "ok");
       await window.refreshQueue?.();
-      if (uploads.length || assets.length) await refreshRecentAssets2();
+      if (uploads.length || assets.length) void refreshRecentAssets2();
       renderPreview4();
       getLegacyBridge().methods.showMobilePreview?.();
     } catch (error) {
@@ -58176,6 +58312,7 @@ ${hint}` : hint);
   var taskContextMenuInitialized = false;
   var taskContextMenuEventsBound = false;
   var taskContextMenuEl = null;
+  var taskContextMenuCard = null;
   var taskListMutationObserver = null;
   function legacyMethod39(name, ...args) {
     const method = getLegacyBridge().methods[name];
@@ -58230,6 +58367,26 @@ ${hint}` : hint);
   function taskContextMenuContains(card) {
     return taskContextMenuRoots().some((root) => root.contains(card));
   }
+  function restoreTaskContextFocus(taskId) {
+    const focusCard = () => {
+      const card = legacyMethod39("taskCardElement", taskId);
+      if (!card?.getClientRects().length || card.closest("[inert]")) return false;
+      card.focus({ preventScroll: true });
+      return document.activeElement === card;
+    };
+    const focusIsUnclaimed = () => document.activeElement === document.body || !document.activeElement?.getClientRects().length;
+    queueMicrotask(() => {
+      if (focusCard() || !focusIsUnclaimed()) return;
+      const observer = new MutationObserver(() => {
+        if (!focusIsUnclaimed() || focusCard()) {
+          observer.disconnect();
+          window.clearTimeout(timeout);
+        }
+      });
+      taskContextMenuRoots().forEach((root) => observer.observe(root, { childList: true, subtree: true }));
+      const timeout = window.setTimeout(() => observer.disconnect(), 500);
+    });
+  }
   function handleTaskListContextMenu(event) {
     const target = eventTargetElement4(event);
     const card = target?.closest(".task-card[data-task-id]");
@@ -58263,6 +58420,7 @@ ${hint}` : hint);
     if (!task) return;
     closePromptPopover6();
     const menu = ensureTaskContextMenu();
+    taskContextMenuCard = card;
     menu.dataset.taskContextTaskId = taskId;
     menu.innerHTML = taskContextMenuHtml(task);
     menu.classList.remove("hidden");
@@ -58275,6 +58433,7 @@ ${hint}` : hint);
     if (!taskContextMenuEl) return;
     taskContextMenuEl.classList.add("hidden");
     taskContextMenuEl.removeAttribute("data-task-context-task-id");
+    taskContextMenuCard = null;
   }
   function ensureTaskContextMenu() {
     if (taskContextMenuEl) return taskContextMenuEl;
@@ -58307,7 +58466,7 @@ ${hint}` : hint);
       taskContextButton("cancel", translate("action.cancel"), false, true)
     ].join("") : [
       taskContextButton("archive", translate("taskContext.archive")),
-      taskContextButton("delete", translate("taskContext.delete"), false, true)
+      taskContextButton("delete", translate("taskContext.delete"), isTaskDeletionPending(String(task.task_id)), true)
     ].join("");
     return `
     <div class="task-context-menu-section">
@@ -58358,7 +58517,15 @@ ${hint}` : hint);
       closeTaskContextMenu();
       return;
     }
-    if (["archive", "delete", "stop", "promote", "cancel"].includes(action)) {
+    if (action === "delete") {
+      const card = taskContextMenuCard;
+      closeTaskContextMenu();
+      if (!card?.isConnected || state28.batchMode || card.dataset.taskSwipeNegativeAction !== "delete" || card.classList.contains("task-card-removing") || card.classList.contains("task-card-action-pending")) return;
+      legacyMethod39("closeOpenTaskCardDrawer");
+      legacyMethod39("openTaskDeleteConfirm", card, taskId, () => restoreTaskContextFocus(taskId));
+      return;
+    }
+    if (["archive", "stop", "promote", "cancel"].includes(action)) {
       closeTaskContextMenu();
       revealTaskCardAction3(taskId, action, true);
       return;

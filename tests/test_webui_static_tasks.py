@@ -2326,7 +2326,7 @@ console.log(JSON.stringify({{
         self.assertIn('taskContextButton("copy-prompt", translate("taskContext.copyPrompt")', script)
         self.assertIn('taskContextButton("reveal-output", translate("taskContext.revealOutput")', script)
         self.assertIn('taskContextButton("archive", translate("taskContext.archive"))', script)
-        self.assertIn('taskContextButton("delete", translate("taskContext.delete"), false, true)', script)
+        self.assertIn('taskContextButton("delete", translate("taskContext.delete")', script)
         self.assertIn('taskContextButton("stop", translate("action.stop")', script)
         self.assertIn('taskContextButton("move-up", translate("queue.moveUpTitle")', script)
         self.assertIn('taskContextButton("move-down", translate("queue.moveDownTitle")', script)

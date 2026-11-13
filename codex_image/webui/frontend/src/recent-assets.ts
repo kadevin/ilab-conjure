@@ -8,11 +8,13 @@ const els = bridge.els;
 let recentAssetsFeatureInitialized = false;
 const RECENT_ASSET_RENDER_BATCH_SIZE = 12;
 const RECENT_ASSET_LOAD_AHEAD_PX = 96;
+const RECENT_ASSET_REFRESH_TIMEOUT_MS = 5000;
 const RECENT_ASSET_PREVIEW_VISIBILITY_KEY = "codex-image-recent-asset-previews-hidden";
 let recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
 let recentAssetPreviewsHidden = false;
 let recentAssetLoadState: "idle" | "loading" | "error" = "idle";
 let recentAssetLoadError = "";
+let recentAssetRefreshController: AbortController | null = null;
 
 function legacyMethod(name: string, ...args: any[]): any {
   const method = getLegacyBridge().methods[name];
@@ -83,27 +85,42 @@ function toggleRecentAssetPreviews() {
 }
 
 async function refreshRecentAssets() {
-  if (!els.recentAssetList) return;
+  const list = els.recentAssetList as HTMLElement | null;
+  if (!list) return;
+  recentAssetRefreshController?.abort();
+  const controller = new AbortController();
+  recentAssetRefreshController = controller;
+  const { signal } = controller;
+  const timeout = window.setTimeout(() => controller.abort(), RECENT_ASSET_REFRESH_TIMEOUT_MS);
   recentAssetLoadState = "loading";
   recentAssetLoadError = "";
-  els.recentAssetList.setAttribute("aria-busy", "true");
-  renderRecentAssets();
+  list.setAttribute("aria-busy", "true");
+  renderRecentAssetDock(list.childElementCount > 0);
+  let preparedImages: Map<string, HTMLImageElement> | undefined;
   try {
-    const response = await fetch("/api/reference-assets/recent?limit=50");
+    const response = await fetch("/api/reference-assets/recent?limit=50", { signal });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.detail || translate("recentAssets.loadFailed"));
     }
-    state.recentAssets = Array.isArray(data.items) ? data.items : [];
-    recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
+    signal.throwIfAborted();
+    const items = Array.isArray(data.items) ? data.items : [];
+    preparedImages = await prepareRecentAssetImages(list, items, signal);
+    signal.throwIfAborted();
+    state.recentAssets = items;
     recentAssetLoadState = "idle";
   } catch (error: any) {
+    if (recentAssetRefreshController !== controller) return;
     recentAssetLoadState = "error";
-    recentAssetLoadError = error?.message || translate("recentAssets.loadFailed");
-    recentAssetRenderLimit = RECENT_ASSET_RENDER_BATCH_SIZE;
+    recentAssetLoadError = signal.aborted ? translate("recentAssets.loadFailed") : error?.message || translate("recentAssets.loadFailed");
   } finally {
-    els.recentAssetList.removeAttribute("aria-busy");
-    renderRecentAssets();
+    window.clearTimeout(timeout);
+    controller.abort();
+    if (recentAssetRefreshController === controller) {
+      recentAssetRefreshController = null;
+      list.removeAttribute("aria-busy");
+      renderRecentAssets(preparedImages);
+    }
   }
 }
 
@@ -127,50 +144,166 @@ function renderRecentAssetStatus() {
   `;
 }
 
-function renderRecentAssets(appendFrom = 0) {
-  if (!els.recentAssetDock || !els.recentAssetList) return;
-  const items = state.recentAssets.filter((item: any) => item?.id && item?.image_url);
-  const visibleItems = items.slice(0, recentAssetRenderLimit);
-  const append = appendFrom > 0 && els.recentAssetList.childElementCount === appendFrom;
-  els.recentAssetDock.classList.toggle("hidden", !items.length && recentAssetLoadState === "idle");
-  els.recentAssetDock.classList.toggle("is-loading", recentAssetLoadState === "loading");
+function renderRecentAssetDock(hasItems: boolean) {
+  els.recentAssetDock?.classList.toggle("hidden", !hasItems && recentAssetLoadState === "idle");
+  els.recentAssetDock?.classList.toggle("is-loading", recentAssetLoadState === "loading");
   renderRecentAssetStatus();
   syncRecentAssetPreviewVisibility();
-  const markup = (append ? visibleItems.slice(appendFrom) : visibleItems).map((item: any) => {
-    const name = recentAssetName(item);
-    const referenceCount = recentAssetReferenceCount(item);
-    const hideOnly = recentAssetRequiresHide(item);
-    const actionLabel = hideOnly
-      ? formatTranslation("recentAssets.hide", { name })
-      : formatTranslation("recentAssets.delete", { name });
-    const actionTitle = hideOnly
-      ? formatTranslation("recentAssets.inUse", { count: referenceCount })
-      : translate("recentAssets.deleteTitle");
-    const actionAttribute = hideOnly
-      ? `data-reference-asset-hide="${escapeHtml(item.id)}"`
-      : `data-reference-asset-delete="${escapeHtml(item.id)}"`;
-    const thumbnailUrl = item.thumbnail_url || item.image_url;
-    return `
-    <div class="recent-asset-button" title="${escapeHtml(name)}">
-      <button class="recent-asset-use" type="button" data-reference-asset-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(formatTranslation("recentAssets.use", { name }))}">
-        <img src="${escapeHtml(thumbnailUrl)}" data-full-src="${escapeHtml(item.image_url)}" alt="${escapeHtml(name)}" loading="lazy" decoding="async">
-        <span>${escapeHtml(name)}</span>
+}
+
+function recentAssetCards(list: HTMLElement) {
+  return new Map(Array.from(list.querySelectorAll<HTMLElement>(".recent-asset-button"),
+    card => [card.dataset.recentAssetId, card]));
+}
+
+function setRecentAssetImageSource(image: HTMLImageElement, item: any) {
+  const thumbnailUrl = item.thumbnail_url || item.image_url;
+  if (image.dataset.thumbnailSrc === thumbnailUrl && image.dataset.fullSrc === item.image_url) return;
+  image.dataset.thumbnailSrc = thumbnailUrl;
+  image.dataset.fullSrc = item.image_url;
+  image.src = thumbnailUrl;
+}
+
+function useRecentAssetImageFallback(image: HTMLImageElement): boolean {
+  const originalUrl = image.dataset.fullSrc;
+  if (!originalUrl || image.getAttribute("src") === originalUrl) return false;
+  image.src = originalUrl;
+  return true;
+}
+
+function recentAssetsInViewport(list: HTMLElement, items: any[]) {
+  if (recentAssetPreviewsHidden || !list.firstElementChild || !list.clientWidth) return [];
+  const style = getComputedStyle(list);
+  const gap = parseFloat(style.columnGap) || 0;
+  const padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+  const stride = list.firstElementChild.getBoundingClientRect().width + gap;
+  if (!stride) return [];
+  const count = Math.min(items.length, recentAssetRenderLimit);
+  const maxScroll = Math.max(0, count * stride - gap + padding - list.clientWidth);
+  const start = Math.min(Math.max(0, list.scrollLeft), maxScroll);
+  // Include a neighboring card for partial tiles and fractional pixel rounding.
+  return items.slice(Math.max(0, Math.floor(start / stride) - 1),
+    Math.min(count, Math.ceil((start + list.clientWidth) / stride) + 1));
+}
+
+async function decodeRecentAssetImage(item: any, signal: AbortSignal): Promise<HTMLImageElement> {
+  signal.throwIfAborted();
+  const image = new Image();
+  image.decoding = "async";
+  let cancel!: () => void;
+  const aborted = new Promise<never>((_resolve, reject) => {
+    cancel = () => {
+      image.removeAttribute("src");
+      reject(signal.reason);
+    };
+    signal.addEventListener("abort", cancel, { once: true });
+  });
+  try {
+    setRecentAssetImageSource(image, item);
+    try {
+      await Promise.race([image.decode(), aborted]);
+    } catch {
+      signal.throwIfAborted();
+      if (!useRecentAssetImageFallback(image)) throw new Error(translate("recentAssets.loadFailed"));
+      await Promise.race([image.decode(), aborted]).catch(() => {
+        signal.throwIfAborted();
+        throw new Error(translate("recentAssets.loadFailed"));
+      });
+    }
+    signal.throwIfAborted();
+    return image;
+  } finally {
+    signal.removeEventListener("abort", cancel);
+  }
+}
+
+async function prepareRecentAssetImages(list: HTMLElement, items: any[], signal: AbortSignal) {
+  const validItems = items.filter(item => item?.id && item?.image_url);
+  const cards = recentAssetCards(list);
+  const prepared = new Map<string, HTMLImageElement>();
+  // Scrolling or resizing while images decode can change which tiles will be visible.
+  while (!signal.aborted) {
+    const missing = recentAssetsInViewport(list, validItems).filter(item => {
+      if (prepared.has(item.id)) return false;
+      const current = cards.get(item.id)?.querySelector("img");
+      return !(current?.complete && current.naturalWidth > 0
+        && current.dataset.thumbnailSrc === (item.thumbnail_url || item.image_url)
+        && current.dataset.fullSrc === item.image_url);
+    });
+    if (!missing.length) break;
+    await Promise.all(missing.map(async item => {
+      prepared.set(item.id, await decodeRecentAssetImage(item, signal));
+    }));
+  }
+  return prepared;
+}
+
+function createRecentAssetCard(id: string) {
+  const card = document.createElement("div");
+  card.className = "recent-asset-button";
+  card.dataset.recentAssetId = id;
+  card.innerHTML = `
+      <button class="recent-asset-use" type="button">
+        <img loading="lazy" decoding="async">
+        <span></span>
       </button>
-      <button class="recent-asset-delete${hideOnly ? " is-hide" : ""}" type="button" ${actionAttribute} aria-label="${escapeHtml(actionLabel)}" title="${escapeHtml(actionTitle)}">×</button>
-    </div>
+      <button class="recent-asset-delete" type="button">×</button>
   `;
-  }).join("");
-  if (append) els.recentAssetList.insertAdjacentHTML("beforeend", markup);
-  else els.recentAssetList.innerHTML = markup;
+  card.querySelector<HTMLButtonElement>(".recent-asset-use")!.dataset.referenceAssetId = id;
+  return card;
+}
+
+function updateRecentAssetCard(card: HTMLElement, item: any, preparedImage?: HTMLImageElement) {
+  const name = recentAssetName(item);
+  const hideOnly = recentAssetRequiresHide(item);
+  const use = card.querySelector<HTMLButtonElement>(".recent-asset-use")!;
+  const action = card.querySelector<HTMLButtonElement>(".recent-asset-delete")!;
+  let image = use.querySelector("img")!;
+  if (preparedImage) {
+    image.replaceWith(preparedImage);
+    image = preparedImage;
+  }
+  setRecentAssetImageSource(image, item);
+  image.alt = name;
+  card.title = name;
+  use.querySelector("span")!.textContent = name;
+  use.setAttribute("aria-label", formatTranslation("recentAssets.use", { name }));
+  action.classList.toggle("is-hide", hideOnly);
+  action.removeAttribute(hideOnly ? "data-reference-asset-delete" : "data-reference-asset-hide");
+  action.setAttribute(hideOnly ? "data-reference-asset-hide" : "data-reference-asset-delete", item.id);
+  action.setAttribute("aria-label", formatTranslation(hideOnly ? "recentAssets.hide" : "recentAssets.delete", { name }));
+  action.title = hideOnly
+    ? formatTranslation("recentAssets.inUse", { count: recentAssetReferenceCount(item) })
+    : translate("recentAssets.deleteTitle");
+}
+
+function renderRecentAssets(preparedImages?: Map<string, HTMLImageElement>) {
+  const list = els.recentAssetList as HTMLElement | null;
+  if (!list) return;
+  const items = state.recentAssets.filter((item: any) => item?.id && item?.image_url);
+  const visibleItems = items.slice(0, recentAssetRenderLimit);
+  const desiredIds = new Set(visibleItems.map((item: any) => item.id));
+  const cards = recentAssetCards(list);
+  const scrollLeft = list.scrollLeft;
+  const focused = document.activeElement as HTMLElement | null;
+  renderRecentAssetDock(items.length > 0);
+
+  cards.forEach((card, id) => {
+    if (!desiredIds.has(id)) card.remove();
+  });
+  visibleItems.forEach((item: any, index: number) => {
+    const card = cards.get(item.id) || createRecentAssetCard(item.id);
+    updateRecentAssetCard(card, item, preparedImages?.get(item.id));
+    if (list.children[index] !== card) list.insertBefore(card, list.children[index] || null);
+  });
+  if (focused && list.contains(focused) && focused !== document.activeElement) focused.focus({ preventScroll: true });
+  if (list.scrollLeft !== scrollLeft) list.scrollLeft = scrollLeft;
 }
 
 function handleRecentAssetImageError(event: Event) {
   const image = event.target;
   if (!(image instanceof HTMLImageElement)) return;
-  const originalUrl = image.dataset.fullSrc;
-  if (!originalUrl || image.getAttribute("src") === originalUrl) return;
-  image.removeAttribute("data-full-src");
-  image.src = originalUrl;
+  useRecentAssetImageFallback(image);
 }
 
 function handleRecentAssetClick(event: Event) {
@@ -216,11 +349,8 @@ function handleRecentAssetScroll() {
   if (!list || recentAssetRenderLimit >= state.recentAssets.length) return;
   const remaining = list.scrollWidth - list.clientWidth - list.scrollLeft;
   if (remaining > RECENT_ASSET_LOAD_AHEAD_PX) return;
-  const scrollLeft = list.scrollLeft;
-  const previousLimit = recentAssetRenderLimit;
   recentAssetRenderLimit += RECENT_ASSET_RENDER_BATCH_SIZE;
-  renderRecentAssets(previousLimit);
-  list.scrollLeft = scrollLeft;
+  renderRecentAssets();
 }
 
 function wheelDeltaInPixels(event: WheelEvent) {
@@ -257,6 +387,7 @@ async function hideRecentAsset(assetId: any) {
     }
     state.recentAssets = state.recentAssets.filter((item: any) => item.id !== assetId);
     renderRecentAssets();
+    if (recentAssetLoadState === "loading") void refreshRecentAssets();
     setStatus(translate("recentAssets.hidden"), "ok");
   } catch (error: any) {
     setStatus(error.message || translate("recentAssets.hideFailed"), "error");
@@ -288,6 +419,7 @@ async function deleteRecentAsset(assetId: any) {
       setMode("generate");
     }
     renderRecentAssets();
+    if (recentAssetLoadState === "loading") void refreshRecentAssets();
     renderImageStrip();
     updateRequestPreview();
     setStatus(translate("recentAssets.deleted"), "ok");

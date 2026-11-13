@@ -93,13 +93,16 @@ attributes for deterministic color checks; this does not emulate native pointer 
 The `api-provider-delete` page verifies default reassignment, rejected and delayed
 writes, duplicate actions, preserved credentials and selections, and deletion
 persistence after reload using synthetic providers and the real settings backend.
+The `recent-asset-refresh` page submits synthetic reference images and checks
+that delayed thumbnails do not blank the recent row when it reorders.
 Fixture app pages disable PWA registration and report startup errors, unhandled
 rejections and failed resources as failures. These suites do not test offline PWA
 behavior; do not host them on an origin containing real user data.
 For a history bundle comparison, pass `--baseline-bundle PATH` and open
 `/qa/history?variant=baseline`. The old `tests.history_browser_fixture` command
-remains an alias. CI runs Chromium checks for compact layout, provider deletion, backup navigation,
-and transfer cancellation with `npm run test:browser`. Install its browser with
+remains an alias. CI runs Chromium checks for compact layout, provider deletion,
+task menu deletion, recent reference refresh, backup navigation and transfer
+cancellation with `npm run test:browser`. Install its browser with
 `npx --no-install playwright install chromium`; set `QA_PYTHON` to the project
 Python executable for local runs. The runner owns a loopback-only fixture and
 cleans up its browser and server. Other browser pages remain manual acceptance;

@@ -1,6 +1,7 @@
 import { getLegacyBridge } from "./state";
 import { LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { moveQueueTask } from "./queue";
+import { isTaskDeletionPending } from "./task-actions";
 
 const bridge = getLegacyBridge();
 const state = bridge.state;
@@ -9,6 +10,7 @@ const els = bridge.els;
 let taskContextMenuInitialized = false;
 let taskContextMenuEventsBound = false;
 let taskContextMenuEl: HTMLElement | null = null;
+let taskContextMenuCard: HTMLElement | null = null;
 let taskListMutationObserver: MutationObserver | null = null;
 
 function legacyMethod(name: string, ...args: any[]): any {
@@ -59,6 +61,29 @@ function taskContextMenuContains(card: HTMLElement): boolean {
   return taskContextMenuRoots().some((root) => root.contains(card));
 }
 
+function restoreTaskContextFocus(taskId: string): void {
+  const focusCard = () => {
+    const card = legacyMethod("taskCardElement", taskId) as HTMLElement | null;
+    if (!card?.getClientRects().length || card.closest("[inert]")) return false;
+    card.focus({ preventScroll: true });
+    return document.activeElement === card;
+  };
+  const focusIsUnclaimed = () => document.activeElement === document.body
+    || !document.activeElement?.getClientRects().length;
+  // Wait for the overlay to clear inert and for any in-progress list redraw.
+  queueMicrotask(() => {
+    if (focusCard() || !focusIsUnclaimed()) return;
+    const observer = new MutationObserver(() => {
+      if (!focusIsUnclaimed() || focusCard()) {
+        observer.disconnect();
+        window.clearTimeout(timeout);
+      }
+    });
+    taskContextMenuRoots().forEach(root => observer.observe(root, { childList: true, subtree: true }));
+    const timeout = window.setTimeout(() => observer.disconnect(), 500);
+  });
+}
+
 function handleTaskListContextMenu(event: MouseEvent) {
   const target = eventTargetElement(event);
   const card = target?.closest(".task-card[data-task-id]") as HTMLElement | null;
@@ -96,6 +121,7 @@ function openTaskContextMenu(card: HTMLElement, clientX: number, clientY: number
   if (!task) return;
   closePromptPopover();
   const menu = ensureTaskContextMenu();
+  taskContextMenuCard = card;
   menu.dataset.taskContextTaskId = taskId;
   menu.innerHTML = taskContextMenuHtml(task);
   menu.classList.remove("hidden");
@@ -109,6 +135,7 @@ function closeTaskContextMenu() {
   if (!taskContextMenuEl) return;
   taskContextMenuEl.classList.add("hidden");
   taskContextMenuEl.removeAttribute("data-task-context-task-id");
+  taskContextMenuCard = null;
 }
 
 function ensureTaskContextMenu() {
@@ -150,7 +177,7 @@ function taskContextMenuHtml(task: any) {
         ].join("")
       : [
           taskContextButton("archive", translate("taskContext.archive")),
-          taskContextButton("delete", translate("taskContext.delete"), false, true),
+          taskContextButton("delete", translate("taskContext.delete"), isTaskDeletionPending(String(task.task_id)), true),
         ].join("");
   return `
     <div class="task-context-menu-section">
@@ -206,7 +233,17 @@ async function handleTaskContextMenuAction(button: HTMLButtonElement) {
     return;
   }
 
-  if (["archive", "delete", "stop", "promote", "cancel"].includes(action)) {
+  if (action === "delete") {
+    const card = taskContextMenuCard;
+    closeTaskContextMenu();
+    if (!card?.isConnected || state.batchMode || card.dataset.taskSwipeNegativeAction !== "delete"
+      || card.classList.contains("task-card-removing") || card.classList.contains("task-card-action-pending")) return;
+    legacyMethod("closeOpenTaskCardDrawer");
+    legacyMethod("openTaskDeleteConfirm", card, taskId, () => restoreTaskContextFocus(taskId));
+    return;
+  }
+
+  if (["archive", "stop", "promote", "cancel"].includes(action)) {
     closeTaskContextMenu();
     revealTaskCardAction(taskId, action, true);
     return;

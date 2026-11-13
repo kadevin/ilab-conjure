@@ -9,6 +9,7 @@ const TASK_CARD_REMOVING_CLASS = "task-card-removing";
 const TASK_CARD_REMOVAL_FALLBACK_MS = 320;
 const TASK_CARD_REFLOW_DURATION_MS = 180;
 const TASK_CARD_REFLOW_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const pendingTaskDeletions = new Set<string>();
 
 type TaskCardLayout = Record<string, { left: number; top: number }>;
 type TaskCardRemovalAction = "default" | "archive" | "delete";
@@ -215,9 +216,15 @@ async function archiveTask(taskId: any) {
   }
 }
 
-async function deleteTask(taskId: any) {
-  closePromptPopover();
+export function isTaskDeletionPending(taskId: string): boolean {
+  return pendingTaskDeletions.has(taskId);
+}
+
+async function deleteTask(taskId: string) {
+  if (isTaskDeletionPending(taskId)) return false;
+  pendingTaskDeletions.add(taskId);
   try {
+    closePromptPopover();
     await deleteTaskById(taskId);
     await runTaskCardRemovalTransition([taskId], renderTasks, "delete");
     await refreshTasksAfterDeletion();
@@ -229,6 +236,8 @@ async function deleteTask(taskId: any) {
   } catch (error) {
     setStatus(errorMessage(error, translate("taskActions.deleteFailed")), "error");
     return false;
+  } finally {
+    pendingTaskDeletions.delete(taskId);
   }
 }
 
@@ -341,7 +350,8 @@ async function markTaskViewed(taskId: any) {
   }
 }
 
-function openTaskDeleteConfirm(deleteButton: any, taskId: any) {
+function openTaskDeleteConfirm(anchor: HTMLElement, taskId: string, onCancel?: () => void) {
+  if (isTaskDeletionPending(taskId)) return;
   closePromptPopover();
   const task = state.tasks.find((item) => String(item.task_id) === String(taskId));
   if (!task) return;
@@ -351,12 +361,13 @@ function openTaskDeleteConfirm(deleteButton: any, taskId: any) {
   }
 
   const title = task.prompt || task.mode || taskId;
-  openConfirmPopover(deleteButton, {
+  openConfirmPopover(anchor, {
     title: translate("taskActions.deleteTitle"),
     focusCancel: true,
     message: translate("taskActions.deleteMessage"),
     detail: title,
     confirmText: translate("action.delete"),
+    onCancel,
     onConfirm: async () => {
       await deleteTask(taskId);
     },
