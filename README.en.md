@@ -23,7 +23,7 @@
 
 
 <p align="center">
-  English · <a href="README.md">中文</a> · <a href="RELEASES.md">Downloads / Releases</a>
+  English · <a href="README.md">中文</a> · <a href="RELEASES.md">Downloads / Releases</a> · <a href="https://ifdian.net/a/ilabconjure">Sponsor</a>
 </p>
 
 <p align="center">
@@ -216,6 +216,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development and checks, [RELEASES.md]
 ## License
 
 Licensed under [GNU AGPLv3](LICENSE). Modified versions offered over a network must provide corresponding source under the license. This covers code, not rights to the project name, logo, assets, credentials, user content, or third-party model/API services.
+
+## Support the Project
+
+If iLab CONJURE is useful to you, you can [sponsor the project on Afdian](https://ifdian.net/a/ilabconjure) with an amount of your choice to support ongoing development, maintenance, and bug fixes. Sponsorship is voluntary and does not include generation credits, exclusive paid features, or one-to-one technical support.
 
 ## Contact And Custom Work
 
