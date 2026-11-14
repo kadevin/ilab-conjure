@@ -23,7 +23,7 @@
 
 
 <p align="center">
-  中文 · <a href="README.en.md">English</a> · <a href="RELEASES.md">下载 / Releases</a>
+  中文 · <a href="README.en.md">English</a> · <a href="RELEASES.md">下载 / Releases</a> · <a href="https://ifdian.net/a/ilabconjure">赞助支持</a>
 </p>
 
 <p align="center">
@@ -216,6 +216,10 @@ API Key 默认排除，手动包含后 ZIP **不加密**；OAuth 登录态不备
 ## 许可证
 
 采用 [GNU AGPLv3](LICENSE)。修改后通过网络提供服务时，需按协议开放对应源码。许可证仅适用于代码，不授予项目名称、Logo、素材、凭据、用户内容或第三方模型／API 服务的权利。
+
+## 赞助支持
+
+如果 iLab CONJURE 对你有帮助，欢迎通过[爱发电](https://ifdian.net/a/ilabconjure)自选金额赞助，支持持续开发、维护和问题修复。赞助完全自愿，不包含生成额度、付费专属功能或一对一技术支持。
 
 ## 交流与定制开发
 
