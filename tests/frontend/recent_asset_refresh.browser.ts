@@ -72,9 +72,15 @@ async function run(): Promise<void> {
   let delayedIndexes: number[] = [];
   let stalledAsset = "";
   let submissions = 0;
+  let holdSubmission = false;
+  let releaseSubmission: (() => void) | undefined;
   const nativeFetch = win.fetch.bind(win);
   win.fetch = async (input, init) => {
     const path = new URL(typeof input === "string" ? input : input instanceof win.URL ? input.href : input.url, win.location.href).pathname;
+    if (path === "/api/edit" && holdSubmission) {
+      holdSubmission = false;
+      await new Promise<void>(resolve => { releaseSubmission = resolve; });
+    }
     const response = await nativeFetch(input, init);
     if (path === "/api/edit") {
       if (response.ok) submissions++;
@@ -98,7 +104,7 @@ async function run(): Promise<void> {
     return new win.Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
   };
 
-  async function submitAndCheck(label: string, expectedFirst?: string): Promise<void> {
+  async function submitAndCheck(label: string, expectedFirst?: string, delaySubmission = false): Promise<void> {
     const oldOrder = order();
     const oldImages = new Map(oldOrder.map((id, index) => [id, images()[index]!]));
     const oldScrollLeft = list.scrollLeft;
@@ -106,7 +112,24 @@ async function run(): Promise<void> {
     methods.setPromptText!(`Use synthetic reference: ${label}`);
     pending = undefined;
     hold = true;
+    holdSubmission = delaySubmission;
+    releaseSubmission = undefined;
     runButton.click();
+    if (delaySubmission) {
+      await until(() => Boolean(releaseSubmission), `${label} submission held`);
+      try {
+        const pendingId = win.__codexImageWebUI!.state.pendingTaskId;
+        const pendingImage = () => doc.querySelector<HTMLImageElement>(`.task-card[data-task-id="${pendingId}"] .task-thumb img`);
+        await until(() => Boolean(pendingImage()), `${label} pending task thumbnail mounted`);
+        const image = pendingImage()!;
+        image.scrollIntoView({ block: "nearest" });
+        await until(() => image.complete, `${label} pending preview request completed`);
+        check(`${label}: pending task uses a loaded local preview`, loaded(image)
+          && image.getAttribute("src") === win.__codexImageWebUI!.state.images[0]!.previewUrl);
+      } finally {
+        releaseSubmission!();
+      }
+    }
     await until(() => Boolean(pending), `${label} submitted and refreshed`);
     const response = pending!;
     const nextFirst = response.items[0]!.id;
@@ -188,7 +211,7 @@ async function run(): Promise<void> {
     imageFile(`rgb(${index} 49 222)`, `qa-scroll-new-${index}.png`)));
   methods.addImageFiles(newFiles);
   delayedIndexes = [12, 13, 14];
-  await submitAndCheck("desktop scrolled upload");
+  await submitAndCheck("desktop scrolled upload", undefined, true);
 
   const beforeRetry = visibleImages();
   stalledAsset = visibleButtons()[0]!.dataset.referenceAssetId!;
