@@ -58805,11 +58805,11 @@ ${hint}` : hint);
   }
   function taskInputThumbnailRoute(task, index) {
     const inputIndex = positiveInt(index);
-    if (!task?.task_id || inputIndex === null) return "";
+    if (!task?.task_id || task.local_pending || inputIndex === null) return "";
     return `/api/tasks/${encodeURIComponent(task.task_id)}/inputs/${inputIndex}/thumbnail`;
   }
   function taskInputThumbnailUrls(task) {
-    if (!task) return [];
+    if (!task || task.local_pending) return [];
     if (Array.isArray(task.input_thumbnail_urls) && task.input_thumbnail_urls.length) {
       return task.input_thumbnail_urls.filter(Boolean);
     }
@@ -58819,6 +58819,10 @@ ${hint}` : hint);
     return typeof url === "string" && /^\/outputs\/[^/]+\/inputs\//.test(url);
   }
   function taskInputPreviewUrls2(task) {
+    if (task?.local_pending) {
+      const sources = Array.isArray(task.input_sources) && task.input_sources.length ? task.input_sources : task.local_input_files;
+      return Array.isArray(sources) ? sources.map((source) => source?.previewUrl || source?.image_url).filter(Boolean) : [];
+    }
     const thumbnailUrls = taskInputThumbnailUrls(task);
     if (Array.isArray(task?.input_sources) && task.input_sources.length) {
       const inputUrls = taskInputUrls(task);
