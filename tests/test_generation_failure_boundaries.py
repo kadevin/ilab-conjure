@@ -29,14 +29,15 @@ from tests.helpers import TEST_PNG_BASE64, TEST_PNG_BYTES, TEST_WEBP_BASE64, TES
 class GenerationFailureBoundaryTests(unittest.TestCase):
     @contextmanager
     def task(self, handler, *, profile="openai_images", codec="gpt_openai_images", count=1,
-             canonical_model=None, requested_parameters=None, edit_files=None):
+             canonical_model=None, requested_parameters=None, edit_files=None,
+             base_url="https://relay.example/v1"):
         model = canonical_model or ("gpt-image-2" if codec.startswith("gpt_") else "nano-banana-pro")
         client_class = httpx.AsyncClient
         with tempfile.TemporaryDirectory(prefix="conjure-failure-test-") as tmp, chdir(tmp):
             root = Path(tmp)
             settings = {"schema_version": 2, "active_provider_id": "relay", "codex_mode": "images",
                         "default_provider_by_model": {model: "relay"}, "providers": [{
-                            "id": "relay", "name": "Relay", "base_url": "https://relay.example/v1",
+                            "id": "relay", "name": "Relay", "base_url": base_url,
                             "api_key": "synthetic-only", "concurrency": 1, "bindings": [{
                                 "id": "image", "canonical_model_id": model, "remote_model_id": "image",
                                 "protocol_profile": profile, "parameter_codec": codec, "operations": ["generate", "edit"] if edit_files else ["generate"],

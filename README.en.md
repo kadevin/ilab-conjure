@@ -42,15 +42,17 @@ Start with an [app package](#app-packages), or [install from source](#install). 
 - **Prompts and assets:** A reusable gallery, recent uploads, image/color/snippet references, prompt templates, and a layered image editor.
 - **Output controls:** Size, ratio, quality, count, and format, plus parameter locking and model-supported transparency or web search.
 - **Tasks and history:** Concurrent queues, multi-image results, retries, search, favorites, tags, batch management, and ZIP export.
-- **Interface and settings:** Compact responsive layouts, light/dark themes, 14 language options, proxies, storage, notifications, and configuration backup.
+- **Interface and settings:** Compact responsive layouts, light/dark themes, custom colors, 14 language options, proxies, storage, notifications, and configuration backup.
 - **Local tools:** macOS and Windows standard/portable packages, tray or menu-bar launchers, and a CLI.
+
+Click the color dot beside the top-bar light/dark switch to choose a skin, primary color, and background tone. The workspace previews changes live; apply them to save in this browser. On mobile, the theme controls are under **More**. Configuration backups carry your colors to another browser; light/dark mode remains independent.
 
 <details>
 <summary>Models and channels</summary>
 
 GPT Image supports Image 2 and the 2.5/2.6 Flare and Sunburst models with separate remote model bindings. Existing bindings do not upgrade automatically; Codex channels remain on Image 2. Gemini includes Nano Banana Pro, 2.1, 2, and 2 Lite; 2.1 supports 1K/2K/4K, up to 14 reference images, and Google Search.
 
-Responses channels offer a main model, defaulting to `gpt-6-luna`, with `gpt-6.1-terra` among the choices when supported by the provider. Saved choices are preserved; switch older `gpt-5.4-mini` selections manually. Direct Image channels do not use a main model. Fetching a provider's model list only helps fill the form; it neither saves settings nor verifies image generation support.
+Responses channels offer a main model, defaulting to `gpt-6-luna`, with `gpt-6.2-sol`, `gpt-6.2-astra`, and `gpt-6.1-terra` among the choices when supported by the provider. Saved choices are preserved; switch older `gpt-5.4-mini` selections manually. Direct Image channels do not use a main model. Fetching a provider's model list only helps fill the form; it neither saves settings nor verifies image generation support.
 
 GPT Image transparency is available for PNG/WebP through native parameters or prompt compatibility, depending on the channel. Results without actual transparency are kept with a notice, without automatic regeneration.
 
@@ -153,7 +155,9 @@ Open `Start WebUI.command` on macOS or `Start WebUI.bat` on Windows, then visit 
 3. Write a prompt, insert references or templates as needed, set output parameters, and start generation.
 4. Track tasks on the left and review/download results on the right. Open History Library to search, favorite, tag, or export tasks in bulk.
 
-GPT Image 2.6 adds complexity, extra-high/maximum quality, and SVG/GIF outputs through the Images API. SVG/GIF are generation-only. GIF frame count (2–64) and frame duration (20–2000 ms) live in More options, alongside the calculated total duration; high resolutions lower the frame limit to fit the local decoding budget. SVG batches use one output per request. Image 2.5/2.6 Images API edits support a separate transparent markup layer on the first reference image; markup is sent separately from the original and cannot be combined with a mask.
+GPT Image 2.6 adds complexity, extra-high/maximum quality, and SVG/GIF outputs through the Images API. Both SVG and GIF support text-only generation and reference-image edits; availability depends on the provider and account permissions. GIF frame count (2–64) and frame duration (20–2000 ms) live in More options, alongside the calculated total duration; high resolutions lower the frame limit to fit the local decoding budget. GIF does not support masks, streaming previews, or compression settings. SVG batches use one output per request. Image 2.5/2.6 Images API edits support a separate transparent markup layer on the first reference image; markup is sent separately from the original and cannot be combined with a mask.
+
+GIF edits through the official OpenAI endpoint accept up to 16 frames. Other providers retain the range allowed by the local decoding budget.
 
 In compact mode, transparency and compression are under the extra-options icon beside Format. JPEG/WebP compression ranges from 50% to 100%.
 
@@ -172,6 +176,8 @@ Storage-path changes require a restart and do not move data. If history appears 
 The macOS standard app preserves custom paths. Portable migration rebases only paths inside the old `data/`; external folders stay unchanged. The original path settings are retained in `.migration/webui-settings-before-path-rebase.json`, and original data is not deleted.
 
 ### User configuration backup and restore
+
+To export for an older version that lacks appearance backup support, select **Compatible with older versions (without colors)**.
 
 Under Storage & Notifications → Configuration backup and restore, select chips, gallery, templates, or system settings and export a ZIP. Each backup is a complete snapshot of the selected sections, downloadable for 24 hours after creation. Discarding it or reaching expiry removes the temporary server copy.
 

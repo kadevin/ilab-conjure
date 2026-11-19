@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { APPEARANCE_STORAGE_KEY, APPEARANCE_CHANGE_EVENT, readAppearance, normalizeAppearance, persistAppearance, applyAppearance } from "./appearance";
 import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import type { TaskNotification, TaskNotificationSettings, TaskStatus, WebUITask } from "./types";
 import { taskWasCancelled } from "./task-cancellation";
@@ -8,7 +9,7 @@ import {
   persistThemePreference,
   THEME_STORAGE_KEY,
 } from "./theme-preference";
-import type { UserConfigClientPreferences, UserConfigRestoreMode } from "./user-config-backup-api";
+import type { UserConfigClientPreferences, UserConfigRestoredClientPreferences, UserConfigRestoreMode } from "./user-config-backup-api";
 
 export const TASK_NOTIFICATION_SETTINGS_KEY = "codex-image-task-notification-settings";
 const TASK_NOTIFICATION_SEEN_KEY = "codex-image-task-notification-seen";
@@ -42,12 +43,13 @@ export function readUserConfigClientPreferences(
   }
   return {
     theme: normalizeThemePreference(storage.getItem(THEME_STORAGE_KEY)),
+    ...(storage.getItem(APPEARANCE_STORAGE_KEY) !== null ? { appearance: readAppearance(storage) } : {}),
     notifications,
   };
 }
 
 export function applyUserConfigClientPreferences(
-  preferences: UserConfigClientPreferences,
+  preferences: UserConfigClientPreferences | UserConfigRestoredClientPreferences,
   mode: UserConfigRestoreMode,
   environment: ClientPreferenceApplyEnvironment = {},
 ): ClientPreferenceApplyResult {
@@ -56,6 +58,15 @@ export function applyUserConfigClientPreferences(
     typeof Notification === "undefined" ? "unsupported" : Notification.permission
   );
   const warnings: string[] = [];
+  const notifications = "notifications" in preferences ? preferences.notifications
+    : { in_app: preferences.notifications_in_app, system: preferences.notifications_system };
+  if (preferences.appearance && (mode === "replace" || storage.getItem(APPEARANCE_STORAGE_KEY) === null)) {
+    const appearance = normalizeAppearance(preferences.appearance);
+    const saved = persistAppearance(appearance, storage);
+    if (!saved) warnings.push("appearance.saveFailed");
+    applyAppearance(appearance);
+    if (saved && typeof document !== "undefined") document.dispatchEvent(new Event(APPEARANCE_CHANGE_EVENT));
+  }
   const shouldApplyTheme = mode === "replace" || storage.getItem(THEME_STORAGE_KEY) === null;
   if (shouldApplyTheme) {
     persistThemePreference(preferences.theme, storage);
@@ -64,11 +75,11 @@ export function applyUserConfigClientPreferences(
   const settingsMissing = storage.getItem(TASK_NOTIFICATION_SETTINGS_KEY) === null;
   let appliedNotifications = readUserConfigClientPreferences(storage).notifications;
   if (mode === "replace" || settingsMissing) {
-    const system = preferences.notifications.system && permission === "granted";
-    if (preferences.notifications.system && !system) {
+    const system = notifications.system && permission === "granted";
+    if (notifications.system && !system) {
       warnings.push("user_config_restore_system_notification_permission_missing");
     }
-    appliedNotifications = { in_app: preferences.notifications.in_app, system };
+    appliedNotifications = { in_app: notifications.in_app, system };
     try {
       storage.setItem(TASK_NOTIFICATION_SETTINGS_KEY, JSON.stringify({
         inApp: appliedNotifications.in_app,
@@ -80,6 +91,7 @@ export function applyUserConfigClientPreferences(
   }
   return {
     applied: {
+      ...(storage.getItem(APPEARANCE_STORAGE_KEY) !== null ? { appearance: readAppearance(storage) } : {}),
       theme: shouldApplyTheme ? preferences.theme : readUserConfigClientPreferences(storage).theme,
       notifications: appliedNotifications,
     },

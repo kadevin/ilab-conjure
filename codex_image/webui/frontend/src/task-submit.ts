@@ -80,7 +80,12 @@ function selectedRoutingFields(): { authSource: "codex" | "api"; requestedBacken
   return { authSource, requestedBackend: profile || (authSource === "codex" ? "codex_images" : "api_images") };
 }
 
-const REFERENCE_FILE_ERROR_KEYS: Record<string, string> = {
+const REQUEST_ERROR_KEYS: Record<string, string> = {
+  openai_gif_edit_frame_limit_exceeded: "taskSubmit.openAiGifEditFrameLimit",
+  gif_output_does_not_support_mask: "taskSubmit.gifMaskUnsupported",
+  gif_output_does_not_support_compression: "taskSubmit.gifCompressionUnsupported",
+  gif_output_does_not_support_partial_images: "taskSubmit.gifPartialImagesUnsupported",
+  output_compression_requires_jpeg_or_webp: "taskSubmit.compressionFormatUnsupported",
   reference_file_empty: "referenceFiles.errorEmpty",
   reference_file_type_unsupported: "referenceFiles.errorUnsupported",
   reference_file_type_mismatch: "referenceFiles.errorMismatch",
@@ -109,7 +114,7 @@ function responseErrorMessage(detail: unknown): string {
     : detail && typeof detail === "object" && "code" in detail
       ? String((detail as any).code || "")
       : "";
-  const localeKey = REFERENCE_FILE_ERROR_KEYS[code];
+  const localeKey = REQUEST_ERROR_KEYS[code];
   return localeKey ? translate(localeKey) : sanitizedApiMessage(detail, fallback);
 }
 

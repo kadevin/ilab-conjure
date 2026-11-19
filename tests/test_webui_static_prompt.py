@@ -537,7 +537,9 @@ class WebUIStaticPromptTests(WebUIStaticTestCase):
         self.assertNotIn("导入 PS", script)
         self.assertNotIn("COLOR_RECENTS_STORAGE_KEY", script)
         self.assertNotIn("codex-image-recent-colors", script)
-        self.assertNotIn("背景色", script)
+        prompt_colors = Path("codex_image/webui/frontend/src/prompt-colors.ts").read_text(encoding="utf-8")
+        self.assertNotIn("背景色", prompt_colors)
+        self.assertNotIn('translate("appearance.background")', prompt_colors)
         self.assertRegex(styles, r"\.color-suggest\s*\{[^}]*position:\s*fixed")
         self.assertRegex(styles, r"\.color-suggest\s*\{[^}]*box-sizing:\s*border-box")
         self.assertRegex(styles, r"\.color-suggest\s*\{[^}]*overflow-x:\s*hidden")
@@ -799,8 +801,8 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
         styles = Path("codex_image/webui/static/styles.css").read_text(encoding="utf-8")
 
-        self.assertRegex(styles, r"\.sidebar-content\s*,[\s\S]*\.dashboard\s*,[\s\S]*\.prompt-editor\s*,[\s\S]*\.modal-panel\s*\{[^}]*scrollbar-color:\s*var\(--scrollbar-thumb\)")
-        self.assertRegex(styles, r"\.sidebar-content::-webkit-scrollbar-thumb\s*,[\s\S]*\.dashboard::-webkit-scrollbar-thumb")
+        self.assertRegex(styles, r":where\(\*\)\s*\{[^}]*scrollbar-color:\s*var\(--scrollbar-thumb\)")
+        self.assertRegex(styles, r":where\(\*\)::-webkit-scrollbar-thumb\s*\{[^}]*background:\s*var\(--scrollbar-thumb\)")
         self.assertRegex(styles, r"\.image-uploader-grid\s*\{[^}]*overflow:\s*hidden")
         self.assertRegex(styles, r"\.image-thumb-list\s*\{[^}]*overflow-x:\s*auto")
         self.assertRegex(styles, r"\.upload-tile\s*\{[^}]*height:\s*100%")
@@ -976,9 +978,10 @@ console.log(cases.map((color) => readableTextColor(color)).join("\\n"));
                 const gpt56Matches = mainModelOptionsForQuery("gpt-5.6");
                 const customMatches = mainModelOptionsForQuery("future-model-x");
                 for (const [query, expected] of [
-                  ["  ASTRA ", ["gpt-6-astra"]],
-                  ["gpt-6", ["gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna"]],
-                  ["  SOL ", ["gpt-6.1-sol", "gpt-6-sol", "gpt-5.6-sol"]],
+                  ["gpt-6.2", ["gpt-6.2-sol", "gpt-6.2-astra"]],
+                  ["  ASTRA ", ["gpt-6.2-astra", "gpt-6-astra"]],
+                  ["gpt-6", ["gpt-6.2-sol", "gpt-6.2-astra", "gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna"]],
+                  ["  SOL ", ["gpt-6.2-sol", "gpt-6.1-sol", "gpt-6-sol", "gpt-5.6-sol"]],
                   ["Luna", ["gpt-6-luna", "gpt-5.6-luna"]],
                   ["Terra", ["gpt-6.1-terra", "gpt-5.6-terra"]],
                 ]) {

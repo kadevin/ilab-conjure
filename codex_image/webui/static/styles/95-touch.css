@@ -332,15 +332,15 @@
   }
   .lightbox-shortcut-hint { display: none !important; }
   .history-lightbox-close, .history-lightbox-counter {
-    z-index: 5; top: var(--lightbox-mobile-top); background: #182720; color: #fff;
+    z-index: 5; top: var(--lightbox-mobile-top); background: var(--viewer-surface); color: var(--viewer-foreground);
     border-color: rgba(255, 255, 255, .4); backdrop-filter: none;
   }
   .history-lightbox-close { left: max(12px, env(safe-area-inset-left)); width: 44px; height: 44px; border-radius: 8px; }
-  .history-lightbox-close:hover { background: #283e33; }
+  .history-lightbox-close:hover { background: var(--viewer-hover); }
   .history-lightbox-counter { height: 44px; display: grid; place-items: center; }
   .history-lightbox-peek {
     width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px;
-    background: #182720; color: #fff; opacity: 1; transform: translateY(-50%);
+    background: var(--viewer-surface); color: var(--viewer-foreground); opacity: 1; transform: translateY(-50%);
   }
   .history-lightbox-peek-previous { left: max(12px, env(safe-area-inset-left)); }
   .history-lightbox-peek-next { right: max(12px, env(safe-area-inset-right)); }

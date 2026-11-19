@@ -31,7 +31,23 @@ def digest(path: Path) -> str:
 
 
 def gh(*args: str) -> str:
-    return subprocess.run(['gh', *args], check=True, text=True, capture_output=True).stdout
+    try:
+        return subprocess.run(['gh', *args], check=True, text=True, capture_output=True).stdout
+    except subprocess.CalledProcessError as error:
+        # Preserve GitHub's HTTP/network diagnosis, without logging raw credentials
+        # or chaining the original exception. A failed write is never retried here.
+        message = f"gh {' '.join(args[:2])} failed (exit code {error.returncode}):\n{error.stderr or '(no stderr)'}"
+        secrets = {os.environ.get(name, '') for name in (
+            'GH_TOKEN', 'GITHUB_TOKEN', 'GH_ENTERPRISE_TOKEN', 'GITHUB_ENTERPRISE_TOKEN',
+            'ILAB_CONJURE_UPDATE_SIGNING_PRIVATE_KEY_B64',
+        )} - {''}
+        for secret in sorted(secrets, key=len, reverse=True):
+            message = message.replace(secret, '[REDACTED]')
+        message = re.sub(r'(?i)(authorization:\s*)[^\r\n]*', r'\1[REDACTED]', message)
+        message = re.sub(r'\b(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+', '[REDACTED]', message)
+        if len(message) > 4096:
+            message = message[:4096] + '\n[diagnostic truncated]'
+        raise RuntimeError(message) from None
 
 
 def verify_tag(repo: str, tag: str, commit: str) -> None:
@@ -92,6 +108,16 @@ def publish(*, repo: str, tag: str, commit: str, files: list[Path], notes: Path)
     final = json.loads(gh('api', release_path))
     if final['draft'] or final.get('prerelease') or final['tag_name'] != tag:
         raise ValueError('Release publication was not confirmed')
+    summary = (f'Published [{tag}](https://github.com/{repo}/releases/tag/{tag})\n\n'
+               f'Commit: `{commit}`\n\n'
+               f'{len(files)} verified assets; release ID `{final["id"]}`; draft=false; prerelease=false.\n')
+    print(summary)
+    if summary_path := os.environ.get('GITHUB_STEP_SUMMARY'):
+        try:
+            with Path(summary_path).open('a', encoding='utf-8') as stream:
+                stream.write('### Confirmed GitHub publication\n\n' + summary)
+        except OSError:
+            print('::warning::Release publication was confirmed, but the job summary could not be written.')
 
 
 def prepare(*, directory: Path, repo: str, tag: str, notes_source: Path, notes: Path) -> list[Path]:

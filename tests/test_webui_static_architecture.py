@@ -936,7 +936,7 @@ class FrontendArchitectureTests(WebUIStaticTestCase):
             styles,
             r"\.task-active-list\s*\{[^}]*padding-right:\s*var\(--task-history-scrollbar-offset",
         )
-        self.assertRegex(styles, r"\.sidebar-content,\s*[\s\S]*\.task-active-list,\s*[\s\S]*\.dashboard,\s*[\s\S]*scrollbar-width:\s*thin")
+        self.assertRegex(styles, r":where\(\*\)\s*\{[^}]*scrollbar-width:\s*thin")
         self.assertIn("function collapseExpandedTaskGroup(", controls_source)
         self.assertIn("setExpandedTaskGroupKey(null", controls_source)
         self.assertNotIn('const nextKey = String(state.expandedTaskGroupKey) === key ? replacementGroupKey(key) : key;', controls_source)

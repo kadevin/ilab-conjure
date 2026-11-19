@@ -393,13 +393,11 @@ def _gpt_version_parameters(version: str) -> tuple[ParameterDefinition, ...]:
                 id="gpt.frame_count", label_key="output.frameCount", group="advanced",
                 control="number", value_type="integer", default=9, minimum=2, maximum=64, step=1,
                 visible_when=(ParameterCondition("output.format", "equals", "gif"),),
-                operations=frozenset({"generate"}),
             ),
             ParameterDefinition(
                 id="gpt.frame_duration_ms", label_key="output.frameDuration", group="advanced",
                 control="number", value_type="integer", default=200, minimum=20, maximum=2000, step=10,
                 visible_when=(ParameterCondition("output.format", "equals", "gif"),),
-                operations=frozenset({"generate"}),
             ),
         )
     return parameters

@@ -46,6 +46,10 @@ use a sandboxed CSP. Raster inputs remain raster-only; SVG output does not
 relax upload validation. History imports validate SVG outputs under the same
 static-image rules.
 
+Reusing a served SVG output as a reference creates a PNG copy in the browser,
+with bounded dimensions and byte size. The original SVG remains unchanged;
+the copy still passes the regular raster upload validation.
+
 Read/write failures, HTTP 5xx responses and total timeouts after a generation
 request may have been sent never replay that request automatically. Connection
 retries are limited to failures known to occur before sending. Image decoding,

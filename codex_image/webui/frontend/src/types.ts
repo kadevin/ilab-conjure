@@ -126,6 +126,7 @@ export interface CatalogProvider {
   available: boolean;
   bindings: CatalogProviderBinding[];
   icon_emoji?: string;
+  gif_edit_max_frames?: number;
 }
 
 export interface GenerationCatalog {

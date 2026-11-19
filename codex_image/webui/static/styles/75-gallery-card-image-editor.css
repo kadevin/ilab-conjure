@@ -270,7 +270,7 @@
 .image-editor-swatch {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(31, 53, 47, 0.18);
+  border: 2px solid color-mix(in srgb, var(--text) 18%, transparent);
   border-radius: 999px;
   background: var(--swatch-color, #ff3b30);
   cursor: pointer;
@@ -355,7 +355,7 @@
   max-width: 100%;
   max-height: 62vh;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(29, 52, 46, 0.14);
+  box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.14);
   cursor: crosshair;
 }
 
@@ -390,7 +390,7 @@
 
 .image-editor-konva-mount canvas {
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(29, 52, 46, 0.14);
+  box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.14);
   cursor: crosshair;
 }
 
@@ -398,7 +398,7 @@
   position: absolute;
   border: 2px solid var(--primary);
   background: color-mix(in srgb, var(--primary) 12%, transparent);
-  box-shadow: 0 0 0 9999px rgba(12, 28, 23, 0.28);
+  box-shadow: 0 0 0 9999px var(--overlay-subtle);
   pointer-events: none;
 }
 
@@ -639,14 +639,14 @@
   gap: 4px;
   border: 1px solid rgba(255,255,255,0.58);
   border-radius: 999px;
-  background: rgba(31, 53, 47, 0.78);
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  opacity: 0.9;
+  opacity: 1;
   pointer-events: auto;
-  box-shadow: 0 8px 18px rgba(12, 28, 23, 0.18);
+  box-shadow: 0 8px 18px rgba(var(--shadow-rgb), 0.18);
   transition: opacity var(--motion-base), background var(--motion-base), transform var(--motion-base);
   touch-action: manipulation;
 }
@@ -656,7 +656,7 @@
   left: 6px;
   right: auto;
   z-index: 2;
-  background: color-mix(in srgb, var(--primary) 90%, transparent);
+  background: var(--primary);
 }
 
 .thumb-add-icon {
@@ -681,7 +681,7 @@
 
 .add-upload-to-gallery:hover,
 .add-upload-to-gallery:focus-visible {
-  background: color-mix(in srgb, var(--primary) 98%, transparent);
+  background: var(--primary-strong);
   transform: translateY(-1px);
 }
 
@@ -693,8 +693,8 @@
   width: fit-content;
   padding: 2px 6px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--primary) 86%, transparent);
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 10px;
 }
 

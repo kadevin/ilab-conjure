@@ -61,6 +61,15 @@
   --motion-base: 180ms ease;
   --motion-height: 220ms ease;
   --font: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --shadow-rgb: 29, 52, 46;
+  --viewer-overlay: rgba(10, 24, 20, 0.82);
+  --viewer-surface: #182720;
+  --viewer-hover: #283e33;
+  --viewer-foreground: #f5f5f5;
+  --viewer-muted: #d6d6d6;
+  --viewer-border: #ffffff33;
+  --viewer-accent: #a6d8c5;
+  --viewer-accent-foreground: #10201b;
   --shadow-sm: 0 2px 8px rgba(29, 52, 46, 0.04);
   --shadow-popover: 0 14px 34px rgba(29, 52, 46, 0.16);
   --shadow-modal: 0 24px 80px rgba(24, 45, 39, 0.24);
@@ -74,9 +83,9 @@
   --sidebar-max-width: 520px;
   --workspace-side-action-width: 164px;
   --header-height: 60px;
-  --scrollbar-track: rgba(230, 240, 236, 0.55);
-  --scrollbar-thumb: rgba(69, 123, 102, 0.36);
-  --scrollbar-thumb-hover: rgba(51, 93, 77, 0.58);
+  --scrollbar-track: #e6f0ec;
+  --scrollbar-thumb: #5b8877;
+  --scrollbar-thumb-hover: var(--primary-strong);
 }
 
 :root[data-theme="dark"] {
@@ -134,6 +143,8 @@
   --task-card-drawer-archive-text: #e7f4ee;
   --task-card-drawer-delete-surface: #b04a43;
   --task-card-drawer-delete-text: #ffecea;
+  --shadow-rgb: 0, 0, 0;
+  --viewer-overlay: rgba(2, 8, 6, 0.78);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-popover: 0 18px 42px rgba(0, 0, 0, 0.38);
   --shadow-modal: 0 28px 84px rgba(0, 0, 0, 0.48);
@@ -142,9 +153,9 @@
   --workspace-texture:
     radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--primary-strong) 7%, transparent) 1px, transparent 1.6px),
     linear-gradient(135deg, color-mix(in srgb, var(--primary-light) 32%, transparent), transparent 52%);
-  --scrollbar-track: rgba(49, 67, 59, 0.55);
-  --scrollbar-thumb: rgba(114, 183, 155, 0.42);
-  --scrollbar-thumb-hover: rgba(166, 216, 197, 0.64);
+  --scrollbar-track: #31433b;
+  --scrollbar-thumb: #6da38d;
+  --scrollbar-thumb-hover: var(--primary-strong);
 }
 
 * {

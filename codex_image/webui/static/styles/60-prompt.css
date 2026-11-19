@@ -210,13 +210,13 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(51, 93, 77, 0.12);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--primary-strong);
   cursor: pointer;
 }
 
 .gallery-chip-remove:hover {
-  background: rgba(51, 93, 77, 0.24);
+  background: color-mix(in srgb, var(--primary) 24%, transparent);
 }
 
 .color-chip {
@@ -242,7 +242,7 @@
   width: 18px;
   height: 18px;
   padding: 0;
-  border: 1px solid rgba(31, 53, 47, 0.18);
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
   border-radius: 50%;
   background: var(--color-code);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.44);
@@ -270,13 +270,13 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(31, 53, 47, 0.13);
+  background: color-mix(in srgb, var(--text) 13%, transparent);
   color: inherit;
   cursor: pointer;
 }
 
 .color-chip-remove:hover {
-  background: rgba(31, 53, 47, 0.24);
+  background: color-mix(in srgb, var(--text) 24%, transparent);
 }
 
 .prompt-snippet-chip {
@@ -330,13 +330,13 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(31, 53, 47, 0.12);
+  background: color-mix(in srgb, var(--text) 12%, transparent);
   color: inherit;
   cursor: pointer;
 }
 
 .prompt-snippet-chip-remove:hover {
-  background: rgba(31, 53, 47, 0.22);
+  background: color-mix(in srgb, var(--text) 22%, transparent);
 }
 
 .gallery-chip.prompt-chip-selected,
@@ -396,7 +396,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 14px 38px rgba(29, 52, 46, 0.15);
+  box-shadow: 0 14px 38px rgba(var(--shadow-rgb), 0.15);
 }
 
 .mention-option {
@@ -455,7 +455,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 14px 38px rgba(29, 52, 46, 0.15);
+  box-shadow: 0 14px 38px rgba(var(--shadow-rgb), 0.15);
 }
 
 .prompt-snippet-option {
@@ -519,7 +519,7 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(29, 52, 46, 0.16);
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.16);
 }
 
 .prompt-snippet-popover {
@@ -539,7 +539,7 @@
   border-radius: 12px;
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 14px 38px rgba(29, 52, 46, 0.15);
+  box-shadow: 0 14px 38px rgba(var(--shadow-rgb), 0.15);
 }
 
 .prompt-snippet-popover-title {
@@ -652,7 +652,7 @@
 }
 
 .resource-sheet.open {
-  box-shadow: -18px 0 44px rgba(29, 52, 46, 0.16);
+  box-shadow: -18px 0 44px rgba(var(--shadow-rgb), 0.16);
   transform: translateX(0);
 }
 
@@ -666,7 +666,7 @@
   position: fixed;
   z-index: 74;
   inset: 0;
-  background: rgba(17, 24, 39, 0.22);
+  background: var(--overlay-subtle);
 }
 
 .resource-sheet-header {
@@ -1200,7 +1200,7 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
-  box-shadow: 0 14px 38px rgba(29, 52, 46, 0.15);
+  box-shadow: 0 14px 38px rgba(var(--shadow-rgb), 0.15);
 }
 
 .color-suggest-main {
@@ -1309,7 +1309,7 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   color: var(--primary-strong);
-  box-shadow: 0 2px 5px rgba(16, 24, 20, 0.16);
+  box-shadow: 0 2px 5px rgba(var(--shadow-rgb), 0.16);
 }
 
 .color-picker-icon path {
@@ -1425,7 +1425,7 @@
   height: 28px;
   padding: 0;
   overflow: hidden;
-  border: 1px solid rgba(31, 53, 47, 0.18);
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
   border-radius: 8px;
   background: var(--swatch-color);
   cursor: pointer;

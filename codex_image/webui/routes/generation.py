@@ -172,7 +172,19 @@ def _api_binding_appends_aspect_ratio_prompt(
 
 def _generation_request_error(exc: ValueError) -> HTTPException:
     message = str(exc)
-    if message == "gif_frame_pixel_limit_exceeded":
+    format_errors = {
+        "openai_gif_edit_frame_limit_exceeded": "OpenAI GIF edits support up to 16 frames. Reduce the frame count.",
+        "gif_output_does_not_support_mask": "GIF output does not support masks. Remove the mask or choose another output format.",
+        "gif_output_does_not_support_compression": "GIF output does not support compression settings. Remove compression or choose JPEG/WebP.",
+        "gif_output_does_not_support_partial_images": "GIF output does not support partial-image previews. Disable partial-image previews or choose another output format.",
+        "output_compression_requires_jpeg_or_webp": "Compression settings require JPEG or WebP output. Remove compression or choose JPEG/WebP.",
+    }
+    if message == "Parameter is not applicable: gpt.output_compression":
+        message = "output_compression_requires_jpeg_or_webp"
+    if message in format_errors:
+        code = message
+        safe_message = format_errors[message]
+    elif message == "gif_frame_pixel_limit_exceeded":
         code = message
         safe_message = "Reduce GIF frame count or resolution to stay within the local image decoding limit."
     elif message == "transparent_background_requires_png_or_webp":

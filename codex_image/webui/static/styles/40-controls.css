@@ -226,7 +226,7 @@
   font-size: 13px;
   font-weight: 720;
   gap: 7px;
-  box-shadow: 0 7px 16px rgba(51, 93, 77, 0.16);
+  box-shadow: 0 7px 16px var(--action-shadow, rgba(var(--shadow-rgb), 0.16));
 }
 
 .brand-new-icon {
@@ -564,7 +564,7 @@ select.themed-select-native {
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--shadow-popover);
-  scrollbar-color: color-mix(in srgb, var(--primary) 58%, var(--line)) color-mix(in srgb, var(--surface-soft) 82%, var(--line));
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   scrollbar-width: thin;
 }
 
@@ -579,18 +579,18 @@ select.themed-select-native {
 }
 
 .themed-select-menu::-webkit-scrollbar-track {
-  background: color-mix(in srgb, var(--surface-soft) 82%, var(--line));
+  background: var(--scrollbar-track);
   border-radius: 999px;
 }
 
 .themed-select-menu::-webkit-scrollbar-thumb {
-  border: 2px solid var(--surface);
+  border: 2px solid var(--scrollbar-track);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--primary) 58%, var(--line));
+  background: var(--scrollbar-thumb);
 }
 
 .themed-select-menu::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--primary) 76%, var(--line));
+  background: var(--scrollbar-thumb-hover);
 }
 
 .themed-select-option {
@@ -936,7 +936,7 @@ select.themed-select-native {
 
 .auth-source-group .segmented-indicator {
   border-radius: 999px;
-  box-shadow: 0 5px 14px rgba(40, 116, 85, 0.22);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .segmented-indicator-host .radio-btn,

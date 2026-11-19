@@ -86,6 +86,9 @@ The API settings suite checks advanced values through folding, saving, reopening
 cancellation and copying against isolated storage, plus responsive fields in both
 themes and Chinese/English. Model discovery uses a synthetic response; it does not
 verify external provider connectivity or native password-manager autofill.
+The `appearance` page checks the top-bar color popover, live preview, cancellation,
+persistence, both entry pages, light/dark modes, responsive positioning, mobile More
+and settings handoffs, keyboard focus and cross-document synchronization.
 The `workbench-feedback` page checks inline find/replace, focus restoration,
 responsive toolbar geometry, placeholder contrast and shared button/card states
 in both themes. It maps CSS interaction pseudo-classes to equally specific test
@@ -125,7 +128,27 @@ native launcher UI or updater acceptance on each supported platform.
 
 `scripts/publish-release.py` prepares signed manifests before external writes,
 uploads only to a draft, and verifies remote asset names, sizes and SHA-256
-before publishing. Failures leave a draft for inspection; an explicit rerun can
-resume that draft but cannot overwrite a published release. Release notes are
+before publishing, using the draft's numeric release ID (the tag endpoint only
+returns published releases). Failures before publication leave a draft for
+inspection; an explicit rerun can resume that draft but cannot overwrite a
+published release. If the final publication request or confirmation fails,
+inspect the existing release first: the write may already have succeeded.
+GitHub CLI errors retain bounded, credential-redacted stderr and are never
+automatically retried. Release notes are
 read from the Markdown version section, without requiring the old “本版详情”
 marker. Notes must name the exact version and no longer be marked as a draft.
+
+`Portable Release` packages the exact successful CI commit. Without a version
+tag on that commit, it creates development artifacts and skips GitHub publication;
+the run summary explicitly identifies this mode. Creating a tag after that run
+does not trigger publication. After the tag and exact-commit CI are verified,
+dispatch `Portable Release` with `ref` set to the full commit SHA and
+`release_tag` set to the existing `vMAJOR.MINOR.PATCH` tag. The candidate must
+contain the release fixes; rerunning an old run still uses its old candidate.
+Do not move an existing published tag to pick up fixes.
+
+For a formal release, confirm that `Upload GitHub release assets` ran and
+succeeded, and that its summary reports the expected tag, commit, release ID
+and verified asset count. A green artifacts-only run is not evidence of
+publication. Finally verify the public release's download links, checksums and
+signed update manifest before declaring the release complete.

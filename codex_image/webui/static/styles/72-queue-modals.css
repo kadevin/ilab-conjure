@@ -19,7 +19,7 @@
 }
 
 .queue-drawer.open {
-  box-shadow: -18px 0 60px rgba(24, 45, 39, 0.18);
+  box-shadow: -18px 0 60px rgba(var(--shadow-rgb), 0.18);
   transform: translateX(0);
 }
 
@@ -472,7 +472,9 @@
 
 .system-settings-tab {
   min-width: 0;
-  height: 32px;
+  min-height: 32px;
+  height: auto;
+  line-height: 1.25;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -492,7 +494,7 @@
 
 .system-settings-tabs .segmented-indicator {
   border-radius: 999px;
-  box-shadow: 0 5px 14px rgba(40, 116, 85, 0.22);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .system-settings-tabs.segmented-indicator-host .system-settings-tab.active {

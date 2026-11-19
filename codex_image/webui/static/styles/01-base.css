@@ -24,49 +24,29 @@ button, input, select, textarea {
   font: inherit;
 }
 
-.sidebar-content,
-.task-active-list,
-.dashboard,
-.prompt-editor,
-.modal-panel {
+:where(*) {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-.sidebar-content::-webkit-scrollbar,
-.task-active-list::-webkit-scrollbar,
-.dashboard::-webkit-scrollbar,
-.prompt-editor::-webkit-scrollbar,
-.modal-panel::-webkit-scrollbar {
+:where(*)::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.sidebar-content::-webkit-scrollbar-track,
-.task-active-list::-webkit-scrollbar-track,
-.dashboard::-webkit-scrollbar-track,
-.prompt-editor::-webkit-scrollbar-track,
-.modal-panel::-webkit-scrollbar-track {
+:where(*)::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
   border-radius: 999px;
 }
 
-.sidebar-content::-webkit-scrollbar-thumb,
-.task-active-list::-webkit-scrollbar-thumb,
-.dashboard::-webkit-scrollbar-thumb,
-.prompt-editor::-webkit-scrollbar-thumb,
-.modal-panel::-webkit-scrollbar-thumb {
+:where(*)::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
   background: var(--scrollbar-thumb);
   background-clip: content-box;
 }
 
-.sidebar-content::-webkit-scrollbar-thumb:hover,
-.task-active-list::-webkit-scrollbar-thumb:hover,
-.dashboard::-webkit-scrollbar-thumb:hover,
-.prompt-editor::-webkit-scrollbar-thumb:hover,
-.modal-panel::-webkit-scrollbar-thumb:hover {
+:where(*)::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
   background-clip: content-box;
 }

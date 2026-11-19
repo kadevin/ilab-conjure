@@ -177,6 +177,18 @@ class WebUIPWATests(unittest.TestCase):
             self.assertEqual(manifest_response.headers["cache-control"], "no-store")
             self.assertEqual(client.head("/manifest.webmanifest").status_code, 200)
 
+            personalized = client.get("/manifest.webmanifest", params={
+                "theme_color": "#8057B0", "background_color": "#121212",
+            })
+            self.assertEqual(personalized.status_code, 200)
+            self.assertEqual(personalized.json(), {
+                **manifest_response.json(), "theme_color": "#8057B0", "background_color": "#121212",
+            })
+            self.assertEqual(personalized.headers["cache-control"], "no-store")
+            self.assertEqual(client.get("/manifest.webmanifest").json(), manifest_response.json())
+            for invalid in ("red", "#fff", "#123456;background:red", "https://example.com"):
+                self.assertEqual(client.get("/manifest.webmanifest", params={"theme_color": invalid}).status_code, 422)
+
             worker_response = client.get("/service-worker.js")
             self.assertEqual(worker_response.status_code, 200)
             self.assertEqual(worker_response.headers["content-type"].split(";")[0], "text/javascript")

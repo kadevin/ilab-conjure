@@ -60,6 +60,12 @@ test("backup selection is strict and disabling settings clears API keys", () => 
     include_api_keys: false,
     client_preferences: null,
   });
+  const withAppearance = {
+    ...preferences,
+    appearance: { version: 1, preset: "custom", primary: "#386FC4", background: "cool" } as const,
+  };
+  assert.deepEqual(buildUserConfigBackupRequest(["settings"], false, withAppearance).client_preferences, withAppearance);
+  assert.deepEqual(buildUserConfigBackupRequest(["settings"], false, withAppearance, true).client_preferences, preferences);
   assert.throws(() => buildUserConfigBackupRequest([], false, preferences));
   assert.throws(() => buildUserConfigBackupRequest(["settings", "invalid" as UserConfigSection], false, preferences));
 });

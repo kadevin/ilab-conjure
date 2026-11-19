@@ -30,12 +30,20 @@ class NotificationPreferencesPayload(_ExactModel):
 class ClientPreferencesPayload(_ExactModel):
     theme: Literal["system", "light", "dark"]
     notifications: NotificationPreferencesPayload
+    appearance: dict[str, Any] | None = None
+
+    @field_validator("appearance")
+    @classmethod
+    def validate_appearance_payload(cls, value: dict[str, Any] | None) -> dict[str, Any] | None:
+        from codex_image.webui.appearance import validate_appearance
+        return validate_appearance(value)
 
     def to_domain(self) -> ClientPreferences:
         return ClientPreferences(
             self.theme,
             self.notifications.in_app,
             self.notifications.system,
+            self.appearance,
         )
 
 

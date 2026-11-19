@@ -13,7 +13,7 @@ on:
         required: true
         default: main
       release_tag:
-        description: Optional v* tag to create or update with portable assets
+        description: Existing vMAJOR.MINOR.PATCH tag to publish; must point at ref (blank auto-detects)
         required: false
         default: ""
 
@@ -102,6 +102,22 @@ jobs:
             echo "tag=$tag"
             echo "version=$version"
           } >> "$GITHUB_OUTPUT"
+
+          if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]] && ! {
+            echo "### Release intent"
+            echo
+            echo "Commit: $checkout_ref"
+            echo
+            if [[ -n "$tag" ]]; then
+              echo "Release candidate: $tag. Publication runs in the release environment after all package jobs pass."
+              echo "Check the Upload GitHub release assets job for confirmed publication."
+            else
+              echo "Artifacts only: no release tag points at this commit. GitHub publication will be skipped."
+              echo "If a tag is added later, dispatch this workflow with the exact commit ref and release_tag."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"; then
+            echo "::warning::The release intent summary could not be written."
+          fi
 
   verify-ci:
     name: Verify exact release commit passed CI

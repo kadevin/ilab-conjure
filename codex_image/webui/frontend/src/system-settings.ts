@@ -1,5 +1,6 @@
 import { getLegacyBridge } from "./state";
 import { refreshSegmentedIndicators } from "./segmented-indicator";
+import { initAppearanceSettings, closeAppearancePopover } from "./appearance-settings";
 
 let systemSettingsFeatureInitialized = false;
 let systemSettingsHeightAnimationToken = 0;
@@ -214,6 +215,7 @@ export function closeUserConfigBackupView(options: { restoreFocus?: boolean } = 
 }
 
 export function openSystemSettingsModal(tab: any = "api"): void {
+  closeAppearancePopover(false);
   const { els } = getLegacyBridge();
   const modal = els.systemSettingsModal as HTMLElement | null;
   const wasHidden = modal?.classList.contains("hidden") ?? true;
@@ -310,6 +312,10 @@ function handleSystemSettingsKeydown(event: KeyboardEvent): void {
 export function initSystemSettingsFeature(): void {
   if (systemSettingsFeatureInitialized) return;
   systemSettingsFeatureInitialized = true;
+  initAppearanceSettings(() => {
+    closeSystemSettingsModal();
+    return Boolean(getLegacyBridge().els.systemSettingsModal?.classList.contains("hidden"));
+  });
   const { els } = getLegacyBridge();
   els.systemSettingsTabs?.addEventListener("click", handleSystemSettingsTabClick);
   els.systemSettingsTabs?.addEventListener("keydown", handleSystemSettingsTabKeydown);

@@ -1,4 +1,5 @@
 import { sha256Hex } from "./sha256";
+import type { Appearance } from "./appearance";
 
 export const USER_CONFIG_SECTIONS = ["chips", "gallery", "templates", "settings"] as const;
 export const USER_CONFIG_RESTORE_CHUNK_BYTES = 8 * 1024 * 1024;
@@ -18,7 +19,15 @@ export type UserConfigRestoreStatus =
 
 export interface UserConfigClientPreferences {
   theme: "system" | "light" | "dark";
+  appearance?: Appearance | null;
   notifications: { in_app: boolean; system: boolean };
+}
+
+export interface UserConfigRestoredClientPreferences {
+  theme: "system" | "light" | "dark";
+  appearance?: Appearance | null;
+  notifications_in_app: boolean;
+  notifications_system: boolean;
 }
 
 export interface UserConfigSectionSummary {
@@ -114,7 +123,7 @@ export interface UserConfigRestoreResult {
   sections: UserConfigSection[];
   mode: UserConfigRestoreMode;
   section_stats: Partial<Record<UserConfigSection, UserConfigSectionRestoreStats>>;
-  client_preferences: UserConfigClientPreferences | null;
+  client_preferences: UserConfigRestoredClientPreferences | null;
   restart_required: boolean;
 }
 
@@ -239,13 +248,17 @@ export function buildUserConfigBackupRequest(
   sections: readonly UserConfigSection[],
   includeApiKeys: boolean,
   clientPreferences: UserConfigClientPreferences,
+  legacyCompatible = false,
 ): UserConfigBackupRequest {
   const normalized = normalizeSections(sections);
   const settingsSelected = normalized.includes("settings");
+  const { theme, notifications } = clientPreferences;
   return {
     sections: normalized,
     include_api_keys: settingsSelected && includeApiKeys,
-    client_preferences: settingsSelected ? clientPreferences : null,
+    client_preferences: settingsSelected
+      ? (legacyCompatible ? { theme, notifications } : clientPreferences)
+      : null,
   };
 }
 

@@ -1096,6 +1096,7 @@ class UserConfigBackupImportService:
             payload["theme"],
             payload["notifications_in_app"],
             payload["notifications_system"],
+            payload.get("appearance"),
         )
 
     def cleanup_expired(self) -> int:
@@ -1420,6 +1421,7 @@ class UserConfigBackupImportService:
                         raw_preferences["theme"],
                         raw_preferences["notifications_in_app"],
                         raw_preferences["notifications_system"],
+                        raw_preferences.get("appearance"),
                     )
                     if isinstance(raw_preferences, dict)
                     else None

@@ -254,6 +254,7 @@ export function selectGenerationProvider(selectionOrProviderId: string): void {
   getLegacyBridge().methods.persistModelSelection?.();
   renderProviderSelection();
   getLegacyBridge().methods.updateModeSpecificSettings?.();
+  getLegacyBridge().methods.updateCompression?.();
   getLegacyBridge().methods.updateRequestPreview?.();
 }
 

@@ -30,7 +30,9 @@ from codex_image.webui.app import create_app
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "codex_image/webui/static"
 BROWSER_SUITES = {
+    "appearance": "appearance.browser",
     "image26": "image26.browser",
+    "svg-reference": "svg_reference.browser",
     "history": "history_page.browser",
     "image-mentions": "image_mentions.browser",
     "prompt-paste": "prompt_paste.browser",
@@ -167,6 +169,17 @@ def main() -> None:
             @app.get("/qa-history")
             def history_page():
                 return HTMLResponse(acceptance_html("history.html"))
+
+            @app.get("/qa-svg-reference/{name}.svg")
+            def svg_reference(name: str):
+                dimensions = {"fixed": 'width="64" height="32"', "viewbox": 'viewBox="0 0 80 40"',
+                              "oversized": 'width="16384" height="16384"'}
+                if name not in dimensions:
+                    raise HTTPException(404)
+                return Response(
+                    f'<svg xmlns="http://www.w3.org/2000/svg" {dimensions[name]}><rect width="16" height="16" fill="#ff0000"/></svg>',
+                    media_type="image/svg+xml", headers={"Content-Security-Policy": "default-src 'none'; sandbox"},
+                )
 
             @app.get("/qa-reference-thumbnail/{asset_id}")
             async def slow_reference_thumbnail(asset_id: str, stalled: bool = False):

@@ -814,7 +814,7 @@
   background: color-mix(in srgb, var(--surface) 78%, var(--primary));
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--primary) 16%, transparent),
-    0 5px 14px rgba(16, 35, 28, 0.32);
+    0 5px 14px rgba(var(--shadow-rgb), 0.32);
   isolation: isolate;
   pointer-events: none;
 }

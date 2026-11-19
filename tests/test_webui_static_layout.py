@@ -678,9 +678,9 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         queue_drawer_open_block = self._extract_css_block(styles, ".queue-drawer.open")
 
         self.assertIn("box-shadow: none", resource_sheet_block)
-        self.assertIn("box-shadow: -18px 0 44px rgba(29, 52, 46, 0.16)", resource_sheet_open_block)
+        self.assertIn("box-shadow: -18px 0 44px rgba(var(--shadow-rgb), 0.16)", resource_sheet_open_block)
         self.assertIn("box-shadow: none", queue_drawer_block)
-        self.assertIn("box-shadow: -18px 0 60px rgba(24, 45, 39, 0.18)", queue_drawer_open_block)
+        self.assertIn("box-shadow: -18px 0 60px rgba(var(--shadow-rgb), 0.18)", queue_drawer_open_block)
 
     def test_recent_reference_assets_are_rendered_and_submitted(self) -> None:
         html = Path("codex_image/webui/static/index.html").read_text(encoding="utf-8")
@@ -3334,7 +3334,8 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.image-editor-canvas-scope-control \.ghost-button\.active\s*\{[^}]*background:\s*var\(--primary\)")
         self.assertRegex(styles, r"\.image-editor-actions \.ghost-button,\s*\.image-editor-actions \.primary-button\s*\{[^}]*width:\s*72px")
         self.assertRegex(styles, r"\.image-editor-actions \.ghost-button,\s*\.image-editor-actions \.primary-button\s*\{[^}]*height:\s*44px")
-        self.assertRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--primary\) 86%, transparent\)")
+        self.assertRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*background:\s*var\(--primary\)")
+        self.assertRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*color:\s*var\(--primary-foreground\)")
         self.assertRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*right:\s*5px")
         self.assertRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*bottom:\s*5px")
         self.assertNotRegex(styles, r"\.thumb-edited-badge\s*\{[^}]*left:\s*5px")
@@ -3369,7 +3370,7 @@ class WebUIStaticLayoutTests(WebUIStaticTestCase):
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*height:\s*32px")
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*min-width:\s*54px")
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*display:\s*inline-flex")
-        self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*opacity:\s*0\.9")
+        self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*opacity:\s*1;")
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*pointer-events:\s*auto")
         self.assertNotRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*opacity:\s*0(?:;|$)")
         self.assertRegex(styles, r"\.add-upload-to-gallery\s*\{[^}]*bottom:\s*6px")

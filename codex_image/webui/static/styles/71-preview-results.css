@@ -409,10 +409,10 @@
   width: min(300px, calc(100vw - 20px));
   max-width: calc(100vw - 20px);
   padding: 10px;
-  border: 1px solid rgba(201, 221, 212, 0.95);
+  border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 16px 44px rgba(29, 52, 46, 0.22);
+  box-shadow: 0 16px 44px rgba(var(--shadow-rgb), 0.22);
 }
 
 .gallery-edit-form {
@@ -478,7 +478,7 @@
   border: 1px solid rgba(240, 199, 193, 0.95);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 16px 44px rgba(29, 52, 46, 0.22);
+  box-shadow: 0 16px 44px rgba(var(--shadow-rgb), 0.22);
 }
 
 .confirm-popover-title {
@@ -541,10 +541,10 @@
   max-width: calc(100vw - 24px);
   max-height: min(70vh, 560px);
   padding: 12px;
-  border: 1px solid rgba(201, 221, 212, 0.95);
+  border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 18px 48px rgba(29, 52, 46, 0.2);
+  box-shadow: 0 18px 48px rgba(var(--shadow-rgb), 0.2);
   display: flex;
   flex-direction: column;
 }
@@ -820,11 +820,11 @@
   min-height: 40px;
   padding: 4px;
   transform: translateX(-50%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--viewer-border);
   border-radius: 12px;
-  background: rgba(13, 25, 21, 0.92);
-  box-shadow: 0 8px 24px rgba(2, 12, 9, 0.22);
-  color: rgba(255, 255, 255, 0.92);
+  background: var(--viewer-surface);
+  box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.22);
+  color: var(--viewer-foreground);
 }
 
 .lightbox-zoom-button,
@@ -858,7 +858,7 @@
 
 .lightbox-zoom-button:hover,
 .lightbox-zoom-mode:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--viewer-hover);
 }
 
 .lightbox-zoom-button:active,
@@ -868,13 +868,13 @@
 
 .lightbox-zoom-button:focus-visible,
 .lightbox-zoom-mode:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline: 2px solid var(--viewer-foreground);
   outline-offset: 1px;
 }
 
 .lightbox-zoom-mode[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--viewer-accent);
+  color: var(--viewer-accent-foreground);
 }
 
 .lightbox-zoom-button:disabled {
@@ -884,7 +884,7 @@
 
 .lightbox-zoom-value {
   min-width: 48px;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--viewer-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -894,7 +894,7 @@
   width: 1px;
   height: 20px;
   margin-inline: 2px;
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--viewer-border);
 }
 
 .lightbox-shortcut-hint {
@@ -909,11 +909,11 @@
   gap: 10px 16px;
   padding: 7px 11px;
   transform: translate(-50%, 6px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--viewer-border);
   border-radius: 10px;
-  background: rgba(13, 25, 21, 0.9);
-  color: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 6px 20px rgba(2, 12, 9, 0.16);
+  background: var(--viewer-surface);
+  color: var(--viewer-muted);
+  box-shadow: 0 6px 20px rgba(var(--shadow-rgb), 0.16);
   font-size: 12px;
   line-height: 1.25;
   opacity: 0;
@@ -939,10 +939,10 @@
   height: 20px;
   padding-inline: 4px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--viewer-border);
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--viewer-hover);
+  color: var(--viewer-foreground);
   font: inherit;
   font-size: 11px;
 }

@@ -63,11 +63,15 @@ def _images_payload(
     binding: ProviderModelBinding,
 ) -> dict[str, Any]:
     parameters = gpt_image_parameters(command)
-    if (command.operation == "edit" or command.image_inputs) and parameters["output_format"] in {"svg", "gif"}:
-        raise ValueError("output_format_requires_generation")
     if (command.canonical_model_id.startswith("gpt-image-2.6-") or command.markup_image) and binding.protocol_profile != "openai_images":
         raise ValueError("image_feature_requires_openai_images")
     if parameters["output_format"] == "gif":
+        if command.mask_image:
+            raise ValueError("gif_output_does_not_support_mask")
+        if parameters["output_compression"] is not None:
+            raise ValueError("gif_output_does_not_support_compression")
+        if parameters["partial_images"]:
+            raise ValueError("gif_output_does_not_support_partial_images")
         from codex_image.raster_validation import MAX_RASTER_TOTAL_FRAME_PIXELS
         size = re.fullmatch(r"(\d+)x(\d+)", str(parameters["size"] or ""))
         if size and int(size[1]) * int(size[2]) * int(parameters["frame_count"] or 9) > MAX_RASTER_TOTAL_FRAME_PIXELS:

@@ -63,7 +63,7 @@
 .queue-button:hover {
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
   background: var(--primary-light);
-  box-shadow: 0 3px 10px rgba(40, 116, 85, 0.1);
+  box-shadow: 0 3px 10px var(--action-shadow, rgba(var(--shadow-rgb), 0.1));
 }
 
 .queue-badge {
@@ -476,7 +476,7 @@
 .auth-source-button.active {
   background: var(--primary);
   color: var(--primary-foreground);
-  box-shadow: 0 2px 8px rgba(40, 116, 85, 0.16);
+  box-shadow: 0 2px 8px var(--action-shadow, rgba(var(--shadow-rgb), 0.16));
 }
 
 .auth-source-api-button {
@@ -511,7 +511,7 @@
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
   background: var(--primary-light);
   color: var(--primary-strong);
-  box-shadow: 0 3px 10px rgba(40, 116, 85, 0.1);
+  box-shadow: 0 3px 10px var(--action-shadow, rgba(var(--shadow-rgb), 0.1));
   outline: none;
 }
 

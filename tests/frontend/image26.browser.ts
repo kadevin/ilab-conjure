@@ -80,13 +80,65 @@ async function run() {
   input("#frameCount", "9");
   check("GIF frame limit accepts a corrected value", find<HTMLInputElement>("#frameCount").checkValidity());
   find('[data-custom-size-mode="preset"]').click(); input("#frameCount", "12");
-  methods.setMode("edit");
-  check("edit mode excludes generated formats", find<HTMLSelectElement>("#outputFormat").value === "png" && [...find<HTMLSelectElement>("#outputFormat").options].filter(option => ["svg", "gif"].includes(option.value)).every(option => option.disabled));
   const canvas = d.createElement("canvas"); canvas.width = 8192; canvas.height = 512;
   const ctx = canvas.getContext("2d")!; ctx.fillStyle = "#457b66"; ctx.fillRect(0, 0, 8192, 512);
   const blob = await new Promise<Blob>(resolve => canvas.toBlob(value => resolve(value!), "image/png"));
   const file = new w.File([blob], "synthetic.png", { type: "image/png" });
   methods.addImageFiles([file]); await pause();
+  check("upload switches to edit without losing GIF or timing", state.mode === "edit" && params()["output.format"] === "gif" && params()["gpt.frame_count"] === 12 && params()["gpt.frame_duration_ms"] === 100, params());
+  const relay = state.generationCatalog.providers.find((provider: any) => provider.id === "qa-image26");
+  state.generationCatalog.providers.push({ ...relay, id: "qa-openai", name: "Synthetic OpenAI", gif_edit_max_frames: 16 });
+  input("#frameCount", "17");
+  methods.selectGenerationProvider("qa-openai");
+  const frames = find<HTMLInputElement>("#frameCount");
+  check("official reference GIF caps frames at 16 without changing the draft", frames.max === "16" && frames.value === "17" && !frames.checkValidity());
+  methods.selectGenerationProvider("qa-image26");
+  check("switching back to a relay restores its wider frame range", Number(frames.max) > 16 && frames.value === "17" && frames.checkValidity());
+  input("#frameCount", "12");
+  for (const theme of ["light", "dark"]) {
+    find(`[data-theme-option="${theme}"]`).click();
+    for (const [width, height] of [[1280, 800], [375, 812]]) {
+      frame.style.width = `${width}px`; frame.style.height = `${height}px`; await pause(250);
+      if (d.body.classList.contains("mobile-ui")) { find(".mobile-parameters-button").click(); await pause(); }
+      const name = `reference GIF ${theme} ${width}x${height}`;
+      const select = find<HTMLSelectElement>("#outputFormat");
+      check(`${name}: GIF and SVG enabled`, ["gif", "svg"].every(value => ![...select.options].find(option => option.value === value)!.disabled));
+      input("#outputFormat", "png");
+      check(`${name}: PNG omits animation fields`, !("gpt.frame_count" in params()) && !("gpt.frame_duration_ms" in params()));
+      const trigger = select.closest(".themed-select")!.querySelector<HTMLButtonElement>(".themed-select-trigger")!;
+      trigger.scrollIntoView({ block: "center" });
+      trigger.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+      const option = d.activeElement as HTMLButtonElement;
+      check(`${name}: keyboard reaches GIF`, option.getAttribute("role") === "option" && option.textContent?.trim() === "gif" && !option.disabled);
+      option.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+      check(`${name}: selection restores timing and focus`, params()["output.format"] === "gif" && params()["gpt.frame_count"] === 12 && params()["gpt.frame_duration_ms"] === 100 && d.activeElement === trigger, params());
+      button.click(); await pause();
+      const box = popup.getBoundingClientRect();
+      check(`${name}: animation controls remain usable`, !popup.classList.contains("hidden") && !find<HTMLInputElement>("#frameCount").disabled && !find<HTMLInputElement>("#frameDuration").disabled && d.activeElement === find("#frameCount"));
+      check(`${name}: popover contained`, box.left >= 0 && box.right <= w.innerWidth && box.top >= 0 && box.bottom <= w.innerHeight);
+      input("#frameCount", "8"); input("#frameDuration", "150");
+      check(`${name}: edits reach canonical parameters`, params()["gpt.frame_count"] === 8 && params()["gpt.frame_duration_ms"] === 150 && !("gpt.output_compression" in params()) && find<HTMLInputElement>("#transparentBackground").disabled, params());
+      input("#frameCount", "12"); input("#frameDuration", "100");
+      find("#frameCount").dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      check(`${name}: Escape restores focus`, popup.classList.contains("hidden") && d.activeElement === button);
+      trigger.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+      d.activeElement!.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+      const svgOption = d.activeElement as HTMLButtonElement;
+      check(`${name}: keyboard reaches SVG`, svgOption.getAttribute("role") === "option" && svgOption.textContent?.trim() === "svg" && !svgOption.disabled);
+      svgOption.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+      check(`${name}: SVG selection restores focus`, params()["output.format"] === "svg" && d.activeElement === trigger);
+      check(`${name}: SVG omits GIF timing and compression`, !("gpt.frame_count" in params()) && !("gpt.frame_duration_ms" in params()) && !("gpt.output_compression" in params()) && find<HTMLInputElement>("#frameCount").disabled && find<HTMLInputElement>("#compression").disabled, params());
+      input("#outputFormat", "gif");
+      check(`${name}: returning from SVG restores GIF timing`, params()["gpt.frame_count"] === 12 && params()["gpt.frame_duration_ms"] === 100, params());
+      if (d.body.classList.contains("mobile-ui")) find("#mobileParameters .drawer-close-button").click();
+    }
+  }
+  frame.style.width = "1280px"; frame.style.height = "800px"; await pause(250);
+  methods.setMode("generate"); input("#outputFormat", "svg");
+  const previousImageCount = state.images.length;
+  methods.addImageFiles([new w.File([blob], "svg-reference.png", { type: "image/png" })]); await pause();
+  check("upload preserves SVG when switching to edit", state.mode === "edit" && state.images.length === previousImageCount + 1 && params()["output.format"] === "svg", params());
+  input("#outputFormat", "gif");
   const original = state.images[0].file;
   await methods.openImageEditor(0);
   find('[data-image-editor-mode="markup"]').click(); await pause();
@@ -115,6 +167,7 @@ async function run() {
   }
   methods.selectConcreteModel("gpt-image-2");
   check("Image 2 keeps its original controls", find("#complexityField").classList.contains("hidden") && find('#qualityGroup [data-val="max"]').classList.contains("hidden") && !find("#outputFormatGroup").classList.contains("hidden"));
+  check("Image 2 still excludes SVG and GIF", params()["output.format"] === "png" && [...find<HTMLSelectElement>("#outputFormat").options].filter(option => ["svg", "gif"].includes(option.value)).every(option => option.hidden && option.disabled));
   return {passed: !failures.length && !errors.length, assertions, failures, errors};
 }
 void run().catch(error => ({passed: false, assertions, failures, errors: [...errors, String(error)]})).then(async report => { output.textContent = JSON.stringify(report); await fetch("/qa-results", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(report)}); });

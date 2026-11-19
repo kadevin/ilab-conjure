@@ -121,7 +121,8 @@
         });
       })();
     </script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-923" />
+    <script src="/static/appearance-bootstrap.js?v=2"></script>
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-928" />
   </head>
   <body>
     <div class="layout-container">
@@ -1302,6 +1303,10 @@
                 <input id="userConfigIncludeApiKeys" type="checkbox" />
                 <span><strong data-i18n="userConfigBackup.includeApiKeys">包含 API Key（敏感）</strong><small data-i18n="userConfigBackup.apiKeyWarning">备份包不加密，请妥善保存。</small></span>
               </label>
+              <label id="userConfigLegacyBackupRow" class="user-config-section-row hidden" hidden>
+                <input id="userConfigLegacyBackup" type="checkbox" />
+                <span data-i18n="userConfigBackup.legacyCompatible">兼容旧版（不包含配色）</span>
+              </label>
               <div id="userConfigBackupProgress" class="user-config-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="备份进度" data-i18n-attr="aria-label:userConfigBackup.backupProgress">
                 <span></span>
               </div>
@@ -1603,7 +1608,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-908"></script>
+  <script src="/static/app.js?v=runtime-915"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

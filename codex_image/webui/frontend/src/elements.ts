@@ -103,6 +103,8 @@ export function createWebUIElements(): WebUIElements {
   userConfigBackupSectionList: document.querySelector("#userConfigBackupSectionList"),
   userConfigIncludeApiKeysRow: document.querySelector("#userConfigIncludeApiKeysRow"),
   userConfigIncludeApiKeys: document.querySelector("#userConfigIncludeApiKeys"),
+  userConfigLegacyBackupRow: document.querySelector("#userConfigLegacyBackupRow"),
+  userConfigLegacyBackup: document.querySelector("#userConfigLegacyBackup"),
   userConfigBackupProgress: document.querySelector("#userConfigBackupProgress"),
   userConfigBackupStatus: document.querySelector("#userConfigBackupStatus"),
   cancelUserConfigBackupButton: document.querySelector("#cancelUserConfigBackupButton"),

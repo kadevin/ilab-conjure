@@ -1,4 +1,5 @@
 import { getLegacyBridge } from "./state";
+import { APPEARANCE_STORAGE_KEY } from "./appearance";
 import { formatTranslation, translate } from "./i18n";
 import {
   buildUserConfigBackupRequest,
@@ -138,6 +139,13 @@ function syncBackupSelection(): void {
   const settingsSelected = sections.includes("settings");
   const sensitiveRow = bridgeElement("userConfigIncludeApiKeysRow");
   if (sensitiveRow) sensitiveRow.hidden = !settingsSelected;
+  const legacyRow = bridgeElement("userConfigLegacyBackupRow");
+  if (legacyRow) {
+    let hasAppearance = false;
+    try { hasAppearance = localStorage.getItem(APPEARANCE_STORAGE_KEY) !== null; }
+    catch { /* A browser without storage has no saved colors to export. */ }
+    setHidden(legacyRow, !settingsSelected || !hasAppearance);
+  }
   if (!settingsSelected) {
     const includeKeys = inputElement("userConfigIncludeApiKeys");
     if (includeKeys) includeKeys.checked = false;
@@ -234,25 +242,27 @@ async function createBackup(): Promise<void> {
     return;
   }
   const includeApiKeys = inputElement("userConfigIncludeApiKeys")?.checked === true;
+  const legacyCompatible = inputElement("userConfigLegacyBackup")?.checked === true;
   if (includeApiKeys) {
     openWebConfirm(bridgeElement("createUserConfigBackupButton"), {
       title: translate("userConfigBackup.includeApiKeys"),
       message: translate("userConfigBackup.apiKeyConfirm"),
       confirmText: translate("userConfigBackup.create"),
       danger: false,
-      onConfirm: () => performCreateBackup(sections, includeApiKeys),
+      onConfirm: () => performCreateBackup(sections, includeApiKeys, legacyCompatible),
     });
     return;
   }
-  await performCreateBackup(sections, includeApiKeys);
+  await performCreateBackup(sections, includeApiKeys, legacyCompatible);
 }
 
 async function performCreateBackup(
   sections: UserConfigSection[],
   includeApiKeys: boolean,
+  legacyCompatible: boolean,
 ): Promise<void> {
   if (pendingBackupCreation || transferClosing || activeUpload || restoreApplying) return;
-  const request = buildUserConfigBackupRequest(sections, includeApiKeys, readUserConfigClientPreferences(localStorage));
+  const request = buildUserConfigBackupRequest(sections, includeApiKeys, readUserConfigClientPreferences(localStorage), legacyCompatible);
   setProgress("userConfigBackupProgress", -1);
   setStatus("userConfigBackupStatus", translate("userConfigBackup.creatingBackup"), "running");
   // Keep the request alive until its job ID is known, including when close requests cancellation.

@@ -12,14 +12,15 @@ from fastapi.testclient import TestClient
 
 
 class UserConfigBackupAPITests(unittest.TestCase):
-    def test_settings_backup_restores_enabled_fake_ip_dns_fallback(self) -> None:
+    def test_settings_backup_restores_network_and_appearance(self) -> None:
+        appearance = {"version": 1, "preset": "custom", "primary": "#8057B0", "background": "neutral"}
         with tempfile.TemporaryDirectory() as tmp:
             app = self._create_app(Path(tmp))
             with TestClient(app) as client:
                 client.patch("/api/network-egress", json={"asset_fake_ip_dns_fallback": True})
                 created = client.post("/api/user-config-backups", json={
                     "sections": ["settings"], "include_api_keys": False,
-                    "client_preferences": {"theme": "light", "notifications": {
+                    "client_preferences": {"theme": "light", "appearance": appearance, "notifications": {
                         "in_app": True, "system": False,
                     }},
                 })
@@ -44,6 +45,9 @@ class UserConfigBackupAPITests(unittest.TestCase):
                     "archive_sha256": preview["archive_sha256"], "preview_revision": preview["preview_revision"],
                 })
                 self.assertEqual(restored.status_code, 200)
+                self.assertEqual(restored.json()["result"]["client_preferences"]["appearance"], appearance)
+                resumed = client.get(f"/api/user-config-restores/{session_id}").json()
+                self.assertEqual(resumed["result"]["client_preferences"]["appearance"], appearance)
                 self.assertTrue(client.get("/api/network-egress").json()["settings"]["asset_fake_ip_dns_fallback"])
 
     def _archive_bytes(self, root: Path) -> bytes:

@@ -4,6 +4,7 @@ import math
 from collections.abc import Mapping
 from typing import Any
 
+from codex_image.providers.capabilities import openai_gif_edit_frame_limit
 from codex_image.providers.contracts import (
     ExecutionPlan,
     ProviderConnection,
@@ -50,6 +51,11 @@ class BindingResolver:
             )
 
         protocol_request = codec.encode(command, model, binding)
+        if binding.parameter_codec == "gpt_openai_images" and protocol_request.path == "/images/edits":
+            payload = protocol_request.json_body or {}
+            limit = openai_gif_edit_frame_limit(provider.base_url)
+            if limit is not None and payload.get("output_format") == "gif" and int(payload.get("frame_count") or 9) > limit:
+                raise ValueError("openai_gif_edit_frame_limit_exceeded")
         return ExecutionPlan(
             command=command,
             model=model,

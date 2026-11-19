@@ -10,6 +10,7 @@ from codex_image.generation.catalog import (
     list_model_families,
     list_model_manifests,
 )
+from codex_image.providers.capabilities import openai_gif_edit_frame_limit
 from codex_image.providers.registry import default_registry
 from codex_image.providers.transparency import transparency_instruction
 from codex_image.webui.context import WebUIContext
@@ -114,6 +115,9 @@ def generation_catalog_payload(ctx: WebUIContext) -> dict[str, Any]:
             "bindings": bindings,
         }
         icon_emoji = str(provider.get("icon_emoji") or "").strip()
+        gif_frame_limit = openai_gif_edit_frame_limit(catalog_provider["base_url"])
+        if gif_frame_limit is not None:
+            catalog_provider["gif_edit_max_frames"] = gif_frame_limit
         if icon_emoji:
             catalog_provider["icon_emoji"] = icon_emoji
         providers.append(catalog_provider)

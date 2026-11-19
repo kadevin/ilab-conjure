@@ -3,6 +3,7 @@ import { formatTranslation, LOCALE_CHANGE_EVENT, translate } from "./i18n";
 import { getLegacyBridge, getState } from "./state";
 import { addReferenceFileInput, partitionReferenceDropFiles } from "./reference-file-inputs";
 import { persistStagedReferences, readStagedReferences } from "./staged-references-session";
+import { svgReferenceFile } from "./svg-reference";
 
 let inputSourcesFeatureInitialized = false;
 const HISTORY_REFERENCE_HANDOFF_KEY = "codex-image-history-reference-handoff";
@@ -499,7 +500,15 @@ async function imageFileFromUrl(url: string, fallbackName: string) {
   }
   const blob = await response.blob();
   const type = blob.type || "image/png";
-  const filename = ensureImageFilenameExtension(filenameFromImageUrl(url, fallbackName), type);
+  const name = filenameFromImageUrl(url, fallbackName);
+  if ((type.split(";", 1)[0] || "").trim().toLowerCase() === "image/svg+xml") {
+    try {
+      return await svgReferenceFile(blob, name);
+    } catch {
+      throw new Error(translate("referenceCollector.svgConversionFailed"));
+    }
+  }
+  const filename = ensureImageFilenameExtension(name, type);
   return new File([blob], filename, { type });
 }
 

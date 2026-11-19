@@ -718,6 +718,9 @@ class ReferenceFileFrontendContractTests(unittest.TestCase):
                 if (name === "./staged-references-session") return {{
                   persistStagedReferences() {{}}, readStagedReferences() {{ return []; }},
                 }};
+                if (name === "./svg-reference") return {{
+                  svgReferenceFile() {{ throw new Error("Unexpected SVG conversion"); }},
+                }};
                 throw new Error(`unexpected require: ${{name}}`);
               }},
             }});
@@ -1219,6 +1222,9 @@ class ReferenceFileFrontendBehaviorTests(unittest.TestCase):
               if (name === "./reference-file-inputs") return referenceApi;
               if (name === "./staged-references-session") return {{
                 persistStagedReferences() {{}}, readStagedReferences() {{ return []; }},
+              }};
+              if (name === "./svg-reference") return {{
+                svgReferenceFile() {{ throw new Error("Unexpected SVG conversion"); }},
               }};
               throw new Error(`unexpected input require: ${{name}}`);
             }});

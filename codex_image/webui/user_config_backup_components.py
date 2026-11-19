@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from codex_image.version import APP_VERSION
 
+from .appearance import validate_appearance
 from .color_settings import ColorPaletteSettings
 from .gallery_storage import GallerySnapshot, GalleryStorage
 from .image_uploads import InvalidRasterImage, validate_raster_image
@@ -49,8 +50,10 @@ class ClientPreferences:
     theme: Literal["system", "light", "dark"]
     notifications_in_app: bool
     notifications_system: bool
+    appearance: dict[str, object] | None = None
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "appearance", validate_appearance(self.appearance))
         if self.theme not in {"system", "light", "dark"}:
             raise ValueError("client_preferences_invalid")
         if not isinstance(self.notifications_in_app, bool) or not isinstance(
@@ -449,6 +452,7 @@ class UserConfigBackupPlanner:
                 "providers.json": providers,
                 "network.json": self.network_egress_settings.snapshot_payload(),
                 "client-preferences.json": {
+                    **({"appearance": client_preferences.appearance} if client_preferences.appearance is not None else {}),
                     "theme": client_preferences.theme,
                     "notifications_in_app": client_preferences.notifications_in_app,
                     "notifications_system": client_preferences.notifications_system,

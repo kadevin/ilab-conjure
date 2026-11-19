@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
+import traceback
 import unittest
+from contextlib import redirect_stdout
 from unittest.mock import patch
 from unittest.mock import MagicMock
 import zipfile
@@ -27,6 +30,44 @@ smoke = load_script('check-package-smoke')
 
 
 class ReleasePipelineTests(unittest.TestCase):
+    def test_gh_errors_keep_diagnostics_without_exposing_credentials_or_retrying(self):
+        secrets = {'GH_TOKEN': 'synthetic-gh-secret', 'GITHUB_TOKEN': 'synthetic-github-secret',
+                   'GH_ENTERPRISE_TOKEN': 'synthetic-enterprise-secret',
+                   'GITHUB_ENTERPRISE_TOKEN': 'synthetic-enterprise-github-secret',
+                   'ILAB_CONJURE_UPDATE_SIGNING_PRIVATE_KEY_B64': 'synthetic-signing-secret'}
+        diagnostic = ('gh: Not Found (HTTP 404)\n' + '\n'.join(secrets.values())
+                      + '\nghp_syntheticToken123\ngithub_pat_syntheticToken456\n'
+                      + 'Authorization: Bearer synthetic-header-secret\n')
+        failure = subprocess.CalledProcessError(1, ['gh', 'api', 'repos/example/project/releases/7'],
+                                                stderr=diagnostic)
+        with patch.dict(os.environ, secrets), patch.object(release.subprocess, 'run', side_effect=failure) as run:
+            try:
+                release.gh('api', 'repos/example/project/releases/7')
+            except RuntimeError as error:
+                rendered = ''.join(traceback.format_exception(error))
+            else:
+                self.fail('GitHub CLI failure must stop publication')
+        run.assert_called_once()
+        self.assertIn('HTTP 404', rendered)
+        self.assertIn('exit code 1', rendered)
+        self.assertIn('repos/example/project/releases/7', rendered)
+        for secret in (*secrets.values(), 'ghp_syntheticToken123', 'github_pat_syntheticToken456',
+                       'synthetic-header-secret'):
+            self.assertNotIn(secret, rendered)
+
+    def test_gh_success_and_missing_or_oversized_stderr(self):
+        with patch.object(release.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout='{}')):
+            self.assertEqual(release.gh('api', 'repos/example/project/releases/7'), '{}')
+        for stderr in (None, '', 'x' * 10000):
+            with self.subTest(stderr_length=len(stderr or '')):
+                failure = subprocess.CalledProcessError(1, ['gh'], stderr=stderr)
+                with patch.object(release.subprocess, 'run', side_effect=failure):
+                    with self.assertRaises(RuntimeError) as caught:
+                        release.gh('api', 'repos/example/project/releases/7')
+                self.assertLess(len(str(caught.exception)), 4300)
+                if not stderr:
+                    self.assertIn('no stderr', str(caught.exception))
+
     def test_notes_support_old_and_concise_layout_without_sentinel(self):
         for body in ('当前版本：`v1.0.0`\n本版详情：\n### 修复\n- 下载',
                      'v1.0.0\n### P1 · 安全\n- 修复下载\n### P2\n- 布局'):
@@ -76,11 +117,13 @@ class ReleasePipelineTests(unittest.TestCase):
                     release.prepare(**args)
 
     def scenario(self, *, existing=False, published=False, upload_failure=False, bad_digest=False,
-                 missing=False, lookup_failure=False, create_failure=False, draft_missing=False):
+                 missing=False, lookup_failure=False, create_failure=False, draft_missing=False,
+                 state_changed=False, publication_unconfirmed=False, summary_unwritable=False):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             asset = root / 'latest.json'; asset.write_text('synthetic')
             notes = root / 'notes.md'; notes.write_text('notes')
+            summary = root if summary_unwritable else root / 'summary.md'
             calls = []
             state = {'tag_name': 'v1.0.0', 'draft': not published, 'id': 7, 'prerelease': False}
             created = existing
@@ -103,20 +146,39 @@ class ReleasePipelineTests(unittest.TestCase):
                     raise subprocess.CalledProcessError(1, 'gh')
                 if args[:2] == ('release', 'upload') and upload_failure:
                     raise subprocess.CalledProcessError(1, 'gh')
+                if args[:2] == ('release', 'upload') and state_changed:
+                    state['tag_name'] = 'v9.9.9'
                 if args[0] == 'api' and '/assets?' in args[1]:
                     return json.dumps([] if missing else [{'name': asset.name, 'size': asset.stat().st_size,
                         'state': 'uploaded', 'digest': 'sha256:' + ('wrong' if bad_digest else release.digest(asset))}])
-                if '--draft=false' in args:
+                if '--draft=false' in args and not publication_unconfirmed:
                     state['draft'] = False
                 return json.dumps(state)
 
-            with patch.object(release, 'gh', side_effect=fake):
+            failed = any((published, upload_failure, bad_digest, missing, lookup_failure,
+                          create_failure, draft_missing, state_changed, publication_unconfirmed))
+            output = io.StringIO()
+            with patch.object(release, 'gh', side_effect=fake), \
+                    patch.dict(os.environ, {'GITHUB_STEP_SUMMARY': str(summary)}), redirect_stdout(output):
                 try:
                     release.publish(repo='example/project', tag='v1.0.0', commit='a' * 40, files=[asset], notes=notes)
                 except (ValueError, subprocess.CalledProcessError):
-                    self.assertTrue(published or upload_failure or bad_digest or missing or lookup_failure or create_failure or draft_missing)
+                    self.assertTrue(failed)
                 else:
-                    self.assertFalse(published or upload_failure or bad_digest or missing or lookup_failure or create_failure or draft_missing)
+                    self.assertFalse(failed)
+            if failed:
+                self.assertFalse(summary.exists())
+                self.assertNotIn('Published', output.getvalue())
+            elif summary_unwritable:
+                self.assertFalse(state['draft'])
+                self.assertIn('Published', output.getvalue())
+                self.assertIn('::warning::', output.getvalue())
+            else:
+                text = summary.read_text(encoding='utf-8')
+                self.assertIn('https://github.com/example/project/releases/tag/v1.0.0', text)
+                self.assertIn('a' * 40, text)
+                self.assertIn('1 verified assets', text)
+                self.assertIn('Published', output.getvalue())
             return calls
 
     def test_draft_is_published_only_after_upload_and_digest_verification(self):
@@ -132,13 +194,22 @@ class ReleasePipelineTests(unittest.TestCase):
         self.assertFalse(any('/releases/tags/' in str(c) for c in calls))
 
     def test_failures_never_publish_or_retry_creation(self):
-        for flag in ('upload_failure', 'bad_digest', 'missing', 'lookup_failure', 'create_failure', 'draft_missing'):
+        for flag in ('upload_failure', 'bad_digest', 'missing', 'lookup_failure', 'create_failure',
+                     'draft_missing', 'state_changed'):
             with self.subTest(flag=flag):
                 calls = self.scenario(**{flag: True})
                 self.assertFalse(any('--draft=false' in c for c in calls))
                 self.assertLessEqual(sum(c[:2] == ('release', 'create') for c in calls), 1)
                 if flag == 'lookup_failure':
                     self.assertTrue(all(c[0] == 'api' for c in calls))
+
+    def test_unconfirmed_publication_is_not_reported_as_success_or_retried(self):
+        calls = self.scenario(publication_unconfirmed=True)
+        self.assertEqual(sum('--draft=false' in c for c in calls), 1)
+
+    def test_unwritable_summary_does_not_fail_or_retry_confirmed_publication(self):
+        calls = self.scenario(summary_unwritable=True)
+        self.assertEqual(sum('--draft=false' in c for c in calls), 1)
 
     def test_published_release_is_not_modified(self):
         calls = self.scenario(existing=True, published=True)

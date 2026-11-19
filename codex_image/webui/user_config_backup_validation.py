@@ -388,7 +388,7 @@ class UserConfigArchiveValidator:
             for provider in validated_providers["providers"]
         ):
             raise ValueError("user_config_restore_secret_declaration_mismatch")
-        if set(preferences) != {
+        if set(preferences) - {"appearance"} != {
             "theme",
             "notifications_in_app",
             "notifications_system",
@@ -399,6 +399,7 @@ class UserConfigArchiveValidator:
                 preferences["theme"],
                 preferences["notifications_in_app"],
                 preferences["notifications_system"],
+                preferences.get("appearance"),
             )
         except (KeyError, ValueError) as exc:
             raise ValueError("user_config_restore_json_shape_invalid") from exc

@@ -86,7 +86,7 @@
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 9px 19px rgba(51, 93, 77, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 9px 19px rgba(var(--shadow-rgb), 0.18);
 }
 
 .brand-rabbit-logo {
@@ -97,6 +97,19 @@
 
 .brand-rabbit-cutout {
   fill: #457b66;
+}
+
+:root[data-appearance="custom"] .brand-rabbit-cutout { fill: var(--primary); }
+
+:root[data-appearance="custom"] .brand-mark {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: none;
+}
+
+:root[data-appearance="custom"] .brand-rabbit-logo {
+  color: var(--primary-foreground);
+  filter: none;
 }
 
 .brand-rabbit-spark {

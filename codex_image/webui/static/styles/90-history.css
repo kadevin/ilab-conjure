@@ -1930,7 +1930,7 @@ body.history-lightbox-open {
   justify-content: center;
   padding: 52px 18px;
   outline: none;
-  background: rgba(10, 24, 20, 0.82);
+  background: var(--viewer-overlay);
   backdrop-filter: blur(10px);
 }
 
@@ -2950,7 +2950,7 @@ body.history-lightbox-open {
 }
 
 :root[data-theme="dark"] .history-lightbox {
-  background: rgba(2, 8, 6, 0.78);
+  background: var(--viewer-overlay);
 }
 
 @media (min-width: 1101px) {

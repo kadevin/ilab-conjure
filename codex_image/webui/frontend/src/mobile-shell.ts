@@ -84,7 +84,7 @@ export function initMobileShell(): void {
   };
   // Close before opening a different overlay; theme/family and notifications stay usable here.
   sheet.content.addEventListener("click", event => {
-    if ((event.target as Element).closest("#generationProviderSettingsButton, #queueButton, #historyManagementButton, #historyRefreshButton")) sheet.close();
+    if ((event.target as Element).closest("#generationProviderSettingsButton, #queueButton, #historyManagementButton, #historyRefreshButton, #appearanceTrigger")) sheet.close();
   }, true);
   query.addEventListener("change", sync); sync();
 

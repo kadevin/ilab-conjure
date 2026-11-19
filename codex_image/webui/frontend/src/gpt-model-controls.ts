@@ -4,7 +4,7 @@ import { mountThemedSelect, syncThemedSelect } from "./themed-select";
 
 /** Keep the familiar controls, with choices taken from the selected manifest. */
 export function syncGptModelControls(model: CatalogModel): void {
-  const { els, state } = getLegacyBridge();
+  const { els } = getLegacyBridge();
   const quality = model.parameters.find(parameter => parameter.id === "gpt.quality");
   const format = model.parameters.find(parameter => parameter.id === "output.format");
   const extended = !!quality?.allowed_values.includes("max");
@@ -29,7 +29,7 @@ export function syncGptModelControls(model: CatalogModel): void {
   for (const option of Array.from(select.options)) {
     const supported = format?.allowed_values.includes(option.value) ?? ["png", "jpeg", "webp"].includes(option.value);
     option.hidden = !supported;
-    option.disabled = !supported || (state.mode === "edit" && ["svg", "gif"].includes(option.value));
+    option.disabled = !supported;
   }
   if (select.selectedOptions[0]?.disabled) select.value = "png";
   // Mount once. The existing radio buttons remain available for older models.

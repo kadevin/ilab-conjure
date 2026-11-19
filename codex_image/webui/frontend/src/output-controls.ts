@@ -88,7 +88,8 @@ export function updateQuantity(): void {
 
 export function updateCompression(): void {
   const controls = document.querySelector<HTMLElement>(".controls-col");
-  const image26 = getLegacyBridge().state.selectedModelId?.startsWith("gpt-image-2.6-");
+  const { state } = getLegacyBridge();
+  const image26 = state.selectedModelId?.startsWith("gpt-image-2.6-");
   const compact = image26 || !!controls && getComputedStyle(controls).getPropertyValue("--compact-composer").trim() === "1";
   const button = document.getElementById("outputCompressionButton");
   const options = document.querySelector("#outputFormatField .output-format-options");
@@ -125,7 +126,9 @@ export function updateCompression(): void {
     const size = els.size?.value === "custom" ? `${els.customWidth?.value}x${els.customHeight?.value}` : els.size?.value;
     const dimensions = String(size || "").match(/^(\d+)x(\d+)$/);
     const frameLimit = dimensions ? Math.floor(128 * 1024 * 1024 / (Number(dimensions[1]) * Number(dimensions[2]))) : 64;
-    els.frameCount.max = String(Math.max(2, Math.min(64, frameLimit)));
+    const provider = state.generationCatalog?.providers.find(item => item.id === state.selectedProviderId);
+    const providerLimit = state.mode === "edit" ? provider?.gif_edit_max_frames ?? 64 : 64;
+    els.frameCount.max = String(Math.max(2, Math.min(providerLimit, frameLimit)));
   }
   if (els.frameDuration) els.frameDuration.disabled = !gif;
   const duration = document.getElementById("gifDuration");
