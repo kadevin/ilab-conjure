@@ -327,25 +327,56 @@ class OpenAIImagesImageClient:
         return self._request_and_parse_many(payload)[0]
 
     def _request_and_parse_many(self, payload: dict[str, Any]) -> list[ImageResult]:
-        endpoint = str(payload.get("endpoint") or "/images/generations")
-        if endpoint == "/images/edits":
-            body, content_type = self._build_multipart_edit_body(payload)
-            url = self.edits_url
-            headers = self._build_headers(content_type=content_type)
-        else:
-            request_payload = self._json_request_payload(payload)
-            body = json.dumps(request_payload).encode("utf-8")
-            url = self.generations_url
-            headers = self._build_headers(content_type="application/json")
-
-        response = self.transport.request(
-            method="POST",
-            url=url,
-            headers=headers,
-            body=body,
-        )
+        response = self.request_images(payload)
         raise_for_openai_images_response(response)
         return self.parse_response_json_items(response.body, request_payload=payload, url_fetcher=lambda url: self._fetch_image_url(url, allow_svg=payload.get("output_format") == "svg"))
+
+    def request_images(
+        self, payload: dict[str, Any], *, method: str = "POST", path: str | None = None,
+        multipart: bool = False,
+    ) -> HTTPResponse:
+        path = path or str(payload.get("endpoint") or "/images/generations")
+        response = self._send_images_request(payload, method=method, path=path, multipart=multipart)
+        if (
+            self.base_url == DEFAULT_OPENAI_API_BASE_URL
+            and payload.get("output_format") == "svg"
+            and "svg" not in payload
+            and self._requires_svg_model(response)
+        ):
+            # Projects without SVG model selection require the initial request to omit this object.
+            payload = {**payload, "svg": {"model": DEFAULT_MAIN_MODEL}}
+            response = self._send_images_request(payload, method=method, path=path, multipart=multipart)
+        return response
+
+    @staticmethod
+    def _requires_svg_model(response: HTTPResponse) -> bool:
+        if response.status != 400:
+            return False
+        try:
+            body = json.loads(response.body)
+        except (ValueError, UnicodeError):
+            return False
+        error = body.get("error") if isinstance(body, dict) else None
+        return (
+            isinstance(error, dict)
+            and error.get("param") == "svg.model"
+            and error.get("code") == "missing_required_parameter"
+        )
+
+    def _send_images_request(
+        self, payload: dict[str, Any], *, method: str, path: str, multipart: bool,
+    ) -> HTTPResponse:
+        if multipart or path == "/images/edits":
+            body, content_type = self._build_multipart_edit_body(payload)
+        else:
+            body = json.dumps(self._json_request_payload(payload)).encode("utf-8")
+            content_type = "application/json"
+        return self.transport.request(
+            method=method,
+            url=f"{self.base_url}{path}",
+            headers=self._build_headers(content_type=content_type),
+            body=body,
+        )
 
     def _build_headers(self, *, content_type: str) -> dict[str, str]:
         return build_openai_images_headers(self.api_key, content_type=content_type)
@@ -357,12 +388,14 @@ class OpenAIImagesImageClient:
 
     @classmethod
     def _build_multipart_edit_body(cls, payload: dict[str, Any]) -> tuple[bytes, str]:
-        omitted = {"endpoint", "images", "mask", "markup"}
+        omitted = {"endpoint", "images", "mask", "markup", "svg"}
         form_fields = {
             key: value
             for key, value in payload.items()
             if key not in omitted and value is not None
         }
+        if svg := payload.get("svg"):
+            form_fields["svg[model]"] = svg["model"]
         files: list[tuple[str, str, str, bytes]] = []
 
         images = payload.get("images")

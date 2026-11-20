@@ -9,6 +9,7 @@ from io import BytesIO
 
 import httpx
 from PIL import Image
+from codex_image.client_types import DEFAULT_MAIN_MODEL
 from codex_image.generation.types import ImageInput
 from tests import test_generation_failure_boundaries as boundaries
 from tests.helpers import TEST_PNG_BYTES, TEST_PNG_BASE64
@@ -171,6 +172,45 @@ class GptImage26Tests(unittest.TestCase):
 class GptImage26QueueTests(unittest.TestCase):
     task = boundaries.GenerationFailureBoundaryTests.task
     run_queue = staticmethod(boundaries.GenerationFailureBoundaryTests.run_queue)
+
+    def test_svg_author_model_is_added_only_when_openai_requires_it(self):
+        missing_model = {"error": {"code": "missing_required_parameter", "param": "svg.model"}}
+        invalid_size = {"error": {"code": "invalid_value", "param": "size"}}
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 0h8v8z"/></svg>'
+        image = ("images", ("reference.png", TEST_PNG_BYTES, "image/png"))
+        for base_url, error, should_retry in (
+            ("https://api.openai.com/v1", missing_model, True),
+            ("https://api.openai.com/v1", invalid_size, False),
+            ("https://relay.example/v1", missing_model, False),
+        ):
+            for operation in ("generate", "edit"):
+                calls = []
+
+                def handler(request):
+                    calls.append(request)
+                    if len(calls) == 1:
+                        return httpx.Response(400, json=error)
+                    return httpx.Response(200, json={"data": [{"b64_json": base64.b64encode(svg).decode()}]})
+
+                with self.subTest(base_url=base_url, error=error, operation=operation), self.task(
+                    handler, canonical_model="gpt-image-2.6-flare", base_url=base_url,
+                    requested_parameters={"output.format": "svg"}, edit_files=[image] if operation == "edit" else None,
+                ) as (app, _client, task_id):
+                    task = self.run_queue(app, task_id)
+                    self.assertEqual(len(calls), 2 if should_retry else 1)
+                    if should_retry:
+                        self.assertEqual(task["status"], "completed", task.get("error"))
+                    else:
+                        self.assertNotEqual(task["status"], "completed")
+                    if operation == "generate":
+                        self.assertNotIn("svg", json.loads(calls[0].content))
+                        if should_retry:
+                            self.assertEqual(json.loads(calls[1].content)["svg"], {"model": DEFAULT_MAIN_MODEL})
+                    else:
+                        self.assertNotIn(b'name="svg[model]"', calls[0].content)
+                        if should_retry:
+                            self.assertIn(f'name="svg[model]"\r\n\r\n{DEFAULT_MAIN_MODEL}'.encode(), calls[1].content)
+                            self.assertIn(TEST_PNG_BYTES, calls[1].content)
 
     def test_gif_edit_frame_limit_is_specific_to_official_openai(self):
         def handler(_request):

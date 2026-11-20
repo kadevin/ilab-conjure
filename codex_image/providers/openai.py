@@ -80,22 +80,22 @@ class OpenAIImagesAdapter:
         request = plan.protocol_request
         payload = dict(request.json_body or {})
         path = request.path or str(payload.get("endpoint") or "/images/generations")
-        if request.files or request.form_fields:
-            body, content_type = build_multipart_body(request.form_fields, request.files)
-        elif path == "/images/edits" or request.content_type.startswith("multipart/form-data"):
-            body, content_type = client._build_multipart_edit_body(payload)
-        else:
-            body = json.dumps(client._json_request_payload(payload)).encode("utf-8")
-            content_type = "application/json"
         canonical_error_contract = not plan.binding.parameter_codec.startswith("gpt_")
         outcomes: list[ImageResult | Exception] = []
         try:
-            response = client.transport.request(
-                method=request.method,
-                url=f"{client.base_url}{path}",
-                headers=client._build_headers(content_type=content_type),
-                body=body,
-            )
+            if request.files or request.form_fields:
+                body, content_type = build_multipart_body(request.form_fields, request.files)
+                response = client.transport.request(
+                    method=request.method,
+                    url=f"{client.base_url}{path}",
+                    headers=client._build_headers(content_type=content_type),
+                    body=body,
+                )
+            else:
+                response = client.request_images(
+                    payload, method=request.method, path=path,
+                    multipart=request.content_type.startswith("multipart/form-data"),
+                )
             if canonical_error_contract and not 200 <= response.status < 300:
                 raise _canonical_openai_images_http_error(plan, response.status)
             openai_images_transport.raise_for_openai_images_response(response)
