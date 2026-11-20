@@ -157,6 +157,8 @@ Open `Start WebUI.command` on macOS or `Start WebUI.bat` on Windows, then visit 
 
 GPT Image 2.6 adds complexity, extra-high/maximum quality, and SVG/GIF outputs through the Images API. Both SVG and GIF support text-only generation and reference-image edits; availability depends on the provider and account permissions. GIF frame count (2–64) and frame duration (20–2000 ms) live in More options, alongside the calculated total duration; high resolutions lower the frame limit to fit the local decoding budget. GIF does not support masks, streaming previews, or compression settings. SVG batches use one output per request. Image 2.5/2.6 Images API edits support a separate transparent markup layer on the first reference image; markup is sent separately from the original and cannot be combined with a mask.
 
+When an official OpenAI project requires an SVG author model, enter an allowed model ID in **API Settings → Edit provider**. Leave it blank to use `gpt-6-luna`. After a model permission error, update the setting and retry the failed images.
+
 GIF edits through the official OpenAI endpoint accept up to 16 frames. Other providers retain the range allowed by the local decoding budget.
 
 In compact mode, transparency and compression are under the extra-options icon beside Format. JPEG/WebP compression ranges from 50% to 100%.

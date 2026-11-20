@@ -16,14 +16,22 @@ from .client_types import (
     DEFAULT_OPENAI_API_BASE_URL,
     OPENAI_COMPATIBLE_USER_AGENT,
     ImageResult,
+    OpenAISvgRequestState,
     image_model_supports_input_fidelity,
+    is_official_openai_api_url,
     normalize_openai_base_url,
 )
+from .generation.errors import OpenAISvgAuthorModelRejected
 from .http import HTTPResponse, Transport, UrllibTransport
 from .providers.result_assets import AssetLoadError, LoadedAsset, load_response_asset
 
 
 _DIMENSION_SIZE_RE = re.compile(r"^\s*(\d{1,5})\s*[xX×]\s*(\d{1,5})\s*$")
+_SVG_MODEL_FIELDS = ("svg.model", "svg[model]")
+_MODEL_ACCESS_ERROR_CODES = (
+    "model_not_found", "model_not_allowed", "model_not_supported",
+    "insufficient_permissions", "permission_denied",
+)
 
 
 class PartialImageResultsError(RuntimeError):
@@ -141,6 +149,7 @@ class OpenAIImagesImageClient:
         base_url: str = DEFAULT_OPENAI_API_BASE_URL,
         image_model: str = DEFAULT_IMAGE_MODEL,
         transport: Transport | None = None,
+        svg_author_model: str = "",
     ) -> None:
         clean_key = str(api_key or "").strip()
         if not clean_key:
@@ -148,6 +157,7 @@ class OpenAIImagesImageClient:
         self.api_key = clean_key
         self.base_url = self._normalize_base_url(base_url)
         self.image_model = str(image_model or DEFAULT_IMAGE_MODEL).strip() or DEFAULT_IMAGE_MODEL
+        self.svg_author_model = svg_author_model.strip() or DEFAULT_MAIN_MODEL
         self.transport = transport or UrllibTransport()
         self.generations_url = f"{self.base_url}/images/generations"
         self.edits_url = f"{self.base_url}/images/edits"
@@ -334,33 +344,59 @@ class OpenAIImagesImageClient:
     def request_images(
         self, payload: dict[str, Any], *, method: str = "POST", path: str | None = None,
         multipart: bool = False,
+        svg_state: OpenAISvgRequestState | None = None,
     ) -> HTTPResponse:
         path = path or str(payload.get("endpoint") or "/images/generations")
-        response = self._send_images_request(payload, method=method, path=path, multipart=multipart)
-        if (
-            self.base_url == DEFAULT_OPENAI_API_BASE_URL
-            and payload.get("output_format") == "svg"
+        select_svg_author = (
+            payload.get("output_format") == "svg"
             and "svg" not in payload
-            and self._requires_svg_model(response)
-        ):
+            and is_official_openai_api_url(self.base_url)
+        )
+        author_model = svg_state.author_model if select_svg_author and svg_state is not None else None
+        if author_model is not None:
+            payload = {**payload, "svg": {"model": author_model}}
+        response = self._send_images_request(payload, method=method, path=path, multipart=multipart)
+        if select_svg_author and author_model is None and self._requires_svg_model(response):
             # Projects without SVG model selection require the initial request to omit this object.
-            payload = {**payload, "svg": {"model": DEFAULT_MAIN_MODEL}}
+            author_model = self.svg_author_model
+            payload = {**payload, "svg": {"model": author_model}}
             response = self._send_images_request(payload, method=method, path=path, multipart=multipart)
+            if svg_state is not None and 200 <= response.status < 300:
+                svg_state.author_model = author_model
+        if author_model is not None and self._svg_author_model_rejected(response, author_model):
+            raise OpenAISvgAuthorModelRejected()
         return response
 
     @staticmethod
-    def _requires_svg_model(response: HTTPResponse) -> bool:
-        if response.status != 400:
-            return False
+    def _response_error(response: HTTPResponse) -> dict[str, Any]:
         try:
             body = json.loads(response.body)
-        except (ValueError, UnicodeError):
-            return False
+        except ValueError:
+            return {}
         error = body.get("error") if isinstance(body, dict) else None
+        return error if isinstance(error, dict) else {}
+
+    @classmethod
+    def _requires_svg_model(cls, response: HTTPResponse) -> bool:
+        if response.status != 400:
+            return False
+        error = cls._response_error(response)
+        return error.get("param") in _SVG_MODEL_FIELDS and error.get("code") == "missing_required_parameter"
+
+    @classmethod
+    def _svg_author_model_rejected(cls, response: HTTPResponse, model: str) -> bool:
+        if response.status not in (400, 403, 404):
+            return False
+        error = cls._response_error(response)
+        parameter = error.get("param")
+        code = error.get("code")
+        model_error = code in _MODEL_ACCESS_ERROR_CODES
+        if parameter in _SVG_MODEL_FIELDS:
+            return response.status in (403, 404) or model_error or code in ("invalid_value", "unsupported_value")
+        message = error.get("message")
         return (
-            isinstance(error, dict)
-            and error.get("param") == "svg.model"
-            and error.get("code") == "missing_required_parameter"
+            parameter is None and model_error and isinstance(message, str)
+            and re.search(rf"(?<![\w.:-]){re.escape(model)}(?![\w.:-])", message) is not None
         )
 
     def _send_images_request(

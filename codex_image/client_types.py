@@ -41,8 +41,20 @@ def normalize_openai_base_url(value: Any) -> str:
     return urlunsplit((parts.scheme, parts.netloc, path, "", ""))
 
 
+def is_official_openai_api_url(base_url: str) -> bool:
+    endpoint = urlsplit(base_url)
+    return endpoint.scheme == "https" and endpoint.netloc.lower() in {"api.openai.com", "api.openai.com:443"}
+
+
 def image_model_supports_input_fidelity(model: str | None) -> bool:
     return (model or "").lower() != "gpt-image-2"
+
+
+@dataclass
+class OpenAISvgRequestState:
+    """SVG author selection confirmed during a single generation execution."""
+
+    author_model: str | None = None
 
 
 @dataclass

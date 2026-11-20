@@ -132,6 +132,15 @@ test("diagnostic numbers cannot hide retry actions for transient failures", asyn
       const task = { status: "failed", error, total_count: 1, outputs: [{ index: 1, status: "failed", error }] };
       assert.equal(methods.canRetryFailedTask(task), false, error);
     }
+    const authorRejection = {
+      status: "failed",
+      error: "The OpenAI project cannot use the SVG author model.",
+      generation_error: { code: "svg_author_model_rejected", retryable: false },
+      total_count: 1,
+      outputs: [{ index: 1, status: "failed" }],
+    };
+    assert.equal(taskRecoveryKind(authorRejection), "svgAuthorModel");
+    assert.equal(methods.canRetryFailedTask(authorRejection), true);
   } finally { (globalThis as any).window = previousWindow; }
 });
 

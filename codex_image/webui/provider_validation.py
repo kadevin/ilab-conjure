@@ -205,6 +205,14 @@ def _validate_provider(raw: Mapping[str, Any], *, index: int) -> dict[str, Any]:
     icon_emoji = normalize_provider_icon_emoji(raw.get("icon_emoji"))
     if icon_emoji:
         provider["icon_emoji"] = icon_emoji
+    svg_author_model = raw.get("svg_author_model", "")
+    if not isinstance(svg_author_model, str):
+        raise ValueError("invalid_svg_author_model")
+    svg_author_model = svg_author_model.strip()
+    if re.search(r"[^A-Za-z0-9_.:-]", svg_author_model) or len(svg_author_model) > 128:
+        raise ValueError("invalid_svg_author_model")
+    if svg_author_model:
+        provider["svg_author_model"] = svg_author_model
     return provider
 
 

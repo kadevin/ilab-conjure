@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from urllib.parse import urlsplit
+
+from codex_image.client_types import is_official_openai_api_url
 
 from .codecs.gpt_image import GPT_PARAMETER_IDS
 from .codecs.gemini_image import GEMINI_PARAMETER_IDS
@@ -9,10 +10,7 @@ from .codecs.gemini_image import GEMINI_PARAMETER_IDS
 
 def openai_gif_edit_frame_limit(base_url: str) -> int | None:
     """The published OpenAI limit applies to its own endpoint."""
-    endpoint = urlsplit(base_url)
-    if endpoint.scheme == "https" and endpoint.netloc.lower() in {"api.openai.com", "api.openai.com:443"}:
-        return 16
-    return None
+    return 16 if is_official_openai_api_url(base_url) else None
 
 
 @dataclass(frozen=True)

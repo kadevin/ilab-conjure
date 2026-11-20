@@ -1,6 +1,7 @@
 import { translate } from "./i18n";
-export type TaskRecovery = "credentials" | "quota" | "input" | "temporary";
+export type TaskRecovery = "credentials" | "quota" | "input" | "temporary" | "svgAuthorModel";
 export function taskRecoveryKind(task: any): TaskRecovery {
+  if (task?.generation_error?.code === "svg_author_model_rejected") return "svgAuthorModel";
   const text = String(task?.error || task?.last_error || "").toLowerCase();
   const statusMatch = text.match(/\bhttp(?:\s+(?:error|status))?\s*[:=]?\s*(\d{3})\b/)
     || text.match(/\bstatus(?:\s+code)?\s*[:=]\s*(\d{3})\b/);

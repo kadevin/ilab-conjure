@@ -25,6 +25,10 @@ _MESSAGES = {
     "upstream_error": "The provider request failed.",
     "asset_download_failed": "A generated asset could not be downloaded.",
     "request_timeout": "The provider request timed out.",
+    "svg_author_model_rejected": (
+        "The OpenAI project cannot use the SVG author model. "
+        "Set an allowed SVG author model in the provider's API settings, then retry."
+    ),
     "provider_credentials_missing": "The saved provider credentials are no longer available.",
     "provider_credentials_origin_changed": (
         "The provider address changed after this task was queued. Review the provider settings "
@@ -112,6 +116,11 @@ def provider_error(
     )
 
 
+class OpenAISvgAuthorModelRejected(RuntimeError):
+    def __init__(self) -> None:
+        super().__init__(_MESSAGES["svg_author_model_rejected"])
+
+
 def provider_error_from_exception(
     exc: BaseException,
     *,
@@ -121,7 +130,9 @@ def provider_error_from_exception(
 ) -> GenerationProviderError:
     text = str(exc).lower()
     http_status = _explicit_http_status(exc, text)
-    if isinstance(exc, TimeoutError) or "timed out" in text or "timeout" in text:
+    if isinstance(exc, OpenAISvgAuthorModelRejected):
+        code, status = "svg_author_model_rejected", 400
+    elif isinstance(exc, TimeoutError) or "timed out" in text or "timeout" in text:
         code, status = "request_timeout", 504
     elif http_status is not None:
         if http_status in {401, 403}:

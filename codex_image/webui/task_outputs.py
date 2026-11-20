@@ -10,7 +10,12 @@ from urllib.parse import quote, unquote, urlsplit
 from fastapi import HTTPException
 
 from codex_image.client import ImageResult
-from codex_image.generation.errors import GenerationOutcomeUnknownError, GenerationProviderError, GenerationTimeoutError
+from codex_image.generation.errors import (
+    GenerationOutcomeUnknownError,
+    GenerationProviderError,
+    GenerationTimeoutError,
+    OpenAISvgAuthorModelRejected,
+)
 from codex_image.http_connection import exception_chain
 from codex_image.providers.result_assets import asset_load_failure
 
@@ -285,7 +290,7 @@ def _ordered_output_progress(
 
 
 def _is_non_retryable_error(exc: BaseException) -> bool:
-    if any(isinstance(item, (OutputSaveError, GenerationOutcomeUnknownError, GenerationTimeoutError))
+    if any(isinstance(item, (OutputSaveError, GenerationOutcomeUnknownError, GenerationTimeoutError, OpenAISvgAuthorModelRejected))
            or (isinstance(item, GenerationProviderError) and not item.detail.retryable)
            for item in exception_chain(exc)):
         return True

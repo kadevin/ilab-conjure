@@ -180,7 +180,9 @@ class GptImage26QueueTests(unittest.TestCase):
         image = ("images", ("reference.png", TEST_PNG_BYTES, "image/png"))
         for base_url, error, should_retry in (
             ("https://api.openai.com/v1", missing_model, True),
+            ("https://api.openai.com:443/v1", missing_model, True),
             ("https://api.openai.com/v1", invalid_size, False),
+            ("https://api.openai.com:8443/v1", missing_model, False),
             ("https://relay.example/v1", missing_model, False),
         ):
             for operation in ("generate", "edit"):
@@ -211,6 +213,90 @@ class GptImage26QueueTests(unittest.TestCase):
                         if should_retry:
                             self.assertIn(f'name="svg[model]"\r\n\r\n{DEFAULT_MAIN_MODEL}'.encode(), calls[1].content)
                             self.assertIn(TEST_PNG_BYTES, calls[1].content)
+
+    def test_svg_author_model_is_reused_within_an_official_openai_batch(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 0h8v8z"/></svg>'
+        image = ("images", ("reference.png", TEST_PNG_BYTES, "image/png"))
+        for operation in ("generate", "edit"):
+            for author_required in (True, False):
+                author_sent = []
+
+                def handler(request):
+                    if operation == "edit":
+                        self.assertIn(TEST_PNG_BYTES, request.content)
+                        present = f'name="svg[model]"\r\n\r\n{DEFAULT_MAIN_MODEL}'.encode() in request.content
+                    else:
+                        present = json.loads(request.content).get("svg") == {"model": DEFAULT_MAIN_MODEL}
+                    author_sent.append(present)
+                    if author_required and not present:
+                        return httpx.Response(400, json={
+                            "error": {"code": "missing_required_parameter", "param": "svg.model"},
+                        })
+                    return httpx.Response(200, json={"data": [{"b64_json": base64.b64encode(svg).decode()}]})
+
+                with self.subTest(operation=operation, author_required=author_required), self.task(
+                    handler, canonical_model="gpt-image-2.6-flare", count=3,
+                    base_url="https://api.openai.com/v1", requested_parameters={"output.format": "svg"},
+                    edit_files=[image] if operation == "edit" else None,
+                ) as (app, _client, task_id):
+                    task = self.run_queue(app, task_id)
+                    self.assertEqual(task["status"], "completed", task.get("error"))
+                    self.assertEqual(len(task["output_files"]), 3)
+                    self.assertEqual(author_sent, [False, True, True, True] if author_required else [False] * 3)
+
+    def test_svg_author_permission_failure_can_be_retried_with_updated_connection(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 0h8v8z"/></svg>'
+        image = ("images", ("reference.png", TEST_PNG_BYTES, "image/png"))
+        allowed_author = "gpt-6.2-sol"
+        for operation, status, rejection in (
+            ("generate", 403, {"code": "insufficient_permissions", "param": "svg.model"}),
+            ("edit", 404, {"code": "model_not_found", "message": f"No access to `{DEFAULT_MAIN_MODEL}`."}),
+        ):
+            calls = []
+
+            def handler(request):
+                if operation == "edit":
+                    self.assertIn(TEST_PNG_BYTES, request.content)
+                    message = BytesParser(policy=default).parsebytes(
+                        f'Content-Type: {request.headers["content-type"]}\r\n\r\n'.encode() + request.content
+                    )
+                    author = next((
+                        part.get_payload(decode=True).decode() for part in message.iter_parts()
+                        if part.get_param("name", header="content-disposition") == "svg[model]"
+                    ), None)
+                else:
+                    author = json.loads(request.content).get("svg", {}).get("model")
+                calls.append(author)
+                if author is None:
+                    return httpx.Response(400, json={
+                        "error": {"code": "missing_required_parameter", "param": "svg.model"},
+                    })
+                if author != allowed_author:
+                    return httpx.Response(status, json={"error": rejection})
+                return httpx.Response(200, json={"data": [{"b64_json": base64.b64encode(svg).decode()}]})
+
+            with self.subTest(operation=operation), self.task(
+                handler, canonical_model="gpt-image-2.6-flare",
+                base_url="https://api.openai.com:443/v1", requested_parameters={"output.format": "svg"},
+                edit_files=[image] if operation == "edit" else None,
+            ) as (app, client, task_id):
+                failed = self.run_queue(app, task_id)
+                self.assertEqual(failed["status"], "failed")
+                self.assertEqual(failed["generation_error"]["code"], "svg_author_model_rejected")
+                self.assertFalse(failed["generation_error"]["retryable"])
+                self.run_queue(app, task_id)
+                self.assertEqual(calls, [None, DEFAULT_MAIN_MODEL])
+
+                settings = client.get("/api/api-settings").json()["settings"]
+                settings["providers"][0]["svg_author_model"] = allowed_author
+                saved = client.patch("/api/api-settings", json=settings)
+                self.assertEqual(saved.status_code, 200, saved.text)
+                self.assertEqual(saved.json()["settings"]["providers"][0]["svg_author_model"], allowed_author)
+                retry = client.post(f"/api/tasks/{task_id}/retry-failed")
+                self.assertEqual(retry.status_code, 200, retry.text)
+                completed = self.run_queue(app, task_id)
+                self.assertEqual(completed["status"], "completed", completed.get("error"))
+                self.assertEqual(calls, [None, DEFAULT_MAIN_MODEL, None, allowed_author])
 
     def test_gif_edit_frame_limit_is_specific_to_official_openai(self):
         def handler(_request):

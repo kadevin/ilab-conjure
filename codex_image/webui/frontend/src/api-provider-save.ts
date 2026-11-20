@@ -16,6 +16,7 @@ export function apiSettingsSavePayload(settings: ApiProviderSettings, confirmedO
         icon_emoji: provider.icon_emoji || "",
         base_url: provider.base_url,
         concurrency: provider.concurrency,
+        svg_author_model: provider.svg_author_model,
         bindings: provider.bindings,
       };
       if (provider.api_key || !provider.api_key_set) item.api_key = provider.api_key;
@@ -44,6 +45,7 @@ export async function patchApiSettings(payload: unknown, request: typeof fetch =
       throw new Error(translate("apiSettings.defaultMappingInvalid"));
     }
     if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+    if (detail === "invalid_svg_author_model") throw new Error(translate("apiSettings.invalidSvgAuthorModel"));
     if (detail === "api_key_origin_change_confirmation_required") {
       throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
     }

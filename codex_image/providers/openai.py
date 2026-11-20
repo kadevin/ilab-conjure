@@ -8,6 +8,7 @@ from codex_image.generation.types import GeneratedAsset, GenerationResult
 from codex_image.generation.partial_results import PartialGenerationError
 from codex_image.generation.errors import (
     GenerationProviderError,
+    OpenAISvgAuthorModelRejected,
     provider_error,
     provider_error_from_exception,
 )
@@ -76,6 +77,7 @@ class OpenAIImagesAdapter:
             base_url=plan.provider.base_url,
             image_model=plan.binding.remote_model_id,
             transport=self._transport,
+            svg_author_model=plan.provider.svg_author_model,
         )
         request = plan.protocol_request
         payload = dict(request.json_body or {})
@@ -95,6 +97,7 @@ class OpenAIImagesAdapter:
                 response = client.request_images(
                     payload, method=request.method, path=path,
                     multipart=request.content_type.startswith("multipart/form-data"),
+                    svg_state=plan.openai_svg_state,
                 )
             if canonical_error_contract and not 200 <= response.status < 300:
                 raise _canonical_openai_images_http_error(plan, response.status)
@@ -112,7 +115,9 @@ class OpenAIImagesAdapter:
                 image_results_to_generation(exc.results, asset_outcomes=exc.outcomes), exc.completed_at,
             ) from exc
         except Exception as exc:
-            if not canonical_error_contract or isinstance(exc, GenerationProviderError):
+            if isinstance(exc, GenerationProviderError) or (
+                not canonical_error_contract and not isinstance(exc, OpenAISvgAuthorModelRejected)
+            ):
                 raise
             raise provider_error_from_exception(
                 exc,

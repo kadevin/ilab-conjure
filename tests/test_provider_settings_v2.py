@@ -60,6 +60,29 @@ class ProviderSettingsV2Tests(unittest.TestCase):
         payload.update(overrides)
         return payload
 
+    def test_svg_author_model_survives_legacy_writes_and_can_be_cleared(self) -> None:
+        first = self.v2_payload(providers=[self.provider(
+            base_url="https://api.openai.com:443/v1", svg_author_model=" gpt-6.2-sol ",
+        )])
+        self.settings.write(first)
+        self.assertEqual(self.settings.read_connections()[0].svg_author_model, "gpt-6.2-sol")
+        self.assertEqual(self.settings.backup_snapshot(include_api_keys=False)["providers"][0]["svg_author_model"], "gpt-6.2-sol")
+
+        previous_client = self.settings.public_settings()
+        previous_client["providers"][0].pop("svg_author_model")
+        self.settings.write(previous_client)
+        self.assertEqual(self.settings.read_connections()[0].svg_author_model, "gpt-6.2-sol")
+
+        invalid = self.settings.public_settings()
+        invalid["providers"][0]["svg_author_model"] = "gpt 6"
+        with self.assertRaisesRegex(ValueError, "invalid_svg_author_model"):
+            self.settings.write(invalid)
+        self.assertEqual(self.settings.read_connections()[0].svg_author_model, "gpt-6.2-sol")
+
+        invalid["providers"][0]["svg_author_model"] = ""
+        self.settings.write(invalid)
+        self.assertEqual(self.settings.read_connections()[0].svg_author_model, "")
+
     def test_legacy_provider_is_migrated_in_memory_without_rewriting_file(self) -> None:
         path = self.write_json(
             {
