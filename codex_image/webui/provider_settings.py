@@ -203,6 +203,7 @@ class ProviderSettings(StoreLockMixin):
                     api_key=provider["api_key"],
                     concurrency=provider["concurrency"],
                     bindings=bindings,
+                    svg_author_model=provider.get("svg_author_model", ""),
                 )
             )
         return connections
@@ -295,6 +296,11 @@ class ProviderSettings(StoreLockMixin):
         if not isinstance(providers, list):
             providers = deepcopy(current["providers"])
         candidate["providers"] = self._apply_key_copy_semantics(providers, current_by_id)
+        for provider in candidate["providers"]:
+            if isinstance(provider, dict):
+                provider_id = _normalize_slug(provider.get("id"), fallback="default")
+                saved_model = current_by_id.get(provider_id, {}).get("svg_author_model", "")
+                provider.setdefault("svg_author_model", saved_model)
         return candidate
 
     def _prepare_legacy_provider_write(
@@ -544,6 +550,7 @@ class ProviderSettings(StoreLockMixin):
             "icon_emoji": provider.get("icon_emoji", ""),
             "base_url": provider.get("base_url"),
             "concurrency": provider.get("concurrency"),
+            "svg_author_model": provider.get("svg_author_model", ""),
             "bindings": deepcopy(provider.get("bindings") or []),
         }
 

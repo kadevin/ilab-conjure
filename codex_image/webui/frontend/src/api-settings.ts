@@ -58,6 +58,7 @@ import {
   setApiKeyRevealVisible,
   setApiSettingsFeedback,
   syncCodexModeNotes,
+  syncSvgAuthorModelVisibility,
   taskApiProviderId,
   taskApiProviderLabel,
   taskBackendLabel,
@@ -77,6 +78,7 @@ export function initApiSettingsFeature(): void {
   if (apiSettingsFeatureInitialized) return;
   apiSettingsFeatureInitialized = true;
   const { els, state } = getLegacyBridge();
+  els.apiBaseUrl?.addEventListener("input", syncSvgAuthorModelVisibility);
   initProviderModelDiscovery({
     container: els.apiProviderBindings,
     connectionInputs: [els.apiBaseUrl, els.apiKey],

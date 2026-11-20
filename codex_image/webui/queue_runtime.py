@@ -424,6 +424,7 @@ def _validated_snapshot_plan(
         return None
     provider_id = str(snapshot.get("provider_id") or "")
     api_key = ""
+    svg_author_model = ""
     if provider_id != "codex":
         configured = _configured_provider_exact(ctx, provider_id)
         if configured is None:
@@ -460,6 +461,7 @@ def _validated_snapshot_plan(
                 retryable=False,
             )
         api_key = str(configured["api_key"])
+        svg_author_model = str(configured.get("svg_author_model") or "")
     params = metadata.get("params") if isinstance(metadata.get("params"), dict) else {}
     raw_constraints = metadata.get("prompt_constraints")
     constraints = [str(item) for item in raw_constraints] if isinstance(raw_constraints, list) else []
@@ -567,6 +569,7 @@ def _validated_snapshot_plan(
         command=command,
         api_key=api_key,
         registry=registry,
+        svg_author_model=svg_author_model,
     )
 
 

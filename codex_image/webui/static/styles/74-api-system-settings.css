@@ -1381,6 +1381,7 @@ body.api-provider-sort-dragging * {
 .compact-api-settings-grid > .api-provider-name-field,
 .compact-api-settings-grid > .api-base-url-field,
 .compact-api-settings-grid > .api-key-field,
+.compact-api-settings-grid > .api-svg-author-model-field,
 .compact-api-settings-grid > .api-concurrency-field {
   display: grid;
   min-width: 0;
@@ -1405,6 +1406,7 @@ body.api-provider-sort-dragging * {
   grid-row: auto;
 }
 
+.compact-api-settings-grid > .api-svg-author-model-field,
 .compact-api-settings-grid > .api-key-field {
   grid-column: 1 / -1;
   grid-row: auto;
@@ -1413,6 +1415,7 @@ body.api-provider-sort-dragging * {
 .compact-api-settings-grid > .api-provider-name-field > span,
 .compact-api-settings-grid > .api-base-url-field > span,
 .compact-api-settings-grid > .api-key-field > span,
+.compact-api-settings-grid > .api-svg-author-model-field > span,
 .compact-api-settings-grid > .api-concurrency-field > span {
   white-space: normal;
   overflow-wrap: anywhere;
@@ -1421,6 +1424,7 @@ body.api-provider-sort-dragging * {
 .compact-api-settings-grid > .api-provider-name-field .control,
 .compact-api-settings-grid > .api-base-url-field .control,
 .compact-api-settings-grid > .api-key-field .api-key-input-wrap,
+.compact-api-settings-grid > .api-svg-author-model-field .control,
 .compact-api-settings-grid > .api-concurrency-field .control {
   min-width: 0;
 }
@@ -1573,6 +1577,7 @@ body.api-provider-sort-dragging * {
   .compact-api-settings-grid > .api-provider-name-field,
   .compact-api-settings-grid > .api-base-url-field,
   .compact-api-settings-grid > .api-key-field,
+  .compact-api-settings-grid > .api-svg-author-model-field,
   .compact-api-settings-grid > .api-concurrency-field {
     grid-column: 1 / -1;
     grid-row: auto;

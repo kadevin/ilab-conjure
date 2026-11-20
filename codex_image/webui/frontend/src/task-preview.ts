@@ -150,7 +150,10 @@ function previewStructureKey(task: any) {
   const selectedIndexes = taskSelectedOutputIndexes(task).join(",");
   const size = task.params?.size || task.output_size || currentSize();
   if (status === "failed" || status === "partial_failed") {
-    return ["failed", taskId, status, outputUrls, selectedIndexes, taskFailureMessage(task), taskRetryStateText(task), canRetryFailedTask(task), canAcceptTaskSuccesses(task)].join("|");
+    return [
+      "failed", taskId, status, outputUrls, selectedIndexes, taskRecoveryKind(task),
+      taskFailureMessage(task), taskRetryStateText(task), canRetryFailedTask(task), canAcceptTaskSuccesses(task),
+    ].join("|");
   }
   if (status === "submitting" || status === "queued") {
     return ["waiting", taskId, status, outputUrls, selectedIndexes, taskGeneratedCount(task, 0), taskTotalCount(task), size, task.last_error || task.error || "", taskRetryStateText(task)].join("|");
@@ -868,11 +871,12 @@ function failureDetailsHtml(task: any): string {
 function retryFailureSummaryButton(task: any) {
   const taskId = escapeHtml(task.task_id || "");
   const actions = [];
+  const recoveryKind = taskRecoveryKind(task);
   actions.push(`<p class="recovery-guidance">${escapeHtml(taskRecoveryMessage(task))}</p>`);
-  if (taskRecoveryKind(task) === "credentials" || taskRecoveryKind(task) === "quota") {
+  if (["credentials", "quota", "svgAuthorModel"].includes(recoveryKind)) {
     actions.push(`<button type="button" class="ghost-button text-sm" data-preview-provider-settings>${escapeHtml(translate("ux.checkProvider"))}</button>`);
   }
-  if (taskRecoveryKind(task) === "input") {
+  if (recoveryKind === "input") {
     actions.push(`<button type="button" class="ghost-button text-sm" data-preview-edit-inputs="${taskId}">${escapeHtml(translate("ux.editInputs"))}</button>`);
   }
   if (canRetryFailedTask(task)) {

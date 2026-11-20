@@ -91,7 +91,7 @@ def provider_binding_from_snapshot(snapshot: Mapping[str, Any]) -> ProviderModel
 
 
 def provider_connection_from_snapshot(
-    snapshot: Mapping[str, Any], *, api_key: str
+    snapshot: Mapping[str, Any], *, api_key: str, svg_author_model: str = "",
 ) -> ProviderConnection:
     binding = provider_binding_from_snapshot(snapshot)
     return ProviderConnection(
@@ -102,6 +102,7 @@ def provider_connection_from_snapshot(
         concurrency=int(snapshot["provider_concurrency"]),
         bindings=(binding,),
         builtin=str(snapshot["provider_id"]) == "codex",
+        svg_author_model=svg_author_model,
     )
 
 
@@ -111,6 +112,7 @@ def execution_plan_from_snapshot(
     command: GenerationCommand,
     api_key: str,
     registry: ProviderRegistry,
+    svg_author_model: str = "",
 ) -> ExecutionPlan:
     identity = {
         "provider_id": str(snapshot.get("provider_id") or ""),
@@ -131,7 +133,9 @@ def execution_plan_from_snapshot(
         if dict(command.legacy_compat_parameters) != dict(snapshot.get("legacy_compat_parameters") or {}):
             raise ValueError("legacy compatibility parameters changed")
         validate_command_inputs(command, model)
-        provider = provider_connection_from_snapshot(snapshot, api_key=api_key)
+        provider = provider_connection_from_snapshot(
+            snapshot, api_key=api_key, svg_author_model=svg_author_model,
+        )
         registry.protocol(binding.protocol_profile)
         codec = registry.codec(binding.parameter_codec)
         request = codec.encode(command, model, binding)

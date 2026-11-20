@@ -484,6 +484,7 @@
     "ux.recovery.quota": "Check the task provider\u2019s quota or account balance.",
     "ux.recovery.input": "Check the prompt, reference files and generation settings for unsupported inputs.",
     "ux.recovery.temporary": "Generation did not complete. Successful images are retained; retry failed images when available.",
+    "ux.recovery.svgAuthorModel": "In this provider\u2019s API settings, choose an SVG author model your OpenAI project can use, then retry.",
     "ux.checkProvider": "Check provider settings",
     "ux.acceptDetail": "Keep successful images and finish the task without filling the failed slots.",
     "ux.editInputs": "Edit inputs and settings",
@@ -1636,6 +1637,8 @@
     "apiSettings.modeImagesShort": "Direct",
     "apiSettings.imageModel": "Image generation model",
     "apiSettings.concurrency": "Concurrency limit",
+    "apiSettings.svgAuthorModel": "SVG author model",
+    "apiSettings.invalidSvgAuthorModel": "Enter a valid SVG model ID without spaces.",
     "apiSettings.concurrencyShort": "Concurrency",
     "apiSettings.advancedSettings": "Advanced settings",
     "apiSettings.concurrencyValue": "concurrency {concurrency}",
@@ -2920,6 +2923,8 @@
     "apiSettings.modeImagesShort": "Direkt",
     "apiSettings.imageModel": "Bildgenerierungsmodell",
     "apiSettings.concurrency": "Parallelit\xE4tslimit",
+    "apiSettings.svgAuthorModel": "SVG-Erstellungsmodell",
+    "apiSettings.invalidSvgAuthorModel": "Gib eine g\xFCltige SVG-Modell-ID ohne Leerzeichen ein.",
     "apiSettings.concurrencyShort": "Parallelit\xE4t",
     "apiSettings.remoteModelName": "Modellname beim Anbieter",
     "apiSettings.fetchModels": "Modelle abrufen",
@@ -3270,6 +3275,7 @@
     "ux.recovery.input": "Prompt, Referenzdateien und Generierungseinstellungen auf nicht unterst\xFCtzte Eingaben pr\xFCfen.",
     "ux.recovery.quota": "Kontingent oder Kontostand des Aufgabenanbieters pr\xFCfen.",
     "ux.recovery.temporary": "Generierung nicht abgeschlossen. Erfolgreiche Bilder bleiben erhalten; fehlgeschlagene Bilder bei Verf\xFCgbarkeit erneut versuchen.",
+    "ux.recovery.svgAuthorModel": "Trage in den API-Einstellungen des Anbieters ein SVG-Erstellungsmodell ein, das dein OpenAI-Projekt verwenden darf, und versuche es erneut.",
     "ux.referenceAdded": "Zu den Referenzen dieser Aufgabe hinzugef\xFCgt",
     "ux.referenceFailed": "Referenz konnte nicht hinzugef\xFCgt werden. Erneut versuchen.",
     "ux.restoreDraft": "Eingaben wiederherstellen",
@@ -4366,6 +4372,8 @@
     "apiSettings.modeImagesShort": "directo",
     "apiSettings.imageModel": "Modelo de generaci\xF3n de im\xE1genes",
     "apiSettings.concurrency": "L\xEDmite de simultaneidad",
+    "apiSettings.svgAuthorModel": "Modelo de creaci\xF3n SVG",
+    "apiSettings.invalidSvgAuthorModel": "Introduce un ID de modelo SVG v\xE1lido sin espacios.",
     "apiSettings.concurrencyShort": "concurrencia",
     "apiSettings.remoteModelName": "Modelo del proveedor",
     "apiSettings.fetchModels": "Obtener modelos",
@@ -4716,6 +4724,7 @@
     "ux.recovery.input": "Revisa si el prompt, los archivos de referencia o los ajustes contienen entradas no compatibles.",
     "ux.recovery.quota": "Revisa la cuota o el saldo del proveedor de la tarea.",
     "ux.recovery.temporary": "La generaci\xF3n no se complet\xF3. Se conservan las im\xE1genes correctas; reintenta las fallidas cuando sea posible.",
+    "ux.recovery.svgAuthorModel": "Indica en la configuraci\xF3n de la API del proveedor un modelo de creaci\xF3n SVG disponible en tu proyecto de OpenAI y vuelve a intentarlo.",
     "ux.referenceAdded": "A\xF1adido a las referencias de esta tarea",
     "ux.referenceFailed": "No se pudo a\xF1adir la referencia. Int\xE9ntalo de nuevo.",
     "ux.restoreDraft": "Restaurar entradas",
@@ -5812,6 +5821,8 @@
     "apiSettings.modeImagesShort": "Direct",
     "apiSettings.imageModel": "Mod\xE8le de g\xE9n\xE9ration d\u2019images",
     "apiSettings.concurrency": "Limite de simultan\xE9it\xE9",
+    "apiSettings.svgAuthorModel": "Mod\xE8le de cr\xE9ation SVG",
+    "apiSettings.invalidSvgAuthorModel": "Saisissez un identifiant de mod\xE8le SVG valide sans espaces.",
     "apiSettings.concurrencyShort": "Concurrence",
     "apiSettings.remoteModelName": "Nom du mod\xE8le du fournisseur",
     "apiSettings.fetchModels": "Obtenir les mod\xE8les",
@@ -6162,6 +6173,7 @@
     "ux.recovery.input": "V\xE9rifiez les entr\xE9es non prises en charge dans le prompt, les fichiers de r\xE9f\xE9rence et les param\xE8tres.",
     "ux.recovery.quota": "V\xE9rifiez le quota ou le solde du fournisseur de la t\xE2che.",
     "ux.recovery.temporary": "G\xE9n\xE9ration incompl\xE8te. Les images r\xE9ussies sont conserv\xE9es ; relancez celles en \xE9chec si possible.",
+    "ux.recovery.svgAuthorModel": "Dans les param\xE8tres API du fournisseur, indiquez un mod\xE8le de cr\xE9ation SVG autoris\xE9 pour votre projet OpenAI, puis r\xE9essayez.",
     "ux.referenceAdded": "Ajout\xE9 aux r\xE9f\xE9rences de cette t\xE2che",
     "ux.referenceFailed": "Impossible d\u2019ajouter la r\xE9f\xE9rence. R\xE9essayez.",
     "ux.restoreDraft": "Restaurer les entr\xE9es",
@@ -7258,6 +7270,8 @@
     "apiSettings.modeImagesShort": "\u76F4\u7D50",
     "apiSettings.imageModel": "\u753B\u50CF\u751F\u6210\u30E2\u30C7\u30EB",
     "apiSettings.concurrency": "\u540C\u6642\u5B9F\u884C\u4E0A\u9650",
+    "apiSettings.svgAuthorModel": "SVG \u4F5C\u6210\u30E2\u30C7\u30EB",
+    "apiSettings.invalidSvgAuthorModel": "\u30B9\u30DA\u30FC\u30B9\u3092\u542B\u307E\u306A\u3044\u6709\u52B9\u306A SVG \u30E2\u30C7\u30EB ID \u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "apiSettings.concurrencyShort": "\u540C\u6642\u5B9F\u884C",
     "apiSettings.remoteModelName": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u30E2\u30C7\u30EB\u540D",
     "apiSettings.fetchModels": "\u30E2\u30C7\u30EB\u3092\u53D6\u5F97",
@@ -7608,6 +7622,7 @@
     "ux.recovery.input": "\u30D7\u30ED\u30F3\u30D7\u30C8\u3001\u53C2\u7167\u30D5\u30A1\u30A4\u30EB\u3001\u751F\u6210\u8A2D\u5B9A\u306B\u975E\u5BFE\u5FDC\u306E\u5165\u529B\u304C\u306A\u3044\u304B\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "ux.recovery.quota": "\u30BF\u30B9\u30AF\u306E\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E\u5229\u7528\u67A0\u3084\u6B8B\u9AD8\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "ux.recovery.temporary": "\u751F\u6210\u304C\u5B8C\u4E86\u3057\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u6210\u529F\u3057\u305F\u753B\u50CF\u306F\u4FDD\u6301\u3055\u308C\u307E\u3059\u3002\u5229\u7528\u53EF\u80FD\u306A\u5834\u5408\u306F\u5931\u6557\u5206\u3092\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+    "ux.recovery.svgAuthorModel": "\u30D7\u30ED\u30D0\u30A4\u30C0\u30FC\u306E API \u8A2D\u5B9A\u3067\u3001OpenAI \u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304C\u5229\u7528\u3067\u304D\u308B SVG \u4F5C\u6210\u30E2\u30C7\u30EB\u3092\u5165\u529B\u3057\u3066\u304B\u3089\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "ux.referenceAdded": "\u3053\u306E\u30BF\u30B9\u30AF\u306E\u53C2\u7167\u306B\u8FFD\u52A0\u3057\u307E\u3057\u305F",
     "ux.referenceFailed": "\u53C2\u7167\u3092\u8FFD\u52A0\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u518D\u8A66\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
     "ux.restoreDraft": "\u5165\u529B\u3092\u5FA9\u5143",
@@ -8704,6 +8719,8 @@
     "apiSettings.modeImagesShort": "\uC9C1\uC811 \uC5F0\uACB0",
     "apiSettings.imageModel": "\uC774\uBBF8\uC9C0 \uC0DD\uC131 \uBAA8\uB378",
     "apiSettings.concurrency": "\uB3D9\uC2DC \uC2E4\uD589 \uD55C\uB3C4",
+    "apiSettings.svgAuthorModel": "SVG \uC791\uC131 \uBAA8\uB378",
+    "apiSettings.invalidSvgAuthorModel": "\uACF5\uBC31 \uC5C6\uC774 \uC720\uD6A8\uD55C SVG \uBAA8\uB378 ID\uB97C \uC785\uB825\uD558\uC138\uC694.",
     "apiSettings.concurrencyShort": "\uB3D9\uC2DC \uC2E4\uD589",
     "apiSettings.remoteModelName": "\uACF5\uAE09\uC790 \uBAA8\uB378 \uC774\uB984",
     "apiSettings.fetchModels": "\uBAA8\uB378 \uAC00\uC838\uC624\uAE30",
@@ -9054,6 +9071,7 @@
     "ux.recovery.input": "\uD504\uB86C\uD504\uD2B8, \uCC38\uC870 \uD30C\uC77C, \uC0DD\uC131 \uC124\uC815\uC5D0 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uB294 \uC785\uB825\uC774 \uC788\uB294\uC9C0 \uD655\uC778\uD558\uC138\uC694.",
     "ux.recovery.quota": "\uC791\uC5C5 \uACF5\uAE09\uC790\uC758 \uC0AC\uC6A9 \uD55C\uB3C4\uB098 \uACC4\uC815 \uC794\uC561\uC744 \uD655\uC778\uD558\uC138\uC694.",
     "ux.recovery.temporary": "\uC0DD\uC131\uC774 \uC644\uB8CC\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uC131\uACF5\uD55C \uC774\uBBF8\uC9C0\uB294 \uC720\uC9C0\uB429\uB2C8\uB2E4. \uAC00\uB2A5\uD558\uBA74 \uC2E4\uD328\uD55C \uC774\uBBF8\uC9C0\uB97C \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
+    "ux.recovery.svgAuthorModel": "\uACF5\uAE09\uC790\uC758 API \uC124\uC815\uC5D0 OpenAI \uD504\uB85C\uC81D\uD2B8\uC5D0\uC11C \uC0AC\uC6A9\uD560 \uC218 \uC788\uB294 SVG \uC791\uC131 \uBAA8\uB378\uC744 \uC785\uB825\uD55C \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
     "ux.referenceAdded": "\uC774 \uC791\uC5C5\uC758 \uCC38\uC870\uC5D0 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4",
     "ux.referenceFailed": "\uCC38\uC870\uB97C \uCD94\uAC00\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.",
     "ux.restoreDraft": "\uC785\uB825 \uBCF5\uC6D0",
@@ -10150,6 +10168,8 @@
     "apiSettings.modeImagesShort": "Direto",
     "apiSettings.imageModel": "Modelo de gera\xE7\xE3o de imagens",
     "apiSettings.concurrency": "Limite de simultaneidade",
+    "apiSettings.svgAuthorModel": "Modelo de cria\xE7\xE3o de SVG",
+    "apiSettings.invalidSvgAuthorModel": "Insira um ID de modelo SVG v\xE1lido, sem espa\xE7os.",
     "apiSettings.concurrencyShort": "Simultaneidade",
     "apiSettings.remoteModelName": "Modelo do provedor",
     "apiSettings.fetchModels": "Obter modelos",
@@ -10500,6 +10520,7 @@
     "ux.recovery.input": "Verifique entradas incompat\xEDveis no prompt, nos arquivos de refer\xEAncia e nas configura\xE7\xF5es.",
     "ux.recovery.quota": "Verifique a cota ou o saldo do fornecedor da tarefa.",
     "ux.recovery.temporary": "A gera\xE7\xE3o n\xE3o foi conclu\xEDda. As imagens geradas foram mantidas; tente novamente as que falharam quando poss\xEDvel.",
+    "ux.recovery.svgAuthorModel": "Nas configura\xE7\xF5es de API do provedor, informe um modelo de cria\xE7\xE3o de SVG permitido no seu projeto OpenAI e tente novamente.",
     "ux.referenceAdded": "Adicionado \xE0s refer\xEAncias desta tarefa",
     "ux.referenceFailed": "N\xE3o foi poss\xEDvel adicionar a refer\xEAncia. Tente novamente.",
     "ux.restoreDraft": "Restaurar entradas",
@@ -11596,6 +11617,8 @@
     "apiSettings.modeImagesShort": "\u041F\u0440\u044F\u043C\u043E\u0439",
     "apiSettings.imageModel": "\u041C\u043E\u0434\u0435\u043B\u044C \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0439",
     "apiSettings.concurrency": "\u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C\u0430",
+    "apiSettings.svgAuthorModel": "\u041C\u043E\u0434\u0435\u043B\u044C \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F SVG",
+    "apiSettings.invalidSvgAuthorModel": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 ID \u043C\u043E\u0434\u0435\u043B\u0438 SVG \u0431\u0435\u0437 \u043F\u0440\u043E\u0431\u0435\u043B\u043E\u0432.",
     "apiSettings.concurrencyShort": "\u041F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0438\u0437\u043C",
     "apiSettings.remoteModelName": "\u041C\u043E\u0434\u0435\u043B\u044C \u0443 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430",
     "apiSettings.fetchModels": "\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u0438",
@@ -11946,6 +11969,7 @@
     "ux.recovery.input": "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0440\u043E\u043C\u043F\u0442, \u0444\u0430\u0439\u043B\u044B-\u043E\u0431\u0440\u0430\u0437\u0446\u044B \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u043D\u0430 \u043D\u0435\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043C\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435.",
     "ux.recovery.quota": "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043A\u0432\u043E\u0442\u0443 \u0438\u043B\u0438 \u0431\u0430\u043B\u0430\u043D\u0441 \u0443 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0437\u0430\u0434\u0430\u0447\u0438.",
     "ux.recovery.temporary": "\u0413\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u043D\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0423\u0441\u043F\u0435\u0448\u043D\u044B\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B; \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u044B\u0435, \u0435\u0441\u043B\u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E.",
+    "ux.recovery.svgAuthorModel": "\u0412 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430\u0445 API \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043C\u043E\u0434\u0435\u043B\u044C \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F SVG, \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0443\u044E \u0432\u0430\u0448\u0435\u043C\u0443 \u043F\u0440\u043E\u0435\u043A\u0442\u0443 OpenAI, \u0438 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
     "ux.referenceAdded": "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u043A \u043E\u0431\u0440\u0430\u0437\u0446\u0430\u043C \u044D\u0442\u043E\u0439 \u0437\u0430\u0434\u0430\u0447\u0438",
     "ux.referenceFailed": "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u043E\u0431\u0440\u0430\u0437\u0435\u0446. \u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0443.",
     "ux.restoreDraft": "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0432\u043E\u0434",
@@ -13042,6 +13066,8 @@
     "apiSettings.modeImagesShort": "Diretto",
     "apiSettings.imageModel": "Modello di generazione immagini",
     "apiSettings.concurrency": "Limite di concorrenza",
+    "apiSettings.svgAuthorModel": "Modello di creazione SVG",
+    "apiSettings.invalidSvgAuthorModel": "Inserisci un ID di modello SVG valido senza spazi.",
     "apiSettings.concurrencyShort": "Concorrenza",
     "apiSettings.remoteModelName": "Modello del fornitore",
     "apiSettings.fetchModels": "Ottieni modelli",
@@ -13392,6 +13418,7 @@
     "ux.recovery.input": "Controlla che prompt, file di riferimento e impostazioni non contengano input non supportati.",
     "ux.recovery.quota": "Controlla la quota o il saldo del fornitore dell'attivit\xE0.",
     "ux.recovery.temporary": "Generazione incompleta. Le immagini riuscite sono conservate; riprova quelle non riuscite quando possibile.",
+    "ux.recovery.svgAuthorModel": "Nelle impostazioni API del fornitore, inserisci un modello di creazione SVG consentito nel tuo progetto OpenAI, poi riprova.",
     "ux.referenceAdded": "Aggiunto ai riferimenti dell'attivit\xE0",
     "ux.referenceFailed": "Impossibile aggiungere il riferimento. Riprova.",
     "ux.restoreDraft": "Ripristina input",
@@ -14488,6 +14515,8 @@
     "apiSettings.modeImagesShort": "\u092A\u094D\u0930\u0924\u094D\u092F\u0915\u094D\u0937",
     "apiSettings.imageModel": "\u091B\u0935\u093F \u0928\u093F\u0930\u094D\u092E\u093E\u0923 \u092E\u0949\u0921\u0932",
     "apiSettings.concurrency": "\u0938\u092E\u0935\u0930\u094D\u0924\u0940 \u0938\u0940\u092E\u093E",
+    "apiSettings.svgAuthorModel": "SVG \u092C\u0928\u093E\u0928\u0947 \u0935\u093E\u0932\u093E \u092E\u0949\u0921\u0932",
+    "apiSettings.invalidSvgAuthorModel": "\u092C\u093F\u0928\u093E \u0938\u094D\u092A\u0947\u0938 \u0935\u093E\u0932\u0940 \u092E\u093E\u0928\u094D\u092F SVG \u092E\u0949\u0921\u0932 \u0906\u0908\u0921\u0940 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902\u0964",
     "apiSettings.concurrencyShort": "\u0938\u092E\u0935\u0930\u094D\u0924\u0940",
     "apiSettings.remoteModelName": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u092E\u0949\u0921\u0932 \u0928\u093E\u092E",
     "apiSettings.fetchModels": "\u092E\u0949\u0921\u0932 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0915\u0930\u0947\u0902",
@@ -14838,6 +14867,7 @@
     "ux.recovery.input": "\u092A\u094D\u0930\u0949\u092E\u094D\u092A\u094D\u091F, \u0938\u0902\u0926\u0930\u094D\u092D \u092B\u093C\u093E\u0907\u0932\u094B\u0902 \u0914\u0930 \u091C\u0928\u0930\u0947\u0936\u0928 \u0938\u0947\u091F\u093F\u0902\u0917 \u092E\u0947\u0902 \u0905\u0938\u092E\u0930\u094D\u0925\u093F\u0924 \u0907\u0928\u092A\u0941\u091F \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
     "ux.recovery.quota": "\u0915\u093E\u0930\u094D\u092F \u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u093E \u0915\u094B\u091F\u093E \u092F\u093E \u0916\u093E\u0924\u0947 \u0915\u093E \u0936\u0947\u0937 \u091C\u093E\u0901\u091A\u0947\u0902\u0964",
     "ux.recovery.temporary": "\u091C\u0928\u0930\u0947\u0936\u0928 \u092A\u0942\u0930\u093E \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0938\u092B\u0932 \u091A\u093F\u0924\u094D\u0930 \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924 \u0939\u0948\u0902; \u0909\u092A\u0932\u092C\u094D\u0927 \u0939\u094B\u0928\u0947 \u092A\u0930 \u0935\u093F\u092B\u0932 \u091A\u093F\u0924\u094D\u0930 \u092B\u093F\u0930 \u092C\u0928\u093E\u090F\u0901\u0964",
+    "ux.recovery.svgAuthorModel": "\u092A\u094D\u0930\u0926\u093E\u0924\u093E \u0915\u0940 API \u0938\u0947\u091F\u093F\u0902\u0917 \u092E\u0947\u0902 \u0910\u0938\u093E SVG \u092E\u0949\u0921\u0932 \u0926\u0930\u094D\u091C \u0915\u0930\u0947\u0902 \u091C\u093F\u0938\u0947 \u0906\u092A\u0915\u093E OpenAI \u092A\u094D\u0930\u094B\u091C\u0947\u0915\u094D\u091F \u0907\u0938\u094D\u0924\u0947\u092E\u093E\u0932 \u0915\u0930 \u0938\u0915\u0947, \u092B\u093F\u0930 \u0926\u094B\u092C\u093E\u0930\u093E \u0915\u094B\u0936\u093F\u0936 \u0915\u0930\u0947\u0902\u0964",
     "ux.referenceAdded": "\u0907\u0938 \u0915\u093E\u0930\u094D\u092F \u0915\u0947 \u0938\u0902\u0926\u0930\u094D\u092D\u094B\u0902 \u092E\u0947\u0902 \u091C\u094B\u0921\u093C\u093E \u0917\u092F\u093E",
     "ux.referenceFailed": "\u0938\u0902\u0926\u0930\u094D\u092D \u0928\u0939\u0940\u0902 \u091C\u094B\u0921\u093C\u093E \u091C\u093E \u0938\u0915\u093E\u0964 \u092B\u093F\u0930 \u092A\u094D\u0930\u092F\u093E\u0938 \u0915\u0930\u0947\u0902\u0964",
     "ux.restoreDraft": "\u0907\u0928\u092A\u0941\u091F \u092C\u0939\u093E\u0932 \u0915\u0930\u0947\u0902",
@@ -14944,6 +14974,7 @@
     "ux.recovery.quota": "Ki\u1EC3m tra h\u1EA1n m\u1EE9c ho\u1EB7c s\u1ED1 d\u01B0 t\xE0i kho\u1EA3n c\u1EE7a nh\xE0 cung c\u1EA5p.",
     "ux.recovery.input": "Ki\u1EC3m tra l\u1EDDi nh\u1EAFc, t\u1EC7p tham chi\u1EBFu v\xE0 th\xF4ng s\u1ED1 t\u1EA1o \u1EA3nh.",
     "ux.recovery.temporary": "T\u1EA1o \u1EA3nh ch\u01B0a ho\xE0n t\u1EA5t. \u1EA2nh th\xE0nh c\xF4ng \u0111\u01B0\u1EE3c gi\u1EEF l\u1EA1i; c\xF3 th\u1EC3 th\u1EED l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
+    "ux.recovery.svgAuthorModel": "Trong c\xE0i \u0111\u1EB7t API c\u1EE7a nh\xE0 cung c\u1EA5p, nh\u1EADp m\xF4 h\xECnh t\u1EA1o SVG m\xE0 d\u1EF1 \xE1n OpenAI c\u1EE7a b\u1EA1n \u0111\u01B0\u1EE3c ph\xE9p s\u1EED d\u1EE5ng r\u1ED3i th\u1EED l\u1EA1i.",
     "ux.checkProvider": "Ki\u1EC3m tra nh\xE0 cung c\u1EA5p",
     "ux.acceptDetail": "Gi\u1EEF \u1EA3nh th\xE0nh c\xF4ng v\xE0 k\u1EBFt th\xFAc t\xE1c v\u1EE5 m\xE0 kh\xF4ng t\u1EA1o l\u1EA1i \u1EA3nh th\u1EA5t b\u1EA1i.",
     "ux.editInputs": "S\u1EEDa \u0111\u1EA7u v\xE0o v\xE0 thi\u1EBFt l\u1EADp",
@@ -16096,6 +16127,8 @@
     "apiSettings.modeImagesShort": "Tr\u1EF1c ti\u1EBFp",
     "apiSettings.imageModel": "M\xF4 h\xECnh h\xECnh \u1EA3nh",
     "apiSettings.concurrency": "Gi\u1EDBi h\u1EA1n \u0111\u1ED3ng th\u1EDDi c\u1EE7a provider",
+    "apiSettings.svgAuthorModel": "M\xF4 h\xECnh t\u1EA1o SVG",
+    "apiSettings.invalidSvgAuthorModel": "Nh\u1EADp ID m\xF4 h\xECnh SVG h\u1EE3p l\u1EC7 kh\xF4ng ch\u1EE9a d\u1EA5u c\xE1ch.",
     "apiSettings.concurrencyShort": "\u0110\u1ED3ng th\u1EDDi",
     "apiSettings.advancedSettings": "C\xE0i \u0111\u1EB7t n\xE2ng cao",
     "apiSettings.concurrencyValue": "{concurrency} \u0111\u1ED3ng th\u1EDDi",
@@ -16390,6 +16423,7 @@
     "ux.recovery.quota": "\u989D\u5EA6\u6216\u8D26\u6237\u4F59\u989D\u4E0D\u8DB3\u3002\u8BF7\u68C0\u67E5\u4EFB\u52A1\u4F9B\u5E94\u5546\u7684\u8D26\u6237\u9650\u5236\u3002",
     "ux.recovery.input": "\u8BF7\u6C42\u8F93\u5165\u4E0D\u53D7\u652F\u6301\u3002\u8BF7\u68C0\u67E5\u63D0\u793A\u8BCD\u3001\u53C2\u8003\u6587\u4EF6\u548C\u751F\u6210\u53C2\u6570\u3002",
     "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u56FE\u7247\u4F1A\u4FDD\u7559\uFF1B\u53EF\u91CD\u8BD5\u5931\u8D25\u56FE\u7247\u3002",
+    "ux.recovery.svgAuthorModel": "\u8BF7\u5728\u8BE5\u4F9B\u5E94\u5546\u7684 API \u8BBE\u7F6E\u4E2D\u586B\u5199 OpenAI \u9879\u76EE\u53EF\u7528\u7684 SVG \u7ED8\u5236\u6A21\u578B\uFF0C\u7136\u540E\u91CD\u8BD5\u3002",
     "ux.checkProvider": "\u68C0\u67E5\u4F9B\u5E94\u5546\u8BBE\u7F6E",
     "ux.acceptDetail": "\u4FDD\u7559\u5DF2\u6210\u529F\u56FE\u7247\u5E76\u7ED3\u675F\u4EFB\u52A1\uFF0C\u4E0D\u518D\u8865\u9F50\u5931\u8D25\u56FE\u7247\u3002",
     "ux.editInputs": "\u4FEE\u6539\u8F93\u5165\u4E0E\u53C2\u6570",
@@ -17542,6 +17576,8 @@
     "apiSettings.modeImagesShort": "\u76F4\u8FDE",
     "apiSettings.imageModel": "\u56FE\u50CF\u751F\u6210\u6A21\u578B",
     "apiSettings.concurrency": "\u5E76\u53D1\u4E0A\u9650",
+    "apiSettings.svgAuthorModel": "SVG \u7ED8\u5236\u6A21\u578B",
+    "apiSettings.invalidSvgAuthorModel": "\u8BF7\u8F93\u5165\u4E0D\u542B\u7A7A\u683C\u7684\u6709\u6548 SVG \u6A21\u578B ID\u3002",
     "apiSettings.concurrencyShort": "\u5E76\u53D1",
     "apiSettings.advancedSettings": "\u9AD8\u7EA7\u8BBE\u7F6E",
     "apiSettings.concurrencyValue": "\u5E76\u53D1 {concurrency}",
@@ -18895,6 +18931,8 @@
     "apiSettings.modeImagesShort": "\u76F4\u9023",
     "apiSettings.imageModel": "\u5F71\u50CF\u751F\u6210\u6A21\u578B",
     "apiSettings.concurrency": "\u4E26\u767C\u4E0A\u9650",
+    "apiSettings.svgAuthorModel": "SVG \u7E6A\u88FD\u6A21\u578B",
+    "apiSettings.invalidSvgAuthorModel": "\u8ACB\u8F38\u5165\u4E0D\u542B\u7A7A\u683C\u7684\u6709\u6548 SVG \u6A21\u578B ID\u3002",
     "apiSettings.concurrencyShort": "\u4E26\u767C",
     "apiSettings.advancedSettings": "\u9032\u968E\u8A2D\u5B9A",
     "apiSettings.concurrencyValue": "\u4F75\u767C{concurrency}",
@@ -19187,6 +19225,7 @@
     "ux.recovery.input": "\u4E0D\u652F\u63F4\u6B64\u8ACB\u6C42\u8F38\u5165\u3002\u8ACB\u6AA2\u67E5\u63D0\u793A\u8A5E\u3001\u53C3\u8003\u6A94\u6848\u548C\u751F\u6210\u53C3\u6578\u3002",
     "ux.recovery.quota": "\u984D\u5EA6\u6216\u5E33\u6236\u9918\u984D\u4E0D\u8DB3\u3002\u8ACB\u6AA2\u67E5\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684\u5E33\u6236\u9650\u5236\u3002",
     "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u5716\u7247\u6703\u4FDD\u7559\uFF1B\u53EF\u91CD\u8A66\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.recovery.svgAuthorModel": "\u8ACB\u5728\u8A72\u4F9B\u61C9\u5546\u7684 API \u8A2D\u5B9A\u4E2D\u586B\u5BEB OpenAI \u5C08\u6848\u53EF\u7528\u7684 SVG \u7E6A\u88FD\u6A21\u578B\uFF0C\u7136\u5F8C\u91CD\u8A66\u3002",
     "ux.referenceAdded": "\u5DF2\u52A0\u5165\u672C\u6B21\u53C3\u8003\u8F38\u5165",
     "ux.referenceFailed": "\u672A\u80FD\u52A0\u5165\u53C3\u8003\u5716\uFF0C\u8ACB\u91CD\u8A66\u3002",
     "ux.restoreDraft": "\u9084\u539F\u8F38\u5165",
@@ -20341,6 +20380,8 @@
     "apiSettings.modeImagesShort": "\u76F4\u9023",
     "apiSettings.imageModel": "\u5F71\u50CF\u751F\u6210\u6A21\u578B",
     "apiSettings.concurrency": "\u4E26\u767C\u4E0A\u9650",
+    "apiSettings.svgAuthorModel": "SVG \u7E6A\u88FD\u6A21\u578B",
+    "apiSettings.invalidSvgAuthorModel": "\u8ACB\u8F38\u5165\u4E0D\u542B\u7A7A\u683C\u7684\u6709\u6548 SVG \u6A21\u578B ID\u3002",
     "apiSettings.concurrencyShort": "\u4E26\u767C",
     "apiSettings.advancedSettings": "\u9032\u968E\u8A2D\u5B9A",
     "apiSettings.concurrencyValue": "\u4F75\u767C{concurrency}",
@@ -20633,6 +20674,7 @@
     "ux.recovery.input": "\u4E0D\u652F\u63F4\u6B64\u8ACB\u6C42\u8F38\u5165\u3002\u8ACB\u6AA2\u67E5\u63D0\u793A\u8A5E\u3001\u53C3\u8003\u6A94\u6848\u548C\u751F\u6210\u53C3\u6578\u3002",
     "ux.recovery.quota": "\u984D\u5EA6\u6216\u5E33\u6236\u9918\u984D\u4E0D\u8DB3\u3002\u8ACB\u6AA2\u67E5\u4EFB\u52D9\u4F9B\u61C9\u5546\u7684\u5E33\u6236\u9650\u5236\u3002",
     "ux.recovery.temporary": "\u751F\u6210\u672A\u5B8C\u6210\u3002\u5DF2\u6210\u529F\u7684\u5716\u7247\u6703\u4FDD\u7559\uFF1B\u53EF\u91CD\u8A66\u5931\u6557\u7684\u5716\u7247\u3002",
+    "ux.recovery.svgAuthorModel": "\u8ACB\u5728\u8A72\u4F9B\u61C9\u5546\u7684 API \u8A2D\u5B9A\u4E2D\u586B\u5BEB OpenAI \u5C08\u6848\u53EF\u7528\u7684 SVG \u7E6A\u88FD\u6A21\u578B\uFF0C\u7136\u5F8C\u91CD\u8A66\u3002",
     "ux.referenceAdded": "\u5DF2\u52A0\u5165\u672C\u6B21\u53C3\u8003\u8F38\u5165",
     "ux.referenceFailed": "\u672A\u80FD\u52A0\u5165\u53C3\u8003\u5716\uFF0C\u8ACB\u91CD\u8A66\u3002",
     "ux.restoreDraft": "\u9084\u539F\u8F38\u5165",
@@ -21505,6 +21547,7 @@
 
   // codex_image/webui/frontend/src/task-recovery.ts
   function taskRecoveryKind(task) {
+    if (task?.generation_error?.code === "svg_author_model_rejected") return "svgAuthorModel";
     const text = String(task?.error || task?.last_error || "").toLowerCase();
     const statusMatch = text.match(/\bhttp(?:\s+(?:error|status))?\s*[:=]?\s*(\d{3})\b/) || text.match(/\bstatus(?:\s+code)?\s*[:=]\s*(\d{3})\b/);
     const status = statusMatch ? Number(statusMatch[1]) : null;
@@ -26875,6 +26918,8 @@
       cancelApiProviderEditButton: document.querySelector("#cancelApiProviderEditButton"),
       saveApiProviderEditButton: document.querySelector("#saveApiProviderEditButton"),
       apiBaseUrl: document.querySelector("#apiBaseUrl"),
+      apiSvgAuthorModel: document.querySelector("#apiSvgAuthorModel"),
+      apiSvgAuthorModelField: document.querySelector("#apiSvgAuthorModelField"),
       providerBindingsCount: document.querySelector("#providerBindingsCount"),
       apiKey: document.querySelector("#apiKey"),
       apiKeyRevealButton: document.querySelector("#apiKeyRevealButton"),
@@ -30272,6 +30317,7 @@
       api_key_masked: String(provider.api_key_masked || ""),
       api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim(),
       icon_emoji: String(provider.icon_emoji || "").trim(),
+      svg_author_model: String(provider.svg_author_model || "").trim(),
       default_model_ids: Array.isArray(provider.default_model_ids) ? provider.default_model_ids.map((value) => String(value || "").trim()).filter(Boolean) : []
     };
   }
@@ -30374,6 +30420,7 @@
           icon_emoji: provider.icon_emoji || "",
           base_url: provider.base_url,
           concurrency: provider.concurrency,
+          svg_author_model: provider.svg_author_model,
           bindings: provider.bindings
         };
         if (provider.api_key || !provider.api_key_set) item.api_key = provider.api_key;
@@ -30401,6 +30448,7 @@
         throw new Error(translate("apiSettings.defaultMappingInvalid"));
       }
       if (detail === "api_key_required") throw new Error(translate("apiSettings.apiKeyRequired"));
+      if (detail === "invalid_svg_author_model") throw new Error(translate("apiSettings.invalidSvgAuthorModel"));
       if (detail === "api_key_origin_change_confirmation_required") {
         throw new Error(translate("apiSettings.originChangeConfirmationRequired"));
       }
@@ -31760,6 +31808,15 @@
   function apiProviderEditorActive() {
     return Boolean(state4.apiProviderEditingId && state4.apiProviderDraft);
   }
+  function syncSvgAuthorModelVisibility() {
+    let official = false;
+    try {
+      const url = new URL(els6.apiBaseUrl?.value || DEFAULT_API_BASE_URL);
+      official = url.origin === "https://api.openai.com" && !url.username && !url.password;
+    } catch {
+    }
+    els6.apiSvgAuthorModelField?.classList.toggle("hidden", !official);
+  }
   function draftProviderFromForm() {
     const draft2 = state4.apiProviderDraft || activeApiProvider();
     const bindingCards = readProviderBindingCards(els6.apiProviderBindings);
@@ -31768,6 +31825,7 @@
       name: els6.apiProviderName?.value || draft2.name,
       icon_emoji: els6.apiProviderIconEmoji ? els6.apiProviderIconEmoji.value : draft2.icon_emoji,
       base_url: els6.apiBaseUrl?.value || DEFAULT_API_BASE_URL,
+      svg_author_model: els6.apiSvgAuthorModel?.value ?? draft2.svg_author_model,
       api_key: els6.apiKey?.value || "",
       concurrency: normalizeApiImagesConcurrency(els6.apiImagesConcurrency?.value),
       bindings: bindingCards,
@@ -31781,6 +31839,8 @@
     if (els6.apiProviderName) els6.apiProviderName.value = provider.name || "";
     if (els6.apiProviderIconEmoji) els6.apiProviderIconEmoji.value = provider.icon_emoji || "";
     if (els6.apiBaseUrl) els6.apiBaseUrl.value = provider.base_url || DEFAULT_API_BASE_URL;
+    if (els6.apiSvgAuthorModel) els6.apiSvgAuthorModel.value = provider.svg_author_model || "";
+    syncSvgAuthorModelVisibility();
     if (els6.apiImagesConcurrency) els6.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
     if (els6.apiKey) {
       els6.apiKey.value = provider.api_key || "";
@@ -32594,6 +32654,7 @@
     if (apiSettingsFeatureInitialized) return;
     apiSettingsFeatureInitialized = true;
     const { els: els11, state: state6 } = getLegacyBridge();
+    els11.apiBaseUrl?.addEventListener("input", syncSvgAuthorModelVisibility);
     initProviderModelDiscovery({
       container: els11.apiProviderBindings,
       connectionInputs: [els11.apiBaseUrl, els11.apiKey],

@@ -6,6 +6,7 @@ export interface ApiProviderDraft {
   image_model: string; api_mode: string; images_concurrency: number;
   api_key_set: boolean; api_key_masked: string; api_key_source_provider_id: string;
   icon_emoji: string; default_model_ids: string[];
+  svg_author_model: string;
 }
 
 export interface ApiProviderSettings {
@@ -50,6 +51,7 @@ export function normalizeApiProvider(provider: any = {}, index: number = 0): Api
     api_key_masked: String(provider.api_key_masked || ""),
     api_key_source_provider_id: String(provider.api_key_source_provider_id || "").trim(),
     icon_emoji: String(provider.icon_emoji || "").trim(),
+    svg_author_model: String(provider.svg_author_model || "").trim(),
     default_model_ids: Array.isArray(provider.default_model_ids)
       ? provider.default_model_ids.map((value: any) => String(value || "").trim()).filter(Boolean)
       : [],

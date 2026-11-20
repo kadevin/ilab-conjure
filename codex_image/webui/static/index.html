@@ -122,7 +122,7 @@
       })();
     </script>
     <script src="/static/appearance-bootstrap.js?v=2"></script>
-    <link rel="stylesheet" href="/static/styles.css?v=runtime-928" />
+    <link rel="stylesheet" href="/static/styles.css?v=runtime-929" />
   </head>
   <body>
     <div class="layout-container">
@@ -1114,6 +1114,10 @@
                     </button>
                   </div>
                 </label>
+                <label id="apiSvgAuthorModelField" class="field api-svg-author-model-field hidden">
+                  <span data-i18n="apiSettings.svgAuthorModel">SVG 绘制模型</span>
+                  <input id="apiSvgAuthorModel" class="control" type="text" maxlength="128" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="gpt-6-luna" />
+                </label>
                 <section class="provider-bindings-editor" aria-labelledby="providerBindingsTitle">
                   <div class="provider-bindings-header">
                     <div class="provider-bindings-title-row">
@@ -1608,7 +1612,7 @@
     </div>
 
     <div id="taskNotificationToastRegion" class="task-notification-toast-region" aria-live="polite"></div>
-  <script src="/static/app.js?v=runtime-915"></script>
+  <script src="/static/app.js?v=runtime-916"></script>
     <script>
       (() => {
         document.querySelectorAll(".radio-group").forEach((group) => {

@@ -201,6 +201,17 @@ function apiProviderEditorActive(): boolean {
   return Boolean(state.apiProviderEditingId && state.apiProviderDraft);
 }
 
+export function syncSvgAuthorModelVisibility(): void {
+  let official = false;
+  try {
+    const url = new URL(els.apiBaseUrl?.value || DEFAULT_API_BASE_URL);
+    official = url.origin === "https://api.openai.com" && !url.username && !url.password;
+  } catch {
+    // An incomplete URL is allowed while editing.
+  }
+  els.apiSvgAuthorModelField?.classList.toggle("hidden", !official);
+}
+
 function draftProviderFromForm(): any {
   const draft = state.apiProviderDraft || activeApiProvider();
   const bindingCards = readProviderBindingCards(els.apiProviderBindings);
@@ -209,6 +220,7 @@ function draftProviderFromForm(): any {
     name: els.apiProviderName?.value || draft.name,
     icon_emoji: els.apiProviderIconEmoji ? els.apiProviderIconEmoji.value : draft.icon_emoji,
     base_url: els.apiBaseUrl?.value || DEFAULT_API_BASE_URL,
+    svg_author_model: els.apiSvgAuthorModel?.value ?? draft.svg_author_model,
     api_key: els.apiKey?.value || "",
     concurrency: normalizeApiImagesConcurrency(els.apiImagesConcurrency?.value),
     bindings: bindingCards,
@@ -223,6 +235,8 @@ function writeProviderForm(provider: any): void {
   if (els.apiProviderName) els.apiProviderName.value = provider.name || "";
   if (els.apiProviderIconEmoji) els.apiProviderIconEmoji.value = provider.icon_emoji || "";
   if (els.apiBaseUrl) els.apiBaseUrl.value = provider.base_url || DEFAULT_API_BASE_URL;
+  if (els.apiSvgAuthorModel) els.apiSvgAuthorModel.value = provider.svg_author_model || "";
+  syncSvgAuthorModelVisibility();
   if (els.apiImagesConcurrency) els.apiImagesConcurrency.value = String(normalizeApiImagesConcurrency(provider.concurrency ?? provider.images_concurrency));
   if (els.apiKey) {
     els.apiKey.value = provider.api_key || "";

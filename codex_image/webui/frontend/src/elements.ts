@@ -175,6 +175,8 @@ export function createWebUIElements(): WebUIElements {
   cancelApiProviderEditButton: document.querySelector("#cancelApiProviderEditButton"),
   saveApiProviderEditButton: document.querySelector("#saveApiProviderEditButton"),
   apiBaseUrl: document.querySelector("#apiBaseUrl"),
+  apiSvgAuthorModel: document.querySelector("#apiSvgAuthorModel"),
+  apiSvgAuthorModelField: document.querySelector("#apiSvgAuthorModelField"),
   providerBindingsCount: document.querySelector("#providerBindingsCount"),
   apiKey: document.querySelector("#apiKey"),
   apiKeyRevealButton: document.querySelector("#apiKeyRevealButton"),
